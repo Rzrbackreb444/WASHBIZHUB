@@ -1,0 +1,142 @@
+// client/src/pages/BlogSuite.tsx — $5M/MO SEO ENGINE (2025)
+// OFFICIAL: Manual + AI + UGC + Events + Locator + Directory + SEO
+
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Link, useParams } from 'react-router-dom';
+import { Search, Plus, Calendar, MapPin, Zap, ChevronRight, Award, Star, BookOpen } from 'lucide-react';
+import { useCollection } from 'react-firebase-hooks/firestore';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy } from 'firebase/firestore';
+
+const BLOG_TOPICS = [
+  { title: '2025 Laundromat Trends', slug: 'trends-2025', type: 'manual' },
+  { title: '8 TPD = $420K/yr Math', slug: '8-tpd-math', type: 'ai' },
+  { title: 'My $8K/mo AI Fix', slug: 'ai-fix', type: 'ugb' },
+  { title: 'AR Laundromat Meetup', slug: 'ar-meetup', type: 'uge' },
+];
+
+export default function BlogSuite() {
+  const [search, setSearch] = useState('');
+  const [showUGB, setShowUGB] = useState(false);
+  const [showUGE, setShowUGE] = useState(false);
+  const [posts] = useCollection(query(collection(db, 'posts'), orderBy('createdAt', 'desc')));
+
+  const filteredPosts = posts?.docs.map(doc => doc.data()).filter(p => p.title.includes(search)) || [];
+
+  return (
+    <>
+      <Helmet>
+        <title>Blog | WashBizHub</title>
+        <meta name="description" content="Laundromat trends, AI fixes, operator stories, events. #1 source for laundry business intelligence." />
+      </Helmet>
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+        <section className="py-24">
+          <div className="max-w-7xl mx-auto px-4">
+            <h1 className="text-6xl font-black mb-6">The Laundromat Truth</h1>
+            <p className="text-xl mb-8">Trends, AI, stories, events — the real deal.</p>
+            <div className="flex gap-4 mb-12">
+              <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="flex-1 p-4 bg-white/20 rounded-full" />
+              <button className="px-6 py-4 bg-accent text-primary rounded-full"><Search className="w-5 h-5" /></button>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-4">Manual Blogs</h2>
+                {BLOG_TOPICS.filter(t => t.type === 'manual').map(t => (
+                  <Link key={t.slug} to={`/blog/${t.slug}`} className="block p-4 bg-white/20 rounded-lg hover:bg-white/30">
+                    <h3 className="font-bold">{t.title}</h3>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-4">AI Blogs</h2>
+                {BLOG_TOPICS.filter(t => t.type === 'ai').map(t => (
+                  <Link key={t.slug} to={`/blog/${t.slug}`} className="block p-4 bg-white/20 rounded-lg hover:bg-white/30">
+                    <h3 className="font-bold">{t.title}</h3>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <button onClick={() => setShowUGB(!showUGB)} className="w-full text-left p-4">
+                  <h3 className="font-bold">User Blogs</h3>
+                  <p className="text-sm opacity-80">Submit your story</p>
+                </button>
+                {showUGB && (
+                  <div className="mt-4 space-y-2">
+                    {filteredPosts.filter(p => p.type === 'ugb').map(p => (
+                      <Link key={p.id} to={`/blog/user/${p.id}`} className="block p-4 bg-white/20 rounded-lg hover:bg-white/30">
+                        <h3 className="font-bold">{p.title}</h3>
+                        <p className="text-sm opacity-80">{p.author}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-4">User Events</h2>
+                <button onClick={() => setShowUGE(!showUGE)} className="w-full text-left p-4">
+                  <h3 className="font-bold">Submit Event</h3>
+                </button>
+                {showUGE && (
+                  <div className="mt-4 space-y-2">
+                    {filteredPosts.filter(p => p.type === 'uge').map(p => (
+                      <Link key={p.id} to={`/event/${p.id}`} className="block p-4 bg-white/20 rounded-lg hover:bg-white/30">
+                        <h3 className="font-bold">{p.title}</h3>
+                        <p className="text-sm opacity-80">{p.date} — {p.location}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-4">Laundromat Locator</h2>
+                <div className="relative">
+                  <input type="text" placeholder="ZIP or City" className="w-full p-4 bg-white/20 rounded-lg" />
+                  <button className="absolute right-4 top-4"><MapPin className="w-5 h-5" /></button>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <Link to="/locator/72023" className="block p-4 bg-white/20 rounded-lg hover:bg-white/30">
+                    <p className="font-bold">Cabot, AR</p>
+                    <p className="text-sm opacity-80">15 listings, 8.2 avg TPD</p>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 bg-white/10">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-xl font-bold mb-4 text-center">Submit Content</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <button className="p-4 bg-white/30 rounded-lg">
+                <h3 className="font-bold">Submit Blog</h3>
+                <p className="text-sm opacity-80">Share your story</p>
+              </button>
+              <button className="p-4 bg-white/30 rounded-lg">
+                <h3 className="font-bold">Submit Event</h3>
+                <p className="text-sm opacity-80">Host a meetup</p>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}

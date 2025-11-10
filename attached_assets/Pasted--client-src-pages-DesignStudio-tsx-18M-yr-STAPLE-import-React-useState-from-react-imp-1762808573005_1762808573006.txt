@@ -1,0 +1,117 @@
+// client/src/pages/DesignStudio.tsx — $18M/yr STAPLE
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { Stage, Layer, Rect, Text, Line, Group } from 'react-konva';
+import { ChevronRight, Lock, Download, Ruler, Grid3x3, Zap } from 'lucide-react';
+
+const SCALE = 10;
+const ROOM = { width: 360, height: 240 };
+
+const BRANDS = {
+  Dexter: [
+    { name: 'T-900', width: 36, depth: 48, price: 8500, color: '#1e40af' },
+    { name: 'T-1200', width: 42, depth: 52, price: 9800, color: '#1e3a8a' },
+  ],
+  'Speed Queen': [
+    { name: 'SFN', width: 34, depth: 46, price: 7200, color: '#dc2626' },
+    { name: 'Stack', width: 30, depth: 36, price: 6500, color: '#b91c1c' },
+  ],
+};
+
+const FURNITURE = [
+  { name: 'Folding Table', width: 72, depth: 30, price: 300, color: '#f59e0b' },
+  { name: 'Chair', width: 24, depth: 24, price: 150, color: '#6b7280' },
+  { name: 'Cart', width: 36, depth: 24, price: 200, color: '#3b82f6' },
+  { name: 'Vending', width: 36, depth: 24, price: 1200, color: '#8b5cf6' },
+  { name: 'Soap Machine', width: 30, depth: 24, price: 800, color: '#84cc16' },
+  { name: 'ATM', width: 24, depth: 30, price: 2500, color: '#ef4444' },
+];
+
+export default function DesignStudio() {
+  const [selectedBrand, setSelectedBrand] = useState('Dexter');
+  const [selectedItem, setSelectedItem] = useState(BRANDS.Dexter[0]);
+  const [layout, setLayout] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [showGrid, setShowGrid] = useState(true);
+  const [showRuler, setShowRuler] = useState(true);
+
+  const addItem = () => {
+    const newItem = {
+      ...selectedItem,
+      id: Date.now(),
+      x: 100,
+      y: 100,
+    };
+    setLayout([...layout, newItem]);
+    setTotal(total + selectedItem.price);
+  };
+
+  const updateItem = (id, updates) => {
+    setLayout(layout.map(item => item.id === id ? { ...item, ...updates } : item));
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Design Studio | WashBizHub</title>
+      </Helmet>
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+        <section className="py-32">
+          <div className="max-w-7xl mx-auto px-4 text-center">
+            <h1 className="text-6xl font-black mb-6">Design Studio</h1>
+            <p className="text-xl mb-8">Drag. Drop. Build your $420K/yr empire.</p>
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+                <select 
+                  value={selectedBrand} 
+                  onChange={e => {
+                    setSelectedBrand(e.target.value);
+                    setSelectedItem(BRANDS[e.target.value][0]);
+                  }}
+                  className="w-full p-3 bg-white/20 rounded-lg"
+                >
+                  {Object.keys(BRANDS).map(b => <option key={b}>{b}</option>)}
+                </select>
+                <select 
+                  onChange={e => setSelectedItem(BRANDS[selectedBrand].find(m => m.name === e.target.value))}
+                  className="w-full p-3 bg-white/20 rounded-lg mt-4"
+                >
+                  {BRANDS[selectedBrand].map(m => (
+                    <option key={m.name}>
+                      {m.name} — ${m.price}
+                    </option>
+                  ))}
+                </select>
+                <button onClick={addItem} className="w-full py-3 bg-accent text-primary rounded-lg mt-4">
+                  Add to Canvas
+                </button>
+              </div>
+
+              <div className="md:col-span-3 bg-white/10 backdrop-blur rounded-xl p-6">
+                <Stage width={900} height={600}>
+                  <Layer>
+                    <Rect x={0} y={0} width={ROOM.width * SCALE} height={ROOM.height * SCALE} fill="#1a1a1a" />
+                    {layout.map(item => (
+                      <Group key={item.id} x={item.x} y={item.y} draggable onDragEnd={e => updateItem(item.id, { x: e.target.x(), y: e.target.y() })}>
+                        <Rect width={item.width * SCALE} height={item.depth * SCALE} fill={item.color} />
+                        <Text text={item.name} y={item.depth * SCALE + 10} width={item.width * SCALE} align="center" fill="#fff" />
+                      </Group>
+                    ))}
+                  </Layer>
+                </Stage>
+                <p className="mt-4 text-xl">Total: ${total.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
