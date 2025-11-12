@@ -19,6 +19,7 @@ import Blog from "@/pages/blog";
 import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
 import Locator from "@/pages/locator";
+import DistributorLocator from "@/pages/distributor-locator";
 import Subscribe from "@/pages/subscribe";
 import Consultation from "@/pages/consultation";
 import Listings from "@/pages/listings";
@@ -43,6 +44,7 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/parts" component={Parts} />
       <Route path="/locator" component={Locator} />
+      <Route path="/distributor-locator" component={DistributorLocator} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={Listings} />
