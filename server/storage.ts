@@ -33,6 +33,10 @@ import {
   type InsertSeoKeyword,
   type CompetitorAnalysis,
   type InsertCompetitorAnalysis,
+  type Consultation,
+  type InsertConsultation,
+  type Listing,
+  type InsertListing,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -134,6 +138,19 @@ export interface IStorage {
   getCompetitorAnalyses(keyword?: string): Promise<CompetitorAnalysis[]>;
   getCompetitorAnalysis(id: string): Promise<CompetitorAnalysis | undefined>;
   createCompetitorAnalysis(analysis: InsertCompetitorAnalysis): Promise<CompetitorAnalysis>;
+  
+  // Consultations
+  getConsultations(userId?: string, status?: string): Promise<Consultation[]>;
+  getConsultation(id: string): Promise<Consultation | undefined>;
+  createConsultation(consultation: InsertConsultation): Promise<Consultation>;
+  updateConsultation(id: string, consultation: Partial<InsertConsultation>): Promise<Consultation>;
+  
+  // Listings (Marketplace)
+  getListings(status?: string, state?: string): Promise<Listing[]>;
+  getListing(id: string): Promise<Listing | undefined>;
+  createListing(listing: InsertListing): Promise<Listing>;
+  updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
+  deleteListing(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -508,6 +525,17 @@ export class MemStorage implements IStorage {
   async getCompetitorAnalyses(): Promise<CompetitorAnalysis[]> { return []; }
   async getCompetitorAnalysis(): Promise<CompetitorAnalysis | undefined> { return undefined; }
   async createCompetitorAnalysis(): Promise<CompetitorAnalysis> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getConsultations(): Promise<Consultation[]> { return []; }
+  async getConsultation(): Promise<Consultation | undefined> { return undefined; }
+  async createConsultation(): Promise<Consultation> { throw new Error("Use DbStorage for premium features"); }
+  async updateConsultation(): Promise<Consultation> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getListings(): Promise<Listing[]> { return []; }
+  async getListing(): Promise<Listing | undefined> { return undefined; }
+  async createListing(): Promise<Listing> { throw new Error("Use DbStorage for premium features"); }
+  async updateListing(): Promise<Listing> { throw new Error("Use DbStorage for premium features"); }
+  async deleteListing(): Promise<void> { throw new Error("Use DbStorage for premium features"); }
 }
 
 // Use DbStorage for production-grade persistence
