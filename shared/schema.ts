@@ -126,6 +126,35 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
 
+// Calculator Scenarios
+export const calculatorScenarios = pgTable("calculator_scenarios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  name: text("name").notNull(),
+  washers: integer("washers").notNull(),
+  dryers: integer("dryers").notNull(),
+  avgWashPrice: decimal("avg_wash_price", { precision: 10, scale: 2 }).notNull(),
+  avgDryPrice: decimal("avg_dry_price", { precision: 10, scale: 2 }).notNull(),
+  turnsPerDay: decimal("turns_per_day", { precision: 5, scale: 2 }).notNull(),
+  utilization: decimal("utilization", { precision: 5, scale: 2 }).notNull(), // Stored as decimal (65.00 = 65%)
+  monthlyExpenses: decimal("monthly_expenses", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCalculatorScenarioSchema = createInsertSchema(calculatorScenarios).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  avgWashPrice: z.string(),
+  avgDryPrice: z.string(),
+  turnsPerDay: z.string(),
+  utilization: z.string(),
+  monthlyExpenses: z.string(),
+});
+
+export type InsertCalculatorScenario = z.infer<typeof insertCalculatorScenarioSchema>;
+export type CalculatorScenario = typeof calculatorScenarios.$inferSelect;
+
 // Marketplace Vendors
 export const vendors = pgTable("vendors", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

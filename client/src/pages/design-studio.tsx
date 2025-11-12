@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,17 +188,35 @@ export default function DesignStudio() {
             <Card className="bg-white/10 backdrop-blur border-white/20">
               <CardContent className="p-12 text-center">
                 <Box className="h-24 w-24 text-accent mx-auto mb-6" />
-                <h3 className="text-3xl font-black text-white mb-4">3D Studio</h3>
+                <h3 className="text-3xl font-black text-white mb-4">3D Studio (Pro)</h3>
                 <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
                   Experience our immersive 3D design studio with React Three Fiber, 
                   360° viewing, and real-time optimization. Available with Pro subscription.
                 </p>
-                <Button 
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg"
-                  data-testid="button-upgrade-pro"
-                >
-                  Upgrade to Pro - $97/month
-                </Button>
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
+                    <div className="bg-white/5 p-4 rounded-md">
+                      <h4 className="font-bold text-white mb-2">Interactive 3D</h4>
+                      <p className="text-sm text-white/60">Rotate, zoom, and walk through your design</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-md">
+                      <h4 className="font-bold text-white mb-2">Real-Time Metrics</h4>
+                      <p className="text-sm text-white/60">See revenue calculations update live</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-md">
+                      <h4 className="font-bold text-white mb-2">AI Optimization</h4>
+                      <p className="text-sm text-white/60">Get AI-powered layout recommendations</p>
+                    </div>
+                  </div>
+                  <Link href="/subscribe">
+                    <Button 
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8 py-6 text-lg"
+                      data-testid="button-upgrade-pro"
+                    >
+                      Upgrade to Pro - $97/month
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

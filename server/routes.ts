@@ -10,6 +10,7 @@ import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
   insertBlogPostSchema,
+  insertCalculatorScenarioSchema,
   insertVendorSchema,
   insertPartSchema,
   insertAffiliateSchema,
@@ -193,6 +194,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { topic, category } = req.body;
       const content = await generateBlogContent(topic, category);
       res.json({ content });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== CALCULATOR SCENARIOS ====================
+  
+  app.get("/api/calculator/scenarios", async (req, res) => {
+    try {
+      const userId = req.query.userId as string | undefined;
+      const scenarios = await storage.getCalculatorScenarios(userId);
+      res.json(scenarios);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/calculator/scenarios/:id", async (req, res) => {
+    try {
+      const scenario = await storage.getCalculatorScenario(req.params.id);
+      if (!scenario) {
+        return res.status(404).json({ message: "Scenario not found" });
+      }
+      res.json(scenario);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/calculator/scenarios", async (req, res) => {
+    try {
+      const validated = insertCalculatorScenarioSchema.parse(req.body);
+      const scenario = await storage.createCalculatorScenario(validated);
+      res.json(scenario);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/calculator/scenarios/:id", async (req, res) => {
+    try {
+      await storage.deleteCalculatorScenario(req.params.id);
+      res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

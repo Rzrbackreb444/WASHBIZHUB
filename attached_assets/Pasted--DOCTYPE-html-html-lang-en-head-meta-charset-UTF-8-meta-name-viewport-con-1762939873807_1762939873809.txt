@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WashBizHub Funding Matcher - Personalized Laundromat Financing 2025</title>
+    <meta name="description" content="Get instant funding matches for your laundromat: SBA 7(a)/504 loans up to $5M, equipment financing from Eastern Funding, microloans, grants for startups/expansions. Based on 2025 rates—compare options for washers, dryers, real estate, and working capital.">
+    <meta name="keywords" content="laundromat SBA loans 2025, equipment financing dry cleaners, commercial laundry grants microloans, laundromat startup funding options, SBA 7(a) 504 laundromat business loans">
+    <!-- Open Graph -->
+    <meta property="og:title" content="WashBizHub Funding Matcher for Laundromats">
+    <meta property="og:description" content="Match with SBA loans, equipment financing, and grants tailored to your laundry business needs.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://washbizhub.com/funding-matcher">
+    <link rel="canonical" href="https://washbizhub.com/funding-matcher">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "WashBizHub Funding Matcher",
+        "description": "Personalized funding recommendations for laundromat businesses",
+        "url": "https://washbizhub.com/funding-matcher"
+    }
+    </script>
+    <style>
+        /* Global Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #333; background: #f9f9f9; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        /* Header */
+        header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: #007bff; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { color: #333; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: #007bff; }
+        /* Hero */
+        .hero { background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%); color: white; padding: 80px 0; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 300; }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        /* Matcher Section */
+        .matcher-section { padding: 60px 0; background: white; }
+        .matcher-card { max-width: 800px; margin: 0 auto; background: #f8f9fa; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .match-header { background: #007bff; color: white; padding: 1.5rem; text-align: center; }
+        .match-header h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .match-header p { opacity: 0.9; }
+        .match-body { padding: 2rem; }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #007bff; }
+        .input-group input, .input-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .input-row { display: flex; gap: 1rem; }
+        .input-row .input-group { flex: 1; }
+        .match-btn { background: #28a745; color: white; padding: 1rem 2rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 500; cursor: pointer; display: block; margin: 2rem auto 0; transition: background 0.3s; }
+        .match-btn:hover { background: #218838; }
+        /* Results Section */
+        .results { margin-top: 2rem; padding: 1.5rem; background: #e9f7ef; border-radius: 10px; display: none; }
+        .results h3 { color: #28a745; margin-bottom: 1rem; text-align: center; }
+        .match-card { background: white; margin-bottom: 1rem; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .match-card h4 { color: #007bff; margin-bottom: 0.5rem; }
+        .match-card p { margin-bottom: 0.5rem; }
+        .match-card a { color: #28a745; font-weight: bold; text-decoration: none; }
+        .match-card a:hover { text-decoration: underline; }
+        .disclaimer { font-size: 0.85rem; color: #666; margin-top: 1.5rem; text-align: center; }
+        /* Info Grid */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+        .info-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); text-align: center; }
+        .info-card h3 { color: #007bff; margin-bottom: 1rem; }
+        /* Footer */
+        footer { background: #333; color: white; padding: 2rem 0; text-align: center; margin-top: 4rem; }
+        .footer-links { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+        .footer-links a { color: #ccc; text-decoration: none; }
+        .footer-links a:hover { color: white; }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .input-row { flex-direction: column; }
+            .hero h1 { font-size: 2.2rem; }
+            .match-header h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">WashBizHub</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#marketplace">Marketplace</a></li>
+                <li><a href="#funding">Funding Matcher</a></li>
+                <li><a href="#financing">Calculator</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Laundromat Funding Matcher 2025</h1>
+            <p>Answer a few questions to match with the best SBA loans, equipment financing, microloans, and grants for your laundry business. Updated with current rates and options like SBA 7(a) up to $5M for equipment and real estate.<grok-card data-id="e51e01" data-type="citation_card"></grok-card><grok-card data-id="2a70d9" data-type="citation_card"></grok-card></p>
+        </div>
+    </section>
+
+    <section class="matcher-section">
+        <div class="container">
+            <div class="matcher-card">
+                <div class="match-header">
+                    <h2>Find Your Ideal Funding</h2>
+                    <p>Get personalized recommendations for laundromat startups, expansions, or equipment upgrades</p>
+                </div>
+                <div class="match-body">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="fundingAmount">Funding Needed ($)</label>
+                            <input type="number" id="fundingAmount" placeholder="e.g., 50000" value="50000">
+                        </div>
+                        <div class="input-group">
+                            <label for="businessStage">Business Stage</label>
+                            <select id="businessStage">
+                                <option value="startup">Startup/New Laundromat</option>
+                                <option value="expansion">Expansion/Upgrade Equipment</option>
+                                <option value="acquisition">Acquisition/Real Estate</option>
+                                <option value="working">Working Capital</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="creditScore">Credit Score Range</label>
+                            <select id="creditScore">
+                                <option value="excellent">Excellent (750+)</option>
+                                <option value="good">Good (700-749)</option>
+                                <option value="fair">Fair (650-699)</option>
+                                <option value="poor">Poor (<650)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="fundingType">Preferred Type</label>
+                            <select id="fundingType">
+                                <option value="">Any</option>
+                                <option value="loan">SBA/Bank Loan (7(a)/504)</option>
+                                <option value="equipment">Equipment Financing</option>
+                                <option value="grant">Grants/Microloans</option>
+                                <option value="lease">Leasing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="location">Location (State)</label>
+                        <input type="text" id="location" placeholder="e.g., CA" value="CA">
+                    </div>
+                    <button class="match-btn" onclick="matchFunding()">Match Funding Options</button>
+
+                    <div id="results" class="results">
+                        <h3>Your Top Matches</h3>
+                        <div id="matchList"></div>
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <button class="match-btn" style="background: #007bff; font-size: 1rem; padding: 0.75rem 1.5rem;" onclick="applyNow()">Apply to Best Match</button>
+                        </div>
+                    </div>
+
+                    <p class="disclaimer">
+                        *Based on 2025 data from SBA and lenders like Eastern Funding. Eligibility varies—get free quotes from partners. Down payments typically 10-20%.<grok-card data-id="e50f83" data-type="citation_card"></grok-card><grok-card data-id="db306e" data-type="citation_card"></grok-card></p>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>SBA 7(a) Loans: Up to $5M</h3>
+                    <p>Versatile for equipment, working capital, real estate. Rates 7-10%, terms up to 25 years. Ideal for startups/expansions.<grok-card data-id="d030bd" data-type="citation_card"></grok-card><grok-card data-id="6671d3" data-type="citation_card"></grok-card><grok-card data-id="a7d738" data-type="citation_card"></grok-card></p>
+                </div>
+                <div class="info-card">
+                    <h3>SBA 504 Loans: Fixed Assets</h3>
+                    <p>For real estate/buildings, equipment. 10-20% down, up to 20 years, $100K-$5M. Great for laundromat purchases.<grok-card data-id="0e10b6" data-type="citation_card"></grok-card><grok-card data-id="64d237" data-type="citation_card"></grok-card><grok-card data-id="353b23" data-type="citation_card"></grok-card></p>
+                </div>
+                <div class="info-card">
+                    <h3>Microloans & Grants: Up to $50K</h3>
+                    <p>SBA microloans for startups/working capital; state grants for green upgrades. No/low down payment.<grok-card data-id="cfd7cc" data-type="citation_card"></grok-card><grok-card data-id="d5290f" data-type="citation_card"></grok-card><grok-card data-id="193734" data-type="citation_card"></grok-card></p>
+                <div class="info-card">
+                    <h3>Equipment Financing: 100% Coverage</h3>
+                    <p>From Eastern Funding/Huebsch: Low rates (4.99%+), terms up to 84 months, no down for qualified buyers.<grok-card data-id="64245a" data-type="citation_card"></grok-card><grok-card data-id="9bccc9" data-type="citation_card"></grok-card><grok-card data-id="a0ae81" data-type="citation_card"></grok-card></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms</a>
+            <a href="/contact">Contact Funding Experts</a>
+        </div>
+        <p>&copy; 2025 WashBizHub. Funding matches are estimates; apply for personalized quotes. SBA data updated for 2025.<grok-card data-id="816fa5" data-type="citation_card"></grok-card></p>
+    </footer>
+
+    <script>
+        // 2025 Funding Options (Updated from Research)
+        const fundingOptions = [
+            {
+                id: 1,
+                name: "SBA 7(a) Loan",
+                desc: "Versatile up to $5M for equipment, working capital, real estate. Rates 7-10%, terms up to 25 years. Ideal for startups/expansions.<grok-card data-id="a2bb32" data-type="citation_card"></grok-card><grok-card data-id="57e4a7" data-type="citation_card"></grok-card><grok-card data-id="a7d5d2" data-type="citation_card"></grok-card>",
+                eligibility: "Good credit (680+), business plan, 10-20% down",
+                amount: "$50K-$5M",
+                link: "https://www.sba.gov/funding-programs/loans/7a-loans",
+                type: "loan",
+                stage: "startup,expansion,acquisition,working",
+                credit: "good,excellent",
+                state: "All"
+            },
+            {
+                id: 2,
+                name: "SBA 504 Loan",
+                desc: "Fixed-rate for fixed assets like real estate/equipment. 10-20% down, up to 20 years, $100K-$5M.<grok-card data-id="20734c" data-type="citation_card"></grok-card><grok-card data-id="148326" data-type="citation_card"></grok-card><grok-card data-id="3633d9" data-type="citation_card"></grok-card>",
+                eligibility: "Established business, job creation focus",
+                amount: "$100K-$5M",
+                link: "https://www.sba.gov/funding-programs/loans/504-loans",
+                type: "loan",
+                stage: "expansion,acquisition",
+                credit: "fair,good",
+                state: "All"
+            },
+            {
+                id: 3,
+                name: "SBA Microloan",
+                desc: "Up to $50K for smaller needs like working capital/inventory. Through nonprofits, low rates.<grok-card data-id="3c014e" data-type="citation_card"></grok-card><grok-card data-id="837c8c" data-type="citation_card"></grok-card><grok-card data-id="88c64d" data-type="citation_card"></grok-card>",
+                eligibility: "Startups, underserved owners, minimal down",
+                amount: "Up to $50K",
+                link: "https://www.sba.gov/funding-programs/loans/microloans",
+                type: "loan",
+                stage: "startup,working",
+                credit: "poor,fair",
+                state: "All"
+            },
+            {
+                id: 4,
+                name: "Eastern Funding Equipment Financing",
+                desc: "100% coverage for washers/dryers, terms up to 84 months, rates 4.99%+. Fast approvals.<grok-card data-id="13986b" data-type="citation_card"></grok-card><grok-card data-id="dd1ed3" data-type="citation_card"></grok-card><grok-card data-id="8a4617" data-type="citation_card"></grok-card>",
+                eligibility: "Industry focus, credit check",
+                amount: "$5K-$1M",
+                link: "https://www.easternfunding.com/laundromat-financing/",
+                type: "equipment",
+                stage: "expansion,acquisition",
+                credit: "fair,good",
+                state: "All"
+            },
+            {
+                id: 5,
+                name: "Lendio Marketplace Loans",
+                desc: "Compare 75+ lenders, $5K-$2M, funded in 24 hours. Includes SBA and alternatives.<grok-card data-id="6795f4" data-type="citation_card"></grok-card><grok-card data-id="ab1a61" data-type="citation_card"></grok-card>",
+                eligibility: "Any stage, flexible credit",
+                amount: "$5K-$2M",
+                link: "https://www.lendio.com/industry/laundromats",
+                type: "loan",
+                stage: "All",
+                credit: "All",
+                state: "All"
+            },
+            {
+                id: 6,
+                name: "State/Local Grants (e.g., NJ Main Street)",
+                desc: "Free money for growth, green upgrades, microloans up to $50K. Check your state.<grok-card data-id="f2d228" data-type="citation_card"></grok-card><grok-card data-id="4014d2" data-type="citation_card"></grok-card>",
+                eligibility: "Local/small businesses, sustainable focus",
+                amount: "$5K-$50K",
+                link: "https://www.njeda.com/main-street-direct-grants/",
+                type: "grant",
+                stage: "startup,expansion",
+                credit: "N/A",
+                state: "NJ,CA,NY,All"
+            },
+            {
+                id: 7,
+                name: "GUD Capital Equipment Loans",
+                desc: "Up to $250K for machinery, 6-8% rates, terms up to 10 years. No down for qualified.<grok-card data-id="6d6a45" data-type="citation_card"></grok-card>",
+                eligibility: "Cash flow-based",
+                amount: "$10K-$250K",
+                link: "https://gudcapital.com/laundromat-financing/",
+                type: "equipment",
+                stage: "expansion",
+                credit: "fair,good",
+                state: "All"
+            },
+            {
+                id: 8,
+                name: "Credibly Term Loans",
+                desc: "Up to $400K for startups/expansions, fast funding, revenue-based.<grok-card data-id="8be140" data-type="citation_card"></grok-card>",
+                eligibility: "Minimal docs",
+                amount: "$10K-$400K",
+                link: "https://www.credibly.com/guides/laundromat-business-loans/",
+                type: "loan",
+                stage: "startup,working",
+                credit: "fair",
+                state: "All"
+            }
+        ];
+
+        function matchFunding() {
+            const amount = parseInt(document.getElementById('fundingAmount').value) || 0;
+            const stage = document.getElementById('businessStage').value;
+            const credit = document.getElementById('creditScore').value;
+            const type = document.getElementById('fundingType').value;
+            const location = document.getElementById('location').value.toUpperCase();
+
+            let matches = fundingOptions.filter(option => {
+                const amtMatch = amount >= (option.amount.includes('Up') ? 5000 : parseInt(option.amount.replace(/[^0-9]/g, '')));
+                const stageMatch = option.stage.includes(stage);
+                const creditMatch = option.credit.includes(credit) || option.credit === 'All' || option.credit === 'N/A';
+                const typeMatch = !type || option.type === type || (type === 'loan' && option.type === 'loan');
+                const stateMatch = !location || option.state === 'All' || option.state.includes(location);
+                return amtMatch && stageMatch && creditMatch && typeMatch && stateMatch;
+            });
+
+            if (type === 'loan') matches = matches.filter(m => m.type === 'loan' || m.name.includes('SBA'));
+            if (type === 'grant') matches = matches.filter(m => m.type === 'grant');
+
+            matches.sort((a, b) => (a.type === type ? -1 : 1));
+            matches = matches.slice(0, 6);
+
+            const list = document.getElementById('matchList');
+            if (matches.length === 0) {
+                list.innerHTML = '<p style="text-align: center; font-style: italic;">No exact matches—broaden your criteria for more options!</p>';
+            } else {
+                list.innerHTML = matches.map(match => `
+                    <div class="match-card">
+                        <h4>${match.name}</h4>
+                        <p>${match.desc}</p>
+                        <p><strong>Amount:</strong> ${match.amount} | <strong>Eligibility:</strong> ${match.eligibility}</p>
+                        <a href="${match.link}" target="_blank" rel="noopener">Apply Now</a>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('results').style.display = 'block';
+            window.scrollTo({ top: document.getElementById('results').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function applyNow() {
+            const amount = document.getElementById('fundingAmount').value;
+            const stage = document.getElementById('businessStage').options[document.getElementById('businessStage').selectedIndex].text;
+            const matches = document.querySelectorAll('.match-card');
+            if (matches.length > 0) {
+                const topLink = matches[0].querySelector('a').href;
+                alert(`Redirecting to top match for $${amount} ${stage.toLowerCase()}...\n\nPre-filled details ready.`);
+                window.open(topLink, '_blank');
+            } else {
+                alert('Run a match first!');
+            }
+        }
+
+        // Auto-match on change
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', matchFunding);
+        });
+
+        // Initial load with default
+        window.onload = () => matchFunding();
+    </script>
+</body>
+</html>

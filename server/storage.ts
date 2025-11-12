@@ -7,6 +7,8 @@ import {
   type InsertCleanbiScore,
   type BlogPost,
   type InsertBlogPost,
+  type CalculatorScenario,
+  type InsertCalculatorScenario,
   type Vendor,
   type InsertVendor,
   type Part,
@@ -45,6 +47,12 @@ export interface IStorage {
   updateBlogPost(id: string, post: Partial<InsertBlogPost>): Promise<BlogPost>;
   incrementBlogViews(id: string): Promise<void>;
   
+  // Calculator Scenarios
+  getCalculatorScenarios(userId?: string): Promise<CalculatorScenario[]>;
+  getCalculatorScenario(id: string): Promise<CalculatorScenario | undefined>;
+  createCalculatorScenario(scenario: InsertCalculatorScenario): Promise<CalculatorScenario>;
+  deleteCalculatorScenario(id: string): Promise<void>;
+  
   // Vendors
   getVendors(category?: string): Promise<Vendor[]>;
   getVendor(id: string): Promise<Vendor | undefined>;
@@ -74,6 +82,7 @@ export class MemStorage implements IStorage {
   private designs: Map<string, Design>;
   private cleanbiScores: Map<string, CleanbiScore>;
   private blogPosts: Map<string, BlogPost>;
+  private calculatorScenarios: Map<string, CalculatorScenario>;
   private vendors: Map<string, Vendor>;
   private parts: Map<string, Part>;
   private affiliates: Map<string, Affiliate>;
@@ -84,6 +93,7 @@ export class MemStorage implements IStorage {
     this.designs = new Map();
     this.cleanbiScores = new Map();
     this.blogPosts = new Map();
+    this.calculatorScenarios = new Map();
     this.vendors = new Map();
     this.parts = new Map();
     this.affiliates = new Map();
@@ -244,6 +254,34 @@ export class MemStorage implements IStorage {
       post.views += 1;
       this.blogPosts.set(id, post);
     }
+  }
+
+  // Calculator Scenarios
+  async getCalculatorScenarios(userId?: string): Promise<CalculatorScenario[]> {
+    const scenarios = Array.from(this.calculatorScenarios.values());
+    if (userId) {
+      return scenarios.filter((s) => s.userId === userId);
+    }
+    return scenarios.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getCalculatorScenario(id: string): Promise<CalculatorScenario | undefined> {
+    return this.calculatorScenarios.get(id);
+  }
+
+  async createCalculatorScenario(scenario: InsertCalculatorScenario): Promise<CalculatorScenario> {
+    const id = randomUUID();
+    const newScenario: CalculatorScenario = {
+      ...scenario,
+      id,
+      createdAt: new Date(),
+    } as CalculatorScenario;
+    this.calculatorScenarios.set(id, newScenario);
+    return newScenario;
+  }
+
+  async deleteCalculatorScenario(id: string): Promise<void> {
+    this.calculatorScenarios.delete(id);
   }
 
   // Vendors

@@ -1,9 +1,76 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Star, Zap } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Subscribe() {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    setIsLoading(true);
+    try {
+      // For MVP, we collect minimal info - in production, would use Stripe Checkout or Elements
+      const email = prompt("Enter your email address:");
+      if (!email || !email.trim()) {
+        toast({
+          title: "Cancelled",
+          description: "Email is required to subscribe.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      const name = prompt("Enter your name:");
+      if (!name || !name.trim()) {
+        toast({
+          title: "Cancelled",
+          description: "Name is required to subscribe.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Call the backend to create subscription
+      const response = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), name: name.trim() }),
+      });
+
+      const data = await response.json();
+
+      // Check if the response was successful
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create subscription');
+      }
+
+      // In production, we'd use the clientSecret to handle payment with Stripe Elements
+      // For MVP, show success message with subscription details
+      toast({
+        title: "Subscription Created!",
+        description: `Your Pro subscription has been initiated. Subscription ID: ${data.subscriptionId}. Payment setup required.`,
+      });
+
+      // In production, redirect to payment page or show Stripe Elements
+      // window.location.href = `/payment?subscription=${data.subscriptionId}&client_secret=${data.clientSecret}`;
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to initiate subscription",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const proFeatures = [
     "Unlimited 2D/3D design studio access",
     "Complete CLEANBI™ analysis with AI insights",
@@ -106,9 +173,11 @@ export default function Subscribe() {
               </ul>
               <Button 
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-6"
+                onClick={handleSubscribe}
+                disabled={isLoading}
                 data-testid="button-subscribe-pro"
               >
-                Subscribe to Pro
+                {isLoading ? "Processing..." : "Subscribe to Pro"}
               </Button>
             </CardContent>
           </Card>
