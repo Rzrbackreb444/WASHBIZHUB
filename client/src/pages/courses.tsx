@@ -1,26 +1,23 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, CheckCircle, Lock, PlayCircle } from "lucide-react";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { loadStripe } from "@stripe/stripe-js";
-import { useState } from "react";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+import { BookOpen, Clock, CheckCircle, PlayCircle } from "lucide-react";
 
 interface Course {
   id: string;
   title: string;
   description: string;
-  instructor: string;
-  price: number;
-  duration: number;
+  instructorName: string;
+  price: string; // decimal stored as string
+  duration: number; // minutes
   level: string;
-  tags: string[];
+  category: string;
   thumbnailUrl: string | null;
-  isPublished: boolean;
+  published: boolean;
+  featured: boolean;
+  stripePriceId: string | null;
 }
 
 interface Enrollment {
@@ -32,9 +29,6 @@ interface Enrollment {
 }
 
 export default function Courses() {
-  const { toast } = useToast();
-  const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
-
   // Fetch published courses
   const { data: courses = [], isLoading: coursesLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
@@ -46,53 +40,6 @@ export default function Courses() {
     queryKey: ["/api/enrollments", userId],
   });
 
-  // Purchase course mutation
-  const purchaseMutation = useMutation({
-    mutationFn: async (courseId: string) => {
-      const response = await apiRequest(`/api/courses/${courseId}/purchase`, {
-        method: "POST",
-        body: JSON.stringify({ userId }),
-      });
-      return response.json();
-    },
-    onSuccess: async (data) => {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        toast({
-          title: "Error",
-          description: "Payment system not available",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Purchase Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setPurchasingCourseId(null);
-    },
-  });
-
-  const handlePurchase = (courseId: string) => {
-    setPurchasingCourseId(courseId);
-    purchaseMutation.mutate(courseId);
-  };
-
   const isEnrolled = (courseId: string) => {
     return enrollments.some(e => e.courseId === courseId);
   };
@@ -102,7 +49,14 @@ export default function Courses() {
     return enrollment?.progress || 0;
   };
 
-  const publishedCourses = courses.filter(c => c.isPublished);
+  const publishedCourses = courses.filter(c => c.published);
+  
+  // Sort to show featured courses first
+  const sortedCourses = [...publishedCourses].sort((a, b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    return 0;
+  });
 
   if (coursesLoading) {
     return (
@@ -151,15 +105,20 @@ export default function Courses() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publishedCourses.map((course) => {
+            {sortedCourses.map((course) => {
               const enrolled = isEnrolled(course.id);
               const progress = getEnrollmentProgress(course.id);
-              const isPurchasing = purchasingCourseId === course.id;
-
+              const durationHours = Math.floor(course.duration / 60);
+              
               return (
                 <Card key={course.id} className="flex flex-col hover-elevate" data-testid={`card-course-${course.id}`}>
+                  {course.featured && (
+                    <div className="bg-accent text-accent-foreground text-center py-2 font-bold text-sm rounded-t-md">
+                      🔥 FEATURED COURSE
+                    </div>
+                  )}
                   {course.thumbnailUrl && (
-                    <div className="h-48 overflow-hidden rounded-t-md">
+                    <div className="h-48 overflow-hidden">
                       <img
                         src={course.thumbnailUrl}
                         alt={course.title}
@@ -188,26 +147,22 @@ export default function Courses() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        <span>{course.duration}h</span>
+                        <span>{durationHours}h</span>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs capitalize">
                         {course.level}
                       </Badge>
                     </div>
 
                     <div className="text-sm text-muted-foreground">
-                      Instructor: <span className="font-medium text-foreground">{course.instructor}</span>
+                      Instructor: <span className="font-medium text-foreground">{course.instructorName}</span>
                     </div>
 
-                    {course.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {course.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {course.category}
+                      </Badge>
+                    </div>
 
                     {enrolled && progress > 0 && (
                       <div className="space-y-1">
@@ -236,23 +191,17 @@ export default function Courses() {
                     ) : (
                       <>
                         <div className="text-2xl font-bold text-primary">
-                          ${course.price}
+                          ${parseFloat(course.price).toFixed(0)}
                         </div>
-                        <Button
-                          onClick={() => handlePurchase(course.id)}
-                          disabled={isPurchasing || purchaseMutation.isPending}
-                          className="flex-1"
-                          data-testid={`button-purchase-${course.id}`}
-                        >
-                          {isPurchasing ? (
-                            "Processing..."
-                          ) : (
-                            <>
-                              <Lock className="w-4 h-4 mr-2" />
-                              Enroll Now
-                            </>
-                          )}
-                        </Button>
+                        <Link href={`/courses/${course.id}`} className="flex-1">
+                          <Button
+                            className="w-full bg-accent hover:bg-accent/90"
+                            data-testid={`button-view-course-${course.id}`}
+                          >
+                            <BookOpen className="w-4 h-4 mr-2" />
+                            View Course
+                          </Button>
+                        </Link>
                       </>
                     )}
                   </CardFooter>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ultimate Laundromat Mastery – $10K/Month Passive</title>
+  <meta name="description" content="Turn $80K into $10K/month passive with laundromats. Based on the #1 book.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { background:#f9f9f9; color:#333; line-height:1.7; }
+    .container { max-width:900px; margin:auto; padding:20px; }
+    .hero { background:#1A5F3D; color:white; text-align:center; padding:80px 20px; }
+    h1 { font-size:2.8rem; margin:20px 0; }
+    .tag { font-size:1.3rem; font-style:italic; }
+    .price { font-size:3rem; font-weight:bold; color:#FFD700; }
+    .btn { background:#FFD700; color:#1A5F3D; padding:18px 40px; font-weight:bold; border-radius:8px; text-decoration:none; display:inline-block; margin:20px; }
+    .guarantee { background:#fff; border:2px solid #1A5F3D; padding:20px; border-radius:12px; margin:40px 0; text-align:center; }
+    .module { background:white; padding:30px; margin:20px 0; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    footer { text-align:center; padding:40px; font-size:0.9rem; color:#666; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <h1>Ultimate Laundromat Mastery</h1>
+    <p class="tag">From Zero to <strong>$10K/Month Passive Income</strong> in 12 Months</p>
+    <p class="price">$997</p>
+    <a href="#enroll" class="btn">ENROLL NOW – 50 SPOTS ONLY</a>
+    <p><strong>Based on the #1 Laundromat Investing Book:</strong><br><em>“Buy Smart. Operate Smarter.”</em></p>
+  </div>
+</div>
+
+<div class="container">
+
+  <h2 style="text-align:center; margin:40px 0;">What You’ll Build</h2>
+  <div class="module">
+    <h3>Module 1: Find Your $10K/Month Deal</h3>
+    <ul>
+      <li>Exact Craigslist + BizBuySell filters (copy-paste)</li>
+      <li>CLEANBI™ Financial Analyzer (Excel + Video)</li>
+      <li>Red flags checklist (from Chapter 3)</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module 2: Buy at 60¢ on the Dollar</h3>
+    <ul>
+      <li>LOI template (fill-in-the-blank)</li>
+      <li>Due diligence checklist (82 points)</li>
+      <li>Financing scripts (SBA + Seller Carry)</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module 3: Operate on Autopilot</h3>
+    <ul>
+      <li>Card vs Coin decision matrix</li>
+      <li>Remote monitoring setup (CCTV + Nayax)</li>
+      <li>Attendant hiring script + payroll sheet</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module 4: Scale to 3+ Stores</h3>
+    <ul>
+      <li>Multi-store org chart</li>
+      <li>Equipment refresh calendar</li>
+      <li>Exit valuation formula (sell for 4.5x)</li>
+    </ul>
+  </div>
+
+  <div class="guarantee">
+    <h3>100% Money-Back Guarantee</h3>
+    <p>Complete Module 1. If you don’t find a deal worth analyzing in 30 days, get a full refund. No questions.</p>
+  </div>
+
+  <h2 style="text-align:center; margin:40px 0;">Bonuses ($2,997 Value)</h2>
+  <ul>
+    <li>Private Slack Community (Lifetime)</li>
+    <li>Monthly Group Coaching Call</li>
+    <li>CLEANBI™ Pro Spreadsheet ($497)</li>
+    <li>Equipment Buying Checklist PDF</li>
+    <li>1-Hour Deal Review with Nick (Priceless)</li>
+  </ul>
+
+  <div style="text-align:center; margin:60px 0;">
+    <a href="https://buy.stripe.com/YOUR_LINK" class="btn" id="enroll">YES! I WANT IN – SECURE MY SPOT</a>
+    <p><strong>Only 50 spots. Doors close in <span id="timer">3 days</span>.</strong></p>
+  </div>
+
+</div>
+
+<footer>
+  © 2025 WashBizHub.com | Fort Smith, AR | 479-926-5273
+</footer>
+
+<script>
+// Countdown timer
+const deadline = new Date(Date.now() + 3*24*60*60*1000);
+setInterval(() => {
+  const diff = deadline - new Date();
+  const days = Math.floor(diff / 86400000);
+  document.getElementById('timer').innerText = `${days} days`;
+}, 60000);
+</script>
+</body>
+</html>

@@ -539,11 +539,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== LESSONS ====================
   
+  // Transform lesson data to match frontend expectations
+  const transformLesson = (lesson: any) => ({
+    ...lesson,
+    content: {
+      text: lesson.content || '',
+      quiz: lesson.quizData || null,
+      video: lesson.videoUrl || null,
+      resources: lesson.resources || []
+    }
+  });
+
   // Get lessons by courseId (supports both URL param and query param)
   app.get("/api/courses/:courseId/lessons", async (req, res) => {
     try {
       const lessons = await storage.getLessons(req.params.courseId);
-      res.json(lessons);
+      const transformed = lessons.map(transformLesson);
+      res.json(transformed);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -556,7 +568,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "courseId query parameter is required" });
       }
       const lessons = await storage.getLessons(courseId);
-      res.json(lessons);
+      const transformed = lessons.map(transformLesson);
+      res.json(transformed);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -569,7 +582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!lesson) {
         return res.status(404).json({ message: "Lesson not found" });
       }
-      res.json(lesson);
+      res.json(transformLesson(lesson));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
