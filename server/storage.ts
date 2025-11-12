@@ -17,6 +17,22 @@ import {
   type InsertAffiliate,
   type Laundromat,
   type InsertLaundromat,
+  type Course,
+  type InsertCourse,
+  type Lesson,
+  type InsertLesson,
+  type Enrollment,
+  type InsertEnrollment,
+  type BookChapter,
+  type InsertBookChapter,
+  type BookAccess,
+  type InsertBookAccess,
+  type AiBlogTask,
+  type InsertAiBlogTask,
+  type SeoKeyword,
+  type InsertSeoKeyword,
+  type CompetitorAnalysis,
+  type InsertCompetitorAnalysis,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -75,6 +91,49 @@ export interface IStorage {
   getLaundromats(filters?: { city?: string; state?: string; zipCode?: string }): Promise<Laundromat[]>;
   getLaundromat(id: string): Promise<Laundromat | undefined>;
   createLaundromat(laundromat: InsertLaundromat): Promise<Laundromat>;
+  
+  // Courses (Premium Learning Platform)
+  getCourses(filters?: { category?: string; published?: boolean }): Promise<Course[]>;
+  getCourse(id: string): Promise<Course | undefined>;
+  createCourse(course: InsertCourse): Promise<Course>;
+  updateCourse(id: string, course: Partial<InsertCourse>): Promise<Course>;
+  
+  // Lessons
+  getLessons(courseId: string): Promise<Lesson[]>;
+  getLesson(id: string): Promise<Lesson | undefined>;
+  createLesson(lesson: InsertLesson): Promise<Lesson>;
+  updateLesson(id: string, lesson: Partial<InsertLesson>): Promise<Lesson>;
+  
+  // Enrollments
+  getEnrollments(userId: string): Promise<Enrollment[]>;
+  getEnrollment(userId: string, courseId: string): Promise<Enrollment | undefined>;
+  createEnrollment(enrollment: InsertEnrollment): Promise<Enrollment>;
+  updateEnrollmentProgress(id: string, progress: number, currentLessonId?: string, completedLessons?: string[]): Promise<Enrollment>;
+  
+  // Book Chapters
+  getBookChapters(): Promise<BookChapter[]>;
+  getBookChapter(id: string): Promise<BookChapter | undefined>;
+  createBookChapter(chapter: InsertBookChapter): Promise<BookChapter>;
+  
+  // Book Access
+  getUserBookAccess(userId: string): Promise<BookAccess | undefined>;
+  createBookAccess(access: InsertBookAccess): Promise<BookAccess>;
+  
+  // AI Blog Tasks
+  getAiBlogTasks(filters?: { userId?: string; status?: string }): Promise<AiBlogTask[]>;
+  getAiBlogTask(id: string): Promise<AiBlogTask | undefined>;
+  createAiBlogTask(task: InsertAiBlogTask): Promise<AiBlogTask>;
+  updateAiBlogTask(id: string, task: Partial<InsertAiBlogTask>): Promise<AiBlogTask>;
+  
+  // SEO Keywords
+  getSeoKeywords(filters?: { minSearchVolume?: number; maxDifficulty?: number }): Promise<SeoKeyword[]>;
+  getSeoKeyword(id: string): Promise<SeoKeyword | undefined>;
+  createSeoKeyword(keyword: InsertSeoKeyword): Promise<SeoKeyword>;
+  
+  // Competitor Analysis
+  getCompetitorAnalyses(keyword?: string): Promise<CompetitorAnalysis[]>;
+  getCompetitorAnalysis(id: string): Promise<CompetitorAnalysis | undefined>;
+  createCompetitorAnalysis(analysis: InsertCompetitorAnalysis): Promise<CompetitorAnalysis>;
 }
 
 export class MemStorage implements IStorage {
@@ -413,6 +472,44 @@ export class MemStorage implements IStorage {
     this.laundromats.set(id, newLaundromat);
     return newLaundromat;
   }
+  
+  // Stubs for premium features (not implemented in MemStorage)
+  async getCourses(): Promise<Course[]> { return []; }
+  async getCourse(): Promise<Course | undefined> { return undefined; }
+  async createCourse(): Promise<Course> { throw new Error("Use DbStorage for premium features"); }
+  async updateCourse(): Promise<Course> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getLessons(): Promise<Lesson[]> { return []; }
+  async getLesson(): Promise<Lesson | undefined> { return undefined; }
+  async createLesson(): Promise<Lesson> { throw new Error("Use DbStorage for premium features"); }
+  async updateLesson(): Promise<Lesson> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getEnrollments(): Promise<Enrollment[]> { return []; }
+  async getEnrollment(): Promise<Enrollment | undefined> { return undefined; }
+  async createEnrollment(): Promise<Enrollment> { throw new Error("Use DbStorage for premium features"); }
+  async updateEnrollmentProgress(): Promise<Enrollment> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getBookChapters(): Promise<BookChapter[]> { return []; }
+  async getBookChapter(): Promise<BookChapter | undefined> { return undefined; }
+  async createBookChapter(): Promise<BookChapter> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getUserBookAccess(): Promise<BookAccess | undefined> { return undefined; }
+  async createBookAccess(): Promise<BookAccess> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getAiBlogTasks(): Promise<AiBlogTask[]> { return []; }
+  async getAiBlogTask(): Promise<AiBlogTask | undefined> { return undefined; }
+  async createAiBlogTask(): Promise<AiBlogTask> { throw new Error("Use DbStorage for premium features"); }
+  async updateAiBlogTask(): Promise<AiBlogTask> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getSeoKeywords(): Promise<SeoKeyword[]> { return []; }
+  async getSeoKeyword(): Promise<SeoKeyword | undefined> { return undefined; }
+  async createSeoKeyword(): Promise<SeoKeyword> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getCompetitorAnalyses(): Promise<CompetitorAnalysis[]> { return []; }
+  async getCompetitorAnalysis(): Promise<CompetitorAnalysis | undefined> { return undefined; }
+  async createCompetitorAnalysis(): Promise<CompetitorAnalysis> { throw new Error("Use DbStorage for premium features"); }
 }
 
-export const storage = new MemStorage();
+// Use DbStorage for production-grade persistence
+import { dbStorage } from "./db-storage";
+export const storage = dbStorage;

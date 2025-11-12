@@ -14,6 +14,8 @@ export function Header() {
     { name: "CLEANBI™", href: "/cleanbi" },
     { name: "Calculator", href: "/calculator" },
     { name: "ROI Calculator", href: "/roi-calculator" },
+    { name: "Funding Matcher", href: "/funding-matcher" },
+    { name: "Superstore", href: "/superstore" },
     { name: "Blog", href: "/blog" },
     { name: "Marketplace", href: "/marketplace" },
     { name: "Parts", href: "/parts" },
