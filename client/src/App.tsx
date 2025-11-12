@@ -11,6 +11,9 @@ import Calculator from "@/pages/calculator";
 import ROICalculator from "@/pages/roi-calculator";
 import FundingMatcher from "@/pages/funding-matcher";
 import Superstore from "@/pages/superstore";
+import Courses from "@/pages/courses";
+import Book from "@/pages/book";
+import AIBlogging from "@/pages/ai-blogging";
 import Blog from "@/pages/blog";
 import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
@@ -28,6 +31,9 @@ function Router() {
       <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
+      <Route path="/courses" component={Courses} />
+      <Route path="/book" component={Book} />
+      <Route path="/ai-blogging" component={AIBlogging} />
       <Route path="/blog" component={Blog} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/parts" component={Parts} />
