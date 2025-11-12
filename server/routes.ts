@@ -514,10 +514,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== LESSONS ====================
   
+  // Get lessons by courseId (supports both URL param and query param)
   app.get("/api/courses/:courseId/lessons", async (req, res) => {
     try {
       const lessons = await storage.getLessons(req.params.courseId);
       res.json(lessons);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/lessons", async (req, res) => {
+    try {
+      const { courseId } = req.query;
+      if (!courseId || typeof courseId !== 'string') {
+        return res.status(400).json({ message: "courseId query parameter is required" });
+      }
+      const lessons = await storage.getLessons(courseId);
+      res.json(lessons);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get a single lesson by ID
+  app.get("/api/lessons/:lessonId", async (req, res) => {
+    try {
+      const lesson = await storage.getLesson(req.params.lessonId);
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      res.json(lesson);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
