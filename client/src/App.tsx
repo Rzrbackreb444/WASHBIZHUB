@@ -14,6 +14,7 @@ import Superstore from "@/pages/superstore";
 import Courses from "@/pages/courses";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
+import SEOOptimizer from "@/pages/seo-optimizer";
 import Blog from "@/pages/blog";
 import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/courses" component={Courses} />
       <Route path="/book" component={Book} />
       <Route path="/ai-blogging" component={AIBlogging} />
+      <Route path="/seo-optimizer" component={SEOOptimizer} />
       <Route path="/blog" component={Blog} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/parts" component={Parts} />

@@ -19,6 +19,7 @@ export function Header() {
     { name: "Funding Matcher", href: "/funding-matcher" },
     { name: "Superstore", href: "/superstore" },
     { name: "AI Blogging", href: "/ai-blogging" },
+    { name: "SEO Optimizer", href: "/seo-optimizer" },
     { name: "Blog", href: "/blog" },
     { name: "Marketplace", href: "/marketplace" },
     { name: "Parts", href: "/parts" },
