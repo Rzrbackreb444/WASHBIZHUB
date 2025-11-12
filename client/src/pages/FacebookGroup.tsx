@@ -14,12 +14,14 @@ export default function FacebookGroup() {
   }, []);
 
   const handleJoinClick = () => {
-    window.gtag?.('event', 'outbound_click', {
-      event_category: 'External Resource',
-      event_label: 'Facebook Group - AAdvantage Laundry',
-      value: 'facebook_group'
-    });
-    window.open('https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry', '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'outbound_click', {
+        event_category: 'External Resource',
+        event_label: 'Facebook Group - The Laundromat',
+        value: 'facebook_group'
+      });
+    }
+    window.open('https://facebook.com/groups/thelaundromat', '_blank', 'noopener,noreferrer');
   };
 
   const benefits = [
@@ -99,7 +101,7 @@ export default function FacebookGroup() {
       <section className="py-16 px-4 bg-card/5">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Why Join the AAdvantage Laundry Community?
+            Why Join The Laundromat Community?
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {benefits.map((benefit, index) => {
@@ -132,7 +134,7 @@ export default function FacebookGroup() {
             <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-white/90 text-lg leading-relaxed mb-4">
-                  Unlike generic business forums, the AAdvantage Laundry Facebook Group is 100% focused on the coin laundry industry. Every member understands the unique challenges of running laundromats—from dealing with equipment breakdowns at 2 AM to optimizing route efficiency for pickup and delivery services.
+                  Unlike generic business forums, The Laundromat Facebook Group is 100% focused on the coin laundry industry. Every member understands the unique challenges of running laundromats—from dealing with equipment breakdowns at 2 AM to optimizing route efficiency for pickup and delivery services.
                 </p>
                 <p className="text-white/90 text-lg leading-relaxed mb-4">
                   The community culture emphasizes collaboration over competition. Members freely share their revenue numbers, equipment costs, marketing results, and operational strategies. This transparency creates an environment where everyone learns faster and makes better decisions.
@@ -174,7 +176,7 @@ export default function FacebookGroup() {
             Ready to Level Up Your Laundromat Business?
           </h2>
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful operators who are already sharing insights, solving problems together, and growing their businesses faster in the AAdvantage Laundry community.
+            Join thousands of successful operators who are already sharing insights, solving problems together, and growing their businesses faster in The Laundromat community.
           </p>
           <Button
             onClick={handleJoinClick}
@@ -201,9 +203,9 @@ export default function FacebookGroup() {
           "url": "https://washbizhub.com/facebook-group",
           "mainEntity": {
             "@type": "Organization",
-            "name": "AAdvantage Laundry Facebook Group",
-            "url": "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry",
-            "sameAs": "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry"
+            "name": "The Laundromat Facebook Group",
+            "url": "https://facebook.com/groups/thelaundromat",
+            "sameAs": "https://facebook.com/groups/thelaundromat"
           }
         })
       }} />
