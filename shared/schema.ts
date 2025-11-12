@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, decimal, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -529,113 +529,7 @@ export const insertCompetitorAnalysisSchema = createInsertSchema(competitorAnaly
 export type InsertCompetitorAnalysis = z.infer<typeof insertCompetitorAnalysisSchema>;
 export type CompetitorAnalysis = typeof competitorAnalysis.$inferSelect;
 
-// Laundromat Listings (Marketplace)
-export const listings = pgTable("listings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  brokerId: varchar("broker_id").references(() => users.id), // Broker managing this listing
-  businessType: text("business_type").notNull(), // "laundromat", "car_wash", "dry_cleaner"
-  
-  // Basic Info
-  businessName: text("business_name").notNull(),
-  address: text("address").notNull(),
-  city: text("city").notNull(),
-  state: text("state").notNull(),
-  zipCode: text("zip_code").notNull(),
-  latitude: decimal("latitude", { precision: 10, scale: 7 }),
-  longitude: decimal("longitude", { precision: 10, scale: 7 }),
-  
-  // Business Details
-  askingPrice: decimal("asking_price", { precision: 12, scale: 2 }).notNull(),
-  annualRevenue: decimal("annual_revenue", { precision: 12, scale: 2 }),
-  monthlyProfit: decimal("monthly_profit", { precision: 10, scale: 2 }),
-  squareFootage: integer("square_footage"),
-  yearEstablished: integer("year_established"),
-  leaseTerms: text("lease_terms"),
-  
-  // Equipment & Inventory
-  washers: integer("washers"),
-  dryers: integer("dryers"),
-  equipmentValue: decimal("equipment_value", { precision: 10, scale: 2 }),
-  equipmentAge: integer("equipment_age"), // Average age in years
-  
-  // SEO & Marketing
-  description: text("description").notNull(),
-  seoTitle: text("seo_title"),
-  seoDescription: text("seo_description"),
-  slug: text("slug").notNull().unique(),
-  photos: jsonb("photos"), // Array of photo URLs
-  
-  // Analysis Scores
-  cleanbiScore: integer("cleanbi_score"), // 0-700
-  marketOpportunity: integer("market_opportunity"), // 0-100
-  competitionLevel: text("competition_level"), // "low", "medium", "high"
-  
-  // Status
-  status: text("status").notNull().default("active"), // "draft", "active", "pending", "sold"
-  featured: boolean("featured").default(false).notNull(),
-  verified: boolean("verified").default(false).notNull(),
-  
-  // Analytics
-  views: integer("views").default(0).notNull(),
-  inquiries: integer("inquiries").default(0).notNull(),
-  
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const insertListingSchema = createInsertSchema(listings).omit({
-  id: true,
-  views: true,
-  inquiries: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type InsertListing = z.infer<typeof insertListingSchema>;
-export type Listing = typeof listings.$inferSelect;
-
-// Broker Profiles
-export const brokers = pgTable("brokers", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).unique(),
-  
-  // Profile
-  companyName: text("company_name").notNull(),
-  licenseNumber: text("license_number"),
-  bio: text("bio"),
-  photoUrl: text("photo_url"),
-  
-  // Contact
-  phone: text("phone"),
-  website: text("website"),
-  
-  // Performance
-  totalSales: integer("total_sales").default(0).notNull(),
-  totalVolume: decimal("total_volume", { precision: 15, scale: 2 }).default("0").notNull(),
-  avgDaysToSell: integer("avg_days_to_sell"),
-  rating: decimal("rating", { precision: 3, scale: 2 }), // 0-5.00
-  reviewCount: integer("review_count").default(0).notNull(),
-  
-  // Subscription
-  isActive: boolean("is_active").default(true).notNull(),
-  commissionRate: decimal("commission_rate", { precision: 4, scale: 2 }).default("6.00"), // Percentage
-  
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertBrokerSchema = createInsertSchema(brokers).omit({
-  id: true,
-  totalSales: true,
-  totalVolume: true,
-  reviewCount: true,
-  createdAt: true,
-});
-
-export type InsertBroker = z.infer<typeof insertBrokerSchema>;
-export type Broker = typeof brokers.$inferSelect;
-
-// Consultation Requests
+// Consultation Bookings
 export const consultations = pgTable("consultations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
@@ -1441,3 +1335,507 @@ export const insertAffiliatePayoutSchema = createInsertSchema(affiliatePayouts).
 
 export type InsertAffiliatePayout = z.infer<typeof insertAffiliatePayoutSchema>;
 export type AffiliatePayout = typeof affiliatePayouts.$inferSelect;
+
+// ============================================================================
+// GLOBAL MARKETPLACE - Listings for Laundromats, Car Washes, Dry Cleaners
+// ============================================================================
+
+// Main Listings Table (Global Support)
+export const listings = pgTable("listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // Owner or Broker
+  
+  // Listing Type
+  businessType: text("business_type").notNull(), // "laundromat", "car_wash", "dry_cleaner"
+  listingType: text("listing_type").notNull(), // "owner", "broker"
+  
+  // Basic Info
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  tagline: text("tagline"), // Short summary for cards
+  
+  // Pricing (Dual-Currency Architecture: Original + USD normalized)
+  priceOriginal: decimal("price_original", { precision: 12, scale: 2 }), // Price in original currency
+  currency: text("currency").notNull().default("USD"), // ISO 4217: USD, EUR, GBP, etc.
+  priceInUSD: decimal("price_in_usd", { precision: 12, scale: 2 }), // Normalized USD equivalent for search/sort
+  priceVisibility: text("price_visibility").notNull().default("public"), // "public", "nda_required", "hidden"
+  
+  // Real Estate
+  includesRealEstate: boolean("includes_real_estate").notNull().default(false),
+  realEstateValue: decimal("real_estate_value", { precision: 12, scale: 2 }),
+  
+  // Financing
+  ownerFinancing: boolean("owner_financing").notNull().default(false),
+  downPaymentPercent: integer("down_payment_percent"),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }),
+  financingTermMonths: integer("financing_term_months"),
+  
+  // Location (Country-first for global support)
+  country: text("country").notNull().default("US"), // ISO 3166-1 alpha-2
+  region: text("region"), // State/Province/Prefecture
+  city: text("city"),
+  generalLocation: text("general_location"), // "Northeast Philadelphia" for broker listings
+  exactAddress: text("exact_address"), // Full address (hidden until NDA for broker listings)
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  addressVisibility: text("address_visibility").notNull().default("public"), // "public", "general", "nda_required"
+  
+  // Featured Image
+  featuredImage: text("featured_image"),
+  
+  // Status
+  status: text("status").notNull().default("draft"), // "draft", "active", "pending", "sold", "expired"
+  featured: boolean("featured").notNull().default(false), // Premium tier: homepage featured
+  prioritySearch: boolean("priority_search").notNull().default(false), // Premium tier: top of search
+  visibilityBoost: integer("visibility_boost").default(0), // Premium tier: 0 (normal), 1-5 (boosted)
+  
+  // SEO
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  seoKeywords: text("seo_keywords").array(),
+  slug: text("slug").unique(),
+  
+  // NDA Protection (for Broker Listings)
+  // NOTE: Application logic MUST verify NDA approval before showing protected fields
+  // Protected fields: exactAddress, listingMedia where requiresNDA=true, detailed financials
+  requiresNDA: boolean("requires_nda").notNull().default(false),
+  ndaDocument: text("nda_document"), // URL to NDA template
+  
+  // Premium Features
+  cleanbiReportId: varchar("cleanbi_report_id"), // Link to pre-generated CLEANBI report
+  hasValuationReport: boolean("has_valuation_report").default(false),
+  
+  // Metrics
+  viewCount: integer("view_count").default(0).notNull(),
+  inquiryCount: integer("inquiry_count").default(0).notNull(),
+  ndaRequestCount: integer("nda_request_count").default(0).notNull(),
+  
+  // Dates
+  listedAt: timestamp("listed_at"),
+  expiresAt: timestamp("expires_at"),
+  soldAt: timestamp("sold_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Unique index on slug for SEO-friendly URLs
+    slugIdx: uniqueIndex("listings_slug_idx").on(table.slug),
+    // Composite index for marketplace search performance
+    marketplaceSearchIdx: index("listings_marketplace_search_idx").on(table.status, table.country, table.featured, table.prioritySearch),
+    // Index for owner/broker lookups
+    userIdx: index("listings_user_idx").on(table.userId),
+  };
+});
+
+export const insertListingSchema = createInsertSchema(listings).omit({
+  id: true,
+  viewCount: true,
+  inquiryCount: true,
+  ndaRequestCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertListing = z.infer<typeof insertListingSchema>;
+export type Listing = typeof listings.$inferSelect;
+
+// Listing Financial Details (Revenue, Expenses, Cash Flow)
+// Dual-Currency Architecture: Store both original currency and USD normalized values
+export const listingFinancials = pgTable("listing_financials", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  
+  // Revenue (Original Currency)
+  grossRevenueOriginal: decimal("gross_revenue_original", { precision: 12, scale: 2 }),
+  netRevenueOriginal: decimal("net_revenue_original", { precision: 12, scale: 2 }),
+  averageMonthlyRevenueOriginal: decimal("average_monthly_revenue_original", { precision: 12, scale: 2 }),
+  
+  // Revenue (USD Normalized)
+  grossRevenueUSD: decimal("gross_revenue_usd", { precision: 12, scale: 2 }),
+  netRevenueUSD: decimal("net_revenue_usd", { precision: 12, scale: 2 }),
+  averageMonthlyRevenueUSD: decimal("average_monthly_revenue_usd", { precision: 12, scale: 2 }),
+  
+  // Expenses (Original Currency)
+  rentOriginal: decimal("rent_original", { precision: 10, scale: 2 }),
+  utilitiesOriginal: decimal("utilities_original", { precision: 10, scale: 2 }),
+  laborOriginal: decimal("labor_original", { precision: 10, scale: 2 }),
+  maintenanceOriginal: decimal("maintenance_original", { precision: 10, scale: 2 }),
+  insuranceOriginal: decimal("insurance_original", { precision: 10, scale: 2 }),
+  otherExpensesOriginal: decimal("other_expenses_original", { precision: 10, scale: 2 }),
+  totalExpensesOriginal: decimal("total_expenses_original", { precision: 10, scale: 2 }),
+  
+  // Expenses (USD Normalized)
+  rentUSD: decimal("rent_usd", { precision: 10, scale: 2 }),
+  utilitiesUSD: decimal("utilities_usd", { precision: 10, scale: 2 }),
+  laborUSD: decimal("labor_usd", { precision: 10, scale: 2 }),
+  maintenanceUSD: decimal("maintenance_usd", { precision: 10, scale: 2 }),
+  insuranceUSD: decimal("insurance_usd", { precision: 10, scale: 2 }),
+  otherExpensesUSD: decimal("other_expenses_usd", { precision: 10, scale: 2 }),
+  totalExpensesUSD: decimal("total_expenses_usd", { precision: 10, scale: 2 }),
+  
+  // Profitability (Original Currency)
+  netIncomeOriginal: decimal("net_income_original", { precision: 12, scale: 2 }),
+  ebitdaOriginal: decimal("ebitda_original", { precision: 12, scale: 2 }),
+  cashFlowOriginal: decimal("cash_flow_original", { precision: 12, scale: 2 }),
+  
+  // Profitability (USD Normalized)
+  netIncomeUSD: decimal("net_income_usd", { precision: 12, scale: 2 }),
+  ebitdaUSD: decimal("ebitda_usd", { precision: 12, scale: 2 }),
+  cashFlowUSD: decimal("cash_flow_usd", { precision: 12, scale: 2 }),
+  
+  // Metrics (Currency-agnostic percentages)
+  profitMargin: decimal("profit_margin", { precision: 5, scale: 2 }), // Percentage
+  roi: decimal("roi", { precision: 5, scale: 2 }), // Percentage
+  paybackPeriodMonths: integer("payback_period_months"),
+  
+  // Period
+  financialYear: integer("financial_year"), // 2023, 2024
+  currency: text("currency").notNull().default("USD"), // Original currency for this financial record
+  exchangeRateToUSD: decimal("exchange_rate_to_usd", { precision: 10, scale: 6 }), // Exchange rate used for conversion
+  
+  // Verification
+  verified: boolean("verified").default(false),
+  verificationDocument: text("verification_document"), // URL to tax returns, etc.
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for listing financial lookups
+    listingIdx: index("listing_financials_listing_idx").on(table.listingId),
+  };
+});
+
+export const insertListingFinancialSchema = createInsertSchema(listingFinancials).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertListingFinancial = z.infer<typeof insertListingFinancialSchema>;
+export type ListingFinancial = typeof listingFinancials.$inferSelect;
+
+// Listing Equipment Inventory
+export const listingEquipment = pgTable("listing_equipment", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  
+  // Equipment Details
+  equipmentType: text("equipment_type").notNull(), // "washer", "dryer", "folder", "vending", "payment_system"
+  brand: text("brand").notNull(), // "Speed Queen", "Dexter", "Huebsch"
+  model: text("model"),
+  capacity: integer("capacity"), // lbs or kg
+  quantity: integer("quantity").notNull(),
+  
+  // Condition
+  condition: text("condition").notNull(), // "new", "excellent", "good", "fair", "poor"
+  yearInstalled: integer("year_installed"),
+  ageYears: integer("age_years"),
+  
+  // Value
+  estimatedValue: decimal("estimated_value", { precision: 10, scale: 2 }),
+  replacementCost: decimal("replacement_cost", { precision: 10, scale: 2 }),
+  
+  // Performance
+  turnsPerDay: integer("turns_per_day"),
+  efficiency: text("efficiency"), // "Energy Star", "Standard"
+  
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for listing equipment lookups
+    listingIdx: index("listing_equipment_listing_idx").on(table.listingId),
+  };
+});
+
+export const insertListingEquipmentSchema = createInsertSchema(listingEquipment).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertListingEquipment = z.infer<typeof insertListingEquipmentSchema>;
+export type ListingEquipment = typeof listingEquipment.$inferSelect;
+
+// Listing Media (Images, Documents)
+export const listingMedia = pgTable("listing_media", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  
+  // Media Details
+  type: text("type").notNull(), // "image", "video", "document", "floor_plan"
+  url: text("url").notNull(),
+  filename: text("filename"),
+  
+  // Metadata
+  title: text("title"),
+  description: text("description"),
+  sortOrder: integer("sort_order").default(0),
+  
+  // Visibility & NDA Protection
+  // IMPORTANT: Application logic MUST ensure media.requiresNDA matches parent listings.requiresNDA
+  // If listings.requiresNDA = true, ALL sensitive media MUST have requiresNDA = true
+  // Application MUST verify user has approved NDA (ndaRequests.status = 'approved') before serving this media
+  requiresNDA: boolean("requires_nda").default(false), // Some images only visible after NDA
+  
+  // Image-specific
+  width: integer("width"),
+  height: integer("height"),
+  thumbnail: text("thumbnail"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for listing media lookups
+    listingIdx: index("listing_media_listing_idx").on(table.listingId),
+  };
+});
+
+export const insertListingMediaSchema = createInsertSchema(listingMedia).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertListingMedia = z.infer<typeof insertListingMediaSchema>;
+export type ListingMedia = typeof listingMedia.$inferSelect;
+
+// Broker Portfolios (Brokers managing multiple listings)
+export const brokerProfiles = pgTable("broker_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Business Info
+  companyName: text("company_name").notNull(),
+  licenseNumber: text("license_number"),
+  website: text("website"),
+  phone: text("phone"),
+  email: text("email"),
+  
+  // Profile
+  bio: text("bio"),
+  specializations: text("specializations").array(), // ["laundromats", "car_washes"]
+  yearsExperience: integer("years_experience"),
+  
+  // Service Areas
+  countries: text("countries").array(),
+  regions: text("regions").array(),
+  
+  // Metrics
+  totalListings: integer("total_listings").default(0),
+  activeListings: integer("active_listings").default(0),
+  soldListings: integer("sold_listings").default(0),
+  averageDaysToSell: integer("average_days_to_sell"),
+  
+  // Verification
+  verified: boolean("verified").default(false),
+  verificationDocument: text("verification_document"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for broker user lookups
+    userIdx: index("broker_profiles_user_idx").on(table.userId),
+  };
+});
+
+export const insertBrokerProfileSchema = createInsertSchema(brokerProfiles).omit({
+  id: true,
+  totalListings: true,
+  activeListings: true,
+  soldListings: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBrokerProfile = z.infer<typeof insertBrokerProfileSchema>;
+export type BrokerProfile = typeof brokerProfiles.$inferSelect;
+
+// NDA Requests (Digital NDA Workflow)
+export const ndaRequests = pgTable("nda_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Requester Info
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  companyName: text("company_name"),
+  
+  // NDA Details
+  ndaDocument: text("nda_document"), // URL to signed NDA PDF
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  
+  // Digital Signature
+  signature: text("signature"), // Base64 signature image or text signature
+  signedAt: timestamp("signed_at"),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "signed", "approved", "rejected"
+  approvedBy: varchar("approved_by").references(() => users.id), // Broker who approved
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Access Expiration
+  expiresAt: timestamp("expires_at"), // NDA access expires after X days
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Composite index for NDA request queries (by listing and status)
+    listingStatusIdx: index("nda_requests_listing_status_idx").on(table.listingId, table.status),
+  };
+});
+
+export const insertNdaRequestSchema = createInsertSchema(ndaRequests).omit({
+  id: true,
+  signedAt: true,
+  approvedAt: true,
+  createdAt: true,
+});
+
+export type InsertNdaRequest = z.infer<typeof insertNdaRequestSchema>;
+export type NdaRequest = typeof ndaRequests.$inferSelect;
+
+// Listing Inquiries (Interest from buyers)
+export const listingInquiries = pgTable("listing_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Inquirer Info
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  
+  // Inquiry Details
+  message: text("message").notNull(),
+  investmentBudget: decimal("investment_budget", { precision: 12, scale: 2 }),
+  financingPreApproved: boolean("financing_pre_approved").default(false),
+  timeline: text("timeline"), // "immediate", "3_months", "6_months", "1_year"
+  
+  // Status
+  status: text("status").notNull().default("new"), // "new", "contacted", "viewing_scheduled", "offer_made", "closed"
+  response: text("response"),
+  respondedAt: timestamp("responded_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for listing inquiry lookups
+    listingIdx: index("listing_inquiries_listing_idx").on(table.listingId),
+  };
+});
+
+export const insertListingInquirySchema = createInsertSchema(listingInquiries).omit({
+  id: true,
+  respondedAt: true,
+  createdAt: true,
+});
+
+export type InsertListingInquiry = z.infer<typeof insertListingInquirySchema>;
+export type ListingInquiry = typeof listingInquiries.$inferSelect;
+
+// Listing Views (Analytics)
+export const listingViews = pgTable("listing_views", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  userId: varchar("user_id").references(() => users.id), // null for anonymous
+  
+  // Session Info
+  sessionId: text("session_id"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  
+  // Location
+  country: text("country"),
+  region: text("region"),
+  city: text("city"),
+  
+  // Engagement
+  timeOnPage: integer("time_on_page"), // seconds
+  scrollDepth: integer("scroll_depth"), // percentage
+  
+  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index for listing view analytics
+    listingIdx: index("listing_views_listing_idx").on(table.listingId),
+  };
+});
+
+export const insertListingViewSchema = createInsertSchema(listingViews).omit({
+  id: true,
+  viewedAt: true,
+});
+
+export type InsertListingView = z.infer<typeof insertListingViewSchema>;
+export type ListingView = typeof listingViews.$inferSelect;
+
+// Premium Packages (Paywall Tiers)
+export const premiumPackages = pgTable("premium_packages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Package Details
+  name: text("name").notNull(), // "Featured Homepage", "Priority Search", "Visibility Boost"
+  description: text("description").notNull(),
+  features: text("features").array(),
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  billingPeriod: text("billing_period").notNull(), // "one_time", "monthly", "yearly"
+  
+  // Benefits
+  featuredHomepage: boolean("featured_homepage").default(false),
+  prioritySearch: boolean("priority_search").default(false),
+  visibilityBoostLevel: integer("visibility_boost_level").default(0), // 0-5
+  cleanbiReportsIncluded: integer("cleanbi_reports_included").default(0),
+  valuationReportsIncluded: integer("valuation_reports_included").default(0),
+  
+  // Status
+  active: boolean("active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPremiumPackageSchema = createInsertSchema(premiumPackages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPremiumPackage = z.infer<typeof insertPremiumPackageSchema>;
+export type PremiumPackage = typeof premiumPackages.$inferSelect;
+
+// Listing Premium Purchases (Track premium upgrades)
+export const listingPremiumPurchases = pgTable("listing_premium_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id),
+  packageId: varchar("package_id").references(() => premiumPackages.id),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Payment
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull(),
+  stripePaymentId: text("stripe_payment_id"),
+  
+  // Duration
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  
+  // Status
+  status: text("status").notNull().default("active"), // "active", "expired", "cancelled"
+  
+  purchasedAt: timestamp("purchased_at").defaultNow().notNull(),
+});
+
+export const insertListingPremiumPurchaseSchema = createInsertSchema(listingPremiumPurchases).omit({
+  id: true,
+  purchasedAt: true,
+});
+
+export type InsertListingPremiumPurchase = z.infer<typeof insertListingPremiumPurchaseSchema>;
+export type ListingPremiumPurchase = typeof listingPremiumPurchases.$inferSelect;
