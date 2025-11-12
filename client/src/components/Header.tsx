@@ -1,6 +1,13 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Menu, LogIn, LogOut, User, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
@@ -9,24 +16,6 @@ export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth();
-
-  const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Design Studio", href: "/design-studio" },
-    { name: "CLEANBI™", href: "/cleanbi" },
-    { name: "Courses", href: "/courses" },
-    { name: "Book", href: "/book" },
-    { name: "Calculator", href: "/calculator" },
-    { name: "ROI Calculator", href: "/roi-calculator" },
-    { name: "Funding Matcher", href: "/funding-matcher" },
-    { name: "Superstore", href: "/superstore" },
-    { name: "AI Blogging", href: "/ai-blogging" },
-    { name: "SEO Optimizer", href: "/seo-optimizer" },
-    { name: "Blog", href: "/blog" },
-    { name: "Marketplace", href: "/marketplace" },
-    { name: "Parts", href: "/parts" },
-    { name: "Locator", href: "/locator" },
-  ];
 
   return (
     <header className="sticky top-0 z-50 bg-primary border-b border-primary-border">
@@ -42,22 +31,240 @@ export function Header() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navigation.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    location === item.href
-                      ? "bg-primary-foreground/10 text-primary-foreground"
-                      : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/5"
-                  }`}
-                  data-testid={`link-nav-${item.name.toLowerCase().replace(/\s+/g, "-")}`}
+          {/* Desktop Navigation with Dropdowns */}
+          <nav className="hidden lg:flex items-center gap-2">
+            {/* Platform Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  data-testid="dropdown-platform"
                 >
-                  {item.name}
+                  Platform <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+                <DropdownMenuItem asChild>
+                  <Link href="/design-studio">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-design-studio">
+                      Design Studio 2D/3D
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/cleanbi">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-cleanbi">
+                      CLEANBI™ Analysis
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/ai-blogging">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-ai-blogging">
+                      AI Blogging Suite
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/seo-optimizer">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-seo-optimizer">
+                      SEO Optimizer
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Tools Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  data-testid="dropdown-tools"
+                >
+                  Tools <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+                <DropdownMenuItem asChild>
+                  <Link href="/roi-calculator">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-roi-calculator">
+                      ROI Calculator
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/calculator">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-calculator">
+                      Revenue Calculator
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/funding-matcher">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-funding-matcher">
+                      Funding Matcher
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/locator">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-locator">
+                      Laundromat Locator
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/distributor-locator">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-distributor-locator">
+                      Distributor Locator
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Marketplace Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  data-testid="dropdown-marketplace"
+                >
+                  Marketplace <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+                <DropdownMenuItem asChild>
+                  <Link href="/marketplace">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-marketplace">
+                      Buy/Sell Laundromats
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/listings">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-listings">
+                      Browse Listings
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/superstore">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-superstore">
+                      Equipment Superstore
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/parts">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-parts">
+                      Parts Marketplace
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Learn Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  data-testid="dropdown-learn"
+                >
+                  Learn <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+                <DropdownMenuItem asChild>
+                  <Link href="/courses">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-courses">
+                      Premium Courses
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/book">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-book">
+                      The Laundromat Bible
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/blog">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-blog">
+                      Industry Blog
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-primary-border" />
+                <DropdownMenuItem asChild>
+                  <Link href="/facebook-group">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-facebook-group">
+                      Join Facebook Community
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Consultations Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  data-testid="dropdown-consultations"
+                >
+                  Consultations <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 bg-primary border-primary-border">
+                <DropdownMenuItem asChild>
+                  <Link href="/consultation">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-consultation">
+                      Book a Consultation
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-primary-border" />
+                <div className="px-2 py-2">
+                  <p className="text-xs text-primary-foreground/60 mb-2 font-semibold uppercase tracking-wider">Industry Experts</p>
                 </div>
-              </Link>
-            ))}
+                <DropdownMenuItem asChild>
+                  <a
+                    href="https://laundromat123.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cursor-pointer text-primary-foreground/90 hover:text-primary-foreground"
+                    data-testid="link-nav-laundromat123"
+                  >
+                    Laundromat123.com
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href="https://laundromat123.com/about"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cursor-pointer text-primary-foreground/90 hover:text-primary-foreground"
+                    data-testid="link-nav-larry-larsen"
+                  >
+                    Larry Larsen - Expert Coach
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled>
+                  <span className="text-primary-foreground/60 text-xs italic" data-testid="link-nav-sasquatch">
+                    The Stroked-Out Sasquatch (from the book)
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Auth & CTA */}
@@ -129,22 +336,43 @@ export function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-primary-border" data-testid="nav-mobile-menu">
-            {navigation.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={`block px-3 py-2 rounded-md text-base font-medium cursor-pointer ${
-                    location === item.href
-                      ? "bg-primary-foreground/10 text-primary-foreground"
-                      : "text-primary-foreground/80"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  data-testid={`link-mobile-${item.name.toLowerCase().replace(/\s+/g, "-")}`}
-                >
-                  {item.name}
-                </div>
-              </Link>
-            ))}
+          <nav className="lg:hidden py-4 border-t border-primary-border space-y-4" data-testid="nav-mobile-menu">
+            {/* Platform Section */}
+            <div>
+              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Platform</div>
+              <Link href="/design-studio"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-design-studio">Design Studio 2D/3D</div></Link>
+              <Link href="/cleanbi"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-cleanbi">CLEANBI™ Analysis</div></Link>
+              <Link href="/ai-blogging"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-ai-blogging">AI Blogging Suite</div></Link>
+            </div>
+            
+            {/* Tools Section */}
+            <div>
+              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Tools</div>
+              <Link href="/roi-calculator"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-roi-calculator">ROI Calculator</div></Link>
+              <Link href="/calculator"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-calculator">Revenue Calculator</div></Link>
+              <Link href="/funding-matcher"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-funding-matcher">Funding Matcher</div></Link>
+            </div>
+            
+            {/* Marketplace Section */}
+            <div>
+              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Marketplace</div>
+              <Link href="/marketplace"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-marketplace">Buy/Sell Laundromats</div></Link>
+              <Link href="/superstore"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-superstore">Equipment Superstore</div></Link>
+            </div>
+            
+            {/* Learn Section */}
+            <div>
+              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Learn</div>
+              <Link href="/courses"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-courses">Premium Courses</div></Link>
+              <Link href="/book"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-book">The Laundromat Bible</div></Link>
+              <Link href="/blog"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-blog">Industry Blog</div></Link>
+            </div>
+            
+            {/* Consultations Section */}
+            <div>
+              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Consultations</div>
+              <Link href="/consultation"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-consultation">Book a Consultation</div></Link>
+            </div>
           </nav>
         )}
       </div>

@@ -14,11 +14,13 @@ export default function AtmServices() {
   }, []);
 
   const handleLearnMoreClick = () => {
-    window.gtag?.('event', 'outbound_click', {
-      event_category: 'External Resource',
-      event_label: 'ATM Depot - Laundromat Services',
-      value: 'atm_services'
-    });
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'outbound_click', {
+        event_category: 'External Resource',
+        event_label: 'ATM Depot - Laundromat Services',
+        value: 'atm_services'
+      });
+    }
     window.open('https://atmdepot.com/laundromat', '_blank', 'noopener,noreferrer');
   };
 
