@@ -60,6 +60,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/designs/:id", async (req, res) => {
+    try {
+      const validated = insertDesignSchema.parse(req.body);
+      const updated = await storage.updateDesign(req.params.id, validated);
+      if (!updated) {
+        return res.status(404).json({ error: "Design not found" });
+      }
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to update design" });
+    }
+  });
+
   app.post("/api/designs/:id/optimize", async (req, res) => {
     try {
       const design = await storage.getDesign(req.params.id);

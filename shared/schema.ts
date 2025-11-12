@@ -23,6 +23,30 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
+// Equipment Placement Schema (for 2D/3D designs)
+export const equipmentPlacementSchema = z.object({
+  id: z.string(),
+  equipmentId: z.string(), // Reference to equipmentLibrary item
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+    z: z.number().optional(), // For 3D designs
+  }),
+  rotation: z.number().default(0), // Degrees
+  notes: z.string().optional(),
+});
+
+export type EquipmentPlacement = z.infer<typeof equipmentPlacementSchema>;
+
+// Room Dimensions Schema
+export const roomDimensionsSchema = z.object({
+  width: z.number(),
+  depth: z.number(),
+  height: z.number().optional(), // For 3D designs
+});
+
+export type RoomDimensions = z.infer<typeof roomDimensionsSchema>;
+
 // Laundromat Designs (2D/3D)
 export const designs = pgTable("designs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -40,6 +64,11 @@ export const designs = pgTable("designs", {
 export const insertDesignSchema = createInsertSchema(designs).omit({
   id: true,
   createdAt: true,
+}).extend({
+  dimensions: roomDimensionsSchema,
+  equipment: z.array(equipmentPlacementSchema),
+  totalCost: z.string(), // decimal as string
+  aiScore: z.number().optional(),
 });
 
 export type InsertDesign = z.infer<typeof insertDesignSchema>;
