@@ -14,6 +14,7 @@ import ROICalculator from "@/pages/roi-calculator";
 import FundingMatcher from "@/pages/funding-matcher";
 import Superstore from "@/pages/superstore";
 import Courses from "@/pages/courses";
+import CourseDetail from "@/pages/course-detail";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -45,6 +46,8 @@ function Router() {
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
       <Route path="/courses" component={Courses} />
+      <Route path="/courses/:courseId" component={CourseDetail} />
+      <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
       <Route path="/book" component={Book} />
       <Route path="/ai-blogging" component={AIBlogging} />
       <Route path="/seo-optimizer" component={SEOOptimizer} />
@@ -56,7 +59,6 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={Listings} />
-      <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route component={NotFound} />
