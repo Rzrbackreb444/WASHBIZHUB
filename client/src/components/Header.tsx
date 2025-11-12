@@ -13,6 +13,7 @@ export function Header() {
     { name: "Design Studio", href: "/design-studio" },
     { name: "CLEANBI™", href: "/cleanbi" },
     { name: "Calculator", href: "/calculator" },
+    { name: "ROI Calculator", href: "/roi-calculator" },
     { name: "Blog", href: "/blog" },
     { name: "Marketplace", href: "/marketplace" },
     { name: "Parts", href: "/parts" },

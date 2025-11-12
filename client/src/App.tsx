@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import DesignStudio from "@/pages/design-studio";
 import CleanBI from "@/pages/cleanbi";
 import Calculator from "@/pages/calculator";
+import ROICalculator from "@/pages/roi-calculator";
 import Blog from "@/pages/blog";
 import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
       <Route path="/calculator" component={Calculator} />
+      <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/blog" component={Blog} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/parts" component={Parts} />
