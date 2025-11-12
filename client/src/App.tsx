@@ -22,6 +22,7 @@ import Locator from "@/pages/locator";
 import Subscribe from "@/pages/subscribe";
 import Consultation from "@/pages/consultation";
 import Listings from "@/pages/listings";
+import Lesson from "@/pages/lesson";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={Listings} />
+      <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
       <Route component={NotFound} />
     </Switch>
   );
