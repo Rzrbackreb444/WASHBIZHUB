@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   CheckCircle, XCircle, ArrowRight, RotateCcw, Award, 
   Lightbulb, TrendingUp, Target, Trophy
@@ -13,8 +14,6 @@ interface QuizQuestion {
   question: string;
   type: "multiple_choice" | "true_false" | "scenario";
   options: string[];
-  correctAnswer: number;
-  explanation: string;
   points: number;
   hint?: string;
 }
@@ -23,72 +22,69 @@ interface QuizProps {
   title: string;
   description: string;
   questions: QuizQuestion[];
+  lessonId: string;
   onComplete: (score: number, total: number) => void;
 }
 
-export function InteractiveQuiz({ title, description, questions, onComplete }: QuizProps) {
+export function InteractiveQuiz({ title, description, questions, lessonId, onComplete }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showAnswer, setShowAnswer] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [score, setScore] = useState(0);
-  const [answers, setAnswers] = useState<boolean[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [finalScore, setFinalScore] = useState(0);
+  const [gradingResults, setGradingResults] = useState<any>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + (showAnswer ? 1 : 0)) / questions.length) * 100;
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
 
   const handleAnswerSelect = (index: number) => {
-    if (!showAnswer) {
-      setSelectedAnswer(index);
-    }
+    setSelectedAnswer(index);
   };
 
-  const handleSubmit = () => {
+  const handleNext = async () => {
     if (selectedAnswer === null) return;
-    
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    setShowAnswer(true);
-    
-    if (isCorrect) {
-      setScore(score + currentQuestion.points);
-    }
-    
-    setAnswers([...answers, isCorrect]);
-  };
 
-  const handleNext = () => {
+    // Store the answer
+    const updatedAnswers = { ...userAnswers, [currentQuestion.id]: selectedAnswer };
+    setUserAnswers(updatedAnswers);
+
+    // If more questions, move to next
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
-      setShowAnswer(false);
       setShowHint(false);
     } else {
-      // Calculate final score from the score state (which already includes all answered questions)
-      // The score was updated in handleSubmit when the answer was submitted
-      const calculatedScore = score;
-      setFinalScore(calculatedScore);
-      setIsComplete(true);
-      onComplete(calculatedScore, totalPoints);
+      // Last question - submit for grading
+      setIsSubmitting(true);
+      try {
+        const response = await apiRequest("POST", `/api/lessons/${lessonId}/grade`, { answers: updatedAnswers });
+        const results = await response.json();
+        setGradingResults(results);
+        setIsComplete(true);
+        onComplete(results.score, results.total);
+      } catch (error) {
+        console.error("Failed to grade quiz:", error);
+        alert("Failed to submit quiz. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleRestart = () => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
-    setShowAnswer(false);
     setShowHint(false);
-    setScore(0);
-    setAnswers([]);
+    setUserAnswers({});
     setIsComplete(false);
-    setFinalScore(0);
+    setGradingResults(null);
   };
 
-  if (isComplete) {
-    const percentage = (finalScore / totalPoints) * 100;
-    const passed = percentage >= 70;
+  if (isComplete && gradingResults) {
+    const percentage = (gradingResults.score / gradingResults.total) * 100;
+    const passed = gradingResults.passed;
 
     return (
       <Card className="max-w-3xl mx-auto">
@@ -104,7 +100,7 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
             {passed ? "Congratulations!" : "Good Effort!"}
           </CardTitle>
           <CardDescription className="text-lg mt-2">
-            You scored {finalScore} out of {totalPoints} points
+            You scored {gradingResults.score} out of {gradingResults.total} correct
           </CardDescription>
         </CardHeader>
 
@@ -120,19 +116,19 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-green-600">
-                {answers.filter(a => a).length}
+                {gradingResults.score}
               </div>
               <div className="text-xs text-muted-foreground">Correct</div>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-red-600">
-                {answers.filter(a => !a).length}
+                {gradingResults.total - gradingResults.score}
               </div>
               <div className="text-xs text-muted-foreground">Incorrect</div>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-accent">
-                {questions.length}
+                {gradingResults.total}
               </div>
               <div className="text-xs text-muted-foreground">Total</div>
             </div>
@@ -187,7 +183,7 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
             </div>
             <Progress value={progress} className="h-2" />
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Score: {score}/{totalPoints} points</span>
+              <span>Answered: {Object.keys(userAnswers).length}/{questions.length}</span>
               <span>{progress.toFixed(0)}% Complete</span>
             </div>
           </div>
@@ -217,53 +213,25 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
           <div className="space-y-2">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index;
-              const isCorrect = index === currentQuestion.correctAnswer;
-              const showCorrectness = showAnswer;
-
-              let buttonVariant: "outline" | "default" | "secondary" = "outline";
-              let borderColor = "";
-              let icon = null;
-
-              if (showCorrectness) {
-                if (isCorrect) {
-                  borderColor = "border-green-500 bg-green-50 dark:bg-green-950";
-                  icon = <CheckCircle className="w-5 h-5 text-green-600" />;
-                } else if (isSelected && !isCorrect) {
-                  borderColor = "border-red-500 bg-red-50 dark:bg-red-950";
-                  icon = <XCircle className="w-5 h-5 text-red-600" />;
-                }
-              } else if (isSelected) {
-                buttonVariant = "default";
-              }
 
               return (
                 <button
                   key={index}
                   onClick={() => handleAnswerSelect(index)}
-                  disabled={showAnswer}
                   className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                    showCorrectness ? borderColor : ""
-                  } ${
-                    isSelected && !showCorrectness ? "border-accent bg-accent/10" : ""
-                  } ${
-                    !showAnswer ? "hover-elevate active-elevate-2 cursor-pointer" : "cursor-default"
-                  }`}
+                    isSelected ? "border-accent bg-accent/10" : ""
+                  } hover-elevate active-elevate-2 cursor-pointer`}
                   data-testid={`answer-option-${index}`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 flex-1">
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        isSelected && !showCorrectness ? "border-accent bg-accent text-accent-foreground" : ""
-                      } ${
-                        showCorrectness && isCorrect ? "border-green-600 bg-green-600 text-white" : ""
-                      } ${
-                        showCorrectness && isSelected && !isCorrect ? "border-red-600 bg-red-600 text-white" : ""
+                        isSelected ? "border-accent bg-accent text-accent-foreground" : ""
                       }`}>
                         {String.fromCharCode(65 + index)}
                       </div>
                       <span className="font-medium">{option}</span>
                     </div>
-                    {showCorrectness && icon}
                   </div>
                 </button>
               );
@@ -271,7 +239,7 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
           </div>
 
           {/* Hint */}
-          {currentQuestion.hint && !showAnswer && (
+          {currentQuestion.hint && (
             <div className="pt-2">
               {!showHint ? (
                 <Button
@@ -298,50 +266,23 @@ export function InteractiveQuiz({ title, description, questions, onComplete }: Q
             </div>
           )}
 
-          {/* Explanation */}
-          {showAnswer && (
-            <div className={`p-4 rounded-lg border-2 ${
-              selectedAnswer === currentQuestion.correctAnswer
-                ? "bg-green-50 dark:bg-green-950 border-green-500"
-                : "bg-blue-50 dark:bg-blue-950 border-blue-500"
-            }`}>
-              <div className="flex items-start gap-2">
-                <TrendingUp className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                  selectedAnswer === currentQuestion.correctAnswer ? "text-green-600" : "text-blue-600"
-                }`} />
-                <div>
-                  <p className={`font-semibold text-sm mb-1 ${
-                    selectedAnswer === currentQuestion.correctAnswer ? "text-green-600" : "text-blue-600"
-                  }`}>
-                    {selectedAnswer === currentQuestion.correctAnswer ? "Correct!" : "Learn More"}
-                  </p>
-                  <p className="text-sm">{currentQuestion.explanation}</p>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          {!showAnswer ? (
-            <Button
-              onClick={handleSubmit}
-              disabled={selectedAnswer === null}
-              className="ml-auto"
-              data-testid="button-submit-answer"
-            >
-              Submit Answer
-            </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              className="ml-auto"
-              data-testid="button-next-question"
-            >
-              {currentQuestionIndex < questions.length - 1 ? "Next Question" : "Complete Quiz"}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          )}
+          <Button
+            onClick={handleNext}
+            disabled={selectedAnswer === null || isSubmitting}
+            className="ml-auto"
+            data-testid="button-next-question"
+          >
+            {isSubmitting ? "Submitting..." : (
+              currentQuestionIndex < questions.length - 1 ? (
+                <>Next Question<ArrowRight className="w-4 h-4 ml-2" /></>
+              ) : (
+                <>Submit Quiz<ArrowRight className="w-4 h-4 ml-2" /></>
+              )
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </div>

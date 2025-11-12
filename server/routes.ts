@@ -539,12 +539,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== LESSONS ====================
   
+  // Sanitize quiz data to remove answers (security: prevent client-side answer exposure)
+  const sanitizeQuiz = (quizData: any) => {
+    if (!quizData || !quizData.questions) return null;
+    
+    return {
+      ...quizData,
+      questions: quizData.questions.map((q: any) => ({
+        id: q.id,
+        question: q.question,
+        options: q.options,
+        // SECURITY: Remove correctAnswer and explanation - validate server-side only
+      }))
+    };
+  };
+
   // Transform lesson data to match frontend expectations
-  const transformLesson = (lesson: any) => ({
+  // Security: Quiz answers now validated server-side via /grade endpoint (sanitized by default)
+  const transformLesson = (lesson: any, includeAnswers: boolean = false) => ({
     ...lesson,
     content: {
       text: lesson.content || '',
-      quiz: lesson.quizData || null,
+      quiz: includeAnswers ? lesson.quizData : sanitizeQuiz(lesson.quizData),
       video: lesson.videoUrl || null,
       resources: lesson.resources || []
     }
@@ -595,6 +611,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(lesson);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Submit quiz answers for grading (server-side validation)
+  app.post("/api/lessons/:lessonId/grade", async (req, res) => {
+    try {
+      const { lessonId } = req.params;
+      const { answers } = req.body; // { questionId: selectedOption }
+      
+      console.log("[GRADE] Grading lesson:", lessonId);
+      console.log("[GRADE] Received answers:", answers);
+      
+      const lesson = await storage.getLesson(lessonId);
+      if (!lesson || !lesson.quizData) {
+        console.error("[GRADE] Lesson or quiz not found");
+        return res.status(404).json({ message: "Lesson or quiz not found" });
+      }
+
+      const quizData = lesson.quizData as any;
+      console.log("[GRADE] Quiz data structure:", JSON.stringify(quizData, null, 2).substring(0, 500));
+      
+      if (!quizData.questions) {
+        console.error("[GRADE] No questions in quiz data");
+        return res.status(400).json({ message: "Invalid quiz data" });
+      }
+
+      // Grade the quiz server-side
+      let correct = 0;
+      const total = quizData.questions.length;
+      const results = quizData.questions.map((q: any) => {
+        const userAnswer = answers[q.id];
+        const isCorrect = userAnswer === q.correctAnswer;
+        if (isCorrect) correct++;
+        
+        console.log(`[GRADE] Q${q.id}: user=${userAnswer}, correct=${q.correctAnswer}, match=${isCorrect}`);
+        
+        return {
+          questionId: q.id,
+          correct: isCorrect,
+          // Only reveal explanation after submission
+          explanation: q.explanation || null
+        };
+      });
+
+      const score = correct;
+      const passed = (score / total) >= (quizData.passingScore || 70) / 100;
+
+      console.log(`[GRADE] Final score: ${score}/${total}, passed: ${passed}`);
+
+      res.json({
+        score,
+        total,
+        passed,
+        results
+      });
+    } catch (error: any) {
+      console.error("[GRADE] Error:", error);
+      res.status(500).json({ message: error.message });
     }
   });
 
