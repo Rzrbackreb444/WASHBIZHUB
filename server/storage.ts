@@ -1,6 +1,6 @@
 import {
   type User,
-  type InsertUser,
+  type UpsertUser,
   type Design,
   type InsertDesign,
   type CleanbiScore,
@@ -41,11 +41,10 @@ import {
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // Users
+  // Users (Replit Auth compatible)
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   
   // Designs
@@ -176,15 +175,9 @@ export class MemStorage implements IStorage {
     this.laundromats = new Map();
   }
 
-  // Users
+  // Users (Replit Auth compatible)
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -193,16 +186,23 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existing = userData.id ? await this.getUser(userData.id) : null;
+    
     const user: User = {
-      ...insertUser,
-      id,
-      isPro: false,
-      stripeCustomerId: null,
-      stripeSubscriptionId: null,
+      id: userData.id || randomUUID(),
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      isPro: existing?.isPro || false,
+      stripeCustomerId: existing?.stripeCustomerId || null,
+      stripeSubscriptionId: existing?.stripeSubscriptionId || null,
+      createdAt: existing?.createdAt || new Date(),
+      updatedAt: new Date(),
     };
-    this.users.set(id, user);
+    
+    this.users.set(user.id, user);
     return user;
   }
 

@@ -3,24 +3,44 @@ import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, decimal, in
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table with Stripe subscription support
+// Session storage table for Replit Auth
+// IMPORTANT: This table is mandatory for Replit Auth, don't drop it.
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => ({
+    expireIdx: index("IDX_session_expire").on(table.expire),
+  })
+);
+
+// Users table with Replit Auth + Stripe subscription support
+// IMPORTANT: This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
+  // Keep varchar UUID for existing data compatibility
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  
+  // Replit Auth fields
+  email: varchar("email").unique(), // Nullable - some OAuth providers don't have emails
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  
+  // WashBizHub subscription fields
   isPro: boolean("is_pro").default(false).notNull(),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  email: true,
-  password: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
+// Replit Auth upsert type
+export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
 // Equipment Placement Schema (for 2D/3D designs)
