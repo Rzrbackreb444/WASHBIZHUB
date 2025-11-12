@@ -368,12 +368,22 @@ export class DbStorage implements IStorage {
   // LESSONS
   // ============================================================================
   async getLessons(courseId: string): Promise<Lesson[]> {
-    return db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(lessons.order);
+    const result = await db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(lessons.order);
+    // Parse content field if it's a string (JSONB may be returned as string)
+    return result.map(lesson => ({
+      ...lesson,
+      content: typeof lesson.content === 'string' ? JSON.parse(lesson.content) : lesson.content
+    }));
   }
 
   async getLesson(id: string): Promise<Lesson | undefined> {
     const result = await db.select().from(lessons).where(eq(lessons.id, id));
-    return result[0];
+    if (!result[0]) return undefined;
+    // Parse content field if it's a string (JSONB may be returned as string)
+    return {
+      ...result[0],
+      content: typeof result[0].content === 'string' ? JSON.parse(result[0].content) : result[0].content
+    };
   }
 
   async createLesson(lesson: InsertLesson): Promise<Lesson> {

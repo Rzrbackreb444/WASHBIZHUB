@@ -46,12 +46,12 @@ export default function LessonPage() {
   });
 
   const { data: lessons = [] } = useQuery<Lesson[]>({
-    queryKey: ["/api/lessons", courseId],
+    queryKey: [`/api/lessons?courseId=${courseId}`],
     enabled: !!courseId,
   });
 
   const { data: enrollment } = useQuery<Enrollment>({
-    queryKey: ["/api/enrollments", userId, courseId],
+    queryKey: [`/api/enrollments?userId=${userId}&courseId=${courseId}`],
     enabled: !!userId && !!courseId,
   });
 
