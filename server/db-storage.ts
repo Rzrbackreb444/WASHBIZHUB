@@ -20,6 +20,13 @@ import {
   competitorAnalysis,
   consultations,
   listings,
+  distributors,
+  distributorInquiries,
+  affiliateContent,
+  affiliateClicks,
+  affiliateSales,
+  affiliateCommissions,
+  affiliatePayouts,
   type User,
   type InsertUser,
   type Design,
@@ -58,6 +65,20 @@ import {
   type InsertConsultation,
   type Listing,
   type InsertListing,
+  type Distributor,
+  type InsertDistributor,
+  type DistributorInquiry,
+  type InsertDistributorInquiry,
+  type AffiliateContent,
+  type InsertAffiliateContent,
+  type AffiliateClick,
+  type InsertAffiliateClick,
+  type AffiliateSale,
+  type InsertAffiliateSale,
+  type AffiliateCommission,
+  type InsertAffiliateCommission,
+  type AffiliatePayout,
+  type InsertAffiliatePayout,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -280,14 +301,15 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
-  async trackAffiliateClick(affiliateId: string): Promise<void> {
+  // Legacy tracking methods (replaced by comprehensive system below)
+  async trackAffiliateClickSimple(affiliateId: string): Promise<void> {
     await db
       .update(affiliates)
       .set({ totalClicks: sql`${affiliates.totalClicks} + 1` })
       .where(eq(affiliates.id, affiliateId));
   }
 
-  async trackAffiliateSale(affiliateId: string, saleAmount: number): Promise<void> {
+  async trackAffiliateSaleSimple(affiliateId: string, saleAmount: number): Promise<void> {
     const affiliate = await this.getAffiliate(affiliateId);
     if (!affiliate) return;
     
@@ -625,6 +647,227 @@ export class DbStorage implements IStorage {
 
   async deleteListing(id: string): Promise<void> {
     await db.delete(listings).where(eq(listings.id, id));
+  }
+
+  // ============================================================================
+  // DISTRIBUTORS (Lead Capture for Commission)
+  // ============================================================================
+  async getDistributors(filters?: { brandName?: string; state?: string; equipmentType?: string }): Promise<Distributor[]> {
+    const conditions = [eq(distributors.active, true)];
+    
+    if (filters?.brandName) {
+      conditions.push(eq(distributors.brandName, filters.brandName));
+    }
+    
+    // Note: state and equipmentType filters require array operations (will implement in routes with post-filtering)
+    
+    return db.select().from(distributors).where(and(...conditions));
+  }
+
+  async getDistributor(id: string): Promise<Distributor | undefined> {
+    const result = await db.select().from(distributors).where(eq(distributors.id, id));
+    return result[0];
+  }
+
+  async createDistributor(distributor: InsertDistributor): Promise<Distributor> {
+    const result = await db.insert(distributors).values(distributor).returning();
+    return result[0];
+  }
+
+  async updateDistributor(id: string, updates: Partial<InsertDistributor>): Promise<Distributor> {
+    const result = await db.update(distributors).set(updates).where(eq(distributors.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // DISTRIBUTOR INQUIRIES (Lead Management)
+  // ============================================================================
+  async getDistributorInquiries(status?: string): Promise<DistributorInquiry[]> {
+    if (status) {
+      return db.select().from(distributorInquiries)
+        .where(eq(distributorInquiries.status, status))
+        .orderBy(desc(distributorInquiries.createdAt));
+    }
+    return db.select().from(distributorInquiries).orderBy(desc(distributorInquiries.createdAt));
+  }
+
+  async getDistributorInquiry(id: string): Promise<DistributorInquiry | undefined> {
+    const result = await db.select().from(distributorInquiries).where(eq(distributorInquiries.id, id));
+    return result[0];
+  }
+
+  async createDistributorInquiry(inquiry: InsertDistributorInquiry): Promise<DistributorInquiry> {
+    const result = await db.insert(distributorInquiries).values(inquiry).returning();
+    return result[0];
+  }
+
+  async updateDistributorInquiry(id: string, updates: Partial<InsertDistributorInquiry>): Promise<DistributorInquiry> {
+    const result = await db.update(distributorInquiries).set(updates).where(eq(distributorInquiries.id, id)).returning();
+    return result[0];
+  }
+
+  // Note: Basic affiliate methods exist above, enhanced methods added below for UGC platform
+
+  async getAffiliateByTag(tag: string): Promise<Affiliate | undefined> {
+    const result = await db.select().from(affiliates).where(eq(affiliates.affiliateTag, tag));
+    if (result[0]) return result[0];
+    // Fallback to affiliateCode if tag not found
+    const codeResult = await db.select().from(affiliates).where(eq(affiliates.affiliateCode, tag));
+    return codeResult[0];
+  }
+
+  // ============================================================================
+  // AFFILIATE CONTENT (UGC Platform)
+  // ============================================================================
+  async getAffiliateContent(filters?: { affiliateId?: string; status?: string; contentType?: string }): Promise<AffiliateContent[]> {
+    const conditions = [];
+    
+    if (filters?.affiliateId) {
+      conditions.push(eq(affiliateContent.affiliateId, filters.affiliateId));
+    }
+    if (filters?.status) {
+      conditions.push(eq(affiliateContent.status, filters.status));
+    }
+    if (filters?.contentType) {
+      conditions.push(eq(affiliateContent.contentType, filters.contentType));
+    }
+    
+    if (conditions.length > 0) {
+      return db.select().from(affiliateContent)
+        .where(and(...conditions))
+        .orderBy(desc(affiliateContent.createdAt));
+    }
+    return db.select().from(affiliateContent).orderBy(desc(affiliateContent.createdAt));
+  }
+
+  async getAffiliateContentItem(id: string): Promise<AffiliateContent | undefined> {
+    const result = await db.select().from(affiliateContent).where(eq(affiliateContent.id, id));
+    return result[0];
+  }
+
+  async getAffiliateContentBySlug(slug: string): Promise<AffiliateContent | undefined> {
+    const result = await db.select().from(affiliateContent).where(eq(affiliateContent.slug, slug));
+    return result[0];
+  }
+
+  async createAffiliateContent(content: InsertAffiliateContent): Promise<AffiliateContent> {
+    const result = await db.insert(affiliateContent).values(content).returning();
+    return result[0];
+  }
+
+  async updateAffiliateContent(id: string, updates: Partial<InsertAffiliateContent>): Promise<AffiliateContent> {
+    const result = await db.update(affiliateContent).set(updates).where(eq(affiliateContent.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // AFFILIATE CLICKS (Tracking)
+  // ============================================================================
+  async trackAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick> {
+    const result = await db.insert(affiliateClicks).values(click).returning();
+    
+    // Increment affiliate totalClicks
+    await db.update(affiliates)
+      .set({ totalClicks: sql`${affiliates.totalClicks} + 1` })
+      .where(eq(affiliates.id, click.affiliateId));
+    
+    return result[0];
+  }
+
+  async getAffiliateClicks(affiliateId: string, limit?: number): Promise<AffiliateClick[]> {
+    const query = db.select().from(affiliateClicks)
+      .where(eq(affiliateClicks.affiliateId, affiliateId))
+      .orderBy(desc(affiliateClicks.clickedAt));
+    
+    if (limit) {
+      return query.limit(limit);
+    }
+    return query;
+  }
+
+  // ============================================================================
+  // AFFILIATE SALES (Revenue Attribution)
+  // ============================================================================
+  async createAffiliateSale(sale: InsertAffiliateSale): Promise<AffiliateSale> {
+    const result = await db.insert(affiliateSales).values(sale).returning();
+    
+    // Update affiliate totals
+    await db.update(affiliates)
+      .set({ 
+        totalSales: sql`${affiliates.totalSales} + 1`,
+        totalRevenue: sql`${affiliates.totalRevenue} + ${sale.salePrice}`,
+        totalCommission: sql`${affiliates.totalCommission} + ${sale.commissionAmount}`,
+      })
+      .where(eq(affiliates.id, sale.affiliateId));
+    
+    // Mark click as converted
+    if (sale.clickId) {
+      await db.update(affiliateClicks)
+        .set({ convertedToSale: true, saleId: result[0].id })
+        .where(eq(affiliateClicks.id, sale.clickId));
+    }
+    
+    return result[0];
+  }
+
+  async getAffiliateSales(affiliateId: string): Promise<AffiliateSale[]> {
+    return db.select().from(affiliateSales)
+      .where(eq(affiliateSales.affiliateId, affiliateId))
+      .orderBy(desc(affiliateSales.createdAt));
+  }
+
+  async updateAffiliateSale(id: string, updates: Partial<InsertAffiliateSale>): Promise<AffiliateSale> {
+    const result = await db.update(affiliateSales).set(updates).where(eq(affiliateSales.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // AFFILIATE COMMISSIONS (Period Aggregation)
+  // ============================================================================
+  async getAffiliateCommissions(affiliateId: string): Promise<AffiliateCommission[]> {
+    return db.select().from(affiliateCommissions)
+      .where(eq(affiliateCommissions.affiliateId, affiliateId))
+      .orderBy(desc(affiliateCommissions.period));
+  }
+
+  async createAffiliateCommission(commission: InsertAffiliateCommission): Promise<AffiliateCommission> {
+    const result = await db.insert(affiliateCommissions).values(commission).returning();
+    return result[0];
+  }
+
+  async approveAffiliateCommission(id: string): Promise<AffiliateCommission> {
+    const result = await db.update(affiliateCommissions)
+      .set({ status: 'approved', approvedAt: sql`NOW()` })
+      .where(eq(affiliateCommissions.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // AFFILIATE PAYOUTS (Payment Management)
+  // ============================================================================
+  async getAffiliatePayouts(affiliateId: string): Promise<AffiliatePayout[]> {
+    return db.select().from(affiliatePayouts)
+      .where(eq(affiliatePayouts.affiliateId, affiliateId))
+      .orderBy(desc(affiliatePayouts.requestedAt));
+  }
+
+  async createAffiliatePayout(payout: InsertAffiliatePayout): Promise<AffiliatePayout> {
+    const result = await db.insert(affiliatePayouts).values(payout).returning();
+    return result[0];
+  }
+
+  async updateAffiliatePayout(id: string, updates: Partial<InsertAffiliatePayout>): Promise<AffiliatePayout> {
+    const result = await db.update(affiliatePayouts).set(updates).where(eq(affiliatePayouts.id, id)).returning();
+    
+    // If payout completed, update affiliate totalPaidOut
+    if (updates.status === 'completed' && result[0]) {
+      await db.update(affiliates)
+        .set({ totalPaidOut: sql`${affiliates.totalPaidOut} + ${result[0].amount}` })
+        .where(eq(affiliates.id, result[0].affiliateId));
+    }
+    
+    return result[0];
   }
 }
 

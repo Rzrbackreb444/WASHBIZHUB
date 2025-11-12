@@ -106,6 +106,26 @@ WashBizHub is a comprehensive SaaS platform for laundromat business intelligence
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (November 12, 2024)
+
+**Distributor Locator System** - NEW
+- Lead capture platform for equipment distributor inquiries
+- User submits inquiry → Platform owner contacts distributor for commission
+- Tables: `distributors`, `distributor_inquiries`
+- Supports major brands: Speed Queen, Dexter, Huebsch, Maytag, etc.
+
+**Enhanced Affiliate System** - UPGRADED
+- Expanded from basic tracking to full UGC content platform
+- Unique affiliate tags for URL tracking
+- 20% profit share on all WashBizHub sales
+- Tables: Enhanced `affiliates`, `affiliate_content`, `affiliate_clicks`, `affiliate_sales`, `affiliate_commissions`, `affiliate_payouts`
+- Features: Blog/video content creation, click tracking, revenue attribution, commission management
+
+**Known Technical Debt:**
+1. Multi-step mutations need transaction wrapping for data integrity (trackAffiliateClick, createAffiliateSale, etc.)
+2. Missing indexes on: affiliate_content.slug, affiliate_content.affiliate_id, affiliate_clicks.affiliate_id, affiliate_sales.click_id, distributor_inquiries.distributor_id
+3. TypeScript compile warnings on 4 Drizzle eq() calls (non-blocking, server runs)
+
 ## System Architecture
 
 ### Frontend Architecture
