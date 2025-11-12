@@ -25,6 +25,17 @@ export function useCreateDesign() {
   });
 }
 
+export function useUpdateDesign() {
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: InsertDesign }) => {
+      return apiRequest("PUT", `/api/designs/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/designs"] });
+    },
+  });
+}
+
 export function useOptimizeDesign() {
   return useMutation({
     mutationFn: async (designId: string) => {
