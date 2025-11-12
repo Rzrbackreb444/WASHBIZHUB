@@ -200,16 +200,46 @@ export const insertPartSchema = createInsertSchema(parts).omit({
 export type InsertPart = z.infer<typeof insertPartSchema>;
 export type Part = typeof parts.$inferSelect;
 
-// Affiliate Tracking
+// Affiliate System (20% Profit Share + UGC Content Platform)
 export const affiliates = pgTable("affiliates", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
-  affiliateCode: text("affiliate_code").notNull().unique(),
+  
+  // Legacy field (keep for backwards compatibility)
+  affiliateCode: text("affiliate_code").notNull().unique(), // "ABC123"
+  
+  // Enhanced Profile (nullable for backwards compatibility)
+  displayName: text("display_name"), // Can backfill from username later
+  bio: text("bio"),
+  website: text("website"),
+  socialLinks: jsonb("social_links"), // { youtube, instagram, twitter, etc. }
+  
+  // Affiliate Tag (new format for tracking - nullable, can auto-generate from code)
+  affiliateTag: text("affiliate_tag").unique(), // "JOHN123" - used in URLs, defaults to affiliateCode if null
+  
+  // Legacy vendor link (optional - for vendor marketplace affiliates)
   vendorId: varchar("vendor_id").references(() => vendors.id),
-  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull(), // 10.00 - 20.00
+  
+  // Commission Rates
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull().default("20"), // Default 20% profit share
+  
+  // Status & Approval
+  status: text("status").notNull().default("pending"), // "pending", "active", "suspended", "terminated"
+  approvedAt: timestamp("approved_at"),
+  
+  // Performance Tracking
   totalClicks: integer("total_clicks").default(0).notNull(),
   totalSales: integer("total_sales").default(0).notNull(),
-  totalEarnings: decimal("total_earnings", { precision: 10, scale: 2 }).default("0").notNull(),
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).default("0").notNull(),
+  totalCommission: decimal("total_commission", { precision: 12, scale: 2 }).default("0").notNull(),
+  totalPaidOut: decimal("total_paid_out", { precision: 12, scale: 2 }).default("0").notNull(),
+  totalEarnings: decimal("total_earnings", { precision: 10, scale: 2 }).default("0").notNull(), // Legacy compatibility
+  
+  // Payout Info
+  paypalEmail: text("paypal_email"),
+  venmoUsername: text("venmo_username"),
+  bankAccountLast4: text("bank_account_last4"),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -217,7 +247,11 @@ export const insertAffiliateSchema = createInsertSchema(affiliates).omit({
   id: true,
   totalClicks: true,
   totalSales: true,
+  totalRevenue: true,
+  totalCommission: true,
+  totalPaidOut: true,
   totalEarnings: true,
+  approvedAt: true,
   createdAt: true,
 });
 
@@ -1131,3 +1165,279 @@ export const insertMarketingCampaignSchema = createInsertSchema(marketingCampaig
 
 export type InsertMarketingCampaign = z.infer<typeof insertMarketingCampaignSchema>;
 export type MarketingCampaign = typeof marketingCampaigns.$inferSelect;
+
+// ============================================================================
+// DISTRIBUTOR LOCATOR (Lead Capture for Commission)
+// ============================================================================
+export const distributors = pgTable("distributors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Brand & Company Info
+  brandName: text("brand_name").notNull(), // "Speed Queen", "Dexter", "Huebsch", etc.
+  distributorName: text("distributor_name").notNull(),
+  
+  // Coverage
+  regions: text("regions").array().notNull(), // ["Northeast", "Mid-Atlantic", etc.]
+  states: text("states").array().notNull(), // ["NY", "NJ", "PA", etc.]
+  
+  // Equipment Types
+  equipmentTypes: text("equipment_types").array().notNull(), // ["washers", "dryers", "folders", etc.]
+  
+  // Private Contact Info (not shown to users)
+  contactName: text("contact_name").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone").notNull(),
+  website: text("website"),
+  
+  // Commission Info
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }), // Our commission %
+  
+  // Status
+  active: boolean("active").default(true).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertDistributorSchema = createInsertSchema(distributors).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertDistributor = z.infer<typeof insertDistributorSchema>;
+export type Distributor = typeof distributors.$inferSelect;
+
+// Distributor Inquiry (Lead Capture)
+export const distributorInquiries = pgTable("distributor_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").references(() => distributors.id),
+  
+  // Lead Info
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  businessName: text("business_name"),
+  
+  // Inquiry Details
+  equipmentInterest: text("equipment_interest").array(), // What they're looking for
+  message: text("message"),
+  urgency: text("urgency").notNull().default("normal"), // "low", "normal", "high"
+  
+  // Status Tracking
+  status: text("status").notNull().default("new"), // "new", "contacted", "qualified", "converted", "lost"
+  
+  // Commission Tracking
+  convertedToSale: boolean("converted_to_sale").default(false).notNull(),
+  saleAmount: decimal("sale_amount", { precision: 10, scale: 2 }),
+  commissionEarned: decimal("commission_earned", { precision: 10, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  contactedAt: timestamp("contacted_at"),
+  convertedAt: timestamp("converted_at"),
+});
+
+export const insertDistributorInquirySchema = createInsertSchema(distributorInquiries).omit({
+  id: true,
+  createdAt: true,
+  contactedAt: true,
+  convertedAt: true,
+});
+
+export type InsertDistributorInquiry = z.infer<typeof insertDistributorInquirySchema>;
+export type DistributorInquiry = typeof distributorInquiries.$inferSelect;
+
+// Affiliate Content (UGC Blogs & Videos)
+export const affiliateContent = pgTable("affiliate_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  
+  // Content Details
+  contentType: text("content_type").notNull(), // "blog", "video", "social"
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content"), // HTML for blogs
+  excerpt: text("excerpt"),
+  
+  // Video Details (if video)
+  videoUrl: text("video_url"), // YouTube/Vimeo embed URL
+  videoThumbnail: text("video_thumbnail"),
+  videoDuration: integer("video_duration"), // seconds
+  
+  // SEO
+  metaDescription: text("meta_description"),
+  keywords: text("keywords").array(),
+  
+  // Product/Service Links
+  relatedProducts: text("related_products").array(), // Product IDs being promoted
+  affiliateLinks: jsonb("affiliate_links"), // Tracked links within content
+  
+  // Moderation
+  status: text("status").notNull().default("pending"), // "pending", "approved", "rejected", "archived"
+  moderatorNotes: text("moderator_notes"),
+  
+  // Performance
+  views: integer("views").default(0).notNull(),
+  clicks: integer("clicks").default(0).notNull(),
+  conversions: integer("conversions").default(0).notNull(),
+  
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAffiliateContentSchema = createInsertSchema(affiliateContent).omit({
+  id: true,
+  views: true,
+  clicks: true,
+  conversions: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAffiliateContent = z.infer<typeof insertAffiliateContentSchema>;
+export type AffiliateContent = typeof affiliateContent.$inferSelect;
+
+// Affiliate Click Tracking
+export const affiliateClicks = pgTable("affiliate_clicks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  contentId: varchar("content_id").references(() => affiliateContent.id), // Optional: which content drove click
+  
+  // Click Details
+  affiliateTag: text("affiliate_tag").notNull(),
+  targetUrl: text("target_url").notNull(), // Where they clicked to
+  referrerUrl: text("referrer_url"), // Where they came from
+  
+  // Visitor Info
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  country: text("country"),
+  device: text("device"), // "mobile", "tablet", "desktop"
+  
+  // Conversion Tracking
+  convertedToSale: boolean("converted_to_sale").default(false).notNull(),
+  saleId: varchar("sale_id"), // Reference to order/purchase
+  
+  clickedAt: timestamp("clicked_at").defaultNow().notNull(),
+});
+
+export const insertAffiliateClickSchema = createInsertSchema(affiliateClicks).omit({
+  id: true,
+  clickedAt: true,
+});
+
+export type InsertAffiliateClick = z.infer<typeof insertAffiliateClickSchema>;
+export type AffiliateClick = typeof affiliateClicks.$inferSelect;
+
+// Affiliate Sales (Revenue Attribution)
+export const affiliateSales = pgTable("affiliate_sales", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  clickId: varchar("click_id").references(() => affiliateClicks.id),
+  
+  // Sale Details
+  productType: text("product_type").notNull(), // "course", "book", "consultation", "design_export", etc.
+  productId: varchar("product_id").notNull(),
+  productName: text("product_name").notNull(),
+  
+  // Financials
+  salePrice: decimal("sale_price", { precision: 10, scale: 2 }).notNull(),
+  cost: decimal("cost", { precision: 10, scale: 2 }).notNull(), // Our cost
+  profit: decimal("profit", { precision: 10, scale: 2 }).notNull(), // Sale price - cost
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull().default("20"), // Default 20%
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }).notNull(),
+  
+  // Customer
+  customerId: varchar("customer_id"),
+  customerEmail: text("customer_email"),
+  
+  // Payment Status
+  paymentStatus: text("payment_status").notNull().default("pending"), // "pending", "completed", "refunded"
+  stripePaymentId: text("stripe_payment_id"),
+  
+  // Commission Payout
+  commissionStatus: text("commission_status").notNull().default("pending"), // "pending", "approved", "paid"
+  payoutId: varchar("payout_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  refundedAt: timestamp("refunded_at"),
+});
+
+export const insertAffiliateSaleSchema = createInsertSchema(affiliateSales).omit({
+  id: true,
+  createdAt: true,
+  refundedAt: true,
+});
+
+export type InsertAffiliateSale = z.infer<typeof insertAffiliateSaleSchema>;
+export type AffiliateSale = typeof affiliateSales.$inferSelect;
+
+// Affiliate Commissions (Aggregated by Period)
+export const affiliateCommissions = pgTable("affiliate_commissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  
+  // Period
+  period: text("period").notNull(), // "2024-01", "2024-02", etc.
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  
+  // Performance Summary
+  totalClicks: integer("total_clicks").notNull(),
+  totalSales: integer("total_sales").notNull(),
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).notNull(),
+  totalProfit: decimal("total_profit", { precision: 12, scale: 2 }).notNull(),
+  totalCommission: decimal("total_commission", { precision: 12, scale: 2 }).notNull(),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "approved", "paid"
+  approvedAt: timestamp("approved_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAffiliateCommissionSchema = createInsertSchema(affiliateCommissions).omit({
+  id: true,
+  approvedAt: true,
+  createdAt: true,
+});
+
+export type InsertAffiliateCommission = z.infer<typeof insertAffiliateCommissionSchema>;
+export type AffiliateCommission = typeof affiliateCommissions.$inferSelect;
+
+// Affiliate Payouts
+export const affiliatePayouts = pgTable("affiliate_payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  commissionId: varchar("commission_id").references(() => affiliateCommissions.id),
+  
+  // Payout Details
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  method: text("method").notNull(), // "paypal", "venmo", "bank_transfer", "stripe"
+  
+  // Payment Info
+  paymentReference: text("payment_reference"), // PayPal transaction ID, etc.
+  recipientEmail: text("recipient_email"),
+  recipientAccount: text("recipient_account"),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "processing", "completed", "failed"
+  failureReason: text("failure_reason"),
+  
+  // Dates
+  requestedAt: timestamp("requested_at").notNull(),
+  processedAt: timestamp("processed_at"),
+  completedAt: timestamp("completed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAffiliatePayoutSchema = createInsertSchema(affiliatePayouts).omit({
+  id: true,
+  processedAt: true,
+  completedAt: true,
+  createdAt: true,
+});
+
+export type InsertAffiliatePayout = z.infer<typeof insertAffiliatePayoutSchema>;
+export type AffiliatePayout = typeof affiliatePayouts.$inferSelect;
