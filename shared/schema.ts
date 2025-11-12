@@ -29,6 +29,21 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   
+  // Personal/Contact Information
+  phone: varchar("phone"),
+  bio: text("bio"),
+  timezone: varchar("timezone").default("America/New_York"),
+  
+  // Business Information
+  companyName: varchar("company_name"),
+  role: varchar("role"), // Owner, Operator, Investor, Broker, Vendor, etc.
+  industry: varchar("industry"), // Laundromat, Car Wash, Dry Cleaner, Multi-Unit
+  numberOfLocations: integer("number_of_locations").default(1),
+  
+  // User Preferences
+  preferredCurrency: varchar("preferred_currency").default("USD"), // USD, EUR, GBP, JPY, CNY, AUD, CAD
+  preferredLanguage: varchar("preferred_language").default("en"), // en, es, fr, de, zh, ja
+  
   // WashBizHub subscription fields
   isPro: boolean("is_pro").default(false).notNull(),
   stripeCustomerId: text("stripe_customer_id"),

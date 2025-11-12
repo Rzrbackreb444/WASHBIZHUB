@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import DesignStudio from "@/pages/design-studio";
@@ -25,6 +26,8 @@ import Subscribe from "@/pages/subscribe";
 import Consultation from "@/pages/consultation";
 import Listings from "@/pages/listings";
 import Lesson from "@/pages/lesson";
+import FacebookGroup from "@/pages/FacebookGroup";
+import AtmServices from "@/pages/AtmServices";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,6 +57,8 @@ function Router() {
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={Listings} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
+      <Route path="/facebook-group" component={FacebookGroup} />
+      <Route path="/atm-services" component={AtmServices} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -63,9 +68,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen">
+        <div className="min-h-screen flex flex-col">
           <Header />
-          <Router />
+          <div className="flex-1">
+            <Router />
+          </div>
+          <Footer />
         </div>
         <Toaster />
       </TooltipProvider>
