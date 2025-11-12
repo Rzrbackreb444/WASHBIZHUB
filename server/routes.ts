@@ -710,6 +710,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate blog content using multi-AI providers
+  app.post("/api/ai-blog-tasks/:id/generate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const task = await storage.getAiBlogTask(id);
+      
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+
+      // Import AI provider service
+      const { aiProviderService } = await import("./ai-providers");
+      
+      // Generate content using selected AI provider
+      const messages = [
+        {
+          role: "system" as const,
+          content: `You are a professional laundromat industry content writer. Write SEO-optimized, informative blog posts.`
+        },
+        {
+          role: "user" as const,
+          content: `Write a blog post with the following details:
+Topic: ${task.topic}
+Keywords: ${task.keywords.join(", ")}
+Target word count: ${task.targetWordCount || 1500}
+
+Create engaging, well-researched content that provides value to laundromat owners and operators.`
+        }
+      ];
+
+      const response = await aiProviderService.generate(
+        task.aiProvider,
+        messages
+      );
+
+      // Update task with generated content
+      const updatedTask = await storage.updateAiBlogTask(id, {
+        content: response.content,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+      });
+
+      res.json({
+        task: updatedTask,
+        usage: response.usage,
+        model: response.model,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== SEO KEYWORDS ====================
   
   app.get("/api/seo-keywords", async (req, res) => {
