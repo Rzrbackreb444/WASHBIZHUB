@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import DesignStudio from "@/pages/design-studio";
 import CleanBI from "@/pages/cleanbi";
@@ -27,6 +28,10 @@ import Lesson from "@/pages/lesson";
 import NotFound from "@/pages/not-found";
 
 function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show home page while loading or if not authenticated
+  // Once authenticated, show all routes
   return (
     <Switch>
       <Route path="/" component={Home} />

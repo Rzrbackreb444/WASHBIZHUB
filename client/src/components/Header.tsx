@@ -1,12 +1,14 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -58,16 +60,59 @@ export function Header() {
             ))}
           </nav>
 
-          {/* CTA */}
-          <div className="flex items-center gap-4">
-            <Link href="/subscribe">
-              <Button 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full"
-                data-testid="button-go-pro"
-              >
-                Go Pro
-              </Button>
-            </Link>
+          {/* Auth & CTA */}
+          <div className="flex items-center gap-2">
+            {!isLoading && (
+              <>
+                {isAuthenticated ? (
+                  <>
+                    {/* User info */}
+                    <div className="hidden md:flex items-center gap-2 text-primary-foreground/80 text-sm">
+                      <User className="h-4 w-4" />
+                      <span>{user?.firstName || user?.email || 'User'}</span>
+                    </div>
+                    
+                    {/* Logout button */}
+                    <Button 
+                      onClick={() => window.location.href = '/api/logout'}
+                      variant="outline"
+                      size="sm"
+                      className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      data-testid="button-logout"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {/* Login button */}
+                    <Button 
+                      onClick={() => window.location.href = '/api/login'}
+                      variant="outline"
+                      size="sm"
+                      className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      data-testid="button-login"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </Button>
+                  </>
+                )}
+                
+                {/* Go Pro - show only if not already pro */}
+                {(!user?.isPro) && (
+                  <Link href="/subscribe">
+                    <Button 
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full"
+                      data-testid="button-go-pro"
+                    >
+                      Go Pro
+                    </Button>
+                  </Link>
+                )}
+              </>
+            )}
             
             {/* Mobile Menu Button */}
             <Button

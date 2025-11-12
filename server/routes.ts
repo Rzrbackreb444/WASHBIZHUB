@@ -1,9 +1,10 @@
 // WashBizHub API Routes
-// Reference: javascript_stripe and javascript_gemini blueprints
+// Reference: javascript_stripe, javascript_gemini, and javascript_log_in_with_replit blueprints
 
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import {
@@ -39,10 +40,27 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-10-29.clover",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // ==================== AUTH ====================
+  
+  // Setup Replit Auth (login, logout, callback routes)
+  await setupAuth(app);
+  
+  // Get authenticated user data
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error: any) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   
   // ==================== DESIGNS ====================
   
