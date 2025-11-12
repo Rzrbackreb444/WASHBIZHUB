@@ -391,20 +391,17 @@ export class DbStorage implements IStorage {
   // ============================================================================
   async getLessons(courseId: string): Promise<Lesson[]> {
     const result = await db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(lessons.order);
-    // Parse content field if it's a string (JSONB may be returned as string)
-    return result.map(lesson => ({
-      ...lesson,
-      content: typeof lesson.content === 'string' ? JSON.parse(lesson.content) : lesson.content
-    }));
+    return result;
   }
 
   async getLesson(id: string): Promise<Lesson | undefined> {
     const result = await db.select().from(lessons).where(eq(lessons.id, id));
     if (!result[0]) return undefined;
-    // Parse content field if it's a string (JSONB may be returned as string)
+    // Parse quizData if it's a string (Drizzle may return JSONB as string)
+    // Note: content is text type, not JSONB, so don't parse it
     return {
       ...result[0],
-      content: typeof result[0].content === 'string' ? JSON.parse(result[0].content) : result[0].content
+      quizData: result[0].quizData && typeof result[0].quizData === 'string' ? JSON.parse(result[0].quizData as string) : result[0].quizData
     };
   }
 

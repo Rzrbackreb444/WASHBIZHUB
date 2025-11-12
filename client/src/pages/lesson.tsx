@@ -41,12 +41,12 @@ export default function LessonPage() {
   const userId = "temp-user-id"; // TODO: Get from auth
 
   const { data: course } = useQuery<Course>({
-    queryKey: ["/api/courses", courseId],
+    queryKey: [`/api/courses/${courseId}`],
     enabled: !!courseId,
   });
 
   const { data: lessons = [] } = useQuery<Lesson[]>({
-    queryKey: [`/api/lessons?courseId=${courseId}`],
+    queryKey: [`/api/courses/${courseId}/lessons`],
     enabled: !!courseId,
   });
 
@@ -186,6 +186,7 @@ export default function LessonPage() {
               title={currentLesson.title}
               description="Complete the quiz to progress to the next lesson"
               questions={lessonContent.quiz.questions}
+              lessonId={currentLesson.id}
               onComplete={(score, total) => {
                 completeLessonMutation.mutate({ score, total });
               }}
