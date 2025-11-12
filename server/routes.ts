@@ -953,7 +953,7 @@ Create engaging, well-researched content that provides value to laundromat owner
   app.get("/api/distributors", async (req, res) => {
     try {
       const filters = {
-        brand: req.query.brand as string | undefined,
+        brandName: req.query.brandName as string | undefined,
         state: req.query.state as string | undefined,
         equipmentType: req.query.equipmentType as string | undefined,
       };
