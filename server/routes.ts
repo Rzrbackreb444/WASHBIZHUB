@@ -15,6 +15,14 @@ import {
   insertPartSchema,
   insertAffiliateSchema,
   insertLaundromatSchema,
+  insertCourseSchema,
+  insertLessonSchema,
+  insertEnrollmentSchema,
+  insertBookChapterSchema,
+  insertBookAccessSchema,
+  insertAiBlogTaskSchema,
+  insertSeoKeywordSchema,
+  insertCompetitorAnalysisSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -368,6 +376,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Note: Stripe webhook handler is in server/index.ts (must be before JSON middleware)
+  
   // ==================== STRIPE SUBSCRIPTION ====================
   
   app.post("/api/create-subscription", async (req, res) => {
@@ -412,6 +422,336 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== COURSES (PREMIUM LEARNING PLATFORM) ====================
+  
+  app.get("/api/courses", async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const published = req.query.published === "true" ? true : undefined;
+      const courses = await storage.getCourses({ category, published });
+      res.json(courses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/courses/:id", async (req, res) => {
+    try {
+      const course = await storage.getCourse(req.params.id);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      res.json(course);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/courses", async (req, res) => {
+    try {
+      const validated = insertCourseSchema.parse(req.body);
+      const course = await storage.createCourse(validated);
+      res.json(course);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Create Stripe checkout session for course purchase
+  app.post("/api/courses/:id/checkout", async (req, res) => {
+    try {
+      const course = await storage.getCourse(req.params.id);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      const { userId } = req.body;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+
+      // Check if already enrolled
+      const existing = await storage.getEnrollment(userId, course.id);
+      if (existing) {
+        return res.status(400).json({ message: "Already enrolled in this course" });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: course.title,
+                description: course.description,
+              },
+              unit_amount: Math.round(parseFloat(course.price) * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.headers.origin}/courses/${course.id}?success=true`,
+        cancel_url: `${req.headers.origin}/courses/${course.id}?canceled=true`,
+        metadata: {
+          userId,
+          courseId: course.id,
+          type: "course_purchase",
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== LESSONS ====================
+  
+  app.get("/api/courses/:courseId/lessons", async (req, res) => {
+    try {
+      const lessons = await storage.getLessons(req.params.courseId);
+      res.json(lessons);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/lessons", async (req, res) => {
+    try {
+      const validated = insertLessonSchema.parse(req.body);
+      const lesson = await storage.createLesson(validated);
+      res.json(lesson);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== ENROLLMENTS ====================
+  
+  app.get("/api/enrollments", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+      const enrollments = await storage.getEnrollments(userId);
+      res.json(enrollments);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // SECURITY: Manual enrollment creation disabled - only Stripe webhook can create enrollments
+  // This prevents users from bypassing payment
+  /*
+  app.post("/api/enrollments", async (req, res) => {
+    try {
+      const validated = insertEnrollmentSchema.parse(req.body);
+      const enrollment = await storage.createEnrollment(validated);
+      res.json(enrollment);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+  */
+
+  app.put("/api/enrollments/:id/progress", async (req, res) => {
+    try {
+      const { progress, currentLessonId, completedLessons } = req.body;
+      const updated = await storage.updateEnrollmentProgress(
+        req.params.id,
+        progress,
+        currentLessonId,
+        completedLessons
+      );
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== BOOK CHAPTERS ====================
+  
+  app.get("/api/book/chapters", async (req, res) => {
+    try {
+      const chapters = await storage.getBookChapters();
+      res.json(chapters);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/book/chapters/:id", async (req, res) => {
+    try {
+      const chapter = await storage.getBookChapter(req.params.id);
+      if (!chapter) {
+        return res.status(404).json({ message: "Chapter not found" });
+      }
+      res.json(chapter);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/book/chapters", async (req, res) => {
+    try {
+      const validated = insertBookChapterSchema.parse(req.body);
+      const chapter = await storage.createBookChapter(validated);
+      res.json(chapter);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== BOOK ACCESS ====================
+  
+  app.get("/api/book/access", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+      const access = await storage.getUserBookAccess(userId);
+      res.json({ hasAccess: !!access });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/book/purchase", async (req, res) => {
+    try {
+      const { userId } = req.body;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+
+      // Check if already has access
+      const existing = await storage.getUserBookAccess(userId);
+      if (existing) {
+        return res.status(400).json({ message: "Already has book access" });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "The Complete Laundromat Playbook",
+                description: "Interactive digital book with embedded calculators and tools",
+              },
+              unit_amount: 4700, // $47.00
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.headers.origin}/book?success=true`,
+        cancel_url: `${req.headers.origin}/book?canceled=true`,
+        metadata: {
+          userId,
+          type: "book_purchase",
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== AI BLOG TASKS ====================
+  
+  app.get("/api/ai-blog-tasks", async (req, res) => {
+    try {
+      const userId = req.query.userId as string | undefined;
+      const status = req.query.status as string | undefined;
+      const tasks = await storage.getAiBlogTasks({ userId, status });
+      res.json(tasks);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/ai-blog-tasks/:id", async (req, res) => {
+    try {
+      const task = await storage.getAiBlogTask(req.params.id);
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+      res.json(task);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/ai-blog-tasks", async (req, res) => {
+    try {
+      const validated = insertAiBlogTaskSchema.parse(req.body);
+      const task = await storage.createAiBlogTask(validated);
+      res.json(task);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/ai-blog-tasks/:id", async (req, res) => {
+    try {
+      const task = await storage.updateAiBlogTask(req.params.id, req.body);
+      res.json(task);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== SEO KEYWORDS ====================
+  
+  app.get("/api/seo-keywords", async (req, res) => {
+    try {
+      const minSearchVolume = req.query.minSearchVolume ? parseInt(req.query.minSearchVolume as string) : undefined;
+      const maxDifficulty = req.query.maxDifficulty ? parseInt(req.query.maxDifficulty as string) : undefined;
+      const keywords = await storage.getSeoKeywords({ minSearchVolume, maxDifficulty });
+      res.json(keywords);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/seo-keywords", async (req, res) => {
+    try {
+      const validated = insertSeoKeywordSchema.parse(req.body);
+      const keyword = await storage.createSeoKeyword(validated);
+      res.json(keyword);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== COMPETITOR ANALYSIS ====================
+  
+  app.get("/api/competitor-analysis", async (req, res) => {
+    try {
+      const keyword = req.query.keyword as string | undefined;
+      const analyses = await storage.getCompetitorAnalyses(keyword);
+      res.json(analyses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/competitor-analysis", async (req, res) => {
+    try {
+      const validated = insertCompetitorAnalysisSchema.parse(req.body);
+      const analysis = await storage.createCompetitorAnalysis(validated);
+      res.json(analysis);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   });
 

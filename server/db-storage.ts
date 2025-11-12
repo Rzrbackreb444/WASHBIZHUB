@@ -1,0 +1,545 @@
+import { db } from "./db";
+import { eq, and, desc, sql } from "drizzle-orm";
+import {
+  users,
+  designs,
+  cleanbiScores,
+  blogPosts,
+  calculatorScenarios,
+  vendors,
+  parts,
+  affiliates,
+  laundromats,
+  courses,
+  lessons,
+  enrollments,
+  bookChapters,
+  bookAccess,
+  aiBlogTasks,
+  seoKeywords,
+  competitorAnalysis,
+  type User,
+  type InsertUser,
+  type Design,
+  type InsertDesign,
+  type CleanbiScore,
+  type InsertCleanbiScore,
+  type BlogPost,
+  type InsertBlogPost,
+  type CalculatorScenario,
+  type InsertCalculatorScenario,
+  type Vendor,
+  type InsertVendor,
+  type Part,
+  type InsertPart,
+  type Affiliate,
+  type InsertAffiliate,
+  type Laundromat,
+  type InsertLaundromat,
+  type Course,
+  type InsertCourse,
+  type Lesson,
+  type InsertLesson,
+  type Enrollment,
+  type InsertEnrollment,
+  type BookChapter,
+  type InsertBookChapter,
+  type BookAccess,
+  type InsertBookAccess,
+  type AiBlogTask,
+  type InsertAiBlogTask,
+  type SeoKeyword,
+  type InsertSeoKeyword,
+  type CompetitorAnalysis,
+  type InsertCompetitorAnalysis,
+} from "@shared/schema";
+import type { IStorage } from "./storage";
+
+export class DbStorage implements IStorage {
+  // ============================================================================
+  // USERS
+  // ============================================================================
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  async updateUserStripeInfo(
+    userId: string,
+    stripeCustomerId: string,
+    stripeSubscriptionId: string
+  ): Promise<User> {
+    const result = await db
+      .update(users)
+      .set({ stripeCustomerId, stripeSubscriptionId, isPro: true })
+      .where(eq(users.id, userId))
+      .returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // DESIGNS
+  // ============================================================================
+  async getDesigns(userId?: string): Promise<Design[]> {
+    if (userId) {
+      return db.select().from(designs).where(eq(designs.userId, userId)).orderBy(desc(designs.createdAt));
+    }
+    return db.select().from(designs).orderBy(desc(designs.createdAt));
+  }
+
+  async getDesign(id: string): Promise<Design | undefined> {
+    const result = await db.select().from(designs).where(eq(designs.id, id));
+    return result[0];
+  }
+
+  async createDesign(design: InsertDesign): Promise<Design> {
+    const result = await db.insert(designs).values(design).returning();
+    return result[0];
+  }
+
+  async updateDesign(id: string, design: Partial<InsertDesign>): Promise<Design> {
+    const result = await db.update(designs).set(design).where(eq(designs.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteDesign(id: string): Promise<void> {
+    await db.delete(designs).where(eq(designs.id, id));
+  }
+
+  // ============================================================================
+  // CLEANBI SCORES
+  // ============================================================================
+  async getCleanbiScores(userId?: string): Promise<CleanbiScore[]> {
+    if (userId) {
+      return db.select().from(cleanbiScores).where(eq(cleanbiScores.userId, userId)).orderBy(desc(cleanbiScores.createdAt));
+    }
+    return db.select().from(cleanbiScores).orderBy(desc(cleanbiScores.createdAt));
+  }
+
+  async getCleanbiScore(id: string): Promise<CleanbiScore | undefined> {
+    const result = await db.select().from(cleanbiScores).where(eq(cleanbiScores.id, id));
+    return result[0];
+  }
+
+  async createCleanbiScore(score: InsertCleanbiScore): Promise<CleanbiScore> {
+    const result = await db.insert(cleanbiScores).values(score).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // BLOG POSTS
+  // ============================================================================
+  async getBlogPosts(filters?: { type?: string; category?: string }): Promise<BlogPost[]> {
+    let query = db.select().from(blogPosts);
+    
+    if (filters?.type || filters?.category) {
+      const conditions = [];
+      if (filters.type) conditions.push(eq(blogPosts.type, filters.type));
+      if (filters.category) conditions.push(eq(blogPosts.category, filters.category));
+      return query.where(and(...conditions)).orderBy(desc(blogPosts.createdAt));
+    }
+    
+    return query.orderBy(desc(blogPosts.createdAt));
+  }
+
+  async getBlogPost(id: string): Promise<BlogPost | undefined> {
+    const result = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+    return result[0];
+  }
+
+  async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
+    const result = await db.insert(blogPosts).values(post).returning();
+    return result[0];
+  }
+
+  async updateBlogPost(id: string, post: Partial<InsertBlogPost>): Promise<BlogPost> {
+    const result = await db.update(blogPosts).set(post).where(eq(blogPosts.id, id)).returning();
+    return result[0];
+  }
+
+  async incrementBlogViews(id: string): Promise<void> {
+    await db
+      .update(blogPosts)
+      .set({ views: sql`${blogPosts.views} + 1` })
+      .where(eq(blogPosts.id, id));
+  }
+
+  // ============================================================================
+  // CALCULATOR SCENARIOS
+  // ============================================================================
+  async getCalculatorScenarios(userId?: string): Promise<CalculatorScenario[]> {
+    if (userId) {
+      return db.select().from(calculatorScenarios).where(eq(calculatorScenarios.userId, userId)).orderBy(desc(calculatorScenarios.createdAt));
+    }
+    return db.select().from(calculatorScenarios).orderBy(desc(calculatorScenarios.createdAt));
+  }
+
+  async getCalculatorScenario(id: string): Promise<CalculatorScenario | undefined> {
+    const result = await db.select().from(calculatorScenarios).where(eq(calculatorScenarios.id, id));
+    return result[0];
+  }
+
+  async createCalculatorScenario(scenario: InsertCalculatorScenario): Promise<CalculatorScenario> {
+    const result = await db.insert(calculatorScenarios).values(scenario).returning();
+    return result[0];
+  }
+
+  async deleteCalculatorScenario(id: string): Promise<void> {
+    await db.delete(calculatorScenarios).where(eq(calculatorScenarios.id, id));
+  }
+
+  // ============================================================================
+  // VENDORS
+  // ============================================================================
+  async getVendors(category?: string): Promise<Vendor[]> {
+    if (category) {
+      return db.select().from(vendors).where(eq(vendors.category, category)).orderBy(desc(vendors.verified));
+    }
+    return db.select().from(vendors).orderBy(desc(vendors.verified));
+  }
+
+  async getVendor(id: string): Promise<Vendor | undefined> {
+    const result = await db.select().from(vendors).where(eq(vendors.id, id));
+    return result[0];
+  }
+
+  async createVendor(vendor: InsertVendor): Promise<Vendor> {
+    const result = await db.insert(vendors).values(vendor).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // PARTS
+  // ============================================================================
+  async getParts(filters?: { category?: string; vendorId?: string }): Promise<Part[]> {
+    let query = db.select().from(parts);
+    
+    if (filters?.category || filters?.vendorId) {
+      const conditions = [];
+      if (filters.category) conditions.push(eq(parts.category, filters.category));
+      if (filters.vendorId) conditions.push(eq(parts.vendorId, filters.vendorId));
+      return query.where(and(...conditions));
+    }
+    
+    return query;
+  }
+
+  async getPart(id: string): Promise<Part | undefined> {
+    const result = await db.select().from(parts).where(eq(parts.id, id));
+    return result[0];
+  }
+
+  async createPart(part: InsertPart): Promise<Part> {
+    const result = await db.insert(parts).values(part).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // AFFILIATES
+  // ============================================================================
+  async getAffiliates(userId?: string): Promise<Affiliate[]> {
+    if (userId) {
+      return db.select().from(affiliates).where(eq(affiliates.userId, userId));
+    }
+    return db.select().from(affiliates);
+  }
+
+  async getAffiliate(id: string): Promise<Affiliate | undefined> {
+    const result = await db.select().from(affiliates).where(eq(affiliates.id, id));
+    return result[0];
+  }
+
+  async getAffiliateByCode(code: string): Promise<Affiliate | undefined> {
+    const result = await db.select().from(affiliates).where(eq(affiliates.affiliateCode, code));
+    return result[0];
+  }
+
+  async createAffiliate(affiliate: InsertAffiliate): Promise<Affiliate> {
+    const result = await db.insert(affiliates).values(affiliate).returning();
+    return result[0];
+  }
+
+  async trackAffiliateClick(affiliateId: string): Promise<void> {
+    await db
+      .update(affiliates)
+      .set({ totalClicks: sql`${affiliates.totalClicks} + 1` })
+      .where(eq(affiliates.id, affiliateId));
+  }
+
+  async trackAffiliateSale(affiliateId: string, saleAmount: number): Promise<void> {
+    const affiliate = await this.getAffiliate(affiliateId);
+    if (!affiliate) return;
+    
+    const commission = (saleAmount * parseFloat(affiliate.commissionRate)) / 100;
+    
+    await db
+      .update(affiliates)
+      .set({
+        totalSales: sql`${affiliates.totalSales} + 1`,
+        totalEarnings: sql`${affiliates.totalEarnings} + ${commission}`,
+      })
+      .where(eq(affiliates.id, affiliateId));
+  }
+
+  // ============================================================================
+  // LAUNDROMATS
+  // ============================================================================
+  async getLaundromats(filters?: { city?: string; state?: string; zipCode?: string }): Promise<Laundromat[]> {
+    let query = db.select().from(laundromats);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.city) conditions.push(sql`LOWER(${laundromats.city}) LIKE LOWER(${'%' + filters.city + '%'})`);
+      if (filters.state) conditions.push(eq(laundromats.state, filters.state));
+      if (filters.zipCode) conditions.push(eq(laundromats.zipCode, filters.zipCode));
+      if (conditions.length > 0) {
+        return query.where(and(...conditions));
+      }
+    }
+    
+    return query;
+  }
+
+  async getLaundromat(id: string): Promise<Laundromat | undefined> {
+    const result = await db.select().from(laundromats).where(eq(laundromats.id, id));
+    return result[0];
+  }
+
+  async createLaundromat(laundromat: InsertLaundromat): Promise<Laundromat> {
+    const result = await db.insert(laundromats).values(laundromat).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // COURSES (PREMIUM LEARNING PLATFORM)
+  // ============================================================================
+  async getCourses(filters?: { category?: string; published?: boolean }): Promise<Course[]> {
+    let query = db.select().from(courses);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.category) conditions.push(eq(courses.category, filters.category));
+      if (filters.published !== undefined) conditions.push(eq(courses.published, filters.published));
+      if (conditions.length > 0) {
+        return query.where(and(...conditions)).orderBy(desc(courses.featured), desc(courses.createdAt));
+      }
+    }
+    
+    return query.orderBy(desc(courses.featured), desc(courses.createdAt));
+  }
+
+  async getCourse(id: string): Promise<Course | undefined> {
+    const result = await db.select().from(courses).where(eq(courses.id, id));
+    return result[0];
+  }
+
+  async createCourse(course: InsertCourse): Promise<Course> {
+    const result = await db.insert(courses).values(course).returning();
+    return result[0];
+  }
+
+  async updateCourse(id: string, course: Partial<InsertCourse>): Promise<Course> {
+    const result = await db.update(courses).set(course).where(eq(courses.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // LESSONS
+  // ============================================================================
+  async getLessons(courseId: string): Promise<Lesson[]> {
+    return db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(lessons.order);
+  }
+
+  async getLesson(id: string): Promise<Lesson | undefined> {
+    const result = await db.select().from(lessons).where(eq(lessons.id, id));
+    return result[0];
+  }
+
+  async createLesson(lesson: InsertLesson): Promise<Lesson> {
+    const result = await db.insert(lessons).values(lesson).returning();
+    return result[0];
+  }
+
+  async updateLesson(id: string, lesson: Partial<InsertLesson>): Promise<Lesson> {
+    const result = await db.update(lessons).set(lesson).where(eq(lessons.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // ENROLLMENTS (REVENUE-CRITICAL)
+  // ============================================================================
+  async getEnrollments(userId: string): Promise<Enrollment[]> {
+    return db.select().from(enrollments).where(eq(enrollments.userId, userId)).orderBy(desc(enrollments.enrolledAt));
+  }
+
+  async getEnrollment(userId: string, courseId: string): Promise<Enrollment | undefined> {
+    const result = await db
+      .select()
+      .from(enrollments)
+      .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)));
+    return result[0];
+  }
+
+  async createEnrollment(enrollment: InsertEnrollment): Promise<Enrollment> {
+    const result = await db.insert(enrollments).values(enrollment).returning();
+    
+    // Increment course enrollment count
+    await db
+      .update(courses)
+      .set({ totalEnrollments: sql`${courses.totalEnrollments} + 1` })
+      .where(eq(courses.id, enrollment.courseId));
+    
+    return result[0];
+  }
+
+  async updateEnrollmentProgress(
+    id: string,
+    progress: number,
+    currentLessonId?: string,
+    completedLessons?: string[]
+  ): Promise<Enrollment> {
+    const result = await db
+      .update(enrollments)
+      .set({
+        progress,
+        currentLessonId,
+        completedLessons: completedLessons ? JSON.stringify(completedLessons) : undefined,
+        lastAccessedAt: new Date(),
+      })
+      .where(eq(enrollments.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // BOOK CHAPTERS
+  // ============================================================================
+  async getBookChapters(): Promise<BookChapter[]> {
+    return db.select().from(bookChapters).orderBy(bookChapters.order);
+  }
+
+  async getBookChapter(id: string): Promise<BookChapter | undefined> {
+    const result = await db.select().from(bookChapters).where(eq(bookChapters.id, id));
+    return result[0];
+  }
+
+  async createBookChapter(chapter: InsertBookChapter): Promise<BookChapter> {
+    const result = await db.insert(bookChapters).values(chapter).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // BOOK ACCESS (REVENUE-CRITICAL)
+  // ============================================================================
+  async getUserBookAccess(userId: string): Promise<BookAccess | undefined> {
+    const result = await db.select().from(bookAccess).where(eq(bookAccess.userId, userId));
+    return result[0];
+  }
+
+  async createBookAccess(access: InsertBookAccess): Promise<BookAccess> {
+    const result = await db.insert(bookAccess).values(access).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // AI BLOG TASKS (MULTI-AI ORCHESTRATION)
+  // ============================================================================
+  async getAiBlogTasks(filters?: { userId?: string; status?: string }): Promise<AiBlogTask[]> {
+    let query = db.select().from(aiBlogTasks);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.userId) conditions.push(eq(aiBlogTasks.userId, filters.userId));
+      if (filters.status) conditions.push(eq(aiBlogTasks.status, filters.status));
+      if (conditions.length > 0) {
+        return query.where(and(...conditions)).orderBy(desc(aiBlogTasks.createdAt));
+      }
+    }
+    
+    return query.orderBy(desc(aiBlogTasks.createdAt));
+  }
+
+  async getAiBlogTask(id: string): Promise<AiBlogTask | undefined> {
+    const result = await db.select().from(aiBlogTasks).where(eq(aiBlogTasks.id, id));
+    return result[0];
+  }
+
+  async createAiBlogTask(task: InsertAiBlogTask): Promise<AiBlogTask> {
+    const result = await db.insert(aiBlogTasks).values(task).returning();
+    return result[0];
+  }
+
+  async updateAiBlogTask(id: string, task: Partial<InsertAiBlogTask>): Promise<AiBlogTask> {
+    const result = await db.update(aiBlogTasks).set(task).where(eq(aiBlogTasks.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // SEO KEYWORDS
+  // ============================================================================
+  async getSeoKeywords(filters?: { minSearchVolume?: number; maxDifficulty?: number }): Promise<SeoKeyword[]> {
+    let query = db.select().from(seoKeywords);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.minSearchVolume) {
+        conditions.push(sql`${seoKeywords.searchVolume} >= ${filters.minSearchVolume}`);
+      }
+      if (filters.maxDifficulty) {
+        conditions.push(sql`${seoKeywords.difficulty} <= ${filters.maxDifficulty}`);
+      }
+      if (conditions.length > 0) {
+        return query.where(and(...conditions)).orderBy(desc(seoKeywords.searchVolume));
+      }
+    }
+    
+    return query.orderBy(desc(seoKeywords.searchVolume));
+  }
+
+  async getSeoKeyword(id: string): Promise<SeoKeyword | undefined> {
+    const result = await db.select().from(seoKeywords).where(eq(seoKeywords.id, id));
+    return result[0];
+  }
+
+  async createSeoKeyword(keyword: InsertSeoKeyword): Promise<SeoKeyword> {
+    const result = await db.insert(seoKeywords).values(keyword).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // COMPETITOR ANALYSIS
+  // ============================================================================
+  async getCompetitorAnalyses(keyword?: string): Promise<CompetitorAnalysis[]> {
+    if (keyword) {
+      return db.select().from(competitorAnalysis).where(eq(competitorAnalysis.keyword, keyword)).orderBy(competitorAnalysis.serpPosition);
+    }
+    return db.select().from(competitorAnalysis).orderBy(desc(competitorAnalysis.analyzedAt));
+  }
+
+  async getCompetitorAnalysis(id: string): Promise<CompetitorAnalysis | undefined> {
+    const result = await db.select().from(competitorAnalysis).where(eq(competitorAnalysis.id, id));
+    return result[0];
+  }
+
+  async createCompetitorAnalysis(analysis: InsertCompetitorAnalysis): Promise<CompetitorAnalysis> {
+    const result = await db.insert(competitorAnalysis).values(analysis).returning();
+    return result[0];
+  }
+}
+
+export const dbStorage = new DbStorage();
