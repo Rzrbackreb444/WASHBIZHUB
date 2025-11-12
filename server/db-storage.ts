@@ -18,6 +18,8 @@ import {
   aiBlogTasks,
   seoKeywords,
   competitorAnalysis,
+  consultations,
+  listings,
   type User,
   type InsertUser,
   type Design,
@@ -52,6 +54,10 @@ import {
   type InsertSeoKeyword,
   type CompetitorAnalysis,
   type InsertCompetitorAnalysis,
+  type Consultation,
+  type InsertConsultation,
+  type Listing,
+  type InsertListing,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -539,6 +545,76 @@ export class DbStorage implements IStorage {
   async createCompetitorAnalysis(analysis: InsertCompetitorAnalysis): Promise<CompetitorAnalysis> {
     const result = await db.insert(competitorAnalysis).values(analysis).returning();
     return result[0];
+  }
+
+  // ============================================================================
+  // CONSULTATIONS
+  // ============================================================================
+  async getConsultations(userId?: string, status?: string): Promise<Consultation[]> {
+    const conditions = [];
+    if (userId) {
+      conditions.push(eq(consultations.userId, userId));
+    }
+    if (status) {
+      conditions.push(eq(consultations.status, status));
+    }
+    
+    if (conditions.length > 0) {
+      return db.select().from(consultations).where(and(...conditions)).orderBy(desc(consultations.createdAt));
+    }
+    return db.select().from(consultations).orderBy(desc(consultations.createdAt));
+  }
+
+  async getConsultation(id: string): Promise<Consultation | undefined> {
+    const result = await db.select().from(consultations).where(eq(consultations.id, id));
+    return result[0];
+  }
+
+  async createConsultation(consultation: InsertConsultation): Promise<Consultation> {
+    const result = await db.insert(consultations).values(consultation).returning();
+    return result[0];
+  }
+
+  async updateConsultation(id: string, updates: Partial<InsertConsultation>): Promise<Consultation> {
+    const result = await db.update(consultations).set(updates).where(eq(consultations.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // LISTINGS (MARKETPLACE)
+  // ============================================================================
+  async getListings(status?: string, state?: string): Promise<Listing[]> {
+    const conditions = [];
+    if (status) {
+      conditions.push(eq(listings.status, status));
+    }
+    if (state) {
+      conditions.push(eq(listings.state, state));
+    }
+    
+    if (conditions.length > 0) {
+      return db.select().from(listings).where(and(...conditions)).orderBy(desc(listings.createdAt));
+    }
+    return db.select().from(listings).orderBy(desc(listings.createdAt));
+  }
+
+  async getListing(id: string): Promise<Listing | undefined> {
+    const result = await db.select().from(listings).where(eq(listings.id, id));
+    return result[0];
+  }
+
+  async createListing(listing: InsertListing): Promise<Listing> {
+    const result = await db.insert(listings).values(listing).returning();
+    return result[0];
+  }
+
+  async updateListing(id: string, updates: Partial<InsertListing>): Promise<Listing> {
+    const result = await db.update(listings).set(updates).where(eq(listings.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteListing(id: string): Promise<void> {
+    await db.delete(listings).where(eq(listings.id, id));
   }
 }
 

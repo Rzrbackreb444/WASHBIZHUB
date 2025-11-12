@@ -20,6 +20,8 @@ import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
 import Locator from "@/pages/locator";
 import Subscribe from "@/pages/subscribe";
+import Consultation from "@/pages/consultation";
+import Listings from "@/pages/listings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -41,6 +43,8 @@ function Router() {
       <Route path="/parts" component={Parts} />
       <Route path="/locator" component={Locator} />
       <Route path="/subscribe" component={Subscribe} />
+      <Route path="/consultation" component={Consultation} />
+      <Route path="/listings" component={Listings} />
       <Route component={NotFound} />
     </Switch>
   );

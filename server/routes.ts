@@ -23,6 +23,8 @@ import {
   insertAiBlogTaskSchema,
   insertSeoKeywordSchema,
   insertCompetitorAnalysisSchema,
+  insertConsultationSchema,
+  insertListingSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -804,6 +806,111 @@ Create engaging, well-researched content that provides value to laundromat owner
       res.json(analysis);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== CONSULTATIONS ====================
+  
+  app.get("/api/consultations", async (req, res) => {
+    try {
+      const userId = req.query.userId as string | undefined;
+      const status = req.query.status as string | undefined;
+      const consultations = await storage.getConsultations(userId, status);
+      res.json(consultations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/consultations/:id", async (req, res) => {
+    try {
+      const consultation = await storage.getConsultation(req.params.id);
+      if (!consultation) {
+        return res.status(404).json({ message: "Consultation not found" });
+      }
+      res.json(consultation);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/consultations", async (req, res) => {
+    try {
+      const validated = insertConsultationSchema.parse(req.body);
+      const consultation = await storage.createConsultation(validated);
+      res.json(consultation);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/consultations/:id", async (req, res) => {
+    try {
+      const validated = insertConsultationSchema.partial().parse(req.body);
+      const updated = await storage.updateConsultation(req.params.id, validated);
+      if (!updated) {
+        return res.status(404).json({ message: "Consultation not found" });
+      }
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== LISTINGS (MARKETPLACE) ====================
+  
+  app.get("/api/listings", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const state = req.query.state as string | undefined;
+      const listings = await storage.getListings(status, state);
+      res.json(listings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/listings/:id", async (req, res) => {
+    try {
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      res.json(listing);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/listings", async (req, res) => {
+    try {
+      const validated = insertListingSchema.parse(req.body);
+      const listing = await storage.createListing(validated);
+      res.json(listing);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/listings/:id", async (req, res) => {
+    try {
+      const validated = insertListingSchema.partial().parse(req.body);
+      const updated = await storage.updateListing(req.params.id, validated);
+      if (!updated) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/listings/:id", async (req, res) => {
+    try {
+      await storage.deleteListing(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
