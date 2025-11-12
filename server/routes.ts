@@ -25,6 +25,13 @@ import {
   insertCompetitorAnalysisSchema,
   insertConsultationSchema,
   insertListingSchema,
+  insertDistributorSchema,
+  insertDistributorInquirySchema,
+  insertAffiliateContentSchema,
+  insertAffiliateClickSchema,
+  insertAffiliateSaleSchema,
+  insertAffiliateCommissionSchema,
+  insertAffiliatePayoutSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -936,6 +943,211 @@ Create engaging, well-researched content that provides value to laundromat owner
     try {
       await storage.deleteListing(req.params.id);
       res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== DISTRIBUTOR LOCATOR ====================
+  
+  app.get("/api/distributors", async (req, res) => {
+    try {
+      const filters = {
+        brand: req.query.brand as string | undefined,
+        state: req.query.state as string | undefined,
+        equipmentType: req.query.equipmentType as string | undefined,
+      };
+      const distributors = await storage.getDistributors(filters);
+      res.json(distributors);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/distributors/:id", async (req, res) => {
+    try {
+      const distributor = await storage.getDistributor(req.params.id);
+      if (!distributor) {
+        return res.status(404).json({ message: "Distributor not found" });
+      }
+      res.json(distributor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/distributors", async (req, res) => {
+    try {
+      const validated = insertDistributorSchema.parse(req.body);
+      const distributor = await storage.createDistributor(validated);
+      res.json(distributor);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/distributor-inquiries", async (req, res) => {
+    try {
+      const validated = insertDistributorInquirySchema.parse(req.body);
+      const inquiry = await storage.createDistributorInquiry(validated);
+      res.json(inquiry);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/distributor-inquiries", async (req, res) => {
+    try {
+      const distributorId = req.query.distributorId as string | undefined;
+      const inquiries = await storage.getDistributorInquiries(distributorId);
+      res.json(inquiries);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/distributor-inquiries/:id", async (req, res) => {
+    try {
+      const validated = insertDistributorInquirySchema.partial().parse(req.body);
+      const updated = await storage.updateDistributorInquiry(req.params.id, validated);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== AFFILIATE SYSTEM ====================
+  
+  app.post("/api/affiliates", async (req, res) => {
+    try {
+      const validated = insertAffiliateSchema.parse(req.body);
+      const affiliate = await storage.createAffiliate(validated);
+      res.json(affiliate);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/affiliates/:id", async (req, res) => {
+    try {
+      const affiliate = await storage.getAffiliate(req.params.id);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+      res.json(affiliate);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/affiliate/by-tag/:tag", async (req, res) => {
+    try {
+      const affiliate = await storage.getAffiliateByTag(req.params.tag);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+      res.json(affiliate);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/affiliate/click", async (req, res) => {
+    try {
+      const validated = insertAffiliateClickSchema.parse(req.body);
+      const click = await storage.trackAffiliateClick(validated);
+      res.json(click);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/affiliate/content", async (req, res) => {
+    try {
+      const validated = insertAffiliateContentSchema.parse(req.body);
+      const content = await storage.createAffiliateContent(validated);
+      res.json(content);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/affiliate/content", async (req, res) => {
+    try {
+      const filters = {
+        affiliateId: req.query.affiliateId as string | undefined,
+        status: req.query.status as string | undefined,
+        type: req.query.type as string | undefined,
+      };
+      const content = await storage.getAffiliateContent(filters);
+      res.json(content);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/affiliate/content/:slug", async (req, res) => {
+    try {
+      const content = await storage.getAffiliateContentBySlug(req.params.slug);
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      res.json(content);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/affiliate/sales", async (req, res) => {
+    try {
+      const validated = insertAffiliateSaleSchema.parse(req.body);
+      const sale = await storage.createAffiliateSale(validated);
+      res.json(sale);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/affiliate/dashboard/:affiliateId", async (req, res) => {
+    try {
+      const { affiliateId } = req.params;
+      
+      const [
+        affiliate,
+        content,
+        clicks,
+        sales,
+        commissions,
+        payouts
+      ] = await Promise.all([
+        storage.getAffiliate(affiliateId),
+        storage.getAffiliateContent({ affiliateId }),
+        storage.getAffiliateClicks(affiliateId, 100),
+        storage.getAffiliateSales(affiliateId),
+        storage.getAffiliateCommissions(affiliateId),
+        storage.getAffiliatePayouts(affiliateId),
+      ]);
+
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+
+      res.json({
+        affiliate,
+        content,
+        clicks,
+        sales,
+        commissions,
+        payouts,
+        stats: {
+          totalClicks: affiliate.totalClicks,
+          totalSales: affiliate.totalSales,
+          totalRevenue: affiliate.totalRevenue,
+          totalCommission: affiliate.totalCommission,
+          totalPaidOut: affiliate.totalPaidOut,
+          pendingPayout: Number(affiliate.totalCommission) - Number(affiliate.totalPaidOut),
+        },
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
