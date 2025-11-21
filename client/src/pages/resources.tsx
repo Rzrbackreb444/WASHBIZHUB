@@ -394,9 +394,9 @@ export default function ResourcesPage() {
             </div>
 
             {/* Sidebar - Ads */}
-            <aside className="lg:w-80 space-y-6">
-              <div className="sticky top-24">
-                <Advertisement placement="sidebar" className="mb-6" />
+            <aside className="hidden lg:block lg:w-80">
+              <div className="sticky top-24 space-y-6">
+                <Advertisement placement="sidebar" />
                 <Advertisement placement="inline" />
               </div>
             </aside>
