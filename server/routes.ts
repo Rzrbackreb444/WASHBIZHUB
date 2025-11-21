@@ -27,6 +27,8 @@ import {
   insertConsultationSchema,
   insertListingSchema,
   insertDistributorSchema,
+  insertTemplateSchema,
+  insertTemplateDownloadSchema,
   insertDistributorInquirySchema,
   insertAffiliateContentSchema,
   insertAffiliateClickSchema,

@@ -147,6 +147,13 @@ export interface IStorage {
   // Listings (Marketplace)
   getListings(status?: string, state?: string): Promise<Listing[]>;
   getListing(id: string): Promise<Listing | undefined>;
+  
+  // Templates (Premium)
+  getTemplates(filters?: { category?: string; featured?: boolean }): Promise<any[]>;
+  getTemplate(id: string): Promise<any | undefined>;
+  createTemplate(template: any): Promise<any>;
+  updateTemplate(id: string, template: any): Promise<any>;
+  recordTemplateDownload(templateId: string, userId: string, isPaid: boolean, amount?: number): Promise<any>;
   createListing(listing: InsertListing): Promise<Listing>;
   updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
   deleteListing(id: string): Promise<void>;
@@ -536,6 +543,12 @@ export class MemStorage implements IStorage {
   async createListing(): Promise<Listing> { throw new Error("Use DbStorage for premium features"); }
   async updateListing(): Promise<Listing> { throw new Error("Use DbStorage for premium features"); }
   async deleteListing(): Promise<void> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getTemplates(): Promise<any[]> { return []; }
+  async getTemplate(): Promise<any | undefined> { return undefined; }
+  async createTemplate(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
+  async updateTemplate(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
+  async recordTemplateDownload(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
 }
 
 // Use DbStorage for production-grade persistence
