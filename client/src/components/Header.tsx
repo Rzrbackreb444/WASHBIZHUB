@@ -1,9 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/components/Advertisement";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 
 export function Header() {
@@ -42,10 +43,24 @@ export function Header() {
               <Advertisement placement="header" />
             </div>
             
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             {!isLoading && (
               <>
                 {isAuthenticated ? (
                   <>
+                    {/* Settings button */}
+                    <Link href="/settings">
+                      <Button 
+                        variant="ghost"
+                        size="icon"
+                        data-testid="button-settings"
+                      >
+                        <SettingsIcon className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                    
                     {/* User info */}
                     <div className="hidden md:flex items-center gap-2 text-foreground/80 text-sm mr-1">
                       <User className="h-4 w-4" />

@@ -181,6 +181,18 @@ export class DbStorage implements IStorage {
     }
   }
 
+  async updateUser(userId: string, userData: Partial<UpsertUser>): Promise<User> {
+    const result = await db
+      .update(users)
+      .set({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return result[0];
+  }
+
   async updateUserStripeInfo(
     userId: string,
     stripeCustomerId: string,

@@ -2589,6 +2589,110 @@ Disallow: /private/`;
 
   // ==================== AI CHAT ====================
 
+  // ==================== SUBSCRIPTION MANAGEMENT ====================
+
+  // POST /api/subscriptions/upgrade - Upgrade subscription plan
+  app.post("/api/subscriptions/upgrade", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { priceId } = req.body;
+      if (!priceId) {
+        return res.status(400).json({ error: "Price ID required" });
+      }
+
+      // Create or update Stripe customer
+      let customerId = currentUser.user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: currentUser.user.email,
+          metadata: {
+            userId: currentUser.userId,
+          },
+        });
+        customerId = customer.id;
+        await storage.updateUser(currentUser.userId, { stripeCustomerId: customerId });
+      }
+
+      // Check if user has existing subscription
+      if (currentUser.user.stripeSubscriptionId) {
+        // Update existing subscription
+        const subscription = await stripe.subscriptions.retrieve(currentUser.user.stripeSubscriptionId);
+        const updatedSubscription = await stripe.subscriptions.update(currentUser.user.stripeSubscriptionId, {
+          items: [{
+            id: subscription.items.data[0].id,
+            price: priceId,
+          }],
+          proration_behavior: 'create_prorations',
+        });
+        
+        res.json({ subscription: updatedSubscription });
+      } else {
+        // Create new subscription with checkout
+        const session = await stripe.checkout.sessions.create({
+          customer: customerId,
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          line_items: [{
+            price: priceId,
+            quantity: 1,
+          }],
+          success_url: `${req.headers.origin}/settings?success=true`,
+          cancel_url: `${req.headers.origin}/settings?canceled=true`,
+        });
+
+        res.json({ url: session.url });
+      }
+    } catch (error: any) {
+      console.error("Upgrade error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/subscriptions/cancel - Cancel subscription
+  app.post("/api/subscriptions/cancel", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      if (!currentUser.user.stripeSubscriptionId) {
+        return res.status(400).json({ error: "No active subscription" });
+      }
+
+      const { reason } = req.body;
+
+      // Cancel at period end to allow access until paid period expires
+      const subscription = await stripe.subscriptions.update(
+        currentUser.user.stripeSubscriptionId,
+        {
+          cancel_at_period_end: true,
+          metadata: {
+            cancellation_reason: reason || "No reason provided",
+          },
+        }
+      );
+
+      // Update user tier back to free
+      await storage.updateUser(currentUser.userId, { 
+        subscriptionTier: "free",
+        isPro: false 
+      });
+
+      res.json({ 
+        message: "Subscription will be cancelled at period end",
+        subscription 
+      });
+    } catch (error: any) {
+      console.error("Cancel error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== FORUM SYSTEM ====================
 
   // GET /api/forum/categories - List all forum categories
