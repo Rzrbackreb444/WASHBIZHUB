@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
+import { Advertisement } from "@/components/Advertisement";
 import type { Resource } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -187,6 +188,9 @@ export default function ResourcesPage() {
       {/* Main Content */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Main Content Column */}
+            <div className="flex-1">
           <Tabs value={selectedSegment} onValueChange={setSelectedSegment} className="w-full">
             {/* Industry Segment Filters */}
             <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 h-auto bg-transparent p-0 mb-8">
@@ -387,6 +391,16 @@ export default function ResourcesPage() {
               </div>
             )}
           </Tabs>
+            </div>
+
+            {/* Sidebar - Ads */}
+            <aside className="lg:w-80 space-y-6">
+              <div className="sticky top-24">
+                <Advertisement placement="sidebar" className="mb-6" />
+                <Advertisement placement="inline" />
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
 

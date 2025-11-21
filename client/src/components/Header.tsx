@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { Advertisement } from "@/components/Advertisement";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 
 export function Header() {
@@ -36,6 +37,11 @@ export function Header() {
 
           {/* Auth & CTA */}
           <div className="flex items-center gap-2">
+            {/* Advertisement - Header placement */}
+            <div className="hidden xl:block">
+              <Advertisement placement="header" />
+            </div>
+            
             {!isLoading && (
               <>
                 {isAuthenticated ? (
