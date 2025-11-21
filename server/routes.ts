@@ -426,23 +426,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             price_data: {
               currency: "usd",
-              product_data: {
-                name: "WashBizHub Pro",
-                description: "Complete platform access with all premium features",
-              },
+              product: "prod_washbizhub_pro",
               recurring: {
                 interval: "month",
               },
               unit_amount: 9700, // $97.00
-            },
+            } as any, // Stripe typing issue with inline product_data
           },
         ],
         payment_behavior: "default_incomplete",
         expand: ["latest_invoice.payment_intent"],
       });
 
-      const invoice = subscription.latest_invoice as Stripe.Invoice;
-      const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+      const invoice = subscription.latest_invoice as any;
+      const paymentIntent = invoice?.payment_intent as Stripe.PaymentIntent;
 
       res.json({
         subscriptionId: subscription.id,
@@ -572,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/courses/:courseId/lessons", async (req, res) => {
     try {
       const lessons = await storage.getLessons(req.params.courseId);
-      const transformed = lessons.map(transformLesson);
+      const transformed = lessons.map(lesson => transformLesson(lesson, false));
       res.json(transformed);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -586,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "courseId query parameter is required" });
       }
       const lessons = await storage.getLessons(courseId);
-      const transformed = lessons.map(transformLesson);
+      const transformed = lessons.map(lesson => transformLesson(lesson, false));
       res.json(transformed);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -867,6 +864,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { aiProviderService } = await import("./ai-providers");
       
       // Generate content using selected AI provider
+      const keywords = Array.isArray(task.keywords) ? task.keywords : [];
+      const metadata = task.metadata as any || {};
+      const providers = task.providers as any || {};
+      
       const messages = [
         {
           role: "system" as const,
@@ -876,24 +877,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: "user" as const,
           content: `Write a blog post with the following details:
 Topic: ${task.topic}
-Keywords: ${task.keywords.join(", ")}
-Target word count: ${task.targetWordCount || 1500}
+Keywords: ${keywords.join(", ")}
+Target word count: ${metadata.targetWordCount || 1500}
 
 Create engaging, well-researched content that provides value to laundromat owners and operators.`
         }
       ];
 
+      const selectedProvider = providers.selected || "openai";
       const response = await aiProviderService.generate(
-        task.aiProvider,
+        selectedProvider,
         messages
       );
 
       // Update task with generated content
+      const drafts = task.drafts as any || {};
+      drafts[selectedProvider] = response.content;
+      
       const updatedTask = await storage.updateAiBlogTask(id, {
-        content: response.content,
+        drafts,
         status: "completed",
-        completedAt: new Date().toISOString(),
-      });
+      } as any);
 
       res.json({
         task: updatedTask,
