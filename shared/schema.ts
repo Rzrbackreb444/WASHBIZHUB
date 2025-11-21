@@ -3368,3 +3368,1417 @@ export const insertActivityEventSchema = createInsertSchema(activityEvents).omit
 
 export type InsertActivityEvent = z.infer<typeof insertActivityEventSchema>;
 export type ActivityEvent = typeof activityEvents.$inferSelect;
+
+// ============================================================================
+// POS SYSTEM & OPERATIONS
+// ============================================================================
+
+// POS Transactions - Main order/transaction records
+export const posTransactions = pgTable("pos_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Customer Information
+  customerId: varchar("customer_id"), // Can be guest (null)
+  customerName: text("customer_name"),
+  customerPhone: varchar("customer_phone"),
+  customerEmail: varchar("customer_email"),
+  
+  // Transaction Details
+  transactionNumber: text("transaction_number").notNull().unique(), // e.g., "TXN-2025-001234"
+  orderType: text("order_type").notNull(), // "wash_dry_fold", "dry_cleaning", "alterations", "pickup_delivery"
+  status: text("status").notNull().default("pending"), // "pending", "weighing", "processing", "ready", "completed", "cancelled"
+  
+  // Pricing (per-pound model)
+  totalWeight: decimal("total_weight", { precision: 10, scale: 2 }), // Pounds
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }), // $1.25-$2.25
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  tax: decimal("tax", { precision: 10, scale: 2 }).default("0.00"),
+  discount: decimal("discount", { precision: 10, scale: 2 }).default("0.00"),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  
+  // Payment
+  paymentMethod: text("payment_method"), // "cash", "card", "account", "online"
+  paymentStatus: text("payment_status").default("unpaid"), // "unpaid", "paid", "refunded", "partially_refunded"
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  
+  // Processing
+  assignedTo: varchar("assigned_to").references(() => users.id), // Attendant
+  machineIds: text("machine_ids").array(), // Machines used for this order
+  
+  // Timing
+  dropoffTime: timestamp("dropoff_time"),
+  promisedTime: timestamp("promised_time"),
+  completedTime: timestamp("completed_time"),
+  pickedupTime: timestamp("pickedup_time"),
+  
+  // Notes
+  specialInstructions: text("special_instructions"),
+  internalNotes: text("internal_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("pos_transactions_laundromat_idx").on(table.laundromatId),
+  customerIdx: index("pos_transactions_customer_idx").on(table.customerId),
+  statusIdx: index("pos_transactions_status_idx").on(table.status),
+  createdAtIdx: index("pos_transactions_created_at_idx").on(table.createdAt),
+}));
+
+export const insertPosTransactionSchema = createInsertSchema(posTransactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPosTransaction = z.infer<typeof insertPosTransactionSchema>;
+export type PosTransaction = typeof posTransactions.$inferSelect;
+
+// POS Items - Line items for transactions
+export const posItems = pgTable("pos_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id).notNull(),
+  
+  // Item Details
+  itemType: text("item_type").notNull(), // "wash_dry_fold", "dry_clean_piece", "alteration", "supply"
+  description: text("description").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  
+  // Pricing
+  weight: decimal("weight", { precision: 10, scale: 2 }), // For per-pound items
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  
+  // Processing
+  status: text("status").notNull().default("pending"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  transactionIdx: index("pos_items_transaction_idx").on(table.transactionId),
+}));
+
+export const insertPosItemSchema = createInsertSchema(posItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPosItem = z.infer<typeof insertPosItemSchema>;
+export type PosItem = typeof posItems.$inferSelect;
+
+// Weigh Events - Track scale measurements
+export const weighEvents = pgTable("weigh_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id).notNull(),
+  
+  // Weight Data
+  weight: decimal("weight", { precision: 10, scale: 2 }).notNull(), // Pounds
+  scaleId: text("scale_id"), // Hardware scale identifier
+  weighedBy: varchar("weighed_by").references(() => users.id).notNull(),
+  
+  // Photo Evidence
+  photoUrl: text("photo_url"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  transactionIdx: index("weigh_events_transaction_idx").on(table.transactionId),
+  createdAtIdx: index("weigh_events_created_at_idx").on(table.createdAt),
+}));
+
+export const insertWeighEventSchema = createInsertSchema(weighEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertWeighEvent = z.infer<typeof insertWeighEventSchema>;
+export type WeighEvent = typeof weighEvents.$inferSelect;
+
+// Payment Settlements - Stripe reconciliation
+export const paymentSettlements = pgTable("payment_settlements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Settlement Details
+  settlementDate: timestamp("settlement_date").notNull(),
+  stripePayoutId: text("stripe_payout_id"),
+  
+  // Amounts
+  grossAmount: decimal("gross_amount", { precision: 10, scale: 2 }).notNull(),
+  fees: decimal("fees", { precision: 10, scale: 2 }).notNull(),
+  netAmount: decimal("net_amount", { precision: 10, scale: 2 }).notNull(),
+  
+  // Transactions Included
+  transactionIds: text("transaction_ids").array(),
+  transactionCount: integer("transaction_count").notNull(),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "paid", "failed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("payment_settlements_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("payment_settlements_date_idx").on(table.settlementDate),
+}));
+
+export const insertPaymentSettlementSchema = createInsertSchema(paymentSettlements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPaymentSettlement = z.infer<typeof insertPaymentSettlementSchema>;
+export type PaymentSettlement = typeof paymentSettlements.$inferSelect;
+
+// Household Accounts - Customer accounts with credit
+export const householdAccounts = pgTable("household_accounts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Account Details
+  accountNumber: text("account_number").notNull().unique(),
+  accountName: text("account_name").notNull(),
+  contactName: text("contact_name").notNull(),
+  phone: varchar("phone").notNull(),
+  email: varchar("email"),
+  
+  // Address
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: varchar("zip"),
+  
+  // Billing
+  billingCycle: text("billing_cycle").default("monthly"), // "weekly", "biweekly", "monthly"
+  paymentTerms: integer("payment_terms").default(30), // Net-30, Net-60, etc.
+  creditLimit: decimal("credit_limit", { precision: 10, scale: 2 }),
+  currentBalance: decimal("current_balance", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "suspended", "closed"
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("household_accounts_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("household_accounts_status_idx").on(table.status),
+}));
+
+export const insertHouseholdAccountSchema = createInsertSchema(householdAccounts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertHouseholdAccount = z.infer<typeof insertHouseholdAccountSchema>;
+export type HouseholdAccount = typeof householdAccounts.$inferSelect;
+
+// Service Orders - Recurring subscription orders
+export const serviceOrders = pgTable("service_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  customerId: varchar("customer_id"),
+  
+  // Order Details
+  orderNumber: text("order_number").notNull().unique(),
+  serviceType: text("service_type").notNull(), // "pickup_delivery", "commercial_contract", "subscription"
+  frequency: text("frequency"), // "daily", "weekly", "biweekly", "monthly"
+  
+  // Pricing
+  recurringAmount: decimal("recurring_amount", { precision: 10, scale: 2 }),
+  
+  // Schedule
+  nextServiceDate: timestamp("next_service_date"),
+  lastServiceDate: timestamp("last_service_date"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "paused", "cancelled", "completed"
+  
+  // Route Assignment
+  routeId: varchar("route_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("service_orders_laundromat_idx").on(table.laundromatId),
+  customerIdx: index("service_orders_customer_idx").on(table.customerId),
+  statusIdx: index("service_orders_status_idx").on(table.status),
+}));
+
+export const insertServiceOrderSchema = createInsertSchema(serviceOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertServiceOrder = z.infer<typeof insertServiceOrderSchema>;
+export type ServiceOrder = typeof serviceOrders.$inferSelect;
+
+// Order Items - Items for service orders
+export const orderItems = pgTable("order_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  serviceOrderId: varchar("service_order_id").references(() => serviceOrders.id).notNull(),
+  posTransactionId: varchar("pos_transaction_id").references(() => posTransactions.id),
+  
+  // Item Details
+  description: text("description").notNull(),
+  quantity: integer("quantity").default(1),
+  weight: decimal("weight", { precision: 10, scale: 2 }),
+  
+  // Pricing
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  
+  // Service Date
+  serviceDate: timestamp("service_date"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  serviceOrderIdx: index("order_items_service_order_idx").on(table.serviceOrderId),
+}));
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type OrderItem = typeof orderItems.$inferSelect;
+
+// Subscriptions - Customer subscription plans
+export const subscriptions = pgTable("subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  customerId: varchar("customer_id"),
+  
+  // Plan Details
+  planName: text("plan_name").notNull(),
+  planType: text("plan_type").notNull(), // "pounds_per_month", "unlimited", "commercial"
+  
+  // Limits
+  poundLimit: integer("pound_limit"), // e.g., 40 pounds/month
+  poundsUsed: integer("pounds_used").default(0),
+  
+  // Pricing
+  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+  overageRate: decimal("overage_rate", { precision: 10, scale: 2 }), // Price per pound over limit
+  
+  // Billing
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "paused", "cancelled", "past_due"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("subscriptions_laundromat_idx").on(table.laundromatId),
+  customerIdx: index("subscriptions_customer_idx").on(table.customerId),
+  statusIdx: index("subscriptions_status_idx").on(table.status),
+}));
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+
+// Scale Calibrations - Track scale accuracy
+export const scaleCalibrations = pgTable("scale_calibrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Scale Details
+  scaleId: text("scale_id").notNull(),
+  scaleName: text("scale_name"),
+  
+  // Calibration Data
+  calibrationDate: timestamp("calibration_date").notNull(),
+  calibratedBy: varchar("calibrated_by").references(() => users.id).notNull(),
+  testWeight: decimal("test_weight", { precision: 10, scale: 2 }).notNull(),
+  measuredWeight: decimal("measured_weight", { precision: 10, scale: 2 }).notNull(),
+  variance: decimal("variance", { precision: 10, scale: 2 }).notNull(),
+  
+  // Status
+  passed: boolean("passed").notNull(),
+  notes: text("notes"),
+  
+  // Next Due
+  nextCalibrationDue: timestamp("next_calibration_due"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("scale_calibrations_laundromat_idx").on(table.laundromatId),
+  scaleIdx: index("scale_calibrations_scale_idx").on(table.scaleId),
+  dateIdx: index("scale_calibrations_date_idx").on(table.calibrationDate),
+}));
+
+export const insertScaleCalibrationSchema = createInsertSchema(scaleCalibrations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertScaleCalibration = z.infer<typeof insertScaleCalibrationSchema>;
+export type ScaleCalibration = typeof scaleCalibrations.$inferSelect;
+
+// ============================================================================
+// IOT & MACHINE MONITORING
+// ============================================================================
+
+// Machine Assets - Track all laundromat equipment
+export const machineAssets = pgTable("machine_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Machine Details
+  machineNumber: text("machine_number").notNull(), // Display number (e.g., "W-1", "D-3")
+  machineName: text("machine_name"),
+  machineType: text("machine_type").notNull(), // "washer", "dryer", "combo", "folder", "press"
+  
+  // Specifications
+  manufacturer: text("manufacturer"),
+  model: text("model"),
+  serialNumber: text("serial_number"),
+  capacity: decimal("capacity", { precision: 10, scale: 2 }), // Pounds
+  installDate: timestamp("install_date"),
+  
+  // IoT Configuration
+  iotDeviceId: text("iot_device_id"), // Sensor/controller ID
+  mqttTopic: text("mqtt_topic"), // MQTT subscription topic
+  ipAddress: varchar("ip_address"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "maintenance", "offline", "retired"
+  lastOnlineAt: timestamp("last_online_at"),
+  
+  // Maintenance
+  warrantyExpiration: timestamp("warranty_expiration"),
+  lastMaintenanceDate: timestamp("last_maintenance_date"),
+  nextMaintenanceDate: timestamp("next_maintenance_date"),
+  
+  // Performance Tracking
+  totalCycles: integer("total_cycles").default(0),
+  totalRuntimeHours: decimal("total_runtime_hours", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("machine_assets_laundromat_idx").on(table.laundromatId),
+  typeIdx: index("machine_assets_type_idx").on(table.machineType),
+  statusIdx: index("machine_assets_status_idx").on(table.status),
+  iotIdx: index("machine_assets_iot_idx").on(table.iotDeviceId),
+}));
+
+export const insertMachineAssetSchema = createInsertSchema(machineAssets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMachineAsset = z.infer<typeof insertMachineAssetSchema>;
+export type MachineAsset = typeof machineAssets.$inferSelect;
+
+// Telemetry Events - Real-time sensor data
+export const telemetryEvents = pgTable("telemetry_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  
+  // Event Data
+  eventType: text("event_type").notNull(), // "cycle_start", "cycle_end", "temperature", "vibration", "energy", "error"
+  
+  // Sensor Readings
+  temperature: decimal("temperature", { precision: 10, scale: 2 }), // Celsius
+  vibration: decimal("vibration", { precision: 10, scale: 2 }), // G-force
+  waterFlow: decimal("water_flow", { precision: 10, scale: 2 }), // Gallons per minute
+  waterPressure: decimal("water_pressure", { precision: 10, scale: 2 }), // PSI
+  energyUsage: decimal("energy_usage", { precision: 10, scale: 2 }), // kWh
+  doorStatus: text("door_status"), // "open", "closed"
+  cyclePhase: text("cycle_phase"), // "wash", "rinse", "spin", "dry", "cool"
+  
+  // Timing
+  cycleId: varchar("cycle_id"), // Group telemetry by cycle
+  cycleStartTime: timestamp("cycle_start_time"),
+  cycleEndTime: timestamp("cycle_end_time"),
+  cycleDuration: integer("cycle_duration"), // Seconds
+  
+  // Error Detection
+  errorCode: text("error_code"),
+  errorMessage: text("error_message"),
+  
+  // Raw Data
+  rawPayload: jsonb("raw_payload"), // Full MQTT/API payload
+  
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("telemetry_events_machine_idx").on(table.machineId),
+  eventTypeIdx: index("telemetry_events_type_idx").on(table.eventType),
+  cycleIdx: index("telemetry_events_cycle_idx").on(table.cycleId),
+  timestampIdx: index("telemetry_events_timestamp_idx").on(table.timestamp),
+}));
+
+export const insertTelemetryEventSchema = createInsertSchema(telemetryEvents).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type InsertTelemetryEvent = z.infer<typeof insertTelemetryEventSchema>;
+export type TelemetryEvent = typeof telemetryEvents.$inferSelect;
+
+// Sensor Thresholds - Alert configuration
+export const sensorThresholds = pgTable("sensor_thresholds", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  
+  // Threshold Configuration
+  sensorType: text("sensor_type").notNull(), // "temperature", "vibration", "water_flow", "energy"
+  
+  // Limits
+  minValue: decimal("min_value", { precision: 10, scale: 2 }),
+  maxValue: decimal("max_value", { precision: 10, scale: 2 }),
+  criticalMin: decimal("critical_min", { precision: 10, scale: 2 }),
+  criticalMax: decimal("critical_max", { precision: 10, scale: 2 }),
+  
+  // Alert Settings
+  alertEnabled: boolean("alert_enabled").default(true),
+  alertRecipients: text("alert_recipients").array(), // Email addresses
+  alertSeverity: text("alert_severity").default("warning"), // "info", "warning", "critical"
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("sensor_thresholds_machine_idx").on(table.machineId),
+  sensorIdx: index("sensor_thresholds_sensor_idx").on(table.sensorType),
+}));
+
+export const insertSensorThresholdSchema = createInsertSchema(sensorThresholds).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSensorThreshold = z.infer<typeof insertSensorThresholdSchema>;
+export type SensorThreshold = typeof sensorThresholds.$inferSelect;
+
+// Diagnostic Codes - Equipment error codes library
+export const diagnosticCodes = pgTable("diagnostic_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Code Details
+  code: text("code").notNull().unique(), // e.g., "E01", "F12", "dE"
+  manufacturer: text("manufacturer"), // "Speed Queen", "Maytag", "Dexter", etc.
+  machineType: text("machine_type"), // "washer", "dryer"
+  
+  // Description
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  possibleCauses: text("possible_causes").array(),
+  
+  // Solution
+  troubleshootingSteps: text("troubleshooting_steps").array(),
+  requiredParts: text("required_parts").array(),
+  estimatedRepairTime: integer("estimated_repair_time"), // Minutes
+  skillLevel: text("skill_level"), // "basic", "intermediate", "professional"
+  
+  // Priority
+  severity: text("severity").default("medium"), // "low", "medium", "high", "critical"
+  
+  // Reference
+  manualReference: text("manual_reference"),
+  videoUrl: text("video_url"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  codeIdx: uniqueIndex("diagnostic_codes_code_idx").on(table.code),
+  manufacturerIdx: index("diagnostic_codes_manufacturer_idx").on(table.manufacturer),
+  severityIdx: index("diagnostic_codes_severity_idx").on(table.severity),
+}));
+
+export const insertDiagnosticCodeSchema = createInsertSchema(diagnosticCodes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDiagnosticCode = z.infer<typeof insertDiagnosticCodeSchema>;
+export type DiagnosticCode = typeof diagnosticCodes.$inferSelect;
+
+// ============================================================================
+// PREVENTIVE MAINTENANCE & REPAIRS
+// ============================================================================
+
+// Maintenance Plans - Scheduled preventive maintenance
+export const maintenancePlans = pgTable("maintenance_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  
+  // Plan Details
+  planName: text("plan_name").notNull(),
+  description: text("description"),
+  taskType: text("task_type").notNull(), // "daily", "weekly", "monthly", "quarterly", "annual", "cycle_based"
+  
+  // Schedule
+  frequency: integer("frequency").notNull(), // Number of days/cycles between maintenance
+  frequencyUnit: text("frequency_unit").notNull(), // "days", "cycles"
+  lastCompletedDate: timestamp("last_completed_date"),
+  nextDueDate: timestamp("next_due_date"),
+  
+  // Tasks
+  checklistItems: text("checklist_items").array(),
+  requiredParts: text("required_parts").array(),
+  estimatedDuration: integer("estimated_duration"), // Minutes
+  
+  // Assignment
+  assignedTo: varchar("assigned_to").references(() => users.id),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("maintenance_plans_machine_idx").on(table.machineId),
+  nextDueIdx: index("maintenance_plans_next_due_idx").on(table.nextDueDate),
+}));
+
+export const insertMaintenancePlanSchema = createInsertSchema(maintenancePlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMaintenancePlan = z.infer<typeof insertMaintenancePlanSchema>;
+export type MaintenancePlan = typeof maintenancePlans.$inferSelect;
+
+// Repair Tickets - Track service requests and repairs
+export const repairTickets = pgTable("repair_tickets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  
+  // Ticket Details
+  ticketNumber: text("ticket_number").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  priority: text("priority").default("medium"), // "low", "medium", "high", "urgent"
+  
+  // Problem Details
+  problemType: text("problem_type"), // "mechanical", "electrical", "software", "plumbing"
+  diagnosticCode: text("diagnostic_code"), // Reference to diagnostic_codes.code
+  symptoms: text("symptoms").array(),
+  
+  // Assignment & Tracking
+  reportedBy: varchar("reported_by").references(() => users.id),
+  assignedTo: varchar("assigned_to").references(() => users.id),
+  vendorId: varchar("vendor_id"), // External repair service
+  
+  // Status & Timing
+  status: text("status").default("open"), // "open", "in_progress", "waiting_parts", "completed", "cancelled"
+  reportedAt: timestamp("reported_at").defaultNow().notNull(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  
+  // Resolution
+  resolutionNotes: text("resolution_notes"),
+  partsUsed: jsonb("parts_used"), // [{partId, quantity, cost}]
+  laborHours: decimal("labor_hours", { precision: 10, scale: 2 }),
+  laborCost: decimal("labor_cost", { precision: 10, scale: 2 }),
+  partsCost: decimal("parts_cost", { precision: 10, scale: 2 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  
+  // Photos & Documentation
+  photoUrls: text("photo_urls").array(),
+  attachments: text("attachments").array(),
+  
+  // Follow-up
+  warrantyApplied: boolean("warranty_applied").default(false),
+  followUpRequired: boolean("follow_up_required").default(false),
+  followUpDate: timestamp("follow_up_date"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("repair_tickets_laundromat_idx").on(table.laundromatId),
+  machineIdx: index("repair_tickets_machine_idx").on(table.machineId),
+  statusIdx: index("repair_tickets_status_idx").on(table.status),
+  priorityIdx: index("repair_tickets_priority_idx").on(table.priority),
+  reportedAtIdx: index("repair_tickets_reported_at_idx").on(table.reportedAt),
+}));
+
+export const insertRepairTicketSchema = createInsertSchema(repairTickets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertRepairTicket = z.infer<typeof insertRepairTicketSchema>;
+export type RepairTicket = typeof repairTickets.$inferSelect;
+
+// Parts Inventory - Track replacement parts
+export const partsInventory = pgTable("parts_inventory", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Part Details
+  partNumber: text("part_number").notNull(),
+  partName: text("part_name").notNull(),
+  description: text("description"),
+  category: text("category"), // "belt", "motor", "pump", "valve", "seal", "bearing", etc.
+  
+  // Compatibility
+  manufacturer: text("manufacturer"),
+  machineModels: text("machine_models").array(), // Compatible machine models
+  
+  // Inventory
+  quantityOnHand: integer("quantity_on_hand").default(0),
+  quantityReserved: integer("quantity_reserved").default(0),
+  reorderPoint: integer("reorder_point").default(2),
+  reorderQuantity: integer("reorder_quantity").default(5),
+  
+  // Pricing
+  unitCost: decimal("unit_cost", { precision: 10, scale: 2 }),
+  retailPrice: decimal("retail_price", { precision: 10, scale: 2 }),
+  
+  // Storage Location
+  binLocation: text("bin_location"),
+  
+  // Vendor Information
+  preferredVendorId: varchar("preferred_vendor_id"),
+  vendorPartNumber: text("vendor_part_number"),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  discontinuedDate: timestamp("discontinued_date"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("parts_inventory_laundromat_idx").on(table.laundromatId),
+  partNumberIdx: index("parts_inventory_part_number_idx").on(table.partNumber),
+  categoryIdx: index("parts_inventory_category_idx").on(table.category),
+  lowStockIdx: index("parts_inventory_low_stock_idx").on(table.quantityOnHand),
+}));
+
+export const insertPartsInventorySchema = createInsertSchema(partsInventory).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPartsInventory = z.infer<typeof insertPartsInventorySchema>;
+export type PartsInventory = typeof partsInventory.$inferSelect;
+
+// Warranty Records - Track equipment warranties
+export const warrantyRecords = pgTable("warranty_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  
+  // Warranty Details
+  warrantyType: text("warranty_type").notNull(), // "manufacturer", "extended", "service_contract"
+  warrantyProvider: text("warranty_provider").notNull(),
+  policyNumber: text("policy_number"),
+  
+  // Coverage Period
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  
+  // Coverage Details
+  coverageType: text("coverage_type"), // "parts_only", "labor_only", "parts_and_labor", "full_coverage"
+  coverageDescription: text("coverage_description"),
+  exclusions: text("exclusions").array(),
+  
+  // Cost
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  
+  // Contact Information
+  contactName: text("contact_name"),
+  contactPhone: varchar("contact_phone"),
+  contactEmail: varchar("contact_email"),
+  
+  // Document Storage
+  documentUrl: text("document_url"),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("warranty_records_machine_idx").on(table.machineId),
+  endDateIdx: index("warranty_records_end_date_idx").on(table.endDate),
+  activeIdx: index("warranty_records_active_idx").on(table.isActive),
+}));
+
+export const insertWarrantyRecordSchema = createInsertSchema(warrantyRecords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertWarrantyRecord = z.infer<typeof insertWarrantyRecordSchema>;
+export type WarrantyRecord = typeof warrantyRecords.$inferSelect;
+
+// Vendor Purchase Orders - Track parts orders
+export const vendorPurchaseOrders = pgTable("vendor_purchase_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  vendorId: varchar("vendor_id"),
+  
+  // Order Details
+  poNumber: text("po_number").notNull().unique(),
+  orderDate: timestamp("order_date").defaultNow().notNull(),
+  
+  // Items (stored as JSON array)
+  items: jsonb("items").notNull(), // [{partId, partNumber, description, quantity, unitCost, total}]
+  
+  // Totals
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  tax: decimal("tax", { precision: 10, scale: 2 }).default("0.00"),
+  shipping: decimal("shipping", { precision: 10, scale: 2 }).default("0.00"),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  
+  // Status & Tracking
+  status: text("status").default("pending"), // "pending", "ordered", "shipped", "delivered", "cancelled"
+  orderedBy: varchar("ordered_by").references(() => users.id).notNull(),
+  expectedDeliveryDate: timestamp("expected_delivery_date"),
+  actualDeliveryDate: timestamp("actual_delivery_date"),
+  trackingNumber: text("tracking_number"),
+  
+  // Payment
+  paymentStatus: text("payment_status").default("unpaid"), // "unpaid", "paid", "partial"
+  paymentMethod: text("payment_method"),
+  paidDate: timestamp("paid_date"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("vendor_purchase_orders_laundromat_idx").on(table.laundromatId),
+  vendorIdx: index("vendor_purchase_orders_vendor_idx").on(table.vendorId),
+  statusIdx: index("vendor_purchase_orders_status_idx").on(table.status),
+  orderDateIdx: index("vendor_purchase_orders_order_date_idx").on(table.orderDate),
+}));
+
+export const insertVendorPurchaseOrderSchema = createInsertSchema(vendorPurchaseOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVendorPurchaseOrder = z.infer<typeof insertVendorPurchaseOrderSchema>;
+export type VendorPurchaseOrder = typeof vendorPurchaseOrders.$inferSelect;
+
+// ============================================================================
+// LOGISTICS & ROUTE OPTIMIZATION
+// ============================================================================
+
+// Routes - Pickup/delivery route planning
+export const routes = pgTable("routes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Route Details
+  routeName: text("route_name").notNull(),
+  routeType: text("route_type").notNull(), // "pickup", "delivery", "pickup_delivery"
+  routeDate: timestamp("route_date").notNull(),
+  
+  // Assignment
+  driverId: varchar("driver_id").references(() => users.id),
+  vehicleId: text("vehicle_id"),
+  
+  // Optimization Parameters
+  optimizedSequence: jsonb("optimized_sequence"), // Array of stop IDs in optimal order
+  totalDistance: decimal("total_distance", { precision: 10, scale: 2 }), // Miles
+  estimatedDuration: integer("estimated_duration"), // Minutes
+  
+  // Status & Tracking
+  status: text("status").default("planned"), // "planned", "in_progress", "completed", "cancelled"
+  startTime: timestamp("start_time"),
+  endTime: timestamp("end_time"),
+  actualDistance: decimal("actual_distance", { precision: 10, scale: 2 }),
+  actualDuration: integer("actual_duration"), // Minutes
+  
+  // Performance Metrics
+  onTimeStops: integer("on_time_stops").default(0),
+  lateStops: integer("late_stops").default(0),
+  totalStops: integer("total_stops").default(0),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("routes_laundromat_idx").on(table.laundromatId),
+  driverIdx: index("routes_driver_idx").on(table.driverId),
+  dateIdx: index("routes_date_idx").on(table.routeDate),
+  statusIdx: index("routes_status_idx").on(table.status),
+}));
+
+export const insertRouteSchema = createInsertSchema(routes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertRoute = z.infer<typeof insertRouteSchema>;
+export type Route = typeof routes.$inferSelect;
+
+// Route Stops - Individual stops on a route
+export const routeStops = pgTable("route_stops", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  routeId: varchar("route_id").references(() => routes.id).notNull(),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id),
+  
+  // Stop Details
+  stopNumber: integer("stop_number").notNull(), // Sequence in route
+  stopType: text("stop_type").notNull(), // "pickup", "delivery"
+  
+  // Customer & Location
+  customerName: text("customer_name").notNull(),
+  customerPhone: varchar("customer_phone"),
+  address: text("address").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  specialInstructions: text("special_instructions"),
+  
+  // Timing
+  scheduledArrival: timestamp("scheduled_arrival"),
+  actualArrival: timestamp("actual_arrival"),
+  completedAt: timestamp("completed_at"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "in_transit", "arrived", "completed", "failed", "skipped"
+  
+  // Proof of Service
+  signatureUrl: text("signature_url"),
+  photoUrls: text("photo_urls").array(),
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  routeIdx: index("route_stops_route_idx").on(table.routeId),
+  transactionIdx: index("route_stops_transaction_idx").on(table.transactionId),
+  statusIdx: index("route_stops_status_idx").on(table.status),
+}));
+
+export const insertRouteStopSchema = createInsertSchema(routeStops).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertRouteStop = z.infer<typeof insertRouteStopSchema>;
+export type RouteStop = typeof routeStops.$inferSelect;
+
+// Driver Sessions - Track driver activity
+export const driverSessions = pgTable("driver_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  driverId: varchar("driver_id").references(() => users.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Session Details
+  sessionDate: timestamp("session_date").defaultNow().notNull(),
+  clockIn: timestamp("clock_in").notNull(),
+  clockOut: timestamp("clock_out"),
+  
+  // Activity
+  routeIds: text("route_ids").array(), // Routes completed during session
+  totalMiles: decimal("total_miles", { precision: 10, scale: 2 }).default("0.00"),
+  totalStops: integer("total_stops").default(0),
+  
+  // Performance
+  onTimeRate: decimal("on_time_rate", { precision: 5, scale: 2 }), // Percentage
+  customerRating: decimal("customer_rating", { precision: 3, scale: 2 }), // 1-5 stars
+  
+  // Vehicle
+  vehicleId: text("vehicle_id"),
+  startingMileage: decimal("starting_mileage", { precision: 10, scale: 1 }),
+  endingMileage: decimal("ending_mileage", { precision: 10, scale: 1 }),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  driverIdx: index("driver_sessions_driver_idx").on(table.driverId),
+  laundromatIdx: index("driver_sessions_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("driver_sessions_date_idx").on(table.sessionDate),
+}));
+
+export const insertDriverSessionSchema = createInsertSchema(driverSessions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDriverSession = z.infer<typeof insertDriverSessionSchema>;
+export type DriverSession = typeof driverSessions.$inferSelect;
+
+// Proof of Delivery - Delivery confirmation records
+export const proofOfDelivery = pgTable("proof_of_delivery", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  stopId: varchar("stop_id").references(() => routeStops.id).notNull(),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id).notNull(),
+  
+  // Delivery Details
+  deliveredAt: timestamp("delivered_at").notNull(),
+  deliveredBy: varchar("delivered_by").references(() => users.id).notNull(),
+  
+  // Recipient Information
+  recipientName: text("recipient_name"),
+  recipientRelation: text("recipient_relation"), // "customer", "spouse", "neighbor", "doorman", etc.
+  
+  // Proof
+  signatureUrl: text("signature_url"),
+  photoUrls: text("photo_urls").array(), // Photos of delivery location
+  gpsCoordinates: jsonb("gps_coordinates"), // {lat, lng, accuracy}
+  
+  // Delivery Method
+  deliveryMethod: text("delivery_method"), // "handed_to_customer", "left_at_door", "safe_location", "mailroom"
+  deliveryLocation: text("delivery_location"), // Specific location description
+  
+  // Customer Feedback
+  customerRating: integer("customer_rating"), // 1-5 stars
+  customerFeedback: text("customer_feedback"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  stopIdx: index("proof_of_delivery_stop_idx").on(table.stopId),
+  transactionIdx: index("proof_of_delivery_transaction_idx").on(table.transactionId),
+  deliveredAtIdx: index("proof_of_delivery_delivered_at_idx").on(table.deliveredAt),
+}));
+
+export const insertProofOfDeliverySchema = createInsertSchema(proofOfDelivery).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertProofOfDelivery = z.infer<typeof insertProofOfDeliverySchema>;
+export type ProofOfDelivery = typeof proofOfDelivery.$inferSelect;
+
+// Geofence Zones - Service area definitions
+export const geofenceZones = pgTable("geofence_zones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Zone Details
+  zoneName: text("zone_name").notNull(),
+  zoneType: text("zone_type").notNull(), // "service_area", "delivery_zone", "rush_zone", "no_service"
+  
+  // Geography (stored as GeoJSON polygon)
+  geometry: jsonb("geometry").notNull(), // GeoJSON Polygon or MultiPolygon
+  centerPoint: jsonb("center_point"), // {lat, lng} for display
+  
+  // Service Configuration
+  deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }),
+  minimumOrder: decimal("minimum_order", { precision: 10, scale: 2 }),
+  estimatedDeliveryTime: integer("estimated_delivery_time"), // Minutes
+  
+  // Schedule
+  serviceHours: jsonb("service_hours"), // {monday: {start: "09:00", end: "17:00"}, ...}
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  priority: integer("priority").default(0), // Higher priority zones checked first
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("geofence_zones_laundromat_idx").on(table.laundromatId),
+  typeIdx: index("geofence_zones_type_idx").on(table.zoneType),
+  activeIdx: index("geofence_zones_active_idx").on(table.isActive),
+}));
+
+export const insertGeofenceZoneSchema = createInsertSchema(geofenceZones).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertGeofenceZone = z.infer<typeof insertGeofenceZoneSchema>;
+export type GeofenceZone = typeof geofenceZones.$inferSelect;
+
+// Delivery Windows - Customer preferred time slots
+export const deliveryWindows = pgTable("delivery_windows", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Window Details
+  windowName: text("window_name").notNull(), // "Morning", "Afternoon", "Evening"
+  dayOfWeek: integer("day_of_week"), // 0-6 (Sunday-Saturday), null = all days
+  startTime: text("start_time").notNull(), // HH:MM format
+  endTime: text("end_time").notNull(), // HH:MM format
+  
+  // Capacity
+  maxCapacity: integer("max_capacity").notNull(), // Maximum stops/orders in this window
+  currentBookings: integer("current_bookings").default(0),
+  
+  // Pricing
+  surcharge: decimal("surcharge", { precision: 10, scale: 2 }).default("0.00"), // Extra fee for this window
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("delivery_windows_laundromat_idx").on(table.laundromatId),
+  dayIdx: index("delivery_windows_day_idx").on(table.dayOfWeek),
+  activeIdx: index("delivery_windows_active_idx").on(table.isActive),
+}));
+
+export const insertDeliveryWindowSchema = createInsertSchema(deliveryWindows).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDeliveryWindow = z.infer<typeof insertDeliveryWindowSchema>;
+export type DeliveryWindow = typeof deliveryWindows.$inferSelect;
+
+// Mileage Logs - Driver mileage tracking for reimbursement
+export const mileageLogs = pgTable("mileage_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  driverId: varchar("driver_id").references(() => users.id).notNull(),
+  sessionId: varchar("session_id").references(() => driverSessions.id),
+  
+  // Trip Details
+  tripDate: timestamp("trip_date").defaultNow().notNull(),
+  startLocation: text("start_location"),
+  endLocation: text("end_location"),
+  purpose: text("purpose"), // "route_delivery", "parts_pickup", "bank_deposit", etc.
+  
+  // Mileage
+  startOdometer: decimal("start_odometer", { precision: 10, scale: 1 }),
+  endOdometer: decimal("end_odometer", { precision: 10, scale: 1 }),
+  totalMiles: decimal("total_miles", { precision: 10, scale: 2 }).notNull(),
+  
+  // Reimbursement
+  reimbursementRate: decimal("reimbursement_rate", { precision: 10, scale: 2 }), // Per mile
+  reimbursementAmount: decimal("reimbursement_amount", { precision: 10, scale: 2 }),
+  reimbursementStatus: text("reimbursement_status").default("pending"), // "pending", "approved", "paid"
+  
+  // Vehicle
+  vehicleId: text("vehicle_id"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  driverIdx: index("mileage_logs_driver_idx").on(table.driverId),
+  sessionIdx: index("mileage_logs_session_idx").on(table.sessionId),
+  dateIdx: index("mileage_logs_date_idx").on(table.tripDate),
+  statusIdx: index("mileage_logs_status_idx").on(table.reimbursementStatus),
+}));
+
+export const insertMileageLogSchema = createInsertSchema(mileageLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMileageLog = z.infer<typeof insertMileageLogSchema>;
+export type MileageLog = typeof mileageLogs.$inferSelect;
+
+// ============================================================================
+// ANALYTICS & BUSINESS INTELLIGENCE (Fact Tables for Dashboards)
+// ============================================================================
+
+// Daily Revenue Fact - Aggregated daily revenue metrics
+export const dailyRevenueFact = pgTable("daily_revenue_fact", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Time Dimension
+  date: timestamp("date").notNull(),
+  year: integer("year").notNull(),
+  month: integer("month").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(), // 0-6
+  week: integer("week").notNull(),
+  quarter: integer("quarter").notNull(),
+  
+  // Revenue Metrics
+  totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }).notNull(),
+  cashRevenue: decimal("cash_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  cardRevenue: decimal("card_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  accountRevenue: decimal("account_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Service Type Breakdown
+  wdfRevenue: decimal("wdf_revenue", { precision: 10, scale: 2 }).default("0.00"), // Wash-dry-fold
+  drycleanRevenue: decimal("dryclean_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  alterationsRevenue: decimal("alterations_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  deliveryRevenue: decimal("delivery_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Volume Metrics
+  totalOrders: integer("total_orders").default(0),
+  totalPounds: decimal("total_pounds", { precision: 10, scale: 2 }).default("0.00"),
+  avgOrderValue: decimal("avg_order_value", { precision: 10, scale: 2 }).default("0.00"),
+  avgPricePerPound: decimal("avg_price_per_pound", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Customer Metrics
+  newCustomers: integer("new_customers").default(0),
+  returningCustomers: integer("returning_customers").default(0),
+  uniqueCustomers: integer("unique_customers").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("daily_revenue_fact_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("daily_revenue_fact_date_idx").on(table.date),
+  yearMonthIdx: index("daily_revenue_fact_year_month_idx").on(table.year, table.month),
+}));
+
+export const insertDailyRevenueFactSchema = createInsertSchema(dailyRevenueFact).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertDailyRevenueFact = z.infer<typeof insertDailyRevenueFactSchema>;
+export type DailyRevenueFact = typeof dailyRevenueFact.$inferSelect;
+
+// Machine Turn Fact - Machine performance metrics
+export const machineTurnFact = pgTable("machine_turn_fact", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Time Dimension
+  date: timestamp("date").notNull(),
+  year: integer("year").notNull(),
+  month: integer("month").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(),
+  
+  // Turn Metrics
+  totalCycles: integer("total_cycles").default(0),
+  avgCycleDuration: integer("avg_cycle_duration"), // Minutes
+  totalRuntime: integer("total_runtime"), // Minutes
+  utilizationRate: decimal("utilization_rate", { precision: 5, scale: 2 }), // Percentage
+  
+  // Revenue Per Machine
+  revenueGenerated: decimal("revenue_generated", { precision: 10, scale: 2 }).default("0.00"),
+  revenuePerCycle: decimal("revenue_per_cycle", { precision: 10, scale: 2 }),
+  
+  // Efficiency Metrics
+  avgLoadWeight: decimal("avg_load_weight", { precision: 10, scale: 2 }),
+  avgEnergyPerCycle: decimal("avg_energy_per_cycle", { precision: 10, scale: 2 }), // kWh
+  avgWaterPerCycle: decimal("avg_water_per_cycle", { precision: 10, scale: 2 }), // Gallons
+  
+  // Downtime
+  downtimeMinutes: integer("downtime_minutes").default(0),
+  errorCount: integer("error_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("machine_turn_fact_machine_idx").on(table.machineId),
+  laundromatIdx: index("machine_turn_fact_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("machine_turn_fact_date_idx").on(table.date),
+}));
+
+export const insertMachineTurnFactSchema = createInsertSchema(machineTurnFact).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMachineTurnFact = z.infer<typeof insertMachineTurnFactSchema>;
+export type MachineTurnFact = typeof machineTurnFact.$inferSelect;
+
+// Driver Route Fact - Route performance analytics
+export const driverRouteFact = pgTable("driver_route_fact", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  routeId: varchar("route_id").references(() => routes.id).notNull(),
+  driverId: varchar("driver_id").references(() => users.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Time Dimension
+  date: timestamp("date").notNull(),
+  year: integer("year").notNull(),
+  month: integer("month").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(),
+  
+  // Route Metrics
+  totalStops: integer("total_stops").default(0),
+  completedStops: integer("completed_stops").default(0),
+  failedStops: integer("failed_stops").default(0),
+  onTimeStops: integer("on_time_stops").default(0),
+  
+  // Distance & Time
+  totalDistance: decimal("total_distance", { precision: 10, scale: 2 }), // Miles
+  totalDuration: integer("total_duration"), // Minutes
+  avgStopDuration: integer("avg_stop_duration"), // Minutes
+  
+  // Revenue
+  routeRevenue: decimal("route_revenue", { precision: 10, scale: 2 }),
+  revenuePerMile: decimal("revenue_per_mile", { precision: 10, scale: 2 }),
+  revenuePerStop: decimal("revenue_per_stop", { precision: 10, scale: 2 }),
+  
+  // Customer Satisfaction
+  avgCustomerRating: decimal("avg_customer_rating", { precision: 3, scale: 2 }), // 1-5 stars
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  routeIdx: index("driver_route_fact_route_idx").on(table.routeId),
+  driverIdx: index("driver_route_fact_driver_idx").on(table.driverId),
+  laundromatIdx: index("driver_route_fact_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("driver_route_fact_date_idx").on(table.date),
+}));
+
+export const insertDriverRouteFactSchema = createInsertSchema(driverRouteFact).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertDriverRouteFact = z.infer<typeof insertDriverRouteFactSchema>;
+export type DriverRouteFact = typeof driverRouteFact.$inferSelect;
+
+// Customer LTV Fact - Customer lifetime value tracking
+export const customerLtvFact = pgTable("customer_ltv_fact", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerId: varchar("customer_id").notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Time Window
+  asOfDate: timestamp("as_of_date").notNull(),
+  firstOrderDate: timestamp("first_order_date").notNull(),
+  lastOrderDate: timestamp("last_order_date").notNull(),
+  daysSinceFirstOrder: integer("days_since_first_order").notNull(),
+  daysSinceLastOrder: integer("days_since_last_order").notNull(),
+  
+  // Transaction Metrics
+  totalOrders: integer("total_orders").default(0),
+  totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }).notNull(),
+  totalPounds: decimal("total_pounds", { precision: 10, scale: 2 }).default("0.00"),
+  avgOrderValue: decimal("avg_order_value", { precision: 10, scale: 2 }),
+  avgOrderFrequency: decimal("avg_order_frequency", { precision: 10, scale: 2 }), // Days between orders
+  
+  // Projected Metrics
+  projectedLtv: decimal("projected_ltv", { precision: 10, scale: 2 }),
+  churnProbability: decimal("churn_probability", { precision: 5, scale: 2 }), // Percentage
+  
+  // Segmentation
+  customerSegment: text("customer_segment"), // "high_value", "medium_value", "low_value", "at_risk", "churned"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  customerIdx: index("customer_ltv_fact_customer_idx").on(table.customerId),
+  laundromatIdx: index("customer_ltv_fact_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("customer_ltv_fact_date_idx").on(table.asOfDate),
+  segmentIdx: index("customer_ltv_fact_segment_idx").on(table.customerSegment),
+}));
+
+export const insertCustomerLtvFactSchema = createInsertSchema(customerLtvFact).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCustomerLtvFact = z.infer<typeof insertCustomerLtvFactSchema>;
+export type CustomerLtvFact = typeof customerLtvFact.$inferSelect;
+
+// Conversion Funnels - Track customer journey
+export const conversionFunnels = pgTable("conversion_funnels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Time Dimension
+  date: timestamp("date").notNull(),
+  year: integer("year").notNull(),
+  month: integer("month").notNull(),
+  
+  // Funnel Type
+  funnelType: text("funnel_type").notNull(), // "website_visitor", "quote_request", "first_order", "retention"
+  
+  // Stage Metrics
+  stage1Count: integer("stage1_count").default(0), // e.g., Website visitors
+  stage2Count: integer("stage2_count").default(0), // e.g., Quote requests
+  stage3Count: integer("stage3_count").default(0), // e.g., First orders
+  stage4Count: integer("stage4_count").default(0), // e.g., Repeat orders
+  stage5Count: integer("stage5_count").default(0), // e.g., Loyal customers
+  
+  // Conversion Rates
+  stage1To2Rate: decimal("stage1_to2_rate", { precision: 5, scale: 2 }),
+  stage2To3Rate: decimal("stage2_to3_rate", { precision: 5, scale: 2 }),
+  stage3To4Rate: decimal("stage3_to4_rate", { precision: 5, scale: 2 }),
+  stage4To5Rate: decimal("stage4_to5_rate", { precision: 5, scale: 2 }),
+  overallConversionRate: decimal("overall_conversion_rate", { precision: 5, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("conversion_funnels_laundromat_idx").on(table.laundromatId),
+  dateIdx: index("conversion_funnels_date_idx").on(table.date),
+  funnelTypeIdx: index("conversion_funnels_funnel_type_idx").on(table.funnelType),
+}));
+
+export const insertConversionFunnelSchema = createInsertSchema(conversionFunnels).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertConversionFunnel = z.infer<typeof insertConversionFunnelSchema>;
+export type ConversionFunnel = typeof conversionFunnels.$inferSelect;
+
+// Cohort Analysis - Customer cohort performance tracking
+export const cohortAnalysis = pgTable("cohort_analysis", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Cohort Definition
+  cohortMonth: timestamp("cohort_month").notNull(), // First month of customer acquisition
+  cohortSize: integer("cohort_size").notNull(), // Number of customers in cohort
+  
+  // Time Period (months since cohort start)
+  monthOffset: integer("month_offset").notNull(), // 0, 1, 2, 3... months since acquisition
+  
+  // Retention Metrics
+  activeCustomers: integer("active_customers").default(0),
+  retentionRate: decimal("retention_rate", { precision: 5, scale: 2 }), // Percentage
+  
+  // Revenue Metrics
+  cohortRevenue: decimal("cohort_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  cumulativeRevenue: decimal("cumulative_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  avgRevenuePerCustomer: decimal("avg_revenue_per_customer", { precision: 10, scale: 2 }),
+  
+  // Transaction Metrics
+  totalOrders: integer("total_orders").default(0),
+  avgOrdersPerCustomer: decimal("avg_orders_per_customer", { precision: 10, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("cohort_analysis_laundromat_idx").on(table.laundromatId),
+  cohortIdx: index("cohort_analysis_cohort_idx").on(table.cohortMonth),
+  offsetIdx: index("cohort_analysis_offset_idx").on(table.monthOffset),
+}));
+
+export const insertCohortAnalysisSchema = createInsertSchema(cohortAnalysis).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCohortAnalysis = z.infer<typeof insertCohortAnalysisSchema>;
+export type CohortAnalysis = typeof cohortAnalysis.$inferSelect;
