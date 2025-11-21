@@ -3120,6 +3120,117 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     }
   });
 
+  // ==================== AMAZON PARTS ORDERING ====================
+  // GET /api/amazon/search - Search for parts on Amazon
+  app.get("/api/amazon/search", async (req, res) => {
+    try {
+      const { q, category, minPrice, maxPrice, brand, limit } = req.query;
+      
+      // Validate input
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.status(400).json({ error: "Invalid search query" });
+      }
+
+      // Sanitize query length
+      const sanitizedQuery = q.slice(0, 200);
+
+      const { amazonAPI } = await import('./amazon-api');
+      
+      if (!amazonAPI.isConfigured()) {
+        return res.status(503).json({ error: "Amazon API not configured" });
+      }
+
+      const products = await amazonAPI.searchProducts({
+        keywords: sanitizedQuery,
+        category: category as string | undefined,
+        minPrice: minPrice ? Math.max(0, parseFloat(minPrice as string)) : undefined,
+        maxPrice: maxPrice ? Math.max(0, parseFloat(maxPrice as string)) : undefined,
+        brand: brand as string | undefined,
+        itemCount: limit ? Math.min(10, Math.max(1, parseInt(limit as string))) : 10,
+      });
+
+      res.json(products);
+    } catch (error: any) {
+      console.error('Amazon search error:', error);
+      res.status(500).json({ error: "Failed to search products" });
+    }
+  });
+
+  // GET /api/amazon/product/:asin - Get product details
+  app.get("/api/amazon/product/:asin", async (req, res) => {
+    try {
+      // Validate ASIN format
+      const asin = req.params.asin;
+      if (!/^[A-Z0-9]{10}$/.test(asin)) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      const { amazonAPI } = await import('./amazon-api');
+      
+      if (!amazonAPI.isConfigured()) {
+        return res.status(503).json({ error: "Amazon API not configured" });
+      }
+
+      const product = await amazonAPI.getProductDetails(asin);
+      
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error('Amazon product fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch product details" });
+    }
+  });
+
+  // POST /api/amazon/track-click - Track affiliate click for analytics
+  app.post("/api/amazon/track-click", async (req, res) => {
+    try {
+      const { asin, source } = req.body;
+      
+      // Validate ASIN
+      if (!asin || !/^[A-Z0-9]{10}$/.test(asin)) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      // Track click analytics only if user is logged in
+      if (req.user?.claims?.sub) {
+        await storage.createActivityEvent({
+          userId: req.user.claims.sub,
+          eventType: 'amazon_click',
+          module: source || 'parts-ordering',
+          metadata: { asin },
+        });
+      }
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Track click error:', error);
+      res.status(500).json({ error: "Failed to track click" });
+    }
+  });
+
+  // GET /api/amazon/affiliate-link/:asin - Generate affiliate link
+  app.get("/api/amazon/affiliate-link/:asin", async (req, res) => {
+    try {
+      const asin = req.params.asin;
+      
+      // Validate ASIN format
+      if (!/^[A-Z0-9]{10}$/.test(asin)) {
+        return res.status(400).json({ error: "Invalid product ID" });
+      }
+
+      const { amazonAPI } = await import('./amazon-api');
+      const link = amazonAPI.generateAffiliateLink(asin);
+      
+      res.json({ url: link });
+    } catch (error: any) {
+      console.error('Affiliate link generation error:', error);
+      res.status(500).json({ error: "Failed to generate link" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
