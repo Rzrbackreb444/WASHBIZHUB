@@ -2534,6 +2534,122 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== BROKER DASHBOARD ====================
+
+  // GET /api/broker/profile - Get broker profile for authenticated user
+  app.get("/api/broker/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const brokerProfile = await storage.getBrokerProfileByUserId(currentUser.userId);
+      if (!brokerProfile) {
+        return res.status(404).json({ error: "Broker profile not found" });
+      }
+
+      res.json(brokerProfile);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/broker/listings - Get all listings for authenticated broker
+  app.get("/api/broker/listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const listings = await storage.getListingsByUserId(currentUser.userId);
+      
+      // Calculate days listed for each
+      const listingsWithStats = listings.map(listing => {
+        const daysListed = listing.listedAt 
+          ? Math.floor((Date.now() - new Date(listing.listedAt).getTime()) / (1000 * 60 * 60 * 24))
+          : undefined;
+        
+        return {
+          ...listing,
+          daysListed,
+        };
+      });
+
+      res.json(listingsWithStats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== AI CHAT ====================
+
+  // POST /api/ai/chat - AI consultant chat endpoint
+  app.post("/api/ai/chat", async (req, res) => {
+    try {
+      const { message, conversationHistory } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Import AI provider service
+      const { aiProviderService } = await import("./ai-providers");
+
+      // Build messages for AI
+      const systemPrompt = {
+        role: "system" as const,
+        content: `You are an expert laundromat business consultant with deep knowledge of:
+- Business valuation and acquisition
+- Equipment selection and maintenance
+- Financial analysis and ROI optimization
+- Location analysis and market research
+- Operations and workflow optimization
+- Marketing and customer acquisition
+- Financing and lending options
+- Industry trends and best practices
+
+Provide specific, actionable advice based on real industry data. Be concise but thorough. Use numbers and metrics when relevant.`
+      };
+
+      const messages = [
+        systemPrompt,
+        ...(conversationHistory || []).map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+        {
+          role: "user" as const,
+          content: message,
+        },
+      ];
+
+      // Use Gemini first (free tier), fallback to others
+      const availableProviders = aiProviderService.getAvailableProviders();
+      
+      let response;
+      if (availableProviders.includes("gemini")) {
+        response = await aiProviderService.generate("gemini", messages);
+      } else if (availableProviders.includes("anthropic")) {
+        response = await aiProviderService.generate("anthropic", messages);
+      } else if (availableProviders.includes("openai")) {
+        response = await aiProviderService.generate("openai", messages);
+      } else if (availableProviders.includes("perplexity")) {
+        response = await aiProviderService.generate("perplexity", messages);
+      } else if (availableProviders.includes("grok")) {
+        response = await aiProviderService.generate("grok", messages);
+      } else {
+        return res.status(503).json({ error: "No AI providers available" });
+      }
+
+      res.json(response);
+    } catch (error: any) {
+      console.error("AI chat error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate response" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

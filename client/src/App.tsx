@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AIChatWidget } from "@/components/AIChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import WhyWashBizHub from "@/pages/why-washbizhub";
@@ -41,6 +42,7 @@ import CalculatorsHub from "@/pages/calculators";
 import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
+import BrokerDashboard from "@/pages/broker-dashboard";
 import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
@@ -85,6 +87,7 @@ function Router() {
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
+      <Route path="/broker" component={BrokerDashboard} />
       <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>
@@ -102,6 +105,7 @@ function App() {
               <Router />
             </div>
             <Footer />
+            <AIChatWidget />
           </div>
           <Toaster />
         </TooltipProvider>
