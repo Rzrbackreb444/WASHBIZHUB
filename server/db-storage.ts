@@ -942,6 +942,7 @@ export class DbStorage implements IStorage {
     targetAudience?: string;
     searchQuery?: string;
     featured?: boolean;
+    slug?: string;
   }): Promise<Resource[]> {
     const conditions: any[] = [];
     
@@ -956,6 +957,9 @@ export class DbStorage implements IStorage {
     }
     if (filters?.featured) {
       conditions.push(eq(resources.featured, true));
+    }
+    if (filters?.slug) {
+      conditions.push(eq(resources.slug, filters.slug));
     }
     if (filters?.searchQuery) {
       const searchTerm = `%${filters.searchQuery}%`;

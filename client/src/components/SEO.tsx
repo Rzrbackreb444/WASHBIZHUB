@@ -21,8 +21,10 @@ export function SEO({
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = `${title} | ${siteName}`;
-  const baseUrl = import.meta.env.VITE_BASE_URL || window.location.origin;
-  const canonical = canonicalUrl ? `${baseUrl}${canonicalUrl}` : `${baseUrl}${window.location.pathname}`;
+  // Use baseUrl from env or default to current origin (safe for SSR)
+  const baseUrl = import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com');
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const canonical = canonicalUrl ? `${baseUrl}${canonicalUrl}` : `${baseUrl}${currentPath}`;
   const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
 
   return (

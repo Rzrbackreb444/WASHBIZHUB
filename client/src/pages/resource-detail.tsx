@@ -234,7 +234,7 @@ export default function ResourceDetail() {
                         <div className="flex items-center gap-2">
                           <Star className="w-5 h-5 fill-primary text-primary" />
                           <span className="text-2xl font-bold" data-testid="text-rating">
-                            {resource.rating.toFixed(1)}
+                            {Number(resource.rating).toFixed(1)}
                           </span>
                           <span className="text-muted-foreground">/  5.0</span>
                         </div>

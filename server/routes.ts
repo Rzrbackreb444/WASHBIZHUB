@@ -1341,6 +1341,7 @@ Create engaging, well-researched content that provides value to laundromat owner
         targetAudience: req.query.targetAudience as string | undefined,
         searchQuery: req.query.searchQuery as string | undefined,
         featured: req.query.featured === "true" ? true : undefined,
+        slug: req.query.slug as string | undefined,
       };
       const resources = await storage.getResources(filters);
       res.json(resources);
