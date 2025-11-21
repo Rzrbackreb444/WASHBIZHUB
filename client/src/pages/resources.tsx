@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SEO } from "@/components/SEO";
 import type { Resource } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,19 +125,45 @@ export default function ResourcesPage() {
     }
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Laundromat Industry Resources Library",
+    "description": "Comprehensive collection of 100+ calculators, guides, templates, and tools for laundromat owners, investors, brokers, and operators.",
+    "numberOfItems": resources.length,
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <Badge className="mb-4 bg-accent/10 text-accent border-accent/20" data-testid="badge-resource-hub">
-              <Zap className="w-3 h-3 mr-1" />
-              Resource Hub
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-resources-title">
-              Industry Resources Library
-            </h1>
+    <>
+      <SEO
+        title="Industry Resources Library - 100+ Calculators, Guides & Tools"
+        description="Access 100+ enterprise-grade laundromat resources including ROI calculators, business valuation tools, financial templates, due diligence checklists, equipment guides, and marketing playbooks. Free and premium resources for owners, investors, and operators."
+        canonicalUrl="/resources"
+        keywords={[
+          "laundromat calculator",
+          "laundromat ROI",
+          "laundromat valuation",
+          "laundry business tools",
+          "coin laundry resources",
+          "laundromat templates",
+          "laundromat business plan",
+          "laundromat guides",
+          "laundromat investment calculator"
+        ]}
+        structuredData={structuredData}
+      />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto">
+              <Badge className="mb-4 bg-accent/10 text-accent border-accent/20" data-testid="badge-resource-hub">
+                <Zap className="w-3 h-3 mr-1" />
+                Resource Hub
+              </Badge>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-resources-title">
+                Industry Resources Library
+              </h1>
             <p className="text-xl text-muted-foreground mb-8" data-testid="text-resources-subtitle">
               100+ calculators, guides, templates, and tools for every role in the laundromat ecosystem
             </p>
@@ -386,6 +413,7 @@ export default function ResourcesPage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
