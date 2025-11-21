@@ -43,6 +43,9 @@ import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
 import BrokerDashboard from "@/pages/broker-dashboard";
+import Forum from "@/pages/forum";
+import ForumCategory from "@/pages/forum-category";
+import ForumTopic from "@/pages/forum-topic";
 import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
@@ -88,6 +91,9 @@ function Router() {
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
       <Route path="/broker" component={BrokerDashboard} />
+      <Route path="/forum" component={Forum} />
+      <Route path="/forum/category/:slug" component={ForumCategory} />
+      <Route path="/forum/topic/:slug" component={ForumTopic} />
       <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>

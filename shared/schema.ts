@@ -28,10 +28,12 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  username: varchar("username").unique(), // Public display name for forum
   
   // Personal/Contact Information
   phone: varchar("phone"),
   bio: text("bio"),
+  tagline: varchar("tagline"), // Short bio for forum posts
   timezone: varchar("timezone").default("America/New_York"),
   
   // Business Information
@@ -2348,6 +2350,25 @@ export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({
 
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type ForumVote = typeof forumVotes.$inferSelect;
+
+// Enriched forum types with author information
+export type ForumAuthor = {
+  id: string;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  profileImageUrl: string | null;
+  tagline: string | null;
+  role: string | null;
+};
+
+export type EnrichedForumTopic = ForumTopic & {
+  author: ForumAuthor;
+};
+
+export type EnrichedForumReply = ForumReply & {
+  author: ForumAuthor;
+};
 
 // User Reputation Events
 export const reputationEvents = pgTable("reputation_events", {

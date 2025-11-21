@@ -46,6 +46,10 @@ import {
   insertSearchIndexSchema,
   insertSearchAnalyticSchema,
   insertEmailSubscriberSchema,
+  insertForumCategorySchema,
+  insertForumTopicSchema,
+  insertForumReplySchema,
+  insertForumVoteSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -2578,6 +2582,261 @@ Disallow: /private/`;
       });
 
       res.json(listingsWithStats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== AI CHAT ====================
+
+  // ==================== FORUM SYSTEM ====================
+
+  // GET /api/forum/categories - List all forum categories
+  app.get("/api/forum/categories", async (req, res) => {
+    try {
+      const categories = await storage.getForumCategories();
+      res.json(categories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/forum/categories - Create category (admin only)
+  app.post("/api/forum/categories", isAdmin, async (req, res) => {
+    try {
+      const validated = insertForumCategorySchema.parse(req.body);
+      const category = await storage.createForumCategory(validated);
+      res.json(category);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // GET /api/forum/topics - List topics (with filters)
+  app.get("/api/forum/topics", async (req, res) => {
+    try {
+      const { categoryId, userId } = req.query;
+      const topics = await storage.getForumTopics({
+        categoryId: categoryId as string,
+        userId: userId as string,
+      });
+      res.json(topics);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/forum/topics/:id - Get single topic
+  app.get("/api/forum/topics/:id", async (req, res) => {
+    try {
+      const topic = await storage.getForumTopic(req.params.id);
+      if (!topic) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementTopicViews(req.params.id);
+      
+      res.json(topic);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/forum/topics - Create new topic (authenticated)
+  app.post("/api/forum/topics", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const validated = insertForumTopicSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+      
+      const topic = await storage.createForumTopic(validated);
+      res.json(topic);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/forum/topics/:id - Update topic
+  app.patch("/api/forum/topics/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const topic = await storage.getForumTopic(req.params.id);
+      if (!topic) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+
+      // Only owner or admin can update
+      if (topic.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const allowedFields = {
+        title: req.body.title,
+        content: req.body.content,
+        tags: req.body.tags,
+      };
+
+      const updateData = Object.fromEntries(
+        Object.entries(allowedFields).filter(([_, v]) => v !== undefined)
+      );
+
+      const updated = await storage.updateForumTopic(req.params.id, updateData);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/forum/topics/:id - Delete topic
+  app.delete("/api/forum/topics/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const topic = await storage.getForumTopic(req.params.id);
+      if (!topic) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+
+      // Only owner or admin can delete
+      if (topic.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      await storage.deleteForumTopic(req.params.id);
+      res.json({ message: "Topic deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/forum/topics/:topicId/replies - Get replies for topic
+  app.get("/api/forum/topics/:topicId/replies", async (req, res) => {
+    try {
+      const replies = await storage.getForumReplies(req.params.topicId);
+      res.json(replies);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/forum/replies - Create reply (authenticated)
+  app.post("/api/forum/replies", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const validated = insertForumReplySchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+      
+      const reply = await storage.createForumReply(validated);
+      res.json(reply);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/forum/replies/:id - Update reply
+  app.patch("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const reply = await storage.getForumReply(req.params.id);
+      if (!reply) {
+        return res.status(404).json({ error: "Reply not found" });
+      }
+
+      // Only owner or admin can update
+      if (reply.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const updated = await storage.updateForumReply(req.params.id, {
+        content: req.body.content,
+      });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/forum/replies/:id - Delete reply
+  app.delete("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const reply = await storage.getForumReply(req.params.id);
+      if (!reply) {
+        return res.status(404).json({ error: "Reply not found" });
+      }
+
+      // Only owner or admin can delete
+      if (reply.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      await storage.deleteForumReply(req.params.id);
+      res.json({ message: "Reply deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/forum/votes - Vote on topic/reply (authenticated)
+  app.post("/api/forum/votes", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const validated = insertForumVoteSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+      
+      const vote = await storage.createForumVote(validated);
+      res.json(vote);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/forum/votes - Remove vote (authenticated)
+  app.delete("/api/forum/votes", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { entityType, entityId } = req.body;
+      
+      await storage.deleteForumVote(currentUser.userId, entityType, entityId);
+      res.json({ message: "Vote removed successfully" });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
