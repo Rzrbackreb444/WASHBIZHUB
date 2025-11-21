@@ -41,6 +41,16 @@ import {
   type InsertTemplate,
   type TemplateDownload,
   type InsertTemplateDownload,
+  type Resource,
+  type InsertResource,
+  type ResourceUsage,
+  type InsertResourceUsage,
+  type VendorDirectory,
+  type InsertVendorDirectory,
+  type VendorReview,
+  type InsertVendorReview,
+  type IndustryBenchmark,
+  type InsertIndustryBenchmark,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -161,6 +171,51 @@ export interface IStorage {
   createListing(listing: InsertListing): Promise<Listing>;
   updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
   deleteListing(id: string): Promise<void>;
+  
+  // Resources (Comprehensive Industry Library)
+  getResources(filters?: { 
+    resourceType?: string; 
+    category?: string; 
+    targetAudience?: string;
+    searchQuery?: string;
+    featured?: boolean;
+  }): Promise<Resource[]>;
+  getResource(id: string): Promise<Resource | undefined>;
+  getResourceBySlug(slug: string): Promise<Resource | undefined>;
+  createResource(resource: InsertResource): Promise<Resource>;
+  updateResource(id: string, resource: Partial<InsertResource>): Promise<Resource>;
+  incrementResourceViews(id: string): Promise<void>;
+  incrementResourceUses(id: string): Promise<void>;
+  recordResourceUsage(usage: InsertResourceUsage): Promise<ResourceUsage>;
+  
+  // Vendor Directory
+  getVendorDirectory(filters?: {
+    primaryCategory?: string;
+    searchQuery?: string;
+    serviceArea?: string;
+    featured?: boolean;
+  }): Promise<VendorDirectory[]>;
+  getVendorDirectoryItem(id: string): Promise<VendorDirectory | undefined>;
+  getVendorDirectoryItemBySlug(slug: string): Promise<VendorDirectory | undefined>;
+  createVendorDirectoryItem(vendor: InsertVendorDirectory): Promise<VendorDirectory>;
+  updateVendorDirectoryItem(id: string, vendor: Partial<InsertVendorDirectory>): Promise<VendorDirectory>;
+  incrementVendorViews(id: string): Promise<void>;
+  
+  // Vendor Reviews
+  getVendorReviews(vendorId: string): Promise<VendorReview[]>;
+  getVendorReview(id: string): Promise<VendorReview | undefined>;
+  createVendorReview(review: InsertVendorReview): Promise<VendorReview>;
+  updateVendorReview(id: string, review: Partial<InsertVendorReview>): Promise<VendorReview>;
+  
+  // Industry Benchmarks
+  getIndustryBenchmarks(filters?: {
+    category?: string;
+    metric?: string;
+    year?: number;
+    region?: string;
+  }): Promise<IndustryBenchmark[]>;
+  getIndustryBenchmark(id: string): Promise<IndustryBenchmark | undefined>;
+  createIndustryBenchmark(benchmark: InsertIndustryBenchmark): Promise<IndustryBenchmark>;
 }
 
 export class MemStorage implements IStorage {

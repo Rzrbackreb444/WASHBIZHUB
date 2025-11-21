@@ -29,6 +29,11 @@ import {
   affiliatePayouts,
   templates,
   templateDownloads,
+  resources,
+  resourceUsage,
+  vendorDirectory,
+  vendorReviews,
+  industryBenchmarks,
   type User,
   type InsertUser,
   type Design,
@@ -85,6 +90,16 @@ import {
   type InsertTemplate,
   type TemplateDownload,
   type InsertTemplateDownload,
+  type Resource,
+  type InsertResource,
+  type ResourceUsage,
+  type InsertResourceUsage,
+  type VendorDirectory,
+  type InsertVendorDirectory,
+  type VendorReview,
+  type InsertVendorReview,
+  type IndustryBenchmark,
+  type InsertIndustryBenchmark,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -915,6 +930,204 @@ export class DbStorage implements IStorage {
       .set({ downloadCount: sql`${templates.downloadCount} + 1` })
       .where(eq(templates.id, templateId));
 
+    return result[0];
+  }
+
+  // ============================================================================
+  // RESOURCES (COMPREHENSIVE INDUSTRY LIBRARY)
+  // ============================================================================
+  async getResources(filters?: {
+    resourceType?: string;
+    category?: string;
+    targetAudience?: string;
+    searchQuery?: string;
+    featured?: boolean;
+  }): Promise<Resource[]> {
+    let query = db.select().from(resources);
+    
+    if (filters?.resourceType) {
+      query = query.where(eq(resources.resourceType, filters.resourceType));
+    }
+    if (filters?.category) {
+      query = query.where(eq(resources.category, filters.category));
+    }
+    if (filters?.targetAudience) {
+      query = query.where(sql`${resources.targetAudience} @> ARRAY[${filters.targetAudience}]`);
+    }
+    if (filters?.featured) {
+      query = query.where(eq(resources.featured, true));
+    }
+    if (filters?.searchQuery) {
+      const searchTerm = `%${filters.searchQuery}%`;
+      query = query.where(
+        sql`${resources.title} ILIKE ${searchTerm} OR ${resources.description} ILIKE ${searchTerm}`
+      );
+    }
+    
+    return query.orderBy(desc(resources.featured), desc(resources.useCount));
+  }
+
+  async getResource(id: string): Promise<Resource | undefined> {
+    const result = await db.select().from(resources).where(eq(resources.id, id));
+    return result[0];
+  }
+
+  async getResourceBySlug(slug: string): Promise<Resource | undefined> {
+    const result = await db.select().from(resources).where(eq(resources.slug, slug));
+    return result[0];
+  }
+
+  async createResource(resource: InsertResource): Promise<Resource> {
+    const result = await db.insert(resources).values(resource).returning();
+    return result[0];
+  }
+
+  async updateResource(id: string, resource: Partial<InsertResource>): Promise<Resource> {
+    const result = await db.update(resources).set(resource).where(eq(resources.id, id)).returning();
+    return result[0];
+  }
+
+  async incrementResourceViews(id: string): Promise<void> {
+    await db.update(resources)
+      .set({ viewCount: sql`${resources.viewCount} + 1` })
+      .where(eq(resources.id, id));
+  }
+
+  async incrementResourceUses(id: string): Promise<void> {
+    await db.update(resources)
+      .set({ useCount: sql`${resources.useCount} + 1` })
+      .where(eq(resources.id, id));
+  }
+
+  async recordResourceUsage(usage: InsertResourceUsage): Promise<ResourceUsage> {
+    const result = await db.insert(resourceUsage).values(usage).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // VENDOR DIRECTORY
+  // ============================================================================
+  async getVendorDirectory(filters?: {
+    primaryCategory?: string;
+    searchQuery?: string;
+    serviceArea?: string;
+    featured?: boolean;
+  }): Promise<VendorDirectory[]> {
+    let query = db.select().from(vendorDirectory);
+    
+    if (filters?.primaryCategory) {
+      query = query.where(eq(vendorDirectory.primaryCategory, filters.primaryCategory));
+    }
+    if (filters?.featured) {
+      query = query.where(eq(vendorDirectory.featured, true));
+    }
+    if (filters?.serviceArea) {
+      query = query.where(sql`${vendorDirectory.serviceAreas} @> ARRAY[${filters.serviceArea}]`);
+    }
+    if (filters?.searchQuery) {
+      const searchTerm = `%${filters.searchQuery}%`;
+      query = query.where(
+        sql`${vendorDirectory.companyName} ILIKE ${searchTerm} OR ${vendorDirectory.description} ILIKE ${searchTerm}`
+      );
+    }
+    
+    return query.orderBy(desc(vendorDirectory.featured), desc(vendorDirectory.rating));
+  }
+
+  async getVendorDirectoryItem(id: string): Promise<VendorDirectory | undefined> {
+    const result = await db.select().from(vendorDirectory).where(eq(vendorDirectory.id, id));
+    return result[0];
+  }
+
+  async getVendorDirectoryItemBySlug(slug: string): Promise<VendorDirectory | undefined> {
+    const result = await db.select().from(vendorDirectory).where(eq(vendorDirectory.slug, slug));
+    return result[0];
+  }
+
+  async createVendorDirectoryItem(vendor: InsertVendorDirectory): Promise<VendorDirectory> {
+    const result = await db.insert(vendorDirectory).values(vendor).returning();
+    return result[0];
+  }
+
+  async updateVendorDirectoryItem(id: string, vendor: Partial<InsertVendorDirectory>): Promise<VendorDirectory> {
+    const result = await db.update(vendorDirectory).set(vendor).where(eq(vendorDirectory.id, id)).returning();
+    return result[0];
+  }
+
+  async incrementVendorViews(id: string): Promise<void> {
+    await db.update(vendorDirectory)
+      .set({ viewCount: sql`${vendorDirectory.viewCount} + 1` })
+      .where(eq(vendorDirectory.id, id));
+  }
+
+  // ============================================================================
+  // VENDOR REVIEWS
+  // ============================================================================
+  async getVendorReviews(vendorId: string): Promise<VendorReview[]> {
+    return db.select().from(vendorReviews).where(eq(vendorReviews.vendorId, vendorId)).orderBy(desc(vendorReviews.createdAt));
+  }
+
+  async getVendorReview(id: string): Promise<VendorReview | undefined> {
+    const result = await db.select().from(vendorReviews).where(eq(vendorReviews.id, id));
+    return result[0];
+  }
+
+  async createVendorReview(review: InsertVendorReview): Promise<VendorReview> {
+    const result = await db.insert(vendorReviews).values(review).returning();
+    
+    // Update vendor rating and review count
+    const allReviews = await db.select().from(vendorReviews).where(eq(vendorReviews.vendorId, review.vendorId));
+    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    
+    await db.update(vendorDirectory)
+      .set({
+        rating: String(avgRating.toFixed(2)),
+        reviewCount: allReviews.length,
+      })
+      .where(eq(vendorDirectory.id, review.vendorId));
+    
+    return result[0];
+  }
+
+  async updateVendorReview(id: string, review: Partial<InsertVendorReview>): Promise<VendorReview> {
+    const result = await db.update(vendorReviews).set(review).where(eq(vendorReviews.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // INDUSTRY BENCHMARKS
+  // ============================================================================
+  async getIndustryBenchmarks(filters?: {
+    category?: string;
+    metric?: string;
+    year?: number;
+    region?: string;
+  }): Promise<IndustryBenchmark[]> {
+    let query = db.select().from(industryBenchmarks);
+    
+    if (filters?.category) {
+      query = query.where(eq(industryBenchmarks.category, filters.category));
+    }
+    if (filters?.metric) {
+      query = query.where(eq(industryBenchmarks.metric, filters.metric));
+    }
+    if (filters?.year) {
+      query = query.where(eq(industryBenchmarks.year, filters.year));
+    }
+    if (filters?.region) {
+      query = query.where(eq(industryBenchmarks.region, filters.region));
+    }
+    
+    return query.orderBy(desc(industryBenchmarks.year), industryBenchmarks.metric);
+  }
+
+  async getIndustryBenchmark(id: string): Promise<IndustryBenchmark | undefined> {
+    const result = await db.select().from(industryBenchmarks).where(eq(industryBenchmarks.id, id));
+    return result[0];
+  }
+
+  async createIndustryBenchmark(benchmark: InsertIndustryBenchmark): Promise<IndustryBenchmark> {
+    const result = await db.insert(industryBenchmarks).values(benchmark).returning();
     return result[0];
   }
 }
