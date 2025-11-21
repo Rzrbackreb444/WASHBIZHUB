@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import { ExternalLink, Facebook, Linkedin, Twitter } from "lucide-react";
+import { Advertisement } from "@/components/Advertisement";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 
 export function Footer() {
@@ -253,6 +255,21 @@ export function Footer() {
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Advertisement & Newsletter Section */}
+        <div className="border-t border-primary/20 pt-8 mb-8">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Newsletter */}
+            <div>
+              <NewsletterSignup variant="compact" source="footer" />
+            </div>
+            
+            {/* Advertisement */}
+            <div>
+              <Advertisement placement="footer" />
             </div>
           </div>
         </div>

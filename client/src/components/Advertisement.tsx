@@ -1,0 +1,85 @@
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "lucide-react";
+
+interface AdvertisementProps {
+  placement: "header" | "sidebar" | "footer" | "inline";
+  className?: string;
+}
+
+export function Advertisement({ placement, className = "" }: AdvertisementProps) {
+  // Different ad content based on placement
+  const ads = {
+    header: {
+      title: "🎯 List Your Laundromat",
+      description: "Sell faster with our 72,000+ buyer network",
+      cta: "List Now - Free",
+      link: "/listings/create",
+      bgClass: "bg-gradient-to-r from-primary/10 to-accent/10"
+    },
+    sidebar: {
+      title: "📊 CLEANBI™ Valuation",
+      description: "Get your laundromat's market value in 60 seconds",
+      cta: "Calculate Value",
+      link: "/cleanbi",
+      bgClass: "bg-gradient-to-br from-primary/5 to-accent/5"
+    },
+    footer: {
+      title: "💰 20% Affiliate Commission",
+      description: "Earn commissions on every equipment sale you refer",
+      cta: "Join Affiliate Program",
+      link: "/affiliate",
+      bgClass: "bg-gradient-to-r from-accent/10 to-primary/10"
+    },
+    inline: {
+      title: "🚀 Pro Subscription",
+      description: "Unlock advanced analytics, AI consultant, and priority support",
+      cta: "Upgrade to Pro",
+      link: "/pricing",
+      bgClass: "bg-gradient-to-r from-primary/10 to-accent/10"
+    }
+  };
+
+  const ad = ads[placement];
+
+  // Compact version for header
+  if (placement === "header") {
+    return (
+      <a 
+        href={ad.link}
+        data-testid={`ad-${placement}`}
+        className={`block ${className}`}
+      >
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover-elevate active-elevate-2 border border-primary/20">
+          <span className="text-xs font-medium text-primary">{ad.title}</span>
+          <ExternalLink className="w-3 h-3 text-primary/70" />
+        </div>
+      </a>
+    );
+  }
+
+  // Card version for sidebar, footer, inline
+  return (
+    <a 
+      href={ad.link}
+      data-testid={`ad-${placement}`}
+      className={`block ${className}`}
+    >
+      <Card className={`p-4 hover-elevate active-elevate-2 ${ad.bgClass} border-primary/20`}>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-sm font-semibold text-foreground">{ad.title}</h3>
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">
+            Ad
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+          {ad.description}
+        </p>
+        <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
+          {ad.cta}
+          <ExternalLink className="w-3 h-3" />
+        </div>
+      </Card>
+    </a>
+  );
+}
