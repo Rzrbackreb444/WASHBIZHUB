@@ -165,6 +165,9 @@ export class DbStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
+    if (!userData.id) {
+      return this.createUser(userData);
+    }
     const existing = await this.getUser(userData.id);
     if (existing) {
       const result = await db
@@ -1648,7 +1651,7 @@ export class DbStorage implements IStorage {
 
   async updateForumCategory(id: string, updates: Partial<InsertForumCategory>): Promise<ForumCategory> {
     const result = await db.update(forumCategories)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(eq(forumCategories.id, id))
       .returning();
     return result[0];
@@ -1729,7 +1732,7 @@ export class DbStorage implements IStorage {
 
   async incrementTopicViews(id: string): Promise<void> {
     await db.update(forumTopics)
-      .set({ viewCount: sql`${forumTopics.viewCount} + 1` })
+      .set({ views: sql`${forumTopics.views} + 1` })
       .where(eq(forumTopics.id, id));
   }
 
@@ -1816,7 +1819,7 @@ export class DbStorage implements IStorage {
     if (existing) {
       // Update existing vote
       const result = await db.update(forumVotes)
-        .set({ voteType: vote.voteType, updatedAt: new Date() })
+        .set({ voteType: vote.voteType })
         .where(eq(forumVotes.id, existing.id))
         .returning();
       
@@ -1855,8 +1858,8 @@ export class DbStorage implements IStorage {
         eq(forumVotes.entityId, entityId)
       ));
     
-    const upvotes = votes.filter(v => v.voteType === 'upvote').length;
-    const downvotes = votes.filter(v => v.voteType === 'downvote').length;
+    const upvotes = votes.filter(v => v.voteType === 1).length;
+    const downvotes = votes.filter(v => v.voteType === -1).length;
     
     // Update the entity
     if (entityType === 'topic') {
