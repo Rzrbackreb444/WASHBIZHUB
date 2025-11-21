@@ -49,6 +49,7 @@ export const users = pgTable("users", {
   // WashBizHub subscription fields
   isPro: boolean("is_pro").default(false).notNull(),
   isAdmin: boolean("is_admin").default(false).notNull(),
+  subscriptionTier: text("subscription_tier").default("free"), // "free", "accelerate", "scale", "summit"
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   

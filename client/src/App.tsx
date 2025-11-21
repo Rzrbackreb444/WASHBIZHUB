@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
@@ -46,6 +47,7 @@ import BrokerDashboard from "@/pages/broker-dashboard";
 import Forum from "@/pages/forum";
 import ForumCategory from "@/pages/forum-category";
 import ForumTopic from "@/pages/forum-topic";
+import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
@@ -94,6 +96,7 @@ function Router() {
       <Route path="/forum" component={Forum} />
       <Route path="/forum/category/:slug" component={ForumCategory} />
       <Route path="/forum/topic/:slug" component={ForumTopic} />
+      <Route path="/settings" component={Settings} />
       <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>
@@ -104,17 +107,19 @@ function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <div className="flex-1">
-              <Router />
+        <ThemeProvider>
+          <TooltipProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <div className="flex-1">
+                <Router />
+              </div>
+              <Footer />
+              <AIChatWidget />
             </div>
-            <Footer />
-            <AIChatWidget />
-          </div>
-          <Toaster />
-        </TooltipProvider>
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );
