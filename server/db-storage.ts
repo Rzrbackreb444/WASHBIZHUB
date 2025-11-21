@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { eq, and, desc, sql, type SQL } from "drizzle-orm";
+import { eq, and, desc, asc, sql, type SQL } from "drizzle-orm";
 import {
   users,
   designs,
@@ -127,6 +127,21 @@ import {
   brokerProfiles,
   type BrokerProfile,
   type InsertBrokerProfile,
+  forumCategories,
+  forumTopics,
+  forumReplies,
+  forumVotes,
+  type ForumCategory,
+  type InsertForumCategory,
+  type ForumTopic,
+  type InsertForumTopic,
+  type ForumReply,
+  type InsertForumReply,
+  type ForumVote,
+  type InsertForumVote,
+  type EnrichedForumTopic,
+  type EnrichedForumReply,
+  type ForumAuthor,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -1598,6 +1613,249 @@ export class DbStorage implements IStorage {
 
   async deleteCustomerWebsite(id: string): Promise<void> {
     await db.delete(customerWebsites).where(eq(customerWebsites.id, id));
+  }
+
+  // ============================================================================
+  // FORUM SYSTEM
+  // ============================================================================
+
+  // Forum Categories
+  async getForumCategories(): Promise<ForumCategory[]> {
+    return db.select().from(forumCategories);
+  }
+
+  async getForumCategory(id: string): Promise<ForumCategory | undefined> {
+    const result = await db.select().from(forumCategories).where(eq(forumCategories.id, id));
+    return result[0];
+  }
+
+  async createForumCategory(category: InsertForumCategory): Promise<ForumCategory> {
+    const result = await db.insert(forumCategories).values(category).returning();
+    return result[0];
+  }
+
+  async updateForumCategory(id: string, updates: Partial<InsertForumCategory>): Promise<ForumCategory> {
+    const result = await db.update(forumCategories)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(forumCategories.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteForumCategory(id: string): Promise<void> {
+    await db.delete(forumCategories).where(eq(forumCategories.id, id));
+  }
+
+  // Forum Topics
+  async getForumTopics(filters?: { categoryId?: string; userId?: string }): Promise<EnrichedForumTopic[]> {
+    const conditions = [];
+    
+    if (filters?.categoryId) {
+      conditions.push(eq(forumTopics.categoryId, filters.categoryId));
+    }
+    if (filters?.userId) {
+      conditions.push(eq(forumTopics.userId, filters.userId));
+    }
+
+    let query = db
+      .select({
+        topic: forumTopics,
+        author: {
+          id: users.id,
+          username: users.username,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          tagline: users.tagline,
+          role: users.role,
+        },
+      })
+      .from(forumTopics)
+      .leftJoin(users, eq(forumTopics.userId, users.id));
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
+    }
+
+    const results = await query.orderBy(desc(forumTopics.isPinned), desc(forumTopics.lastActivityAt));
+    
+    return results.map((r: any) => ({
+      ...r.topic,
+      author: r.author,
+    }));
+  }
+
+  async getForumTopic(id: string): Promise<ForumTopic | undefined> {
+    const result = await db.select().from(forumTopics).where(eq(forumTopics.id, id));
+    return result[0];
+  }
+
+  async getForumTopicBySlug(slug: string): Promise<ForumTopic | undefined> {
+    const result = await db.select().from(forumTopics).where(eq(forumTopics.slug, slug));
+    return result[0];
+  }
+
+  async createForumTopic(topic: InsertForumTopic): Promise<ForumTopic> {
+    const result = await db.insert(forumTopics).values(topic).returning();
+    return result[0];
+  }
+
+  async updateForumTopic(id: string, updates: Partial<InsertForumTopic>): Promise<ForumTopic> {
+    const result = await db.update(forumTopics)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(forumTopics.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteForumTopic(id: string): Promise<void> {
+    // Delete all replies first
+    await db.delete(forumReplies).where(eq(forumReplies.topicId, id));
+    // Delete the topic
+    await db.delete(forumTopics).where(eq(forumTopics.id, id));
+  }
+
+  async incrementTopicViews(id: string): Promise<void> {
+    await db.update(forumTopics)
+      .set({ viewCount: sql`${forumTopics.viewCount} + 1` })
+      .where(eq(forumTopics.id, id));
+  }
+
+  // Forum Replies
+  async getForumReplies(topicId: string): Promise<EnrichedForumReply[]> {
+    const results = await db
+      .select({
+        reply: forumReplies,
+        author: {
+          id: users.id,
+          username: users.username,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          tagline: users.tagline,
+          role: users.role,
+        },
+      })
+      .from(forumReplies)
+      .leftJoin(users, eq(forumReplies.userId, users.id))
+      .where(eq(forumReplies.topicId, topicId))
+      .orderBy(forumReplies.createdAt);
+    
+    return results.map((r: any) => ({
+      ...r.reply,
+      author: r.author,
+    }));
+  }
+
+  async getForumReply(id: string): Promise<ForumReply | undefined> {
+    const result = await db.select().from(forumReplies).where(eq(forumReplies.id, id));
+    return result[0];
+  }
+
+  async createForumReply(reply: InsertForumReply): Promise<ForumReply> {
+    const result = await db.insert(forumReplies).values(reply).returning();
+    
+    // Update topic reply count and last activity
+    await db.update(forumTopics)
+      .set({
+        replyCount: sql`${forumTopics.replyCount} + 1`,
+        lastActivityAt: new Date(),
+      })
+      .where(eq(forumTopics.id, reply.topicId));
+    
+    return result[0];
+  }
+
+  async updateForumReply(id: string, updates: Partial<InsertForumReply>): Promise<ForumReply> {
+    const result = await db.update(forumReplies)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(forumReplies.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteForumReply(id: string): Promise<void> {
+    const reply = await this.getForumReply(id);
+    if (reply) {
+      await db.delete(forumReplies).where(eq(forumReplies.id, id));
+      
+      // Decrement topic reply count
+      await db.update(forumTopics)
+        .set({ replyCount: sql`GREATEST(${forumTopics.replyCount} - 1, 0)` })
+        .where(eq(forumTopics.id, reply.topicId));
+    }
+  }
+
+  // Forum Votes
+  async getUserVote(userId: string, entityType: string, entityId: string): Promise<ForumVote | undefined> {
+    const result = await db.select().from(forumVotes)
+      .where(and(
+        eq(forumVotes.userId, userId),
+        eq(forumVotes.entityType, entityType),
+        eq(forumVotes.entityId, entityId)
+      ));
+    return result[0];
+  }
+
+  async createForumVote(vote: InsertForumVote): Promise<ForumVote> {
+    // Check if vote already exists
+    const existing = await this.getUserVote(vote.userId, vote.entityType, vote.entityId);
+    
+    if (existing) {
+      // Update existing vote
+      const result = await db.update(forumVotes)
+        .set({ voteType: vote.voteType, updatedAt: new Date() })
+        .where(eq(forumVotes.id, existing.id))
+        .returning();
+      
+      // Update vote counts
+      await this.updateVoteCounts(vote.entityType, vote.entityId);
+      
+      return result[0];
+    } else {
+      // Create new vote
+      const result = await db.insert(forumVotes).values(vote).returning();
+      
+      // Update vote counts
+      await this.updateVoteCounts(vote.entityType, vote.entityId);
+      
+      return result[0];
+    }
+  }
+
+  async deleteForumVote(userId: string, entityType: string, entityId: string): Promise<void> {
+    await db.delete(forumVotes)
+      .where(and(
+        eq(forumVotes.userId, userId),
+        eq(forumVotes.entityType, entityType),
+        eq(forumVotes.entityId, entityId)
+      ));
+    
+    // Update vote counts
+    await this.updateVoteCounts(entityType, entityId);
+  }
+
+  private async updateVoteCounts(entityType: string, entityId: string): Promise<void> {
+    // Count upvotes and downvotes
+    const votes = await db.select().from(forumVotes)
+      .where(and(
+        eq(forumVotes.entityType, entityType),
+        eq(forumVotes.entityId, entityId)
+      ));
+    
+    const upvotes = votes.filter(v => v.voteType === 'upvote').length;
+    const downvotes = votes.filter(v => v.voteType === 'downvote').length;
+    
+    // Update the entity
+    if (entityType === 'topic') {
+      await db.update(forumTopics)
+        .set({ upvotes, downvotes })
+        .where(eq(forumTopics.id, entityId));
+    } else if (entityType === 'reply') {
+      await db.update(forumReplies)
+        .set({ upvotes, downvotes })
+        .where(eq(forumReplies.id, entityId));
+    }
   }
 }
 
