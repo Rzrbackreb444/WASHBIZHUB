@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
-import { Footer } from "@/components/Footer";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
   Building2, Rocket, TrendingUp, ArrowRight
@@ -294,9 +293,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }
