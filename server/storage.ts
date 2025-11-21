@@ -51,6 +51,77 @@ import {
   type InsertVendorReview,
   type IndustryBenchmark,
   type InsertIndustryBenchmark,
+  // Forum System
+  type ForumCategory,
+  type InsertForumCategory,
+  type ForumTopic,
+  type InsertForumTopic,
+  type ForumReply,
+  type InsertForumReply,
+  type ForumVote,
+  type InsertForumVote,
+  type ReputationEvent,
+  type InsertReputationEvent,
+  type Badge,
+  type InsertBadge,
+  type BadgeAward,
+  type InsertBadgeAward,
+  // AI Agent Builder
+  type AiAgent,
+  type InsertAiAgent,
+  type AgentFlow,
+  type InsertAgentFlow,
+  type AgentKnowledgeSource,
+  type InsertAgentKnowledgeSource,
+  type AgentConversation,
+  type InsertAgentConversation,
+  type AgentTemplate,
+  type InsertAgentTemplate,
+  // Website Builder
+  type SiteProject,
+  type InsertSiteProject,
+  type SitePage,
+  type InsertSitePage,
+  type PageSection,
+  type InsertPageSection,
+  type MediaAsset,
+  type InsertMediaAsset,
+  type WebsiteTemplate,
+  type InsertWebsiteTemplate,
+  // Logo Builder
+  type LogoProject,
+  type InsertLogoProject,
+  type LogoTemplate,
+  type InsertLogoTemplate,
+  // Banner Builder
+  type BannerProject,
+  type InsertBannerProject,
+  type BannerTemplate,
+  type InsertBannerTemplate,
+  // Enhanced Calculator System
+  type CalculatorConfig,
+  type InsertCalculatorConfig,
+  type CalculatorInstance,
+  type InsertCalculatorInstance,
+  // Blog Suite Expansion
+  type BlogSeries,
+  type InsertBlogSeries,
+  type BlogSeriesMember,
+  type InsertBlogSeriesMember,
+  type BlogPostTemplate,
+  type InsertBlogPostTemplate,
+  // Enhanced Marketplace
+  type MarketplaceProduct,
+  type InsertMarketplaceProduct,
+  type AdCampaign,
+  type InsertAdCampaign,
+  type CommissionLedger,
+  type InsertCommissionLedger,
+  // Dashboard & Analytics
+  type ModuleMetric,
+  type InsertModuleMetric,
+  type ActivityEvent,
+  type InsertActivityEvent,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -216,6 +287,173 @@ export interface IStorage {
   }): Promise<IndustryBenchmark[]>;
   getIndustryBenchmark(id: string): Promise<IndustryBenchmark | undefined>;
   createIndustryBenchmark(benchmark: InsertIndustryBenchmark): Promise<IndustryBenchmark>;
+  
+  // Forum System
+  getForumCategories(): Promise<ForumCategory[]>;
+  getForumCategory(id: string): Promise<ForumCategory | undefined>;
+  createForumCategory(category: InsertForumCategory): Promise<ForumCategory>;
+  updateForumCategory(id: string, category: Partial<InsertForumCategory>): Promise<ForumCategory>;
+  deleteForumCategory(id: string): Promise<void>;
+  
+  getForumTopics(filters?: { categoryId?: string; userId?: string }): Promise<ForumTopic[]>;
+  getForumTopic(id: string): Promise<ForumTopic | undefined>;
+  getForumTopicBySlug(slug: string): Promise<ForumTopic | undefined>;
+  createForumTopic(topic: InsertForumTopic): Promise<ForumTopic>;
+  updateForumTopic(id: string, topic: Partial<InsertForumTopic>): Promise<ForumTopic>;
+  deleteForumTopic(id: string): Promise<void>;
+  incrementTopicViews(id: string): Promise<void>;
+  
+  getForumReplies(topicId: string): Promise<ForumReply[]>;
+  getForumReply(id: string): Promise<ForumReply | undefined>;
+  createForumReply(reply: InsertForumReply): Promise<ForumReply>;
+  updateForumReply(id: string, reply: Partial<InsertForumReply>): Promise<ForumReply>;
+  deleteForumReply(id: string): Promise<void>;
+  
+  getUserVote(userId: string, entityType: string, entityId: string): Promise<ForumVote | undefined>;
+  createForumVote(vote: InsertForumVote): Promise<ForumVote>;
+  updateForumVote(id: string, voteType: number): Promise<ForumVote>;
+  deleteForumVote(id: string): Promise<void>;
+  
+  getUserReputation(userId: string): Promise<number>;
+  getReputationEvents(userId: string): Promise<ReputationEvent[]>;
+  createReputationEvent(event: InsertReputationEvent): Promise<ReputationEvent>;
+  
+  getBadges(): Promise<Badge[]>;
+  getBadge(id: string): Promise<Badge | undefined>;
+  createBadge(badge: InsertBadge): Promise<Badge>;
+  
+  getUserBadges(userId: string): Promise<BadgeAward[]>;
+  awardBadge(award: InsertBadgeAward): Promise<BadgeAward>;
+  
+  // AI Agent Builder
+  getAiAgents(userId?: string): Promise<AiAgent[]>;
+  getAiAgent(id: string): Promise<AiAgent | undefined>;
+  createAiAgent(agent: InsertAiAgent): Promise<AiAgent>;
+  updateAiAgent(id: string, agent: Partial<InsertAiAgent>): Promise<AiAgent>;
+  deleteAiAgent(id: string): Promise<void>;
+  
+  getAgentFlows(agentId: string): Promise<AgentFlow[]>;
+  getAgentFlow(id: string): Promise<AgentFlow | undefined>;
+  createAgentFlow(flow: InsertAgentFlow): Promise<AgentFlow>;
+  updateAgentFlow(id: string, flow: Partial<InsertAgentFlow>): Promise<AgentFlow>;
+  deleteAgentFlow(id: string): Promise<void>;
+  
+  getAgentKnowledgeSources(agentId: string): Promise<AgentKnowledgeSource[]>;
+  getAgentKnowledgeSource(id: string): Promise<AgentKnowledgeSource | undefined>;
+  createAgentKnowledgeSource(source: InsertAgentKnowledgeSource): Promise<AgentKnowledgeSource>;
+  deleteAgentKnowledgeSource(id: string): Promise<void>;
+  
+  getAgentConversations(agentId: string): Promise<AgentConversation[]>;
+  getAgentConversation(id: string): Promise<AgentConversation | undefined>;
+  createAgentConversation(conversation: InsertAgentConversation): Promise<AgentConversation>;
+  updateAgentConversation(id: string, conversation: Partial<InsertAgentConversation>): Promise<AgentConversation>;
+  
+  getAgentTemplates(filters?: { industry?: string; category?: string }): Promise<AgentTemplate[]>;
+  getAgentTemplate(id: string): Promise<AgentTemplate | undefined>;
+  createAgentTemplate(template: InsertAgentTemplate): Promise<AgentTemplate>;
+  
+  // Website Builder
+  getSiteProjects(userId?: string): Promise<SiteProject[]>;
+  getSiteProject(id: string): Promise<SiteProject | undefined>;
+  getSiteProjectBySubdomain(subdomain: string): Promise<SiteProject | undefined>;
+  createSiteProject(project: InsertSiteProject): Promise<SiteProject>;
+  updateSiteProject(id: string, project: Partial<InsertSiteProject>): Promise<SiteProject>;
+  deleteSiteProject(id: string): Promise<void>;
+  
+  getSitePages(projectId: string): Promise<SitePage[]>;
+  getSitePage(id: string): Promise<SitePage | undefined>;
+  createSitePage(page: InsertSitePage): Promise<SitePage>;
+  updateSitePage(id: string, page: Partial<InsertSitePage>): Promise<SitePage>;
+  deleteSitePage(id: string): Promise<void>;
+  
+  getPageSections(pageId: string): Promise<PageSection[]>;
+  getPageSection(id: string): Promise<PageSection | undefined>;
+  createPageSection(section: InsertPageSection): Promise<PageSection>;
+  updatePageSection(id: string, section: Partial<InsertPageSection>): Promise<PageSection>;
+  deletePageSection(id: string): Promise<void>;
+  
+  getMediaAssets(userId?: string, projectId?: string): Promise<MediaAsset[]>;
+  getMediaAsset(id: string): Promise<MediaAsset | undefined>;
+  createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
+  deleteMediaAsset(id: string): Promise<void>;
+  
+  getWebsiteTemplates(filters?: { industry?: string; category?: string }): Promise<WebsiteTemplate[]>;
+  getWebsiteTemplate(id: string): Promise<WebsiteTemplate | undefined>;
+  createWebsiteTemplate(template: InsertWebsiteTemplate): Promise<WebsiteTemplate>;
+  
+  // Logo Builder
+  getLogoProjects(userId: string): Promise<LogoProject[]>;
+  getLogoProject(id: string): Promise<LogoProject | undefined>;
+  createLogoProject(project: InsertLogoProject): Promise<LogoProject>;
+  updateLogoProject(id: string, project: Partial<InsertLogoProject>): Promise<LogoProject>;
+  deleteLogoProject(id: string): Promise<void>;
+  
+  getLogoTemplates(filters?: { industry?: string; style?: string }): Promise<LogoTemplate[]>;
+  getLogoTemplate(id: string): Promise<LogoTemplate | undefined>;
+  createLogoTemplate(template: InsertLogoTemplate): Promise<LogoTemplate>;
+  
+  // Banner Builder
+  getBannerProjects(userId: string): Promise<BannerProject[]>;
+  getBannerProject(id: string): Promise<BannerProject | undefined>;
+  createBannerProject(project: InsertBannerProject): Promise<BannerProject>;
+  updateBannerProject(id: string, project: Partial<InsertBannerProject>): Promise<BannerProject>;
+  deleteBannerProject(id: string): Promise<void>;
+  
+  getBannerTemplates(filters?: { industry?: string; size?: string }): Promise<BannerTemplate[]>;
+  getBannerTemplate(id: string): Promise<BannerTemplate | undefined>;
+  createBannerTemplate(template: InsertBannerTemplate): Promise<BannerTemplate>;
+  
+  // Enhanced Calculator System
+  getCalculatorConfigs(filters?: { category?: string; industry?: string }): Promise<CalculatorConfig[]>;
+  getCalculatorConfig(id: string): Promise<CalculatorConfig | undefined>;
+  createCalculatorConfig(config: InsertCalculatorConfig): Promise<CalculatorConfig>;
+  updateCalculatorConfig(id: string, config: Partial<InsertCalculatorConfig>): Promise<CalculatorConfig>;
+  deleteCalculatorConfig(id: string): Promise<void>;
+  
+  getCalculatorInstances(configId?: string, userId?: string): Promise<CalculatorInstance[]>;
+  getCalculatorInstance(id: string): Promise<CalculatorInstance | undefined>;
+  createCalculatorInstance(instance: InsertCalculatorInstance): Promise<CalculatorInstance>;
+  deleteCalculatorInstance(id: string): Promise<void>;
+  
+  // Blog Suite Expansion
+  getBlogSeries(filters?: { isPublished?: boolean }): Promise<BlogSeries[]>;
+  getBlogSeriesItem(id: string): Promise<BlogSeries | undefined>;
+  getBlogSeriesBySlug(slug: string): Promise<BlogSeries | undefined>;
+  createBlogSeries(series: InsertBlogSeries): Promise<BlogSeries>;
+  updateBlogSeries(id: string, series: Partial<InsertBlogSeries>): Promise<BlogSeries>;
+  deleteBlogSeries(id: string): Promise<void>;
+  
+  getSeriesMembers(seriesId: string): Promise<BlogSeriesMember[]>;
+  addPostToSeries(member: InsertBlogSeriesMember): Promise<BlogSeriesMember>;
+  removePostFromSeries(id: string): Promise<void>;
+  
+  getBlogPostTemplates(filters?: { category?: string }): Promise<BlogPostTemplate[]>;
+  getBlogPostTemplate(id: string): Promise<BlogPostTemplate | undefined>;
+  createBlogPostTemplate(template: InsertBlogPostTemplate): Promise<BlogPostTemplate>;
+  
+  // Enhanced Marketplace
+  getMarketplaceProducts(filters?: { vendorId?: string; category?: string }): Promise<MarketplaceProduct[]>;
+  getMarketplaceProduct(id: string): Promise<MarketplaceProduct | undefined>;
+  getMarketplaceProductBySlug(slug: string): Promise<MarketplaceProduct | undefined>;
+  createMarketplaceProduct(product: InsertMarketplaceProduct): Promise<MarketplaceProduct>;
+  updateMarketplaceProduct(id: string, product: Partial<InsertMarketplaceProduct>): Promise<MarketplaceProduct>;
+  deleteMarketplaceProduct(id: string): Promise<void>;
+  
+  getAdCampaigns(userId?: string): Promise<AdCampaign[]>;
+  getAdCampaign(id: string): Promise<AdCampaign | undefined>;
+  createAdCampaign(campaign: InsertAdCampaign): Promise<AdCampaign>;
+  updateAdCampaign(id: string, campaign: Partial<InsertAdCampaign>): Promise<AdCampaign>;
+  deleteAdCampaign(id: string): Promise<void>;
+  
+  getCommissionLedger(filters?: { vendorId?: string; affiliateId?: string }): Promise<CommissionLedger[]>;
+  createCommissionEntry(entry: InsertCommissionLedger): Promise<CommissionLedger>;
+  
+  // Dashboard & Analytics
+  getModuleMetrics(filters?: { userId?: string; module?: string; period?: string }): Promise<ModuleMetric[]>;
+  createModuleMetric(metric: InsertModuleMetric): Promise<ModuleMetric>;
+  
+  getActivityEvents(userId?: string, limit?: number): Promise<ActivityEvent[]>;
+  createActivityEvent(event: InsertActivityEvent): Promise<ActivityEvent>;
 }
 
 export class MemStorage implements IStorage {
