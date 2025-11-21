@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   // Fetch templates for display
-  const { data: templates } = useQuery({
+  const { data: templates = [] } = useQuery<any[]>({
     queryKey: ['/api/templates'],
   });
   
