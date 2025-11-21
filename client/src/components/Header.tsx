@@ -10,7 +10,7 @@ import {
 import { Menu, LogIn, LogOut, User, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import logoUrl from "@assets/Untitled design (25)_1763692409411.png";
+import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 
 export function Header() {
   const [location] = useLocation();
@@ -81,49 +81,71 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Tools Dropdown */}
+            {/* Resources Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-tools"
+                  data-testid="dropdown-resources"
                 >
-                  Tools <ChevronDown className="ml-1 h-4 w-4" />
+                  Resources <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
                 <DropdownMenuItem asChild>
+                  <Link href="/resources">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-resources">
+                      Resource Hub
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/vendors">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-vendors">
+                      Vendor Directory
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/templates">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-templates-menu">
+                      Template Library
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
                   <Link href="/roi-calculator">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-roi-calculator">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-roi-calculator">
                       ROI Calculator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/calculator">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-calculator">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-calculator">
                       Revenue Calculator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/funding-matcher">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-funding-matcher">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-funding-matcher">
                       Funding Matcher
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/locator">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-locator">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-locator">
                       Laundromat Locator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/distributor-locator">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-distributor-locator">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-distributor-locator">
                       Distributor Locator
                     </span>
                   </Link>
