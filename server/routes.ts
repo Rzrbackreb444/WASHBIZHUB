@@ -2152,35 +2152,39 @@ Disallow: /private/`;
   // POST /api/websites/from-template - Create website from template
   app.post("/api/websites/from-template", isAuthenticated, async (req: any, res) => {
     try {
-      const { templateId, businessName, subdomain, customization } = req.body;
+      const { templateId, businessName, subdomain } = req.body;
       const userId = req.user.claims.sub;
       
-      const template = await storage.getWebsiteTemplate(templateId);
-      if (!template) {
-        return res.status(404).json({ error: "Template not found" });
+      if (!templateId || !businessName || !subdomain) {
+        return res.status(400).json({ error: "Missing required fields: templateId, businessName, subdomain" });
+      }
+
+      // Validate subdomain format (alphanumeric and hyphens only)
+      if (!/^[a-z0-9-]+$/.test(subdomain)) {
+        return res.status(400).json({ error: "Subdomain must contain only lowercase letters, numbers, and hyphens" });
       }
       
-      // Create site project from template
-      const projectData = {
+      const website = await storage.createWebsiteFromTemplate({
         userId,
-        name: businessName || template.name,
-        industry: template.industry,
+        templateId,
+        businessName,
         subdomain,
-        customDomain: null,
-        theme: customization?.theme || template.theme,
-        isPublished: false,
-        totalViews: 0,
-        totalLeads: 0,
-      };
+      });
       
-      const project = await storage.createSiteProject(projectData);
-      
-      // Increment template use count
-      await storage.incrementTemplateUseCount(templateId);
-      
-      res.json(project);
+      res.json(website);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
+    }
+  });
+
+  // GET /api/websites - Get current user's websites
+  app.get("/api/websites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const websites = await storage.getUserWebsites(userId);
+      res.json(websites);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 
