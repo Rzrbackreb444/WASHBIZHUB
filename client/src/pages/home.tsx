@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
   Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users
@@ -67,6 +68,13 @@ export default function Home() {
       
       {/* Value Props */}
       <ValuePropCards />
+
+      {/* Newsletter Signup */}
+      <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="mx-auto max-w-5xl px-6 lg:px-8">
+          <NewsletterSignup variant="hero" source="home_page" />
+        </div>
+      </section>
 
       {/* Feature Section 1: Enterprise Equipment */}
       <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
