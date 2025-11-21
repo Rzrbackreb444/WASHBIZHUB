@@ -40,19 +40,23 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="Home - The Bloomberg of Laundromats"
-        description="Enterprise-grade SaaS platform for laundromat owners, investors, and operators. Access CLEANBI™ 17-factor business analysis, 2D/3D design studio, global marketplace, AI-powered content generation, premium courses, and 100+ industry calculators and tools."
+        title="WashBizHub - Enterprise Laundromat Management Software & Marketplace"
+        description="Professional laundromat business management platform with POS systems, IoT monitoring, AI consulting, marketplace, CLEANBI™ scoring, design studio, ROI calculators, and industry resources. Serving 72,000+ laundromat owners, investors, and operators worldwide with enterprise-grade coin laundry solutions."
         canonicalUrl="/"
         keywords={[
-          "laundromat",
-          "laundry business",
-          "coin laundry",
-          "laundromat investment",
-          "laundromat business",
-          "CLEANBI",
-          "laundromat valuation",
-          "laundromat marketplace",
-          "laundromat design",
+          "laundromat management software",
+          "coin laundry business platform",
+          "laundromat POS system",
+          "commercial laundry equipment marketplace",
+          "laundromat investment calculator",
+          "CLEANBI business valuation",
+          "laundromat IoT monitoring",
+          "self-service laundry management",
+          "coin-operated laundry software",
+          "laundromat design studio",
+          "commercial washing machine business",
+          "laundromat ROI calculator",
+          "coin laundry consulting",
           "laundromat ROI calculator"
         ]}
         structuredData={structuredData}
