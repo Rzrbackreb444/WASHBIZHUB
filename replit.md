@@ -1,7 +1,9 @@
 # WashBizHub - The Bloomberg of Laundromats
 
 ## Overview
-WashBizHub is a comprehensive SaaS platform designed for the laundromat industry. It integrates business intelligence, professional design tools, financial analysis, AI-powered insights, educational content, and a marketplace. The platform aims to be a one-stop solution for laundromat owners, operators, investors, brokers, service providers, and customers, offering a unique combination of features like a 2D/3D design studio, a 17-factor AI business scoring system (CLEANBI™), a buying/selling marketplace, multi-AI content generation, and a full SEO suite. Its vision is to modernize the laundromat industry through IoT integration, AI-powered dynamic pricing, predictive maintenance, and marketing automation.
+WashBizHub is a **world-class enterprise SaaS platform** for the laundromat industry serving **72,000+ potential customers**. It integrates: full POS system with per-pound pricing, IoT machine monitoring, preventive maintenance, pickup/delivery with route optimization, AI-powered consultant, website hosting, business intelligence, professional design tools, financial analysis, educational content, and marketplace. **User requirement: "I hate MVPs" - absolute enterprise-grade quality, no shortcuts.**
+
+The platform combines: 2D/3D design studio, 17-factor CLEANBI™ scoring, buying/selling marketplace, multi-AI content generation (OpenAI, Anthropic, Gemini, Perplexity, Grok), Google Search Console + SERP API integration, Google Workspace + Cloud APIs, real-time dashboards, and comprehensive SEO/AEO optimization. Vision: Modernize the laundromat industry through IoT, AI-powered dynamic pricing, predictive maintenance, and marketing automation.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -9,13 +11,36 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-The frontend is built with React 18 and TypeScript, using Wouter for routing, TanStack Query for state management, and Radix UI primitives with custom shadcn/ui components for the UI. Styling is handled with Tailwind CSS, following a Bloomberg-inspired professional aesthetic with a navy blue and gold color scheme, glassmorphism patterns, and a consistent design system. Vite is used for fast development and optimized builds.
+React 18 + TypeScript, Wouter routing, TanStack Query state management, Radix UI + shadcn/ui components. Tailwind CSS with Bloomberg-inspired aesthetic (navy #1a2332, gold #C8A661, glassmorphism). Real-time updates via WebSockets (socket.io), responsive dashboards with Chart.js/Recharts, PWA support for driver mobile app. Vite for development.
 
 ### Backend Architecture
-The backend is developed with Node.js and Express, written entirely in TypeScript. It features RESTful JSON endpoints and uses Drizzle ORM with PostgreSQL (Neon serverless) for the database. Core services include Design Management, CLEANBI™ Scoring, Calculator Services, Content Management, Marketplace functionalities, and multi-provider AI Integration (OpenAI, Anthropic, Gemini, Perplexity, Grok). Data models cover users, designs, scores, financial scenarios, blog posts, courses, books, vendor/affiliate data, and SEO metrics.
+Node.js + Express (TypeScript), RESTful JSON + WebSockets, Drizzle ORM + PostgreSQL (Neon). **Event-driven architecture** with Redis pub/sub for real-time updates. Service domains: POS, Operations, Logistics, Analytics, AI, Hosting. Role-based access control (owner/manager/attendant/driver/accountant). Multi-tenant architecture with location-based data partitioning.
+
+**Core Services:**
+- **POS System:** Per-pound pricing ($1.25-$2.25/lb), order lifecycle, Stripe settlement reconciliation, scale integration, multi-location support
+- **IoT & Diagnostics:** MQTT/HTTPS sensor ingestion, machine telemetry (temperature, vibration, water flow, energy), predictive maintenance alerts, repair logs
+- **Route Optimization:** Google Maps Distance Matrix + OR-Tools, GPS tracking, geofencing, DoorDash integration, two-way SMS (Twilio)
+- **AI Consultant:** Multi-model orchestration (OpenAI, Anthropic, Gemini, Perplexity), RAG pipeline with pgvector embeddings, trained on full Laundromat Bible + templates + calculators + 2,800+ diagnostic codes
+- **Analytics:** Materialized views (daily_revenue_fact, machine_turn_fact, driver_route_fact, customer_ltv_fact), scheduled aggregation jobs
+- **Website Hosting:** Multi-tenant provisioning, custom domains, SSL via ACME, CDN (Cloudflare), automated SEO optimization
+- **Google Integrations:** Search Console API, SERP API, Workspace APIs, Cloud APIs
 
 ### Data Storage Solutions
-PostgreSQL, provided by Neon Serverless, serves as the primary database, managed with Drizzle ORM for type-safe queries and `drizzle-kit` for schema migrations. Structured data is stored in tables, with JSON fields for flexible nested data. Key tables include `users`, `designs`, `cleanbi_scores`, `calculator_scenarios`, `blog_posts`, `courses`, `lessons`, `enrollments`, `book_chapters`, `book_access`, `vendors`, `parts`, `affiliates`, `ai_blog_tasks`, and `seo_keywords`.
+PostgreSQL (Neon Serverless) with Drizzle ORM. **78+ tables** across domains:
+
+**POS & Operations:** pos_transactions, pos_items, weigh_events, payment_settlements, household_accounts, service_orders, order_items, subscriptions, scale_calibrations
+
+**IoT & Maintenance:** machine_assets, telemetry_events, sensor_thresholds, maintenance_plans, repair_tickets, parts_inventory, warranty_records, vendor_purchase_orders, diagnostic_codes
+
+**Logistics:** routes, route_stops, driver_sessions, proof_of_delivery, geofence_zones, delivery_windows, mileage_logs
+
+**Analytics:** daily_revenue_fact, machine_turn_fact, driver_route_fact, customer_ltv_fact, conversion_funnels, cohort_analysis
+
+**AI & Content:** vector_embeddings (pgvector), conversation_logs, knowledge_sources, agent_configs, blog_posts, courses, templates, calculators
+
+**Platform:** users, laundromats, designs, cleanbi_scores, marketplace, forum, website_builder, logo_builder, seo_keywords, competitor_analysis
+
+Redis for pub/sub, session storage, caching. BullMQ for background jobs. MQTT broker (EMQX) for IoT ingestion.
 
 ### Authentication and Authorization
 The system uses Replit Auth (OIDC) for user authentication, with sessions stored in PostgreSQL via `connect-pg-simple`. Role-based access control is implemented through an `isAdmin` field on the users table. The `isAdmin` middleware protects sensitive administrative operations (creating/updating/deleting resources, vendors, benchmarks). Regular users can view public resources but cannot modify the ecosystem data.
