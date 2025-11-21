@@ -943,26 +943,30 @@ export class DbStorage implements IStorage {
     searchQuery?: string;
     featured?: boolean;
   }): Promise<Resource[]> {
-    let query = db.select().from(resources);
+    const conditions: any[] = [];
     
     if (filters?.resourceType) {
-      query = query.where(eq(resources.resourceType, filters.resourceType));
+      conditions.push(eq(resources.resourceType, filters.resourceType));
     }
     if (filters?.category) {
-      query = query.where(eq(resources.category, filters.category));
+      conditions.push(eq(resources.category, filters.category));
     }
     if (filters?.targetAudience) {
-      query = query.where(sql`${resources.targetAudience} @> ARRAY[${filters.targetAudience}]`);
+      conditions.push(sql`${resources.targetAudience} @> ARRAY[${filters.targetAudience}]`);
     }
     if (filters?.featured) {
-      query = query.where(eq(resources.featured, true));
+      conditions.push(eq(resources.featured, true));
     }
     if (filters?.searchQuery) {
       const searchTerm = `%${filters.searchQuery}%`;
-      query = query.where(
+      conditions.push(
         sql`${resources.title} ILIKE ${searchTerm} OR ${resources.description} ILIKE ${searchTerm}`
       );
     }
+    
+    const query = conditions.length > 0
+      ? db.select().from(resources).where(and(...conditions))
+      : db.select().from(resources);
     
     return query.orderBy(desc(resources.featured), desc(resources.useCount));
   }
@@ -1013,23 +1017,27 @@ export class DbStorage implements IStorage {
     serviceArea?: string;
     featured?: boolean;
   }): Promise<VendorDirectory[]> {
-    let query = db.select().from(vendorDirectory);
+    const conditions: any[] = [];
     
     if (filters?.primaryCategory) {
-      query = query.where(eq(vendorDirectory.primaryCategory, filters.primaryCategory));
+      conditions.push(eq(vendorDirectory.primaryCategory, filters.primaryCategory));
     }
     if (filters?.featured) {
-      query = query.where(eq(vendorDirectory.featured, true));
+      conditions.push(eq(vendorDirectory.featured, true));
     }
     if (filters?.serviceArea) {
-      query = query.where(sql`${vendorDirectory.serviceAreas} @> ARRAY[${filters.serviceArea}]`);
+      conditions.push(sql`${vendorDirectory.serviceAreas} @> ARRAY[${filters.serviceArea}]`);
     }
     if (filters?.searchQuery) {
       const searchTerm = `%${filters.searchQuery}%`;
-      query = query.where(
+      conditions.push(
         sql`${vendorDirectory.companyName} ILIKE ${searchTerm} OR ${vendorDirectory.description} ILIKE ${searchTerm}`
       );
     }
+    
+    const query = conditions.length > 0
+      ? db.select().from(vendorDirectory).where(and(...conditions))
+      : db.select().from(vendorDirectory);
     
     return query.orderBy(desc(vendorDirectory.featured), desc(vendorDirectory.rating));
   }
@@ -1103,20 +1111,24 @@ export class DbStorage implements IStorage {
     year?: number;
     region?: string;
   }): Promise<IndustryBenchmark[]> {
-    let query = db.select().from(industryBenchmarks);
+    const conditions: any[] = [];
     
     if (filters?.category) {
-      query = query.where(eq(industryBenchmarks.category, filters.category));
+      conditions.push(eq(industryBenchmarks.category, filters.category));
     }
     if (filters?.metric) {
-      query = query.where(eq(industryBenchmarks.metric, filters.metric));
+      conditions.push(eq(industryBenchmarks.metric, filters.metric));
     }
     if (filters?.year) {
-      query = query.where(eq(industryBenchmarks.year, filters.year));
+      conditions.push(eq(industryBenchmarks.year, filters.year));
     }
     if (filters?.region) {
-      query = query.where(eq(industryBenchmarks.region, filters.region));
+      conditions.push(eq(industryBenchmarks.region, filters.region));
     }
+    
+    const query = conditions.length > 0
+      ? db.select().from(industryBenchmarks).where(and(...conditions))
+      : db.select().from(industryBenchmarks);
     
     return query.orderBy(desc(industryBenchmarks.year), industryBenchmarks.metric);
   }

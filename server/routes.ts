@@ -4,7 +4,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import {
@@ -35,6 +35,11 @@ import {
   insertAffiliateSaleSchema,
   insertAffiliateCommissionSchema,
   insertAffiliatePayoutSchema,
+  insertResourceSchema,
+  insertResourceUsageSchema,
+  insertVendorDirectorySchema,
+  insertVendorReviewSchema,
+  insertIndustryBenchmarkSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1322,6 +1327,264 @@ Create engaging, well-researched content that provides value to laundromat owner
       res.json(download);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== RESOURCES HUB ====================
+  
+  // Get all resources with optional filters
+  app.get("/api/resources", async (req, res) => {
+    try {
+      const filters = {
+        resourceType: req.query.resourceType as string | undefined,
+        category: req.query.category as string | undefined,
+        targetAudience: req.query.targetAudience as string | undefined,
+        searchQuery: req.query.searchQuery as string | undefined,
+        featured: req.query.featured === "true" ? true : undefined,
+      };
+      const resources = await storage.getResources(filters);
+      res.json(resources);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single resource by ID
+  app.get("/api/resources/:id", async (req, res) => {
+    try {
+      const resource = await storage.getResource(req.params.id);
+      if (!resource) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementResourceViews(req.params.id);
+      
+      res.json(resource);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get resource by slug
+  app.get("/api/resources/slug/:slug", async (req, res) => {
+    try {
+      const resource = await storage.getResourceBySlug(req.params.slug);
+      if (!resource) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementResourceViews(resource.id);
+      
+      res.json(resource);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create resource (admin only)
+  app.post("/api/resources", isAdmin, async (req: any, res) => {
+    try {
+      const validated = insertResourceSchema.parse(req.body);
+      const resource = await storage.createResource(validated);
+      res.json(resource);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update resource (admin only)
+  app.put("/api/resources/:id", isAdmin, async (req: any, res) => {
+    try {
+      const validated = insertResourceSchema.partial().parse(req.body);
+      const resource = await storage.updateResource(req.params.id, validated);
+      res.json(resource);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Record resource usage
+  app.post("/api/resources/:id/use", async (req, res) => {
+    try {
+      const resourceId = req.params.id;
+      const userId = req.body.userId;
+      const actionType = req.body.actionType || "use";
+      
+      // Increment use count
+      await storage.incrementResourceUses(resourceId);
+      
+      // Record usage
+      const usage = await storage.recordResourceUsage({
+        resourceId,
+        userId,
+        actionType,
+        inputData: req.body.inputData,
+        resultData: req.body.resultData,
+        sessionId: req.body.sessionId,
+        ipAddress: req.body.ipAddress,
+        userAgent: req.body.userAgent,
+      });
+      
+      res.json(usage);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== VENDOR DIRECTORY ====================
+  
+  // Get all vendors with optional filters
+  app.get("/api/vendors", async (req, res) => {
+    try {
+      const filters = {
+        primaryCategory: req.query.primaryCategory as string | undefined,
+        searchQuery: req.query.searchQuery as string | undefined,
+        serviceArea: req.query.serviceArea as string | undefined,
+        featured: req.query.featured === "true" ? true : undefined,
+      };
+      const vendors = await storage.getVendorDirectory(filters);
+      res.json(vendors);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single vendor by ID
+  app.get("/api/vendors/:id", async (req, res) => {
+    try {
+      const vendor = await storage.getVendorDirectoryItem(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementVendorViews(req.params.id);
+      
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get vendor by slug
+  app.get("/api/vendors/slug/:slug", async (req, res) => {
+    try {
+      const vendor = await storage.getVendorDirectoryItemBySlug(req.params.slug);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementVendorViews(vendor.id);
+      
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create vendor (admin only)
+  app.post("/api/vendors", isAdmin, async (req: any, res) => {
+    try {
+      const validated = insertVendorDirectorySchema.parse(req.body);
+      const vendor = await storage.createVendorDirectoryItem(validated);
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update vendor (admin only)
+  app.put("/api/vendors/:id", isAdmin, async (req: any, res) => {
+    try {
+      const validated = insertVendorDirectorySchema.partial().parse(req.body);
+      const vendor = await storage.updateVendorDirectoryItem(req.params.id, validated);
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== VENDOR REVIEWS ====================
+  
+  // Get all reviews for a vendor
+  app.get("/api/vendors/:vendorId/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getVendorReviews(req.params.vendorId);
+      res.json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create vendor review (authenticated)
+  app.post("/api/vendors/:vendorId/reviews", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validated = insertVendorReviewSchema.parse({
+        ...req.body,
+        vendorId: req.params.vendorId,
+        userId,
+      });
+      const review = await storage.createVendorReview(validated);
+      res.json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update vendor review (authenticated)
+  app.put("/api/vendors/:vendorId/reviews/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const validated = insertVendorReviewSchema.partial().parse(req.body);
+      const review = await storage.updateVendorReview(req.params.id, validated);
+      res.json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== INDUSTRY BENCHMARKS ====================
+  
+  // Get all industry benchmarks with optional filters
+  app.get("/api/benchmarks", async (req, res) => {
+    try {
+      const filters = {
+        category: req.query.category as string | undefined,
+        metric: req.query.metric as string | undefined,
+        year: req.query.year ? Number(req.query.year) : undefined,
+        region: req.query.region as string | undefined,
+      };
+      const benchmarks = await storage.getIndustryBenchmarks(filters);
+      res.json(benchmarks);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single benchmark by ID
+  app.get("/api/benchmarks/:id", async (req, res) => {
+    try {
+      const benchmark = await storage.getIndustryBenchmark(req.params.id);
+      if (!benchmark) {
+        return res.status(404).json({ message: "Benchmark not found" });
+      }
+      res.json(benchmark);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create benchmark (admin only)
+  app.post("/api/benchmarks", isAdmin, async (req: any, res) => {
+    try {
+      const validated = insertIndustryBenchmarkSchema.parse(req.body);
+      const benchmark = await storage.createIndustryBenchmark(validated);
+      res.json(benchmark);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   });
 
