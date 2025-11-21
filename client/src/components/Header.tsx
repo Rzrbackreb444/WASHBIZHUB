@@ -1,13 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Menu, LogIn, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
@@ -15,306 +8,52 @@ import logoUrl from "@assets/LOGO REAL_1762809085350.png";
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-lg">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between h-48">
+          {/* Logo - 3x larger */}
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer" data-testid="link-logo">
-              <img src={logoUrl} alt="WashBizHub" className="h-12 w-auto" />
+            <div className="flex items-center gap-3 cursor-pointer" data-testid="link-logo">
+              <img src={logoUrl} alt="WashBizHub" className="h-36 w-auto" />
             </div>
           </Link>
 
-          {/* Desktop Navigation with Dropdowns */}
-          <nav className="hidden lg:flex items-center gap-2">
-            {/* Platform Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-platform"
-                >
-                  Platform <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/design-studio">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-design-studio">
-                      Design Studio 2D/3D
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/cleanbi">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-cleanbi">
-                      CLEANBI™ Analysis
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/ai-blogging">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-ai-blogging">
-                      AI Blogging Suite
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/seo-optimizer">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-seo-optimizer">
-                      SEO Optimizer
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/templates">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-templates">
-                      Premium Templates
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Resources Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-resources"
-                >
-                  Resources <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/resources">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-resources">
-                      Resource Hub
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/vendors">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-vendors">
-                      Vendor Directory
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/templates">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-templates-menu">
-                      Template Library
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/roi-calculator">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-roi-calculator">
-                      ROI Calculator
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/calculator">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-calculator">
-                      Revenue Calculator
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/funding-matcher">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-funding-matcher">
-                      Funding Matcher
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/locator">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-locator">
-                      Laundromat Locator
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/distributor-locator">
-                    <span className="cursor-pointer w-full" data-testid="link-nav-distributor-locator">
-                      Distributor Locator
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Marketplace Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-marketplace"
-                >
-                  Marketplace <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 ">
-                <DropdownMenuItem asChild>
-                  <Link href="/marketplace">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-marketplace">
-                      Buy/Sell Laundromats
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/listings">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-listings">
-                      Browse Listings
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/superstore">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-superstore">
-                      Equipment Superstore
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/parts">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-parts">
-                      Parts Marketplace
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Learn Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-learn"
-                >
-                  Learn <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 ">
-                <DropdownMenuItem asChild>
-                  <Link href="/courses">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-courses">
-                      Premium Courses
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/book">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-book">
-                      The Laundromat Bible
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/blog">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-blog">
-                      Industry Blog
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-primary-border" />
-                <DropdownMenuItem asChild>
-                  <Link href="/facebook-group">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-facebook-group">
-                      Join Facebook Community
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Consultations Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-foreground/70 hover:text-foreground font-medium"
-                  data-testid="dropdown-consultations"
-                >
-                  Consultations <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 ">
-                <DropdownMenuItem asChild>
-                  <Link href="/consultation">
-                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-consultation">
-                      Book a Consultation
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-primary-border" />
-                <div className="px-2 py-2">
-                  <p className="text-xs text-muted-foreground mb-2 font-semibold uppercase tracking-wider">Industry Experts</p>
-                </div>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://laundromat123.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer cursor-pointer"
-                    data-testid="link-nav-laundromat123"
-                  >
-                    Laundromat123.com
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://laundromat123.com/about"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer cursor-pointer"
-                    data-testid="link-nav-larry-larsen"
-                  >
-                    Larry Larsen - Expert Coach
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                  <span className="text-muted-foreground text-xs italic" data-testid="link-nav-sasquatch">
-                    The Stroked-Out Sasquatch (from the book)
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Desktop Navigation - Mega Menu Trigger */}
+          <nav className="hidden lg:flex items-center gap-4">
+            <Button
+              variant="ghost"
+              className="text-lg font-semibold text-foreground/80 hover:text-foreground h-auto px-6 py-4"
+              onMouseEnter={() => setMegaMenuOpen(true)}
+              data-testid="button-mega-menu"
+            >
+              Explore Platform <ChevronDown className="ml-2 h-5 w-5" />
+            </Button>
           </nav>
 
-          {/* Auth & CTA */}
-          <div className="flex items-center gap-2">
+          {/* Auth & CTA - Larger buttons */}
+          <div className="flex items-center gap-4">
             {!isLoading && (
               <>
                 {isAuthenticated ? (
                   <>
                     {/* User info */}
-                    <div className="hidden md:flex items-center gap-2 text-primary-foreground/80 text-sm">
-                      <User className="h-4 w-4" />
-                      <span>{user?.firstName || user?.email || 'User'}</span>
+                    <div className="hidden md:flex items-center gap-3 text-foreground/80 text-lg">
+                      <User className="h-6 w-6" />
+                      <span className="font-medium">{user?.firstName || user?.email || 'User'}</span>
                     </div>
                     
                     {/* Logout button */}
                     <Button 
                       onClick={() => window.location.href = '/api/logout'}
                       variant="outline"
-                      size="sm"
-                      className="border-border"
+                      className="border-border h-auto px-6 py-4 text-base"
                       data-testid="button-logout"
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-5 w-5 mr-2" />
                       Logout
                     </Button>
                   </>
@@ -324,11 +63,10 @@ export function Header() {
                     <Button 
                       onClick={() => window.location.href = '/api/login'}
                       variant="outline"
-                      size="sm"
-                      className="border-border"
+                      className="border-border h-auto px-6 py-4 text-base"
                       data-testid="button-login"
                     >
-                      <LogIn className="h-4 w-4 mr-2" />
+                      <LogIn className="h-5 w-5 mr-2" />
                       Login
                     </Button>
                   </>
@@ -338,7 +76,7 @@ export function Header() {
                 {(!user?.isPro) && (
                   <Link href="/subscribe">
                     <Button 
-                      className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full"
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full h-auto px-8 py-4 text-base"
                       data-testid="button-go-pro"
                     >
                       Go Pro
@@ -352,18 +90,254 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden h-12 w-12"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-8 w-8" />
             </Button>
           </div>
         </div>
 
+        {/* Mega Menu Panel */}
+        {megaMenuOpen && (
+          <div 
+            className="absolute left-0 right-0 top-48 bg-card border-b border-border shadow-2xl"
+            onMouseEnter={() => setMegaMenuOpen(true)}
+            onMouseLeave={() => setMegaMenuOpen(false)}
+            data-testid="mega-menu-panel"
+          >
+            <div className="max-w-7xl mx-auto px-6 py-12">
+              <div className="grid grid-cols-5 gap-8">
+                {/* Platform Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Building2 className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-foreground">Platform</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li>
+                      <Link href="/design-studio">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-design-studio">
+                          Design Studio 2D/3D
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/cleanbi">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-cleanbi">
+                          CLEANBI™ Analysis
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/ai-blogging">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-ai-blogging">
+                          AI Blogging Suite
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/seo-optimizer">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-seo-optimizer">
+                          SEO Optimizer
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/templates">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-templates">
+                          Premium Templates
+                        </div>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Resources Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Calculator className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-foreground">Resources</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li>
+                      <Link href="/resources">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-resources">
+                          Resource Hub
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/vendors">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-vendors">
+                          Vendor Directory
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/roi-calculator">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-roi-calculator">
+                          ROI Calculator
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/calculator">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-calculator">
+                          Revenue Calculator
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/funding-matcher">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-funding-matcher">
+                          Funding Matcher
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/locator">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-locator">
+                          Laundromat Locator
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/distributor-locator">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-distributor-locator">
+                          Distributor Locator
+                        </div>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Marketplace Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <ShoppingCart className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-foreground">Marketplace</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li>
+                      <Link href="/marketplace">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-marketplace">
+                          Buy/Sell Laundromats
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/listings">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-listings">
+                          Browse Listings
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/superstore">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-superstore">
+                          Equipment Superstore
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/parts">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-parts">
+                          Parts Marketplace
+                        </div>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Learn Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <GraduationCap className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-foreground">Learn</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li>
+                      <Link href="/courses">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-courses">
+                          Premium Courses
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/book">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-book">
+                          The Laundromat Bible
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/blog">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-blog">
+                          Industry Blog
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/facebook-group">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-facebook-group">
+                          Facebook Community
+                        </div>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Consultations Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Phone className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-foreground">Expert Help</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li>
+                      <Link href="/consultation">
+                        <div className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors" data-testid="link-nav-consultation">
+                          Book Consultation
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="pt-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Industry Experts</p>
+                    </li>
+                    <li>
+                      <a
+                        href="https://laundromat123.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors"
+                        data-testid="link-nav-laundromat123"
+                      >
+                        Laundromat123.com
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://laundromat123.com/about"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cursor-pointer text-base text-foreground/80 hover:text-primary transition-colors"
+                        data-testid="link-nav-larry-larsen"
+                      >
+                        Larry Larsen
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-border space-y-4" data-testid="nav-mobile-menu">
+          <nav className="lg:hidden py-6 border-t border-border space-y-6" data-testid="nav-mobile-menu">
             {/* Platform Section */}
             <div>
               <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Platform</div>
