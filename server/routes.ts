@@ -2190,6 +2190,61 @@ Disallow: /private/`;
 
   // ==================== AFFILIATE SYSTEM ====================
   
+  // Helper: Generate unique affiliate code
+  function generateAffiliateCode(name: string): string {
+    const sanitized = name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+    return `${sanitized}${random}`;
+  }
+
+  // POST /api/affiliate/signup - Apply for affiliate program with auto-code generation
+  app.post("/api/affiliate/signup", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Check if already an affiliate
+      const existing = await storage.getAffiliates(userId);
+      if (existing.length > 0) {
+        return res.json(existing[0]);
+      }
+
+      // Generate unique affiliate code
+      let affiliateCode = generateAffiliateCode(user.firstName || user.email);
+      let attempts = 0;
+      while (attempts < 10) {
+        const existingCode = await storage.getAffiliates();
+        if (!existingCode.some(a => a.affiliateCode === affiliateCode)) {
+          break;
+        }
+        affiliateCode = generateAffiliateCode(user.firstName || user.email) + Math.random().toString(36).substring(2, 3).toUpperCase();
+        attempts++;
+      }
+
+      const { displayName, bio, website, socialLinks } = req.body;
+
+      const affiliate = await storage.createAffiliate({
+        userId,
+        affiliateCode,
+        affiliateTag: affiliateCode, // Use same as code by default
+        displayName: displayName || user.firstName || user.email.split('@')[0],
+        bio: bio || null,
+        website: website || null,
+        socialLinks: socialLinks || null,
+        commissionRate: "20", // Default 20%
+        status: "active", // Auto-approve for launch
+      });
+
+      res.json(affiliate);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+  
   // GET /api/affiliate/profile - Get current user's affiliate profile
   app.get("/api/affiliate/profile", isAuthenticated, async (req: any, res) => {
     try {
