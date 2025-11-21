@@ -41,6 +41,7 @@ import {
   searchAnalytics,
   emailSubscribers,
   websiteTemplates,
+  customerWebsites,
   type User,
   type UpsertUser,
   type Design,
@@ -121,6 +122,8 @@ import {
   type InsertEmailSubscriber,
   type WebsiteTemplate,
   type InsertWebsiteTemplate,
+  type CustomerWebsite,
+  type InsertCustomerWebsite,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -1488,6 +1491,74 @@ export class DbStorage implements IStorage {
     await db.update(websiteTemplates)
       .set({ useCount: sql`${websiteTemplates.useCount} + 1` })
       .where(eq(websiteTemplates.id, id));
+  }
+
+  // ============================================================================
+  // CUSTOMER WEBSITES (Deployed from Templates)
+  // ============================================================================
+  async createWebsiteFromTemplate(data: {
+    userId: string;
+    templateId: string;
+    businessName: string;
+    subdomain: string;
+  }): Promise<CustomerWebsite> {
+    // Get the template
+    const template = await this.getWebsiteTemplate(data.templateId);
+    if (!template) {
+      throw new Error("Template not found");
+    }
+
+    // Check if subdomain is already taken
+    const existing = await db.select().from(customerWebsites).where(eq(customerWebsites.slug, data.subdomain));
+    if (existing.length > 0) {
+      throw new Error("Subdomain already taken");
+    }
+
+    // Create the website from template
+    const website: InsertCustomerWebsite = {
+      userId: data.userId,
+      templateId: data.templateId,
+      businessName: data.businessName,
+      slug: data.subdomain,
+      pages: template.pages,
+      theme: template.theme,
+      status: "draft",
+    };
+
+    const result = await db.insert(customerWebsites).values(website).returning();
+
+    // Increment template use count
+    await this.incrementTemplateUseCount(data.templateId);
+
+    return result[0];
+  }
+
+  async getUserWebsites(userId: string): Promise<CustomerWebsite[]> {
+    return db.select().from(customerWebsites)
+      .where(eq(customerWebsites.userId, userId))
+      .orderBy(desc(customerWebsites.createdAt));
+  }
+
+  async getCustomerWebsite(id: string): Promise<CustomerWebsite | undefined> {
+    const result = await db.select().from(customerWebsites).where(eq(customerWebsites.id, id));
+    return result[0];
+  }
+
+  async getWebsiteBySlug(slug: string): Promise<CustomerWebsite | undefined> {
+    const result = await db.select().from(customerWebsites).where(eq(customerWebsites.slug, slug));
+    return result[0];
+  }
+
+  async updateCustomerWebsite(id: string, updates: Partial<InsertCustomerWebsite>): Promise<CustomerWebsite> {
+    const result = await db.update(customerWebsites)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(customerWebsites.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCustomerWebsite(id: string): Promise<void> {
+    await db.delete(customerWebsites).where(eq(customerWebsites.id, id));
   }
 }
 

@@ -2788,6 +2788,44 @@ export const insertWebsiteTemplateSchema = createInsertSchema(websiteTemplates).
 export type InsertWebsiteTemplate = z.infer<typeof insertWebsiteTemplateSchema>;
 export type WebsiteTemplate = typeof websiteTemplates.$inferSelect;
 
+// Customer Websites (Deployed from Templates)
+export const customerWebsites = pgTable("customer_websites", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  templateId: varchar("template_id").references(() => websiteTemplates.id),
+  
+  // Site Identity
+  businessName: text("business_name").notNull(),
+  slug: text("slug").unique().notNull(), // subdomain like "joes-laundry"
+  customDomain: text("custom_domain"), // Optional custom domain
+  
+  // Site Data (copied from template)
+  pages: jsonb("pages").notNull(),
+  theme: jsonb("theme").notNull(),
+  
+  // Status
+  status: text("status").default("draft").notNull(), // draft, published, archived
+  publishedAt: timestamp("published_at"),
+  
+  // Stats
+  pageviews: integer("pageviews").default(0).notNull(),
+  lastVisitedAt: timestamp("last_visited_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertCustomerWebsiteSchema = createInsertSchema(customerWebsites).omit({
+  id: true,
+  pageviews: true,
+  lastVisitedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCustomerWebsite = z.infer<typeof insertCustomerWebsiteSchema>;
+export type CustomerWebsite = typeof customerWebsites.$inferSelect;
+
 // ============================================================================
 // LOGO BUILDER
 // ============================================================================
