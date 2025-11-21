@@ -37,6 +37,7 @@ import ResourceDetail from "@/pages/resource-detail";
 import Vendors from "@/pages/vendors";
 import VendorStorefront from "@/pages/vendor-store";
 import ProductDetail from "@/pages/product-detail";
+import CalculatorsHub from "@/pages/calculators";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
+      <Route path="/calculators" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/funding-matcher" component={FundingMatcher} />
