@@ -2235,3 +2235,1136 @@ export const insertIndustryBenchmarkSchema = createInsertSchema(industryBenchmar
 
 export type InsertIndustryBenchmark = z.infer<typeof insertIndustryBenchmarkSchema>;
 export type IndustryBenchmark = typeof industryBenchmarks.$inferSelect;
+
+// ============================================================================
+// PROFESSIONAL FORUM SYSTEM
+// ============================================================================
+
+// Forum Categories
+export const forumCategories = pgTable("forum_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon"), // Icon name from lucide-react
+  slug: text("slug").notNull().unique(),
+  order: integer("order").notNull().default(0),
+  color: text("color").default("#C8A661"), // Bloomberg gold by default
+  parentId: varchar("parent_id"),
+  
+  // Stats
+  totalTopics: integer("total_topics").default(0).notNull(),
+  totalPosts: integer("total_posts").default(0).notNull(),
+  
+  // Settings
+  requiresAuth: boolean("requires_auth").default(false),
+  isPro: boolean("is_pro").default(false), // Pro members only
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("forum_categories_slug_idx").on(table.slug),
+}));
+
+export const insertForumCategorySchema = createInsertSchema(forumCategories).omit({
+  id: true,
+  totalTopics: true,
+  totalPosts: true,
+  createdAt: true,
+});
+
+export type InsertForumCategory = z.infer<typeof insertForumCategorySchema>;
+export type ForumCategory = typeof forumCategories.$inferSelect;
+
+// Forum Topics
+export const forumTopics = pgTable("forum_topics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  categoryId: varchar("category_id").references(() => forumCategories.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  title: text("title").notNull(),
+  content: text("content").notNull(), // Markdown content
+  slug: text("slug").notNull(),
+  
+  // Tags
+  tags: jsonb("tags").default([]).notNull(), // Array of tag strings
+  
+  // Stats
+  views: integer("views").default(0).notNull(),
+  replyCount: integer("reply_count").default(0).notNull(),
+  upvotes: integer("upvotes").default(0).notNull(),
+  downvotes: integer("downvotes").default(0).notNull(),
+  score: integer("score").default(0).notNull(), // upvotes - downvotes
+  
+  // Status
+  isPinned: boolean("is_pinned").default(false),
+  isLocked: boolean("is_locked").default(false),
+  isSolved: boolean("is_solved").default(false),
+  bestAnswerId: varchar("best_answer_id"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  lastActivityAt: timestamp("last_activity_at").defaultNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("forum_topics_category_idx").on(table.categoryId),
+  userIdx: index("forum_topics_user_idx").on(table.userId),
+  slugIdx: index("forum_topics_slug_idx").on(table.slug),
+  activityIdx: index("forum_topics_activity_idx").on(table.lastActivityAt),
+}));
+
+export const insertForumTopicSchema = createInsertSchema(forumTopics).omit({
+  id: true,
+  views: true,
+  replyCount: true,
+  upvotes: true,
+  downvotes: true,
+  score: true,
+  createdAt: true,
+  updatedAt: true,
+  lastActivityAt: true,
+});
+
+export type InsertForumTopic = z.infer<typeof insertForumTopicSchema>;
+export type ForumTopic = typeof forumTopics.$inferSelect;
+
+// Forum Replies
+export const forumReplies = pgTable("forum_replies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  topicId: varchar("topic_id").references(() => forumTopics.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  parentId: varchar("parent_id"), // For nested replies
+  
+  content: text("content").notNull(), // Markdown content
+  
+  // Stats
+  upvotes: integer("upvotes").default(0).notNull(),
+  downvotes: integer("downvotes").default(0).notNull(),
+  score: integer("score").default(0).notNull(),
+  
+  // Status
+  isBestAnswer: boolean("is_best_answer").default(false),
+  isEdited: boolean("is_edited").default(false),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  topicIdx: index("forum_replies_topic_idx").on(table.topicId),
+  userIdx: index("forum_replies_user_idx").on(table.userId),
+  parentIdx: index("forum_replies_parent_idx").on(table.parentId),
+}));
+
+export const insertForumReplySchema = createInsertSchema(forumReplies).omit({
+  id: true,
+  upvotes: true,
+  downvotes: true,
+  score: true,
+  isBestAnswer: true,
+  isEdited: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertForumReply = z.infer<typeof insertForumReplySchema>;
+export type ForumReply = typeof forumReplies.$inferSelect;
+
+// Forum Votes
+export const forumVotes = pgTable("forum_votes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  entityType: text("entity_type").notNull(), // "topic" or "reply"
+  entityId: varchar("entity_id").notNull(), // topicId or replyId
+  voteType: integer("vote_type").notNull(), // 1 for upvote, -1 for downvote
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userEntityIdx: uniqueIndex("forum_votes_user_entity_idx").on(table.userId, table.entityType, table.entityId),
+  entityIdx: index("forum_votes_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
+export type ForumVote = typeof forumVotes.$inferSelect;
+
+// User Reputation Events
+export const reputationEvents = pgTable("reputation_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  points: integer("points").notNull(), // Positive or negative
+  reason: text("reason").notNull(), // "topic_upvoted", "reply_marked_best", etc.
+  entityType: text("entity_type"), // "topic", "reply"
+  entityId: varchar("entity_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("reputation_events_user_idx").on(table.userId),
+}));
+
+export const insertReputationEventSchema = createInsertSchema(reputationEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReputationEvent = z.infer<typeof insertReputationEventSchema>;
+export type ReputationEvent = typeof reputationEvents.$inferSelect;
+
+// Badges
+export const badges = pgTable("badges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon"), // Icon name or URL
+  tier: text("tier").notNull(), // "bronze", "silver", "gold", "platinum"
+  category: text("category").notNull(), // "participation", "quality", "moderation"
+  requirement: text("requirement").notNull(), // Description of how to earn
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBadgeSchema = createInsertSchema(badges).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBadge = z.infer<typeof insertBadgeSchema>;
+export type Badge = typeof badges.$inferSelect;
+
+// Badge Awards
+export const badgeAwards = pgTable("badge_awards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  badgeId: varchar("badge_id").references(() => badges.id).notNull(),
+  
+  awardedAt: timestamp("awarded_at").defaultNow().notNull(),
+}, (table) => ({
+  userBadgeIdx: uniqueIndex("badge_awards_user_badge_idx").on(table.userId, table.badgeId),
+}));
+
+export const insertBadgeAwardSchema = createInsertSchema(badgeAwards).omit({
+  id: true,
+  awardedAt: true,
+});
+
+export type InsertBadgeAward = z.infer<typeof insertBadgeAwardSchema>;
+export type BadgeAward = typeof badgeAwards.$inferSelect;
+
+// ============================================================================
+// AI AGENT BUILDER
+// ============================================================================
+
+// AI Agents
+export const aiAgents = pgTable("ai_agents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  name: text("name").notNull(),
+  description: text("description"),
+  industry: text("industry").default("laundromat"), // laundromat, car_wash, dry_cleaner
+  
+  // Configuration
+  primaryModel: text("primary_model").notNull(), // "openai", "anthropic", "gemini", "perplexity"
+  systemPrompt: text("system_prompt").notNull(),
+  temperature: decimal("temperature", { precision: 3, scale: 2 }).default("0.7"),
+  
+  // Widget Settings
+  widgetTitle: text("widget_title").default("Chat with us"),
+  widgetColor: text("widget_color").default("#C8A661"),
+  widgetPosition: text("widget_position").default("bottom-right"), // bottom-right, bottom-left
+  
+  // Knowledge Base
+  knowledgeBase: jsonb("knowledge_base").default([]).notNull(), // Array of text chunks
+  
+  // Stats
+  totalConversations: integer("total_conversations").default(0).notNull(),
+  totalMessages: integer("total_messages").default(0).notNull(),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0"),
+  
+  // Status
+  isPublished: boolean("is_published").default(false),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("ai_agents_user_idx").on(table.userId),
+}));
+
+export const insertAiAgentSchema = createInsertSchema(aiAgents).omit({
+  id: true,
+  totalConversations: true,
+  totalMessages: true,
+  averageRating: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAiAgent = z.infer<typeof insertAiAgentSchema>;
+export type AiAgent = typeof aiAgents.$inferSelect;
+
+// Agent Conversation Flows
+export const agentFlows = pgTable("agent_flows", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  agentId: varchar("agent_id").references(() => aiAgents.id).notNull(),
+  
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  // Flow data (visual flow builder)
+  nodes: jsonb("nodes").notNull(), // Array of flow nodes
+  edges: jsonb("edges").notNull(), // Array of connections
+  
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  agentIdx: index("agent_flows_agent_idx").on(table.agentId),
+}));
+
+export const insertAgentFlowSchema = createInsertSchema(agentFlows).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAgentFlow = z.infer<typeof insertAgentFlowSchema>;
+export type AgentFlow = typeof agentFlows.$inferSelect;
+
+// Agent Knowledge Sources
+export const agentKnowledgeSources = pgTable("agent_knowledge_sources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  agentId: varchar("agent_id").references(() => aiAgents.id).notNull(),
+  
+  type: text("type").notNull(), // "text", "url", "file", "faq"
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  url: text("url"),
+  
+  // Processing
+  isProcessed: boolean("is_processed").default(false),
+  chunkCount: integer("chunk_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  agentIdx: index("agent_knowledge_sources_agent_idx").on(table.agentId),
+}));
+
+export const insertAgentKnowledgeSourceSchema = createInsertSchema(agentKnowledgeSources).omit({
+  id: true,
+  isProcessed: true,
+  chunkCount: true,
+  createdAt: true,
+});
+
+export type InsertAgentKnowledgeSource = z.infer<typeof insertAgentKnowledgeSourceSchema>;
+export type AgentKnowledgeSource = typeof agentKnowledgeSources.$inferSelect;
+
+// Agent Conversations
+export const agentConversations = pgTable("agent_conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  agentId: varchar("agent_id").references(() => aiAgents.id).notNull(),
+  
+  visitorId: text("visitor_id"), // Anonymous visitor ID
+  userId: varchar("user_id").references(() => users.id), // If logged in
+  
+  messages: jsonb("messages").notNull(), // Array of messages
+  
+  // Metadata
+  userEmail: text("user_email"),
+  userName: text("user_name"),
+  userPhone: text("user_phone"),
+  
+  // Stats
+  messageCount: integer("message_count").default(0).notNull(),
+  rating: integer("rating"), // 1-5 stars
+  feedback: text("feedback"),
+  
+  // Status
+  isResolved: boolean("is_resolved").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  agentIdx: index("agent_conversations_agent_idx").on(table.agentId),
+  visitorIdx: index("agent_conversations_visitor_idx").on(table.visitorId),
+}));
+
+export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({
+  id: true,
+  messageCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
+export type AgentConversation = typeof agentConversations.$inferSelect;
+
+// Agent Templates
+export const agentTemplates = pgTable("agent_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  industry: text("industry").notNull(), // "laundromat", "car_wash", "dry_cleaner"
+  category: text("category").notNull(), // "customer_service", "sales", "support", "booking"
+  
+  // Template Data
+  systemPrompt: text("system_prompt").notNull(),
+  sampleQuestions: jsonb("sample_questions").notNull(), // Array of common questions
+  knowledgeBaseTemplate: text("knowledge_base_template"),
+  
+  // Customization
+  previewImage: text("preview_image"),
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAgentTemplateSchema = createInsertSchema(agentTemplates).omit({
+  id: true,
+  useCount: true,
+  rating: true,
+  createdAt: true,
+});
+
+export type InsertAgentTemplate = z.infer<typeof insertAgentTemplateSchema>;
+export type AgentTemplate = typeof agentTemplates.$inferSelect;
+
+// ============================================================================
+// WEBSITE BUILDER
+// ============================================================================
+
+// Website Projects
+export const siteProjects = pgTable("site_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  name: text("name").notNull(),
+  description: text("description"),
+  industry: text("industry").default("laundromat"), // laundromat, car_wash, dry_cleaner
+  
+  // Domain
+  customDomain: text("custom_domain"),
+  subdomain: text("subdomain").unique(), // washbizhub subdomain
+  
+  // Design
+  theme: text("theme").default("modern"), // modern, classic, minimal
+  primaryColor: text("primary_color").default("#C8A661"),
+  secondaryColor: text("secondary_color").default("#1a2332"),
+  fontFamily: text("font_family").default("Inter"),
+  
+  // SEO
+  siteTitle: text("site_title"),
+  siteDescription: text("site_description"),
+  seoKeywords: jsonb("seo_keywords"),
+  
+  // Status
+  isPublished: boolean("is_published").default(false),
+  publishedUrl: text("published_url"),
+  
+  // Stats
+  totalViews: integer("total_views").default(0).notNull(),
+  totalLeads: integer("total_leads").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+}, (table) => ({
+  userIdx: index("site_projects_user_idx").on(table.userId),
+  subdomainIdx: uniqueIndex("site_projects_subdomain_idx").on(table.subdomain),
+}));
+
+export const insertSiteProjectSchema = createInsertSchema(siteProjects).omit({
+  id: true,
+  totalViews: true,
+  totalLeads: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+});
+
+export type InsertSiteProject = z.infer<typeof insertSiteProjectSchema>;
+export type SiteProject = typeof siteProjects.$inferSelect;
+
+// Website Pages
+export const sitePages = pgTable("site_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => siteProjects.id).notNull(),
+  
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  title: text("title").notNull(),
+  order: integer("order").default(0).notNull(),
+  
+  // SEO
+  metaDescription: text("meta_description"),
+  metaKeywords: jsonb("meta_keywords"),
+  ogImage: text("og_image"),
+  
+  // Status
+  isPublished: boolean("is_published").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("site_pages_project_idx").on(table.projectId),
+}));
+
+export const insertSitePageSchema = createInsertSchema(sitePages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSitePage = z.infer<typeof insertSitePageSchema>;
+export type SitePage = typeof sitePages.$inferSelect;
+
+// Page Sections
+export const pageSections = pgTable("page_sections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pageId: varchar("page_id").references(() => sitePages.id).notNull(),
+  
+  type: text("type").notNull(), // "hero", "features", "testimonials", "cta", "gallery", etc.
+  order: integer("order").notNull(),
+  
+  // Layout
+  layout: text("layout").default("default"), // default, wide, narrow, full-width
+  backgroundColor: text("background_color"),
+  backgroundImage: text("background_image"),
+  
+  // Content (flexible JSON structure)
+  content: jsonb("content").notNull(),
+  
+  // Settings
+  padding: text("padding").default("normal"), // none, small, normal, large
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  pageIdx: index("page_sections_page_idx").on(table.pageId),
+}));
+
+export const insertPageSectionSchema = createInsertSchema(pageSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPageSection = z.infer<typeof insertPageSectionSchema>;
+export type PageSection = typeof pageSections.$inferSelect;
+
+// Media Assets
+export const mediaAssets = pgTable("media_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  projectId: varchar("project_id").references(() => siteProjects.id),
+  
+  fileName: text("file_name").notNull(),
+  fileType: text("file_type").notNull(), // image/png, image/jpeg, etc.
+  fileSize: integer("file_size").notNull(), // bytes
+  url: text("url").notNull(),
+  
+  // Image metadata
+  width: integer("width"),
+  height: integer("height"),
+  altText: text("alt_text"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("media_assets_user_idx").on(table.userId),
+  projectIdx: index("media_assets_project_idx").on(table.projectId),
+}));
+
+export const insertMediaAssetSchema = createInsertSchema(mediaAssets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMediaAsset = z.infer<typeof insertMediaAssetSchema>;
+export type MediaAsset = typeof mediaAssets.$inferSelect;
+
+// Website Templates
+export const websiteTemplates = pgTable("website_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  industry: text("industry").notNull(), // "laundromat", "car_wash", "dry_cleaner"
+  category: text("category").notNull(), // "business", "landing", "ecommerce", "portfolio"
+  
+  // Preview
+  previewImage: text("preview_image").notNull(),
+  demoUrl: text("demo_url"),
+  
+  // Template Data
+  pages: jsonb("pages").notNull(), // Array of page configurations
+  theme: jsonb("theme").notNull(), // Colors, fonts, spacing
+  
+  // Features
+  features: jsonb("features").notNull(), // Array of feature names
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertWebsiteTemplateSchema = createInsertSchema(websiteTemplates).omit({
+  id: true,
+  useCount: true,
+  rating: true,
+  createdAt: true,
+});
+
+export type InsertWebsiteTemplate = z.infer<typeof insertWebsiteTemplateSchema>;
+export type WebsiteTemplate = typeof websiteTemplates.$inferSelect;
+
+// ============================================================================
+// LOGO BUILDER
+// ============================================================================
+
+// Logo Projects
+export const logoProjects = pgTable("logo_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  name: text("name").notNull(),
+  businessName: text("business_name").notNull(),
+  tagline: text("tagline"),
+  industry: text("industry").default("laundromat"),
+  
+  // Design Data
+  design: jsonb("design").notNull(), // Canvas state, elements, fonts, colors
+  
+  // Export Settings
+  backgroundColor: text("background_color").default("#FFFFFF"),
+  exportFormats: jsonb("export_formats").default(["png", "svg"]).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("logo_projects_user_idx").on(table.userId),
+}));
+
+export const insertLogoProjectSchema = createInsertSchema(logoProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLogoProject = z.infer<typeof insertLogoProjectSchema>;
+export type LogoProject = typeof logoProjects.$inferSelect;
+
+// Logo Templates
+export const logoTemplates = pgTable("logo_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  industry: text("industry").notNull(), // "laundromat", "car_wash", "dry_cleaner", "general"
+  style: text("style").notNull(), // "modern", "classic", "minimal", "bold", "playful"
+  
+  // Template Data
+  design: jsonb("design").notNull(), // Default design configuration
+  previewImage: text("preview_image").notNull(),
+  
+  // Customization Options
+  customizableElements: jsonb("customizable_elements").notNull(), // Array of editable parts
+  colorSchemes: jsonb("color_schemes").notNull(), // Suggested color combinations
+  
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertLogoTemplateSchema = createInsertSchema(logoTemplates).omit({
+  id: true,
+  useCount: true,
+  rating: true,
+  createdAt: true,
+});
+
+export type InsertLogoTemplate = z.infer<typeof insertLogoTemplateSchema>;
+export type LogoTemplate = typeof logoTemplates.$inferSelect;
+
+// ============================================================================
+// AD BANNER BUILDER
+// ============================================================================
+
+// Banner Projects
+export const bannerProjects = pgTable("banner_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  name: text("name").notNull(),
+  size: text("size").notNull(), // "300x250", "728x90", "160x600", "320x50", "300x600"
+  format: text("format").default("static"), // "static" or "animated"
+  
+  // Design Data
+  design: jsonb("design").notNull(), // Canvas state, layers, animations
+  
+  // Ad Settings
+  clickUrl: text("click_url"),
+  
+  // Export
+  exportUrl: text("export_url"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("banner_projects_user_idx").on(table.userId),
+}));
+
+export const insertBannerProjectSchema = createInsertSchema(bannerProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBannerProject = z.infer<typeof insertBannerProjectSchema>;
+export type BannerProject = typeof bannerProjects.$inferSelect;
+
+// Banner Templates
+export const bannerTemplates = pgTable("banner_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  industry: text("industry").notNull(),
+  size: text("size").notNull(), // "300x250", "728x90", etc.
+  
+  // Template Data
+  design: jsonb("design").notNull(),
+  previewImage: text("preview_image").notNull(),
+  
+  // Features
+  isAnimated: boolean("is_animated").default(false),
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBannerTemplateSchema = createInsertSchema(bannerTemplates).omit({
+  id: true,
+  useCount: true,
+  rating: true,
+  createdAt: true,
+});
+
+export type InsertBannerTemplate = z.infer<typeof insertBannerTemplateSchema>;
+export type BannerTemplate = typeof bannerTemplates.$inferSelect;
+
+// ============================================================================
+// ENHANCED CALCULATOR SYSTEM
+// ============================================================================
+
+// Calculator Configs
+export const calculatorConfigs = pgTable("calculator_configs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "financial", "equipment", "roi", "energy", "custom"
+  industry: text("industry").default("laundromat"),
+  
+  // Calculator Structure
+  inputs: jsonb("inputs").notNull(), // Array of input field configurations
+  formulas: jsonb("formulas").notNull(), // Array of calculation formulas
+  outputs: jsonb("outputs").notNull(), // Array of result displays
+  
+  // Display
+  icon: text("icon"),
+  color: text("color").default("#C8A661"),
+  
+  // Embed Settings
+  isEmbeddable: boolean("is_embeddable").default(true),
+  embedCode: text("embed_code"),
+  
+  // Status
+  isPublic: boolean("is_public").default(true),
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("calculator_configs_user_idx").on(table.userId),
+  categoryIdx: index("calculator_configs_category_idx").on(table.category),
+}));
+
+export const insertCalculatorConfigSchema = createInsertSchema(calculatorConfigs).omit({
+  id: true,
+  useCount: true,
+  rating: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCalculatorConfig = z.infer<typeof insertCalculatorConfigSchema>;
+export type CalculatorConfig = typeof calculatorConfigs.$inferSelect;
+
+// Calculator Instances (saved calculations)
+export const calculatorInstances = pgTable("calculator_instances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  configId: varchar("config_id").references(() => calculatorConfigs.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  name: text("name"),
+  inputs: jsonb("inputs").notNull(), // User's input values
+  results: jsonb("results").notNull(), // Calculated results
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  configIdx: index("calculator_instances_config_idx").on(table.configId),
+  userIdx: index("calculator_instances_user_idx").on(table.userId),
+}));
+
+export const insertCalculatorInstanceSchema = createInsertSchema(calculatorInstances).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCalculatorInstance = z.infer<typeof insertCalculatorInstanceSchema>;
+export type CalculatorInstance = typeof calculatorInstances.$inferSelect;
+
+// ============================================================================
+// BLOG SUITE EXPANSION
+// ============================================================================
+
+// Blog Series/Collections
+export const blogSeries = pgTable("blog_series", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  slug: text("slug").notNull().unique(),
+  coverImage: text("cover_image"),
+  
+  // Status
+  isPublished: boolean("is_published").default(false),
+  
+  // Stats
+  postCount: integer("post_count").default(0).notNull(),
+  totalViews: integer("total_views").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("blog_series_slug_idx").on(table.slug),
+}));
+
+export const insertBlogSeriesSchema = createInsertSchema(blogSeries).omit({
+  id: true,
+  postCount: true,
+  totalViews: true,
+  createdAt: true,
+});
+
+export type InsertBlogSeries = z.infer<typeof insertBlogSeriesSchema>;
+export type BlogSeries = typeof blogSeries.$inferSelect;
+
+// Series Membership
+export const blogSeriesMembers = pgTable("blog_series_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesId: varchar("series_id").references(() => blogSeries.id).notNull(),
+  postId: varchar("post_id").references(() => blogPosts.id).notNull(),
+  order: integer("order").notNull(),
+  
+  addedAt: timestamp("added_at").defaultNow().notNull(),
+}, (table) => ({
+  seriesPostIdx: uniqueIndex("blog_series_members_series_post_idx").on(table.seriesId, table.postId),
+}));
+
+export const insertBlogSeriesMemberSchema = createInsertSchema(blogSeriesMembers).omit({
+  id: true,
+  addedAt: true,
+});
+
+export type InsertBlogSeriesMember = z.infer<typeof insertBlogSeriesMemberSchema>;
+export type BlogSeriesMember = typeof blogSeriesMembers.$inferSelect;
+
+// Blog Post Templates
+export const blogPostTemplates = pgTable("blog_post_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "how-to", "listicle", "case-study", "news", "opinion"
+  
+  // Template Structure
+  structure: jsonb("structure").notNull(), // Array of content blocks
+  sampleContent: text("sample_content").notNull(),
+  
+  // SEO Template
+  seoTitleTemplate: text("seo_title_template"),
+  seoDescriptionTemplate: text("seo_description_template"),
+  
+  isPro: boolean("is_pro").default(false),
+  
+  // Stats
+  useCount: integer("use_count").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBlogPostTemplateSchema = createInsertSchema(blogPostTemplates).omit({
+  id: true,
+  useCount: true,
+  createdAt: true,
+});
+
+export type InsertBlogPostTemplate = z.infer<typeof insertBlogPostTemplateSchema>;
+export type BlogPostTemplate = typeof blogPostTemplates.$inferSelect;
+
+// ============================================================================
+// ENHANCED MARKETPLACE
+// ============================================================================
+
+// Marketplace Products
+export const marketplaceProducts = pgTable("marketplace_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  vendorId: varchar("vendor_id").references(() => vendors.id).notNull(),
+  
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "washers", "dryers", "parts", "services", "software"
+  subcategory: text("subcategory"),
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  compareAtPrice: decimal("compare_at_price", { precision: 10, scale: 2 }),
+  currency: text("currency").default("USD"),
+  
+  // Images
+  images: jsonb("images").default([]).notNull(), // Array of image URLs
+  
+  // Specifications
+  specifications: jsonb("specifications"), // Product specs
+  
+  // Inventory
+  sku: text("sku"),
+  stock: integer("stock").default(0),
+  isInStock: boolean("is_in_stock").default(true),
+  
+  // SEO
+  slug: text("slug").notNull(),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  // Stats
+  views: integer("views").default(0).notNull(),
+  sales: integer("sales").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  reviewCount: integer("review_count").default(0).notNull(),
+  
+  // Status
+  isPublished: boolean("is_published").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  vendorIdx: index("marketplace_products_vendor_idx").on(table.vendorId),
+  categoryIdx: index("marketplace_products_category_idx").on(table.category),
+  slugIdx: index("marketplace_products_slug_idx").on(table.slug),
+}));
+
+export const insertMarketplaceProductSchema = createInsertSchema(marketplaceProducts).omit({
+  id: true,
+  views: true,
+  sales: true,
+  rating: true,
+  reviewCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMarketplaceProduct = z.infer<typeof insertMarketplaceProductSchema>;
+export type MarketplaceProduct = typeof marketplaceProducts.$inferSelect;
+
+// Advertisement Campaigns
+export const adCampaigns = pgTable("ad_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  vendorId: varchar("vendor_id").references(() => vendors.id),
+  
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  // Campaign Type
+  type: text("type").notNull(), // "banner", "sponsored_listing", "featured_placement"
+  placement: text("placement").notNull(), // "homepage", "sidebar", "search_results", "category_page"
+  
+  // Targeting
+  targetIndustry: text("target_industry"), // null = all industries
+  targetAudience: jsonb("target_audience"), // Demographics, interests, etc.
+  
+  // Budget & Pricing
+  budget: decimal("budget", { precision: 10, scale: 2 }).notNull(),
+  spent: decimal("spent", { precision: 10, scale: 2 }).default("0").notNull(),
+  bidAmount: decimal("bid_amount", { precision: 10, scale: 2 }),
+  
+  // Schedule
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  
+  // Creative
+  bannerUrl: text("banner_url"), // For banner ads
+  clickUrl: text("click_url").notNull(),
+  
+  // Stats
+  impressions: integer("impressions").default(0).notNull(),
+  clicks: integer("clicks").default(0).notNull(),
+  conversions: integer("conversions").default(0).notNull(),
+  
+  // Status
+  status: text("status").default("pending"), // pending, active, paused, completed, rejected
+  isApproved: boolean("is_approved").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("ad_campaigns_user_idx").on(table.userId),
+  statusIdx: index("ad_campaigns_status_idx").on(table.status),
+}));
+
+export const insertAdCampaignSchema = createInsertSchema(adCampaigns).omit({
+  id: true,
+  spent: true,
+  impressions: true,
+  clicks: true,
+  conversions: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAdCampaign = z.infer<typeof insertAdCampaignSchema>;
+export type AdCampaign = typeof adCampaigns.$inferSelect;
+
+// Commission Ledger
+export const commissionLedger = pgTable("commission_ledger", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Transaction Type
+  type: text("type").notNull(), // "product_sale", "ad_revenue", "affiliate_commission", "subscription"
+  
+  // Parties
+  vendorId: varchar("vendor_id").references(() => vendors.id),
+  affiliateId: varchar("affiliate_id").references(() => affiliates.id),
+  
+  // Financial
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull(),
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }).notNull(),
+  platformFee: decimal("platform_fee", { precision: 10, scale: 2 }).notNull(),
+  
+  // Reference
+  referenceType: text("reference_type"), // "product", "campaign", "listing"
+  referenceId: varchar("reference_id"),
+  
+  // Payment
+  isPaid: boolean("is_paid").default(false),
+  paidAt: timestamp("paid_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  vendorIdx: index("commission_ledger_vendor_idx").on(table.vendorId),
+  affiliateIdx: index("commission_ledger_affiliate_idx").on(table.affiliateId),
+}));
+
+export const insertCommissionLedgerSchema = createInsertSchema(commissionLedger).omit({
+  id: true,
+  paidAt: true,
+  createdAt: true,
+});
+
+export type InsertCommissionLedger = z.infer<typeof insertCommissionLedgerSchema>;
+export type CommissionLedger = typeof commissionLedger.$inferSelect;
+
+// ============================================================================
+// UNIFIED DASHBOARD & ANALYTICS
+// ============================================================================
+
+// Module Metrics
+export const moduleMetrics = pgTable("module_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  module: text("module").notNull(), // "forum", "agent", "website", "marketplace", "calculator"
+  metricType: text("metric_type").notNull(), // "views", "engagement", "revenue", "conversion"
+  
+  // Time Period
+  date: timestamp("date").notNull(),
+  period: text("period").notNull(), // "hour", "day", "week", "month"
+  
+  // Value
+  value: decimal("value", { precision: 12, scale: 2 }).notNull(),
+  metadata: jsonb("metadata"), // Additional context
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  moduleIdx: index("module_metrics_module_idx").on(table.module),
+  userModuleIdx: index("module_metrics_user_module_idx").on(table.userId, table.module),
+  dateIdx: index("module_metrics_date_idx").on(table.date),
+}));
+
+export const insertModuleMetricSchema = createInsertSchema(moduleMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertModuleMetric = z.infer<typeof insertModuleMetricSchema>;
+export type ModuleMetric = typeof moduleMetrics.$inferSelect;
+
+// Activity Events
+export const activityEvents = pgTable("activity_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  eventType: text("event_type").notNull(), // "forum_post", "agent_chat", "website_published", etc.
+  module: text("module").notNull(),
+  
+  // Event Data
+  title: text("title").notNull(),
+  description: text("description"),
+  metadata: jsonb("metadata"),
+  
+  // Reference
+  entityType: text("entity_type"),
+  entityId: varchar("entity_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("activity_events_user_idx").on(table.userId),
+  moduleIdx: index("activity_events_module_idx").on(table.module),
+  createdAtIdx: index("activity_events_created_at_idx").on(table.createdAt),
+}));
+
+export const insertActivityEventSchema = createInsertSchema(activityEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertActivityEvent = z.infer<typeof insertActivityEventSchema>;
+export type ActivityEvent = typeof activityEvents.$inferSelect;
