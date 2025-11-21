@@ -18,7 +18,44 @@ The backend is developed with Node.js and Express, written entirely in TypeScrip
 PostgreSQL, provided by Neon Serverless, serves as the primary database, managed with Drizzle ORM for type-safe queries and `drizzle-kit` for schema migrations. Structured data is stored in tables, with JSON fields for flexible nested data. Key tables include `users`, `designs`, `cleanbi_scores`, `calculator_scenarios`, `blog_posts`, `courses`, `lessons`, `enrollments`, `book_chapters`, `book_access`, `vendors`, `parts`, `affiliates`, `ai_blog_tasks`, and `seo_keywords`.
 
 ### Authentication and Authorization
-The current system includes basic user management with user records, `isPro` flags for tier tracking, and Stripe customer/subscription IDs for payment integration. Authorization relies on user ID query parameters and subscription status to gate access to features.
+The system uses Replit Auth (OIDC) for user authentication, with sessions stored in PostgreSQL via `connect-pg-simple`. Role-based access control is implemented through an `isAdmin` field on the users table. The `isAdmin` middleware protects sensitive administrative operations (creating/updating/deleting resources, vendors, benchmarks). Regular users can view public resources but cannot modify the ecosystem data.
+
+### Resources Hub Implementation (November 2025)
+A comprehensive industry resource ecosystem with three core modules:
+
+1. **Resources Module** (`resources` table):
+   - Calculators, guides, templates, checklists, contracts, case studies
+   - Target audience segmentation (owner, investor, broker, technician, customer, etc.)
+   - Difficulty levels, ratings, use count tracking
+   - Premium content gating via `isPro` flag
+   - Full-text search across title/description/tags
+   - Secure filtering with SQL injection protection via Drizzle's immutable query builders
+
+2. **Vendor Directory** (`vendors` table):
+   - Equipment manufacturers, service providers, suppliers
+   - Category-based organization, contact information, certifications
+   - Parts inventory tracking via `parts` table with cross-references
+   - Geographic reach and specialization tracking
+   - Verified vendor badge system
+
+3. **Industry Benchmarks** (`industry_benchmarks` table):
+   - Metric tracking (revenue per sqft, utility costs, labor costs, etc.)
+   - Location and business size segmentation
+   - Industry standards and regional comparisons
+   - Data source attribution and credibility tracking
+
+**Technical Implementation:**
+- **Backend**: DbStorage class with secure filtering (conditions array + `and()` pattern to prevent SQL injection)
+- **API Routes**: RESTful endpoints (`/api/resources`, `/api/vendors`, `/api/benchmarks`) with Zod validation
+- **Frontend**: TanStack Query integration with correct React Query pattern (queryFn extracts URL from queryKey to avoid stale closures)
+- **Security**: Admin-only mutations protected by `isAdmin` middleware, public read access for all users
+- **Null Safety**: All nullable fields (rating, useCount, difficulty, url) have proper guards in rendering
+
+**Critical Fixes Applied:**
+1. Drizzle query builders are immutable - must use conditions array with single `.where(and(...conditions))` call
+2. React Query queryFn must extract URL from queryKey parameter to avoid stale closure bugs
+3. Empty filter arrays must be handled before calling `and()` to prevent SQL errors
+4. Admin operations require `isAdmin=true` flag verification on user records
 
 ## External Dependencies
 
