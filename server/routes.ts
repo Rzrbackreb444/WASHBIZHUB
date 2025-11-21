@@ -40,6 +40,12 @@ import {
   insertVendorDirectorySchema,
   insertVendorReviewSchema,
   insertIndustryBenchmarkSchema,
+  insertVendorStoreSchema,
+  insertVendorProductSchema,
+  insertEquipmentInquirySchema,
+  insertSearchIndexSchema,
+  insertSearchAnalyticSchema,
+  insertEmailSubscriberSchema,
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -49,6 +55,23 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-10-29.clover",
 });
+
+// Helper function to load current authenticated user
+async function getCurrentUser(req: any): Promise<{ userId: string; user: any; isAdmin: boolean } | null> {
+  if (!req.user || !req.user.claims || !req.user.claims.sub) {
+    return null;
+  }
+  const userId = req.user.claims.sub;
+  const user = await storage.getUser(userId);
+  if (!user) {
+    return null;
+  }
+  return {
+    userId,
+    user,
+    isAdmin: user.isAdmin || false,
+  };
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -1622,6 +1645,434 @@ Disallow: /private/`;
 
     res.header('Content-Type', 'text/plain');
     res.send(robotsTxt);
+  });
+
+  // ==================== VENDOR MARKETPLACE ====================
+  // GET /api/vendor-stores - List all vendor stores
+  app.get("/api/vendor-stores", async (req, res) => {
+    try {
+      const { status, verified, featured } = req.query;
+      const stores = await storage.getVendorStores({
+        status: status as string,
+        verified: verified === 'true',
+        featured: featured === 'true',
+      });
+      res.json(stores);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/vendor-stores/:id - Get single vendor store
+  app.get("/api/vendor-stores/:id", async (req, res) => {
+    try {
+      const store = await storage.getVendorStore(req.params.id);
+      if (!store) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      res.json(store);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/vendor-stores - Create vendor store
+  app.post("/api/vendor-stores", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      // Validate input using Zod schema - override server-controlled fields
+      const validatedData = insertVendorStoreSchema.parse({
+        ...req.body,
+        ownerId: currentUser.userId, // Server-controlled
+        status: 'pending', // Server-controlled - new stores start as pending
+        verified: false, // Server-controlled
+        featured: false, // Server-controlled
+      });
+      const store = await storage.createVendorStore(validatedData);
+      res.json(store);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/vendor-stores/:id - Update vendor store
+  app.patch("/api/vendor-stores/:id", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      // Verify ownership or admin access
+      const existingStore = await storage.getVendorStore(req.params.id);
+      if (!existingStore) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      if (existingStore.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only update your own stores" });
+      }
+      
+      // Extract only allowed updatable fields (prevent client from overwriting protected fields)
+      // NOTE: storeName and storeSlug REMOVED to prevent slug collisions - server-controlled
+      const allowedFields = {
+        description: req.body.description,
+        logo: req.body.logo,
+        banner: req.body.banner,
+        phone: req.body.phone,
+        email: req.body.email,
+        address: req.body.address,
+        city: req.body.city,
+        state: req.body.state,
+        zip: req.body.zip,
+        website: req.body.website,
+        socialLinks: req.body.socialLinks,
+        categories: req.body.categories,
+        returnPolicy: req.body.returnPolicy,
+        shippingPolicy: req.body.shippingPolicy,
+        paymentMethods: req.body.paymentMethods,
+      };
+      
+      // Remove undefined fields
+      const updateData = Object.fromEntries(
+        Object.entries(allowedFields).filter(([_, v]) => v !== undefined)
+      );
+      
+      // Validate using Zod schema (partial update)
+      const validatedData = insertVendorStoreSchema.partial().parse(updateData);
+      const store = await storage.updateVendorStore(req.params.id, validatedData);
+      res.json(store);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // ==================== VENDOR PRODUCTS ====================
+  // GET /api/vendor-products - List vendor products
+  app.get("/api/vendor-products", async (req, res) => {
+    try {
+      const { storeId, category, status, featured } = req.query;
+      const products = await storage.getVendorProducts({
+        storeId: storeId as string,
+        category: category as string,
+        status: status as string,
+        featured: featured === 'true',
+      });
+      res.json(products);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/vendor-products/:id - Get single product
+  app.get("/api/vendor-products/:id", async (req, res) => {
+    try {
+      const product = await storage.getVendorProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      // Increment views
+      await storage.incrementProductViews(req.params.id);
+      res.json(product);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/vendor-products - Create product
+  app.post("/api/vendor-products", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      // Verify user owns the store
+      const { storeId } = req.body;
+      if (!storeId) {
+        return res.status(400).json({ error: "storeId is required" });
+      }
+      const store = await storage.getVendorStore(storeId);
+      if (!store) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      if (store.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only create products for your own stores" });
+      }
+      // Validate input using Zod schema - override server-controlled fields
+      const validatedData = insertVendorProductSchema.parse({
+        ...req.body,
+        views: 0, // Server-controlled
+        sales: 0, // Server-controlled
+        reviewCount: 0, // Server-controlled
+        status: 'draft', // Server-controlled - new products start as draft
+        featured: false, // Server-controlled
+      });
+      const product = await storage.createVendorProduct(validatedData);
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/vendor-products/:id - Update product
+  app.patch("/api/vendor-products/:id", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      // Verify ownership or admin access
+      const existingProduct = await storage.getVendorProduct(req.params.id);
+      if (!existingProduct) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      const store = await storage.getVendorStore(existingProduct.storeId);
+      if (!store) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      if (store.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only update products from your own stores" });
+      }
+      
+      // Extract only allowed updatable fields (prevent client from overwriting protected fields)
+      // NOTE: slug REMOVED to prevent collisions - server-controlled
+      const allowedFields = {
+        name: req.body.name,
+        description: req.body.description,
+        shortDescription: req.body.shortDescription,
+        category: req.body.category,
+        subcategory: req.body.subcategory,
+        tags: req.body.tags,
+        price: req.body.price,
+        compareAtPrice: req.body.compareAtPrice,
+        cost: req.body.cost,
+        images: req.body.images,
+        featuredImage: req.body.featuredImage,
+        videoUrl: req.body.videoUrl,
+        sku: req.body.sku,
+        stock: req.body.stock,
+        trackInventory: req.body.trackInventory,
+        isDigital: req.body.isDigital,
+        downloadUrl: req.body.downloadUrl,
+        downloadLimit: req.body.downloadLimit,
+        metaTitle: req.body.metaTitle,
+        metaDescription: req.body.metaDescription,
+        keywords: req.body.keywords,
+      };
+      
+      // Remove undefined fields
+      const updateData = Object.fromEntries(
+        Object.entries(allowedFields).filter(([_, v]) => v !== undefined)
+      );
+      
+      // Validate using Zod schema (partial update)
+      const validatedData = insertVendorProductSchema.partial().parse(updateData);
+      const product = await storage.updateVendorProduct(req.params.id, validatedData);
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/vendor-products/:id - Delete product
+  app.delete("/api/vendor-products/:id", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      // Verify ownership or admin access
+      const existingProduct = await storage.getVendorProduct(req.params.id);
+      if (!existingProduct) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      const store = await storage.getVendorStore(existingProduct.storeId);
+      if (!store) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      if (store.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only delete products from your own stores" });
+      }
+      await storage.deleteVendorProduct(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== EQUIPMENT INQUIRIES (to nick@washbizhub.com) ====================
+  // POST /api/equipment-inquiries - Submit equipment inquiry
+  app.post("/api/equipment-inquiries", async (req, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      // Validate input using Zod schema - override server-controlled fields
+      const validatedData = insertEquipmentInquirySchema.parse({
+        ...req.body,
+        userId: currentUser?.userId, // Optional - can be null for anonymous inquiries
+        assignedTo: 'nick@washbizhub.com', // Server-controlled
+        status: 'new', // Server-controlled
+        commissionRate: '10.00', // Server-controlled - 10% commission
+        commissionStatus: 'pending', // Server-controlled
+      });
+      const inquiry = await storage.createEquipmentInquiry(validatedData);
+      
+      // TODO: Send email notification to nick@washbizhub.com with inquiry details
+      // This would be done via SendGrid or similar service
+      
+      res.json(inquiry);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // GET /api/equipment-inquiries - List inquiries (admin only)
+  app.get("/api/equipment-inquiries", isAdmin, async (req, res) => {
+    try {
+      const { status, email } = req.query;
+      const inquiries = await storage.getEquipmentInquiries({
+        status: status as string,
+        email: email as string,
+      });
+      res.json(inquiries);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/equipment-inquiries/:id - Update inquiry (admin only)
+  app.patch("/api/equipment-inquiries/:id", isAdmin, async (req, res) => {
+    try {
+      const inquiry = await storage.updateEquipmentInquiry(req.params.id, req.body);
+      res.json(inquiry);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== PLATFORM-WIDE SEARCH ====================
+  // GET /api/search - Predictive autocomplete search
+  app.get("/api/search", async (req, res) => {
+    try {
+      const { q, limit } = req.query;
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ error: "Query parameter 'q' is required" });
+      }
+      
+      const results = await storage.searchContent(q, limit ? parseInt(limit as string) : 10);
+      
+      // Track search analytics
+      await storage.createSearchAnalytic({
+        query: q,
+        resultsCount: results.length,
+        userId: req.user?.id,
+        sessionId: req.sessionID,
+      });
+      
+      res.json(results);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/search/popular - Get popular searches
+  app.get("/api/search/popular", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      const popular = await storage.getPopularSearches(limit ? parseInt(limit as string) : 20);
+      res.json(popular);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/search/click - Track search result click
+  app.post("/api/search/click", async (req, res) => {
+    try {
+      const { resultId } = req.body;
+      if (resultId) {
+        await storage.incrementSearchPopularity(resultId);
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== EMAIL CAPTURE ====================
+  // POST /api/email-subscribe - Email subscription
+  app.post("/api/email-subscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      
+      // Check if already subscribed
+      const existing = await storage.getEmailSubscriber(email);
+      if (existing) {
+        if (existing.status === 'unsubscribed') {
+          // Resubscribe (partial validation for update)
+          const validatedUpdate = insertEmailSubscriberSchema.partial().parse({
+            status: 'subscribed',
+            confirmedAt: new Date(),
+          });
+          const updated = await storage.updateEmailSubscriber(email, validatedUpdate);
+          return res.json(updated);
+        }
+        return res.json(existing);
+      }
+      
+      // Validate input using Zod schema
+      const validatedData = insertEmailSubscriberSchema.parse({
+        ...req.body,
+        source: req.body.source || 'website',
+        tags: req.body.tags || [],
+        interests: req.body.interests || [],
+        status: 'subscribed',
+        confirmedAt: new Date(),
+      });
+      
+      const subscriber = await storage.createEmailSubscriber(validatedData);
+      
+      // TODO: Send welcome email via SendGrid/Mailchimp
+      
+      res.json(subscriber);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // POST /api/email-unsubscribe - Unsubscribe from emails
+  app.post("/api/email-unsubscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      await storage.unsubscribeEmail(email);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/email-subscribers - List subscribers (admin only)
+  app.get("/api/email-subscribers", isAdmin, async (req, res) => {
+    try {
+      const { status, tag } = req.query;
+      const subscribers = await storage.getEmailSubscribers({
+        status: status as string,
+        tag: tag as string,
+      });
+      res.json(subscribers);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   // ==================== SEO: SITEMAP.XML ====================
