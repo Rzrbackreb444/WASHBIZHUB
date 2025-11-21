@@ -146,6 +146,23 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existing = await this.getUser(userData.id);
+    if (existing) {
+      const result = await db
+        .update(users)
+        .set({
+          ...userData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userData.id))
+        .returning();
+      return result[0];
+    } else {
+      return this.createUser(userData);
+    }
+  }
+
   async updateUserStripeInfo(
     userId: string,
     stripeCustomerId: string,

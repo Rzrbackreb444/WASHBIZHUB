@@ -6,12 +6,15 @@ import { Share2, Copy, Check, Facebook, Twitter, Linkedin, Mail } from "lucide-r
 import { SiWhatsapp } from "react-icons/si";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface SocialShareProps {
   url: string;
   title: string;
   description?: string;
   affiliateTag?: string;
+  contentId?: string;
+  contentType?: "calculator" | "template" | "resource" | "course" | "product";
   buttonVariant?: "default" | "outline" | "ghost";
   buttonSize?: "default" | "sm" | "lg" | "icon";
   className?: string;
@@ -22,12 +25,38 @@ export function SocialShare({
   title,
   description = "",
   affiliateTag,
+  contentId,
+  contentType = "resource",
   buttonVariant = "outline",
   buttonSize = "sm",
   className = "",
 }: SocialShareProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+
+  // Track affiliate click
+  const trackClick = async (platform: string) => {
+    if (!affiliateTag) return;
+
+    try {
+      const device = /Mobile|Android|iPhone/i.test(navigator.userAgent)
+        ? "mobile"
+        : /Tablet|iPad/i.test(navigator.userAgent)
+        ? "tablet"
+        : "desktop";
+
+      await apiRequest("/api/affiliate/click", "POST", {
+        affiliateCode: affiliateTag,
+        contentId: contentId || url,
+        contentType,
+        referrer: platform,
+        userAgent: navigator.userAgent,
+        device,
+      });
+    } catch (error) {
+      console.error("Failed to track affiliate click:", error);
+    }
+  };
 
   // Generate affiliate link if tag provided
   const getShareUrl = () => {
@@ -52,10 +81,15 @@ export function SocialShare({
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    trackClick("clipboard");
     toast({
       title: "Link Copied!",
       description: "Share link copied to clipboard",
     });
+  };
+
+  const handleSocialClick = (platform: string) => {
+    trackClick(platform.toLowerCase());
   };
 
   const socialPlatforms = [
@@ -164,6 +198,7 @@ export function SocialShare({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full"
+                    onClick={() => handleSocialClick(platform.name)}
                   >
                     <Button
                       className={`${platform.color} text-white justify-start w-full`}
