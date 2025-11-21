@@ -1,13 +1,13 @@
 // Gemini AI integration for WashBizHub
 // Reference: javascript_gemini blueprint
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("Missing required GEMINI_API_KEY");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function generateBlogContent(topic: string, category: string): Promise<string> {
   const prompt = `Write a professional, informative blog post about "${topic}" for laundromat operators. 
@@ -16,12 +16,11 @@ Length: 500-800 words
 Tone: Expert, practical, data-driven
 Include: Specific actionable advice, industry insights, and real-world examples.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: prompt,
-  });
-
-  return response.text || "Unable to generate content";
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  
+  return response.text() || "Unable to generate content";
 }
 
 export async function generateCleanbiInsights(scores: {
@@ -56,12 +55,11 @@ Provide:
 
 Keep response under 400 words, highly actionable.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: prompt,
-  });
-
-  return response.text || "Unable to generate insights";
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  
+  return response.text() || "Unable to generate insights";
 }
 
 export async function optimizeLayout(equipment: any[], dimensions: any): Promise<{
@@ -92,12 +90,10 @@ Provide:
 
 Keep under 200 words.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: prompt,
-  });
-
-  const text = response.text || "";
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  const text = response.text() || "";
   
   // Extract score from response (simple heuristic)
   const scoreMatch = text.match(/score[:\s]+(\d+)/i);

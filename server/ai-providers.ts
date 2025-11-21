@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
 
