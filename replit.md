@@ -203,8 +203,19 @@ This multi-provider strategy ensures flexibility, cost optimization, and redunda
 - Certificate generation
 - Discussion forums per lesson
 
-### Amazon Storefront Integration
-- API integration with nicholaskreme-20
-- Product recommendations
-- Automated affiliate linking
-- Revenue tracking
+### Amazon Storefront Integration (✅ IMPLEMENTED November 21, 2025)
+- **One-Click Parts Ordering**: Integrated Amazon Product Advertising API 5.0
+- **POS System Integration**: PartsOrderWidget available in POS for instant part ordering
+- **Platform-Wide Access**: Parts ordering widget can be embedded anywhere
+- **Smart Search**: Category-based quick searches (Washer, Dryer, Commercial, Maintenance)
+- **Affiliate Tracking**: All orders go through nicholaskreme-20 associate tag
+- **Analytics Dashboard**: Track clicks, conversions, and revenue
+- **Real-Time Pricing**: Live Amazon pricing with Prime eligibility
+- **Auto-Generated Links**: Automatic affiliate link generation for all products
+
+**Technical Implementation:**
+- Backend: `server/amazon-api.ts` with AWS Signature V4 authentication
+- API Routes: `/api/amazon/search`, `/api/amazon/product/:asin`, `/api/amazon/track-click`
+- Frontend: `PartsOrderWidget.tsx` with compact and full modes
+- Laundromat Parts Catalog: Pre-configured searches for common parts
+- Security: AWS Access Key ID, Secret Access Key stored as secrets
