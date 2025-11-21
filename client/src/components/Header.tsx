@@ -72,6 +72,17 @@ export function Header() {
                   </>
                 )}
                 
+                {/* Pricing Link */}
+                <Link href="/pricing">
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    data-testid="button-pricing"
+                  >
+                    Pricing
+                  </Button>
+                </Link>
+                
                 {/* Go Pro - show only if not already pro */}
                 {(!user?.isPro) && (
                   <Link href="/subscribe">
@@ -405,6 +416,11 @@ export function Header() {
             <div>
               <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Consultations</div>
               <Link href="/consultation"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-consultation">Book a Consultation</div></Link>
+            </div>
+            
+            {/* Pricing Section */}
+            <div className="border-t border-primary-foreground/20 pt-4">
+              <Link href="/pricing"><div className="block px-3 py-2 bg-accent/20 text-accent hover:bg-accent/30 cursor-pointer rounded-md mx-3 text-center font-semibold" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-pricing">View Pricing</div></Link>
             </div>
           </nav>
         )}
