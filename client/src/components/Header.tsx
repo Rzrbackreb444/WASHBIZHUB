@@ -10,7 +10,7 @@ import {
 import { Menu, LogIn, LogOut, User, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import logoUrl from "@assets/LOGO REAL_1762809085350.png";
+import logoUrl from "@assets/Untitled design (25)_1763692409411.png";
 
 export function Header() {
   const [location] = useLocation();
@@ -23,11 +23,8 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer" data-testid="link-logo">
-              <img src={logoUrl} alt="WashBizHub" className="h-10" />
-              <span className="text-xl font-black text-primary-foreground hidden sm:inline">
-                WashBizHub
-              </span>
+            <div className="flex items-center gap-2 cursor-pointer" data-testid="link-logo">
+              <img src={logoUrl} alt="WashBizHub" className="h-12 w-auto" />
             </div>
           </Link>
 
