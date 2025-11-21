@@ -41,6 +41,7 @@ import CalculatorsHub from "@/pages/calculators";
 import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
+import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -84,6 +85,7 @@ function Router() {
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
+      <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>
   );

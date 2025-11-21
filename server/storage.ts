@@ -183,7 +183,7 @@ export interface IStorage {
   getAffiliate(id: string): Promise<Affiliate | undefined>;
   getAffiliateByCode(code: string): Promise<Affiliate | undefined>;
   createAffiliate(affiliate: InsertAffiliate): Promise<Affiliate>;
-  trackAffiliateClick(affiliateId: string): Promise<void>;
+  trackAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick>;
   trackAffiliateSale(affiliateId: string, saleAmount: number): Promise<void>;
   
   // Laundromats
@@ -1002,12 +1002,25 @@ export class MemStorage implements IStorage {
     return newAffiliate;
   }
 
-  async trackAffiliateClick(affiliateId: string): Promise<void> {
-    const affiliate = await this.getAffiliate(affiliateId);
-    if (affiliate) {
-      affiliate.totalClicks += 1;
-      this.affiliates.set(affiliateId, affiliate);
+  async trackAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick> {
+    const id = randomUUID();
+    const newClick: AffiliateClick = {
+      ...click,
+      id,
+      clickedAt: new Date(),
+      convertedToSale: false,
+    } as AffiliateClick;
+    
+    // Increment affiliate clicks if affiliateId provided
+    if (click.affiliateId) {
+      const affiliate = await this.getAffiliate(click.affiliateId);
+      if (affiliate) {
+        affiliate.totalClicks += 1;
+        this.affiliates.set(click.affiliateId, affiliate);
+      }
     }
+    
+    return newClick;
   }
 
   async trackAffiliateSale(affiliateId: string, saleAmount: number): Promise<void> {
