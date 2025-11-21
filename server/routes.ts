@@ -1273,6 +1273,18 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // Alias for /api/templates/all (frontend compatibility)
+  app.get("/api/templates/all", async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const featured = req.query.featured === "true";
+      const templates = await storage.getTemplates({ category, featured });
+      res.json(templates);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/templates/:id", async (req, res) => {
     try {
       const template = await storage.getTemplate(req.params.id);

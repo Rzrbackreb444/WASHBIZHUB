@@ -37,6 +37,10 @@ import {
   type InsertConsultation,
   type Listing,
   type InsertListing,
+  type Template,
+  type InsertTemplate,
+  type TemplateDownload,
+  type InsertTemplateDownload,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -149,11 +153,11 @@ export interface IStorage {
   getListing(id: string): Promise<Listing | undefined>;
   
   // Templates (Premium)
-  getTemplates(filters?: { category?: string; featured?: boolean }): Promise<any[]>;
-  getTemplate(id: string): Promise<any | undefined>;
-  createTemplate(template: any): Promise<any>;
-  updateTemplate(id: string, template: any): Promise<any>;
-  recordTemplateDownload(templateId: string, userId: string, isPaid: boolean, amount?: number): Promise<any>;
+  getTemplates(filters?: { category?: string; featured?: boolean }): Promise<Template[]>;
+  getTemplate(id: string): Promise<Template | undefined>;
+  createTemplate(template: InsertTemplate): Promise<Template>;
+  updateTemplate(id: string, template: Partial<InsertTemplate>): Promise<Template>;
+  recordTemplateDownload(templateId: string, userId: string, isPaid: boolean, amount?: number): Promise<TemplateDownload>;
   createListing(listing: InsertListing): Promise<Listing>;
   updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
   deleteListing(id: string): Promise<void>;
