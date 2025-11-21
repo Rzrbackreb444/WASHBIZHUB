@@ -1943,3 +1943,294 @@ export const insertTemplateDownloadSchema = createInsertSchema(templateDownloads
 
 export type InsertTemplateDownload = z.infer<typeof insertTemplateDownloadSchema>;
 export type TemplateDownload = typeof templateDownloads.$inferSelect;
+
+// ============================================================================
+// COMPREHENSIVE RESOURCE LIBRARY (Industry Ecosystem)
+// ============================================================================
+
+// Resources (Calculators, Guides, Tools for entire industry)
+export const resources = pgTable("resources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Resource Details
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  slug: text("slug").notNull().unique(),
+  
+  // Type & Category
+  resourceType: text("resource_type").notNull(), // "calculator", "guide", "checklist", "template", "tool"
+  category: text("category").notNull(), // "financial", "operational", "marketing", "legal", "technical"
+  
+  // Target Audience (Industry Segment)
+  targetAudience: text("target_audience").array().notNull(), // ["owner", "investor", "broker", "technician", "distributor", "contractor", "lender", "marketing_agency", "software_vendor", "insurance_provider", "customer"]
+  businessStage: text("business_stage").array(), // ["researching", "planning", "acquiring", "operating", "selling", "multi_store"]
+  
+  // Content
+  content: text("content"), // Markdown/HTML content for guides
+  embedUrl: text("embed_url"), // For calculator embeds
+  previewImage: text("preview_image"),
+  
+  // Calculator-specific fields
+  calculatorInputs: jsonb("calculator_inputs"), // Input field definitions
+  calculatorFormulas: jsonb("calculator_formulas"), // Calculation logic
+  
+  // Access Control
+  isPremium: boolean("is_premium").notNull().default(false),
+  requiredTier: text("required_tier"), // "free", "pro", "enterprise"
+  price: decimal("price", { precision: 10, scale: 2 }), // One-time purchase price
+  
+  // Metadata
+  tags: text("tags").array(),
+  difficulty: text("difficulty"), // "beginner", "intermediate", "advanced"
+  estimatedTime: integer("estimated_time"), // Minutes to complete/read
+  featured: boolean("featured").notNull().default(false),
+  
+  // Engagement Stats
+  viewCount: integer("view_count").default(0).notNull(),
+  useCount: integer("use_count").default(0).notNull(),
+  downloadCount: integer("download_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count").default(0).notNull(),
+  
+  // SEO
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    slugIdx: uniqueIndex("resources_slug_idx").on(table.slug),
+    typeIdx: index("resources_type_idx").on(table.resourceType),
+    categoryIdx: index("resources_category_idx").on(table.category),
+  };
+});
+
+export const insertResourceSchema = createInsertSchema(resources).omit({
+  id: true,
+  viewCount: true,
+  useCount: true,
+  downloadCount: true,
+  reviewCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertResource = z.infer<typeof insertResourceSchema>;
+export type Resource = typeof resources.$inferSelect;
+
+// Resource Usage Tracking
+export const resourceUsage = pgTable("resource_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  resourceId: varchar("resource_id").references(() => resources.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Usage Details
+  actionType: text("action_type").notNull(), // "view", "use", "download", "save"
+  inputData: jsonb("input_data"), // For calculators: capture inputs
+  resultData: jsonb("result_data"), // For calculators: capture outputs
+  
+  // Session Info
+  sessionId: text("session_id"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  
+  usedAt: timestamp("used_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    resourceIdx: index("resource_usage_resource_idx").on(table.resourceId),
+    userIdx: index("resource_usage_user_idx").on(table.userId),
+  };
+});
+
+export const insertResourceUsageSchema = createInsertSchema(resourceUsage).omit({
+  id: true,
+  usedAt: true,
+});
+
+export type InsertResourceUsage = z.infer<typeof insertResourceUsageSchema>;
+export type ResourceUsage = typeof resourceUsage.$inferSelect;
+
+// Vendor Directory (Enhanced with Reviews & Ratings)
+export const vendorDirectory = pgTable("vendor_directory", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Company Info
+  companyName: text("company_name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  
+  // Category & Services
+  primaryCategory: text("primary_category").notNull(), // "equipment_distributor", "parts_supplier", "service_technician", "marketing_agency", "software_vendor", "insurance_provider", "lender", "contractor", "consultant"
+  services: text("services").array().notNull(), // Detailed service offerings
+  brands: text("brands").array(), // Equipment brands they carry
+  
+  // Contact
+  website: text("website"),
+  email: text("email"),
+  phone: text("phone"),
+  address: text("address"),
+  
+  // Coverage Area
+  serviceAreas: text("service_areas").array(), // States/regions they serve
+  nationwide: boolean("nationwide").default(false),
+  
+  // Media
+  logo: text("logo"),
+  images: jsonb("images"), // Gallery images
+  
+  // Verification
+  verified: boolean("verified").default(false).notNull(),
+  certifications: text("certifications").array(), // Industry certifications
+  yearsInBusiness: integer("years_in_business"),
+  
+  // Ratings & Stats
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  reviewCount: integer("review_count").default(0).notNull(),
+  responseRate: decimal("response_rate", { precision: 5, scale: 2 }), // % of inquiries responded to
+  avgResponseTime: integer("avg_response_time"), // Hours
+  
+  // Engagement
+  viewCount: integer("view_count").default(0).notNull(),
+  inquiryCount: integer("inquiry_count").default(0).notNull(),
+  
+  // Premium Features
+  featured: boolean("featured").default(false),
+  premiumTier: text("premium_tier"), // "basic", "pro", "enterprise"
+  
+  // Status
+  status: text("status").notNull().default("active"), // "active", "inactive", "suspended"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    slugIdx: uniqueIndex("vendor_directory_slug_idx").on(table.slug),
+    categoryIdx: index("vendor_directory_category_idx").on(table.primaryCategory),
+  };
+});
+
+export const insertVendorDirectorySchema = createInsertSchema(vendorDirectory).omit({
+  id: true,
+  rating: true,
+  reviewCount: true,
+  viewCount: true,
+  inquiryCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVendorDirectory = z.infer<typeof insertVendorDirectorySchema>;
+export type VendorDirectory = typeof vendorDirectory.$inferSelect;
+
+// Vendor Reviews
+export const vendorReviews = pgTable("vendor_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  vendorId: varchar("vendor_id").references(() => vendorDirectory.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Review Content
+  rating: integer("rating").notNull(), // 1-5 stars
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  
+  // Detailed Ratings
+  qualityRating: integer("quality_rating"), // 1-5
+  valueRating: integer("value_rating"), // 1-5
+  serviceRating: integer("service_rating"), // 1-5
+  responsiveness: integer("responsiveness"), // 1-5
+  
+  // Transaction Details
+  serviceUsed: text("service_used"),
+  projectCost: decimal("project_cost", { precision: 10, scale: 2 }),
+  wouldRecommend: boolean("would_recommend").notNull(),
+  
+  // Verification
+  verified: boolean("verified").default(false), // Verified purchase/service
+  
+  // Engagement
+  helpfulCount: integer("helpful_count").default(0).notNull(),
+  notHelpfulCount: integer("not_helpful_count").default(0).notNull(),
+  
+  // Response
+  vendorResponse: text("vendor_response"),
+  vendorRespondedAt: timestamp("vendor_responded_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    vendorIdx: index("vendor_reviews_vendor_idx").on(table.vendorId),
+    userIdx: index("vendor_reviews_user_idx").on(table.userId),
+  };
+});
+
+export const insertVendorReviewSchema = createInsertSchema(vendorReviews).omit({
+  id: true,
+  helpfulCount: true,
+  notHelpfulCount: true,
+  vendorRespondedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVendorReview = z.infer<typeof insertVendorReviewSchema>;
+export type VendorReview = typeof vendorReviews.$inferSelect;
+
+// Industry Benchmarks (For comparison and analysis)
+export const industryBenchmarks = pgTable("industry_benchmarks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Benchmark Category
+  category: text("category").notNull(), // "revenue", "expenses", "equipment", "labor", "marketing"
+  metric: text("metric").notNull(), // "revenue_per_sqft", "utility_cost_percentage", "turns_per_day", etc.
+  
+  // Geographic Filters
+  country: text("country").default("US"),
+  region: text("region"), // State or multi-state region
+  
+  // Business Filters
+  businessType: text("business_type").default("laundromat"), // "laundromat", "car_wash", "dry_cleaner"
+  storeSize: text("store_size"), // "small", "medium", "large"
+  
+  // Statistical Data
+  sampleSize: integer("sample_size").notNull(),
+  median: decimal("median", { precision: 12, scale: 4 }).notNull(),
+  average: decimal("average", { precision: 12, scale: 4 }).notNull(),
+  percentile25: decimal("percentile_25", { precision: 12, scale: 4 }),
+  percentile75: decimal("percentile_75", { precision: 12, scale: 4 }),
+  minimum: decimal("minimum", { precision: 12, scale: 4 }),
+  maximum: decimal("maximum", { precision: 12, scale: 4 }),
+  
+  // Unit & Context
+  unit: text("unit").notNull(), // "USD", "percentage", "count", "sqft", etc.
+  description: text("description").notNull(),
+  
+  // Data Period
+  periodType: text("period_type").notNull(), // "annual", "monthly", "quarterly"
+  year: integer("year").notNull(),
+  quarter: integer("quarter"),
+  
+  // Source
+  dataSource: text("data_source"), // "industry_survey", "user_submitted", "third_party"
+  
+  // Status
+  published: boolean("published").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    categoryMetricIdx: index("industry_benchmarks_category_metric_idx").on(table.category, table.metric),
+    yearIdx: index("industry_benchmarks_year_idx").on(table.year),
+  };
+});
+
+export const insertIndustryBenchmarkSchema = createInsertSchema(industryBenchmarks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertIndustryBenchmark = z.infer<typeof insertIndustryBenchmarkSchema>;
+export type IndustryBenchmark = typeof industryBenchmarks.$inferSelect;
