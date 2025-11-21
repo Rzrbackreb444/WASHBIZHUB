@@ -33,6 +33,9 @@ import AtmServices from "@/pages/AtmServices";
 import Templates from "@/pages/templates";
 import Resources from "@/pages/resources";
 import ResourceDetail from "@/pages/resource-detail";
+import Vendors from "@/pages/vendors";
+import VendorStorefront from "@/pages/vendor-store";
+import ProductDetail from "@/pages/product-detail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -66,6 +69,9 @@ function Router() {
       <Route path="/templates" component={Templates} />
       <Route path="/resources" component={Resources} />
       <Route path="/resources/:slug" component={ResourceDetail} />
+      <Route path="/vendors" component={Vendors} />
+      <Route path="/vendors/:storeSlug/products/:productSlug" component={ProductDetail} />
+      <Route path="/vendors/:storeSlug" component={VendorStorefront} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route component={NotFound} />
