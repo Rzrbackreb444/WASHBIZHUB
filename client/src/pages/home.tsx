@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
 import { 
@@ -11,15 +12,50 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "WashBizHub",
+    "alternateName": "The Bloomberg of Laundromats",
+    "url": typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com",
+    "description": "Enterprise-grade SaaS platform for laundromat owners, investors, and operators. Features CLEANBI™ scoring, 2D/3D design studio, marketplace, IoT POS integration, AI-powered pricing, and comprehensive industry resources.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com"}/resources?searchQuery={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
   // Fetch templates for display
   const { data: templates = [] } = useQuery<any[]>({
     queryKey: ['/api/templates'],
   });
   
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <Hero />
+    <>
+      <SEO
+        title="Home - The Bloomberg of Laundromats"
+        description="Enterprise-grade SaaS platform for laundromat owners, investors, and operators. Access CLEANBI™ 17-factor business analysis, 2D/3D design studio, global marketplace, AI-powered content generation, premium courses, and 100+ industry calculators and tools."
+        canonicalUrl="/"
+        keywords={[
+          "laundromat",
+          "laundry business",
+          "coin laundry",
+          "laundromat investment",
+          "laundromat business",
+          "CLEANBI",
+          "laundromat valuation",
+          "laundromat marketplace",
+          "laundromat design",
+          "laundromat ROI calculator"
+        ]}
+        structuredData={structuredData}
+      />
+      <div className="min-h-screen bg-background">
+        {/* Hero */}
+        <Hero />
       
       {/* Value Props */}
       <ValuePropCards />
@@ -293,6 +329,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

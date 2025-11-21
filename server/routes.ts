@@ -1589,6 +1589,60 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // ==================== SEO: SITEMAP.XML ====================
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const baseUrl = process.env.VITE_BASE_URL || "https://washbizhub.com";
+      
+      // Fetch all resources for sitemap
+      const resources = await storage.getResources({});
+      
+      // Static pages
+      const staticPages = [
+        { url: "/", priority: "1.0", changefreq: "daily" },
+        { url: "/resources", priority: "0.9", changefreq: "daily" },
+        { url: "/design-studio", priority: "0.8", changefreq: "weekly" },
+        { url: "/cleanbi", priority: "0.8", changefreq: "weekly" },
+        { url: "/marketplace", priority: "0.8", changefreq: "daily" },
+        { url: "/courses", priority: "0.7", changefreq: "weekly" },
+        { url: "/book", priority: "0.7", changefreq: "weekly" },
+        { url: "/blog", priority: "0.7", changefreq: "daily" },
+        { url: "/roi-calculator", priority: "0.7", changefreq: "weekly" },
+        { url: "/calculator", priority: "0.7", changefreq: "weekly" },
+        { url: "/subscribe", priority: "0.6", changefreq: "monthly" },
+      ];
+      
+      // Build sitemap XML
+      let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      // Add static pages
+      staticPages.forEach(page => {
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${baseUrl}${page.url}</loc>\n`;
+        sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
+        sitemap += `    <priority>${page.priority}</priority>\n`;
+        sitemap += '  </url>\n';
+      });
+      
+      // Add dynamic resource pages
+      resources.forEach(resource => {
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${baseUrl}/resources/${resource.slug}</loc>\n`;
+        sitemap += `    <changefreq>monthly</changefreq>\n`;
+        sitemap += `    <priority>0.6</priority>\n`;
+        sitemap += '  </url>\n';
+      });
+      
+      sitemap += '</urlset>';
+      
+      res.header('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error: any) {
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

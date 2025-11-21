@@ -177,6 +177,11 @@ export function Footer() {
                   Industry Blog
                 </span>
               </Link>
+              <Link href="/resources">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-resources">
+                  Resource Hub
+                </span>
+              </Link>
               <a
                 href="https://facebook.com/groups/thelaundromat"
                 target="_blank"
