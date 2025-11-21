@@ -18,7 +18,7 @@ export function Header() {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-primary border-b border-primary-border">
+    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -35,37 +35,37 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  className="text-foreground/70 hover:text-foreground font-medium"
                   data-testid="dropdown-platform"
                 >
                   Platform <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+              <DropdownMenuContent className="w-56">
                 <DropdownMenuItem asChild>
                   <Link href="/design-studio">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-design-studio">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-design-studio">
                       Design Studio 2D/3D
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/cleanbi">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-cleanbi">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-cleanbi">
                       CLEANBI™ Analysis
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/ai-blogging">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-ai-blogging">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-ai-blogging">
                       AI Blogging Suite
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/seo-optimizer">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-seo-optimizer">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-seo-optimizer">
                       SEO Optimizer
                     </span>
                   </Link>
@@ -73,7 +73,7 @@ export function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/templates">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-templates">
+                    <span className="cursor-pointer w-full" data-testid="link-nav-templates">
                       Premium Templates
                     </span>
                   </Link>
@@ -86,44 +86,44 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  className="text-foreground/70 hover:text-foreground font-medium"
                   data-testid="dropdown-tools"
                 >
                   Tools <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+              <DropdownMenuContent className="w-56">
                 <DropdownMenuItem asChild>
                   <Link href="/roi-calculator">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-roi-calculator">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-roi-calculator">
                       ROI Calculator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/calculator">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-calculator">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-calculator">
                       Revenue Calculator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/funding-matcher">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-funding-matcher">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-funding-matcher">
                       Funding Matcher
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/locator">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-locator">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-locator">
                       Laundromat Locator
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/distributor-locator">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-distributor-locator">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-distributor-locator">
                       Distributor Locator
                     </span>
                   </Link>
@@ -136,37 +136,37 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  className="text-foreground/70 hover:text-foreground font-medium"
                   data-testid="dropdown-marketplace"
                 >
                   Marketplace <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+              <DropdownMenuContent className="w-56 ">
                 <DropdownMenuItem asChild>
                   <Link href="/marketplace">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-marketplace">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-marketplace">
                       Buy/Sell Laundromats
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/listings">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-listings">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-listings">
                       Browse Listings
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/superstore">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-superstore">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-superstore">
                       Equipment Superstore
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/parts">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-parts">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-parts">
                       Parts Marketplace
                     </span>
                   </Link>
@@ -179,30 +179,30 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  className="text-foreground/70 hover:text-foreground font-medium"
                   data-testid="dropdown-learn"
                 >
                   Learn <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-primary border-primary-border">
+              <DropdownMenuContent className="w-56 ">
                 <DropdownMenuItem asChild>
                   <Link href="/courses">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-courses">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-courses">
                       Premium Courses
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/book">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-book">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-book">
                       The Laundromat Bible
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/blog">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-blog">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-blog">
                       Industry Blog
                     </span>
                   </Link>
@@ -210,7 +210,7 @@ export function Header() {
                 <DropdownMenuSeparator className="bg-primary-border" />
                 <DropdownMenuItem asChild>
                   <Link href="/facebook-group">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-facebook-group">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-facebook-group">
                       Join Facebook Community
                     </span>
                   </Link>
@@ -223,30 +223,30 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium"
+                  className="text-foreground/70 hover:text-foreground font-medium"
                   data-testid="dropdown-consultations"
                 >
                   Consultations <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 bg-primary border-primary-border">
+              <DropdownMenuContent className="w-64 ">
                 <DropdownMenuItem asChild>
                   <Link href="/consultation">
-                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-consultation">
+                    <span className="cursor-pointer w-full cursor-pointer" data-testid="link-nav-consultation">
                       Book a Consultation
                     </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-primary-border" />
                 <div className="px-2 py-2">
-                  <p className="text-xs text-primary-foreground/60 mb-2 font-semibold uppercase tracking-wider">Industry Experts</p>
+                  <p className="text-xs text-muted-foreground mb-2 font-semibold uppercase tracking-wider">Industry Experts</p>
                 </div>
                 <DropdownMenuItem asChild>
                   <a
                     href="https://laundromat123.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="cursor-pointer text-primary-foreground/90 hover:text-primary-foreground"
+                    className="cursor-pointer cursor-pointer"
                     data-testid="link-nav-laundromat123"
                   >
                     Laundromat123.com
@@ -257,14 +257,14 @@ export function Header() {
                     href="https://laundromat123.com/about"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="cursor-pointer text-primary-foreground/90 hover:text-primary-foreground"
+                    className="cursor-pointer cursor-pointer"
                     data-testid="link-nav-larry-larsen"
                   >
                     Larry Larsen - Expert Coach
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
-                  <span className="text-primary-foreground/60 text-xs italic" data-testid="link-nav-sasquatch">
+                  <span className="text-muted-foreground text-xs italic" data-testid="link-nav-sasquatch">
                     The Stroked-Out Sasquatch (from the book)
                   </span>
                 </DropdownMenuItem>
@@ -289,7 +289,7 @@ export function Header() {
                       onClick={() => window.location.href = '/api/logout'}
                       variant="outline"
                       size="sm"
-                      className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      className="border-border"
                       data-testid="button-logout"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
@@ -303,7 +303,7 @@ export function Header() {
                       onClick={() => window.location.href = '/api/login'}
                       variant="outline"
                       size="sm"
-                      className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      className="border-border"
                       data-testid="button-login"
                     >
                       <LogIn className="h-4 w-4 mr-2" />
@@ -330,7 +330,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-primary-foreground"
+              className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
@@ -341,10 +341,10 @@ export function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-primary-border space-y-4" data-testid="nav-mobile-menu">
+          <nav className="lg:hidden py-4 border-t border-border space-y-4" data-testid="nav-mobile-menu">
             {/* Platform Section */}
             <div>
-              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Platform</div>
+              <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Platform</div>
               <Link href="/design-studio"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-design-studio">Design Studio 2D/3D</div></Link>
               <Link href="/cleanbi"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-cleanbi">CLEANBI™ Analysis</div></Link>
               <Link href="/ai-blogging"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-ai-blogging">AI Blogging Suite</div></Link>
@@ -352,7 +352,7 @@ export function Header() {
             
             {/* Tools Section */}
             <div>
-              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Tools</div>
+              <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Tools</div>
               <Link href="/roi-calculator"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-roi-calculator">ROI Calculator</div></Link>
               <Link href="/calculator"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-calculator">Revenue Calculator</div></Link>
               <Link href="/funding-matcher"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-funding-matcher">Funding Matcher</div></Link>
@@ -360,14 +360,14 @@ export function Header() {
             
             {/* Marketplace Section */}
             <div>
-              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Marketplace</div>
+              <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marketplace</div>
               <Link href="/marketplace"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-marketplace">Buy/Sell Laundromats</div></Link>
               <Link href="/superstore"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-superstore">Equipment Superstore</div></Link>
             </div>
             
             {/* Learn Section */}
             <div>
-              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Learn</div>
+              <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Learn</div>
               <Link href="/courses"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-courses">Premium Courses</div></Link>
               <Link href="/book"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-book">The Laundromat Bible</div></Link>
               <Link href="/blog"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-blog">Industry Blog</div></Link>
@@ -375,7 +375,7 @@ export function Header() {
             
             {/* Consultations Section */}
             <div>
-              <div className="px-3 py-2 text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Consultations</div>
+              <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Consultations</div>
               <Link href="/consultation"><div className="block px-3 py-2 text-primary-foreground/80 hover:bg-primary-foreground/10 cursor-pointer" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-consultation">Book a Consultation</div></Link>
             </div>
           </nav>
