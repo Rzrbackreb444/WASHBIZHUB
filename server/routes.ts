@@ -2119,6 +2119,165 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== WEBSITE TEMPLATES ====================
+  
+  // GET /api/website-templates - Browse website templates
+  app.get("/api/website-templates", async (req, res) => {
+    try {
+      const filters = {
+        industry: req.query.industry as string | undefined,
+        category: req.query.category as string | undefined,
+        isPro: req.query.isPro === "true" ? true : req.query.isPro === "false" ? false : undefined,
+      };
+      const templates = await storage.getWebsiteTemplates(filters);
+      res.json(templates);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/website-templates/:id - Get single template
+  app.get("/api/website-templates/:id", async (req, res) => {
+    try {
+      const template = await storage.getWebsiteTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      res.json(template);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/from-template - Create website from template
+  app.post("/api/websites/from-template", isAuthenticated, async (req: any, res) => {
+    try {
+      const { templateId, businessName, subdomain, customization } = req.body;
+      const userId = req.user.claims.sub;
+      
+      const template = await storage.getWebsiteTemplate(templateId);
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      // Create site project from template
+      const projectData = {
+        userId,
+        name: businessName || template.name,
+        industry: template.industry,
+        subdomain,
+        customDomain: null,
+        theme: customization?.theme || template.theme,
+        isPublished: false,
+        totalViews: 0,
+        totalLeads: 0,
+      };
+      
+      const project = await storage.createSiteProject(projectData);
+      
+      // Increment template use count
+      await storage.incrementTemplateUseCount(templateId);
+      
+      res.json(project);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // ==================== WEBSITE BUILDER ====================
+  
+  // GET /api/websites - List user's website projects
+  app.get("/api/websites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projects = await storage.getSiteProjects(userId);
+      res.json(projects);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/websites/:id - Get single website project
+  app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const project = await storage.getSiteProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      
+      // Verify ownership
+      const userId = req.user.claims.sub;
+      if (project.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+      
+      res.json(project);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites - Create new website project
+  app.post("/api/websites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projectData = {
+        ...req.body,
+        userId,
+        isPublished: false,
+        totalViews: 0,
+        totalLeads: 0,
+      };
+      
+      const project = await storage.createSiteProject(projectData);
+      res.json(project);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/websites/:id - Update website project
+  app.put("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const project = await storage.getSiteProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      
+      // Verify ownership
+      const userId = req.user.claims.sub;
+      if (project.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+      
+      const updated = await storage.updateSiteProject(req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/websites/:id - Delete website project
+  app.delete("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const project = await storage.getSiteProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      
+      // Verify ownership
+      const userId = req.user.claims.sub;
+      if (project.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+      
+      await storage.deleteSiteProject(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== SEO: SITEMAP.XML ====================
   app.get("/sitemap.xml", async (req, res) => {
     try {

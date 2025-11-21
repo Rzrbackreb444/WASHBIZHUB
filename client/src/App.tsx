@@ -38,6 +38,7 @@ import Vendors from "@/pages/vendors";
 import VendorStorefront from "@/pages/vendor-store";
 import ProductDetail from "@/pages/product-detail";
 import CalculatorsHub from "@/pages/calculators";
+import WebsiteBuilder from "@/pages/website-builder";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/calculators" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />
+      <Route path="/website-builder" component={WebsiteBuilder} />
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
       <Route path="/courses" component={Courses} />
