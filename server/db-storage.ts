@@ -27,6 +27,8 @@ import {
   affiliateSales,
   affiliateCommissions,
   affiliatePayouts,
+  templates,
+  templateDownloads,
   type User,
   type InsertUser,
   type Design,
@@ -79,6 +81,10 @@ import {
   type InsertAffiliateCommission,
   type AffiliatePayout,
   type InsertAffiliatePayout,
+  type Template,
+  type InsertTemplate,
+  type TemplateDownload,
+  type InsertTemplateDownload,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -864,6 +870,51 @@ export class DbStorage implements IStorage {
         .where(eq(affiliates.id, result[0].affiliateId));
     }
     
+    return result[0];
+  }
+
+  // ============================================================================
+  // PREMIUM TEMPLATES
+  // ============================================================================
+  async getTemplates(filters?: { category?: string; featured?: boolean }): Promise<Template[]> {
+    let query = db.select().from(templates);
+    if (filters?.category) {
+      query = query.where(eq(templates.category, filters.category));
+    }
+    if (filters?.featured) {
+      query = query.where(eq(templates.featured, true));
+    }
+    return query.orderBy(desc(templates.featured), desc(templates.downloadCount));
+  }
+
+  async getTemplate(id: string): Promise<Template | undefined> {
+    const result = await db.select().from(templates).where(eq(templates.id, id));
+    return result[0];
+  }
+
+  async createTemplate(template: InsertTemplate): Promise<Template> {
+    const result = await db.insert(templates).values(template).returning();
+    return result[0];
+  }
+
+  async updateTemplate(id: string, template: Partial<InsertTemplate>): Promise<Template> {
+    const result = await db.update(templates).set(template).where(eq(templates.id, id)).returning();
+    return result[0];
+  }
+
+  async recordTemplateDownload(templateId: string, userId: string, isPaid: boolean, amount?: number): Promise<TemplateDownload> {
+    const result = await db.insert(templateDownloads).values({
+      templateId,
+      userId,
+      isPaid,
+      amount: amount ? String(amount) : undefined,
+    }).returning();
+
+    // Increment download count
+    await db.update(templates)
+      .set({ downloadCount: sql`${templates.downloadCount} + 1` })
+      .where(eq(templates.id, templateId));
+
     return result[0];
   }
 }

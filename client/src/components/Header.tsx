@@ -73,6 +73,14 @@ export function Header() {
                     </span>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/templates">
+                    <span className="cursor-pointer w-full text-primary-foreground/90 hover:text-primary-foreground" data-testid="link-nav-templates">
+                      Premium Templates
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
