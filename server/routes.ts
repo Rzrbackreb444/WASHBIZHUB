@@ -2475,6 +2475,65 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== NEWSLETTER ====================
+  
+  // POST /api/newsletter/subscribe - Subscribe to newsletter
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const { email, firstName, source } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Check if already subscribed
+      const existing = await storage.getEmailSubscriber(email);
+      if (existing) {
+        return res.json({ message: "Already subscribed", subscriber: existing });
+      }
+
+      const subscriber = await storage.createEmailSubscriber({
+        email,
+        firstName: firstName || null,
+        source: source || 'website',
+        status: 'active',
+        subscribedAt: new Date().toISOString(),
+      });
+
+      res.json({ message: "Successfully subscribed", subscriber });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/newsletter/subscribers - Get all subscribers (admin only)
+  app.get("/api/newsletter/subscribers", isAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const filters = status ? { status } : undefined;
+      const subscribers = await storage.getEmailSubscribers(filters);
+      res.json(subscribers);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/newsletter/unsubscribe - Unsubscribe from newsletter
+  app.post("/api/newsletter/unsubscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      await storage.unsubscribeEmail(email);
+      res.json({ message: "Successfully unsubscribed" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
