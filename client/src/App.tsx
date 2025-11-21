@@ -39,6 +39,8 @@ import VendorStorefront from "@/pages/vendor-store";
 import ProductDetail from "@/pages/product-detail";
 import CalculatorsHub from "@/pages/calculators";
 import WebsiteBuilder from "@/pages/website-builder";
+import WebsiteTemplates from "@/pages/website-templates";
+import AffiliateDashboard from "@/pages/affiliate-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -56,6 +58,7 @@ function Router() {
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/website-builder" component={WebsiteBuilder} />
+      <Route path="/website-templates" component={WebsiteTemplates} />
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
       <Route path="/courses" component={Courses} />
@@ -80,6 +83,7 @@ function Router() {
       <Route path="/vendors/:storeSlug" component={VendorStorefront} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
+      <Route path="/affiliate" component={AffiliateDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
