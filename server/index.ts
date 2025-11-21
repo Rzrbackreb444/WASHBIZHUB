@@ -19,7 +19,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-10-29.clover",
 });
 
 app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), async (req, res) => {
@@ -42,62 +42,160 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle successful payments
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const metadata = session.metadata;
+  // ==================== WEBHOOK EVENT HANDLERS ====================
+  
+  try {
+    // Handle checkout session completion (one-time purchases)
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const metadata = session.metadata;
 
-    if (!metadata) {
-      return res.status(200).json({ received: true });
-    }
+      if (!metadata) {
+        return res.status(200).json({ received: true });
+      }
 
-    const paymentIntentId = session.payment_intent as string;
+      const paymentIntentId = session.payment_intent as string;
+      const amountTotal = session.amount_total || 0; // in cents
 
-    // Create enrollment for course purchase (with idempotency check)
-    if (metadata.type === "course_purchase") {
-      try {
-        const existing = await storage.getEnrollment(metadata.userId, metadata.courseId);
-        if (existing) {
-          console.log(`⚠️  Enrollment already exists for user ${metadata.userId} in course ${metadata.courseId} (idempotent)`);
-          return res.json({ received: true });
+      // Course purchase
+      if (metadata.type === "course_purchase") {
+        try {
+          const existing = await storage.getEnrollment(metadata.userId, metadata.courseId);
+          if (existing) {
+            console.log(`⚠️  Enrollment already exists for user ${metadata.userId} in course ${metadata.courseId} (idempotent)`);
+            return res.json({ received: true });
+          }
+
+          await storage.createEnrollment({
+            userId: metadata.userId,
+            courseId: metadata.courseId,
+            stripePaymentId: paymentIntentId,
+            currentLessonId: null,
+            completedLessons: [],
+            lastAccessedAt: null,
+          });
+          console.log(`✅ Enrollment created for user ${metadata.userId} in course ${metadata.courseId}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to create enrollment: ${error.message}`);
         }
+      }
 
-        await storage.createEnrollment({
-          userId: metadata.userId,
-          courseId: metadata.courseId,
-          stripePaymentId: paymentIntentId,
-          progress: 0,
-          currentLessonId: null,
-          completedLessons: [],
-          lastAccessedAt: null,
-        });
-        console.log(`✅ Enrollment created for user ${metadata.userId} in course ${metadata.courseId}`);
-      } catch (error: any) {
-        console.error(`❌ Failed to create enrollment: ${error.message}`);
+      // Book purchase
+      if (metadata.type === "book_purchase") {
+        try {
+          const existing = await storage.getUserBookAccess(metadata.userId);
+          if (existing) {
+            console.log(`⚠️  Book access already exists for user ${metadata.userId} (idempotent)`);
+            return res.json({ received: true });
+          }
+
+          await storage.createBookAccess({
+            userId: metadata.userId,
+            stripePaymentId: paymentIntentId,
+          });
+          console.log(`✅ Book access granted to user ${metadata.userId}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to grant book access: ${error.message}`);
+        }
+      }
+
+      // Vendor product purchase - track commission
+      if (metadata.type === "product_purchase" && metadata.productId) {
+        try {
+          const product = await storage.getVendorProduct(metadata.productId);
+          if (!product) {
+            console.error(`❌ Product ${metadata.productId} not found`);
+            return res.json({ received: true });
+          }
+
+          const store = await storage.getVendorStore(product.storeId);
+          if (!store) {
+            console.error(`❌ Store ${product.storeId} not found`);
+            return res.json({ received: true });
+          }
+
+          // Calculate commission (platform takes 10%, vendor gets 90%)
+          const platformCommissionRate = 10; // 10%
+          const totalAmount = amountTotal / 100; // convert from cents to dollars
+          const platformCommission = totalAmount * (platformCommissionRate / 100);
+          const vendorPayout = totalAmount - platformCommission;
+
+          // Update product sales count
+          const currentSales = product.sales || 0;
+          await storage.updateVendorProduct(metadata.productId, {
+            sales: currentSales + 1,
+          });
+
+          // TODO: Create commission record and payout tracking in database
+          console.log(`✅ Product sale tracked: ${metadata.productId}, Platform: $${platformCommission.toFixed(2)}, Vendor: $${vendorPayout.toFixed(2)}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to track product sale: ${error.message}`);
+        }
       }
     }
 
-    // Create book access for book purchase (with idempotency check)
-    if (metadata.type === "book_purchase") {
-      try {
-        const existing = await storage.getUserBookAccess(metadata.userId);
-        if (existing) {
-          console.log(`⚠️  Book access already exists for user ${metadata.userId} (idempotent)`);
-          return res.json({ received: true });
-        }
-
-        await storage.createBookAccess({
-          userId: metadata.userId,
-          stripePaymentId: paymentIntentId,
-        });
-        console.log(`✅ Book access granted to user ${metadata.userId}`);
-      } catch (error: any) {
-        console.error(`❌ Failed to grant book access: ${error.message}`);
-      }
+    // Handle subscription creation
+    if (event.type === "customer.subscription.created") {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(`✅ Subscription created: ${subscription.id} for customer ${subscription.customer}`);
+      // TODO: Update user subscription status in database
     }
+
+    // Handle subscription updates
+    if (event.type === "customer.subscription.updated") {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(`✅ Subscription updated: ${subscription.id}, status: ${subscription.status}`);
+      // TODO: Update user subscription status in database
+    }
+
+    // Handle subscription deletion/cancellation
+    if (event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(`⚠️  Subscription canceled: ${subscription.id}`);
+      // TODO: Revoke user access, update database
+    }
+
+    // Handle successful subscription payments
+    if (event.type === "invoice.payment_succeeded") {
+      const invoice: any = event.data.object;
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+      console.log(`✅ Invoice paid: ${invoice.id} for subscription ${subscriptionId || 'none'}`);
+      // TODO: Extend user subscription, send receipt
+    }
+
+    // Handle failed subscription payments
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+      console.error(`❌ Invoice payment failed: ${invoice.id} for customer ${invoice.customer}`);
+      // TODO: Send payment failure notification, suspend access after grace period
+    }
+
+    // Handle Stripe Connect account updates (for vendors)
+    if (event.type === "account.updated") {
+      const account = event.data.object as Stripe.Account;
+      console.log(`✅ Stripe Connect account updated: ${account.id}, charges_enabled: ${account.charges_enabled}`);
+      // TODO: Update vendor store verification status if charges_enabled
+    }
+
+    // Handle successful payouts to vendors
+    if (event.type === "payout.paid") {
+      const payout = event.data.object as Stripe.Payout;
+      console.log(`✅ Payout successful: ${payout.id}, amount: $${(payout.amount / 100).toFixed(2)}`);
+      // TODO: Update payout status in database
+    }
+
+    // Handle failed payouts to vendors
+    if (event.type === "payout.failed") {
+      const payout = event.data.object as Stripe.Payout;
+      console.error(`❌ Payout failed: ${payout.id}, status: ${payout.status}`);
+      // TODO: Alert vendor, update payout status
+    }
+
+    res.json({ received: true });
+  } catch (error: any) {
+    console.error(`❌ Webhook handler error: ${error.message}`);
+    res.status(500).json({ error: error.message });
   }
-
-  res.json({ received: true });
 });
 
 // Now apply global JSON parsing for all other routes

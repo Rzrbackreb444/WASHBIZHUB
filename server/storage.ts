@@ -122,6 +122,17 @@ import {
   type InsertModuleMetric,
   type ActivityEvent,
   type InsertActivityEvent,
+  // Vendor Marketplace
+  type VendorStore,
+  type InsertVendorStore,
+  type VendorProduct,
+  type InsertVendorProduct,
+  type EquipmentInquiry,
+  type InsertEquipmentInquiry,
+  type SearchIndex,
+  type InsertSearchIndex,
+  type EmailSubscriber,
+  type InsertEmailSubscriber,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -456,32 +467,32 @@ export interface IStorage {
   createActivityEvent(event: InsertActivityEvent): Promise<ActivityEvent>;
   
   // Vendor Stores (Dokan Pro Style Marketplace)
-  getVendorStores(filters?: { status?: string; verified?: boolean; featured?: boolean }): Promise<any[]>;
-  getVendorStore(id: string): Promise<any | undefined>;
-  getVendorStoreBySlug(slug: string): Promise<any | undefined>;
-  getVendorStoreByOwner(ownerId: string): Promise<any | undefined>;
-  createVendorStore(store: any): Promise<any>;
-  updateVendorStore(id: string, store: any): Promise<any>;
+  getVendorStores(filters?: { status?: string; verified?: boolean; featured?: boolean }): Promise<VendorStore[]>;
+  getVendorStore(id: string): Promise<VendorStore | undefined>;
+  getVendorStoreBySlug(slug: string): Promise<VendorStore | undefined>;
+  getVendorStoreByOwner(ownerId: string): Promise<VendorStore | undefined>;
+  createVendorStore(store: InsertVendorStore): Promise<VendorStore>;
+  updateVendorStore(id: string, store: Partial<InsertVendorStore>): Promise<VendorStore>;
   
   // Vendor Products
-  getVendorProducts(filters?: { storeId?: string; category?: string; status?: string; featured?: boolean }): Promise<any[]>;
-  getVendorProduct(id: string): Promise<any | undefined>;
-  getVendorProductBySlug(slug: string, storeId: string): Promise<any | undefined>;
-  createVendorProduct(product: any): Promise<any>;
-  updateVendorProduct(id: string, product: any): Promise<any>;
+  getVendorProducts(filters?: { storeId?: string; category?: string; status?: string; featured?: boolean }): Promise<VendorProduct[]>;
+  getVendorProduct(id: string): Promise<VendorProduct | undefined>;
+  getVendorProductBySlug(slug: string, storeId: string): Promise<VendorProduct | undefined>;
+  createVendorProduct(product: InsertVendorProduct): Promise<VendorProduct>;
+  updateVendorProduct(id: string, product: Partial<InsertVendorProduct>): Promise<VendorProduct>;
   deleteVendorProduct(id: string): Promise<void>;
   incrementProductViews(id: string): Promise<void>;
   
   // Equipment Inquiries (goes to nick@washbizhub.com)
-  getEquipmentInquiries(filters?: { status?: string; email?: string }): Promise<any[]>;
-  getEquipmentInquiry(id: string): Promise<any | undefined>;
-  createEquipmentInquiry(inquiry: any): Promise<any>;
-  updateEquipmentInquiry(id: string, inquiry: any): Promise<any>;
+  getEquipmentInquiries(filters?: { status?: string; email?: string }): Promise<EquipmentInquiry[]>;
+  getEquipmentInquiry(id: string): Promise<EquipmentInquiry | undefined>;
+  createEquipmentInquiry(inquiry: InsertEquipmentInquiry): Promise<EquipmentInquiry>;
+  updateEquipmentInquiry(id: string, inquiry: Partial<InsertEquipmentInquiry>): Promise<EquipmentInquiry>;
   
   // Platform-Wide Search
-  searchContent(query: string, limit?: number): Promise<any[]>;
-  getSearchIndex(id: string): Promise<any | undefined>;
-  upsertSearchIndex(index: any): Promise<any>;
+  searchContent(query: string, limit?: number): Promise<SearchIndex[]>;
+  getSearchIndex(id: string): Promise<SearchIndex | undefined>;
+  upsertSearchIndex(index: InsertSearchIndex): Promise<SearchIndex>;
   deleteSearchIndex(contentType: string, contentId: string): Promise<void>;
   incrementSearchPopularity(id: string): Promise<void>;
   
@@ -490,11 +501,11 @@ export interface IStorage {
   getPopularSearches(limit?: number): Promise<{ query: string; count: number }[]>;
   
   // Email Subscribers
-  getEmailSubscribers(filters?: { status?: string; tag?: string }): Promise<any[]>;
-  getEmailSubscriber(email: string): Promise<any | undefined>;
-  getEmailSubscriberById(id: string): Promise<any | undefined>;
-  createEmailSubscriber(subscriber: any): Promise<any>;
-  updateEmailSubscriber(email: string, subscriber: any): Promise<any>;
+  getEmailSubscribers(filters?: { status?: string; tag?: string }): Promise<EmailSubscriber[]>;
+  getEmailSubscriber(email: string): Promise<EmailSubscriber | undefined>;
+  getEmailSubscriberById(id: string): Promise<EmailSubscriber | undefined>;
+  createEmailSubscriber(subscriber: InsertEmailSubscriber): Promise<EmailSubscriber>;
+  updateEmailSubscriber(email: string, subscriber: Partial<InsertEmailSubscriber>): Promise<EmailSubscriber>;
   unsubscribeEmail(email: string): Promise<void>;
 }
 
