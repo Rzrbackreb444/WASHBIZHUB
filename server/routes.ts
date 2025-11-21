@@ -1260,6 +1260,55 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // ==================== TEMPLATES (PREMIUM) ====================
+
+  app.get("/api/templates", async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const featured = req.query.featured === "true";
+      const templates = await storage.getTemplates({ category, featured });
+      res.json(templates);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/templates/:id", async (req, res) => {
+    try {
+      const template = await storage.getTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+      res.json(template);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/templates/:id/download", isAuthenticated, async (req: any, res) => {
+    try {
+      const templateId = req.params.id;
+      const userId = req.user.claims.sub;
+      
+      const template = await storage.getTemplate(templateId);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      // Record download
+      const download = await storage.recordTemplateDownload(
+        templateId,
+        userId,
+        template.isPremium,
+        template.price ? Number(template.price) : undefined
+      );
+
+      res.json(download);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

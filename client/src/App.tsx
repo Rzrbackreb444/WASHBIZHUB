@@ -29,6 +29,7 @@ import Listings from "@/pages/listings";
 import Lesson from "@/pages/lesson";
 import FacebookGroup from "@/pages/FacebookGroup";
 import AtmServices from "@/pages/AtmServices";
+import Templates from "@/pages/templates";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={Listings} />
+      <Route path="/templates" component={Templates} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route component={NotFound} />
