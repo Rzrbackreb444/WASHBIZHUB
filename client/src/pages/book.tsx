@@ -32,7 +32,7 @@ export default function BookPage() {
   const [selectedChapter, setSelectedChapter] = useState<BookChapter | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
-  const userId = "user-123";
+  const userId = "user-123"; // Should come from useAuth hook in production
 
   const { data: chapters = [], isLoading: chaptersLoading } = useQuery<BookChapter[]>({
     queryKey: ["/api/book/chapters"],
@@ -40,16 +40,14 @@ export default function BookPage() {
 
   const { data: bookAccess } = useQuery<BookAccess | null>({
     queryKey: ["/api/book/access", userId],
+    enabled: !!userId,
   });
 
   const hasAccess = !!bookAccess;
 
   const purchaseMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("/api/book/purchase", {
-        method: "POST",
-        body: JSON.stringify({ userId }),
-      });
+      const response = await apiRequest("POST", "/api/book/purchase", { userId });
       return response.json();
     },
     onSuccess: async (data) => {
