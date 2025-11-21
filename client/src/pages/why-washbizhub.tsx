@@ -44,7 +44,7 @@ export default function WhyWashBizHub() {
           <div className="absolute inset-0 z-0">
             <img 
               src={blueDepthImg} 
-              alt="Modern laundromat equipment"
+              alt="Futuristic blue-lit commercial laundromat with modern front-load washers - advanced coin-operated laundry equipment with LED lighting and professional design"
               className="w-full h-full object-cover opacity-30"
               loading="eager"
             />
@@ -95,7 +95,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg">
                 <img 
                   src={coupleImg} 
-                  alt="Happy customers using laundromat services"
+                  alt="Young couple using self-service laundromat together - happy customers enjoying modern coin laundry experience with quality washers and dryers in clean facility"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -168,7 +168,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg order-1 lg:order-2">
                 <img 
                   src={vintageNumberedImg} 
-                  alt="Vintage laundromat equipment with numbered machines"
+                  alt="Retro numbered commercial laundromat machines from classic era - vintage coin-operated washer and dryer equipment showing industry heritage and traditional laundry business operations"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -185,7 +185,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg">
                 <img 
                   src={stackedModernImg} 
-                  alt="Modern stacked commercial washers and dryers"
+                  alt="Stacked commercial laundry equipment in modern facility - double-deck industrial washers and dryers maximizing space efficiency for high-volume laundromat operations"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -256,7 +256,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg order-1 lg:order-2">
                 <img 
                   src={industrialAisleImg} 
-                  alt="Industrial laundromat aisle with equipment and carts"
+                  alt="Industrial laundromat aisle perspective with rolling carts - commercial self-service laundry facility showing professional equipment layout and customer workflow design"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -273,7 +273,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg">
                 <img 
                   src={premiumBlackImg} 
-                  alt="Premium commercial laundry equipment"
+                  alt="Premium black commercial washers in upscale laundromat - luxury coin-operated laundry equipment with modern aesthetics and professional-grade performance for high-end facilities"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -346,7 +346,7 @@ export default function WhyWashBizHub() {
               <div className="relative overflow-hidden rounded-lg order-1 lg:order-2">
                 <img 
                   src={symmetricalWhiteImg} 
-                  alt="Symmetrical row of modern white washers"
+                  alt="Perfectly aligned row of white commercial laundromat machines - symmetrical professional laundry equipment installation demonstrating organizational excellence and modern design"
                   className="w-full h-[450px] object-cover"
                   loading="lazy"
                 />
@@ -370,19 +370,19 @@ export default function WhyWashBizHub() {
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { img: tealMachinesImg, label: "Modern Retail" },
-                { img: blueTintedImg, label: "High-Volume Processing" },
-                { img: turquoiseLaundryImg, label: "Customer-First Design" },
-                { img: tealPerspectiveImg, label: "Enterprise Scale" },
-                { img: chromeMachinesImg, label: "Premium Equipment" },
-                { img: brightModernImg, label: "Welcoming Spaces" },
-                { img: whiteTopLoadersImg, label: "Equipment Diversity" },
-                { img: bwVintageImg, label: "Industry Heritage" },
+                { img: tealMachinesImg, label: "Modern Retail", alt: "Modern retail laundromat with teal-colored commercial front-load washers - contemporary coin-operated equipment for boutique urban laundry facilities" },
+                { img: blueTintedImg, label: "High-Volume Processing", alt: "High-volume industrial laundromat with blue ambient lighting - commercial-scale washing machines for large-capacity processing operations" },
+                { img: turquoiseLaundryImg, label: "Customer-First Design", alt: "Customer-friendly laundromat interior with turquoise machines - inviting self-service laundry environment prioritizing user experience and comfort" },
+                { img: tealPerspectiveImg, label: "Enterprise Scale", alt: "Enterprise-scale commercial laundry facility perspective view - professional industrial equipment layout for high-throughput business operations" },
+                { img: chromeMachinesImg, label: "Premium Equipment", alt: "Premium chrome-finished commercial laundromat machines - luxury stainless steel washers and dryers for upscale coin-operated facilities" },
+                { img: brightModernImg, label: "Welcoming Spaces", alt: "Bright welcoming modern laundromat interior - clean well-lit self-service laundry space with contemporary design and customer comfort focus" },
+                { img: whiteTopLoadersImg, label: "Equipment Diversity", alt: "Diverse white top-loading commercial washers - variety of laundromat equipment options for different customer needs and preferences" },
+                { img: bwVintageImg, label: "Industry Heritage", alt: "Classic black and white vintage laundromat photograph - historical coin-operated laundry industry heritage showcasing decades of service tradition" },
               ].map((item, idx) => (
                 <div key={idx} className="relative overflow-hidden rounded-lg group">
                   <img 
                     src={item.img} 
-                    alt={item.label}
+                    alt={item.alt}
                     className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />

@@ -72,7 +72,7 @@ export default function Home() {
             <div className="relative overflow-hidden rounded-lg order-2 lg:order-1">
               <img 
                 src={modernMachinesImg} 
-                alt="Modern commercial laundry equipment"
+                alt="Modern commercial front-load washers and dryers in pristine white and silver finish - enterprise-grade laundromat equipment for professional laundry operations"
                 className="w-full h-[400px] lg:h-[500px] object-cover"
                 loading="lazy"
               />
@@ -157,7 +157,7 @@ export default function Home() {
             <div className="relative overflow-hidden rounded-lg">
               <img 
                 src={industrialRowImg} 
-                alt="Industrial laundromat equipment row"
+                alt="Industrial row of heavy-duty commercial washers in professional laundry facility - high-capacity coin-operated laundromat machines for commercial use"
                 className="w-full h-[400px] lg:h-[500px] object-cover"
                 loading="lazy"
               />
@@ -175,7 +175,7 @@ export default function Home() {
             <div className="relative overflow-hidden rounded-lg order-2 lg:order-1">
               <img 
                 src={vintageImg} 
-                alt="Vintage laundromat heritage"
+                alt="Classic vintage coin laundromat with retro commercial washers - authentic laundry business heritage showcasing decades of industry experience and traditional coin-op equipment"
                 className="w-full h-[400px] lg:h-[500px] object-cover grayscale"
                 loading="lazy"
               />
@@ -461,7 +461,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <img 
             src={lifestyleImg} 
-            alt="Happy laundromat customer"
+            alt="Satisfied laundromat customer smiling while loading washing machine - positive customer experience in modern self-service laundry facility demonstrating quality service"
             className="w-full h-full object-cover opacity-20"
             loading="lazy"
           />

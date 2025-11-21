@@ -10,7 +10,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0">
         <img 
           src={heroImage} 
-          alt="Professional commercial laundry equipment"
+          alt="Premium stacked commercial laundromat washers and dryers in modern industrial facility - professional laundry equipment for enterprise-grade operations"
           className="w-full h-full object-cover"
           loading="eager"
         />
