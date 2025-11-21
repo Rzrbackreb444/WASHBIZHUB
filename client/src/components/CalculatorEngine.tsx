@@ -8,11 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calculator, Download, Save, Share2, TrendingUp, DollarSign } from "lucide-react";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { PremiumChart } from "@/components/PremiumChart";
 import jsPDF from 'jspdf';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
 interface InputField {
   name: string;
@@ -236,52 +233,28 @@ export function CalculatorEngine({ config, onSave }: CalculatorEngineProps) {
     if (!chartConfig || !results[chartConfig.dataKey]) return null;
 
     const data = results[chartConfig.dataKey];
-    
-    const chartData = {
-      labels: chartConfig.labels || ['Value'],
-      datasets: [{
-        label: chartConfig.title,
-        data: Array.isArray(data) ? data : [data],
-        backgroundColor: ['#C8A661', '#1a2332', '#b8860b', '#2c4a6f'],
-        borderColor: '#C8A661',
-        borderWidth: 2,
-      }],
-    };
-
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { 
-          display: true,
-          labels: { color: '#fff' }
-        },
-        title: {
-          display: true,
-          text: chartConfig.title,
-          color: '#fff',
-          font: { size: 16 }
-        }
-      },
-      scales: chartConfig.type !== 'pie' ? {
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#fff' },
-          grid: { color: 'rgba(255,255,255,0.1)' },
-        },
-        x: {
-          ticks: { color: '#fff' },
-          grid: { color: 'rgba(255,255,255,0.1)' },
-        },
-      } : undefined,
-    };
-
-    const ChartComponent = chartConfig.type === 'bar' ? Bar : chartConfig.type === 'line' ? Line : Pie;
+    const dataPoints = Array.isArray(data) 
+      ? data.map((value, index) => ({
+          label: chartConfig.labels?.[index] || `Value ${index + 1}`,
+          value: typeof value === 'number' ? value : 0,
+        }))
+      : [{ label: chartConfig.labels?.[0] || 'Result', value: typeof data === 'number' ? data : 0 }];
     
     return (
-      <div className="h-[300px]">
-        <ChartComponent data={chartData} options={options} />
-      </div>
+      <PremiumChart
+        type={chartConfig.type as any}
+        title={chartConfig.title}
+        data={dataPoints}
+        height={300}
+        animate={true}
+        showLegend={true}
+        formatValue={(v) => new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(v)}
+      />
     );
   };
 

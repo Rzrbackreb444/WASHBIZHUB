@@ -383,6 +383,12 @@ export interface IStorage {
   updatePageSection(id: string, section: Partial<InsertPageSection>): Promise<PageSection>;
   deletePageSection(id: string): Promise<void>;
   
+  // Website Templates
+  getWebsiteTemplates(filters?: { industry?: string; category?: string; isPro?: boolean }): Promise<WebsiteTemplate[]>;
+  getWebsiteTemplate(id: string): Promise<WebsiteTemplate | undefined>;
+  createWebsiteTemplate(template: InsertWebsiteTemplate): Promise<WebsiteTemplate>;
+  incrementTemplateUseCount(id: string): Promise<void>;
+  
   getMediaAssets(userId?: string, projectId?: string): Promise<MediaAsset[]>;
   getMediaAsset(id: string): Promise<MediaAsset | undefined>;
   createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
@@ -519,6 +525,10 @@ export class MemStorage implements IStorage {
   private parts: Map<string, Part>;
   private affiliates: Map<string, Affiliate>;
   private laundromats: Map<string, Laundromat>;
+  private siteProjects: Map<string, SiteProject>;
+  private sitePages: Map<string, SitePage>;
+  private pageSections: Map<string, PageSection>;
+  private websiteTemplates: Map<string, WebsiteTemplate>;
 
   constructor() {
     this.users = new Map();
@@ -530,6 +540,22 @@ export class MemStorage implements IStorage {
     this.parts = new Map();
     this.affiliates = new Map();
     this.laundromats = new Map();
+    this.siteProjects = new Map();
+    this.sitePages = new Map();
+    this.pageSections = new Map();
+    this.websiteTemplates = new Map();
+    
+    // Seed templates on initialization
+    this.seedTemplates();
+  }
+  
+  private async seedTemplates() {
+    // Dynamically import templates to avoid circular dependencies
+    const { laundromatTemplates } = await import("./seed-templates");
+    
+    for (const template of laundromatTemplates) {
+      await this.createWebsiteTemplate(template);
+    }
   }
 
   // Users (Replit Auth compatible)
@@ -625,6 +651,174 @@ export class MemStorage implements IStorage {
 
   async deleteDesign(id: string): Promise<void> {
     this.designs.delete(id);
+  }
+
+  // Site Projects (Website Builder)
+  async getSiteProjects(userId?: string): Promise<SiteProject[]> {
+    const projects = Array.from(this.siteProjects.values());
+    if (userId) {
+      return projects.filter((p) => p.userId === userId);
+    }
+    return projects.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  }
+
+  async getSiteProject(id: string): Promise<SiteProject | undefined> {
+    return this.siteProjects.get(id);
+  }
+
+  async getSiteProjectBySubdomain(subdomain: string): Promise<SiteProject | undefined> {
+    return Array.from(this.siteProjects.values()).find((p) => p.subdomain === subdomain);
+  }
+
+  async createSiteProject(project: InsertSiteProject): Promise<SiteProject> {
+    const id = randomUUID();
+    const now = new Date();
+    const newProject: SiteProject = {
+      ...project,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    } as SiteProject;
+    this.siteProjects.set(id, newProject);
+    return newProject;
+  }
+
+  async updateSiteProject(id: string, project: Partial<InsertSiteProject>): Promise<SiteProject> {
+    const existing = await this.getSiteProject(id);
+    if (!existing) throw new Error("Site project not found");
+    
+    const updated: SiteProject = {
+      ...existing,
+      ...project,
+      updatedAt: new Date(),
+    } as SiteProject;
+    this.siteProjects.set(id, updated);
+    return updated;
+  }
+
+  async deleteSiteProject(id: string): Promise<void> {
+    // Also delete associated pages and sections
+    const pages = Array.from(this.sitePages.values()).filter((p) => p.projectId === id);
+    pages.forEach((page) => {
+      const sections = Array.from(this.pageSections.values()).filter((s) => s.pageId === page.id);
+      sections.forEach((section) => this.pageSections.delete(section.id));
+      this.sitePages.delete(page.id);
+    });
+    this.siteProjects.delete(id);
+  }
+
+  // Site Pages
+  async getSitePages(projectId: string): Promise<SitePage[]> {
+    return Array.from(this.sitePages.values())
+      .filter((p) => p.projectId === projectId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getSitePage(id: string): Promise<SitePage | undefined> {
+    return this.sitePages.get(id);
+  }
+
+  async createSitePage(page: InsertSitePage): Promise<SitePage> {
+    const id = randomUUID();
+    const newPage: SitePage = {
+      ...page,
+      id,
+      createdAt: new Date(),
+    } as SitePage;
+    this.sitePages.set(id, newPage);
+    return newPage;
+  }
+
+  async updateSitePage(id: string, page: Partial<InsertSitePage>): Promise<SitePage> {
+    const existing = await this.getSitePage(id);
+    if (!existing) throw new Error("Site page not found");
+    
+    const updated: SitePage = { ...existing, ...page } as SitePage;
+    this.sitePages.set(id, updated);
+    return updated;
+  }
+
+  async deleteSitePage(id: string): Promise<void> {
+    // Also delete associated sections
+    const sections = Array.from(this.pageSections.values()).filter((s) => s.pageId === id);
+    sections.forEach((section) => this.pageSections.delete(section.id));
+    this.sitePages.delete(id);
+  }
+
+  // Page Sections
+  async getPageSections(pageId: string): Promise<PageSection[]> {
+    return Array.from(this.pageSections.values())
+      .filter((s) => s.pageId === pageId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async getPageSection(id: string): Promise<PageSection | undefined> {
+    return this.pageSections.get(id);
+  }
+
+  async createPageSection(section: InsertPageSection): Promise<PageSection> {
+    const id = randomUUID();
+    const newSection: PageSection = {
+      ...section,
+      id,
+    } as PageSection;
+    this.pageSections.set(id, newSection);
+    return newSection;
+  }
+
+  async updatePageSection(id: string, section: Partial<InsertPageSection>): Promise<PageSection> {
+    const existing = await this.getPageSection(id);
+    if (!existing) throw new Error("Page section not found");
+    
+    const updated: PageSection = { ...existing, ...section } as PageSection;
+    this.pageSections.set(id, updated);
+    return updated;
+  }
+
+  async deletePageSection(id: string): Promise<void> {
+    this.pageSections.delete(id);
+  }
+
+  // Website Templates
+  async getWebsiteTemplates(filters?: { industry?: string; category?: string; isPro?: boolean }): Promise<WebsiteTemplate[]> {
+    let templates = Array.from(this.websiteTemplates.values());
+    
+    if (filters?.industry) {
+      templates = templates.filter((t) => t.industry === filters.industry);
+    }
+    if (filters?.category) {
+      templates = templates.filter((t) => t.category === filters.category);
+    }
+    if (filters?.isPro !== undefined) {
+      templates = templates.filter((t) => t.isPro === filters.isPro);
+    }
+    
+    return templates.sort((a, b) => b.useCount - a.useCount);
+  }
+
+  async getWebsiteTemplate(id: string): Promise<WebsiteTemplate | undefined> {
+    return this.websiteTemplates.get(id);
+  }
+
+  async createWebsiteTemplate(template: InsertWebsiteTemplate): Promise<WebsiteTemplate> {
+    const id = randomUUID();
+    const newTemplate: WebsiteTemplate = {
+      ...template,
+      id,
+      useCount: 0,
+      rating: "0",
+      createdAt: new Date(),
+    } as WebsiteTemplate;
+    this.websiteTemplates.set(id, newTemplate);
+    return newTemplate;
+  }
+
+  async incrementTemplateUseCount(id: string): Promise<void> {
+    const template = await this.getWebsiteTemplate(id);
+    if (template) {
+      const updated = { ...template, useCount: template.useCount + 1 };
+      this.websiteTemplates.set(id, updated);
+    }
   }
 
   // CLEANBI Scores
