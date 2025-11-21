@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Resource } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Calculator,
   FileText,
@@ -44,194 +47,34 @@ const INDUSTRY_SEGMENTS = [
   { id: "customer", label: "Customers", icon: MapPin },
 ];
 
-interface ResourceItem {
-  id: string;
-  title: string;
-  description: string;
-  type: "calculator" | "guide" | "checklist" | "template" | "tool";
-  category: string;
-  targetAudience: string[];
-  difficulty: "beginner" | "intermediate" | "advanced";
-  isPremium: boolean;
-  rating: number;
-  useCount: number;
-  url: string;
-}
-
-const MOCK_RESOURCES: ResourceItem[] = [
-  {
-    id: "1",
-    title: "ROI Calculator Pro",
-    description: "Calculate return on investment with 17-factor CLEANBI™ analysis including equipment depreciation, utility costs, and market dynamics.",
-    type: "calculator",
-    category: "financial",
-    targetAudience: ["owner", "investor", "broker"],
-    difficulty: "intermediate",
-    isPremium: false,
-    rating: 4.8,
-    useCount: 12453,
-    url: "/roi-calculator",
-  },
-  {
-    id: "2",
-    title: "Equipment Maintenance Schedule Template",
-    description: "Preventive maintenance tracking spreadsheet for washers, dryers, and payment systems with automated reminders.",
-    type: "template",
-    category: "operational",
-    targetAudience: ["owner", "technician"],
-    difficulty: "beginner",
-    isPremium: true,
-    rating: 4.9,
-    useCount: 8921,
-    url: "/templates",
-  },
-  {
-    id: "3",
-    title: "Due Diligence Checklist - Laundromat Acquisition",
-    description: "Comprehensive 127-point checklist covering financials, equipment, lease terms, competition, and regulatory compliance.",
-    type: "checklist",
-    category: "legal",
-    targetAudience: ["investor", "broker", "lender"],
-    difficulty: "advanced",
-    isPremium: true,
-    rating: 5.0,
-    useCount: 5643,
-    url: "/resources/due-diligence",
-  },
-  {
-    id: "4",
-    title: "Revenue Per Square Foot Calculator",
-    description: "Benchmark your space efficiency against industry standards. Includes zone analysis and optimization recommendations.",
-    type: "calculator",
-    category: "financial",
-    targetAudience: ["owner", "investor", "broker"],
-    difficulty: "beginner",
-    isPremium: false,
-    rating: 4.7,
-    useCount: 15789,
-    url: "/calculator",
-  },
-  {
-    id: "5",
-    title: "Service Call Efficiency Tracker",
-    description: "Track time per service call, parts usage, and profitability by technician and equipment type.",
-    type: "tool",
-    category: "operational",
-    targetAudience: ["technician", "distributor"],
-    difficulty: "intermediate",
-    isPremium: true,
-    rating: 4.6,
-    useCount: 3201,
-    url: "/resources/service-tracker",
-  },
-  {
-    id: "6",
-    title: "Marketing Budget Allocator",
-    description: "AI-powered budget distribution across Google Ads, Facebook, SEO, and local marketing with projected ROI.",
-    type: "calculator",
-    category: "marketing",
-    targetAudience: ["owner", "marketing_agency"],
-    difficulty: "intermediate",
-    isPremium: false,
-    rating: 4.5,
-    useCount: 7234,
-    url: "/resources/marketing-budget",
-  },
-  {
-    id: "7",
-    title: "Insurance Coverage Analyzer",
-    description: "Evaluate coverage gaps and compare policies for property, liability, equipment breakdown, and business interruption.",
-    type: "guide",
-    category: "legal",
-    targetAudience: ["owner", "insurance_provider"],
-    difficulty: "advanced",
-    isPremium: true,
-    rating: 4.9,
-    useCount: 2156,
-    url: "/resources/insurance-guide",
-  },
-  {
-    id: "8",
-    title: "Loan Pre-Qualification Calculator",
-    description: "Estimate qualification for SBA 7(a), conventional, and seller financing with debt service coverage analysis.",
-    type: "calculator",
-    category: "financial",
-    targetAudience: ["investor", "lender", "broker"],
-    difficulty: "intermediate",
-    isPremium: false,
-    rating: 4.8,
-    useCount: 9876,
-    url: "/funding-matcher",
-  },
-  {
-    id: "9",
-    title: "Grand Opening Marketing Pack",
-    description: "Complete marketing templates: flyers, social media posts, email campaigns, and promotional pricing strategies.",
-    type: "template",
-    category: "marketing",
-    targetAudience: ["owner", "marketing_agency"],
-    difficulty: "beginner",
-    isPremium: true,
-    rating: 4.7,
-    useCount: 4532,
-    url: "/templates",
-  },
-  {
-    id: "10",
-    title: "Vended Laundry Market Analysis Tool",
-    description: "Analyze demographics, competition, and market saturation within any radius using census and proprietary data.",
-    type: "tool",
-    category: "technical",
-    targetAudience: ["investor", "broker", "owner"],
-    difficulty: "advanced",
-    isPremium: false,
-    rating: 4.9,
-    useCount: 6789,
-    url: "/cleanbi",
-  },
-  {
-    id: "11",
-    title: "Equipment Replacement Timeline",
-    description: "Plan capital expenditures with depreciation schedules, expected lifespans, and financing options by equipment type.",
-    type: "guide",
-    category: "operational",
-    targetAudience: ["owner", "distributor", "contractor"],
-    difficulty: "intermediate",
-    isPremium: false,
-    rating: 4.6,
-    useCount: 5421,
-    url: "/resources/equipment-replacement",
-  },
-  {
-    id: "12",
-    title: "Customer Loyalty Program Template",
-    description: "Pre-built reward structures, mobile app integration guides, and retention analytics dashboards.",
-    type: "template",
-    category: "marketing",
-    targetAudience: ["owner", "software_vendor"],
-    difficulty: "intermediate",
-    isPremium: true,
-    rating: 4.8,
-    useCount: 3987,
-    url: "/templates",
-  },
-];
+// Removed MOCK_RESOURCES - using real API data now
 
 export default function ResourcesPage() {
   const [selectedSegment, setSelectedSegment] = useState("all");
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredResources = MOCK_RESOURCES.filter((resource) => {
-    const matchesSegment =
-      selectedSegment === "all" || resource.targetAudience.includes(selectedSegment);
-    const matchesType = !selectedType || resource.type === selectedType;
-    const matchesSearch =
-      !searchQuery ||
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase());
+  // Build query parameters for API
+  const queryParams = new URLSearchParams();
+  if (selectedType) queryParams.append("resourceType", selectedType);
+  if (selectedSegment !== "all") queryParams.append("targetAudience", selectedSegment);
+  if (searchQuery) queryParams.append("searchQuery", searchQuery);
+  
+  const queryString = queryParams.toString();
+  const apiUrl = queryString ? `/api/resources?${queryString}` : "/api/resources";
 
-    return matchesSegment && matchesType && matchesSearch;
+  // Fetch resources from API with filters
+  const { data: resources = [], isLoading, error } = useQuery<Resource[]>({
+    queryKey: [apiUrl],
+    queryFn: async ({ queryKey }) => {
+      const [url] = queryKey as [string];
+      const res = await fetch(url, { credentials: "include" });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch resources: ${res.statusText}`);
+      }
+      return res.json();
+    },
+    enabled: true,
   });
 
   const getTypeIcon = (type: string) => {
@@ -395,71 +238,109 @@ export default function ResourcesPage() {
 
             {/* Results Count */}
             <div className="mb-6">
-              <p className="text-muted-foreground" data-testid="text-results-count">
-                {filteredResources.length} resources found
-              </p>
+              {isLoading ? (
+                <Skeleton className="h-5 w-32" />
+              ) : (
+                <p className="text-muted-foreground" data-testid="text-results-count">
+                  {resources.length} resources found
+                </p>
+              )}
             </div>
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i} className="h-full">
+                    <CardHeader>
+                      <Skeleton className="h-5 w-24 mb-2" />
+                      <Skeleton className="h-6 w-full mb-2" />
+                      <Skeleton className="h-16 w-full" />
+                    </CardHeader>
+                    <CardContent>
+                      <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="text-center py-16">
+                <FileText className="h-16 w-16 text-destructive mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Failed to load resources</h3>
+                <p className="text-muted-foreground mb-6">
+                  {error instanceof Error ? error.message : "An error occurred"}
+                </p>
+              </div>
+            )}
 
             {/* Resources Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredResources.map((resource) => {
-                const TypeIcon = getTypeIcon(resource.type);
-                return (
-                  <Link key={resource.id} href={resource.url}>
-                    <Card className="h-full hover-elevate active-elevate-2 cursor-pointer" data-testid={`card-resource-${resource.id}`}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-2">
-                          <Badge className={getTypeBadgeColor(resource.type)} data-testid={`badge-type-${resource.id}`}>
-                            <TypeIcon className="h-3 w-3 mr-1" />
-                            {resource.type}
-                          </Badge>
-                          {resource.isPremium && (
-                            <Badge className="bg-accent/10 text-accent border-accent/20" data-testid={`badge-premium-${resource.id}`}>
-                              <Crown className="h-3 w-3 mr-1" />
-                              Pro
+            {!isLoading && !error && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {resources.map((resource) => {
+                  const TypeIcon = getTypeIcon(resource.resourceType);
+                  const resourceUrl = resource.url || `/resources/${resource.slug}`;
+                  return (
+                    <Link key={resource.id} href={resourceUrl}>
+                      <Card className="h-full hover-elevate active-elevate-2 cursor-pointer" data-testid={`card-resource-${resource.id}`}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge className={getTypeBadgeColor(resource.resourceType)} data-testid={`badge-type-${resource.id}`}>
+                              <TypeIcon className="h-3 w-3 mr-1" />
+                              {resource.resourceType}
                             </Badge>
-                          )}
-                        </div>
-                        <CardTitle className="text-lg" data-testid={`text-title-${resource.id}`}>{resource.title}</CardTitle>
-                        <CardDescription data-testid={`text-description-${resource.id}`}>{resource.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {/* Stats */}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1" data-testid={`text-rating-${resource.id}`}>
-                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                              <span>{resource.rating}</span>
-                            </div>
-                            <div className="flex items-center gap-1" data-testid={`text-uses-${resource.id}`}>
-                              <Download className="h-4 w-4" />
-                              <span>{resource.useCount.toLocaleString()} uses</span>
-                            </div>
+                            {resource.isPremium && (
+                              <Badge className="bg-accent/10 text-accent border-accent/20" data-testid={`badge-premium-${resource.id}`}>
+                                <Crown className="h-3 w-3 mr-1" />
+                                Pro
+                              </Badge>
+                            )}
                           </div>
+                          <CardTitle className="text-lg" data-testid={`text-title-${resource.id}`}>{resource.title}</CardTitle>
+                          <CardDescription data-testid={`text-description-${resource.id}`}>{resource.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {/* Stats */}
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1" data-testid={`text-rating-${resource.id}`}>
+                                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                <span>{resource.rating ?? "N/A"}</span>
+                              </div>
+                              <div className="flex items-center gap-1" data-testid={`text-uses-${resource.id}`}>
+                                <Download className="h-4 w-4" />
+                                <span>{(resource.useCount || 0).toLocaleString()} uses</span>
+                              </div>
+                            </div>
 
-                          {/* Difficulty */}
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">Difficulty:</span>
-                            <span className={`text-xs font-semibold capitalize ${getDifficultyColor(resource.difficulty)}`} data-testid={`text-difficulty-${resource.id}`}>
-                              {resource.difficulty}
-                            </span>
+                            {/* Difficulty */}
+                            {resource.difficulty && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">Difficulty:</span>
+                                <span className={`text-xs font-semibold capitalize ${getDifficultyColor(resource.difficulty)}`} data-testid={`text-difficulty-${resource.id}`}>
+                                  {resource.difficulty}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Action Button */}
+                            <Button className="w-full" size="sm" data-testid={`button-access-${resource.id}`}>
+                              {resource.isPremium && <Lock className="h-4 w-4 mr-2" />}
+                              {resource.isPremium ? "Unlock with Pro" : "Access Free"}
+                            </Button>
                           </div>
-
-                          {/* Action Button */}
-                          <Button className="w-full" size="sm" data-testid={`button-access-${resource.id}`}>
-                            {resource.isPremium && <Lock className="h-4 w-4 mr-2" />}
-                            {resource.isPremium ? "Unlock with Pro" : "Access Free"}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Empty State */}
-            {filteredResources.length === 0 && (
+            {!isLoading && !error && resources.length === 0 && (
               <div className="text-center py-16">
                 <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2" data-testid="text-no-results">No resources found</h3>
