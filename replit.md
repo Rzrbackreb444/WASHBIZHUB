@@ -45,6 +45,14 @@ Redis for pub/sub, session storage, caching. BullMQ for background jobs. MQTT br
 ### Authentication and Authorization
 The system uses Replit Auth (OIDC) for user authentication, with sessions stored in PostgreSQL via `connect-pg-simple`. Role-based access control is implemented through an `isAdmin` field on the users table. The `isAdmin` middleware protects sensitive administrative operations (creating/updating/deleting resources, vendors, benchmarks). Regular users can view public resources but cannot modify the ecosystem data.
 
+**Security Implementation (November 2025):**
+- **getCurrentUser Helper**: Standardized authentication helper that validates `req.user.claims.sub`, fetches user from storage, and returns null for unauthorized requests
+- **Zod Validation**: All POST/PATCH routes validate request bodies using insert schemas from `@shared/schema.ts` before database operations
+- **Authorization Pattern**: Vendor marketplace routes verify ownership (`store.ownerId === userId`) or admin access (`user.isAdmin`) before updates/deletes
+- **Protected Field Enforcement**: PATCH routes use allowlists to prevent client override of server-controlled fields (ownerId, status, views, sales, reviewCount, featured, verified, etc.)
+- **Slug Collision Prevention**: storeName, storeSlug, and product slug removed from PATCH allowlists to enforce server-side slug management
+- **Equipment Inquiry Security**: Server-controlled fields (assignedTo, status, commissionRate, commissionStatus) enforced for affiliate tracking integrity
+
 ### Resources Hub Implementation (November 2025)
 A comprehensive industry resource ecosystem with three core modules:
 

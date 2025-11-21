@@ -34,6 +34,12 @@ import {
   vendorDirectory,
   vendorReviews,
   industryBenchmarks,
+  vendorStores,
+  vendorProducts,
+  equipmentInquiries,
+  searchIndex,
+  searchAnalytics,
+  emailSubscribers,
   type User,
   type InsertUser,
   type Design,
@@ -100,6 +106,18 @@ import {
   type InsertVendorReview,
   type IndustryBenchmark,
   type InsertIndustryBenchmark,
+  type VendorStore,
+  type InsertVendorStore,
+  type VendorProduct,
+  type InsertVendorProduct,
+  type EquipmentInquiry,
+  type InsertEquipmentInquiry,
+  type SearchIndex,
+  type InsertSearchIndex,
+  type SearchAnalytic,
+  type InsertSearchAnalytic,
+  type EmailSubscriber,
+  type InsertEmailSubscriber,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -1145,6 +1163,294 @@ export class DbStorage implements IStorage {
   async createIndustryBenchmark(benchmark: InsertIndustryBenchmark): Promise<IndustryBenchmark> {
     const result = await db.insert(industryBenchmarks).values(benchmark).returning();
     return result[0];
+  }
+
+  // ============================================================================
+  // VENDOR STORES (Dokan Pro Style Marketplace)
+  // ============================================================================
+  async getVendorStores(filters?: {
+    status?: string;
+    verified?: boolean;
+    featured?: boolean;
+  }): Promise<VendorStore[]> {
+    const conditions: any[] = [];
+    
+    if (filters?.status) {
+      conditions.push(eq(vendorStores.status, filters.status));
+    }
+    if (filters?.verified !== undefined) {
+      conditions.push(eq(vendorStores.verified, filters.verified));
+    }
+    if (filters?.featured !== undefined) {
+      conditions.push(eq(vendorStores.featured, filters.featured));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(vendorStores).where(and(...conditions))
+      : db.select().from(vendorStores);
+    
+    return query.orderBy(desc(vendorStores.createdAt));
+  }
+
+  async getVendorStore(id: string): Promise<VendorStore | undefined> {
+    const result = await db.select().from(vendorStores).where(eq(vendorStores.id, id));
+    return result[0];
+  }
+
+  async getVendorStoreBySlug(slug: string): Promise<VendorStore | undefined> {
+    const result = await db.select().from(vendorStores).where(eq(vendorStores.storeSlug, slug));
+    return result[0];
+  }
+
+  async getVendorStoreByOwner(ownerId: string): Promise<VendorStore | undefined> {
+    const result = await db.select().from(vendorStores).where(eq(vendorStores.ownerId, ownerId));
+    return result[0];
+  }
+
+  async createVendorStore(store: InsertVendorStore): Promise<VendorStore> {
+    const result = await db.insert(vendorStores).values(store).returning();
+    return result[0];
+  }
+
+  async updateVendorStore(id: string, store: Partial<InsertVendorStore>): Promise<VendorStore> {
+    const result = await db.update(vendorStores).set(store).where(eq(vendorStores.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // VENDOR PRODUCTS
+  // ============================================================================
+  async getVendorProducts(filters?: {
+    storeId?: string;
+    category?: string;
+    status?: string;
+    featured?: boolean;
+  }): Promise<VendorProduct[]> {
+    const conditions: any[] = [];
+    
+    if (filters?.storeId) {
+      conditions.push(eq(vendorProducts.storeId, filters.storeId));
+    }
+    if (filters?.category) {
+      conditions.push(eq(vendorProducts.category, filters.category));
+    }
+    if (filters?.status) {
+      conditions.push(eq(vendorProducts.status, filters.status));
+    }
+    if (filters?.featured !== undefined) {
+      conditions.push(eq(vendorProducts.featured, filters.featured));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(vendorProducts).where(and(...conditions))
+      : db.select().from(vendorProducts);
+    
+    return query.orderBy(desc(vendorProducts.createdAt));
+  }
+
+  async getVendorProduct(id: string): Promise<VendorProduct | undefined> {
+    const result = await db.select().from(vendorProducts).where(eq(vendorProducts.id, id));
+    return result[0];
+  }
+
+  async getVendorProductBySlug(slug: string, storeId: string): Promise<VendorProduct | undefined> {
+    const result = await db.select().from(vendorProducts)
+      .where(and(eq(vendorProducts.slug, slug), eq(vendorProducts.storeId, storeId)));
+    return result[0];
+  }
+
+  async createVendorProduct(product: InsertVendorProduct): Promise<VendorProduct> {
+    const result = await db.insert(vendorProducts).values(product).returning();
+    return result[0];
+  }
+
+  async updateVendorProduct(id: string, product: Partial<InsertVendorProduct>): Promise<VendorProduct> {
+    const result = await db.update(vendorProducts).set(product).where(eq(vendorProducts.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteVendorProduct(id: string): Promise<void> {
+    await db.delete(vendorProducts).where(eq(vendorProducts.id, id));
+  }
+
+  async incrementProductViews(id: string): Promise<void> {
+    await db.update(vendorProducts)
+      .set({ views: sql`${vendorProducts.views} + 1` })
+      .where(eq(vendorProducts.id, id));
+  }
+
+  // ============================================================================
+  // EQUIPMENT INQUIRIES (goes to nick@washbizhub.com)
+  // ============================================================================
+  async getEquipmentInquiries(filters?: {
+    status?: string;
+    email?: string;
+  }): Promise<EquipmentInquiry[]> {
+    const conditions: any[] = [];
+    
+    if (filters?.status) {
+      conditions.push(eq(equipmentInquiries.status, filters.status));
+    }
+    if (filters?.email) {
+      conditions.push(eq(equipmentInquiries.email, filters.email));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(equipmentInquiries).where(and(...conditions))
+      : db.select().from(equipmentInquiries);
+    
+    return query.orderBy(desc(equipmentInquiries.createdAt));
+  }
+
+  async getEquipmentInquiry(id: string): Promise<EquipmentInquiry | undefined> {
+    const result = await db.select().from(equipmentInquiries).where(eq(equipmentInquiries.id, id));
+    return result[0];
+  }
+
+  async createEquipmentInquiry(inquiry: InsertEquipmentInquiry): Promise<EquipmentInquiry> {
+    const result = await db.insert(equipmentInquiries).values(inquiry).returning();
+    return result[0];
+  }
+
+  async updateEquipmentInquiry(id: string, inquiry: Partial<InsertEquipmentInquiry>): Promise<EquipmentInquiry> {
+    const result = await db.update(equipmentInquiries).set(inquiry).where(eq(equipmentInquiries.id, id)).returning();
+    return result[0];
+  }
+
+  // ============================================================================
+  // PLATFORM-WIDE SEARCH INDEX
+  // ============================================================================
+  async searchContent(query: string, limit: number = 10): Promise<SearchIndex[]> {
+    const searchQuery = `%${query.toLowerCase()}%`;
+    const result = await db
+      .select()
+      .from(searchIndex)
+      .where(
+        and(
+          eq(searchIndex.isActive, true),
+          sql`LOWER(${searchIndex.title}) LIKE ${searchQuery}`
+        )
+      )
+      .orderBy(desc(searchIndex.searchRank), desc(searchIndex.popularity))
+      .limit(limit);
+    return result;
+  }
+
+  async getSearchIndex(id: string): Promise<SearchIndex | undefined> {
+    const result = await db.select().from(searchIndex).where(eq(searchIndex.id, id));
+    return result[0];
+  }
+
+  async upsertSearchIndex(index: InsertSearchIndex): Promise<SearchIndex> {
+    // Try to find existing entry by contentType + contentId
+    const existing = await db
+      .select()
+      .from(searchIndex)
+      .where(
+        and(
+          eq(searchIndex.contentType, index.contentType),
+          eq(searchIndex.contentId, index.contentId)
+        )
+      );
+
+    if (existing.length > 0) {
+      const result = await db
+        .update(searchIndex)
+        .set({ ...index, updatedAt: new Date() })
+        .where(eq(searchIndex.id, existing[0].id))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db.insert(searchIndex).values(index).returning();
+      return result[0];
+    }
+  }
+
+  async deleteSearchIndex(contentType: string, contentId: string): Promise<void> {
+    await db
+      .delete(searchIndex)
+      .where(
+        and(
+          eq(searchIndex.contentType, contentType),
+          eq(searchIndex.contentId, contentId)
+        )
+      );
+  }
+
+  async incrementSearchPopularity(id: string): Promise<void> {
+    await db.update(searchIndex)
+      .set({ popularity: sql`${searchIndex.popularity} + 1` })
+      .where(eq(searchIndex.id, id));
+  }
+
+  // ============================================================================
+  // SEARCH ANALYTICS
+  // ============================================================================
+  async createSearchAnalytic(analytic: InsertSearchAnalytic): Promise<SearchAnalytic> {
+    const result = await db.insert(searchAnalytics).values(analytic).returning();
+    return result[0];
+  }
+
+  async getPopularSearches(limit: number = 20): Promise<{ query: string; count: number }[]> {
+    const result = await db
+      .select({
+        query: searchAnalytics.query,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(searchAnalytics)
+      .groupBy(searchAnalytics.query)
+      .orderBy(sql`count(*) desc`)
+      .limit(limit);
+    return result;
+  }
+
+  // ============================================================================
+  // EMAIL SUBSCRIBERS (Email Capture & List Management)
+  // ============================================================================
+  async getEmailSubscribers(filters?: {
+    status?: string;
+    tag?: string;
+  }): Promise<EmailSubscriber[]> {
+    const conditions: any[] = [];
+    
+    if (filters?.status) {
+      conditions.push(eq(emailSubscribers.status, filters.status));
+    }
+    if (filters?.tag) {
+      conditions.push(sql`${filters.tag} = ANY(${emailSubscribers.tags})`);
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(emailSubscribers).where(and(...conditions))
+      : db.select().from(emailSubscribers);
+    
+    return query.orderBy(desc(emailSubscribers.subscribedAt));
+  }
+
+  async getEmailSubscriber(email: string): Promise<EmailSubscriber | undefined> {
+    const result = await db.select().from(emailSubscribers).where(eq(emailSubscribers.email, email));
+    return result[0];
+  }
+
+  async getEmailSubscriberById(id: string): Promise<EmailSubscriber | undefined> {
+    const result = await db.select().from(emailSubscribers).where(eq(emailSubscribers.id, id));
+    return result[0];
+  }
+
+  async createEmailSubscriber(subscriber: InsertEmailSubscriber): Promise<EmailSubscriber> {
+    const result = await db.insert(emailSubscribers).values(subscriber).returning();
+    return result[0];
+  }
+
+  async updateEmailSubscriber(email: string, subscriber: Partial<InsertEmailSubscriber>): Promise<EmailSubscriber> {
+    const result = await db.update(emailSubscribers).set(subscriber).where(eq(emailSubscribers.email, email)).returning();
+    return result[0];
+  }
+
+  async unsubscribeEmail(email: string): Promise<void> {
+    await db.update(emailSubscribers)
+      .set({ status: 'unsubscribed', unsubscribedAt: new Date() })
+      .where(eq(emailSubscribers.email, email));
   }
 }
 

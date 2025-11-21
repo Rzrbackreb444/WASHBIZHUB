@@ -671,46 +671,6 @@ export const insertVendorStorefrontSchema = createInsertSchema(vendorStorefronts
 export type InsertVendorStorefront = z.infer<typeof insertVendorStorefrontSchema>;
 export type VendorStorefront = typeof vendorStorefronts.$inferSelect;
 
-// Vendor Products
-export const vendorProducts = pgTable("vendor_products", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  vendorId: varchar("vendor_id").references(() => vendorStorefronts.id),
-  
-  // Product Info
-  name: text("name").notNull(),
-  slug: text("slug").notNull(),
-  sku: text("sku"),
-  description: text("description"),
-  category: text("category").notNull(),
-  
-  // Pricing
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  compareAtPrice: decimal("compare_at_price", { precision: 10, scale: 2 }),
-  
-  // Media
-  images: jsonb("images"), // Array of image URLs
-  
-  // Specs
-  specifications: jsonb("specifications"),
-  
-  // Inventory
-  inStock: boolean("in_stock").default(true).notNull(),
-  
-  // SEO
-  seoTitle: text("seo_title"),
-  seoDescription: text("seo_description"),
-  
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertVendorProductSchema = createInsertSchema(vendorProducts).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertVendorProduct = z.infer<typeof insertVendorProductSchema>;
-export type VendorProduct = typeof vendorProducts.$inferSelect;
-
 // Reviews (for listings, vendors, brokers)
 export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -5407,3 +5367,453 @@ export const insertConsultantProfileSchema = createInsertSchema(consultantProfil
 
 export type InsertConsultantProfile = z.infer<typeof insertConsultantProfileSchema>;
 export type ConsultantProfile = typeof consultantProfiles.$inferSelect;
+
+// ============================================================================
+// ENHANCED BOOK & COURSES - Advanced Learning Features
+// ============================================================================
+// Note: Base courses, lessons, bookChapters, enrollments, bookAccess tables exist above
+
+// Reading Progress
+export const readingProgress = pgTable("reading_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  chapterId: varchar("chapter_id").references(() => bookChapters.id).notNull(),
+  
+  // Progress
+  progressPercent: integer("progress_percent").default(0), // 0-100
+  completed: boolean("completed").default(false),
+  
+  // Engagement
+  timeSpentSeconds: integer("time_spent_seconds").default(0),
+  lastPosition: integer("last_position"), // Scroll position
+  
+  // Bookmarks & Highlights
+  bookmarked: boolean("bookmarked").default(false),
+  highlights: jsonb("highlights"), // [{text, position, note}]
+  notes: text("notes"),
+  
+  lastReadAt: timestamp("last_read_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userChapterIdx: index("reading_progress_user_chapter_idx").on(table.userId, table.chapterId),
+}));
+
+export const insertReadingProgressSchema = createInsertSchema(readingProgress).omit({
+  id: true,
+  lastReadAt: true,
+});
+
+export type InsertReadingProgress = z.infer<typeof insertReadingProgressSchema>;
+export type ReadingProgress = typeof readingProgress.$inferSelect;
+
+// Course Modules (organize lessons)
+export const courseModules = pgTable("course_modules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  courseId: varchar("course_id").references(() => courses.id).notNull(),
+  
+  // Module Info
+  title: text("title").notNull(),
+  description: text("description"),
+  orderIndex: integer("order_index").notNull(),
+  
+  // Stats
+  lessonCount: integer("lesson_count").default(0),
+  durationMinutes: integer("duration_minutes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  courseIdx: index("course_modules_course_idx").on(table.courseId),
+  orderIdx: index("course_modules_order_idx").on(table.orderIndex),
+}));
+
+export const insertCourseModuleSchema = createInsertSchema(courseModules).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCourseModule = z.infer<typeof insertCourseModuleSchema>;
+export type CourseModule = typeof courseModules.$inferSelect;
+
+// Quiz Questions
+export const quizQuestions = pgTable("quiz_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  lessonId: varchar("lesson_id").references(() => lessons.id).notNull(),
+  
+  // Question
+  question: text("question").notNull(),
+  questionType: text("question_type").notNull(), // "multiple_choice", "true_false", "fill_blank"
+  
+  // Options
+  options: jsonb("options").notNull(), // [{text, isCorrect}]
+  correctAnswer: text("correct_answer"),
+  explanation: text("explanation"),
+  
+  // Points
+  points: integer("points").default(1),
+  orderIndex: integer("order_index").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  lessonIdx: index("quiz_questions_lesson_idx").on(table.lessonId),
+}));
+
+export const insertQuizQuestionSchema = createInsertSchema(quizQuestions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertQuizQuestion = z.infer<typeof insertQuizQuestionSchema>;
+export type QuizQuestion = typeof quizQuestions.$inferSelect;
+
+// Lesson Progress
+export const lessonProgress = pgTable("lesson_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  lessonId: varchar("lesson_id").references(() => lessons.id).notNull(),
+  
+  // Progress
+  completed: boolean("completed").default(false),
+  progressPercent: integer("progress_percent").default(0),
+  timeSpentSeconds: integer("time_spent_seconds").default(0),
+  
+  // Quiz Results
+  quizAttempts: integer("quiz_attempts").default(0),
+  quizScore: integer("quiz_score"),
+  quizPassed: boolean("quiz_passed"),
+  
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userLessonIdx: index("lesson_progress_user_lesson_idx").on(table.userId, table.lessonId),
+}));
+
+export const insertLessonProgressSchema = createInsertSchema(lessonProgress).omit({
+  id: true,
+  lastAccessedAt: true,
+});
+
+export type InsertLessonProgress = z.infer<typeof insertLessonProgressSchema>;
+export type LessonProgress = typeof lessonProgress.$inferSelect;
+
+// ============================================================================
+// VENDOR MARKETPLACE - Dokan Pro Style Multi-Vendor System
+// ============================================================================
+
+// Vendor Stores (Storefronts)
+export const vendorStores = pgTable("vendor_stores", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ownerId: varchar("owner_id").references(() => users.id).notNull(),
+  
+  // Store Details
+  storeName: text("store_name").notNull(),
+  storeSlug: text("store_slug").notNull().unique(),
+  description: text("description"),
+  logo: text("logo"),
+  banner: text("banner"),
+  
+  // Contact
+  email: text("email").notNull(),
+  phone: text("phone"),
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: text("zip"),
+  country: text("country").default("US"),
+  
+  // Revenue Sharing
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("15.00"), // 15% to platform
+  
+  // Stats
+  totalProducts: integer("total_products").default(0),
+  totalSales: decimal("total_sales", { precision: 12, scale: 2 }).default("0.00"),
+  totalOrders: integer("total_orders").default(0),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count").default(0),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "active", "suspended"
+  verified: boolean("verified").default(false),
+  featured: boolean("featured").default(false),
+  
+  // Payout
+  stripeAccountId: text("stripe_account_id"), // Stripe Connect
+  payoutSchedule: text("payout_schedule").default("monthly"), // "weekly", "monthly"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  ownerIdx: index("vendor_stores_owner_idx").on(table.ownerId),
+  slugIdx: index("vendor_stores_slug_idx").on(table.storeSlug),
+  statusIdx: index("vendor_stores_status_idx").on(table.status),
+}));
+
+export const insertVendorStoreSchema = createInsertSchema(vendorStores).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVendorStore = z.infer<typeof insertVendorStoreSchema>;
+export type VendorStore = typeof vendorStores.$inferSelect;
+
+// Vendor Products
+export const vendorProducts = pgTable("vendor_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  storeId: varchar("store_id").references(() => vendorStores.id).notNull(),
+  
+  // Product Details
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  description: text("description").notNull(),
+  shortDescription: text("short_description"),
+  
+  // Categorization
+  category: text("category").notNull(), // "equipment", "detergent", "services", "digital", "consulting"
+  subcategory: text("subcategory"),
+  tags: text("tags").array(),
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  compareAtPrice: decimal("compare_at_price", { precision: 10, scale: 2 }),
+  cost: decimal("cost", { precision: 10, scale: 2 }), // Vendor's cost for commission calc
+  
+  // Media
+  images: text("images").array(),
+  featuredImage: text("featured_image"),
+  videoUrl: text("video_url"),
+  
+  // Inventory
+  sku: text("sku"),
+  stock: integer("stock"),
+  trackInventory: boolean("track_inventory").default(false),
+  
+  // Digital Product
+  isDigital: boolean("is_digital").default(false),
+  downloadUrl: text("download_url"),
+  downloadLimit: integer("download_limit"),
+  
+  // Stats
+  views: integer("views").default(0),
+  sales: integer("sales").default(0),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count").default(0),
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords").array(),
+  
+  // Status
+  status: text("status").default("draft"), // "draft", "active", "outofstock", "archived"
+  featured: boolean("featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+}, (table) => ({
+  storeIdx: index("vendor_products_store_idx").on(table.storeId),
+  categoryIdx: index("vendor_products_category_idx").on(table.category),
+  statusIdx: index("vendor_products_status_idx").on(table.status),
+  slugIdx: index("vendor_products_slug_idx").on(table.slug),
+}));
+
+export const insertVendorProductSchema = createInsertSchema(vendorProducts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVendorProduct = z.infer<typeof insertVendorProductSchema>;
+export type VendorProduct = typeof vendorProducts.$inferSelect;
+
+// ============================================================================
+// EQUIPMENT INQUIRY - Distributor Lead Gen to nick@washbizhub.com
+// ============================================================================
+
+// Equipment Inquiries (goes to nick@washbizhub.com)
+export const equipmentInquiries = pgTable("equipment_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Requester Info
+  userId: varchar("user_id").references(() => users.id),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  company: text("company"),
+  
+  // Equipment Details
+  equipmentType: text("equipment_type").notNull(), // "washer", "dryer", "folder", "complete_setup"
+  brand: text("brand"),
+  model: text("model"),
+  quantity: integer("quantity").notNull(),
+  
+  // Location
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zip: text("zip"),
+  
+  // Additional Info
+  timeline: text("timeline"), // "immediate", "1-3 months", "3-6 months", "planning"
+  budget: text("budget"), // "under_50k", "50k_100k", "100k_250k", "250k_plus"
+  message: text("message"),
+  
+  // Distributor Preferences
+  preferredDistributor: text("preferred_distributor"),
+  
+  // Tracking
+  source: text("source"), // "website", "locator", "affiliate"
+  affiliateCode: text("affiliate_code"),
+  
+  // Commission Tracking
+  estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("10.00"), // 10% to nick@washbizhub.com
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }),
+  commissionStatus: text("commission_status").default("pending"), // "pending", "qualified", "paid"
+  
+  // Status
+  status: text("status").default("new"), // "new", "contacted", "quoted", "converted", "lost"
+  assignedTo: text("assigned_to").default("nick@washbizhub.com"),
+  notes: text("notes"),
+  
+  // Follow-up
+  followUpDate: timestamp("follow_up_date"),
+  convertedAt: timestamp("converted_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  emailIdx: index("equipment_inquiries_email_idx").on(table.email),
+  statusIdx: index("equipment_inquiries_status_idx").on(table.status),
+  createdAtIdx: index("equipment_inquiries_created_at_idx").on(table.createdAt),
+}));
+
+export const insertEquipmentInquirySchema = createInsertSchema(equipmentInquiries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertEquipmentInquiry = z.infer<typeof insertEquipmentInquirySchema>;
+export type EquipmentInquiry = typeof equipmentInquiries.$inferSelect;
+
+// ============================================================================
+// PLATFORM-WIDE SEARCH INDEX
+// ============================================================================
+
+// Search Index (for predictive autocomplete across entire platform)
+export const searchIndex = pgTable("search_index", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Content Reference
+  contentType: text("content_type").notNull(), // "product", "vendor", "listing", "course", "blog", "resource"
+  contentId: varchar("content_id").notNull(),
+  contentUrl: text("content_url").notNull(),
+  
+  // Searchable Content
+  title: text("title").notNull(),
+  description: text("description"),
+  keywords: text("keywords").array(),
+  category: text("category"),
+  
+  // Ranking
+  searchRank: integer("search_rank").default(0), // Higher = better
+  popularity: integer("popularity").default(0), // Click count
+  
+  // Metadata
+  imageUrl: text("image_url"),
+  price: decimal("price", { precision: 10, scale: 2 }),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  contentTypeIdx: index("search_index_content_type_idx").on(table.contentType),
+  titleIdx: index("search_index_title_idx").on(table.title),
+  rankIdx: index("search_index_rank_idx").on(table.searchRank),
+  activeIdx: index("search_index_active_idx").on(table.isActive),
+}));
+
+export const insertSearchIndexSchema = createInsertSchema(searchIndex).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertSearchIndex = z.infer<typeof insertSearchIndexSchema>;
+export type SearchIndex = typeof searchIndex.$inferSelect;
+
+// Search Analytics
+export const searchAnalytics = pgTable("search_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Search Details
+  query: text("query").notNull(),
+  resultsCount: integer("results_count").default(0),
+  clickedResult: varchar("clicked_result"), // Search index ID
+  clickPosition: integer("click_position"),
+  
+  // User Info
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: text("session_id"),
+  
+  searchedAt: timestamp("searched_at").defaultNow().notNull(),
+}, (table) => ({
+  queryIdx: index("search_analytics_query_idx").on(table.query),
+  searchedAtIdx: index("search_analytics_searched_at_idx").on(table.searchedAt),
+}));
+
+export const insertSearchAnalyticSchema = createInsertSchema(searchAnalytics).omit({
+  id: true,
+  searchedAt: true,
+});
+
+export type InsertSearchAnalytic = z.infer<typeof insertSearchAnalyticSchema>;
+export type SearchAnalytic = typeof searchAnalytics.$inferSelect;
+
+// ============================================================================
+// EMAIL CAPTURE & LIST MANAGEMENT
+// ============================================================================
+
+// Email Subscribers
+export const emailSubscribers = pgTable("email_subscribers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Contact Info
+  email: text("email").notNull().unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  
+  // Source
+  source: text("source").notNull(), // "popup", "footer", "landing_page", "checkout"
+  referrerUrl: text("referrer_url"),
+  
+  // Segments
+  tags: text("tags").array(), // ["prospect", "customer", "vip"]
+  interests: text("interests").array(), // ["equipment", "marketing", "operations"]
+  
+  // Status
+  status: text("status").default("subscribed"), // "subscribed", "unsubscribed", "bounced"
+  confirmedAt: timestamp("confirmed_at"),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  
+  // Engagement
+  emailsSent: integer("emails_sent").default(0),
+  emailsOpened: integer("emails_opened").default(0),
+  linksClicked: integer("links_clicked").default(0),
+  lastEngagedAt: timestamp("last_engaged_at"),
+  
+  subscribedAt: timestamp("subscribed_at").defaultNow().notNull(),
+}, (table) => ({
+  emailIdx: index("email_subscribers_email_idx").on(table.email),
+  statusIdx: index("email_subscribers_status_idx").on(table.status),
+}));
+
+export const insertEmailSubscriberSchema = createInsertSchema(emailSubscribers).omit({
+  id: true,
+  subscribedAt: true,
+});
+
+export type InsertEmailSubscriber = z.infer<typeof insertEmailSubscriberSchema>;
+export type EmailSubscriber = typeof emailSubscribers.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete platform schema
+// ============================================================================

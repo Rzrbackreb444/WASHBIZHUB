@@ -454,6 +454,48 @@ export interface IStorage {
   
   getActivityEvents(userId?: string, limit?: number): Promise<ActivityEvent[]>;
   createActivityEvent(event: InsertActivityEvent): Promise<ActivityEvent>;
+  
+  // Vendor Stores (Dokan Pro Style Marketplace)
+  getVendorStores(filters?: { status?: string; verified?: boolean; featured?: boolean }): Promise<any[]>;
+  getVendorStore(id: string): Promise<any | undefined>;
+  getVendorStoreBySlug(slug: string): Promise<any | undefined>;
+  getVendorStoreByOwner(ownerId: string): Promise<any | undefined>;
+  createVendorStore(store: any): Promise<any>;
+  updateVendorStore(id: string, store: any): Promise<any>;
+  
+  // Vendor Products
+  getVendorProducts(filters?: { storeId?: string; category?: string; status?: string; featured?: boolean }): Promise<any[]>;
+  getVendorProduct(id: string): Promise<any | undefined>;
+  getVendorProductBySlug(slug: string, storeId: string): Promise<any | undefined>;
+  createVendorProduct(product: any): Promise<any>;
+  updateVendorProduct(id: string, product: any): Promise<any>;
+  deleteVendorProduct(id: string): Promise<void>;
+  incrementProductViews(id: string): Promise<void>;
+  
+  // Equipment Inquiries (goes to nick@washbizhub.com)
+  getEquipmentInquiries(filters?: { status?: string; email?: string }): Promise<any[]>;
+  getEquipmentInquiry(id: string): Promise<any | undefined>;
+  createEquipmentInquiry(inquiry: any): Promise<any>;
+  updateEquipmentInquiry(id: string, inquiry: any): Promise<any>;
+  
+  // Platform-Wide Search
+  searchContent(query: string, limit?: number): Promise<any[]>;
+  getSearchIndex(id: string): Promise<any | undefined>;
+  upsertSearchIndex(index: any): Promise<any>;
+  deleteSearchIndex(contentType: string, contentId: string): Promise<void>;
+  incrementSearchPopularity(id: string): Promise<void>;
+  
+  // Search Analytics
+  createSearchAnalytic(analytic: any): Promise<any>;
+  getPopularSearches(limit?: number): Promise<{ query: string; count: number }[]>;
+  
+  // Email Subscribers
+  getEmailSubscribers(filters?: { status?: string; tag?: string }): Promise<any[]>;
+  getEmailSubscriber(email: string): Promise<any | undefined>;
+  getEmailSubscriberById(id: string): Promise<any | undefined>;
+  createEmailSubscriber(subscriber: any): Promise<any>;
+  updateEmailSubscriber(email: string, subscriber: any): Promise<any>;
+  unsubscribeEmail(email: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
