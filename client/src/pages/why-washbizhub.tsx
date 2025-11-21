@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
   ArrowRight, TrendingUp, Users, Shield, Zap, Globe, Award, 
   BarChart3, Cpu, Heart
@@ -26,19 +27,38 @@ export default function WhyWashBizHub() {
   return (
     <>
       <SEO
-        title="Why WashBizHub - The Bloomberg of Laundromats"
-        description="Discover why 72,000+ laundromat owners trust WashBizHub for enterprise-grade POS, IoT monitoring, AI consulting, and industry resources. The most comprehensive platform for professional laundry business management."
+        title="Why Choose WashBizHub - Enterprise Laundromat Management Platform Features"
+        description="Discover why 72,000+ laundromat owners trust WashBizHub for enterprise-grade POS systems, IoT machine monitoring, AI-powered consulting, CLEANBI™ business scoring, and comprehensive coin laundry industry resources. The Bloomberg of commercial laundry business management."
         canonicalUrl="/why-washbizhub"
         keywords={[
-          "laundromat platform",
-          "why washbizhub",
-          "laundromat management software",
-          "commercial laundry solutions",
-          "laundromat technology"
+          "laundromat management platform benefits",
+          "commercial laundry software features",
+          "laundromat POS system advantages",
+          "IoT laundromat monitoring",
+          "CLEANBI business scoring",
+          "coin laundry consulting services",
+          "enterprise laundromat solutions",
+          "self-service laundry technology",
+          "commercial washing machine management"
         ]}
+        breadcrumbs={[
+          { name: "Why WashBizHub", url: "/why-washbizhub" }
+        ]}
+        author={{
+          name: "WashBizHub Team",
+          expertise: "Laundromat Industry Experts",
+          credentials: "Serving 72,000+ laundromat owners with 50+ years combined industry experience"
+        }}
       />
       
       <div className="min-h-screen bg-background">
+        {/* Breadcrumb Navigation */}
+        <div className="bg-muted/30 border-b">
+          <div className="mx-auto max-w-7xl px-6 py-3">
+            <Breadcrumb items={[{ name: "Why WashBizHub", url: "/why-washbizhub" }]} />
+          </div>
+        </div>
+
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black py-24">
           <div className="absolute inset-0 z-0">
