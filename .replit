@@ -23,6 +23,10 @@ localPort = 34435
 externalPort = 4200
 
 [[ports]]
+localPort = 36393
+externalPort = 6800
+
+[[ports]]
 localPort = 37267
 externalPort = 5000
 
@@ -45,6 +49,10 @@ externalPort = 3003
 [[ports]]
 localPort = 42445
 externalPort = 3002
+
+[[ports]]
+localPort = 46875
+externalPort = 8000
 
 [env]
 PORT = "5000"
@@ -71,4 +79,4 @@ args = "npm run dev"
 waitForPort = 5000
 
 [agent]
-integrations = ["javascript_stripe:1.0.0", "javascript_gemini:1.0.0"]
+integrations = ["javascript_stripe:1.0.0", "javascript_gemini:1.0.0", "javascript_log_in_with_replit:1.0.0"]
