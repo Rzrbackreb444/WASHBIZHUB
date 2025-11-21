@@ -243,6 +243,15 @@ export interface IStorage {
   // Listings (Marketplace)
   getListings(status?: string, state?: string): Promise<Listing[]>;
   getListing(id: string): Promise<Listing | undefined>;
+  getListingsByUserId(userId: string): Promise<Listing[]>;
+  createListing(listing: InsertListing): Promise<Listing>;
+  updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
+  deleteListing(id: string): Promise<void>;
+  
+  // Broker Profiles
+  getBrokerProfileByUserId(userId: string): Promise<BrokerProfile | undefined>;
+  createBrokerProfile(profile: InsertBrokerProfile): Promise<BrokerProfile>;
+  updateBrokerProfile(id: string, profile: Partial<InsertBrokerProfile>): Promise<BrokerProfile>;
   
   // Templates (Premium)
   getTemplates(filters?: { category?: string; featured?: boolean }): Promise<Template[]>;
@@ -250,9 +259,6 @@ export interface IStorage {
   createTemplate(template: InsertTemplate): Promise<Template>;
   updateTemplate(id: string, template: Partial<InsertTemplate>): Promise<Template>;
   recordTemplateDownload(templateId: string, userId: string, isPaid: boolean, amount?: number): Promise<TemplateDownload>;
-  createListing(listing: InsertListing): Promise<Listing>;
-  updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
-  deleteListing(id: string): Promise<void>;
   
   // Resources (Comprehensive Industry Library)
   getResources(filters?: { 
