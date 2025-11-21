@@ -390,7 +390,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/affiliates/:id/track-click", async (req, res) => {
     try {
-      await storage.trackAffiliateClick(req.params.id);
+      await storage.trackAffiliateClick({
+        affiliateTag: req.params.id,
+        targetUrl: req.body.targetUrl || '',
+      });
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -400,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/affiliates/:id/track-sale", async (req, res) => {
     try {
       const { amount } = req.body;
-      await storage.trackAffiliateSale(req.params.id, amount);
+      await storage.trackAffiliateSaleSimple(req.params.id, amount);
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2012,7 +2015,7 @@ Disallow: /private/`;
       await storage.createSearchAnalytic({
         query: q,
         resultsCount: results.length,
-        userId: req.user?.id,
+        userId: req.user?.claims?.sub || null,
         sessionId: req.sessionID,
       });
       
@@ -2214,24 +2217,26 @@ Disallow: /private/`;
       }
 
       // Generate unique affiliate code
-      let affiliateCode = generateAffiliateCode(user.firstName || user.email);
+      const baseName = user.firstName || user.email || 'USER';
+      let affiliateCode = generateAffiliateCode(baseName);
       let attempts = 0;
       while (attempts < 10) {
         const existingCode = await storage.getAffiliates();
         if (!existingCode.some(a => a.affiliateCode === affiliateCode)) {
           break;
         }
-        affiliateCode = generateAffiliateCode(user.firstName || user.email) + Math.random().toString(36).substring(2, 3).toUpperCase();
+        affiliateCode = generateAffiliateCode(baseName) + Math.random().toString(36).substring(2, 3).toUpperCase();
         attempts++;
       }
 
       const { displayName, bio, website, socialLinks } = req.body;
-
+      
+      const emailFallback = user.email ? user.email.split('@')[0] : 'User';
       const affiliate = await storage.createAffiliate({
         userId,
         affiliateCode,
         affiliateTag: affiliateCode, // Use same as code by default
-        displayName: displayName || user.firstName || user.email.split('@')[0],
+        displayName: displayName || user.firstName || emailFallback,
         bio: bio || null,
         website: website || null,
         socialLinks: socialLinks || null,

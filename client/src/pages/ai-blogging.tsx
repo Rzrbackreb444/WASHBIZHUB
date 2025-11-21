@@ -59,16 +59,13 @@ export default function AIBlogging() {
 
   const createTaskMutation = useMutation({
     mutationFn: async (data: typeof newTask) => {
-      const response = await apiRequest("/api/ai-blog-tasks", {
-        method: "POST",
-        body: JSON.stringify({
-          userId,
-          topic: data.topic,
-          keywords: data.keywords.split(",").map(k => k.trim()).filter(Boolean),
-          aiProvider: data.aiProvider,
-          targetWordCount: data.targetWordCount,
-          status: "pending",
-        }),
+      const response = await apiRequest("POST", "/api/ai-blog-tasks", {
+        userId,
+        topic: data.topic,
+        keywords: data.keywords.split(",").map(k => k.trim()).filter(Boolean),
+        aiProvider: data.aiProvider,
+        targetWordCount: data.targetWordCount,
+        status: "pending",
       });
       return response.json();
     },
@@ -92,9 +89,7 @@ export default function AIBlogging() {
 
   const generateMutation = useMutation({
     mutationFn: async (taskId: string) => {
-      const response = await apiRequest(`/api/ai-blog-tasks/${taskId}/generate`, {
-        method: "POST",
-      });
+      const response = await apiRequest("POST", `/api/ai-blog-tasks/${taskId}/generate`);
       return response.json();
     },
     onSuccess: () => {
@@ -115,9 +110,7 @@ export default function AIBlogging() {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
-      await apiRequest(`/api/ai-blog-tasks/${taskId}`, {
-        method: "DELETE",
-      });
+      await apiRequest("DELETE", `/api/ai-blog-tasks/${taskId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai-blog-tasks"] });
