@@ -8,6 +8,15 @@ The platform combines: 2D/3D design studio, 17-factor CLEANBI™ scoring, buying
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Contact Information
+- **Primary Contact:** Nick - SMS/WhatsApp: 1-479-883-4314
+- **Email Addresses:**
+  - nick@washbizhub.com (primary contact)
+  - info@washbizhub.com (auto/manual hybrid newsletter)
+  - consult@washbizhub.com (consultation inquiries)
+  - funding@washbizhub.com (financing inquiries)
+- **Email Service Providers:** Resend, SendGrid
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -89,6 +98,27 @@ A comprehensive industry resource ecosystem with three core modules:
 2. React Query queryFn must extract URL from queryKey parameter to avoid stale closure bugs
 3. Empty filter arrays must be handled before calling `and()` to prevent SQL errors
 4. Admin operations require `isAdmin=true` flag verification on user records
+
+### Newsletter Subscription System (November 2025)
+Email capture and subscriber management system for marketing automation:
+
+**Features:**
+- Three component variants: hero (full-featured), default (standard form), compact (minimal footer version)
+- Email validation and duplicate prevention
+- Source tracking (home_page, footer, resources_page, etc.)
+- Admin dashboard for subscriber management with status filtering
+
+**Technical Implementation:**
+- **Backend Routes**: POST /api/newsletter/subscribe, GET /api/newsletter/subscribers (admin-only), POST /api/newsletter/unsubscribe
+- **Database Table**: `email_subscribers` with email, firstName, source, status, subscribedAt, tags
+- **Component**: NewsletterSignup.tsx with React Hook Form + Zod validation, TanStack Query mutations
+- **Integration**: Deployed on home page hero section, ready for site-wide footer/sidebar placement
+- **Email Service**: Configured for Resend/SendGrid integration via info@washbizhub.com
+
+**Deployment:**
+- Home page hero section (variant="hero")
+- Site-wide footer placement (pending)
+- Resources/templates pages (pending)
 
 ## External Dependencies
 
