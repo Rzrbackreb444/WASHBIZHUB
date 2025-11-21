@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, type SQL } from "drizzle-orm";
 import {
   users,
   designs,
@@ -42,7 +42,7 @@ import {
   emailSubscribers,
   websiteTemplates,
   type User,
-  type InsertUser,
+  type UpsertUser,
   type Design,
   type InsertDesign,
   type CleanbiScore,
@@ -133,17 +133,12 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.username, username));
-    return result[0];
-  }
-
   async getUserByEmail(email: string): Promise<User | undefined> {
     const result = await db.select().from(users).where(eq(users.email, email));
     return result[0];
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: UpsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
     return result[0];
   }
@@ -654,13 +649,13 @@ export class DbStorage implements IStorage {
   // ============================================================================
   // LISTINGS (MARKETPLACE)
   // ============================================================================
-  async getListings(status?: string, state?: string): Promise<Listing[]> {
+  async getListings(status?: string, region?: string): Promise<Listing[]> {
     const conditions = [];
     if (status) {
       conditions.push(eq(listings.status, status));
     }
-    if (state) {
-      conditions.push(eq(listings.state, state));
+    if (region) {
+      conditions.push(eq(listings.region, region));
     }
     
     if (conditions.length > 0) {
