@@ -281,7 +281,7 @@ export default function ResourcesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {resources.map((resource) => {
                   const TypeIcon = getTypeIcon(resource.resourceType);
-                  const resourceUrl = resource.url || `/resources/${resource.slug}`;
+                  const resourceUrl = `/resources/${resource.slug}`;
                   return (
                     <Link key={resource.id} href={resourceUrl}>
                       <Card className="h-full hover-elevate active-elevate-2 cursor-pointer" data-testid={`card-resource-${resource.id}`}>
