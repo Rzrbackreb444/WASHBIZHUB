@@ -1874,3 +1874,72 @@ export const insertListingPremiumPurchaseSchema = createInsertSchema(listingPrem
 
 export type InsertListingPremiumPurchase = z.infer<typeof insertListingPremiumPurchaseSchema>;
 export type ListingPremiumPurchase = typeof listingPremiumPurchases.$inferSelect;
+
+// ============================================================================
+// PREMIUM TEMPLATES (Design, Business Setup, Marketing Packages)
+// ============================================================================
+
+export const templates = pgTable("templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template Metadata
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "design", "business", "marketing", "operations"
+  subcategory: text("subcategory"), // "layout", "equipment", "branding", "social_media", etc.
+  
+  // Content
+  preview: text("preview"), // Preview image/thumbnail
+  content: jsonb("content").notNull(), // Template data (layout, config, checklist, etc)
+  
+  // Pricing & Access
+  isPremium: boolean("is_premium").notNull().default(true),
+  price: decimal("price", { precision: 10, scale: 2 }), // USD price for individual purchase
+  stripeProductId: text("stripe_product_id"), // Stripe product ID for payment
+  
+  // Metadata
+  tags: text("tags").array(), // Search tags
+  featured: boolean("featured").notNull().default(false),
+  viewCount: integer("view_count").default(0).notNull(),
+  downloadCount: integer("download_count").default(0).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }), // Average rating 0-5
+  reviewCount: integer("review_count").default(0).notNull(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertTemplateSchema = createInsertSchema(templates).omit({
+  id: true,
+  viewCount: true,
+  downloadCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
+export type Template = typeof templates.$inferSelect;
+
+// Template Downloads (Track user access to templates)
+export const templateDownloads = pgTable("template_downloads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").references(() => templates.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Payment
+  isPaid: boolean("is_paid").notNull().default(false),
+  amount: decimal("amount", { precision: 10, scale: 2 }),
+  stripePaymentId: text("stripe_payment_id"),
+  
+  // Timestamps
+  downloadedAt: timestamp("downloaded_at").defaultNow().notNull(),
+});
+
+export const insertTemplateDownloadSchema = createInsertSchema(templateDownloads).omit({
+  id: true,
+  downloadedAt: true,
+});
+
+export type InsertTemplateDownload = z.infer<typeof insertTemplateDownloadSchema>;
+export type TemplateDownload = typeof templateDownloads.$inferSelect;
