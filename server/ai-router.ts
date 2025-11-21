@@ -15,20 +15,20 @@
  * - Grok (xAI): Check availability
  */
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 
 // Initialize clients (lazy-loaded to save memory)
-let geminiClient: GoogleGenAI | null = null;
+let geminiClient: GoogleGenerativeAI | null = null;
 let anthropicClient: Anthropic | null = null;
 let openaiClient: OpenAI | null = null;
 
-function getGeminiClient(): GoogleGenAI {
+function getGeminiClient(): GoogleGenerativeAI {
   if (!geminiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
-    geminiClient = new GoogleGenAI({ apiKey });
+    geminiClient = new GoogleGenerativeAI(apiKey);
   }
   return geminiClient;
 }
@@ -188,13 +188,11 @@ async function executeGeminiRequest(
   options: any
 ): Promise<string> {
   const client = getGeminiClient();
-  const model = client.models.generateContent({
-    model: config.model,
-    contents: prompt,
-  });
-
-  const response = await model;
-  return response.text || "";
+  const model = client.getGenerativeModel({ model: config.model });
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  
+  return response.text() || "";
 }
 
 /**
