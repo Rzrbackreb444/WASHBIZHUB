@@ -14,7 +14,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black py-16 border-t border-primary/20">
+    <footer className="bg-[hsl(215,25%,16%)] py-16 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
