@@ -1589,6 +1589,41 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // ==================== SEO: ROBOTS.TXT ====================
+  app.get("/robots.txt", (_req, res) => {
+    const baseUrl = process.env.VITE_BASE_URL || "https://washbizhub.com";
+    const robotsTxt = `# WashBizHub - The Bloomberg of Laundromats
+# ${baseUrl}
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: ${baseUrl}/sitemap.xml
+
+# Crawl-delay for respectful bots
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block sensitive areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/`;
+
+    res.header('Content-Type', 'text/plain');
+    res.send(robotsTxt);
+  });
+
   // ==================== SEO: SITEMAP.XML ====================
   app.get("/sitemap.xml", async (req, res) => {
     try {

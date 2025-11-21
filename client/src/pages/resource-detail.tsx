@@ -82,9 +82,17 @@ export default function ResourceDetail() {
   };
 
   const getStructuredData = () => {
-    const baseUrl = window.location.origin;
+    // SSR-safe base URL
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : import.meta.env.VITE_BASE_URL || "https://washbizhub.com";
     
     if (resource.resourceType === "calculator") {
+      // Use actual resource price, converting DECIMAL string to number
+      const price = resource.isPremium && resource.price 
+        ? Number(resource.price).toFixed(2)
+        : "0";
+      
       return {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -93,12 +101,12 @@ export default function ResourceDetail() {
         "applicationCategory": "BusinessApplication",
         "offers": {
           "@type": "Offer",
-          "price": resource.isPremium ? "19.99" : "0",
+          "price": price,
           "priceCurrency": "USD"
         },
         "aggregateRating": resource.rating ? {
           "@type": "AggregateRating",
-          "ratingValue": resource.rating,
+          "ratingValue": Number(resource.rating), // Convert DECIMAL string to number
           "bestRating": "5",
           "ratingCount": resource.useCount || 1
         } : undefined
