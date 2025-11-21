@@ -14,11 +14,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-48">
-          {/* Logo - 3x larger */}
+        <div className="flex items-center justify-between h-64 py-4">
+          {/* Logo - Extra large */}
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer" data-testid="link-logo">
-              <img src={logoUrl} alt="WashBizHub" className="h-36 w-auto" />
+              <img src={logoUrl} alt="WashBizHub" className="h-56 w-auto" />
             </div>
           </Link>
 
@@ -102,7 +102,7 @@ export function Header() {
         {/* Mega Menu Panel */}
         {megaMenuOpen && (
           <div 
-            className="absolute left-0 right-0 top-48 bg-card border-b border-border shadow-2xl"
+            className="absolute left-0 right-0 top-64 bg-card border-b border-border shadow-2xl"
             onMouseEnter={() => setMegaMenuOpen(true)}
             onMouseLeave={() => setMegaMenuOpen(false)}
             data-testid="mega-menu-panel"
