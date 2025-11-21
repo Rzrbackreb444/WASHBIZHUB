@@ -152,6 +152,20 @@ export function Header() {
                         </div>
                       </Link>
                     </li>
+                    <li>
+                      <Link href="/website-templates">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-website-templates">
+                          Website Templates
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/website-builder">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-website-builder">
+                          Website Builder
+                        </div>
+                      </Link>
+                    </li>
                   </ul>
                 </div>
 
@@ -249,6 +263,16 @@ export function Header() {
                         </div>
                       </Link>
                     </li>
+                    <li className="pt-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Partners</p>
+                    </li>
+                    <li>
+                      <Link href="/atm-services">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-atm-depot">
+                          ATM Depot Services
+                        </div>
+                      </Link>
+                    </li>
                   </ul>
                 </div>
 
@@ -301,6 +325,13 @@ export function Header() {
                       <Link href="/consultation">
                         <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-consultation">
                           Book Consultation
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/affiliate">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-affiliate">
+                          Affiliate Program
                         </div>
                       </Link>
                     </li>

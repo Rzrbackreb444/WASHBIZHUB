@@ -256,6 +256,25 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  // Seed website templates if needed
+  async function seedTemplatesIfNeeded() {
+    try {
+      const { laundromatTemplates } = await import("./seed-templates.js");
+      const existing = await storage.getWebsiteTemplates();
+      if (existing.length === 0) {
+        log("📦 Seeding website templates...");
+        for (const template of laundromatTemplates) {
+          await storage.createWebsiteTemplate(template);
+        }
+        log(`✅ Seeded ${laundromatTemplates.length} templates`);
+      } else {
+        log(`✅ ${existing.length} templates already in database`);
+      }
+    } catch (error: any) {
+      console.error("⚠️  Error seeding templates:", error.message);
+    }
+  }
+
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
@@ -265,7 +284,8 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    await seedTemplatesIfNeeded();
   });
 })();
