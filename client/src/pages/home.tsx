@@ -7,9 +7,13 @@ import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
-  Building2, Rocket, TrendingUp, ArrowRight
+  Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import modernMachinesImg from "@assets/IMG_5795_1763738809544.jpeg";
+import industrialRowImg from "@assets/IMG_5793_1763738809544.jpeg";
+import vintageImg from "@assets/IMG_5792_1763738809544.jpeg";
+import lifestyleImg from "@assets/IMG_5788_1763738809544.jpeg";
 
 export default function Home() {
   const structuredData = {
@@ -59,6 +63,160 @@ export default function Home() {
       
       {/* Value Props */}
       <ValuePropCards />
+
+      {/* Feature Section 1: Enterprise Equipment */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-lg order-2 lg:order-1">
+              <img 
+                src={modernMachinesImg} 
+                alt="Modern commercial laundry equipment"
+                className="w-full h-[400px] lg:h-[500px] object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
+            </div>
+            {/* Content */}
+            <div className="order-1 lg:order-2">
+              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Shield className="w-3 h-3 mr-1" />
+                Enterprise Grade
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 uppercase tracking-tight">
+                Built For Professional Operations
+              </h2>
+              <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                WashBizHub powers laundromats across North America with enterprise-grade POS systems, 
+                IoT machine monitoring, and real-time business intelligence. Track every transaction, 
+                monitor equipment health, and optimize operations from a single platform.
+              </p>
+              <div className="space-y-3 mb-8">
+                {["Real-time POS & inventory tracking", "IoT machine diagnostics", "Multi-location dashboard"].map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    <span className="text-white/90">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/cleanbi">
+                <Button 
+                  size="lg"
+                  className="bg-primary text-primary-foreground hover-elevate active-elevate-2"
+                  data-testid="button-feature-cleanbi"
+                >
+                  Explore CLEANBI™
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 2: IoT Analytics */}
+      <section className="py-16 sm:py-24 bg-muted/30">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Content */}
+            <div>
+              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
+                <Zap className="w-3 h-3 mr-1" />
+                Smart Analytics
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6 uppercase tracking-tight">
+                Predictive Maintenance & Real-Time Insights
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                Stop breakdowns before they happen. Our IoT sensors monitor temperature, vibration, 
+                and water flow across all machines, alerting you to issues before customers notice. 
+                Reduce downtime by 40% and extend equipment life.
+              </p>
+              <div className="space-y-3 mb-8">
+                {["2,800+ diagnostic codes", "Automated maintenance alerts", "Energy consumption tracking"].map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                    <span className="text-foreground/90">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/design-studio">
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="hover-elevate active-elevate-2"
+                  data-testid="button-feature-design"
+                >
+                  Design Your Layout
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-lg">
+              <img 
+                src={industrialRowImg} 
+                alt="Industrial laundromat equipment row"
+                className="w-full h-[400px] lg:h-[500px] object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tl from-accent/20 to-transparent" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 3: Industry Heritage */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-lg order-2 lg:order-1">
+              <img 
+                src={vintageImg} 
+                alt="Vintage laundromat heritage"
+                className="w-full h-[400px] lg:h-[500px] object-cover grayscale"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-transparent" />
+            </div>
+            {/* Content */}
+            <div className="order-1 lg:order-2">
+              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Users className="w-3 h-3 mr-1" />
+                Trusted Heritage
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 uppercase tracking-tight">
+                72,000 Owners. Decades Of Expertise.
+              </h2>
+              <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                From Facebook's largest laundromat community to The Laundromat Bible—we've built 
+                the industry's most comprehensive knowledge base. Now available as an AI-powered 
+                consultant trained on every best practice, diagnostic code, and success story.
+              </p>
+              <div className="space-y-3 mb-8">
+                {["72,000+ community members", "The Laundromat Bible + Courses", "AI-powered business consultant"].map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    <span className="text-white/90">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/book">
+                <Button 
+                  size="lg"
+                  className="bg-primary text-primary-foreground hover-elevate active-elevate-2"
+                  data-testid="button-feature-book"
+                >
+                  Get The Complete Guide
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Templates Section */}
       <section className="py-16 sm:py-24 bg-background">
@@ -293,6 +451,51 @@ export default function Home() {
                 </Card>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
+        {/* Background Image with Strong Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={lifestyleImg} 
+            alt="Happy laundromat customer"
+            className="w-full h-full object-cover opacity-20"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/90 to-gray-900/95" />
+        </div>
+        
+        <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8 text-center">
+          <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 mx-auto">
+            <Users className="w-3 h-3 mr-1" />
+            Customer Success
+          </Badge>
+          <blockquote className="mb-8">
+            <p className="text-2xl sm:text-3xl font-bold text-white mb-6 italic">
+              "WashBizHub transformed how we run our 3 locations. The IoT monitoring caught a bearing 
+              failure before it destroyed a $4,000 machine. The platform paid for itself in one month."
+            </p>
+            <footer className="flex items-center justify-center gap-4">
+              <div className="text-left">
+                <div className="text-lg font-semibold text-white">Maria Gonzalez</div>
+                <div className="text-sm text-white/60">Owner, Clean Spin Laundromats • Chicago, IL</div>
+              </div>
+            </footer>
+          </blockquote>
+          <div className="grid sm:grid-cols-3 gap-8 mt-12 pt-12 border-t border-white/10">
+            {[
+              { value: "72,000+", label: "Industry Members" },
+              { value: "40%", label: "Downtime Reduction" },
+              { value: "$1.2M+", label: "Saved in Repairs" },
+            ].map((stat, idx) => (
+              <div key={idx}>
+                <div className="text-4xl font-bold text-primary mb-2">{stat.value}</div>
+                <div className="text-sm text-white/70 uppercase tracking-wide">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

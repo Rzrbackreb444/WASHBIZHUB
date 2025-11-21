@@ -1,19 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-muted/30 to-background">
-      {/* Background Image with Overlay */}
+    <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      {/* Background Image with Dark Overlay */}
       <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center blur-sm opacity-20"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?q=80&w=2070')",
-          }}
+        <img 
+          src={heroImage} 
+          alt="Professional commercial laundry equipment"
+          className="w-full h-full object-cover"
+          loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+        {/* 70% dark navy gradient overlay for Bloomberg aesthetic */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/85 to-gray-900/90" />
       </div>
 
       {/* Hero Content */}
