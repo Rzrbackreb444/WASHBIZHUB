@@ -1676,6 +1676,19 @@ Disallow: /private/`;
     }
   });
 
+  // GET /api/vendor-stores/slug/:slug - Get vendor store by slug
+  app.get("/api/vendor-stores/slug/:slug", async (req, res) => {
+    try {
+      const store = await storage.getVendorStoreBySlug(req.params.slug);
+      if (!store) {
+        return res.status(404).json({ error: "Store not found" });
+      }
+      res.json(store);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // POST /api/vendor-stores - Create vendor store
   app.post("/api/vendor-stores", async (req, res) => {
     try {
@@ -1776,6 +1789,37 @@ Disallow: /private/`;
       // Increment views
       await storage.incrementProductViews(req.params.id);
       res.json(product);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/vendor-products/slug/:slug - Get product by slug
+  app.get("/api/vendor-products/slug/:slug", async (req, res) => {
+    try {
+      const { storeId } = req.query;
+      if (!storeId) {
+        return res.status(400).json({ error: "storeId query parameter is required" });
+      }
+      const product = await storage.getVendorProductBySlug(req.params.slug, storeId as string);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      // Increment views
+      await storage.incrementProductViews(product.id);
+      res.json(product);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/vendor-products/store/:storeId - Get products for a store
+  app.get("/api/vendor-products/store/:storeId", async (req, res) => {
+    try {
+      const products = await storage.getVendorProducts({
+        storeId: req.params.storeId,
+      });
+      res.json(products);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
