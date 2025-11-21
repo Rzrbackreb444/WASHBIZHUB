@@ -141,7 +141,70 @@ This multi-provider strategy ensures flexibility, cost optimization, and redunda
 - **React Hook Form + Zod:** Form validation.
 
 ### Third-Party Integrations
-- **Amazon Affiliate Program:** For product marketplace links.
-- **ATTOM Data:** For real estate and demographic data.
-- **Mapbox:** For location mapping and analysis.
-- **Email Services:** For user notifications and marketing.
+- **Amazon Affiliate Program:** Product marketplace links using nicholaskreme-20 storefront API
+- **ATTOM Data:** For real estate and demographic data
+- **Mapbox:** For location mapping and analysis
+- **Email Services:** For user notifications and marketing
+
+## Recent Feature Requests (November 21, 2025)
+
+### AI Agents That Learn
+- Conversation memory system: agents remember and improve from every interaction
+- Context tracking across sessions
+- Learning loops: agents get smarter over time
+- Knowledge graph building from user conversations
+
+### Template System
+- Website builder: save designs as reusable templates
+- Template library with community sharing
+- Version control for templates
+- Template marketplace
+
+### Canva-Style Logo Builder
+- Drag-and-drop interface
+- Shapes, text, icons library
+- SVG export and PNG download
+- Brand kit integration
+
+### Platform-Wide Advertising
+- Banner ad placement system
+- Logo ad management
+- Analytics dashboard for ad performance
+- Advertiser portal
+
+### Featured Listings & SEO
+- Homepage featured content carousel
+- Blog integration for listings
+- Rich meta tags and social sharing
+- Search engine optimization throughout
+
+### Global Platform Search
+- Unified search across all content types
+- Autocomplete with suggestions
+- Search analytics and trending queries
+- Quick search in header
+
+### POS System Enhancements
+- Integrated calculators (all 50+)
+- Template library access
+- AI diagnostics with parts ordering
+- Predictive maintenance alerts
+
+### UGC & Affiliate Enhancements
+- User-generated content moderation
+- Viral sharing mechanisms
+- 20% commission tracking
+- Influencer program management
+
+### Book & Course Interactivity
+- Interactive exercises
+- Progress tracking
+- Quizzes and assessments
+- Certificate generation
+- Discussion forums per lesson
+
+### Amazon Storefront Integration
+- API integration with nicholaskreme-20
+- Product recommendations
+- Automated affiliate linking
+- Revenue tracking

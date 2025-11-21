@@ -2016,12 +2016,14 @@ Disallow: /private/`;
       const results = await storage.searchContent(q, limit ? parseInt(limit as string) : 10);
       
       // Track search analytics
-      await storage.createSearchAnalytic({
-        query: q,
-        resultsCount: results.length,
-        userId: req.user?.claims?.sub || null,
-        sessionId: req.sessionID,
-      });
+      if (req.user?.claims) {
+        await storage.createSearchAnalytic({
+          query: q,
+          resultsCount: results.length,
+          userId: req.user.claims.sub || null,
+          sessionId: req.sessionID,
+        });
+      }
       
       res.json(results);
     } catch (error: any) {
@@ -2501,7 +2503,7 @@ Disallow: /private/`;
         firstName: firstName || null,
         source: source || 'website',
         status: 'active',
-        subscribedAt: new Date().toISOString(),
+        createdAt: new Date(),
       });
 
       res.json({ message: "Successfully subscribed", subscriber });

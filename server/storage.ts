@@ -15,6 +15,8 @@ import {
   type InsertPart,
   type Affiliate,
   type InsertAffiliate,
+  type AffiliateClick,
+  type InsertAffiliateClick,
   type Laundromat,
   type InsertLaundromat,
   type Course,
@@ -37,6 +39,8 @@ import {
   type InsertConsultation,
   type Listing,
   type InsertListing,
+  type BrokerProfile,
+  type InsertBrokerProfile,
   type Template,
   type InsertTemplate,
   type TemplateDownload,
@@ -329,7 +333,7 @@ export interface IStorage {
   getUserVote(userId: string, entityType: string, entityId: string): Promise<ForumVote | undefined>;
   createForumVote(vote: InsertForumVote): Promise<ForumVote>;
   updateForumVote(id: string, voteType: number): Promise<ForumVote>;
-  deleteForumVote(id: string): Promise<void>;
+  deleteForumVote(userId: string, entityType: string, entityId: string): Promise<void>;
   
   getUserReputation(userId: string): Promise<number>;
   getReputationEvents(userId: string): Promise<ReputationEvent[]>;
@@ -399,10 +403,6 @@ export interface IStorage {
   getMediaAsset(id: string): Promise<MediaAsset | undefined>;
   createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
   deleteMediaAsset(id: string): Promise<void>;
-  
-  getWebsiteTemplates(filters?: { industry?: string; category?: string }): Promise<WebsiteTemplate[]>;
-  getWebsiteTemplate(id: string): Promise<WebsiteTemplate | undefined>;
-  createWebsiteTemplate(template: InsertWebsiteTemplate): Promise<WebsiteTemplate>;
   
   // Logo Builder
   getLogoProjects(userId: string): Promise<LogoProject[]>;
