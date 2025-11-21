@@ -4782,3 +4782,628 @@ export const insertCohortAnalysisSchema = createInsertSchema(cohortAnalysis).omi
 
 export type InsertCohortAnalysis = z.infer<typeof insertCohortAnalysisSchema>;
 export type CohortAnalysis = typeof cohortAnalysis.$inferSelect;
+
+// ============================================================================
+// ADVANCED SEO/AEO SUITE (Beat SearchAtlas, Ahrefs, Yoast)
+// ============================================================================
+
+// Content Analyses - Real-time on-page SEO scoring
+export const contentAnalyses = pgTable("content_analyses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  url: text("url").notNull(),
+  content: text("content").notNull(),
+  
+  // Target Keywords
+  primaryKeyword: text("primary_keyword").notNull(),
+  secondaryKeywords: text("secondary_keywords").array(),
+  
+  // SEO Scores (0-100)
+  overallScore: integer("overall_score").notNull(),
+  keywordOptimization: integer("keyword_optimization"),
+  readabilityScore: integer("readability_score"),
+  technicalSeoScore: integer("technical_seo_score"),
+  contentQualityScore: integer("content_quality_score"),
+  eeatScore: integer("eeat_score"), // E-E-A-T: Experience, Expertise, Authority, Trust
+  
+  // Content Metrics
+  wordCount: integer("word_count"),
+  readingTime: integer("reading_time"), // Minutes
+  keywordDensity: decimal("keyword_density", { precision: 5, scale: 2 }), // Percentage
+  headingStructure: jsonb("heading_structure"), // H1, H2, H3 analysis
+  
+  // Technical SEO
+  metaTitle: text("meta_title"),
+  metaTitleLength: integer("meta_title_length"),
+  metaDescription: text("meta_description"),
+  metaDescriptionLength: integer("meta_description_length"),
+  canonicalUrl: text("canonical_url"),
+  openGraphTags: jsonb("open_graph_tags"),
+  twitterCardTags: jsonb("twitter_card_tags"),
+  schemaMarkup: jsonb("schema_markup"),
+  
+  // Image Optimization
+  totalImages: integer("total_images"),
+  imagesWithAlt: integer("images_with_alt"),
+  imageOptimizationScore: integer("image_optimization_score"),
+  
+  // Internal Linking
+  internalLinks: integer("internal_links"),
+  externalLinks: integer("external_links"),
+  brokenLinks: integer("broken_links"),
+  linkingScore: integer("linking_score"),
+  
+  // AI Suggestions
+  aiSuggestions: jsonb("ai_suggestions"), // Array of improvement recommendations
+  contentGaps: jsonb("content_gaps"), // Topics to add
+  lsiKeywords: text("lsi_keywords").array(), // Latent Semantic Indexing keywords
+  
+  // Competitor Comparison
+  topCompetitors: jsonb("top_competitors"), // [{url, score, gaps}]
+  competitiveAdvantage: text("competitive_advantage").array(),
+  
+  analyzedAt: timestamp("analyzed_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  urlIdx: index("content_analyses_url_idx").on(table.url),
+  primaryKeywordIdx: index("content_analyses_primary_keyword_idx").on(table.primaryKeyword),
+  analyzedAtIdx: index("content_analyses_analyzed_at_idx").on(table.analyzedAt),
+}));
+
+export const insertContentAnalysisSchema = createInsertSchema(contentAnalyses).omit({
+  id: true,
+  analyzedAt: true,
+  updatedAt: true,
+});
+
+export type InsertContentAnalysis = z.infer<typeof insertContentAnalysisSchema>;
+export type ContentAnalysis = typeof contentAnalyses.$inferSelect;
+
+// SERP Tracking - Live rank tracking (better than Ahrefs)
+export const serpTracking = pgTable("serp_tracking", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  keyword: text("keyword").notNull(),
+  targetUrl: text("target_url").notNull(),
+  
+  // Current Position
+  currentPosition: integer("current_position"),
+  previousPosition: integer("previous_position"),
+  positionChange: integer("position_change"), // +/- from previous
+  
+  // SERP Features
+  hasFeaturedSnippet: boolean("has_featured_snippet").default(false),
+  hasLocalPack: boolean("has_local_pack").default(false),
+  hasPeopleAlsoAsk: boolean("has_people_also_ask").default(false),
+  hasKnowledgePanel: boolean("has_knowledge_panel").default(false),
+  hasVideoCarousel: boolean("has_video_carousel").default(false),
+  hasImagePack: boolean("has_image_pack").default(false),
+  
+  // Opportunity Flags
+  featuredSnippetOpportunity: boolean("featured_snippet_opportunity").default(false),
+  quickWinOpportunity: boolean("quick_win_opportunity").default(false), // Position 4-10
+  
+  // SERP Data
+  serpFeatures: jsonb("serp_features"), // Detailed SERP analysis
+  topCompetitors: jsonb("top_competitors"), // Top 10 results with details
+  
+  // Search Intent
+  searchIntent: text("search_intent"), // "informational", "navigational", "transactional", "commercial"
+  intentConfidence: decimal("intent_confidence", { precision: 5, scale: 2 }),
+  
+  // Metrics
+  searchVolume: integer("search_volume"),
+  cpc: decimal("cpc", { precision: 10, scale: 2 }),
+  difficulty: integer("difficulty"), // 0-100
+  
+  // Location & Device
+  location: text("location").default("US"), // Country code
+  device: text("device").default("desktop"), // "desktop", "mobile", "tablet"
+  
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+}, (table) => ({
+  keywordIdx: index("serp_tracking_keyword_idx").on(table.keyword),
+  targetUrlIdx: index("serp_tracking_target_url_idx").on(table.targetUrl),
+  positionIdx: index("serp_tracking_position_idx").on(table.currentPosition),
+  checkedAtIdx: index("serp_tracking_checked_at_idx").on(table.checkedAt),
+}));
+
+export const insertSerpTrackingSchema = createInsertSchema(serpTracking).omit({
+  id: true,
+  checkedAt: true,
+});
+
+export type InsertSerpTracking = z.infer<typeof insertSerpTrackingSchema>;
+export type SerpTracking = typeof serpTracking.$inferSelect;
+
+// Backlink Profiles - Comprehensive backlink intelligence
+export const backlinkProfiles = pgTable("backlink_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  targetUrl: text("target_url").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  
+  // Link Attributes
+  anchorText: text("anchor_text"),
+  linkType: text("link_type"), // "dofollow", "nofollow", "ugc", "sponsored"
+  linkPlacement: text("link_placement"), // "content", "footer", "sidebar", "navigation"
+  isImageLink: boolean("is_image_link").default(false),
+  
+  // Authority Metrics
+  sourceDomainAuthority: integer("source_domain_authority"), // 0-100
+  sourcePageAuthority: integer("source_page_authority"), // 0-100
+  sourceTrustFlow: integer("source_trust_flow"), // 0-100
+  sourceCitationFlow: integer("source_citation_flow"), // 0-100
+  
+  // Link Quality
+  linkQualityScore: integer("link_quality_score"), // 0-100
+  isSpam: boolean("is_spam").default(false),
+  isToxic: boolean("is_toxic").default(false),
+  
+  // Discovery
+  firstSeenDate: timestamp("first_seen_date"),
+  lastSeenDate: timestamp("last_seen_date"),
+  isLive: boolean("is_live").default(true),
+  lostDate: timestamp("lost_date"),
+  
+  // Context
+  sourcePageTitle: text("source_page_title"),
+  sourcePageContent: text("source_page_content"), // Surrounding text
+  
+  analyzedAt: timestamp("analyzed_at").defaultNow().notNull(),
+}, (table) => ({
+  targetUrlIdx: index("backlink_profiles_target_url_idx").on(table.targetUrl),
+  sourceUrlIdx: index("backlink_profiles_source_url_idx").on(table.sourceUrl),
+  qualityIdx: index("backlink_profiles_quality_idx").on(table.linkQualityScore),
+  liveIdx: index("backlink_profiles_live_idx").on(table.isLive),
+}));
+
+export const insertBacklinkProfileSchema = createInsertSchema(backlinkProfiles).omit({
+  id: true,
+  analyzedAt: true,
+});
+
+export type InsertBacklinkProfile = z.infer<typeof insertBacklinkProfileSchema>;
+export type BacklinkProfile = typeof backlinkProfiles.$inferSelect;
+
+// Site Audits - Technical SEO crawling
+export const siteAudits = pgTable("site_audits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  domain: text("domain").notNull(),
+  
+  // Crawl Stats
+  totalPages: integer("total_pages"),
+  crawledPages: integer("crawled_pages"),
+  errorPages: integer("error_pages"),
+  redirectPages: integer("redirect_pages"),
+  
+  // Technical Issues
+  brokenLinks: integer("broken_links"),
+  missingTitles: integer("missing_titles"),
+  duplicateTitles: integer("duplicate_titles"),
+  missingDescriptions: integer("missing_descriptions"),
+  duplicateDescriptions: integer("duplicate_descriptions"),
+  missingH1: integer("missing_h1"),
+  multipleH1: integer("multiple_h1"),
+  missingAltTags: integer("missing_alt_tags"),
+  
+  // Performance
+  avgPageSpeed: integer("avg_page_speed"), // Milliseconds
+  avgFirstContentfulPaint: integer("avg_first_contentful_paint"),
+  avgLargestContentfulPaint: integer("avg_largest_contentful_paint"),
+  avgCumulativeLayoutShift: decimal("avg_cumulative_layout_shift", { precision: 5, scale: 3 }),
+  avgTimeToInteractive: integer("avg_time_to_interactive"),
+  
+  // Core Web Vitals
+  coreWebVitalsScore: integer("core_web_vitals_score"), // 0-100
+  mobileFriendly: boolean("mobile_friendly").default(true),
+  httpsEnabled: boolean("https_enabled").default(true),
+  
+  // Security
+  hasSecurityHeaders: boolean("has_security_headers").default(false),
+  hasSitemap: boolean("has_sitemap").default(false),
+  hasRobotsTxt: boolean("has_robots_txt").default(false),
+  
+  // Indexing
+  indexablePages: integer("indexable_pages"),
+  blockedByRobots: integer("blocked_by_robots"),
+  noindexPages: integer("noindex_pages"),
+  canonicalIssues: integer("canonical_issues"),
+  
+  // Overall Health
+  overallHealthScore: integer("overall_health_score"), // 0-100
+  criticalIssues: integer("critical_issues"),
+  warningIssues: integer("warning_issues"),
+  
+  // Detailed Results
+  issueBreakdown: jsonb("issue_breakdown"), // Categorized issues
+  recommendations: jsonb("recommendations"), // AI-generated fixes
+  
+  auditedAt: timestamp("audited_at").defaultNow().notNull(),
+}, (table) => ({
+  domainIdx: index("site_audits_domain_idx").on(table.domain),
+  healthScoreIdx: index("site_audits_health_score_idx").on(table.overallHealthScore),
+  auditedAtIdx: index("site_audits_audited_at_idx").on(table.auditedAt),
+}));
+
+export const insertSiteAuditSchema = createInsertSchema(siteAudits).omit({
+  id: true,
+  auditedAt: true,
+});
+
+export type InsertSiteAudit = z.infer<typeof insertSiteAuditSchema>;
+export type SiteAudit = typeof siteAudits.$inferSelect;
+
+// Schema Markup Library - Auto-generated structured data
+export const schemaMarkupLibrary = pgTable("schema_markup_library", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  url: text("url").notNull(),
+  
+  // Schema Type
+  schemaType: text("schema_type").notNull(), // "Article", "Product", "LocalBusiness", "FAQ", "HowTo", etc.
+  schemaData: jsonb("schema_data").notNull(), // Complete Schema.org JSON-LD
+  
+  // Validation
+  isValid: boolean("is_valid").default(true),
+  validationErrors: jsonb("validation_errors"),
+  
+  // Status
+  isDeployed: boolean("is_deployed").default(false),
+  deployedAt: timestamp("deployed_at"),
+  
+  // Rich Results Eligibility
+  eligibleForRichResults: boolean("eligible_for_rich_results").default(false),
+  richResultTypes: text("rich_result_types").array(), // ["Recipe", "Review", "FAQ"]
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  urlIdx: index("schema_markup_library_url_idx").on(table.url),
+  schemaTypeIdx: index("schema_markup_library_schema_type_idx").on(table.schemaType),
+  deployedIdx: index("schema_markup_library_deployed_idx").on(table.isDeployed),
+}));
+
+export const insertSchemaMarkupLibrarySchema = createInsertSchema(schemaMarkupLibrary).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSchemaMarkupLibrary = z.infer<typeof insertSchemaMarkupLibrarySchema>;
+export type SchemaMarkupLibrary = typeof schemaMarkupLibrary.$inferSelect;
+
+// AEO Optimization - Answer Engine Optimization (voice search, featured snippets)
+export const aeoOptimization = pgTable("aeo_optimization", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  keyword: text("keyword").notNull(),
+  url: text("url").notNull(),
+  
+  // Question-Answer Pairs
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  answerFormat: text("answer_format"), // "paragraph", "list", "table", "steps"
+  
+  // Voice Search
+  voiceSearchOptimized: boolean("voice_search_optimized").default(false),
+  conversationalKeywords: text("conversational_keywords").array(),
+  questionWords: text("question_words").array(), // "who", "what", "where", "when", "why", "how"
+  
+  // Featured Snippet Targeting
+  targetingFeaturedSnippet: boolean("targeting_featured_snippet").default(true),
+  featuredSnippetType: text("featured_snippet_type"), // "paragraph", "list", "table"
+  currentlyFeatured: boolean("currently_featured").default(false),
+  
+  // Entity Relationships
+  primaryEntity: text("primary_entity"),
+  relatedEntities: text("related_entities").array(),
+  entitySalienceScore: decimal("entity_salience_score", { precision: 5, scale: 2 }), // 0-100
+  
+  // Knowledge Graph
+  hasKnowledgeGraphEntry: boolean("has_knowledge_graph_entry").default(false),
+  knowledgeGraphData: jsonb("knowledge_graph_data"),
+  
+  // People Also Ask (PAA)
+  relatedPaaQuestions: jsonb("related_paa_questions"), // Array of related PAA questions
+  
+  // AI Suggestions
+  optimizationSuggestions: jsonb("optimization_suggestions"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  keywordIdx: index("aeo_optimization_keyword_idx").on(table.keyword),
+  urlIdx: index("aeo_optimization_url_idx").on(table.url),
+  featuredIdx: index("aeo_optimization_featured_idx").on(table.currentlyFeatured),
+}));
+
+export const insertAeoOptimizationSchema = createInsertSchema(aeoOptimization).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAeoOptimization = z.infer<typeof insertAeoOptimizationSchema>;
+export type AeoOptimization = typeof aeoOptimization.$inferSelect;
+
+// SEO Automation Tasks - AI agent task queue
+export const seoAutomationTasks = pgTable("seo_automation_tasks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Task Details
+  taskType: text("task_type").notNull(), // "keyword_research", "content_optimization", "link_building", "schema_generation", "rank_tracking"
+  taskName: text("task_name").notNull(),
+  description: text("description"),
+  
+  // Target
+  targetUrl: text("target_url"),
+  targetKeyword: text("target_keyword"),
+  
+  // Scheduling
+  frequency: text("frequency"), // "once", "daily", "weekly", "monthly"
+  nextRunAt: timestamp("next_run_at"),
+  lastRunAt: timestamp("last_run_at"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "running", "completed", "failed", "cancelled"
+  priority: integer("priority").default(5), // 1-10
+  
+  // AI Agent Configuration
+  aiModel: text("ai_model"), // "gpt-4", "claude-3-opus", "gemini-pro"
+  agentPrompt: text("agent_prompt"),
+  agentConfig: jsonb("agent_config"),
+  
+  // Results
+  executionResults: jsonb("execution_results"),
+  errorMessage: text("error_message"),
+  
+  // Owner
+  userId: varchar("user_id").references(() => users.id),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  taskTypeIdx: index("seo_automation_tasks_task_type_idx").on(table.taskType),
+  statusIdx: index("seo_automation_tasks_status_idx").on(table.status),
+  nextRunIdx: index("seo_automation_tasks_next_run_idx").on(table.nextRunAt),
+  userIdx: index("seo_automation_tasks_user_idx").on(table.userId),
+}));
+
+export const insertSeoAutomationTaskSchema = createInsertSchema(seoAutomationTasks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSeoAutomationTask = z.infer<typeof insertSeoAutomationTaskSchema>;
+export type SeoAutomationTask = typeof seoAutomationTasks.$inferSelect;
+
+// Content Calendar - AI-powered editorial calendar
+export const contentCalendar = pgTable("content_calendar", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Content Details
+  title: text("title").notNull(),
+  slug: text("slug"),
+  contentType: text("content_type").notNull(), // "blog_post", "landing_page", "product_page", "video", "infographic"
+  
+  // Target Keywords
+  primaryKeyword: text("primary_keyword").notNull(),
+  secondaryKeywords: text("secondary_keywords").array(),
+  
+  // Scheduling
+  scheduledPublishDate: timestamp("scheduled_publish_date"),
+  actualPublishDate: timestamp("actual_publish_date"),
+  
+  // Status
+  status: text("status").default("idea"), // "idea", "researching", "outlining", "writing", "editing", "scheduled", "published"
+  
+  // Assignment
+  assignedTo: varchar("assigned_to").references(() => users.id),
+  author: varchar("author").references(() => users.id),
+  editor: varchar("editor").references(() => users.id),
+  
+  // AI Generation
+  aiGenerated: boolean("ai_generated").default(false),
+  aiModel: text("ai_model"),
+  contentBrief: text("content_brief"), // AI-generated outline
+  
+  // SEO Target
+  targetSearchVolume: integer("target_search_volume"),
+  targetDifficulty: integer("target_difficulty"),
+  estimatedTraffic: integer("estimated_traffic"),
+  
+  // Performance (after publishing)
+  actualViews: integer("actual_views").default(0),
+  actualRank: integer("actual_rank"),
+  conversionRate: decimal("conversion_rate", { precision: 5, scale: 2 }),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  statusIdx: index("content_calendar_status_idx").on(table.status),
+  publishDateIdx: index("content_calendar_publish_date_idx").on(table.scheduledPublishDate),
+  assignedToIdx: index("content_calendar_assigned_to_idx").on(table.assignedTo),
+}));
+
+export const insertContentCalendarSchema = createInsertSchema(contentCalendar).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertContentCalendar = z.infer<typeof insertContentCalendarSchema>;
+export type ContentCalendar = typeof contentCalendar.$inferSelect;
+
+// ============================================================================
+// UGC + AFFILIATE MARKETING ECOSYSTEM (Users as Marketers - 20% Commission)
+// ============================================================================
+// Note: Core affiliate tables (affiliates, affiliateClicks, affiliateSales, etc.) already exist above
+
+// User Content - UGC blogs, videos, reviews
+export const userContent = pgTable("user_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Content Details
+  contentType: text("content_type").notNull(), // "blog", "video", "review", "tutorial", "case_study"
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  
+  // Media
+  featuredImage: text("featured_image"),
+  videoUrl: text("video_url"), // YouTube, Vimeo, etc.
+  videoEmbedCode: text("video_embed_code"),
+  galleryImages: text("gallery_images").array(),
+  
+  // Target (what they're writing about)
+  targetType: text("target_type"), // "product", "service", "laundromat", "course", "tool"
+  targetId: varchar("target_id"), // ID of product/service/etc
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords").array(),
+  internalLinks: text("internal_links").array(), // Auto-generated internal links
+  externalLinks: text("external_links").array(),
+  
+  // Affiliate Integration
+  affiliateLinksEnabled: boolean("affiliate_links_enabled").default(true),
+  affiliateCode: text("affiliate_code"), // Author's affiliate code
+  
+  // Engagement
+  views: integer("views").default(0),
+  likes: integer("likes").default(0),
+  shares: integer("shares").default(0),
+  comments: integer("comments").default(0),
+  
+  // Quality Metrics
+  seoScore: integer("seo_score"), // 0-100
+  readabilityScore: integer("readability_score"), // 0-100
+  contentQuality: integer("content_quality"), // 0-100
+  
+  // Moderation
+  status: text("status").default("draft"), // "draft", "pending", "approved", "published", "rejected"
+  moderatedBy: varchar("moderated_by").references(() => users.id),
+  moderationNotes: text("moderation_notes"),
+  
+  // Publishing
+  publishedAt: timestamp("published_at"),
+  featured: boolean("featured").default(false),
+  featuredOrder: integer("featured_order"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_content_user_idx").on(table.userId),
+  typeIdx: index("user_content_type_idx").on(table.contentType),
+  statusIdx: index("user_content_status_idx").on(table.status),
+  publishedAtIdx: index("user_content_published_at_idx").on(table.publishedAt),
+  slugIdx: index("user_content_slug_idx").on(table.slug),
+}));
+
+export const insertUserContentSchema = createInsertSchema(userContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserContent = z.infer<typeof insertUserContentSchema>;
+export type UserContent = typeof userContent.$inferSelect;
+
+// Social Shares - Track social sharing
+export const socialShares = pgTable("social_shares", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Content Being Shared
+  contentType: text("content_type").notNull(), // "user_content", "blog", "product", "service", "course"
+  contentId: varchar("content_id").notNull(),
+  contentUrl: text("content_url").notNull(),
+  
+  // Share Details
+  platform: text("platform").notNull(), // "facebook", "twitter", "linkedin", "pinterest", "email"
+  shareUrl: text("share_url").notNull(),
+  
+  // Affiliate Integration
+  affiliateCode: text("affiliate_code"), // Auto-appended to share URL
+  
+  // Tracking
+  clicks: integer("clicks").default(0),
+  conversions: integer("conversions").default(0),
+  
+  sharedAt: timestamp("shared_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("social_shares_user_idx").on(table.userId),
+  contentIdx: index("social_shares_content_idx").on(table.contentId),
+  platformIdx: index("social_shares_platform_idx").on(table.platform),
+  affiliateIdx: index("social_shares_affiliate_idx").on(table.affiliateCode),
+}));
+
+export const insertSocialShareSchema = createInsertSchema(socialShares).omit({
+  id: true,
+  sharedAt: true,
+});
+
+export type InsertSocialShare = z.infer<typeof insertSocialShareSchema>;
+export type SocialShare = typeof socialShares.$inferSelect;
+
+// Consultant Profiles - Enhanced consultant management
+export const consultantProfiles = pgTable("consultant_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Profile Details
+  displayName: text("display_name").notNull(),
+  title: text("title"), // "Certified Laundromat Consultant"
+  bio: text("bio").notNull(),
+  profileImage: text("profile_image"),
+  
+  // Expertise
+  specializations: text("specializations").array(), // ["site_selection", "operations", "marketing"]
+  experienceYears: integer("experience_years"),
+  certifications: text("certifications").array(),
+  
+  // Service Offerings
+  servicesOffered: jsonb("services_offered"), // [{service, price, duration}]
+  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
+  packagePrices: jsonb("package_prices"), // {basic: 500, pro: 1000, premium: 2500}
+  
+  // Availability
+  availableHours: jsonb("available_hours"), // {monday: ["09:00-12:00", "14:00-17:00"]}
+  timezone: text("timezone").default("America/New_York"),
+  maxBookingsPerWeek: integer("max_bookings_per_week").default(10),
+  
+  // Performance
+  totalConsultations: integer("total_consultations").default(0),
+  totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }).default("0.00"),
+  totalReviews: integer("total_reviews").default(0),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "active", "inactive"
+  verified: boolean("verified").default(false),
+  featured: boolean("featured").default(false),
+  
+  // Links
+  websiteUrl: text("website_url"),
+  linkedinUrl: text("linkedin_url"),
+  videoIntro: text("video_intro"), // YouTube/Vimeo URL
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("consultant_profiles_user_idx").on(table.userId),
+  statusIdx: index("consultant_profiles_status_idx").on(table.status),
+  featuredIdx: index("consultant_profiles_featured_idx").on(table.featured),
+}));
+
+export const insertConsultantProfileSchema = createInsertSchema(consultantProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertConsultantProfile = z.infer<typeof insertConsultantProfileSchema>;
+export type ConsultantProfile = typeof consultantProfiles.$inferSelect;
