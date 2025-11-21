@@ -8,6 +8,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
+import WhyWashBizHub from "@/pages/why-washbizhub";
 import DesignStudio from "@/pages/design-studio";
 import CleanBI from "@/pages/cleanbi";
 import Calculator from "@/pages/calculator";
@@ -46,6 +47,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/why-washbizhub" component={WhyWashBizHub} />
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
       <Route path="/calculator" component={Calculator} />
