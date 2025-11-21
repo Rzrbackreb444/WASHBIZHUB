@@ -1,6 +1,7 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
@@ -31,6 +32,7 @@ import FacebookGroup from "@/pages/FacebookGroup";
 import AtmServices from "@/pages/AtmServices";
 import Templates from "@/pages/templates";
 import Resources from "@/pages/resources";
+import ResourceDetail from "@/pages/resource-detail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -63,6 +65,7 @@ function Router() {
       <Route path="/listings" component={Listings} />
       <Route path="/templates" component={Templates} />
       <Route path="/resources" component={Resources} />
+      <Route path="/resources/:slug" component={ResourceDetail} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route component={NotFound} />
@@ -72,18 +75,20 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <div className="flex-1">
-            <Router />
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <div className="flex-1">
+              <Router />
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
