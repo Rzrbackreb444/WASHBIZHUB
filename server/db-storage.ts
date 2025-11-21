@@ -40,6 +40,7 @@ import {
   searchIndex,
   searchAnalytics,
   emailSubscribers,
+  websiteTemplates,
   type User,
   type InsertUser,
   type Design,
@@ -118,6 +119,8 @@ import {
   type InsertSearchAnalytic,
   type EmailSubscriber,
   type InsertEmailSubscriber,
+  type WebsiteTemplate,
+  type InsertWebsiteTemplate,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -1451,6 +1454,45 @@ export class DbStorage implements IStorage {
     await db.update(emailSubscribers)
       .set({ status: 'unsubscribed', unsubscribedAt: new Date() })
       .where(eq(emailSubscribers.email, email));
+  }
+
+  // ============================================================================
+  // WEBSITE TEMPLATES
+  // ============================================================================
+  async getWebsiteTemplates(filters?: { industry?: string; category?: string; isPro?: boolean }): Promise<WebsiteTemplate[]> {
+    const conditions: SQL[] = [];
+    
+    if (filters?.industry) {
+      conditions.push(eq(websiteTemplates.industry, filters.industry));
+    }
+    if (filters?.category) {
+      conditions.push(eq(websiteTemplates.category, filters.category));
+    }
+    if (filters?.isPro !== undefined) {
+      conditions.push(eq(websiteTemplates.isPro, filters.isPro));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(websiteTemplates).where(and(...conditions))
+      : db.select().from(websiteTemplates);
+    
+    return query.orderBy(desc(websiteTemplates.useCount));
+  }
+
+  async getWebsiteTemplate(id: string): Promise<WebsiteTemplate | undefined> {
+    const result = await db.select().from(websiteTemplates).where(eq(websiteTemplates.id, id));
+    return result[0];
+  }
+
+  async createWebsiteTemplate(template: InsertWebsiteTemplate): Promise<WebsiteTemplate> {
+    const result = await db.insert(websiteTemplates).values(template).returning();
+    return result[0];
+  }
+
+  async incrementTemplateUseCount(id: string): Promise<void> {
+    await db.update(websiteTemplates)
+      .set({ useCount: sql`${websiteTemplates.useCount} + 1` })
+      .where(eq(websiteTemplates.id, id));
   }
 }
 

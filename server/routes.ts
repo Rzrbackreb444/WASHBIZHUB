@@ -2184,6 +2184,85 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== AFFILIATE SYSTEM ====================
+  
+  // GET /api/affiliate/profile - Get current user's affiliate profile
+  app.get("/api/affiliate/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const affiliates = await storage.getAffiliates(userId);
+      
+      if (affiliates.length === 0) {
+        return res.status(404).json({ error: "Not an affiliate" });
+      }
+      
+      res.json(affiliates[0]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/affiliate/stats - Get affiliate performance stats
+  app.get("/api/affiliate/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const affiliates = await storage.getAffiliates(userId);
+      
+      if (affiliates.length === 0) {
+        return res.status(404).json({ error: "Not an affiliate" });
+      }
+      
+      const affiliate = affiliates[0];
+      const stats = {
+        clicks: affiliate.totalClicks,
+        sales: affiliate.totalSales,
+        revenue: affiliate.totalRevenue,
+        commission: affiliate.totalCommission,
+        conversionRate: affiliate.totalClicks > 0 
+          ? (affiliate.totalSales / affiliate.totalClicks) * 100 
+          : 0,
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/affiliate/sales - Get recent affiliate sales
+  app.get("/api/affiliate/sales", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const affiliates = await storage.getAffiliates(userId);
+      
+      if (affiliates.length === 0) {
+        return res.json([]);
+      }
+      
+      // Return empty array for now - sales tracking will be implemented with actual purchases
+      res.json([]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/affiliate/content - Get affiliate's UGC content
+  app.get("/api/affiliate/content", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const affiliates = await storage.getAffiliates(userId);
+      
+      if (affiliates.length === 0) {
+        return res.json([]);
+      }
+      
+      // Return empty array for now - content submission will be implemented later
+      res.json([]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== WEBSITE BUILDER ====================
   
   // GET /api/websites - List user's website projects
