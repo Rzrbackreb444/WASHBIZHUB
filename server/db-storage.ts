@@ -124,6 +124,9 @@ import {
   type InsertWebsiteTemplate,
   type CustomerWebsite,
   type InsertCustomerWebsite,
+  brokerProfiles,
+  type BrokerProfile,
+  type InsertBrokerProfile,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -701,6 +704,25 @@ export class DbStorage implements IStorage {
 
   async deleteListing(id: string): Promise<void> {
     await db.delete(listings).where(eq(listings.id, id));
+  }
+
+  async getListingsByUserId(userId: string): Promise<Listing[]> {
+    return db.select().from(listings).where(eq(listings.userId, userId)).orderBy(desc(listings.createdAt));
+  }
+
+  async getBrokerProfileByUserId(userId: string): Promise<BrokerProfile | undefined> {
+    const result = await db.select().from(brokerProfiles).where(eq(brokerProfiles.userId, userId));
+    return result[0];
+  }
+
+  async createBrokerProfile(profile: InsertBrokerProfile): Promise<BrokerProfile> {
+    const result = await db.insert(brokerProfiles).values(profile).returning();
+    return result[0];
+  }
+
+  async updateBrokerProfile(id: string, updates: Partial<InsertBrokerProfile>): Promise<BrokerProfile> {
+    const result = await db.update(brokerProfiles).set(updates).where(eq(brokerProfiles.id, id)).returning();
+    return result[0];
   }
 
   // ============================================================================
