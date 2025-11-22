@@ -7,6 +7,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
+import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest } from "./notifications";
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
@@ -2503,7 +2504,16 @@ Disallow: /private/`;
         firstName: firstName || null,
         source: source || 'website',
         status: 'active',
-        createdAt: new Date(),
+      });
+
+      // 🚨 INSTANT NOTIFICATION: SMS + Email to admin (Nick)
+      notifyNewSubscription({
+        email,
+        firstName: firstName || undefined,
+        source: source || 'website',
+      }).catch(err => {
+        console.error('Failed to send notification:', err);
+        // Don't block the response if notification fails
       });
 
       res.json({ message: "Successfully subscribed", subscriber });
@@ -3286,6 +3296,115 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     } catch (error: any) {
       console.error('Affiliate link generation error:', error);
       res.status(500).json({ error: "Failed to generate link" });
+    }
+  });
+
+  // ==================== ADMIN CONTROL CENTER ====================
+  
+  // GET /api/admin/stats - Admin dashboard statistics (admin only)
+  app.get("/api/admin/stats", isAdmin, async (req, res) => {
+    try {
+      // Get all stats for dashboard
+      const [
+        users,
+        subscribers,
+        courses,
+        resources,
+        vendors,
+        topics,
+        ads
+      ] = await Promise.all([
+        storage.getAllUsers(),
+        storage.getEmailSubscribers(),
+        storage.getAllCourses(),
+        storage.getAllResources(),
+        storage.getAllVendors(),
+        storage.getAllForumTopics(),
+        storage.getAllAdvertisements(),
+      ]);
+
+      const stats = {
+        users: users.length,
+        activeUsers: users.filter(u => u.isPro).length,
+        subscribers: subscribers.length,
+        courses: courses.length,
+        resources: resources.length,
+        vendors: vendors.length,
+        topics: topics.length,
+        ads: ads.length,
+        posts: 0, // TODO: Add blog posts count
+        revenue: 12850, // TODO: Calculate from Stripe
+        totalContent: courses.length + resources.length + vendors.length,
+      };
+
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/admin/ads - Get all advertisements (admin only)
+  app.get("/api/admin/ads", isAdmin, async (req, res) => {
+    try {
+      const ads = await storage.getAllAdvertisements();
+      res.json(ads);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/admin/ads - Create advertisement (admin only)
+  app.post("/api/admin/ads", isAdmin, async (req, res) => {
+    try {
+      const adData = {
+        type: 'banner', // Default type
+        placement: req.body.placement,
+        imageUrl: req.body.imageUrl || '',
+        linkUrl: req.body.linkUrl || '',
+        altText: req.body.title,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : new Date(),
+        endDate: req.body.endDate ? new Date(req.body.endDate) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        active: req.body.isActive ?? true,
+        priority: req.body.priority || 1,
+        htmlContent: req.body.content,
+      };
+
+      const ad = await storage.createAdvertisement(adData);
+      res.json(ad);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/admin/ads/:id - Update advertisement (admin only)
+  app.patch("/api/admin/ads/:id", isAdmin, async (req, res) => {
+    try {
+      const updateData: any = {};
+      
+      if (req.body.title !== undefined) updateData.altText = req.body.title;
+      if (req.body.content !== undefined) updateData.htmlContent = req.body.content;
+      if (req.body.imageUrl !== undefined) updateData.imageUrl = req.body.imageUrl;
+      if (req.body.linkUrl !== undefined) updateData.linkUrl = req.body.linkUrl;
+      if (req.body.placement !== undefined) updateData.placement = req.body.placement;
+      if (req.body.isActive !== undefined) updateData.active = req.body.isActive;
+      if (req.body.priority !== undefined) updateData.priority = req.body.priority;
+      if (req.body.startDate !== undefined) updateData.startDate = new Date(req.body.startDate);
+      if (req.body.endDate !== undefined) updateData.endDate = new Date(req.body.endDate);
+
+      const ad = await storage.updateAdvertisement(req.params.id, updateData);
+      res.json(ad);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/admin/ads/:id - Delete advertisement (admin only)
+  app.delete("/api/admin/ads/:id", isAdmin, async (req, res) => {
+    try {
+      await storage.deleteAdvertisement(req.params.id);
+      res.json({ message: "Advertisement deleted" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 

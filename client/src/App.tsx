@@ -52,6 +52,8 @@ import Pricing from "@/pages/pricing";
 import RepairGuide from "@/pages/repair-guide";
 import SeoCommandCenter from "@/pages/seo-command-center";
 import AboutUs from "@/pages/about-us";
+import AdminDashboard from "@/pages/admin/index";
+import AdminAds from "@/pages/admin/ads";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -104,6 +106,8 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/repair-guide" component={RepairGuide} />
       <Route path="/about" component={AboutUs} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/ads" component={AdminAds} />
       <Route component={NotFound} />
     </Switch>
   );
