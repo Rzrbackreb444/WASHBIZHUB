@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs", async (req, res) => {
+  app.post("/api/designs", isAuthenticated, async (req, res) => {
     try {
       const validated = insertDesignSchema.parse(req.body);
       const design = await storage.createDesign(validated);
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/designs/:id", async (req, res) => {
+  app.put("/api/designs/:id", isAuthenticated, async (req, res) => {
     try {
       const validated = insertDesignSchema.parse(req.body);
       const updated = await storage.updateDesign(req.params.id, validated);
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/designs/:id", async (req, res) => {
+  app.delete("/api/designs/:id", isAuthenticated, async (req, res) => {
     try {
       await storage.deleteDesign(req.params.id);
       res.json({ success: true });
@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog", async (req, res) => {
+  app.post("/api/blog", isAdmin, async (req, res) => {
     try {
       const validated = insertBlogPostSchema.parse(req.body);
       const post = await storage.createBlogPost(validated);
@@ -266,7 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/generate", async (req, res) => {
+  app.post("/api/blog/generate", isAdmin, async (req, res) => {
     try {
       const { topic, category } = req.body;
       const content = await generateBlogContent(topic, category);
@@ -519,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/courses", async (req, res) => {
+  app.post("/api/courses", isAdmin, async (req, res) => {
     try {
       const validated = insertCourseSchema.parse(req.body);
       const course = await storage.createCourse(validated);
@@ -1070,7 +1070,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/listings", async (req, res) => {
+  app.post("/api/listings", isAuthenticated, async (req, res) => {
     try {
       const validated = insertListingSchema.parse(req.body);
       const listing = await storage.createListing(validated);
@@ -1080,7 +1080,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.put("/api/listings/:id", async (req, res) => {
+  app.put("/api/listings/:id", isAuthenticated, async (req, res) => {
     try {
       const validated = insertListingSchema.partial().parse(req.body);
       const updated = await storage.updateListing(req.params.id, validated);
@@ -1093,7 +1093,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.delete("/api/listings/:id", async (req, res) => {
+  app.delete("/api/listings/:id", isAuthenticated, async (req, res) => {
     try {
       await storage.deleteListing(req.params.id);
       res.json({ success: true });
