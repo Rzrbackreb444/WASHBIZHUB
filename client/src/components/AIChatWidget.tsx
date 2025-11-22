@@ -99,7 +99,7 @@ export function AIChatWidget() {
           content: m.content,
         })),
       });
-      return response as ChatResponse;
+      return response as unknown as ChatResponse;
     },
     onSuccess: (data) => {
       setMessages((prev) => [
@@ -163,23 +163,19 @@ export function AIChatWidget() {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={() => setIsOpen(true)}
-          size="lg"
-          className="rounded-full h-16 w-16 shadow-2xl relative overflow-hidden group"
-          data-testid="button-open-chat"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent opacity-90 group-hover:opacity-100 transition-opacity" />
-          <div className="relative flex items-center justify-center">
-            <MessageCircle className="h-7 w-7" />
-            <Sparkles className="h-4 w-4 absolute -top-1 -right-1 text-accent animate-pulse" />
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 z-50 group hover-elevate active-elevate-2"
+        data-testid="button-open-chat"
+      >
+        <div className="bg-gradient-to-r from-primary to-accent px-4 py-2.5 rounded-lg shadow-lg border border-primary/20 flex items-center gap-2.5 transition-all duration-200">
+          <div className="relative">
+            <Bot className="h-5 w-5 text-primary-foreground" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-primary-foreground" />
           </div>
-        </Button>
-        <div className="absolute -top-12 right-0 bg-popover text-popover-foreground px-3 py-1 rounded-lg shadow-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          Ask AI Consultant
+          <span className="text-sm font-semibold text-primary-foreground">WashBizHub AI</span>
         </div>
-      </div>
+      </button>
     );
   }
 
