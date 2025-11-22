@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
-import londrLogoUrl from "@assets/Londr_1763778209789.png";
+import londrLogoUrl from "@assets/Londr_1763778448894.png";
 
 export function Hero() {
   return (
@@ -16,8 +16,8 @@ export function Hero() {
           className="w-full h-full object-cover"
           loading="eager"
         />
-        {/* Stronger dark gradient overlay for better text visibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/98 via-gray-900/95 to-gray-900/97" />
+        {/* Strong dark gradient overlay - fades to white at bottom for logo visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/98 via-gray-900/96 to-white" />
       </div>
 
       {/* Hero Content */}
@@ -64,31 +64,43 @@ export function Hero() {
           </div>
 
           {/* Trust Badges - Logo Grid */}
-          <div className="border-t border-white/10 pt-12">
+          <div className="border-t border-gray-300/30 pt-12 bg-white/95 backdrop-blur-sm rounded-lg px-8 py-10">
             <p 
-              className="text-sm font-bold tracking-wider text-gray-300 uppercase mb-10"
+              className="text-sm font-bold tracking-wider text-gray-700 uppercase mb-10"
               data-testid="text-trusted-by"
             >
               Trusted By Industry Leaders
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-10">
-              {/* AAdvantage Laundry Systems Logo */}
-              <div className="h-12 flex items-center opacity-75 hover:opacity-100 transition-opacity" data-testid="brand-logo-aadvantage">
+              {/* AAdvantage Laundry Systems Logo - Clickable */}
+              <a 
+                href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="h-16 flex items-center opacity-90 hover:opacity-100 transition-all hover:scale-105 active-elevate-2"
+                data-testid="brand-logo-aadvantage"
+              >
                 <img 
                   src={aadvantageLogoUrl} 
                   alt="AAdvantage Laundry Systems" 
-                  className="h-full w-auto object-contain filter brightness-0 invert"
+                  className="h-full w-auto object-contain"
                 />
-              </div>
+              </a>
               
-              {/* LONDR Logo */}
-              <div className="h-12 flex items-center opacity-75 hover:opacity-100 transition-opacity" data-testid="brand-logo-londr">
+              {/* LONDR Logo - Clickable */}
+              <a 
+                href="https://londr.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="h-16 flex items-center opacity-90 hover:opacity-100 transition-all hover:scale-105 active-elevate-2"
+                data-testid="brand-logo-londr"
+              >
                 <img 
                   src={londrLogoUrl} 
                   alt="LONDR" 
-                  className="h-full w-auto object-contain filter brightness-0 invert"
+                  className="h-full w-auto object-contain"
                 />
-              </div>
+              </a>
             </div>
           </div>
         </div>
