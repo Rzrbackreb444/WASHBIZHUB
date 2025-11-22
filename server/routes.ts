@@ -3231,6 +3231,10 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     }
   });
 
+  // ========== SEO SUITE ROUTES ==========
+  const { createSeoRoutes } = await import('./seo-routes');
+  app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));
+
   const httpServer = createServer(app);
   return httpServer;
 }

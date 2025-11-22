@@ -5875,5 +5875,337 @@ export type InsertEmailSubscriber = z.infer<typeof insertEmailSubscriberSchema>;
 export type EmailSubscriber = typeof emailSubscribers.$inferSelect;
 
 // ============================================================================
+// SEO SUITE - 300-POINT MASTER SYSTEM + AGENT BUILDER
+// ============================================================================
+
+// SEO Projects - User's SEO campaigns and websites
+export const seoProjects = pgTable("seo_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Project Details
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  description: text("description"),
+  
+  // Target Keywords
+  primaryKeywords: text("primary_keywords").array().default(sql`ARRAY[]::text[]`),
+  secondaryKeywords: text("secondary_keywords").array().default(sql`ARRAY[]::text[]`),
+  
+  // Competitors
+  competitors: text("competitors").array().default(sql`ARRAY[]::text[]`),
+  
+  // Current Performance
+  currentScore: integer("current_score").default(0), // 0-300
+  targetScore: integer("target_score").default(250),
+  
+  // Settings
+  enableLocalSEO: boolean("enable_local_seo").default(false),
+  enableBacklinkTracking: boolean("enable_backlink_tracking").default(true),
+  enableAutoIndexing: boolean("enable_auto_indexing").default(true),
+  
+  // Status
+  status: text("status").default("active"), // "active", "paused", "completed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("seo_projects_user_id_idx").on(table.userId),
+  statusIdx: index("seo_projects_status_idx").on(table.status),
+}));
+
+export const insertSeoProjectSchema = createInsertSchema(seoProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSeoProject = z.infer<typeof insertSeoProjectSchema>;
+export type SeoProject = typeof seoProjects.$inferSelect;
+
+// SEO Audits - Complete 300-point analysis results
+export const seoAudits = pgTable("seo_audits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => seoProjects.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Overall Score
+  totalScore: integer("total_score").notNull(), // 0-300
+  percentage: integer("percentage").notNull(), // 0-100
+  grade: text("grade").notNull(), // "S+", "S", "A+", "A", "B+", "B", "C", "D", "F"
+  
+  // Category Scores (all out of max points)
+  baseSEOScore: integer("base_seo_score").notNull(), // /100
+  eeatScore: integer("eeat_score").notNull(), // /15
+  coreWebVitalsScore: integer("core_web_vitals_score").notNull(), // /10
+  backlinksScore: integer("backlinks_score").notNull(), // /15
+  localSEOScore: integer("local_seo_score").notNull(), // /15
+  mobileScore: integer("mobile_score").notNull(), // /15
+  securityScore: integer("security_score").notNull(), // /15
+  accessibilityScore: integer("accessibility_score").notNull(), // /15
+  engagementScore: integer("engagement_score").notNull(), // /15
+  freshnessScore: integer("freshness_score").notNull(), // /15
+  internationalScore: integer("international_score").notNull(), // /15
+  aeoScore: integer("aeo_score").notNull(), // /15
+  technicalScore: integer("technical_score").notNull(), // /15
+  brandScore: integer("brand_score").notNull(), // /15
+  uxScore: integer("ux_score").notNull(), // /15
+  conversionScore: integer("conversion_score").notNull(), // /10
+  videoScore: integer("video_score").notNull(), // /10
+  richResultsScore: integer("rich_results_score").notNull(), // /10
+  competitiveScore: integer("competitive_score").notNull(), // /10
+  contentDepthScore: integer("content_depth_score").notNull(), // /10
+  
+  // Detailed Breakdown (JSON)
+  breakdown: jsonb("breakdown").notNull(), // Full ScoreBreakdown
+  recommendations: jsonb("recommendations").notNull(), // PrioritizedRecommendation[]
+  
+  // Competitive Analysis
+  competitiveAnalysis: jsonb("competitive_analysis"), // CompetitiveAnalysis
+  
+  auditedAt: timestamp("audited_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("seo_audits_project_id_idx").on(table.projectId),
+  userIdIdx: index("seo_audits_user_id_idx").on(table.userId),
+  auditedAtIdx: index("seo_audits_audited_at_idx").on(table.auditedAt),
+}));
+
+export const insertSeoAuditSchema = createInsertSchema(seoAudits).omit({
+  id: true,
+  auditedAt: true,
+});
+
+export type InsertSeoAudit = z.infer<typeof insertSeoAuditSchema>;
+export type SeoAudit = typeof seoAudits.$inferSelect;
+
+// SEO Metrics - Time-series tracking of scores
+export const seoMetrics = pgTable("seo_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => seoProjects.id),
+  
+  // Snapshot Data
+  totalScore: integer("total_score").notNull(),
+  organicTraffic: integer("organic_traffic").default(0),
+  avgPosition: decimal("avg_position", { precision: 5, scale: 2 }),
+  backlinks: integer("backlinks").default(0),
+  indexedPages: integer("indexed_pages").default(0),
+  
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("seo_metrics_project_id_idx").on(table.projectId),
+  recordedAtIdx: index("seo_metrics_recorded_at_idx").on(table.recordedAt),
+}));
+
+export const insertSeoMetricSchema = createInsertSchema(seoMetrics).omit({
+  id: true,
+  recordedAt: true,
+});
+
+export type InsertSeoMetric = z.infer<typeof insertSeoMetricSchema>;
+export type SeoMetric = typeof seoMetrics.$inferSelect;
+
+// SEO Tasks - Actionable recommendations from audits
+export const seoTasks = pgTable("seo_tasks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => seoProjects.id),
+  auditId: varchar("audit_id").references(() => seoAudits.id),
+  
+  // Task Details
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "baseSEO", "eeat", "technical", etc.
+  
+  // Priority
+  priority: text("priority").notNull(), // "critical", "high", "medium", "low"
+  impact: integer("impact").notNull(), // Potential point gain
+  effort: text("effort").notNull(), // "easy", "medium", "hard"
+  estimatedTime: text("estimated_time").notNull(),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "in_progress", "completed", "dismissed"
+  completedAt: timestamp("completed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("seo_tasks_project_id_idx").on(table.projectId),
+  statusIdx: index("seo_tasks_status_idx").on(table.status),
+  priorityIdx: index("seo_tasks_priority_idx").on(table.priority),
+}));
+
+export const insertSeoTaskSchema = createInsertSchema(seoTasks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoTask = z.infer<typeof insertSeoTaskSchema>;
+export type SeoTask = typeof seoTasks.$inferSelect;
+
+// SEO Agent Templates - Pre-built AI agent configurations
+export const seoAgentTemplates = pgTable("seo_agent_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template Details
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "content", "technical", "local", "link_building"
+  icon: text("icon"), // Lucide icon name
+  
+  // Agent Configuration
+  systemPrompt: text("system_prompt").notNull(),
+  capabilities: text("capabilities").array().default(sql`ARRAY[]::text[]`),
+  tools: text("tools").array().default(sql`ARRAY[]::text[]`), // "keyword_research", "content_generation", "link_finder"
+  
+  // AI Provider
+  provider: text("provider").default("openai"), // "openai", "anthropic", "gemini", "perplexity", "grok"
+  model: text("model").default("gpt-4"),
+  
+  // Metadata
+  isPremium: boolean("is_premium").default(false),
+  usageCount: integer("usage_count").default(0),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("seo_agent_templates_category_idx").on(table.category),
+  premiumIdx: index("seo_agent_templates_premium_idx").on(table.isPremium),
+}));
+
+export const insertSeoAgentTemplateSchema = createInsertSchema(seoAgentTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoAgentTemplate = z.infer<typeof insertSeoAgentTemplateSchema>;
+export type SeoAgentTemplate = typeof seoAgentTemplates.$inferSelect;
+
+// SEO Agents - User's configured AI agents
+export const seoAgents = pgTable("seo_agents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  templateId: varchar("template_id").references(() => seoAgentTemplates.id),
+  
+  // Agent Details
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  // Configuration (can override template)
+  systemPrompt: text("system_prompt").notNull(),
+  provider: text("provider").notNull(), // "openai", "anthropic", "gemini", "perplexity", "grok"
+  model: text("model").notNull(),
+  
+  // Tools & Capabilities
+  tools: text("tools").array().default(sql`ARRAY[]::text[]`),
+  capabilities: text("capabilities").array().default(sql`ARRAY[]::text[]`),
+  
+  // Memory & Learning
+  conversationHistory: jsonb("conversation_history").default(sql`'[]'::jsonb`),
+  learningData: jsonb("learning_data").default(sql`'{}'::jsonb`), // Stores learned patterns
+  
+  // Performance
+  tasksCompleted: integer("tasks_completed").default(0),
+  successRate: decimal("success_rate", { precision: 5, scale: 2 }).default("0"),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("seo_agents_user_id_idx").on(table.userId),
+  projectIdIdx: index("seo_agents_project_id_idx").on(table.projectId),
+  activeIdx: index("seo_agents_active_idx").on(table.isActive),
+}));
+
+export const insertSeoAgentSchema = createInsertSchema(seoAgents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSeoAgent = z.infer<typeof insertSeoAgentSchema>;
+export type SeoAgent = typeof seoAgents.$inferSelect;
+
+// Domain Orders - Domain purchasing through WashBizHub
+export const domainOrders = pgTable("domain_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  seoProjectId: varchar("seo_project_id").references(() => seoProjects.id),
+  
+  // Domain Details
+  domainName: text("domain_name").notNull(),
+  tld: text("tld").notNull(), // "com", "net", "org", "io"
+  
+  // Pricing
+  registrationPrice: decimal("registration_price", { precision: 10, scale: 2 }).notNull(),
+  renewalPrice: decimal("renewal_price", { precision: 10, scale: 2 }).notNull(),
+  washBizHubFee: decimal("washbizhub_fee", { precision: 10, scale: 2 }).notNull(), // Our markup
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  
+  // Provider Info
+  provider: text("provider").notNull(), // "namecheap", "godaddy"
+  providerOrderId: text("provider_order_id"),
+  
+  // Registration Period
+  years: integer("years").default(1),
+  expiresAt: timestamp("expires_at"),
+  
+  // Payment
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "processing", "completed", "failed", "refunded"
+  errorMessage: text("error_message"),
+  
+  orderedAt: timestamp("ordered_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userIdIdx: index("domain_orders_user_id_idx").on(table.userId),
+  statusIdx: index("domain_orders_status_idx").on(table.status),
+  domainIdx: index("domain_orders_domain_idx").on(table.domainName),
+}));
+
+export const insertDomainOrderSchema = createInsertSchema(domainOrders).omit({
+  id: true,
+  orderedAt: true,
+});
+
+export type InsertDomainOrder = z.infer<typeof insertDomainOrderSchema>;
+export type DomainOrder = typeof domainOrders.$inferSelect;
+
+// SEO Indexing Jobs - Auto-submit to search engines
+export const seoIndexingJobs = pgTable("seo_indexing_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => seoProjects.id),
+  
+  // URL Details
+  url: text("url").notNull(),
+  urlType: text("url_type").notNull(), // "page", "post", "product", "sitemap"
+  
+  // Submission Status
+  googleStatus: text("google_status").default("pending"), // "pending", "submitted", "indexed", "failed"
+  bingStatus: text("bing_status").default("pending"),
+  googleIndexedAt: timestamp("google_indexed_at"),
+  bingIndexedAt: timestamp("bing_indexed_at"),
+  
+  // Errors
+  googleError: text("google_error"),
+  bingError: text("bing_error"),
+  
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("seo_indexing_jobs_project_id_idx").on(table.projectId),
+  googleStatusIdx: index("seo_indexing_jobs_google_status_idx").on(table.googleStatus),
+}));
+
+export const insertSeoIndexingJobSchema = createInsertSchema(seoIndexingJobs).omit({
+  id: true,
+  submittedAt: true,
+});
+
+export type InsertSeoIndexingJob = z.infer<typeof insertSeoIndexingJobSchema>;
+export type SeoIndexingJob = typeof seoIndexingJobs.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete platform schema
 // ============================================================================

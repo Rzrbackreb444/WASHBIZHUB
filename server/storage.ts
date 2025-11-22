@@ -137,6 +137,23 @@ import {
   type InsertSearchIndex,
   type EmailSubscriber,
   type InsertEmailSubscriber,
+  // SEO Suite
+  type SeoProject,
+  type InsertSeoProject,
+  type SeoAudit,
+  type InsertSeoAudit,
+  type SeoMetric,
+  type InsertSeoMetric,
+  type SeoTask,
+  type InsertSeoTask,
+  type SeoAgentTemplate,
+  type InsertSeoAgentTemplate,
+  type SeoAgent,
+  type InsertSeoAgent,
+  type DomainOrder,
+  type InsertDomainOrder,
+  type SeoIndexingJob,
+  type InsertSeoIndexingJob,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -519,6 +536,57 @@ export interface IStorage {
   createEmailSubscriber(subscriber: InsertEmailSubscriber): Promise<EmailSubscriber>;
   updateEmailSubscriber(email: string, subscriber: Partial<InsertEmailSubscriber>): Promise<EmailSubscriber>;
   unsubscribeEmail(email: string): Promise<void>;
+  
+  // ========== SEO SUITE ==========
+  // SEO Projects
+  getSeoProjects(userId?: string): Promise<SeoProject[]>;
+  getSeoProject(id: string): Promise<SeoProject | undefined>;
+  createSeoProject(project: InsertSeoProject): Promise<SeoProject>;
+  updateSeoProject(id: string, project: Partial<InsertSeoProject>): Promise<SeoProject>;
+  deleteSeoProject(id: string): Promise<void>;
+  
+  // SEO Audits
+  getSeoAudits(projectId: string): Promise<SeoAudit[]>;
+  getSeoAudit(id: string): Promise<SeoAudit | undefined>;
+  getLatestSeoAudit(projectId: string): Promise<SeoAudit | undefined>;
+  createSeoAudit(audit: InsertSeoAudit): Promise<SeoAudit>;
+  
+  // SEO Metrics
+  getSeoMetrics(projectId: string, limit?: number): Promise<SeoMetric[]>;
+  createSeoMetric(metric: InsertSeoMetric): Promise<SeoMetric>;
+  
+  // SEO Tasks
+  getSeoTasks(projectId: string, filters?: { status?: string; priority?: string }): Promise<SeoTask[]>;
+  getSeoTask(id: string): Promise<SeoTask | undefined>;
+  createSeoTask(task: InsertSeoTask): Promise<SeoTask>;
+  updateSeoTask(id: string, task: Partial<InsertSeoTask>): Promise<SeoTask>;
+  deleteSeoTask(id: string): Promise<void>;
+  
+  // SEO Agent Templates
+  getSeoAgentTemplates(filters?: { category?: string; isPremium?: boolean }): Promise<SeoAgentTemplate[]>;
+  getSeoAgentTemplate(id: string): Promise<SeoAgentTemplate | undefined>;
+  createSeoAgentTemplate(template: InsertSeoAgentTemplate): Promise<SeoAgentTemplate>;
+  incrementAgentTemplateUsage(id: string): Promise<void>;
+  
+  // SEO Agents
+  getSeoAgents(userId?: string, projectId?: string): Promise<SeoAgent[]>;
+  getSeoAgent(id: string): Promise<SeoAgent | undefined>;
+  createSeoAgent(agent: InsertSeoAgent): Promise<SeoAgent>;
+  updateSeoAgent(id: string, agent: Partial<InsertSeoAgent>): Promise<SeoAgent>;
+  deleteSeoAgent(id: string): Promise<void>;
+  incrementAgentTasksCompleted(id: string): Promise<void>;
+  
+  // Domain Orders
+  getDomainOrders(userId?: string): Promise<DomainOrder[]>;
+  getDomainOrder(id: string): Promise<DomainOrder | undefined>;
+  createDomainOrder(order: InsertDomainOrder): Promise<DomainOrder>;
+  updateDomainOrder(id: string, order: Partial<InsertDomainOrder>): Promise<DomainOrder>;
+  
+  // SEO Indexing Jobs
+  getSeoIndexingJobs(projectId: string): Promise<SeoIndexingJob[]>;
+  getSeoIndexingJob(id: string): Promise<SeoIndexingJob | undefined>;
+  createSeoIndexingJob(job: InsertSeoIndexingJob): Promise<SeoIndexingJob>;
+  updateSeoIndexingJob(id: string, job: Partial<InsertSeoIndexingJob>): Promise<SeoIndexingJob>;
 }
 
 export class MemStorage implements IStorage {

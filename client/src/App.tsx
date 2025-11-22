@@ -50,6 +50,7 @@ import ForumTopic from "@/pages/forum-topic";
 import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
 import RepairGuide from "@/pages/repair-guide";
+import SeoCommandCenter from "@/pages/seo-command-center";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -76,6 +77,7 @@ function Router() {
       <Route path="/book" component={Book} />
       <Route path="/ai-blogging" component={AIBlogging} />
       <Route path="/seo-optimizer" component={SEOOptimizer} />
+      <Route path="/seo" component={SeoCommandCenter} />
       <Route path="/blog" component={Blog} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/parts" component={Parts} />
