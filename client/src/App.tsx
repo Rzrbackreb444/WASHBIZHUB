@@ -64,6 +64,7 @@ import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import DesignStudioPro from "@/pages/design-studio-pro";
 import Login from "@/pages/login";
 import AdminLogin from "@/pages/admin-login";
+import ValuationCalculator from "@/pages/valuation-calculator";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/design-studio-pro" component={DesignStudioPro} />
       <Route path="/login" component={Login} />
       <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/valuation-calculator" component={ValuationCalculator} />
       <Route component={NotFound} />
     </Switch>
   );
