@@ -1,0 +1,345 @@
+* cleanbi_full.ts
+ *
+ * Full CLEANBI implementation + data source mapping + fallbacks/imputations.
+ *
+ * How metrics are found (recommended data sources):
+ *  - grossRevenue / netProfit: seller-provided, POS export, Stripe/QuickBooks (preferred).
+ *  - equipmentAge / brandScore: onsite inspection, seller disclosure, parts DB (manufacturer serial lookup).
+ *  - rentToRevenueRatio: lease rent from lease doc / grossRevenue.
+ *  - utilityCostRatio: utility bills OR estimate from national utility models (energy.gov, local utility rate * machine cycles).
+ *  - turnsPerDay: POS / card reader logs / coinbox history OR estimate via population & machine count heuristic.
+ *  - locationScore: attom API / census tract density + mapbox traffic + visibility heuristics.
+ *  - cleanlinessScore: inspector rating or photo-scored vision model or seller input (0–10).
+ *  - competitionDensity: number of laundromats within 1 mile (listings scrape / Google Places / local business data).
+ *  - growthPotential: planning permits, new apartments (ATTOM, local planning data) OR user input.
+ *
+ * Fallback approach summary:
+ * 1) Prefer verifiable data (POS, bills, lease, manufacturer).
+ * 2) If not available, fall back to best-effort estimates from public data (Census, ATTOM, Mapbox).
+ * 3) If still missing, use conservative defaults + mark low confidence.
+ *
+ * Confidence scoring:
+ * - Confidence is % of high-trust inputs present (POS revenue, lease rent, equipment data, location data).
+ * - Use confidence to gate public display (below threshold -> "Needs Work"/gated).
+ */
+
+/* ---------- Types ---------- */
+type RawInputs = {
+  // Prefer exact; optional if not available
+  grossRevenue?: number;        // annual ($)
+  netProfit?: number;           // annual ($)
+  equipmentList?: { brand?: string; installYear?: number; serial?: string }[]; // per machine
+  monthlyRent?: number;         // $/month
+  monthlyUtilities?: number;    // $/month
+  turnsPerDay?: number;         // observed avg
+  machineCount?: number;        // total coin/card machines
+  population?: number;          // trade area pop
+  popDensity?: number;          // ppl / sq mile
+  medianIncome?: number;        // $
+  renterPct?: number;           // %
+  competitionCount?: number;    // nearby laundromats in 1 mile
+  cleanlinessScore?: number;    // 0-10
+  growthSignals?: { permits?: number; newUnits?: number } // simple
+  // meta
+  sourceFlags?: { [key: string]: boolean } // e.g., posData:true, leaseDoc:true
+};
+
+type Breakdown = Record<string, number>;
+
+type Result = {
+  cleanbi: number;            // 0..100
+  grade: 'A'|'B'|'C'|'Needs Work';
+  breakdown: Breakdown;       // subscores and normalized components
+  confidence: number;         // 0..1
+  usedFallbacks: string[];    // which imputations were used
+};
+
+/* ---------- Config / defaults ---------- */
+const DEFAULTS = {
+  grossRevenue: 120000,      // $/yr baseline if missing (conservative)
+  netProfitMargin: 0.12,     // 12% default profit margin
+  avgMachineAge: 8,          // years
+  monthlyRent: 2000,         // $/mo
+  monthlyUtilities: 800,     // $/mo
+  turnsPerDay: 3,            // conservative baseline
+  machineCount: 20,
+  population: 15000,
+  popDensity: 3000,
+  medianIncome: 42000,
+  renterPct: 50,
+  competitionCount: 2,
+  cleanlinessScore: 6,
+  growthSignalsScore: 20,    // 0..100
+};
+
+/* ---------- Helper: normalize (min-max -> 0..100) ---------- */
+function normalize(x: number, min: number, max: number): number {
+  if (!isFinite(x)) return 0;
+  if (x <= min) return 0;
+  if (x >= max) return 100;
+  return ((x - min) / (max - min)) * 100;
+}
+function clamp100(v: number) { return Math.max(0, Math.min(100, v)); }
+
+/* ---------- Data-source stubs (replace with real API calls) ---------- */
+/* These return either the requested value or undefined if unavailable.
+   Implementers should swap these for actual fetches (ATTOM, Mapbox, Census, POS exports, manufacturer API). */
+
+async function fetchCensusData(addressOrCoords: string | {lat:number;lng:number}) {
+  // stub: returns { population, popDensity, medianIncome, renterPct } OR undefined
+  return undefined;
+}
+async function fetchAttomData(addressOrCoords: any) { return undefined; }
+async function fetchNearbyCompetitors(coords: {lat:number;lng:number}) { return undefined; }
+async function fetchManufacturerData(serial: string) { return undefined; }
+async function fetchPOSMetrics(siteId: string) { return undefined; }
+// etc.
+
+/* ---------- Estimators / heuristics ---------- */
+
+/** Estimate turns/day using population, machine count, and typical laundry use assumptions.
+ *  Heuristic: daily laundry visits per capita in trade area * capture rate * machines
+ *  - tradeRadiusCaptureFactor: fraction of pop that uses this store daily (e.g., 0.001 -> 0.1% per day)
+ *  - default capture tuned conservatively
+ */
+function estimateTurnsFromDemographics(population: number, machineCount: number): number {
+  // If machineCount is zero-ish, return low baseline
+  const machines = Math.max(1, machineCount);
+  // daily visits per 1000 people (typical range 0.5 - 3) -> use 0.9 baseline
+  const visitsPer1000 = 0.9;
+  const dailyVisits = (population / 1000) * visitsPer1000;
+  // store capture (if one store in area) - assume store captures 30% of local visits
+  const capture = 0.3;
+  const storeVisits = dailyVisits * capture;
+  const turnsPerMachine = storeVisits / machines;
+  // clamp realistic
+  return Math.max(0.5, Math.min(turnsPerMachine, 8));
+}
+
+/** Estimate equipment age from list; fallback: DEFAULTS.avgMachineAge */
+function computeAvgEquipmentAge(equipmentList?: {installYear?: number}[]): number {
+  if (!equipmentList || equipmentList.length === 0) return DEFAULTS.avgMachineAge;
+  const currentYear = new Date().getFullYear();
+  const ages = equipmentList.map(m => (m.installYear ? currentYear - m.installYear : DEFAULTS.avgMachineAge));
+  const avg = ages.reduce((a,b) => a+b, 0) / ages.length;
+  return Math.max(0, Math.min(avg, 30));
+}
+
+/* ---------- Imputation & fallback logic ---------- */
+function imputeInputs(raw: RawInputs) {
+  const usedFallbacks: string[] = [];
+  const out: Required<RawInputs> = {
+    grossRevenue: raw.grossRevenue ?? (() => { usedFallbacks.push('grossRevenue_default'); return DEFAULTS.grossRevenue })(),
+    netProfit: raw.netProfit ?? (() => { usedFallbacks.push('netProfit_from_margin'); return (raw.grossRevenue ?? DEFAULTS.grossRevenue) * DEFAULTS.netProfitMargin })(),
+    equipmentList: raw.equipmentList ?? (() => { usedFallbacks.push('equipmentList_default'); return new Array(DEFAULTS.machineCount).fill({ installYear: new Date().getFullYear() - DEFAULTS.avgMachineAge }) })(),
+    monthlyRent: raw.monthlyRent ?? (() => { usedFallbacks.push('monthlyRent_default'); return DEFAULTS.monthlyRent })(),
+    monthlyUtilities: raw.monthlyUtilities ?? (() => { usedFallbacks.push('monthlyUtilities_default'); return DEFAULTS.monthlyUtilities })(),
+    turnsPerDay: raw.turnsPerDay ?? (() => { usedFallbacks.push('turns_estimated_from_demo'); return estimateTurnsFromDemographics(raw.population ?? DEFAULTS.population, raw.machineCount ?? DEFAULTS.machineCount) })(),
+    machineCount: raw.machineCount ?? (() => { usedFallbacks.push('machineCount_default'); return DEFAULTS.machineCount })(),
+    population: raw.population ?? (() => { usedFallbacks.push('population_default'); return DEFAULTS.population })(),
+    popDensity: raw.popDensity ?? (() => { usedFallbacks.push('popDensity_default'); return DEFAULTS.popDensity })(),
+    medianIncome: raw.medianIncome ?? (() => { usedFallbacks.push('medianIncome_default'); return DEFAULTS.medianIncome })(),
+    renterPct: raw.renterPct ?? (() => { usedFallbacks.push('renterPct_default'); return DEFAULTS.renterPct })(),
+    competitionCount: raw.competitionCount ?? (() => { usedFallbacks.push('competitionCount_default'); return DEFAULTS.competitionCount })(),
+    cleanlinessScore: raw.cleanlinessScore ?? (() => { usedFallbacks.push('cleanliness_default'); return DEFAULTS.cleanlinessScore })(),
+    growthSignals: raw.growthSignals ?? (() => { usedFallbacks.push('growthSignals_default'); return { permits: 0, newUnits: 0 } })(),
+    sourceFlags: raw.sourceFlags ?? {}
+  };
+  return { out, usedFallbacks };
+}
+
+/* ---------- Confidence calculator ----------
+   We weight certain inputs as high-trust (posData, leaseDoc, manufacturerData, locationAPIs).
+   Confidence = weighted_present_count / weighted_total.
+*/
+function computeConfidence(sourceFlags: { [k:string]: boolean }) {
+  const weights: Record<string, number> = {
+    posData: 0.25,
+    leaseDoc: 0.2,
+    manufacturerData: 0.15,
+    censusData: 0.15,
+    mapboxData: 0.1,
+    utilitiesBills: 0.15
+  };
+  const total = Object.values(weights).reduce((a,b)=>a+b, 0);
+  let present = 0;
+  for (const k of Object.keys(weights)) {
+    if (sourceFlags[k]) present += weights[k];
+  }
+  return Math.max(0, Math.min(1, present / total)); // 0..1
+}
+
+/* ---------- Main compute function ---------- */
+export async function computeCLEANBI(rawInputs: RawInputs, ctx?: { siteId?:string; coords?:{lat:number;lng:number} }): Promise<Result> {
+  // 1) Try to enrich data via APIs if missing
+  // (Implementers should replace the stubs below with actual calls and set sourceFlags accordingly)
+  const flags: { [k:string]: boolean } = rawInputs.sourceFlags ?? {};
+
+  // Example: attempt to fetch POS if siteId provided
+  if (ctx?.siteId && !flags.posData) {
+    const pos = await fetchPOSMetrics(ctx.siteId).catch(()=>undefined);
+    if (pos) {
+      rawInputs.grossRevenue = rawInputs.grossRevenue ?? pos.annualRevenue;
+      rawInputs.netProfit = rawInputs.netProfit ?? pos.annualNet;
+      rawInputs.turnsPerDay = rawInputs.turnsPerDay ?? pos.turnsPerDay;
+      flags.posData = true;
+    }
+  }
+
+  // Attempt location enrichment if coords provided
+  if (ctx?.coords && (!rawInputs.population || !rawInputs.popDensity)) {
+    const census = await fetchCensusData(ctx.coords).catch(()=>undefined);
+    if (census) {
+      rawInputs.population = rawInputs.population ?? census.population;
+      rawInputs.popDensity = rawInputs.popDensity ?? census.popDensity;
+      rawInputs.medianIncome = rawInputs.medianIncome ?? census.medianIncome;
+      rawInputs.renterPct = rawInputs.renterPct ?? census.renterPct;
+      flags.censusData = true;
+    }
+  }
+
+  // Compute imputations & record which used
+  const { out, usedFallbacks } = imputeInputs(rawInputs);
+
+  // Compute derived numeric metrics
+  const annualRevenue = out.grossRevenue;
+  const profitMargin = out.netProfit / (annualRevenue || 1);
+
+  const avgEquipAge = computeAvgEquipmentAge(out.equipmentList);
+  // brandScore heuristic: average brand quality if known (map brand->score). fallback 60.
+  const brandScore = (() => {
+    const brandMap: Record<string,number> = { 'speedqueen':90, 'dexter':85, 'uni-mac':80, 'maytag':70, 'unknown':60 };
+    const list = out.equipmentList || [];
+    if (list.length === 0) return 60;
+    const scores = list.map(m => {
+      const b = (m.brand || '').toLowerCase();
+      return brandMap[b] ?? 60;
+    });
+    return scores.reduce((a,b)=>a+b,0)/scores.length;
+  })();
+
+  // Normalize components (0..100)
+  const revScore = clamp100(normalize(annualRevenue, 20000, 400000)); // revenue scale
+  const profitScore = clamp100(normalize(profitMargin*100, 0, 50)); // % margin
+  const equipAgeScore = clamp100(normalize((1 - (avgEquipAge / 20)) * 100, 20, 100)); // younger better
+  const brandScoreN = clamp100(brandScore);
+  const rentRatio = (out.monthlyRent * 12) / (annualRevenue || 1); // ratio
+  const rentScore = clamp100(normalize((1 - rentRatio) * 100, 20, 80)); // inverted
+  const utilRatio = (out.monthlyUtilities * 12) / (annualRevenue || 1);
+  const utilScore = clamp100(normalize((1 - utilRatio) * 100, 20, 90));
+  const turnsScore = clamp100(normalize(out.turnsPerDay, 0, 8));
+  const locScore = clamp100(
+    // composite: renters + popDensity + medianIncome (simple avg normalized)
+    ( normalize(out.renterPct, 10, 90) * 0.33 +
+      normalize(out.popDensity, 500, 30000) * 0.33 +
+      normalize(out.medianIncome, 20000, 120000) * 0.34 )
+  );
+  const cleanScore = clamp100(normalize(out.cleanlinessScore, 0, 10));
+  const compScore = clamp100(normalize((10 - out.competitionCount), 0, 10));
+  const growthScore = clamp100(
+    normalize(( (out.growthSignals?.permits||0) * 2 + (out.growthSignals?.newUnits||0) * 1 ), 0, 100)
+  );
+
+  // Subscores (weights - adjustable)
+  const Market = Math.round(
+    0.30 * normalize(out.renterPct, 10, 90) +
+    0.25 * normalize(out.popDensity, 500, 30000) +
+    0.20 * normalize(out.medianIncome, 20000, 100000) +
+    0.15 * normalize(((out.growthSignals?.newUnits||0) / Math.max(1, out.population)) * 100000, 0, 5) +
+    0.10 * compScore
+  );
+
+  const Financial = Math.round(
+    0.40 * profitScore +
+    0.30 * clamp100(normalize((out.netProfit/(annualRevenue||1))*100, 0, 50)) + // redundant but explicit
+    0.20 * rentScore +
+    0.10 * turnsScore
+  );
+
+  const Lease = Math.round(
+    // Without explicit lease years, we approximate with rent stability: low escalation -> higher score
+    0.55 * clamp100(normalize(12 / Math.max(1, out.monthlyRent), 0.5, 15)) + // inverse rent as proxy for lease health
+    0.30 * clamp100( normalize((1 - ( (out.monthlyRent/Math.max(1, annualRevenue/12)) ))*100, 50, 100) ) +
+    0.15 * 50 // neutral for options if unknown
+  );
+
+  const Equipment = Math.round(
+    0.40 * brandScoreN +
+    0.25 * equipAgeScore +
+    0.20 * (out.equipmentList.length > 0 ? 100 : 40) + // cashless/wdf proxy if electronics present
+    0.15 * (out.machineCount > 0 ? clamp100(normalize(out.machineCount, 5, 60)) : 40)
+  );
+
+  const Utilities = Math.round(
+    0.60 * clamp100(normalize(100 - utilScore, 10, 90)) + // energy efficiency proxy
+    0.40 * (100 - clamp100(normalize(utilRatio*100, 5, 40)))
+  );
+
+  const Growth = Math.round(
+    0.7 * clamp100(normalize(( (out.growthSignals?.permits||0) * 10 + (out.growthSignals?.newUnits||0) * 1 ), 0, 100)) +
+    0.3 * clamp100(normalize((out.population || DEFAULTS.population) / 1000, 0, 200))
+  );
+
+  // Final aggregation (weights)
+  const rawScore = clamp100(
+    Math.round(
+      0.22 * Market +
+      0.22 * Financial +
+      0.14 * Lease +
+      0.14 * Equipment +
+      0.08 * Utilities +
+      0.08 * Growth
+    )
+  );
+
+  // Grade mapping per your rule
+  const grade = rawScore >= 90 ? 'A' : rawScore >= 75 ? 'B' : rawScore >= 60 ? 'C' : 'Needs Work';
+
+  // Compute confidence
+  const confidence = computeConfidence(flags);
+
+  // Build breakdown
+  const breakdown: Breakdown = {
+    Market,
+    Financial,
+    Lease,
+    Equipment,
+    Utilities,
+    Growth,
+    revScore,
+    profitScore,
+    equipAgeScore,
+    brandScoreN,
+    rentScore,
+    utilScore,
+    turnsScore,
+    locScore,
+    cleanScore,
+    compScore,
+    growthScore
+  };
+
+  return {
+    cleanbi: rawScore,
+    grade,
+    breakdown,
+    confidence,
+    usedFallbacks
+  };
+}
+
+/* ---------- Example usage (pseudo)
+(async () => {
+  const result = await computeCLEANBI({ grossRevenue: 150000, monthlyRent: 2500, equipmentList: [ { brand:'SpeedQueen', installYear:2016 } ] }, { siteId: 'xyz', coords: {lat:34.5, lng:-92.7} });
+  console.log(result);
+})();
+*/
+
+/**
+ * Implementation notes for developer:
+ * - Replace fetch stubs with real API integrations:
+ *    - ATTOM (property & building), Mapbox (geocoding/traffic), Census (demographics), Google Places (competitors), manufacturer APIs (Dexter/Dexter serial lookup), POS/Stripe/QuickBooks for revenue.
+ * - Log "usedFallbacks" for each computed analysis to explain confidence to buyers/sellers.
+ * - Keep cleanbi_version in DB to re-score historical listings if algorithm changes.
+ * - Provide endpoint to "recalculate with owner-supplied data" to encourage sellers to upload lease, bills, POS exports (this increases confidence & unlocks public grade).
+ */

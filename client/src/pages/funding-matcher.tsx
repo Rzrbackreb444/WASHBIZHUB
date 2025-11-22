@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DollarSign, CheckCircle2 } from "lucide-react";
+import fundingHeroImg from "@assets/WBH FUNDING MATCHER SEARCH IMAGE_1763780009740.png";
 
 interface Lender {
   name: string;
@@ -94,17 +95,31 @@ export default function FundingMatcher() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <DollarSign className="h-16 w-16 text-accent mx-auto mb-4" />
-          <h1 className="text-5xl font-black text-white mb-4" data-testid="text-funding-title">
-            Laundromat Funding Matcher
-          </h1>
-          <p className="text-xl text-white/70" data-testid="text-funding-subtitle">
-            Connect with SBA lenders, banks, and alternative financing sources tailored to your needs
-          </p>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section with Image */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
+        <div className="absolute inset-0 opacity-20">
+          <img 
+            src={fundingHeroImg} 
+            alt="Find Funding for Your Commercial Laundry Business - WashBizHub"
+            className="w-full h-full object-cover"
+          />
         </div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <DollarSign className="h-12 sm:h-16 w-12 sm:w-16 text-accent mx-auto mb-4" />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4" data-testid="text-funding-title">
+              Laundromat Funding Matcher
+            </h1>
+            <p className="text-base sm:text-lg lg:text-xl text-white/70" data-testid="text-funding-subtitle">
+              Connect with SBA lenders, banks, and alternative financing sources tailored to your needs
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
         <Card className="bg-white/10 backdrop-blur border-white/20">
           <CardHeader>
