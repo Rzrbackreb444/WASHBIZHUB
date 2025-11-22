@@ -28,6 +28,7 @@ import {
   Users,
   BarChart3,
   MapPin,
+  Zap,
 } from "lucide-react";
 import logoUrl from "@assets/LOGO REAL_1763715525600.png";
 
@@ -40,6 +41,7 @@ const MAIN_LINKS = [
 ];
 
 const TOOLS_LINKS = [
+  { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Zap },
   { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },
   { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3 },
   { href: "/valuation-calculator", label: "Valuation Tool", icon: DollarSign },
