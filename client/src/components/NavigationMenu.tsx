@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu as NavMenu,
@@ -20,7 +19,6 @@ import {
   Menu,
   X,
   LogOut,
-  User,
   Settings,
   Home,
   BookOpen,
@@ -29,56 +27,57 @@ import {
   Wrench,
   Users,
   BarChart3,
+  MapPin,
 } from "lucide-react";
+
+const MAIN_LINKS = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/laundromat-listings", label: "Marketplace", icon: Store },
+  { href: "/laundromat-locator", label: "Locator", icon: MapPin },
+  { href: "/learning", label: "Courses", icon: BookOpen },
+  { href: "/calculators", label: "Calculators", icon: Calculator },
+];
+
+const TOOLS_LINKS = [
+  { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },
+  { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3 },
+  { href: "/forum", label: "Community", icon: Users },
+];
 
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (path: string) => location === path;
-
-  const mainLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/laundromat-listings", label: "Marketplace", icon: Store },
-    { href: "/laundromat-locator", label: "Locator", icon: MapPin },
-    { href: "/learning", label: "Courses", icon: BookOpen },
-    { href: "/calculators", label: "Calculators", icon: Calculator },
-  ];
-
-  const toolsLinks = [
-    { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },
-    { href: "/cleanbi-calculator", label: "CLEANBI Score", icon: BarChart3 },
-    { href: "/forum", label: "Community", icon: Users },
-  ];
+  const isActive = useMemo(() => (path: string) => location === path, [location]);
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/">
-          <a className="text-2xl font-bold text-accent flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span>🧺</span>
+          <a className="text-2xl font-bold text-accent flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
+            <span className="hidden sm:inline">🧺</span>
             <span>WashBizHub</span>
           </a>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {mainLinks.map((link) => {
+        <nav className="hidden md:flex items-center gap-1 flex-1 px-6">
+          {MAIN_LINKS.map((link) => {
             const Icon = link.icon;
             return (
               <Link key={link.href} href={link.href}>
                 <a
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap ${
                     isActive(link.href)
                       ? "bg-accent text-accent-foreground"
-                      : "hover:bg-muted"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                   data-testid={`nav-link-${link.label.toLowerCase()}`}
                 >
                   <Icon className="w-4 h-4" />
-                  {link.label}
+                  <span className="hidden lg:inline">{link.label}</span>
                 </a>
               </Link>
             );
@@ -86,7 +85,7 @@ export function NavigationMenu() {
         </nav>
 
         {/* Right Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Desktop Tools Menu */}
           <div className="hidden lg:block">
             <NavMenu>
@@ -97,11 +96,11 @@ export function NavigationMenu() {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="grid gap-2 p-4 w-60">
-                      {toolsLinks.map((link) => {
+                      {TOOLS_LINKS.map((link) => {
                         const Icon = link.icon;
                         return (
                           <Link key={link.href} href={link.href}>
-                            <NavigationMenuLink
+                            <a
                               className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               data-testid={`nav-tool-${link.label.toLowerCase()}`}
                             >
@@ -109,7 +108,7 @@ export function NavigationMenu() {
                                 <Icon className="w-4 h-4" />
                                 <span className="text-sm font-medium">{link.label}</span>
                               </div>
-                            </NavigationMenuLink>
+                            </a>
                           </Link>
                         );
                       })}
@@ -133,7 +132,7 @@ export function NavigationMenu() {
                   data-testid="nav-settings-button"
                 >
                   <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">{user.firstName || "Profile"}</span>
+                  <span className="hidden sm:inline text-xs">{user.firstName || "Profile"}</span>
                 </Button>
               </Link>
               <Button
@@ -144,19 +143,19 @@ export function NavigationMenu() {
                 className="gap-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline text-xs">Logout</span>
               </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="outline" size="sm" data-testid="nav-login-button">
+                <Button variant="outline" size="sm" data-testid="nav-login-button" className="text-xs">
                   Sign In
                 </Button>
               </Link>
               <Link href="/login">
-                <Button size="sm" data-testid="nav-signup-button">
-                  Get Started
+                <Button size="sm" data-testid="nav-signup-button" className="text-xs">
+                  Start Free
                 </Button>
               </Link>
             </div>
@@ -183,7 +182,7 @@ export function NavigationMenu() {
               </div>
 
               <nav className="space-y-2">
-                {[...mainLinks, ...toolsLinks].map((link) => {
+                {[...MAIN_LINKS, ...TOOLS_LINKS].map((link) => {
                   const Icon = link.icon;
                   return (
                     <Link key={link.href} href={link.href}>
@@ -192,7 +191,7 @@ export function NavigationMenu() {
                         className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
                           isActive(link.href)
                             ? "bg-accent text-accent-foreground"
-                            : "hover:bg-muted"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         }`}
                         data-testid={`nav-mobile-${link.label.toLowerCase()}`}
                       >
@@ -210,5 +209,3 @@ export function NavigationMenu() {
     </header>
   );
 }
-
-import { MapPin } from "lucide-react";

@@ -5,7 +5,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { Header } from "@/components/Header";
+import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,6 +62,7 @@ import PosLanding from "@/pages/landing/pos-landing";
 import CoursesLanding from "@/pages/landing/courses-landing";
 import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import DesignStudioPro from "@/pages/design-studio-pro";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -125,6 +126,7 @@ function Router() {
       <Route path="/courses-landing" component={CoursesLanding} />
       <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
       <Route path="/design-studio-pro" component={DesignStudioPro} />
+      <Route path="/login" component={Login} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -137,12 +139,13 @@ function App() {
         <ThemeProvider>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col">
-              <Header />
+              <NavigationMenu />
               <div className="flex-1">
                 <Router />
               </div>
               <Footer />
               <AIChatWidget />
+              <AiConsultantWidget />
             </div>
             <Toaster />
           </TooltipProvider>
