@@ -241,7 +241,8 @@ export default function LaundromatListings() {
             ))}
           </div>
         </div>
-      </>
+      </div>
+    </>
     );
   }
 
