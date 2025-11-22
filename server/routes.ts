@@ -128,23 +128,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs", isAuthenticated, async (req, res) => {
+  app.post("/api/designs", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const validated = insertDesignSchema.parse(req.body);
-      const design = await storage.createDesign(validated);
+      const design = await storage.createDesign({
+        ...validated,
+        userId: currentUser.userId,
+      });
       res.json(design);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
   });
 
-  app.put("/api/designs/:id", isAuthenticated, async (req, res) => {
+  app.put("/api/designs/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertDesignSchema.parse(req.body);
-      const updated = await storage.updateDesign(req.params.id, validated);
-      if (!updated) {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const existing = await storage.getDesign(req.params.id);
+      if (!existing) {
         return res.status(404).json({ error: "Design not found" });
       }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only edit your own designs" });
+      }
+
+      const validated = insertDesignSchema.parse(req.body);
+      const updated = await storage.updateDesign(req.params.id, validated);
       res.json(updated);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Failed to update design" });
@@ -174,8 +193,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/designs/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/designs/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const existing = await storage.getDesign(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Design not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only delete your own designs" });
+      }
+
       await storage.deleteDesign(req.params.id);
       res.json({ success: true });
     } catch (error: any) {
@@ -874,7 +907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai-blog-tasks", async (req, res) => {
+  app.post("/api/ai-blog-tasks", isAdmin, async (req, res) => {
     try {
       const validated = insertAiBlogTaskSchema.parse(req.body);
       const task = await storage.createAiBlogTask(validated);
@@ -884,7 +917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/ai-blog-tasks/:id", async (req, res) => {
+  app.put("/api/ai-blog-tasks/:id", isAdmin, async (req, res) => {
     try {
       const task = await storage.updateAiBlogTask(req.params.id, req.body);
       res.json(task);
@@ -894,7 +927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate blog content using multi-AI providers
-  app.post("/api/ai-blog-tasks/:id/generate", async (req, res) => {
+  app.post("/api/ai-blog-tasks/:id/generate", isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const task = await storage.getAiBlogTask(id);
@@ -965,7 +998,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/seo-keywords", async (req, res) => {
+  app.post("/api/seo-keywords", isAdmin, async (req, res) => {
     try {
       const validated = insertSeoKeywordSchema.parse(req.body);
       const keyword = await storage.createSeoKeyword(validated);
@@ -987,7 +1020,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/competitor-analysis", async (req, res) => {
+  app.post("/api/competitor-analysis", isAdmin, async (req, res) => {
     try {
       const validated = insertCompetitorAnalysisSchema.parse(req.body);
       const analysis = await storage.createCompetitorAnalysis(validated);
@@ -1032,7 +1065,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.put("/api/consultations/:id", async (req, res) => {
+  app.put("/api/consultations/:id", isAdmin, async (req, res) => {
     try {
       const validated = insertConsultationSchema.partial().parse(req.body);
       const updated = await storage.updateConsultation(req.params.id, validated);
@@ -1070,31 +1103,64 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/listings", isAuthenticated, async (req, res) => {
+  app.post("/api/listings", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const validated = insertListingSchema.parse(req.body);
-      const listing = await storage.createListing(validated);
+      const listing = await storage.createListing({
+        ...validated,
+        userId: currentUser.userId,
+      });
       res.json(listing);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
   });
 
-  app.put("/api/listings/:id", isAuthenticated, async (req, res) => {
+  app.put("/api/listings/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertListingSchema.partial().parse(req.body);
-      const updated = await storage.updateListing(req.params.id, validated);
-      if (!updated) {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const existing = await storage.getListing(req.params.id);
+      if (!existing) {
         return res.status(404).json({ message: "Listing not found" });
       }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only edit your own listings" });
+      }
+
+      const validated = insertListingSchema.partial().parse(req.body);
+      const updated = await storage.updateListing(req.params.id, validated);
       res.json(updated);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
   });
 
-  app.delete("/api/listings/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/listings/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const existing = await storage.getListing(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only delete your own listings" });
+      }
+
       await storage.deleteListing(req.params.id);
       res.json({ success: true });
     } catch (error: any) {

@@ -587,6 +587,19 @@ export interface IStorage {
   getSeoIndexingJob(id: string): Promise<SeoIndexingJob | undefined>;
   createSeoIndexingJob(job: InsertSeoIndexingJob): Promise<SeoIndexingJob>;
   updateSeoIndexingJob(id: string, job: Partial<InsertSeoIndexingJob>): Promise<SeoIndexingJob>;
+  
+  // Platform Settings
+  getPlatformSettings(category?: string): Promise<PlatformSetting[]>;
+  getPlatformSetting(key: string): Promise<PlatformSetting | undefined>;
+  upsertPlatformSetting(setting: InsertPlatformSetting): Promise<PlatformSetting>;
+  deletePlatformSetting(key: string): Promise<void>;
+  
+  // Newsletter Campaigns
+  getNewsletterCampaigns(filters?: { status?: string }): Promise<NewsletterCampaign[]>;
+  getNewsletterCampaign(id: string): Promise<NewsletterCampaign | undefined>;
+  createNewsletterCampaign(campaign: InsertNewsletterCampaign): Promise<NewsletterCampaign>;
+  updateNewsletterCampaign(id: string, campaign: Partial<InsertNewsletterCampaign>): Promise<NewsletterCampaign>;
+  deleteNewsletterCampaign(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
