@@ -54,7 +54,11 @@ import SeoCommandCenter from "@/pages/seo-command-center";
 import AboutUs from "@/pages/about-us";
 import AdminDashboard from "@/pages/admin/index";
 import AdminAds from "@/pages/admin/ads";
+import LaundromatListings from "@/pages/laundromat-listings";
+import EquipmentMarketplace from "@/pages/equipment-marketplace";
+import LearningPage from "@/pages/learning";
 import NotFound from "@/pages/not-found";
+import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -108,6 +112,9 @@ function Router() {
       <Route path="/about" component={AboutUs} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/ads" component={AdminAds} />
+      <Route path="/laundromat-listings" component={LaundromatListings} />
+      <Route path="/equipment" component={EquipmentMarketplace} />
+      <Route path="/learning" component={LearningPage} />
       <Route component={NotFound} />
     </Switch>
   );
