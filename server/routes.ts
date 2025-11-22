@@ -2532,19 +2532,37 @@ Disallow: /private/`;
         return res.status(400).json({ error: "No active subscribers to send to" });
       }
 
-      // In production, this would integrate with Resend/SendGrid
-      // For now, we'll log and return success
-      console.log(`📧 Newsletter sent: "${subject}" to ${subscribers.length} subscribers`);
-      console.log(`Content preview: ${content.substring(0, 100)}...`);
+      // Send via Resend
+      const { getResendClient } = await import('./resend-client');
+      const { client, fromEmail } = await getResendClient();
 
-      // TODO: Integrate with Resend/SendGrid
-      // await sendBulkEmail({
-      //   from: 'info@washbizhub.com',
-      //   to: subscribers.map(s => s.email),
-      //   subject,
-      //   text: content,
-      // });
+      // Send to each subscriber (Resend supports batch sending)
+      const emailPromises = subscribers.map(subscriber => 
+        client.emails.send({
+          from: fromEmail,
+          to: subscriber.email,
+          subject,
+          text: content,
+        })
+      );
 
+      const results = await Promise.allSettled(emailPromises);
+      
+      // Check for failures
+      const failures = results.filter(r => r.status === 'rejected');
+      const successes = results.filter(r => r.status === 'fulfilled');
+
+      if (failures.length > 0) {
+        console.error(`❌ Resend errors: ${failures.length} failed out of ${subscribers.length}`);
+        return res.status(500).json({ 
+          error: `Failed to send ${failures.length} emails. ${successes.length} sent successfully.`,
+          failedCount: failures.length,
+          successCount: successes.length
+        });
+      }
+
+      console.log(`✅ Newsletter sent: "${subject}" to ${subscribers.length} subscribers via Resend`);
+      
       res.json({ 
         message: "Newsletter sent successfully",
         recipientCount: subscribers.length
