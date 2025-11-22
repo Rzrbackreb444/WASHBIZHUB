@@ -34,6 +34,9 @@ import FeaturedListings from "@/pages/featured-listings";
 import VendorSpotlight from "@/pages/vendor-spotlight";
 import AboutUs from "@/pages/about-us";
 import Funding from "@/pages/funding";
+import EquipmentFinancing from "@/pages/equipment-financing";
+import RealEstateFinancing from "@/pages/real-estate-financing";
+import WorkingCapitalFinancing from "@/pages/working-capital-financing";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -66,7 +69,6 @@ import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
 import RepairGuide from "@/pages/repair-guide";
 import SeoCommandCenter from "@/pages/seo-command-center";
-import AboutUs from "@/pages/about-us";
 import AdminDashboard from "@/pages/admin/index";
 import AdminAds from "@/pages/admin/ads";
 import AdminBlog from "@/pages/admin/blog";
@@ -147,6 +149,9 @@ function Router() {
       <Route path="/vendor-spotlight" component={VendorSpotlight} />
       <Route path="/about-us" component={AboutUs} />
       <Route path="/funding" component={Funding} />
+      <Route path="/equipment-financing" component={EquipmentFinancing} />
+      <Route path="/real-estate-financing" component={RealEstateFinancing} />
+      <Route path="/working-capital-financing" component={WorkingCapitalFinancing} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
