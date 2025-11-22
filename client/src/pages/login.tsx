@@ -19,7 +19,7 @@ export default function Login() {
 
   const handleReplitLogin = async () => {
     // Replit Auth handles login via the auth setup in server
-    window.location.href = "/auth/login";
+    window.location.href = "/api/login";
   };
 
   if (isLoading) {
