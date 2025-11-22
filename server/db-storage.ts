@@ -142,6 +142,12 @@ import {
   type InsertDealAlert,
   type BrowseAbandonment,
   type InsertBrowseAbandonment,
+  rateLimitLog,
+  type RateLimitLog,
+  type InsertRateLimitLog,
+  emailVerificationTokens,
+  type EmailVerificationToken,
+  type InsertEmailVerificationToken,
   brokerProfiles,
   type BrokerProfile,
   type InsertBrokerProfile,
@@ -2124,6 +2130,86 @@ export class DbStorage implements IStorage {
     await db.update(browseAbandonment)
       .set({ reminderSent: true, reminderSentAt: new Date() })
       .where(eq(browseAbandonment.id, id));
+  }
+
+  // ============================================================================
+  // SECURITY: RATE LIMITING & EMAIL VERIFICATION
+  // ============================================================================
+  
+  // Check if IP address has exceeded rate limit for endpoint
+  async checkRateLimit(ipAddress: string, endpoint: string, maxRequests: number, windowHours: number): Promise<boolean> {
+    const windowStart = new Date();
+    windowStart.setHours(windowStart.getHours() - windowHours);
+    
+    const logs = await db.select()
+      .from(rateLimitLog)
+      .where(
+        and(
+          eq(rateLimitLog.ipAddress, ipAddress),
+          eq(rateLimitLog.endpoint, endpoint),
+          sql`${rateLimitLog.windowStart} >= ${windowStart}`
+        )
+      );
+    
+    const totalRequests = logs.reduce((sum, log) => sum + log.requestCount, 0);
+    return totalRequests < maxRequests; // Returns true if under limit
+  }
+  
+  // Record a new request for rate limiting (UPSERT to handle race conditions)
+  async recordRequest(ipAddress: string, endpoint: string, windowHours: number): Promise<void> {
+    const now = new Date();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + windowHours);
+    
+    // Round to current hour for window tracking
+    const windowStart = new Date(now);
+    windowStart.setMinutes(0, 0, 0);
+    
+    // UPSERT: Insert or increment if exists (handles concurrent requests safely)
+    await db.insert(rateLimitLog)
+      .values({
+        ipAddress,
+        endpoint,
+        requestCount: 1,
+        windowStart,
+        expiresAt,
+      })
+      .onConflictDoUpdate({
+        target: [rateLimitLog.ipAddress, rateLimitLog.endpoint, rateLimitLog.windowStart],
+        set: {
+          requestCount: sql`${rateLimitLog.requestCount} + 1`,
+        },
+      });
+  }
+  
+  // Cleanup expired rate limit logs
+  async cleanupExpiredRateLimits(): Promise<void> {
+    await db.delete(rateLimitLog)
+      .where(sql`${rateLimitLog.expiresAt} < NOW()`);
+  }
+  
+  // Email Verification
+  async createEmailVerificationToken(token: InsertEmailVerificationToken): Promise<EmailVerificationToken> {
+    const result = await db.insert(emailVerificationTokens).values(token).returning();
+    return result[0];
+  }
+  
+  async getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined> {
+    const result = await db.select()
+      .from(emailVerificationTokens)
+      .where(eq(emailVerificationTokens.token, token));
+    return result[0];
+  }
+  
+  async markEmailVerified(token: string): Promise<void> {
+    await db.update(emailVerificationTokens)
+      .set({ verified: true })
+      .where(eq(emailVerificationTokens.token, token));
+  }
+  
+  async cleanupExpiredTokens(): Promise<void> {
+    await db.delete(emailVerificationTokens)
+      .where(sql`${emailVerificationTokens.expiresAt} < NOW()`);
   }
 }
 

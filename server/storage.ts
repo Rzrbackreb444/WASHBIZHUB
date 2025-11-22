@@ -172,6 +172,10 @@ import {
   type InsertDealAlert,
   type BrowseAbandonment,
   type InsertBrowseAbandonment,
+  type RateLimitLog,
+  type InsertRateLimitLog,
+  type EmailVerificationToken,
+  type InsertEmailVerificationToken,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -663,6 +667,19 @@ export interface IStorage {
   createBrowseAbandonment(abandonment: InsertBrowseAbandonment): Promise<BrowseAbandonment>;
   updateBrowseAbandonment(id: string, abandonment: Partial<InsertBrowseAbandonment>): Promise<BrowseAbandonment>;
   markBrowseReminderSent(id: string): Promise<void>;
+  
+  // ==================== SECURITY: RATE LIMITING & EMAIL VERIFICATION ====================
+  
+  // Rate Limiting - Track and limit API requests per IP
+  checkRateLimit(ipAddress: string, endpoint: string, maxRequests: number, windowHours: number): Promise<boolean>;
+  recordRequest(ipAddress: string, endpoint: string, windowHours: number): Promise<void>;
+  cleanupExpiredRateLimits(): Promise<void>;
+  
+  // Email Verification - Ensure users own the emails they register
+  createEmailVerificationToken(token: InsertEmailVerificationToken): Promise<EmailVerificationToken>;
+  getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
+  markEmailVerified(token: string): Promise<void>;
+  cleanupExpiredTokens(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -1294,6 +1311,15 @@ export class MemStorage implements IStorage {
   async createBrowseAbandonment(): Promise<BrowseAbandonment> { throw new Error("Use DbStorage for alert features"); }
   async updateBrowseAbandonment(): Promise<BrowseAbandonment> { throw new Error("Use DbStorage for alert features"); }
   async markBrowseReminderSent(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  
+  // Security: Rate Limiting & Email Verification Stubs
+  async checkRateLimit(): Promise<boolean> { return true; } // No rate limiting in MemStorage
+  async recordRequest(): Promise<void> { } // No-op in MemStorage
+  async cleanupExpiredRateLimits(): Promise<void> { }
+  async createEmailVerificationToken(): Promise<EmailVerificationToken> { throw new Error("Use DbStorage for security features"); }
+  async getEmailVerificationToken(): Promise<EmailVerificationToken | undefined> { return undefined; }
+  async markEmailVerified(): Promise<void> { throw new Error("Use DbStorage for security features"); }
+  async cleanupExpiredTokens(): Promise<void> { }
 }
 
 // Use DbStorage for production-grade persistence

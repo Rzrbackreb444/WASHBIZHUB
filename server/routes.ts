@@ -9,6 +9,7 @@ import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
+import { rateLimiter } from "./rate-limit-middleware";
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
@@ -2691,7 +2692,7 @@ Disallow: /private/`;
   // ==================== EMAIL ALERTS (SUPERSTORE) ====================
   
   // POST /api/alerts/price - Create price drop alert
-  app.post("/api/alerts/price", async (req: any, res) => {
+  app.post("/api/alerts/price", rateLimiter("/api/alerts/price", 5, 1), async (req: any, res) => {
     try {
       const { email, productASIN, productName, currentPrice, targetPrice, userId } = req.body;
       
@@ -2769,7 +2770,7 @@ Disallow: /private/`;
   });
 
   // POST /api/alerts/stock - Create back-in-stock alert
-  app.post("/api/alerts/stock", async (req: any, res) => {
+  app.post("/api/alerts/stock", rateLimiter("/api/alerts/stock", 5, 1), async (req: any, res) => {
     try {
       const { email, productASIN, productName, userId } = req.body;
       
@@ -2840,7 +2841,7 @@ Disallow: /private/`;
   });
 
   // POST /api/alerts/new-products - Subscribe to new product alerts for category
-  app.post("/api/alerts/new-products", async (req: any, res) => {
+  app.post("/api/alerts/new-products", rateLimiter("/api/alerts/new-products", 5, 1), async (req: any, res) => {
     try {
       const { email, category, userId } = req.body;
       
@@ -2913,7 +2914,7 @@ Disallow: /private/`;
   });
 
   // POST /api/alerts/deals - Subscribe to deal alerts
-  app.post("/api/alerts/deals", async (req: any, res) => {
+  app.post("/api/alerts/deals", rateLimiter("/api/alerts/deals", 5, 1), async (req: any, res) => {
     try {
       const { email, categories, minDiscount, userId } = req.body;
       
