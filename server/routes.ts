@@ -2688,6 +2688,335 @@ Disallow: /private/`;
 
   // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
 
+  // ==================== EMAIL ALERTS (SUPERSTORE) ====================
+  
+  // POST /api/alerts/price - Create price drop alert
+  app.post("/api/alerts/price", async (req: any, res) => {
+    try {
+      const { email, productASIN, productName, currentPrice, targetPrice, userId } = req.body;
+      
+      // Validation
+      if (!email || !productASIN || !productName || currentPrice === undefined || targetPrice === undefined) {
+        return res.status(400).json({ error: "Email, productASIN, productName, currentPrice, and targetPrice are required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      // Price validation
+      if (targetPrice >= currentPrice) {
+        return res.status(400).json({ error: "Target price must be lower than current price" });
+      }
+
+      // Check for duplicate alert
+      const existing = await storage.getPriceAlerts({ email, productASIN });
+      if (existing.length > 0) {
+        return res.json({ 
+          message: "You already have a price alert for this product", 
+          alert: existing[0] 
+        });
+      }
+
+      // Create alert
+      const alert = await storage.createPriceAlert({
+        userId: userId || null,
+        email,
+        productASIN,
+        productTitle: productName,
+        currentPrice: currentPrice.toString(),
+        targetPrice: targetPrice.toString(),
+        alertSent: false,
+      });
+
+      res.status(201).json({ 
+        message: "Price alert created! We'll notify you when the price drops.", 
+        alert 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/alerts/price/:id - Delete price alert
+  app.delete("/api/alerts/price/:id", async (req, res) => {
+    try {
+      await storage.deletePriceAlert(req.params.id);
+      res.json({ message: "Price alert deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/alerts/price - Get user's price alerts (authenticated or by email)
+  app.get("/api/alerts/price", async (req: any, res) => {
+    try {
+      const email = req.query.email as string | undefined;
+      const userId = req.user?.claims?.sub;
+
+      if (!email && !userId) {
+        return res.status(400).json({ error: "Email or authentication required" });
+      }
+
+      const filters = email ? { email } : userId ? { userId } : undefined;
+      const alerts = await storage.getPriceAlerts(filters);
+      res.json(alerts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/alerts/stock - Create back-in-stock alert
+  app.post("/api/alerts/stock", async (req: any, res) => {
+    try {
+      const { email, productASIN, productName, userId } = req.body;
+      
+      // Validation
+      if (!email || !productASIN || !productName) {
+        return res.status(400).json({ error: "Email, productASIN, and productName are required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      // Check for duplicate alert
+      const existing = await storage.getStockAlerts({ email, productASIN });
+      if (existing.length > 0) {
+        return res.json({ 
+          message: "You already have a stock alert for this product", 
+          alert: existing[0] 
+        });
+      }
+
+      // Create alert
+      const alert = await storage.createStockAlert({
+        userId: userId || null,
+        email,
+        productASIN,
+        productTitle: productName,
+        alertSent: false,
+      });
+
+      res.status(201).json({ 
+        message: "Stock alert created! We'll notify you when it's back in stock.", 
+        alert 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/alerts/stock/:id - Delete stock alert
+  app.delete("/api/alerts/stock/:id", async (req, res) => {
+    try {
+      await storage.deleteStockAlert(req.params.id);
+      res.json({ message: "Stock alert deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/alerts/stock - Get user's stock alerts
+  app.get("/api/alerts/stock", async (req: any, res) => {
+    try {
+      const email = req.query.email as string | undefined;
+      const userId = req.user?.claims?.sub;
+
+      if (!email && !userId) {
+        return res.status(400).json({ error: "Email or authentication required" });
+      }
+
+      const filters = email ? { email } : userId ? { userId } : undefined;
+      const alerts = await storage.getStockAlerts(filters);
+      res.json(alerts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/alerts/new-products - Subscribe to new product alerts for category
+  app.post("/api/alerts/new-products", async (req: any, res) => {
+    try {
+      const { email, category, userId } = req.body;
+      
+      // Validation
+      if (!email || !category) {
+        return res.status(400).json({ error: "Email and category are required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      // Check for duplicate alert
+      const existing = await storage.getNewProductAlerts({ email, category });
+      if (existing.length > 0) {
+        return res.json({ 
+          message: "You're already subscribed to new product alerts for this category", 
+          alert: existing[0] 
+        });
+      }
+
+      // Create alert
+      const alert = await storage.createNewProductAlert({
+        userId: userId || null,
+        email,
+        category,
+      });
+
+      res.status(201).json({ 
+        message: `Subscribed to new product alerts for ${category}!`, 
+        alert 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/alerts/new-products/:id - Unsubscribe from new product alerts
+  app.delete("/api/alerts/new-products/:id", async (req, res) => {
+    try {
+      await storage.deleteNewProductAlert(req.params.id);
+      res.json({ message: "New product alert deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/alerts/new-products - Get user's new product alerts
+  app.get("/api/alerts/new-products", async (req: any, res) => {
+    try {
+      const email = req.query.email as string | undefined;
+      const category = req.query.category as string | undefined;
+      const userId = req.user?.claims?.sub;
+
+      if (!email && !userId) {
+        return res.status(400).json({ error: "Email or authentication required" });
+      }
+
+      const filters: any = {};
+      if (email) filters.email = email;
+      if (category) filters.category = category;
+      
+      const alerts = await storage.getNewProductAlerts(filters);
+      res.json(alerts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/alerts/deals - Subscribe to deal alerts
+  app.post("/api/alerts/deals", async (req: any, res) => {
+    try {
+      const { email, categories, minDiscount, userId } = req.body;
+      
+      // Validation
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      // Check for duplicate alert
+      const existing = await storage.getDealAlerts({ email });
+      if (existing.length > 0) {
+        return res.json({ 
+          message: "You're already subscribed to deal alerts", 
+          alert: existing[0] 
+        });
+      }
+
+      // Create alert
+      const alert = await storage.createDealAlert({
+        userId: userId || null,
+        email,
+        categories: categories || null,
+        minDiscount: minDiscount || null,
+      });
+
+      res.status(201).json({ 
+        message: "Subscribed to deal alerts! We'll notify you of great deals.", 
+        alert 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/alerts/deals/:id - Unsubscribe from deal alerts
+  app.delete("/api/alerts/deals/:id", async (req, res) => {
+    try {
+      await storage.deleteDealAlert(req.params.id);
+      res.json({ message: "Deal alert deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/alerts/deals - Get user's deal alerts
+  app.get("/api/alerts/deals", async (req: any, res) => {
+    try {
+      const email = req.query.email as string | undefined;
+      const userId = req.user?.claims?.sub;
+
+      if (!email && !userId) {
+        return res.status(400).json({ error: "Email or authentication required" });
+      }
+
+      const filters = email ? { email } : undefined;
+      const alerts = await storage.getDealAlerts(filters);
+      res.json(alerts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/alerts/browse-abandonment - Track browse abandonment (internal use)
+  app.post("/api/alerts/browse-abandonment", async (req: any, res) => {
+    try {
+      const { sessionId, email, productASINs } = req.body;
+      
+      // Validation
+      if (!sessionId || !productASINs) {
+        return res.status(400).json({ error: "SessionId and productASINs are required" });
+      }
+
+      // Check if session already exists
+      const existing = await storage.getBrowseAbandonment({ sessionId });
+      
+      if (existing.length > 0) {
+        // Update email if provided
+        const updated = await storage.updateBrowseAbandonment(existing[0].id, {
+          email: email || existing[0].email,
+          productASINs: productASINs,
+        });
+        res.json({ message: "Browse session updated", abandonment: updated });
+      } else {
+        // Create new browse abandonment record
+        const abandonment = await storage.createBrowseAbandonment({
+          sessionId,
+          email: email || null,
+          productASINs: productASINs,
+          reminderSent: false,
+        });
+        res.status(201).json({ message: "Browse session tracked", abandonment });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== INSURANCE LEADS ====================
   
   // POST /api/insurance-leads - Submit insurance quote request
