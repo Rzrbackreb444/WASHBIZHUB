@@ -40,6 +40,7 @@ import WorkingCapitalFinancing from "@/pages/working-capital-financing";
 import StartupFunding from "@/pages/startup-funding";
 import AcquisitionsFunding from "@/pages/acquisitions-funding";
 import LoanCalculator from "@/pages/loan-calculator";
+import InsurancePartners from "@/pages/insurance-partners";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -158,6 +159,7 @@ function Router() {
       <Route path="/startup-funding" component={StartupFunding} />
       <Route path="/acquisitions-funding" component={AcquisitionsFunding} />
       <Route path="/loan-calculator" component={LoanCalculator} />
+      <Route path="/insurance-partners" component={InsurancePartners} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
