@@ -32,7 +32,7 @@ import {
   DollarSign,
   ShoppingBag,
 } from "lucide-react";
-import logoUrl from "@assets/LOGO REAL_1763715525600.png";
+import logoUrl from "@assets/6_1763855398994.png";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },
@@ -62,20 +62,19 @@ export function NavigationMenu() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        {/* Logo - Responsive sizing */}
+        {/* Logo - Responsive sizing (half the previous size) */}
         <Link href="/">
-          <div className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer">
+          <div className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer">
             <img 
               src={logoUrl} 
               alt="WashBizHub" 
-              className="h-24 sm:h-32 md:h-48 lg:h-64 xl:h-96 w-auto" 
+              className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto" 
             />
-            <span className="hidden lg:inline text-2xl xl:text-3xl font-bold text-accent">WashBizHub</span>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1 flex-1 px-6">
+        {/* Desktop Navigation - Shows on tablet/laptop (768px+) */}
+        <nav className="hidden md:flex items-center gap-1 flex-1 px-4">
           {MAIN_LINKS.map((link) => {
             const Icon = link.icon;
             return (
@@ -90,7 +89,7 @@ export function NavigationMenu() {
                 data-testid={`nav-link-${link.label.toLowerCase()}`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="hidden lg:inline">{link.label}</span>
+                <span>{link.label}</span>
               </button>
             );
           })}
@@ -158,10 +157,10 @@ export function NavigationMenu() {
             </Link>
           )}
 
-          {/* Mobile Menu - Always visible on smaller screens */}
+          {/* Mobile Menu - Shows below xl (provides Tools access on medium screens) */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden flex-shrink-0">
+              <Button variant="ghost" size="icon" className="xl:hidden flex-shrink-0" data-testid="button-mobile-menu">
                 {mobileOpen ? (
                   <X className="w-5 h-5" />
                 ) : (
