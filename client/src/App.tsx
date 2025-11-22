@@ -19,6 +19,10 @@ import FundingMatcher from "@/pages/funding-matcher";
 import Superstore from "@/pages/superstore";
 import Courses from "@/pages/courses";
 import CourseDetail from "@/pages/course-detail";
+import CoursesHub from "@/pages/courses-hub";
+import ListingsHub from "@/pages/listings-hub";
+import VendorsHub from "@/pages/vendors-hub";
+import Advertising from "@/pages/advertising";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -92,13 +96,14 @@ function Router() {
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
       <Route path="/calculators" component={CalculatorsHub} />
+      <Route path="/calc/:slug" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/website-builder" component={WebsiteBuilder} />
       <Route path="/website-templates" component={WebsiteTemplates} />
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
-      <Route path="/courses" component={Courses} />
+      <Route path="/courses" component={CoursesHub} />
       <Route path="/courses/:courseId" component={CourseDetail} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
       <Route path="/book" component={Book} />
@@ -112,13 +117,14 @@ function Router() {
       <Route path="/distributor-locator" component={DistributorLocator} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/consultation" component={Consultation} />
-      <Route path="/listings" component={Listings} />
+      <Route path="/listings" component={ListingsHub} />
       <Route path="/templates" component={Templates} />
       <Route path="/resources" component={Resources} />
       <Route path="/resources/:slug" component={ResourceDetail} />
-      <Route path="/vendors" component={Vendors} />
+      <Route path="/vendors" component={VendorsHub} />
       <Route path="/vendors/:storeSlug/products/:productSlug" component={ProductDetail} />
       <Route path="/vendors/:storeSlug" component={VendorStorefront} />
+      <Route path="/advertising" component={Advertising} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
