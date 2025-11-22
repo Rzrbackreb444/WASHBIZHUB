@@ -6,6 +6,21 @@ import { SEO } from '@/components/SEO';
 
 const EQUIPMENT_PARTNERS = [
   {
+    name: 'Advance Funds Network',
+    description: 'Equipment and revenue-based financing solutions',
+    approval: '24-48 hours',
+    terms: 'Revenue-based or fixed terms',
+    ltv: 'Up to 85% of equipment value',
+    minLoan: '$15,000',
+    maxLoan: '$1,000,000',
+    rate: 'Based on revenue model',
+    commission: '1.5%+',
+    links: [
+      { title: 'Submit Application', url: 'https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3' },
+      { title: 'Partner Opportunities', url: 'https://app.advancefundsnetwork.com/partner-landing/OEO602XAIiZkhill7WmMwJ7NEfB3' },
+    ]
+  },
+  {
     name: 'MyPartner.io',
     description: 'Fast-track equipment financing for laundromat operators',
     approval: '24-72 hours',
@@ -14,6 +29,7 @@ const EQUIPMENT_PARTNERS = [
     minLoan: '$5,000',
     maxLoan: '$500,000',
     rate: 'Competitive market rates',
+    commission: '1%+',
     links: [
       { title: 'Apply for Equipment Financing', url: 'https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1' },
       { title: 'Become a Referral Partner', url: 'https://go.mypartner.io/referral-partner/?ref=001Qk00000KW1FBIA1' },
@@ -28,23 +44,10 @@ const EQUIPMENT_PARTNERS = [
     minLoan: '$10,000',
     maxLoan: '$250,000',
     rate: 'Competitive, based on credit',
+    commission: '0.75%+',
     links: [
       { title: 'Apply Now', url: 'https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/' },
       { title: 'Partnership Program', url: 'https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/' },
-    ]
-  },
-  {
-    name: 'Advance Funds Network',
-    description: 'Equipment and revenue-based financing solutions',
-    approval: '24-48 hours',
-    terms: 'Revenue-based or fixed terms',
-    ltv: 'Up to 85% of equipment value',
-    minLoan: '$15,000',
-    maxLoan: '$1,000,000',
-    rate: 'Based on revenue model',
-    links: [
-      { title: 'Submit Application', url: 'https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3' },
-      { title: 'Partner Opportunities', url: 'https://app.advancefundsnetwork.com/partner-landing/OEO602XAIiZkhill7WmMwJ7NEfB3' },
     ]
   }
 ];
@@ -231,9 +234,10 @@ export default function EquipmentFinancing() {
           {/* Partner Comparison */}
           <div>
             <h2 className="text-3xl font-bold mb-8">Lender Comparison</h2>
+            <p className="text-muted-foreground mb-6">Fastest approvals and best terms for laundromat equipment. All partners specialize in equipment financing.</p>
             <div className="space-y-4">
               {EQUIPMENT_PARTNERS.map((partner, idx) => (
-                <Card key={idx} data-testid={`card-partner-${idx}`}>
+                <Card key={idx} data-testid={`card-partner-${idx}`} className={idx === 0 ? 'border-green-500 border-2' : ''}>
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -244,7 +248,7 @@ export default function EquipmentFinancing() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4 mb-6 text-sm">
+                    <div className="grid md:grid-cols-4 gap-4 mb-6 text-sm">
                       <div>
                         <span className="font-semibold">Terms:</span>
                         <p className="text-muted-foreground">{partner.terms}</p>
@@ -256,6 +260,10 @@ export default function EquipmentFinancing() {
                       <div>
                         <span className="font-semibold">LTV:</span>
                         <p className="text-muted-foreground">{partner.ltv}</p>
+                      </div>
+                      <div>
+                        <span className="font-semibold">Commission:</span>
+                        <p className="text-muted-foreground font-bold text-green-600">{partner.commission}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">

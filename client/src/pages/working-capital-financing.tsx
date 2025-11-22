@@ -6,27 +6,29 @@ import { SEO } from '@/components/SEO';
 
 const WC_PARTNERS = [
   {
-    name: 'MyPartner.io',
-    description: 'Quick working capital for laundromat operations and growth',
-    approval: '24-48 hours',
-    terms: '6-36 months',
-    amount: '$5,000 - $250,000',
-    rate: 'Market rates',
-    links: [
-      { title: 'Get Working Capital', url: 'https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1' },
-      { title: 'Partnership Opportunities', url: 'https://go.mypartner.io/referral-partner/?ref=001Qk00000KW1FBIA1' },
-    ]
-  },
-  {
     name: 'Advance Funds Network',
     description: 'Revenue-based working capital for cash flow needs',
     approval: '24-48 hours',
     terms: 'Revenue-based or fixed',
     amount: '$10,000 - $500,000',
     rate: 'Revenue-based or fixed',
+    commission: '1.5%+',
     links: [
       { title: 'Submit Application', url: 'https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3' },
       { title: 'Program Details', url: 'https://app.advancefundsnetwork.com/partner-landing/OEO602XAIiZkhill7WmMwJ7NEfB3' },
+    ]
+  },
+  {
+    name: 'MyPartner.io',
+    description: 'Quick working capital for laundromat operations and growth',
+    approval: '24-48 hours',
+    terms: '6-36 months',
+    amount: '$5,000 - $250,000',
+    rate: 'Market rates',
+    commission: '1%+',
+    links: [
+      { title: 'Get Working Capital', url: 'https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1' },
+      { title: 'Partnership Opportunities', url: 'https://go.mypartner.io/referral-partner/?ref=001Qk00000KW1FBIA1' },
     ]
   },
 ];
@@ -213,9 +215,10 @@ export default function WorkingCapitalFinancing() {
           {/* Partners */}
           <div>
             <h2 className="text-3xl font-bold mb-8">Funding Partners</h2>
+            <p className="text-muted-foreground mb-6">Quick working capital approved in 24-48 hours. No collateral required for revenue-based options.</p>
             <div className="space-y-4">
               {WC_PARTNERS.map((partner, idx) => (
-                <Card key={idx} data-testid={`card-partner-${idx}`}>
+                <Card key={idx} data-testid={`card-partner-${idx}`} className={idx === 0 ? 'border-green-500 border-2' : ''}>
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -226,7 +229,7 @@ export default function WorkingCapitalFinancing() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4 mb-6 text-sm">
+                    <div className="grid md:grid-cols-4 gap-4 mb-6 text-sm">
                       <div>
                         <span className="font-semibold">Terms:</span>
                         <p className="text-muted-foreground">{partner.terms}</p>
@@ -238,6 +241,10 @@ export default function WorkingCapitalFinancing() {
                       <div>
                         <span className="font-semibold">Rate:</span>
                         <p className="text-muted-foreground">{partner.rate}</p>
+                      </div>
+                      <div>
+                        <span className="font-semibold">Commission:</span>
+                        <p className="text-muted-foreground font-bold text-green-600">{partner.commission}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">

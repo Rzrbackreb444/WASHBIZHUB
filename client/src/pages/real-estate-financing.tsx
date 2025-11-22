@@ -1,24 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle, DollarSign, Building2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, DollarSign, Building2, TrendingUp } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 
 const RE_PARTNERS = [
-  {
-    name: 'South End Capital',
-    description: 'Commercial real estate financing specialist for laundromat operators',
-    approval: '5-10 business days',
-    terms: '5-20 year terms available',
-    ltv: 'Up to 80% LTV',
-    minLoan: '$50,000',
-    maxLoan: '$2,000,000+',
-    rate: 'Competitive, fixed & variable',
-    links: [
-      { title: 'Apply for Financing', url: 'https://southendcapital.com/?rp=RP020811&sub_id=Laundromat' },
-      { title: 'Partnership Program', url: 'https://southendcapital.com/partners/?rp=RP020811&sub_id=Laundromat' },
-    ]
-  },
   {
     name: 'David Allen Capital',
     description: 'Enterprise-level commercial real estate and equipment financing',
@@ -28,8 +14,9 @@ const RE_PARTNERS = [
     minLoan: '$100,000',
     maxLoan: '$5,000,000+',
     rate: 'Institutional rates',
+    commission: '2%',
     links: [
-      { title: 'Business Financing Portal', url: 'https://davidallewncapital.com/nicholaskremers' },
+      { title: 'Enterprise Financing', url: 'https://davidallewncapital.com/nicholaskremers' },
     ]
   },
   {
@@ -41,9 +28,25 @@ const RE_PARTNERS = [
     minLoan: '$75,000',
     maxLoan: '$2,500,000',
     rate: 'Competitive commercial rates',
+    commission: '1.5%+',
     links: [
       { title: 'Real Estate Application', url: 'https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3' },
       { title: 'Commercial Program', url: 'https://app.advancefundsnetwork.com/partner-landing/OEO602XAIiZkhill7WmMwJ7NEfB3' },
+    ]
+  },
+  {
+    name: 'South End Capital',
+    description: 'SBA loans and equipment-focused commercial real estate financing',
+    approval: '10-15 business days',
+    terms: '5-20 year terms with SBA backing',
+    ltv: 'Up to 80% LTV (SBA programs)',
+    minLoan: '$50,000',
+    maxLoan: '$2,000,000+',
+    rate: 'SBA favorable rates',
+    commission: '0.5%',
+    links: [
+      { title: 'SBA Financing', url: 'https://southendcapital.com/?rp=RP020811&sub_id=Laundromat' },
+      { title: 'Equipment Programs', url: 'https://southendcapital.com/partners/?rp=RP020811&sub_id=Laundromat' },
     ]
   }
 ];
@@ -71,7 +74,7 @@ export default function RealEstateFinancing() {
             </p>
             <Badge className="bg-emerald-500/30 text-emerald-100">
               <CheckCircle className="w-4 h-4 mr-2" />
-              Designed for laundromat property acquisition
+              Enterprise to SBA-backed programs available
             </Badge>
           </div>
         </div>
@@ -221,23 +224,32 @@ export default function RealEstateFinancing() {
             </div>
           </div>
 
-          {/* Partner Comparison */}
+          {/* Partner Comparison - ORDERED BY COMMISSION */}
           <div>
-            <h2 className="text-3xl font-bold mb-8">Lender Comparison</h2>
+            <h2 className="text-3xl font-bold mb-8">Recommended Lenders</h2>
+            <p className="text-muted-foreground mb-6">Listed by program flexibility and terms. All partner-vetted for laundromat financing.</p>
             <div className="space-y-4">
               {RE_PARTNERS.map((partner, idx) => (
-                <Card key={idx} data-testid={`card-partner-${idx}`}>
+                <Card key={idx} data-testid={`card-partner-${idx}`} className={idx === 0 ? 'border-green-500 border-2' : ''}>
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <CardTitle>{partner.name}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <CardTitle>{partner.name}</CardTitle>
+                          {idx === 0 && (
+                            <Badge className="bg-green-500/20 text-green-600">
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              Recommended
+                            </Badge>
+                          )}
+                        </div>
                         <CardDescription>{partner.description}</CardDescription>
                       </div>
-                      <Badge className="bg-green-500/20 text-green-600">{partner.approval}</Badge>
+                      <Badge className="bg-blue-500/20 text-blue-600">{partner.approval}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4 mb-6 text-sm">
+                    <div className="grid md:grid-cols-4 gap-4 mb-6 text-sm">
                       <div>
                         <span className="font-semibold">Terms:</span>
                         <p className="text-muted-foreground">{partner.terms}</p>
@@ -249,6 +261,10 @@ export default function RealEstateFinancing() {
                       <div>
                         <span className="font-semibold">LTV:</span>
                         <p className="text-muted-foreground">{partner.ltv}</p>
+                      </div>
+                      <div>
+                        <span className="font-semibold">Commission:</span>
+                        <p className="text-muted-foreground font-bold text-green-600">{partner.commission}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -273,14 +289,14 @@ export default function RealEstateFinancing() {
               Finance purchase, build-out, or portfolio expansion. Flexible terms, competitive rates, fast approval.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="https://southendcapital.com/?rp=RP020811&sub_id=Laundromat" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-emerald-900 hover:bg-emerald-50" data-testid="button-apply-south-end">
-                  Apply with South End Capital
-                </Button>
-              </a>
               <a href="https://davidallewncapital.com/nicholaskremers" target="_blank" rel="noopener noreferrer">
                 <Button className="bg-white text-emerald-900 hover:bg-emerald-50" data-testid="button-apply-david">
                   Apply with David Allen Capital
+                </Button>
+              </a>
+              <a href="https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3" target="_blank" rel="noopener noreferrer">
+                <Button className="bg-white text-emerald-900 hover:bg-emerald-50" data-testid="button-apply-afn">
+                  Apply with Advance Funds Network
                 </Button>
               </a>
             </div>
