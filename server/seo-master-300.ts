@@ -661,7 +661,7 @@ function generatePrioritizedRecommendations(breakdown: ScoreBreakdown): Prioriti
   Object.entries(breakdown).forEach(([category, data]) => {
     const potentialGain = data.maxScore - data.score;
     
-    data.issues.forEach(issue => {
+    data.issues.forEach((issue: string) => {
       let priority: "critical" | "high" | "medium" | "low" = "medium";
       let effort: "easy" | "medium" | "hard" = "medium";
       let estimatedTime = "2-4 hours";
