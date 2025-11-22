@@ -169,6 +169,45 @@ export default function Funding() {
 
         {/* Content */}
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
+          {/* Quick Links */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <Link href="/equipment-financing">
+              <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-equipment">
+                <CardHeader>
+                  <CardTitle className="text-lg">Equipment Financing</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">Finance washers, dryers, card systems, dog wash, and more.</p>
+                  <Badge className="bg-blue-500/20 text-blue-600">$5K-$500K</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/real-estate-financing">
+              <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-realtor">
+                <CardHeader>
+                  <CardTitle className="text-lg">Real Estate Financing</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">Purchase property, refinance, or fund build-out projects.</p>
+                  <Badge className="bg-emerald-500/20 text-emerald-600">$50K-$2M+</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/working-capital-financing">
+              <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-working">
+                <CardHeader>
+                  <CardTitle className="text-lg">Working Capital</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">Fund operations, inventory, marketing, and expansion.</p>
+                  <Badge className="bg-purple-500/20 text-purple-600">$10K-$500K</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
           {/* Featured Partners */}
           <div>
             <h2 className="text-3xl font-bold mb-8">Featured Funding Partners</h2>
