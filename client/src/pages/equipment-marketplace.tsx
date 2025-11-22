@@ -94,8 +94,41 @@ export default function EquipmentMarketplace() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [allProducts, setAllProducts] = useState<AmazonProduct[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const category = EQUIPMENT_CATEGORIES.find(c => c.id === selectedCategory) || EQUIPMENT_CATEGORIES[0];
+
+  // Eager-load all categories on mount
+  useEffect(() => {
+    const loadAllCategories = async () => {
+      const allResults: AmazonProduct[] = [];
+      
+      for (const cat of EQUIPMENT_CATEGORIES.slice(1)) { // Skip "all" category
+        if (!cat.searches || cat.searches.length === 0) continue;
+        
+        for (const searchTerm of cat.searches) {
+          try {
+            const response = await fetch(`/api/amazon/search?keywords=${encodeURIComponent(searchTerm)}&itemCount=3`);
+            if (response.ok) {
+              const data = await response.json();
+              const productsWithCategory = data.products.map((p: any) => ({
+                ...p,
+                category: cat.id
+              }));
+              allResults.push(...productsWithCategory);
+            }
+          } catch (error) {
+            console.error('Failed to fetch products for:', searchTerm);
+          }
+        }
+      }
+      
+      setAllProducts(allResults);
+      setIsInitialLoad(false);
+    };
+
+    loadAllCategories();
+  }, []);
 
   // Fetch products for selected category
   const { data: products = [], isLoading } = useQuery<AmazonProduct[]>({
@@ -125,7 +158,7 @@ export default function EquipmentMarketplace() {
       
       return allResults;
     },
-    enabled: selectedCategory !== "all",
+    enabled: selectedCategory !== "all" && !isInitialLoad,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
@@ -265,7 +298,7 @@ export default function EquipmentMarketplace() {
           </Card>
 
           {/* Results count */}
-          {!isLoading && (
+          {!isLoading && !isInitialLoad && (
             <p className="text-sm text-muted-foreground">
               Showing {filteredProducts.length} products {selectedCategory !== "all" && `in ${category.label}`}
             </p>
@@ -273,7 +306,7 @@ export default function EquipmentMarketplace() {
 
           {/* Equipment Grid */}
           <section aria-label="Product listings">
-            {isLoading ? (
+            {(isLoading || isInitialLoad) ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(8)].map((_, i) => (
                   <Card key={i}>
