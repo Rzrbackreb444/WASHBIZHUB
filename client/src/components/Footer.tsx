@@ -50,7 +50,7 @@ export function Footer() {
                 data-testid="link-footer-whatsapp"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span className="font-semibold">WhatsApp: {CONTACT_PHONE}</span>
+                <span className="font-semibold">WhatsApp</span>
               </a>
               <a
                 href={`sms:+${CONTACT_PHONE_DIGITS}`}
@@ -58,7 +58,7 @@ export function Footer() {
                 data-testid="link-footer-sms"
               >
                 <Phone className="h-4 w-4" />
-                <span className="font-semibold">Text: {CONTACT_PHONE}</span>
+                <span className="font-semibold">SMS</span>
               </a>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
@@ -351,10 +351,6 @@ export function Footer() {
               <span className="text-white/30">|</span>
               <a href="mailto:info@washbizhub.com" className="hover:text-accent transition-colors" data-testid="link-footer-support">
                 Support
-              </a>
-              <span className="text-white/30">|</span>
-              <a href={`tel:+${CONTACT_PHONE_DIGITS}`} className="hover:text-accent transition-colors" data-testid="link-footer-phone">
-                {CONTACT_PHONE}
               </a>
             </div>
           </div>

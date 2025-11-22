@@ -10,23 +10,23 @@ import { useToast } from '@/hooks/use-toast';
 const INSURANCE_PARTNERS = [
   {
     name: 'Larry Larsen - Laundromat123.com',
-    category: 'California-Based Insurance Specialist',
-    description: 'Direct partnership with Larry Larsen, California-based laundromat insurance specialist. Specializes in California regulations, equipment protection, and multi-location expansion nationwide.',
+    category: 'California Insurance Specialist',
+    description: 'Direct partnership with Larry Larsen, California-based laundromat insurance expert. Currently serving California operators only. Specializes in CA regulations, equipment protection, and multi-location coverage.',
     commission: 'Direct referral partnership',
     commissionType: 'Revenue share arrangement',
     features: [
-      'California-specific insurance expertise',
+      'California-only coverage (for now)',
+      'CA-specific regulations expertise',
       'Commercial property & liability',
       'Equipment breakdown protection',
-      'Multi-location support',
-      'Expanding nationwide soon',
+      'Multi-location support in CA',
       'Direct broker relationship'
     ],
     links: [
       { title: 'Visit Laundromat123.com', url: 'https://laundromat123.com' }
     ],
-    badge: 'Primary Partner',
-    bestFor: 'California operators and multi-unit expansion'
+    badge: 'California Only',
+    bestFor: 'California laundromat operators'
   },
   {
     name: 'Tivly',
@@ -186,10 +186,10 @@ export default function InsurancePartners() {
   return (
     <>
       <SEO
-        title="Laundromat Business Insurance Partners | Affiliate Program"
-        description="Insurance affiliate programs for laundromat owners. Multi-carrier platforms, direct policies, and revenue-sharing opportunities. $10-$25+ per referral."
+        title="Laundromat Business Insurance Partners | California & Nationwide"
+        description="Insurance for laundromat owners. California coverage via Larry Larsen. Multi-carrier platforms for all states. $10-$25+ per referral."
         canonicalUrl="/insurance-partners"
-        keywords={['laundromat insurance', 'business insurance affiliate', 'insurance commission', 'commercial property insurance']}
+        keywords={['laundromat insurance', 'california laundromat insurance', 'business insurance affiliate', 'commercial property insurance']}
       />
 
       <div className="min-h-screen bg-background">
@@ -200,7 +200,7 @@ export default function InsurancePartners() {
               <Shield className="w-8 h-8" />
               <h1 className="text-4xl font-bold">Laundromat Insurance Partners</h1>
             </div>
-            <p className="text-purple-200">Multi-carrier platforms and direct policies protecting your business. Affiliate revenue: $10-$25+ per referral.</p>
+            <p className="text-purple-200">California coverage via Larry Larsen. Multi-carrier platforms for all states. Affiliate revenue: $10-$25+ per referral.</p>
           </div>
         </div>
 
