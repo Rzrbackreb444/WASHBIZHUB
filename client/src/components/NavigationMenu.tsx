@@ -52,7 +52,7 @@ const TOOLS_LINKS = [
 
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = useMemo(() => (path: string) => location === path, [location]);
@@ -73,19 +73,19 @@ export function NavigationMenu() {
           {MAIN_LINKS.map((link) => {
             const Icon = link.icon;
             return (
-              <Link key={link.href} href={link.href}>
-                <a
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap ${
-                    isActive(link.href)
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                  data-testid={`nav-link-${link.label.toLowerCase()}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden lg:inline">{link.label}</span>
-                </a>
-              </Link>
+              <button
+                key={link.href}
+                onClick={() => navigate(link.href)}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap ${
+                  isActive(link.href)
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+                data-testid={`nav-link-${link.label.toLowerCase()}`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="hidden lg:inline">{link.label}</span>
+              </button>
             );
           })}
         </nav>
@@ -106,15 +106,15 @@ export function NavigationMenu() {
                         const Icon = link.icon;
                         return (
                           <Link key={link.href} href={link.href}>
-                            <a
-                              className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            <div
+                              className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                               data-testid={`nav-tool-${link.label.toLowerCase()}`}
                             >
                               <div className="flex items-center gap-2">
                                 <Icon className="w-4 h-4" />
                                 <span className="text-sm font-medium">{link.label}</span>
                               </div>
-                            </a>
+                            </div>
                           </Link>
                         );
                       })}
@@ -144,11 +144,9 @@ export function NavigationMenu() {
             </div>
           ) : (
             <Link href="/login">
-              <a>
-                <Button size="sm" data-testid="button-login">
-                  Sign In
-                </Button>
-              </a>
+              <Button size="sm" data-testid="button-login">
+                Sign In
+              </Button>
             </Link>
           )}
 
