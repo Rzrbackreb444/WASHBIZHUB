@@ -2561,15 +2561,30 @@ Disallow: /private/`;
       const staticPages = [
         { url: "/", priority: "1.0", changefreq: "daily" },
         { url: "/resources", priority: "0.9", changefreq: "daily" },
+        { url: "/superstore", priority: "0.9", changefreq: "daily" },
         { url: "/design-studio", priority: "0.8", changefreq: "weekly" },
         { url: "/cleanbi", priority: "0.8", changefreq: "weekly" },
         { url: "/marketplace", priority: "0.8", changefreq: "daily" },
+        { url: "/buyers-guides", priority: "0.8", changefreq: "monthly" },
+        { url: "/superstore/compare", priority: "0.8", changefreq: "weekly" },
         { url: "/courses", priority: "0.7", changefreq: "weekly" },
         { url: "/book", priority: "0.7", changefreq: "weekly" },
         { url: "/blog", priority: "0.7", changefreq: "daily" },
         { url: "/roi-calculator", priority: "0.7", changefreq: "weekly" },
         { url: "/calculator", priority: "0.7", changefreq: "weekly" },
         { url: "/subscribe", priority: "0.6", changefreq: "monthly" },
+        // Superstore product pages
+        { url: "/superstore/product/DEMO001", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO002", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO003", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO004", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO005", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO006", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO007", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO008", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO009", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO010", priority: "0.7", changefreq: "weekly" },
+        { url: "/superstore/product/DEMO011", priority: "0.7", changefreq: "weekly" },
       ];
       
       // Build sitemap XML
@@ -3760,32 +3775,81 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   function generateFallbackProducts(): Record<string, any[]> {
     return {
       washers: [
-        { asin: 'DEMO001', title: 'Speed Queen Commercial Washer 20lb Capacity', brand: 'Speed Queen', price: { displayAmount: '$2,999', amount: 2999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=speed+queen+commercial+washer&tag=nicholaskreme-20', image: null },
-        { asin: 'DEMO002', title: 'Maytag Commercial Front Load Washer', brand: 'Maytag', price: { displayAmount: '$1,899', amount: 1899 }, rating: 4.7, url: 'https://www.amazon.com/s?k=maytag+commercial+washer&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO001', title: 'Speed Queen Commercial Washer 20lb Capacity', brand: 'Speed Queen', price: { displayAmount: '$2,999', amount: 2999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=speed+queen+commercial+washer&tag=nicholaskreme-20', image: null, category: 'washers', categoryName: 'Commercial Washers' },
+        { asin: 'DEMO002', title: 'Maytag Commercial Front Load Washer', brand: 'Maytag', price: { displayAmount: '$1,899', amount: 1899 }, rating: 4.7, url: 'https://www.amazon.com/s?k=maytag+commercial+washer&tag=nicholaskreme-20', image: null, category: 'washers', categoryName: 'Commercial Washers' }
       ],
       dryers: [
-        { asin: 'DEMO003', title: 'Speed Queen Commercial Dryer 30lb', brand: 'Speed Queen', price: { displayAmount: '$2,799', amount: 2799 }, rating: 4.9, url: 'https://www.amazon.com/s?k=speed+queen+commercial+dryer&tag=nicholaskreme-20', image: null },
-        { asin: 'DEMO004', title: 'Huebsch Stack Dryer Commercial', brand: 'Huebsch', price: { displayAmount: '$3,199', amount: 3199 }, rating: 4.7, url: 'https://www.amazon.com/s?k=huebsch+commercial+dryer&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO003', title: 'Speed Queen Commercial Dryer 30lb', brand: 'Speed Queen', price: { displayAmount: '$2,799', amount: 2799 }, rating: 4.9, url: 'https://www.amazon.com/s?k=speed+queen+commercial+dryer&tag=nicholaskreme-20', image: null, category: 'dryers', categoryName: 'Commercial Dryers' },
+        { asin: 'DEMO004', title: 'Huebsch Stack Dryer Commercial', brand: 'Huebsch', price: { displayAmount: '$3,199', amount: 3199 }, rating: 4.7, url: 'https://www.amazon.com/s?k=huebsch+commercial+dryer&tag=nicholaskreme-20', image: null, category: 'dryers', categoryName: 'Commercial Dryers' }
       ],
       'folding-tables': [
-        { asin: 'DEMO005', title: 'Commercial Folding Table 96x30 Heavy Duty', brand: 'Lifetime', price: { displayAmount: '$249', amount: 249 }, rating: 4.6, url: 'https://www.amazon.com/s?k=commercial+folding+table&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO005', title: 'Commercial Folding Table 96x30 Heavy Duty', brand: 'Lifetime', price: { displayAmount: '$249', amount: 249 }, rating: 4.6, url: 'https://www.amazon.com/s?k=commercial+folding+table&tag=nicholaskreme-20', image: null, category: 'folding-tables', categoryName: 'Folding Tables & Workstations' }
       ],
       carts: [
-        { asin: 'DEMO006', title: 'R&B Wire Rolling Laundry Cart Commercial', brand: 'R&B Wire', price: { displayAmount: '$189', amount: 189 }, rating: 4.8, url: 'https://www.amazon.com/s?k=rb+wire+laundry+cart&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO006', title: 'R&B Wire Rolling Laundry Cart Commercial', brand: 'R&B Wire', price: { displayAmount: '$189', amount: 189 }, rating: 4.8, url: 'https://www.amazon.com/s?k=rb+wire+laundry+cart&tag=nicholaskreme-20', image: null, category: 'carts', categoryName: 'Laundry Carts' }
       ],
       supplies: [
-        { asin: 'DEMO007', title: 'Tide Commercial Detergent 5 Gallon Bulk', brand: 'Tide', price: { displayAmount: '$89.99', amount: 89.99 }, rating: 4.9, url: 'https://www.amazon.com/s?k=tide+commercial+detergent&tag=nicholaskreme-20', image: null },
-        { asin: 'DEMO008', title: 'Bounce Commercial Dryer Sheets 1000ct', brand: 'Bounce', price: { displayAmount: '$34.99', amount: 34.99 }, rating: 4.7, url: 'https://www.amazon.com/s?k=commercial+dryer+sheets&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO007', title: 'Tide Commercial Detergent 5 Gallon Bulk', brand: 'Tide', price: { displayAmount: '$89.99', amount: 89.99 }, rating: 4.9, url: 'https://www.amazon.com/s?k=tide+commercial+detergent&tag=nicholaskreme-20', image: null, category: 'supplies', categoryName: 'Laundry Supplies' },
+        { asin: 'DEMO008', title: 'Bounce Commercial Dryer Sheets 1000ct', brand: 'Bounce', price: { displayAmount: '$34.99', amount: 34.99 }, rating: 4.7, url: 'https://www.amazon.com/s?k=commercial+dryer+sheets&tag=nicholaskreme-20', image: null, category: 'supplies', categoryName: 'Laundry Supplies' }
       ],
       vending: [
-        { asin: 'DEMO009', title: 'Seaga Combo Vending Machine', brand: 'Seaga', price: { displayAmount: '$3,499', amount: 3499 }, rating: 4.5, url: 'https://www.amazon.com/s?k=commercial+vending+machine&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO009', title: 'Seaga Combo Vending Machine', brand: 'Seaga', price: { displayAmount: '$3,499', amount: 3499 }, rating: 4.5, url: 'https://www.amazon.com/s?k=commercial+vending+machine&tag=nicholaskreme-20', image: null, category: 'vending', categoryName: 'Vending Machines' }
       ],
       arcade: [
-        { asin: 'DEMO010', title: 'Commercial Pinball Machine Coin Operated', brand: 'Stern', price: { displayAmount: '$5,999', amount: 5999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=commercial+pinball+machine&tag=nicholaskreme-20', image: null },
-        { asin: 'DEMO011', title: 'Claw Machine Commercial Coin Operated', brand: 'SmartIndustries', price: { displayAmount: '$1,299', amount: 1299 }, rating: 4.4, url: 'https://www.amazon.com/s?k=claw+machine+commercial&tag=nicholaskreme-20', image: null }
+        { asin: 'DEMO010', title: 'Commercial Pinball Machine Coin Operated', brand: 'Stern', price: { displayAmount: '$5,999', amount: 5999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=commercial+pinball+machine&tag=nicholaskreme-20', image: null, category: 'arcade', categoryName: 'Arcade & Entertainment' },
+        { asin: 'DEMO011', title: 'Claw Machine Commercial Coin Operated', brand: 'SmartIndustries', price: { displayAmount: '$1,299', amount: 1299 }, rating: 4.4, url: 'https://www.amazon.com/s?k=claw+machine+commercial&tag=nicholaskreme-20', image: null, category: 'arcade', categoryName: 'Arcade & Entertainment' }
       ]
     };
   }
+
+  // GET /api/superstore/product/:asin - Get individual product details
+  app.get("/api/superstore/product/:asin", async (req, res) => {
+    try {
+      const { asin } = req.params;
+      const fallbackProducts = generateFallbackProducts();
+      
+      // Search through all categories for the product
+      for (const [category, products] of Object.entries(fallbackProducts)) {
+        const product = products.find((p: any) => p.asin === asin);
+        if (product) {
+          return res.json(product);
+        }
+      }
+      
+      res.status(404).json({ error: "Product not found" });
+    } catch (error: any) {
+      console.error('Product detail error:', error);
+      res.status(500).json({ error: "Failed to load product" });
+    }
+  });
+
+  // GET /api/superstore/related/:asin - Get related products
+  app.get("/api/superstore/related/:asin", async (req, res) => {
+    try {
+      const { asin } = req.params;
+      const fallbackProducts = generateFallbackProducts();
+      
+      // Find product's category
+      let productCategory = '';
+      for (const [category, products] of Object.entries(fallbackProducts)) {
+        if (products.find((p: any) => p.asin === asin)) {
+          productCategory = category;
+          break;
+        }
+      }
+      
+      if (!productCategory) {
+        return res.json([]);
+      }
+      
+      // Return other products from same category
+      const related = fallbackProducts[productCategory]?.filter((p: any) => p.asin !== asin) || [];
+      res.json(related);
+    } catch (error: any) {
+      console.error('Related products error:', error);
+      res.status(500).json({ error: "Failed to load related products" });
+    }
+  });
 
   // ==================== ADMIN CONTROL CENTER ====================
   

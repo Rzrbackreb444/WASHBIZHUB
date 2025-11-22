@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
+import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import Home from "@/pages/home";
 import WhyWashBizHub from "@/pages/why-washbizhub";
@@ -17,6 +18,9 @@ import Calculator from "@/pages/calculator";
 import ROICalculator from "@/pages/roi-calculator";
 import FundingMatcher from "@/pages/funding-matcher";
 import Superstore from "@/pages/superstore";
+import SuperstoreProduct from "@/pages/superstore-product";
+import ProductComparison from "@/pages/product-comparison";
+import BuyersGuides from "@/pages/buyers-guides";
 import Courses from "@/pages/courses";
 import CourseDetail from "@/pages/course-detail";
 import CoursesHub from "@/pages/courses-hub";
@@ -122,6 +126,9 @@ function Router() {
       <Route path="/website-templates" component={WebsiteTemplates} />
       <Route path="/funding-matcher" component={FundingMatcher} />
       <Route path="/superstore" component={Superstore} />
+      <Route path="/superstore/product/:asin" component={SuperstoreProduct} />
+      <Route path="/superstore/compare" component={ProductComparison} />
+      <Route path="/buyers-guides" component={BuyersGuides} />
       <Route path="/courses" component={CoursesHub} />
       <Route path="/courses/:courseId" component={CourseDetail} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
@@ -204,21 +211,31 @@ function Router() {
   );
 }
 
+function AppContent() {
+  usePageTracking(); // Track page views on route changes
+  
+  return (
+    <div className="min-h-screen flex flex-col">
+      <GoogleAnalytics />
+      <FacebookPixel />
+      <NavigationMenu />
+      <div className="flex-1">
+        <Router />
+      </div>
+      <Footer />
+      <AIChatWidget />
+      <AiConsultantWidget />
+    </div>
+  );
+}
+
 function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <TooltipProvider>
-            <div className="min-h-screen flex flex-col">
-              <NavigationMenu />
-              <div className="flex-1">
-                <Router />
-              </div>
-              <Footer />
-              <AIChatWidget />
-              <AiConsultantWidget />
-            </div>
+            <AppContent />
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
