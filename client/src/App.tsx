@@ -61,6 +61,7 @@ import MarketplaceLanding from "@/pages/landing/marketplace-landing";
 import PosLanding from "@/pages/landing/pos-landing";
 import CoursesLanding from "@/pages/landing/courses-landing";
 import LaundromatLocatorPage from "@/pages/laundromat-locator";
+import DesignStudioPro from "@/pages/design-studio-pro";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -123,6 +124,7 @@ function Router() {
       <Route path="/pos-landing" component={PosLanding} />
       <Route path="/courses-landing" component={CoursesLanding} />
       <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
+      <Route path="/design-studio-pro" component={DesignStudioPro} />
       <Route component={NotFound} />
     </Switch>
   );
