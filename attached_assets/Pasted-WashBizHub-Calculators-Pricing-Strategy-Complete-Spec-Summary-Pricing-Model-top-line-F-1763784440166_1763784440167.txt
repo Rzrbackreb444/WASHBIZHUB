@@ -1,0 +1,360 @@
+WashBizHub — Calculators & Pricing Strategy (Complete Spec)
+
+Summary / Pricing Model (top-line)
+	•	Free tier: 3 core calculators fully usable with limited output (ROI, Turns Benchmark, Lease Quick Score). No signup needed for instant value.
+	•	Lead-gated (email): Demographic Suitability (basic) — requires email to unlock results.
+	•	Paid (one-time): CLEANBI Report — $59 per report (single property).
+	•	Paid (subscription): Pro Plan — $49/month or $399/year. Includes unlimited CLEANBI reports, competitor overlays, PDF exports, saved reports, priority email support, and two 30-min consulting credits/month (or discount toward calls).
+	•	Micro-purchases: PDF export of individual calculator deep reports = $9 each for non-subscribers.
+	•	Enterprise / Vendor: Ads, API access, white-label pricing via quote.
+
+Conversion assumptions you can use for forecasting (example):
+	•	Free → Email gated conversion: 10%
+	•	Email → One-time report conversion: 3–5%
+	•	One-time buyers who convert to Pro in 90 days: 10–15%
+
+⸻
+
+Full List of Calculators (with everything you need)
+
+1) ROI / Payback Calculator (Free with Pro outputs)
+
+Purpose: Quick investment viability check + cashflow projection.
+
+Inputs (form fields):
+	•	Purchase price (currency)
+	•	Down payment (currency or %)
+	•	Loan amount (currency) — auto-calc if down payment entered
+	•	Interest rate (annual %)
+	•	Loan term (years)
+	•	Gross monthly revenue (currency)
+	•	Other monthly income (currency)
+	•	Monthly operating expenses (currency) — allow line-item expand (utilities, payroll, supplies, maintenance)
+	•	Vacancy factor / shrinkage (%) — optional
+	•	Capital expenditure per year (currency) — optional
+
+Formulas / Logic:
+	•	monthlyDebt = PMT(annualRate/12, loanTerm*12, loanAmount)
+	•	netMonthlyIncome = grossMonthlyRevenue + otherIncome - monthlyExpenses - monthlyDebt
+	•	annualNetIncome = netMonthlyIncome * 12
+	•	ROI% = (annualNetIncome / downPayment) * 100 (if downPayment = 0, show ROI on cashflow basis or use cash-on-cash handling)
+	•	paybackYears = purchasePrice / annualNetIncome (if annualNetIncome <= 0 show “no payback”)
+	•	IRR (optional advanced): estimate using multi-year cashflow table (yearly net income, capex) — Pro-only output
+
+Outputs:
+	•	Monthly net income (currency)
+	•	Annual net income
+	•	ROI %
+	•	Payback period (years)
+	•	5–10 year cashflow projection chart
+	•	Alert flags: negative net income, debt coverage ratio < 1.2
+
+Freemium gating:
+	•	Free: Shows Monthly Net, Annual Net, basic ROI %, payback estimate & simple chart (first 3 years).
+	•	Pro / One-time report: Full 10-year cashflow, IRR, sensitivity analysis (interest rate / vend price / turns), downloadable PDF.
+
+UI copy (CTA):
+	•	Free: “Run a quick ROI check — see month-to-month profit now”
+	•	Upsell: “Want the full 10-year forecast and IRR? Generate a CLEANBI Report for $59 or get unlimited reports in Pro.”
+
+Implementation notes:
+	•	Use JS PMT formula for monthlyDebt.
+	•	Cache calculation outputs to user’s Firestore doc if logged in.
+	•	Allow upload of historical monthly P&L to seed real revenue inputs (Pro).
+
+⸻
+
+2) Turn-Per-Day Benchmark Tool (Free)
+
+Purpose: Benchmarks washers per-turn performance and revenue per machine.
+
+Inputs:
+	•	Machine type / washer size (dropdown: 20lb, 30lb, 40lb, 60lb, 80lb)
+	•	Count of washers by size (allow multiple)
+	•	Average turns per pair/per machine per day (numeric)
+	•	Vend price (per turn currency)
+	•	Operating days per year (default 312 / allow edit)
+	•	Add-on revenue (drop-off, soap vend, change machine income)
+
+Formulas:
+	•	annualRevenuePerMachine = avgTurnsPerDay * vendPrice * operatingDays
+	•	storeAnnualRevenue = Σ (annualRevenuePerMachine * machineCount) + addOnRevenue
+	•	performanceIndex = avgTurnsPerDay / benchmarkAvg (benchmarks below)
+	•	recommendedVendChange = function of performanceIndex + local avg price (Pro advanced)
+
+Benchmarks (default, editable):
+	•	20lb: 3.5 turns/day average
+	•	30lb: 4 turns/day
+	•	40lb: 4.5
+	•	60lb: 5
+	•	80lb: 5.5
+
+Outputs:
+	•	Annual revenue per machine, store revenue estimate
+	•	Machine performance grade (Under / Average / Above)
+	•	Suggest vend price tests and expected revenue delta
+	•	Chart: machine mix vs revenue contribution
+
+Freemium gating:
+	•	Free: Full revenue per machine and grade.
+	•	Pro: Multi-scenario optimizer (A/B vend pricing tests), competitive benchmarking from area (requires Demographic/Mapbox overlay).
+
+UI copy (CTA):
+	•	“Check how your machines perform against industry benchmarks — free.”
+	•	Upsell: “Run pricing experiments and see revenue uplift (Pro)”
+
+Implementation notes:
+	•	Allow templates for common store machines to speed entry.
+	•	Offer CSV import for machine inventory.
+
+⸻
+
+3) Lease Evaluation Tool (Free quick score; Pro deep-report)
+
+Purpose: Score lease risk and surface red flags before committing.
+
+Inputs (quick form):
+	•	Lease term (years)
+	•	Renewal options (# and terms)
+	•	Base rent ($/month or $/sqft)
+	•	NNN (costs per month or $/sqft)
+	•	Rent escalation (annual %)
+	•	CAM fees ($/month or $/sqft)
+	•	Utilities responsibility (Landlord / Tenant / Shared)
+	•	Termination clause (Tenant-friendly / Mutual / Landlord-friendly)
+	•	Exclusive usage clause (Yes/No)
+	•	Parking availability (Good/Adequate/Poor)
+
+Scoring algorithm (normalized to 0–100):
+	•	termScore (0–20): >=10 years → higher score
+	•	renewalScore (0–15): number and favorability weight
+	•	NNNScore (0–15): lower NNN => higher score
+	•	escalationScore (0–10): lower escalation => higher score
+	•	CAMScore (0–10)
+	•	utilitiesScore (0–10): landlord pays => max
+	•	terminationScore (0–10)
+	•	parkingScore (0–10)
+
+Compute weighted sum → totalLeaseScore
+
+Outputs:
+	•	Numeric score 0–100, Grade A–F
+	•	Red flags list (if CAM > threshold, if no exclusivity, short term, high NNN)
+	•	Suggested negotiation checklist (auto-populated)
+	•	PDF lease summary (Pro)
+
+Freemium gating:
+	•	Free: Quick numeric score and top 3 red flags.
+	•	Email-gated: full lease checklist downloadable (requires email).
+	•	Pro: PDF + recommended clause language + example negotiation script + expert review booking.
+
+UI copy (CTA):
+	•	“Score your lease in 2 minutes — avoid the worst mistakes.”
+	•	Upsell: “Need help negotiating? Get an expert review included with Pro.”
+
+Implementation notes:
+	•	Create mapping of thresholds by market (e.g., urban vs rural typical NNN).
+	•	Store lease PDFs in reports for Pro.
+
+⸻
+
+4) Demographic Suitability Analyzer (Email-gated, Pro overlays)
+
+Purpose: Assess local demand fit using renter rates, income, density.
+
+Inputs:
+	•	Address or ZIP code
+	•	Radius (default 1 mile)
+	•	Target customer profile (renters / families / students)
+
+Data sources:
+	•	U.S. Census API (American Community Survey)
+	•	ATTOM or other paid datasets for richer overlays (optional for Pro)
+	•	Mapbox for spatial mapping and competitor density overlay
+
+Computed metrics & formulas:
+	•	renterPct = census.renter_percentage
+	•	medianIncomeArea = census.median_household_income
+	•	populationDensity = persons_per_sq_mile
+	•	incomeFit = clamp( (medianIncomeArea / targetMedianIncome) * 100, 0–100)
+	•	densityScore = normalize(populationDensity, market-specific scale)
+	•	suitabilityScore = 0.4 * renterPct + 0.3 * incomeFit + 0.3 * densityScore → normalized 0–100
+
+Outputs:
+	•	Suitability Score (0–100), Grade A–F
+	•	Renter % and median income callouts
+	•	Suggested target mix and likely average vend price band
+	•	Map: competitors + renter density heatmap (Pro)
+	•	Competitor count within radius
+
+Freemium gating:
+	•	Basic: require email to view Suitability Score & basic stats.
+	•	Pro: full map overlay, competitor rent rates, trend graphs, 5-year population growth projection.
+
+UI copy (CTA):
+	•	“Type the address — we’ll tell you if the neighborhood supports a laundromat.”
+	•	Upsell: “Unlock competitor maps and rent rates in Pro.”
+
+Implementation notes:
+	•	Cache census lookups by ZIP/radius to avoid hitting rate limits.
+	•	Offer credit-based paid API calls for ATTOM/Mapbox for Pro heavy users.
+
+⸻
+
+5) Equipment Cost & Replacement Planner (Free basic; Pro advanced)
+
+Purpose: Help operators budget capex and plan equipment lifecycle.
+
+Inputs:
+	•	Machine brand & model (dropdown / searchable)
+	•	Year installed or age
+	•	Expected useful life (years)
+	•	Current maintenance cost per year
+	•	Estimated replacement cost (use database of manufacturer suggested pricing)
+	•	Downtime cost per hour (entered by operator)
+
+Formulas:
+	•	annualDepreciation = replacementCost / usefulLife
+	•	totalAnnualOwnershipCost = maintenanceCost + annualDepreciation
+	•	expectedReplacementYear = currentYear + (usefulLife - age)
+	•	ROI impact if replaced early = project uplift in turns * vendPrice - replacementCost amortized
+
+Outputs:
+	•	Annual ownership cost
+	•	Suggested replacement year
+	•	Replacement urgency flag (High/Medium/Low)
+	•	Parts list with typical costs (Pro enriched with parts supplier integration)
+
+Freemium gating:
+	•	Free: simple replacement schedule and ownership cost.
+	•	Pro: integrated parts cost lookup, supplier links, one-click order list, predicted revenue uplift if replaced.
+
+UI copy (CTA):
+	•	“See when your machines will bite you — and what replacing them will cost vs return.”
+	•	Upsell: “Want a parts-ready kit + supplier pricing? That’s Pro.”
+
+Implementation notes:
+	•	Maintain equipment price database; seed with common commercial brands (Speed Queen, Dexter, Huebsch, Electrolux).
+	•	Allow manual override fields.
+
+⸻
+
+6) Utility Cost Optimizer (Free + Pro energy plan)
+
+Purpose: Show utilities savings by switching cycles, load balancing, or efficient machines.
+
+Inputs:
+	•	Average cycles per day / month (washers, dryers)
+	•	Utility rates ($/kWh, $/therm, water $/gallon)
+	•	Machine efficiency (gallons per cycle, kWh per cycle) — default per model or manual entry
+	•	Peak demand charges (if any)
+
+Formulas:
+	•	monthlyConsumption = Σ(machineCount * cyclesPerMonth * consumptionPerCycle)
+	•	monthlyUtilityCost = monthlyConsumption * unitRates
+	•	projectedSavings = compare current machines to energy-efficient alternatives (use manufacturer efficiency deltas)
+	•	ROI on upgrade = replacementCost / annualUtilitySavings
+
+Outputs:
+	•	Monthly utility cost breakdown (water, electric, gas)
+	•	Suggested efficiency moves (LED, efficient washers, dryer sensors)
+	•	Payback on efficiency upgrade
+
+Freemium gating:
+	•	Free: basic monthly utility cost
+	•	Pro: suggested efficiency kit + modeled ROI + vendor financing partners
+
+UI copy (CTA):
+	•	“Cut utility bills — run your store through our optimizer.”
+	•	Upsell: “Pro gives you manufacturer pricing + financing options.”
+
+Implementation notes:
+	•	For Energy-efficient alternatives, keep a small seeded DB per model.
+	•	Integrate with utility data where available.
+
+⸻
+
+7) CLEANBI Composite Report (Paid / Pro)
+
+Purpose: Single authoritative paid report that bundles ROI, Lease, Demographics, Turns, Equipment, and Utility analysis into a polished PDF with CLEANBI score and recommendations.
+
+Inputs:
+	•	Pulls all calculators’ inputs/outputs + uploaded P&Ls, photos, lease doc.
+	•	Optional: owner-provided P&L CSV for higher fidelity.
+
+CLEANBI Score algorithm (example weighting):
+	•	Market Suitability (Demographics) — 25%
+	•	Financial Health (ROI & EBITDA proxy) — 25%
+	•	Lease Strength — 15%
+	•	Equipment Condition & Age — 10%
+	•	Competition Density & Turns — 15%
+	•	Utility & Operating Risk — 10%
+Normalize to 0–100. Map to grade (A: 85–100, B: 70–84, C: 55–69, D: 40–54, F: <40).
+
+Outputs / PDF contents:
+	•	Executive summary (one page)
+	•	CLEANBI score and grade
+	•	Key KPIs: Net income, EBITDA estimate, DSCR estimate, Payback Period
+	•	Lease score and negotiation notes
+	•	Market map (Mapbox) with competitors
+	•	5-year cashflow projection & sensitivity table (vend price, turns, interest rate)
+	•	Equipment summary & recommended parts/replacement
+	•	Action plan: short term (90 days), medium (1 year), long (3 years)
+	•	Suggested lenders & financing options linked (Eastern Funding, Dexter Financial, SBA resources)
+	•	Optional: “Nick’s Notes” personalized recommendation (Pro auto-generated)
+
+Pricing/Access:
+	•	$59 one-time per CLEANBI report for non-subscribers
+	•	Pro subscribers: unlimited reports included
+	•	Enterprise / Bulk: contact for white-label pricing
+
+Delivery & gating:
+	•	Payment via Stripe Checkout
+	•	On completion, PDF stored in /reports/{userId} and emailed (SendGrid)
+	•	Optionally include 30-min consult with Larry / Nick as add-on at discounted rate for Pro
+
+Implementation notes:
+	•	Generate PDFs server-side in Cloud Function (Headless Playwright or ReportLab) to ensure consistent styling.
+	•	Include watermark and hashed checksum for authenticity.
+
+⸻
+
+UX & Funnel Flow (per-calculator)
+	1.	Landing → Tools list → choose calculator
+	2.	User inputs → live preview and basic outputs (free)
+	3.	Email gate appears only on Demographics and occasionally for higher-fidelity outputs: “Email to unlock full neighborhood snapshot.”
+	4.	If user wants deep outputs or PDF, show modal: buy one-time CLEANBI or upgrade to Pro.
+	5.	After purchase, seamless access to PDF + save to dashboard.
+
+⸻
+
+Pricing Strategy — Summary
+	•	Free: ROI quick, Turns, Lease quick score — immediate value & viral shareability.
+	•	Lead (email): Demographics — builds list.
+	•	$59 one-time: CLEANBI — primary transactional product for buyers and brokers.
+	•	$49/month or $399/year: Pro subscription — unlimited reports + premium features; aim for ARPU ~ $199/year per paid user.
+	•	Consulting upsell: 30–60min calls at $150–$300/hr — available to Pro members at discount.
+	•	Advertising: Vendor banners priced by visibility and targeting. Start $199/mo basic; $499–$999/mo premium slots.
+
+Example revenue mix (healthy target):
+	•	70% reports + subscriptions
+	•	20% vendor ads & affiliate financing referrals
+	•	10% consultations & marketplace fees
+
+⸻
+
+Developer / Implementation Notes (quick checklist)
+	•	Use Firestore collections as in master spec.
+	•	Cache Census and Mapbox calls (per ZIP/radius) to stay within API quotas.
+	•	Use Stripe for one-time and recurring payments; implement webhooks to toggle user.role.
+	•	Use Cloud Functions for PDF generation, heavy number crunching, and API proxies (Census/ATTOM).
+	•	Expose simple REST endpoints for frontend calculators if using server-side compute for complex IRR/Monte Carlo runs (Pro).
+	•	Make UI responsive; use skeleton loaders for longer computations.
+	•	Instrument events for conversion (e.g., calculator started, email gated, report purchased).
+
+⸻
+
+Example Exact Pricing & CTAs to use on site
+	•	CLEANBI Report (one-time) — $59 — “Get a pro-grade investor report with maps, lease analysis, and 5-year projections.”
+	•	Pro subscription — $49/mo or $399/yr — “Unlimited CLEANBI reports, competitor overlays, PDF exports, and discounted consulting.”
+	•	Consultation — $150/hr — “Book a pro review with an operator adv
