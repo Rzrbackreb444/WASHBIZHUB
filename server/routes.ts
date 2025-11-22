@@ -3629,6 +3629,164 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     }
   });
 
+  // GET /api/smart-search - Intelligent federated search
+  app.get("/api/smart-search", async (req, res) => {
+    try {
+      const { q } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.json([]);
+      }
+
+      const searchQuery = q.toLowerCase();
+      const results: any[] = [];
+
+      // Search Amazon products (limit 5)
+      try {
+        const { amazonAPI } = await import('./amazon-api');
+        if (amazonAPI.isConfigured()) {
+          const products = await amazonAPI.searchProducts({
+            keywords: q,
+            itemCount: 5
+          });
+          
+          results.push(...products.map(p => ({
+            type: 'amazon',
+            id: p.asin,
+            title: p.title,
+            description: p.brand || 'Available on Amazon',
+            category: 'Equipment',
+            price: p.price?.displayAmount,
+            url: p.url,
+            image: p.image,
+          })));
+        }
+      } catch (error) {
+        console.error('Amazon search failed:', error);
+      }
+
+      res.json(results.slice(0, 10));
+    } catch (error: any) {
+      console.error('Smart search error:', error);
+      res.status(500).json({ error: "Search failed" });
+    }
+  });
+
+  // GET /api/superstore/catalog - Batch-fetch all superstore categories efficiently
+  app.get("/api/superstore/catalog", async (req, res) => {
+    try {
+      const { SUPERSTORE_TAXONOMY } = await import('@shared/superstore-taxonomy');
+      const { amazonAPI } = await import('./amazon-api');
+      
+      // If Amazon API not configured or not eligible, return fallback
+      if (!amazonAPI.isConfigured()) {
+        const fallbackProducts = generateFallbackProducts();
+        return res.json({ 
+          categories: SUPERSTORE_TAXONOMY, 
+          products: fallbackProducts,
+          totalProducts: Object.values(fallbackProducts).flat().length,
+          totalCategories: SUPERSTORE_TAXONOMY.length,
+          isFallback: true
+        });
+      }
+
+      // Batch all category searches with concurrency limit
+      const CONCURRENT_LIMIT = 5;
+      const productsByCategory: Record<string, any[]> = {};
+      let hasApiErrors = false;
+      
+      for (let i = 0; i < SUPERSTORE_TAXONOMY.length; i += CONCURRENT_LIMIT) {
+        const batch = SUPERSTORE_TAXONOMY.slice(i, i + CONCURRENT_LIMIT);
+        
+        const batchPromises = batch.map(async (category) => {
+          if (!category.amazonSearches[0]) return null;
+          
+          try {
+            const products = await amazonAPI.searchProducts({
+              keywords: category.amazonSearches[0],
+              itemCount: 10
+            });
+            return { categoryId: category.id, products };
+          } catch (error: any) {
+            console.error(`Failed to fetch ${category.id}:`, error);
+            hasApiErrors = true;
+            return { categoryId: category.id, products: [] };
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        batchResults.forEach(result => {
+          if (result) {
+            productsByCategory[result.categoryId] = result.products;
+          }
+        });
+      }
+
+      // If all categories failed, use fallback
+      const totalProducts = Object.values(productsByCategory).flat().length;
+      if (totalProducts === 0 && hasApiErrors) {
+        const fallbackProducts = generateFallbackProducts();
+        return res.json({
+          categories: SUPERSTORE_TAXONOMY,
+          products: fallbackProducts,
+          totalProducts: Object.values(fallbackProducts).flat().length,
+          totalCategories: SUPERSTORE_TAXONOMY.length,
+          isFallback: true
+        });
+      }
+
+      res.json({
+        categories: SUPERSTORE_TAXONOMY,
+        products: productsByCategory,
+        totalProducts,
+        totalCategories: SUPERSTORE_TAXONOMY.length,
+        isFallback: false
+      });
+    } catch (error: any) {
+      console.error('Superstore catalog error:', error);
+      const { SUPERSTORE_TAXONOMY } = await import('@shared/superstore-taxonomy');
+      const fallbackProducts = generateFallbackProducts();
+      res.json({
+        categories: SUPERSTORE_TAXONOMY,
+        products: fallbackProducts,
+        totalProducts: Object.values(fallbackProducts).flat().length,
+        totalCategories: SUPERSTORE_TAXONOMY.length,
+        isFallback: true
+      });
+    }
+  });
+
+  // Helper: Generate fallback product catalog for demo
+  function generateFallbackProducts(): Record<string, any[]> {
+    return {
+      washers: [
+        { asin: 'DEMO001', title: 'Speed Queen Commercial Washer 20lb Capacity', brand: 'Speed Queen', price: { displayAmount: '$2,999', amount: 2999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=speed+queen+commercial+washer&tag=nicholaskreme-20', image: null },
+        { asin: 'DEMO002', title: 'Maytag Commercial Front Load Washer', brand: 'Maytag', price: { displayAmount: '$1,899', amount: 1899 }, rating: 4.7, url: 'https://www.amazon.com/s?k=maytag+commercial+washer&tag=nicholaskreme-20', image: null }
+      ],
+      dryers: [
+        { asin: 'DEMO003', title: 'Speed Queen Commercial Dryer 30lb', brand: 'Speed Queen', price: { displayAmount: '$2,799', amount: 2799 }, rating: 4.9, url: 'https://www.amazon.com/s?k=speed+queen+commercial+dryer&tag=nicholaskreme-20', image: null },
+        { asin: 'DEMO004', title: 'Huebsch Stack Dryer Commercial', brand: 'Huebsch', price: { displayAmount: '$3,199', amount: 3199 }, rating: 4.7, url: 'https://www.amazon.com/s?k=huebsch+commercial+dryer&tag=nicholaskreme-20', image: null }
+      ],
+      'folding-tables': [
+        { asin: 'DEMO005', title: 'Commercial Folding Table 96x30 Heavy Duty', brand: 'Lifetime', price: { displayAmount: '$249', amount: 249 }, rating: 4.6, url: 'https://www.amazon.com/s?k=commercial+folding+table&tag=nicholaskreme-20', image: null }
+      ],
+      carts: [
+        { asin: 'DEMO006', title: 'R&B Wire Rolling Laundry Cart Commercial', brand: 'R&B Wire', price: { displayAmount: '$189', amount: 189 }, rating: 4.8, url: 'https://www.amazon.com/s?k=rb+wire+laundry+cart&tag=nicholaskreme-20', image: null }
+      ],
+      supplies: [
+        { asin: 'DEMO007', title: 'Tide Commercial Detergent 5 Gallon Bulk', brand: 'Tide', price: { displayAmount: '$89.99', amount: 89.99 }, rating: 4.9, url: 'https://www.amazon.com/s?k=tide+commercial+detergent&tag=nicholaskreme-20', image: null },
+        { asin: 'DEMO008', title: 'Bounce Commercial Dryer Sheets 1000ct', brand: 'Bounce', price: { displayAmount: '$34.99', amount: 34.99 }, rating: 4.7, url: 'https://www.amazon.com/s?k=commercial+dryer+sheets&tag=nicholaskreme-20', image: null }
+      ],
+      vending: [
+        { asin: 'DEMO009', title: 'Seaga Combo Vending Machine', brand: 'Seaga', price: { displayAmount: '$3,499', amount: 3499 }, rating: 4.5, url: 'https://www.amazon.com/s?k=commercial+vending+machine&tag=nicholaskreme-20', image: null }
+      ],
+      arcade: [
+        { asin: 'DEMO010', title: 'Commercial Pinball Machine Coin Operated', brand: 'Stern', price: { displayAmount: '$5,999', amount: 5999 }, rating: 4.8, url: 'https://www.amazon.com/s?k=commercial+pinball+machine&tag=nicholaskreme-20', image: null },
+        { asin: 'DEMO011', title: 'Claw Machine Commercial Coin Operated', brand: 'SmartIndustries', price: { displayAmount: '$1,299', amount: 1299 }, rating: 4.4, url: 'https://www.amazon.com/s?k=claw+machine+commercial&tag=nicholaskreme-20', image: null }
+      ]
+    };
+  }
+
   // ==================== ADMIN CONTROL CENTER ====================
   
   // GET /api/admin/stats - Admin dashboard statistics (admin only)

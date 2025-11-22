@@ -47,6 +47,7 @@ import SEOOptimizer from "@/pages/seo-optimizer";
 import Blog from "@/pages/blog";
 import Marketplace from "@/pages/marketplace";
 import Parts from "@/pages/parts";
+import PartsStore from "@/pages/parts-store";
 import Locator from "@/pages/locator";
 import DistributorLocator from "@/pages/distributor-locator";
 import Subscribe from "@/pages/subscribe";

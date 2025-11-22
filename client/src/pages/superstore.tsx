@@ -1,221 +1,395 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Search, Star, ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, ShoppingCart, Package, Star, TrendingUp, Zap } from "lucide-react";
+import { SUPERSTORE_TAXONOMY } from "@shared/superstore-taxonomy";
 
-interface Product {
-  name: string;
-  category: string;
-  price: string;
-  rating: number;
+interface AmazonProduct {
   asin: string;
-  description: string;
+  title: string;
+  brand?: string;
+  price?: {
+    displayAmount: string;
+    amount: number;
+  };
+  image?: string;
+  url: string;
+  rating?: number;
+  reviews?: number;
 }
 
-const products: Product[] = [
-  // Commercial Washers
-  { name: "Speed Queen Commercial Washer 20lb", category: "washers", price: "$2,999", rating: 4.8, asin: "B08XYZ1234", description: "Heavy-duty 20lb capacity" },
-  { name: "Maytag Commercial Washer 3.1 cu ft", category: "washers", price: "$1,899", rating: 4.7, asin: "B09ABC5678", description: "Energy Star certified" },
-  { name: "Huebsch Commercial Top Load Washer", category: "washers", price: "$2,499", rating: 4.6, asin: "B07DEF9012", description: "Durable stainless steel drum" },
-  
-  // Commercial Dryers
-  { name: "Speed Queen Commercial Dryer 30lb", category: "dryers", price: "$2,799", rating: 4.9, asin: "B08GHI3456", description: "Gas or electric available" },
-  { name: "Maytag Commercial Dryer 6.5 cu ft", category: "dryers", price: "$1,699", rating: 4.6, asin: "B09JKL7890", description: "High-efficiency moisture sensor" },
-  { name: "Huebsch Stack Dryer Commercial", category: "dryers", price: "$3,199", rating: 4.7, asin: "B07MNO1234", description: "Space-saving design" },
-  
-  // Vending Machines
-  { name: "Seaga Combo Vending Machine", category: "vending", price: "$3,499", rating: 4.5, asin: "B08PQR5678", description: "Snacks & beverages" },
-  { name: "Crane Merchant Media Touchscreen Vending", category: "vending", price: "$4,999", rating: 4.8, asin: "B09STU9012", description: "Accepts card payments" },
-  { name: "Royal Vendors Laundry Vending Machine", category: "vending", price: "$2,899", rating: 4.4, asin: "B07VWX3456", description: "Detergent, softener, supplies" },
-  
-  // Detergents & Supplies
-  { name: "Tide Commercial Detergent 5 Gallon", category: "supplies", price: "$89.99", rating: 4.9, asin: "B08YZA7890", description: "Bulk commercial formula" },
-  { name: "Bounce Commercial Dryer Sheets 1000ct", category: "supplies", price: "$34.99", rating: 4.7, asin: "B09BCD1234", description: "Fresh scent" },
-  { name: "Downy Commercial Fabric Softener", category: "supplies", price: "$79.99", rating: 4.8, asin: "B07EFG5678", description: "5 gallon concentrate" },
-  { name: "OxiClean Commercial Stain Remover", category: "supplies", price: "$44.99", rating: 4.6, asin: "B08HIJ9012", description: "Bulk 10lb container" },
-  
-  // Payment Systems
-  { name: "LaundryCard Coinless Payment System", category: "payment", price: "$1,299", rating: 4.7, asin: "B09KLM3456", description: "Complete starter kit" },
-  { name: "FasCard Mobile Payment Reader", category: "payment", price: "$299", rating: 4.5, asin: "B08NOP7890", description: "Works with existing machines" },
-  { name: "CCI Card Readers for Washers/Dryers", category: "payment", price: "$199", rating: 4.4, asin: "B07QRS1234", description: "Easy installation" },
-  
-  // Folding Tables
-  { name: "Commercial Folding Table 96x30", category: "furniture", price: "$249", rating: 4.6, asin: "B08TUV5678", description: "Heavy-duty steel frame" },
-  { name: "Lifetime Folding Tables 6ft (4-Pack)", category: "furniture", price: "$399", rating: 4.8, asin: "B09WXY9012", description: "Stain-resistant surface" },
-  { name: "National Public Seating Folding Table", category: "furniture", price: "$179", rating: 4.5, asin: "B07ZAB3456", description: "Scratch-resistant top" },
-  
-  // Seating
-  { name: "Flash Furniture Folding Chairs 12-Pack", category: "furniture", price: "$299", rating: 4.7, asin: "B08CDE7890", description: "Padded metal chairs" },
-  { name: "Commercial Waiting Room Bench 3-Seat", category: "furniture", price: "$449", rating: 4.6, asin: "B09FGH1234", description: "Durable vinyl upholstery" },
-  
-  // Security Cameras
-  { name: "Arlo Pro 4 Security Camera System", category: "security", price: "$599", rating: 4.6, asin: "B08IJK5678", description: "4-camera wireless system" },
-  { name: "Ring Floodlight Cam Plus", category: "security", price: "$249", rating: 4.5, asin: "B09LMN9012", description: "Motion-activated HD camera" },
-  { name: "Reolink 4K PoE Security Camera", category: "security", price: "$179", rating: 4.7, asin: "B07OPQ3456", description: "Night vision, weatherproof" },
-  
-  // Signage
-  { name: "LED Open Sign 24x12 Neon Style", category: "signage", price: "$39.99", rating: 4.5, asin: "B08RST7890", description: "Ultra-bright, low power" },
-  { name: "Custom Laundromat Business Sign 48x24", category: "signage", price: "$149", rating: 4.6, asin: "B09UVW1234", description: "Weatherproof aluminum" },
-  { name: "Laundry Rules Wall Decal Set", category: "signage", price: "$24.99", rating: 4.7, asin: "B07XYZ5678", description: "Easy application" },
-  
-  // Cleaning Equipment
-  { name: "Hoover Commercial Vacuum", category: "cleaning", price: "$299", rating: 4.8, asin: "B08ABC9012", description: "15-inch upright" },
-  { name: "Rubbermaid Commercial Mop Bucket", category: "cleaning", price: "$89.99", rating: 4.6, asin: "B09DEF3456", description: "35-quart WaveBrake" },
-  { name: "3M Commercial Floor Scrubber", category: "cleaning", price: "$449", rating: 4.7, asin: "B07GHI7890", description: "Battery-powered" },
-];
-
-// Generate more products programmatically for a fuller catalog
-const additionalProducts: Product[] = [];
-const categories = ["washers", "dryers", "supplies", "furniture", "security"];
-const brands = ["Speed Queen", "Maytag", "Huebsch", "Whirlpool", "LG", "Samsung"];
-const productTypes = ["Commercial", "Heavy-Duty", "Energy Star", "Professional", "Industrial"];
-
-for (let i = 0; i < 100; i++) {
-  const category = categories[i % categories.length];
-  const brand = brands[i % brands.length];
-  const type = productTypes[i % productTypes.length];
-  
-  additionalProducts.push({
-    name: `${brand} ${type} ${category === "washers" ? "Washer" : category === "dryers" ? "Dryer" : "Equipment"} #${i + 1}`,
-    category,
-    price: `$${(Math.random() * 3000 + 200).toFixed(0)}`,
-    rating: +(Math.random() * 1 + 4).toFixed(1),
-    asin: `B0${Math.random().toString(36).substring(2, 12).toUpperCase()}`,
-    description: `Professional-grade ${category} equipment`,
-  });
+interface CatalogData {
+  categories: any[];
+  products: Record<string, AmazonProduct[]>;
+  totalProducts: number;
+  totalCategories: number;
+  isFallback?: boolean;
 }
-
-const allProducts = [...products, ...additionalProducts];
 
 export default function Superstore() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredProducts = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  // Load entire catalog with batched backend endpoint
+  const { data: catalogData, isLoading: catalogLoading } = useQuery<CatalogData>({
+    queryKey: ['/api/superstore/catalog'],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const getAmazonUrl = (asin: string) => {
-    return `https://www.amazon.com/dp/${asin}?tag=nkreme-20`;
-  };
+  // Search functionality
+  const { data: searchResults, isLoading: searchLoading } = useQuery<AmazonProduct[]>({
+    queryKey: ['/api/amazon/search', searchQuery],
+    queryFn: async ({ queryKey }) => {
+      const [, query] = queryKey;
+      if (!query || typeof query !== 'string' || query.length === 0) return [];
+      
+      const response = await fetch(`/api/amazon/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: searchQuery.length > 0
+  });
+
+  const categoryProducts = catalogData?.products || {};
+  const totalCategories = catalogData?.totalCategories || SUPERSTORE_TAXONOMY.length;
+  const totalProducts = catalogData?.totalProducts || 0;
+
+  const displayProducts = searchQuery.length > 0 
+    ? searchResults || []
+    : selectedCategory === 'all'
+    ? Object.values(categoryProducts).flat().slice(0, 24)
+    : categoryProducts[selectedCategory] || [];
+
+  const isLoading = searchQuery.length > 0 ? searchLoading : catalogLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <ShoppingCart className="h-16 w-16 text-accent mx-auto mb-4" />
-          <h1 className="text-5xl font-black text-white mb-4" data-testid="text-superstore-title">
-            WashBizHub Superstore
-          </h1>
-          <p className="text-xl text-white/70 mb-8" data-testid="text-superstore-subtitle">
-            500+ curated laundromat products, equipment, and supplies—all with trusted Amazon fulfillment
-          </p>
+    <>
+      <Helmet>
+        <title>Ultimate Laundromat Superstore - Complete Equipment & Supply Catalog | WashBizHub</title>
+        <meta 
+          name="description" 
+          content="Browse 1,000+ commercial laundry products: washers, dryers, folding tables, R&B carts, supplies, HVAC, dog wash stations, vending machines, arcade games, parts, and more. One-click Amazon ordering with affiliate tracking." 
+        />
+        <meta 
+          name="keywords" 
+          content="commercial laundry equipment, washer dryer, folding tables, laundry carts, detergent supplies, air conditioner, water cooler, dog wash station, vending machine, arcade games, pinball, parts repair, coin changer, laundromat supplies" 
+        />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Ultimate Laundromat Superstore - Complete Equipment Catalog" />
+        <meta property="og:description" content="1,000+ commercial laundry products with one-click ordering. Washers, dryers, supplies, HVAC, arcade games, and more." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://washbizhub.com/superstore" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Ultimate Laundromat Superstore" />
+        <meta name="twitter:description" content="Complete commercial laundry equipment catalog with 1,000+ products" />
+        
+        {/* Structured Data - Product Catalog */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Ultimate Laundromat Superstore",
+            "description": "Complete commercial laundry equipment and supply catalog",
+            "url": "https://washbizhub.com/superstore",
+            "numberOfItems": totalProducts,
+            "about": {
+              "@type": "Product",
+              "category": "Commercial Laundry Equipment"
+            }
+          })}
+        </script>
+      </Helmet>
 
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/20 border-white/30 text-white placeholder-white/50"
-                data-testid="input-product-search"
-              />
+      <div className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-[#1a2332] via-[#2a3342] to-[#1a2332] text-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <Badge className="mb-4 bg-[#C8A661] text-[#1a2332] border-0" data-testid="badge-superstore">
+                <Package className="w-3 h-3 mr-1" />
+                {totalCategories} Categories • {totalProducts}+ Products
+              </Badge>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="heading-superstore">
+                Ultimate Laundromat Superstore
+              </h1>
+              <p className="text-xl text-gray-300 mb-8" data-testid="text-description">
+                Everything you need to build, operate, and grow a world-class laundromat.
+                From commercial washers to arcade games - all in one place.
+              </p>
+              
+              {/* Search Bar */}
+              <div className="relative max-w-2xl mx-auto">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search 1,000+ products: washers, dryers, carts, vending, arcade..."
+                  className="pl-12 pr-4 py-6 text-lg bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  data-testid="input-search"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <Tabs defaultValue="all" value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="bg-white/10 mb-8">
-            <TabsTrigger value="all" data-testid="tab-all">All Products</TabsTrigger>
-            <TabsTrigger value="washers" data-testid="tab-washers">Washers</TabsTrigger>
-            <TabsTrigger value="dryers" data-testid="tab-dryers">Dryers</TabsTrigger>
-            <TabsTrigger value="supplies" data-testid="tab-supplies">Supplies</TabsTrigger>
-            <TabsTrigger value="vending" data-testid="tab-vending">Vending</TabsTrigger>
-            <TabsTrigger value="payment" data-testid="tab-payment">Payment Systems</TabsTrigger>
-            <TabsTrigger value="furniture" data-testid="tab-furniture">Furniture</TabsTrigger>
-            <TabsTrigger value="security" data-testid="tab-security">Security</TabsTrigger>
-            <TabsTrigger value="signage" data-testid="tab-signage">Signage</TabsTrigger>
-            <TabsTrigger value="cleaning" data-testid="tab-cleaning">Cleaning</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={selectedCategory}>
-            <div className="mb-4 text-white/70">
-              Showing {filteredProducts.length} products
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product, idx) => (
-                <Card 
-                  key={idx} 
-                  className="bg-white/10 backdrop-blur border-white/20 hover-elevate"
-                  data-testid={`card-product-${idx}`}
+        {/* Category Navigation */}
+        <div className="border-b bg-card">
+          <div className="container mx-auto px-4">
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+              <TabsList className="w-full h-auto flex flex-wrap justify-start gap-2 bg-transparent p-4">
+                <TabsTrigger 
+                  value="all" 
+                  className="data-[state=active]:bg-[#C8A661] data-[state=active]:text-[#1a2332]"
+                  data-testid="tab-all"
                 >
+                  All Equipment
+                </TabsTrigger>
+                {SUPERSTORE_TAXONOMY.map((category) => (
+                  <TabsTrigger
+                    key={category.id}
+                    value={category.id}
+                    className="data-[state=active]:bg-[#C8A661] data-[state=active]:text-[#1a2332]"
+                    data-testid={`tab-${category.id}`}
+                  >
+                    {category.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        </div>
+
+        {/* Fallback Mode Banner */}
+        {catalogData?.isFallback && (
+          <div className="bg-yellow-500/10 border-y border-yellow-500/20 py-3">
+            <div className="container mx-auto px-4">
+              <p className="text-sm text-center text-muted-foreground">
+                <strong>Demo Mode:</strong> Showing curated product recommendations. Click any product to search Amazon with affiliate tracking.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Products Grid */}
+        <div className="container mx-auto px-4 py-12">
+          {isLoading && selectedCategory !== 'all' && searchQuery.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
                   <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-white text-lg line-clamp-2">{product.name}</CardTitle>
-                      <Badge className="bg-accent text-accent-foreground shrink-0">
-                        {product.price}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-white/60 line-clamp-2">
-                      {product.description}
-                    </CardDescription>
+                    <div className="w-full h-48 bg-muted rounded-md" />
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-accent text-accent" />
-                        <span className="text-white font-semibold">{product.rating}</span>
-                        <span className="text-white/60 text-sm">/ 5.0</span>
-                      </div>
-                      
-                      <Button
-                        asChild
-                        size="sm"
-                        className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                        data-testid={`button-view-${idx}`}
-                      >
-                        <a 
-                          href={getAmazonUrl(product.asin)} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2"
-                        >
-                          View on Amazon
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </div>
+                    <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
                   </CardContent>
                 </Card>
               ))}
             </div>
+          ) : displayProducts.length > 0 ? (
+            <>
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold" data-testid="heading-results">
+                  {searchQuery 
+                    ? `Search Results for "${searchQuery}"`
+                    : selectedCategory === 'all'
+                    ? 'Featured Products'
+                    : SUPERSTORE_TAXONOMY.find(c => c.id === selectedCategory)?.label
+                  }
+                </h2>
+                <p className="text-muted-foreground" data-testid="text-count">
+                  {displayProducts.length} products
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {displayProducts.map((product: AmazonProduct) => (
+                  <Card key={product.asin} className="flex flex-col hover-elevate" data-testid={`card-product-${product.asin}`}>
+                    <CardHeader className="p-0">
+                      {product.image && (
+                        <div className="relative w-full h-64 bg-muted rounded-t-lg overflow-hidden">
+                          <img
+                            src={product.image}
+                            alt={product.title}
+                            className="w-full h-full object-contain"
+                            data-testid={`img-product-${product.asin}`}
+                          />
+                          {product.rating && (
+                            <Badge className="absolute top-2 right-2 bg-[#C8A661] text-[#1a2332] border-0">
+                              <Star className="w-3 h-3 mr-1 fill-current" />
+                              {product.rating.toFixed(1)}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent className="flex-1 pt-4">
+                      <h3 className="font-semibold line-clamp-2 mb-2" data-testid={`text-title-${product.asin}`}>
+                        {product.title}
+                      </h3>
+                      {product.brand && (
+                        <p className="text-sm text-muted-foreground mb-2" data-testid={`text-brand-${product.asin}`}>
+                          {product.brand}
+                        </p>
+                      )}
+                      {product.price && (
+                        <p className="text-lg font-bold text-[#C8A661]" data-testid={`text-price-${product.asin}`}>
+                          {product.price.displayAmount}
+                        </p>
+                      )}
+                    </CardContent>
+                    <CardFooter className="pt-0">
+                      <Button
+                        className="w-full bg-[#C8A661] hover:bg-[#b89551] text-[#1a2332]"
+                        onClick={() => window.open(product.url, '_blank')}
+                        data-testid={`button-buy-${product.asin}`}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        View on Amazon
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2" data-testid="text-no-results">
+                {selectedCategory === 'all' && searchQuery.length === 0
+                  ? 'Loading products...'
+                  : 'No products found'
+                }
+              </h3>
+              <p className="text-muted-foreground">
+                {searchQuery 
+                  ? 'Try different search terms'
+                  : 'Select a category to browse products'
+                }
+              </p>
+            </div>
+          )}
+        </div>
 
-            {filteredProducts.length === 0 && (
-              <Card className="bg-white/5 border-white/20">
-                <CardContent className="py-12 text-center">
-                  <p className="text-white/70 text-lg">
-                    No products found. Try adjusting your search or category filter.
+        {/* Category Information */}
+        {selectedCategory !== 'all' && (
+          <div className="bg-muted/30 py-12">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto">
+                {(() => {
+                  const category = SUPERSTORE_TAXONOMY.find(c => c.id === selectedCategory);
+                  if (!category) return null;
+                  
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle data-testid={`heading-category-${selectedCategory}`}>
+                          About {category.label}
+                        </CardTitle>
+                        <CardDescription data-testid={`text-category-desc-${selectedCategory}`}>
+                          {category.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Popular Searches:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {category.seoKeywords.map((keyword, idx) => (
+                                <Badge key={idx} variant="outline" data-testid={`badge-keyword-${idx}`}>
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {category.subcategories && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Subcategories:</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {category.subcategories.map((sub) => (
+                                  <Button
+                                    key={sub.id}
+                                    variant="outline"
+                                    className="justify-start"
+                                    onClick={() => setSearchQuery(sub.amazonSearches[0])}
+                                    data-testid={`button-subcategory-${sub.id}`}
+                                  >
+                                    {sub.label}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Benefits Section */}
+        <div className="bg-gradient-to-br from-[#1a2332] via-[#2a3342] to-[#1a2332] text-white py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12" data-testid="heading-benefits">
+              Why Shop the Ultimate Superstore?
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <Card className="bg-white/10 border-white/20 text-white">
+                <CardHeader>
+                  <Zap className="w-8 h-8 text-[#C8A661] mb-2" />
+                  <CardTitle data-testid="heading-benefit-1">One-Click Ordering</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300">
+                    Instant access to 1,000+ products through our Amazon partnership.
+                    Fast shipping, easy returns, Prime eligible.
                   </p>
                 </CardContent>
               </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        <div className="mt-12 text-center text-sm text-white/60">
-          <p>As an Amazon Associate, WashBizHub earns from qualifying purchases.</p>
-          <p className="mt-2">All prices and availability subject to change on Amazon.com</p>
+              
+              <Card className="bg-white/10 border-white/20 text-white">
+                <CardHeader>
+                  <TrendingUp className="w-8 h-8 text-[#C8A661] mb-2" />
+                  <CardTitle data-testid="heading-benefit-2">Affiliate Rewards</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300">
+                    Earn commissions on referrals. Every purchase through our platform
+                    supports the laundromat community.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 border-white/20 text-white">
+                <CardHeader>
+                  <Star className="w-8 h-8 text-[#C8A661] mb-2" />
+                  <CardTitle data-testid="heading-benefit-3">Expert Curated</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300">
+                    Handpicked products from industry experts. Only the best equipment,
+                    parts, and supplies for your business.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
