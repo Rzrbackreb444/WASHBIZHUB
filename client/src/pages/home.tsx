@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { FeaturedListings } from "@/components/FeaturedListings";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
   Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle
@@ -70,6 +71,9 @@ export default function Home() {
       
       {/* Value Props */}
       <ValuePropCards />
+
+      {/* Featured Listings */}
+      <FeaturedListings />
 
       {/* Newsletter Signup */}
       <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
