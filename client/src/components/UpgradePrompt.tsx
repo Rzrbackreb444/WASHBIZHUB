@@ -14,9 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import { 
   Sparkles, Crown, Zap, TrendingUp, X, Check, 
-  Clock, Users, Star, ArrowRight 
+  Clock, Users, Star, ArrowRight, Tag, AlertCircle 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -97,6 +98,10 @@ export function UpgradePrompt({
   urgency,
 }: UpgradePromptProps) {
   const [countdown, setCountdown] = useState(urgency?.countdown || 0);
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [discount, setDiscount] = useState(0);
 
   // Update countdown when urgency.countdown changes
   useEffect(() => {
@@ -115,6 +120,26 @@ export function UpgradePrompt({
 
     return () => clearInterval(timer);
   }, [urgency, countdown]);
+
+  const applyPromoCode = () => {
+    // Validate promo code
+    if (promoCode.toLowerCase() === "nickisthecoolest") {
+      setPromoApplied(true);
+      setDiscount(0.40); // 40% off
+      setPromoError("");
+    } else {
+      setPromoApplied(false);
+      setDiscount(0);
+      setPromoError("Invalid promo code");
+    }
+  };
+
+  const calculatePrice = (originalPrice: number) => {
+    if (promoApplied && discount > 0) {
+      return originalPrice * (1 - discount);
+    }
+    return originalPrice;
+  };
 
   const getTriggerHeadline = () => {
     switch (trigger) {
@@ -208,6 +233,53 @@ export function UpgradePrompt({
 
         <Separator />
 
+        {/* Promo Code Input */}
+        <div className="my-6">
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <Tag className="h-5 w-5 text-primary" />
+              <div className="flex-1">
+                <label className="text-sm font-semibold mb-2 block">
+                  Have a promo code?
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter promo code"
+                    value={promoCode}
+                    onChange={(e) => {
+                      setPromoCode(e.target.value);
+                      setPromoError("");
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && applyPromoCode()}
+                    className={cn(promoApplied && "border-emerald-500")}
+                    data-testid="input-promo-code"
+                  />
+                  <Button
+                    onClick={applyPromoCode}
+                    variant={promoApplied ? "default" : "outline"}
+                    disabled={!promoCode}
+                    data-testid="button-apply-promo"
+                  >
+                    {promoApplied ? "Applied!" : "Apply"}
+                  </Button>
+                </div>
+                {promoApplied && (
+                  <p className="text-sm text-emerald-600 flex items-center gap-1 mt-2">
+                    <Check className="h-4 w-4" />
+                    🎉 {(discount * 100)}% discount applied! Nick is the coolest!
+                  </p>
+                )}
+                {promoError && (
+                  <p className="text-sm text-destructive flex items-center gap-1 mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    {promoError}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {/* Pricing Tiers */}
         <div className="my-6">
           <h3 className="text-center font-semibold text-lg mb-6">Choose Your Plan</h3>
@@ -230,9 +302,21 @@ export function UpgradePrompt({
                   <h4 className="font-bold text-lg mb-1">{tier.name}</h4>
                   <p className="text-xs text-muted-foreground mb-3">{tier.tagline}</p>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-bold">${tier.price}</span>
+                    {promoApplied && tier.price > 0 ? (
+                      <>
+                        <span className="text-2xl font-bold line-through text-muted-foreground">${tier.price}</span>
+                        <span className="text-4xl font-bold text-emerald-600">${calculatePrice(tier.price).toFixed(0)}</span>
+                      </>
+                    ) : (
+                      <span className="text-4xl font-bold">${tier.price}</span>
+                    )}
                     <span className="text-muted-foreground">/{tier.period}</span>
                   </div>
+                  {promoApplied && tier.price > 0 && (
+                    <Badge variant="default" className="mt-2 bg-emerald-600">
+                      Save ${(tier.price * discount).toFixed(0)}/mo
+                    </Badge>
+                  )}
                 </div>
 
                 <ul className="space-y-2 mb-6">
