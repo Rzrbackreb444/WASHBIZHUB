@@ -98,6 +98,7 @@ import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
 import TPDCalculator from "@/pages/tpd-calculator";
 import CLEANBICalculator from "@/pages/cleanbi-calculator";
 import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
+import BookAdPreview from "@/pages/book-ad-preview";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -124,6 +125,7 @@ function Router() {
       <Route path="/courses/:courseId" component={CourseDetail} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
       <Route path="/book" component={Book} />
+      <Route path="/book-ad-preview" component={BookAdPreview} />
       <Route path="/ai-blogging" component={AIBlogging} />
       <Route path="/seo-optimizer" component={SEOOptimizer} />
       <Route path="/seo" component={SeoCommandCenter} />
