@@ -201,3 +201,39 @@ Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
     priority: 'high',
   });
 }
+
+/**
+ * Notify insurance team of new insurance quote request
+ */
+export async function notifyInsuranceLeadRequest(params: {
+  name: string;
+  email: string;
+  phone: string;
+  location?: string;
+  businessType: string;
+  message?: string;
+}): Promise<void> {
+  const emailMessage = `
+🛡️ NEW INSURANCE QUOTE REQUEST!
+
+Name: ${params.name}
+Email: ${params.email}
+Phone: ${params.phone}
+Location: ${params.location || 'Not provided'}
+Business Type: ${params.businessType}
+Additional Details: ${params.message || 'No additional details'}
+Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
+
+Forward to Larry Larsen for California leads! 🚀
+`.trim();
+
+  await sendAdminNotification({
+    to: [
+      'insurance@washbizhub.com',  // Primary insurance inbox
+      'nick@washbizhub.com',        // CC admin
+    ],
+    subject: '🛡️ New Insurance Quote Request - WashBizHub',
+    message: emailMessage,
+    priority: 'high',
+  });
+}
