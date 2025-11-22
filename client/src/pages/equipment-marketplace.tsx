@@ -1,255 +1,439 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, MapPin, Search, Plus, ShoppingCart, MessageSquare } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 
-interface Equipment {
-  id: string;
-  name: string;
-  type: "washer" | "dryer" | "folding-table" | "accessories" | "other";
-  brand: string;
-  model: string;
-  condition: "new" | "excellent" | "good" | "fair";
-  price: number;
-  location: string;
-  sellerName: string;
-  sellerRating: number;
-  images: string[];
-  description: string;
-  createdAt: string;
+interface AmazonProduct {
+  asin: string;
+  title: string;
+  brand?: string;
+  price?: {
+    amount: number;
+    currency: string;
+    displayAmount: string;
+  };
+  image?: string;
+  rating?: number;
+  reviewCount?: number;
+  url: string;
+  isPrimeEligible?: boolean;
+  category: string;
 }
 
-export default function EquipmentMarketplace() {
-  const [userRole, setUserRole] = useState<"buyer" | "seller">("buyer");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<string>("all");
+const EQUIPMENT_CATEGORIES = [
+  { id: "all", label: "All Equipment", icon: Package, searches: [] },
+  { 
+    id: "washers", 
+    label: "Commercial Washers", 
+    icon: Package,
+    searches: [
+      "commercial washing machine coin operated",
+      "speed queen commercial washer",
+      "maytag commercial washer"
+    ]
+  },
+  { 
+    id: "dryers", 
+    label: "Commercial Dryers", 
+    icon: Box,
+    searches: [
+      "commercial dryer coin operated",
+      "speed queen commercial dryer",
+      "huebsch commercial dryer"
+    ]
+  },
+  { 
+    id: "tables", 
+    label: "Folding Tables", 
+    icon: Table2,
+    searches: [
+      "commercial folding table laundry",
+      "laundromat folding table commercial",
+      "heavy duty folding table laundry"
+    ]
+  },
+  { 
+    id: "carts", 
+    label: "Laundry Carts", 
+    icon: Truck,
+    searches: [
+      "commercial laundry cart heavy duty",
+      "rolling laundry basket commercial",
+      "laundromat cart with wheels"
+    ]
+  },
+  { 
+    id: "parts", 
+    label: "Parts & Repairs", 
+    icon: Wrench,
+    searches: [
+      "commercial washer parts",
+      "dryer replacement parts commercial",
+      "laundry machine repair kit"
+    ]
+  },
+  { 
+    id: "supplies", 
+    label: "Supplies", 
+    icon: ShoppingCart,
+    searches: [
+      "laundry detergent commercial bulk",
+      "fabric softener commercial gallon",
+      "laundromat supplies vending"
+    ]
+  },
+];
 
-  const { data: equipment = [] } = useQuery<Equipment[]>({
-    queryKey: ["/api/equipment-marketplace"],
-    initialData: [
-      {
-        id: "e1",
-        name: "Speed Queen TC5003WN Top-Load Washer",
-        type: "washer",
-        brand: "Speed Queen",
-        model: "TC5003WN",
-        condition: "excellent",
-        price: 2400,
-        location: "Phoenix, AZ",
-        sellerName: "Arizona Laundry Supply",
-        sellerRating: 4.9,
-        images: [],
-        description: "Commercial-grade washer, barely used, 18-month warranty remaining",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "e2",
-        name: "Electrolux T5075XE Commercial Dryer",
-        type: "dryer",
-        brand: "Electrolux",
-        model: "T5075XE",
-        condition: "good",
-        price: 1800,
-        location: "Las Vegas, NV",
-        sellerName: "Vegas Equipment Liquidation",
-        sellerRating: 4.6,
-        images: [],
-        description: "Gas dryer, well-maintained, recently serviced",
-        createdAt: new Date().toISOString(),
-      },
-    ],
+export default function EquipmentMarketplace() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allProducts, setAllProducts] = useState<AmazonProduct[]>([]);
+
+  const category = EQUIPMENT_CATEGORIES.find(c => c.id === selectedCategory) || EQUIPMENT_CATEGORIES[0];
+
+  // Fetch products for selected category
+  const { data: products = [], isLoading } = useQuery<AmazonProduct[]>({
+    queryKey: ['/api/amazon/products', selectedCategory],
+    queryFn: async () => {
+      if (selectedCategory === "all" || !category.searches || category.searches.length === 0) {
+        return allProducts;
+      }
+
+      const allResults: AmazonProduct[] = [];
+      
+      for (const searchTerm of category.searches) {
+        try {
+          const response = await fetch(`/api/amazon/search?keywords=${encodeURIComponent(searchTerm)}&itemCount=5`);
+          if (response.ok) {
+            const data = await response.json();
+            const productsWithCategory = data.products.map((p: any) => ({
+              ...p,
+              category: selectedCategory
+            }));
+            allResults.push(...productsWithCategory);
+          }
+        } catch (error) {
+          console.error('Failed to fetch products for:', searchTerm);
+        }
+      }
+      
+      return allResults;
+    },
+    enabled: selectedCategory !== "all",
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const filteredEquipment = equipment.filter(
-    (e) =>
-      (selectedType === "all" || e.type === selectedType) &&
-      (e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.location.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Load products when category changes
+  useEffect(() => {
+    if (selectedCategory !== "all" && products.length > 0) {
+      setAllProducts(prev => {
+        const filtered = prev.filter(p => p.category !== selectedCategory);
+        return [...filtered, ...products];
+      });
+    }
+  }, [products, selectedCategory]);
+
+  const displayProducts = selectedCategory === "all" 
+    ? allProducts 
+    : products;
+
+  const filteredProducts = displayProducts.filter(p =>
+    searchQuery === "" || 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.brand?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // BUYER VIEW
-  if (userRole === "buyer") {
-    return (
+  // SEO: Structured data for products
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Commercial Laundromat Equipment Marketplace",
+    "description": "Buy commercial washers, dryers, folding tables, laundry carts, parts and supplies for your laundromat. Wholesale prices with Amazon Prime delivery.",
+    "url": "https://washbizhub.com/equipment",
+    "mainEntity": {
+      "@type": "OfferCatalog",
+      "name": "Laundromat Equipment & Supplies",
+      "itemListElement": filteredProducts.slice(0, 10).map((product, index) => ({
+        "@type": "Offer",
+        "position": index + 1,
+        "itemOffered": {
+          "@type": "Product",
+          "name": product.title,
+          "brand": product.brand,
+          "image": product.image,
+          "offers": {
+            "@type": "Offer",
+            "price": product.price?.amount,
+            "priceCurrency": product.price?.currency || "USD",
+            "availability": "https://schema.org/InStock",
+            "url": product.url
+          },
+          "aggregateRating": product.rating ? {
+            "@type": "AggregateRating",
+            "ratingValue": product.rating,
+            "reviewCount": product.reviewCount || 0
+          } : undefined
+        }
+      }))
+    }
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Commercial Laundromat Equipment Marketplace | Washers, Dryers, Folding Tables & Parts | WashBizHub</title>
+        <meta name="description" content="Buy commercial laundromat equipment at wholesale prices. Speed Queen & Maytag washers, coin-op dryers, folding tables, laundry carts, parts & supplies. Amazon Prime delivery available." />
+        <meta name="keywords" content="commercial laundromat equipment, coin operated washers, commercial dryers, folding tables laundry, laundry carts, laundromat parts, wholesale laundry equipment" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Commercial Laundromat Equipment Marketplace - WashBizHub" />
+        <meta property="og:description" content="Buy commercial washers, dryers, folding tables, carts, parts and supplies for your laundromat at wholesale prices." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://washbizhub.com/equipment" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Commercial Laundromat Equipment Marketplace" />
+        <meta name="twitter:description" content="Wholesale laundromat equipment: washers, dryers, folding tables, carts & parts" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
+
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
-          <div>
+          {/* SEO-optimized header */}
+          <header>
             <h1 className="text-4xl font-bold flex items-center gap-3">
-              <Zap className="w-10 h-10 text-primary" />
-              Equipment Marketplace
+              <Package className="w-10 h-10 text-primary" />
+              Commercial Laundromat Equipment Marketplace
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Buy new and used commercial laundromat equipment at wholesale prices
+            <p className="text-muted-foreground mt-2 text-lg">
+              Buy new and used commercial laundromat equipment at wholesale prices - Washers, Dryers, Folding Tables, Carts, Parts & Supplies
             </p>
-          </div>
+          </header>
 
           {/* Featured Partner Ad */}
           <Advertisement placement="marketplace" />
 
-          {/* Search & Filter */}
+          {/* Search & Category Filter */}
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="flex gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search equipment..."
+                    placeholder="Search equipment by name or brand..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
                     data-testid="input-equipment-search"
+                    aria-label="Search equipment"
                   />
                 </div>
               </div>
 
-              {/* Type Filter */}
-              <div className="flex gap-2 flex-wrap">
-                {["all", "washer", "dryer", "folding-table", "accessories"].map((type) => (
-                  <Badge
-                    key={type}
-                    variant={selectedType === type ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedType(type)}
-                  >
-                    {type === "all" ? "All Equipment" : type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Badge>
-                ))}
-              </div>
+              {/* Category Tabs */}
+              <nav aria-label="Equipment categories">
+                <div className="flex gap-2 flex-wrap">
+                  {EQUIPMENT_CATEGORIES.map((cat) => {
+                    const Icon = cat.icon;
+                    return (
+                      <Badge
+                        key={cat.id}
+                        variant={selectedCategory === cat.id ? "default" : "outline"}
+                        className="cursor-pointer hover-elevate active-elevate-2 gap-1.5 px-3 py-1.5"
+                        onClick={() => setSelectedCategory(cat.id)}
+                        data-testid={`filter-${cat.id}`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        {cat.label}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </nav>
             </CardContent>
           </Card>
+
+          {/* Results count */}
+          {!isLoading && (
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredProducts.length} products {selectedCategory !== "all" && `in ${category.label}`}
+            </p>
+          )}
 
           {/* Equipment Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredEquipment.map((item) => (
-              <Card key={item.id} className="hover-elevate" data-testid={`equipment-card-${item.id}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{item.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{item.brand} {item.model}</p>
-                    </div>
-                    <Badge variant={
-                      item.condition === "new" ? "default" :
-                      item.condition === "excellent" ? "secondary" :
-                      "outline"
-                    }>
-                      {item.condition}
-                    </Badge>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Seller Info */}
-                  <div className="p-3 bg-muted rounded">
-                    <p className="text-sm text-muted-foreground">Seller</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="font-semibold">{item.sellerName}</p>
-                      <Badge variant="outline">⭐ {item.sellerRating}</Badge>
-                    </div>
-                  </div>
-
-                  {/* Price & Location */}
-                  <div className="flex items-center gap-2">
-                    <p className="text-3xl font-bold">${item.price.toLocaleString()}</p>
-                    <div className="flex-1" />
-                  </div>
-
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    {item.location}
-                  </div>
-
-                  {/* CTAs */}
-                  <div className="flex gap-2">
-                    <Button className="flex-1" data-testid={`button-view-equipment-${item.id}`}>
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
-                    <Button variant="outline" size="icon" data-testid={`button-message-seller-${item.id}`}>
-                      <MessageSquare className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
+          <section aria-label="Product listings">
+            {isLoading ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <Skeleton className="h-48 w-full" />
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-8 w-full" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No products found</h3>
+                <p className="text-muted-foreground">
+                  {selectedCategory !== "all" 
+                    ? "Try selecting a different category or search term" 
+                    : "Start by selecting a category above to browse products"}
+                </p>
               </Card>
-            ))}
-          </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredProducts.map((product) => (
+                  <Card 
+                    key={product.asin} 
+                    className="hover-elevate flex flex-col" 
+                    data-testid={`product-${product.asin}`}
+                    itemScope
+                    itemType="https://schema.org/Product"
+                  >
+                    {/* Product Image */}
+                    {product.image && (
+                      <div className="relative h-48 bg-muted overflow-hidden rounded-t-lg">
+                        <img 
+                          src={product.image} 
+                          alt={product.title}
+                          className="w-full h-full object-contain p-4"
+                          itemProp="image"
+                          loading="lazy"
+                        />
+                        {product.isPrimeEligible && (
+                          <Badge className="absolute top-2 right-2 bg-blue-600">
+                            Prime
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <CardHeader className="flex-1">
+                      <div>
+                        {product.brand && (
+                          <p className="text-xs text-muted-foreground mb-1" itemProp="brand">
+                            {product.brand}
+                          </p>
+                        )}
+                        <CardTitle className="text-sm line-clamp-2" itemProp="name">
+                          {product.title}
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-3">
+                      {/* Rating */}
+                      {product.rating && (
+                        <div className="flex items-center gap-1" itemProp="aggregateRating" itemScope itemType="https://schema.org/AggregateRating">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < Math.floor(product.rating!) 
+                                    ? "fill-yellow-400 text-yellow-400" 
+                                    : "text-muted"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            <meta itemProp="ratingValue" content={product.rating.toString()} />
+                            {product.rating} ({product.reviewCount || 0})
+                            <meta itemProp="reviewCount" content={(product.reviewCount || 0).toString()} />
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      {product.price && (
+                        <div itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                          <p className="text-2xl font-bold text-primary" itemProp="price" content={product.price.amount.toString()}>
+                            {product.price.displayAmount}
+                          </p>
+                          <meta itemProp="priceCurrency" content={product.price.currency} />
+                          <link itemProp="availability" href="https://schema.org/InStock" />
+                          <link itemProp="url" href={product.url} />
+                        </div>
+                      )}
+
+                      {/* CTA */}
+                      <Button 
+                        className="w-full gap-2" 
+                        asChild
+                        data-testid={`button-view-${product.asin}`}
+                      >
+                        <a 
+                          href={product.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            fetch('/api/amazon/track-click', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ asin: product.asin })
+                            }).catch(() => {});
+                          }}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          View on Amazon
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* SEO content section */}
+          <Card className="mt-12">
+            <CardHeader>
+              <CardTitle>About Our Commercial Laundromat Equipment</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-invert max-w-none">
+              <h2 className="text-xl font-semibold mb-3">Premium Equipment for Laundromat Owners</h2>
+              <p className="text-muted-foreground mb-4">
+                WashBizHub connects laundromat owners with the best commercial laundry equipment from trusted brands like Speed Queen, Maytag, Huebsch, and Electrolux. Whether you're starting a new laundromat or upgrading existing equipment, we offer wholesale pricing through our Amazon affiliate partnership.
+              </p>
+              
+              <h3 className="text-lg font-semibold mb-2 mt-6">Commercial Washers & Dryers</h3>
+              <p className="text-muted-foreground mb-4">
+                Our marketplace features coin-operated washers and dryers built for high-volume commercial use. All equipment comes with manufacturer warranties and Prime delivery options.
+              </p>
+
+              <h3 className="text-lg font-semibold mb-2 mt-6">Folding Tables & Laundry Carts</h3>
+              <p className="text-muted-foreground mb-4">
+                Complete your laundromat setup with heavy-duty folding tables and rolling laundry carts. Essential equipment for customer convenience and efficient operations.
+              </p>
+
+              <h3 className="text-lg font-semibold mb-2 mt-6">Parts & Repair Supplies</h3>
+              <p className="text-muted-foreground mb-4">
+                Keep your equipment running with genuine replacement parts, repair kits, and maintenance supplies. Fast shipping through Amazon ensures minimal downtime.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    );
-  }
-
-  // SELLER VIEW
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Sell Equipment</h1>
-          <Button className="gap-2" data-testid="button-list-equipment">
-            <Plus className="w-4 h-4" />
-            List New Equipment
-          </Button>
-        </div>
-
-        {/* Seller Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Active Listings</p>
-              <p className="text-3xl font-bold mt-2">5</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Views This Month</p>
-              <p className="text-3xl font-bold mt-2 text-primary">342</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Sold</p>
-              <p className="text-3xl font-bold mt-2 text-green-500">8</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Revenue</p>
-              <p className="text-3xl font-bold mt-2">$34K</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* My Listings */}
-        <Card>
-          <CardHeader>
-            <CardTitle>My Equipment Listings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {filteredEquipment.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">${item.price.toLocaleString()}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" data-testid={`button-edit-equipment-${item.id}`}>
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="outline" data-testid={`button-promote-${item.id}`}>
-                      Promote
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    </>
   );
 }
