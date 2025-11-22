@@ -23,6 +23,9 @@ import CoursesHub from "@/pages/courses-hub";
 import ListingsHub from "@/pages/listings-hub";
 import VendorsHub from "@/pages/vendors-hub";
 import Advertising from "@/pages/advertising";
+import AdBuilder from "@/pages/ad-builder";
+import PartsCatalogue from "@/pages/parts-catalogue";
+import VendorDashboard from "@/pages/vendor-dashboard";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -125,6 +128,9 @@ function Router() {
       <Route path="/vendors/:storeSlug/products/:productSlug" component={ProductDetail} />
       <Route path="/vendors/:storeSlug" component={VendorStorefront} />
       <Route path="/advertising" component={Advertising} />
+      <Route path="/ad-builder" component={AdBuilder} />
+      <Route path="/parts-catalogue" component={PartsCatalogue} />
+      <Route path="/vendor-dashboard" component={VendorDashboard} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
