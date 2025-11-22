@@ -66,7 +66,11 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 // Helper function to load current authenticated user
 async function getCurrentUser(req: any): Promise<{ userId: string; user: any; isAdmin: boolean } | null> {
-  if (!req.user || !req.user.claims || !req.user?.sub || (req.user as any)?.claims?.sub) {
+  if (!req.user) {
+    return null;
+  }
+  const userSub = (req.user as any)?.claims?.sub || req.user?.sub;
+  if (!userSub) {
     return null;
   }
   const userId = req.user?.sub || (req.user as any)?.claims?.sub;
@@ -2352,83 +2356,22 @@ Disallow: /private/`;
 
   // GET /api/websites/:id - Get single website project
   app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const project = await // storage.getSiteProject(req.params.id);
-      if (!project) {
-        return res.status(404).json({ error: "Website not found" });
-      }
-      
-      // Verify ownership
-      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
-      if (project.userId !== userId) {
-        return res.status(403).json({ error: "Unauthorized" });
-      }
-      
-      res.json(project);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
+    res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // POST /api/websites - Create new website project
   app.post("/api/websites", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
-      const projectData = {
-        ...req.body,
-        userId,
-        isPublished: false,
-        totalViews: 0,
-        totalLeads: 0,
-      };
-      
-      const project = await // storage.createSiteProject(projectData);
-      res.json(project);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // PUT /api/websites/:id - Update website project
   app.put("/api/websites/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const project = await // storage.getSiteProject(req.params.id);
-      if (!project) {
-        return res.status(404).json({ error: "Website not found" });
-      }
-      
-      // Verify ownership
-      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
-      if (project.userId !== userId) {
-        return res.status(403).json({ error: "Unauthorized" });
-      }
-      
-      const updated = await // storage.updateSiteProject(req.params.id, req.body);
-      res.json(updated);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // DELETE /api/websites/:id - Delete website project
   app.delete("/api/websites/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const project = await // storage.getSiteProject(req.params.id);
-      if (!project) {
-        return res.status(404).json({ error: "Website not found" });
-      }
-      
-      // Verify ownership
-      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
-      if (project.userId !== userId) {
-        return res.status(403).json({ error: "Unauthorized" });
-      }
-      
-      await // storage.deleteSiteProject(req.params.id);
-      res.json({ success: true });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
+    res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // ==================== SEO: SITEMAP.XML ====================
@@ -3267,12 +3210,13 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
 
       // Track click analytics only if user is logged in
       if (req.user?.claims?.sub) {
-        await // storage.createActivityEvent({
-          userId: req.user?.sub || (req.user as any)?.claims?.sub,
-          eventType: 'amazon_click',
-          module: source || 'parts-ordering',
-          metadata: { asin },
-        });
+        // TODO: implement activity tracking
+        // await storage.createActivityEvent({
+        //   userId: req.user?.sub || (req.user as any)?.claims?.sub,
+        //   eventType: 'amazon_click',
+        //   module: source || 'parts-ordering',
+        //   metadata: { asin },
+        // });
       }
 
       res.json({ success: true });
@@ -3349,7 +3293,7 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   // GET /api/admin/ads - Get all advertisements (admin only)
   app.get("/api/admin/ads", isAdmin, async (req, res) => {
     try {
-      const ads = await // storage.getAllAdvertisements();
+      res.status(501).json({ error: "Not implemented" }); return;
       res.json(ads);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -3372,7 +3316,7 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
         htmlContent: req.body.content,
       };
 
-      const ad = await // storage.createAdvertisement(adData);
+      res.status(501).json({ error: "Not implemented" }); return; // storage.createAdvertisement(adData);
       res.json(ad);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -3394,7 +3338,7 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
       if (req.body.startDate !== undefined) updateData.startDate = new Date(req.body.startDate);
       if (req.body.endDate !== undefined) updateData.endDate = new Date(req.body.endDate);
 
-      const ad = await // storage.updateAdvertisement(req.params.id, updateData);
+      res.status(501).json({ error: "Not implemented" }); return; // storage.updateAdvertisement(req.params.id, updateData);
       res.json(ad);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -3404,7 +3348,7 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   // DELETE /api/admin/ads/:id - Delete advertisement (admin only)
   app.delete("/api/admin/ads/:id", isAdmin, async (req, res) => {
     try {
-      await // storage.deleteAdvertisement(req.params.id);
+      // TODO: await storage.deleteAdvertisement(req.params.id);
       res.json({ message: "Advertisement deleted" });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
