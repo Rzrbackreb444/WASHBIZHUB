@@ -63,6 +63,7 @@ import CoursesLanding from "@/pages/landing/courses-landing";
 import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import DesignStudioPro from "@/pages/design-studio-pro";
 import Login from "@/pages/login";
+import AdminLogin from "@/pages/admin-login";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -127,6 +128,7 @@ function Router() {
       <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
       <Route path="/design-studio-pro" component={DesignStudioPro} />
       <Route path="/login" component={Login} />
+      <Route path="/admin-login" component={AdminLogin} />
       <Route component={NotFound} />
     </Switch>
   );
