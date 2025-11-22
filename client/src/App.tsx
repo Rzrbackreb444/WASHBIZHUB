@@ -54,6 +54,14 @@ import SeoCommandCenter from "@/pages/seo-command-center";
 import AboutUs from "@/pages/about-us";
 import AdminDashboard from "@/pages/admin/index";
 import AdminAds from "@/pages/admin/ads";
+import AdminBlog from "@/pages/admin/blog";
+import AdminCourses from "@/pages/admin/courses";
+import AdminResources from "@/pages/admin/resources";
+import AdminMarketplace from "@/pages/admin/marketplace";
+import AdminForum from "@/pages/admin/forum";
+import AdminUsers from "@/pages/admin/users";
+import AdminAnalytics from "@/pages/admin/analytics";
+import AdminSettings from "@/pages/admin/settings";
 import LaundromatListings from "@/pages/laundromat-listings";
 import EquipmentMarketplace from "@/pages/equipment-marketplace";
 import LearningPage from "@/pages/learning";
@@ -121,6 +129,14 @@ function Router() {
       <Route path="/about" component={AboutUs} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/ads" component={AdminAds} />
+      <Route path="/admin/blog" component={AdminBlog} />
+      <Route path="/admin/courses" component={AdminCourses} />
+      <Route path="/admin/resources" component={AdminResources} />
+      <Route path="/admin/marketplace" component={AdminMarketplace} />
+      <Route path="/admin/forum" component={AdminForum} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/analytics" component={AdminAnalytics} />
+      <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/laundromat-listings" component={LaundromatListings} />
       <Route path="/equipment" component={EquipmentMarketplace} />
       <Route path="/learning" component={LearningPage} />
