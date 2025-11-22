@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -10,142 +9,93 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calculator, Search, DollarSign, TrendingUp, Users, Building2,
-  FileText, BarChart3, Wrench, Shield, Zap, Crown, ArrowRight
+  FileText, BarChart3, Wrench, Shield, Zap, Crown, ArrowRight, Truck
 } from "lucide-react";
+import { CALCULATOR_REGISTRY, type CalculatorType } from "@shared/calculators";
 
-interface Calculator {
-  id: string;
+interface CalculatorMeta {
+  id: CalculatorType;
   name: string;
   slug: string;
   description: string;
-  category: 'financial' | 'operational' | 'marketing' | 'due-diligence' | 'real-estate';
+  category: 'financial' | 'operational' | 'marketing' | 'real-estate' | 'startup' | 'logistics' | 'simulation';
   isPremium: boolean;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  useCount?: number;
-  rating?: number;
 }
 
 const CALCULATOR_CATEGORIES = [
   { id: 'all', name: 'All Calculators', icon: Calculator },
   { id: 'financial', name: 'Financial Analysis', icon: DollarSign },
-  { id: 'due-diligence', name: 'Due Diligence', icon: Shield },
   { id: 'operational', name: 'Operations', icon: Wrench },
   { id: 'marketing', name: 'Marketing & Growth', icon: TrendingUp },
   { id: 'real-estate', name: 'Real Estate', icon: Building2 },
+  { id: 'startup', name: 'Startup & Planning', icon: FileText },
+  { id: 'logistics', name: 'Logistics', icon: Truck },
+  { id: 'simulation', name: 'Simulation', icon: BarChart3 },
 ];
 
-// Mock data - will be replaced with API call
-const MOCK_CALCULATORS: Calculator[] = [
-  {
-    id: '1',
-    name: 'ROI Calculator',
-    slug: 'roi-calculator',
-    description: 'Calculate return on investment for laundromat purchases with payback period analysis',
-    category: 'financial',
-    isPremium: false,
-    difficulty: 'intermediate',
-    useCount: 12450,
-    rating: 4.8,
-  },
-  {
-    id: '2',
-    name: 'Revenue Calculator',
-    slug: 'revenue-calculator',
-    description: 'Project monthly and annual revenue based on machine count, turns, and utilization',
-    category: 'financial',
-    isPremium: false,
-    difficulty: 'beginner',
-    useCount: 15230,
-    rating: 4.9,
-  },
-  {
-    id: '3',
-    name: 'Water Bill Analyzer',
-    slug: 'water-bill-analyzer',
-    description: 'Upload 36 months of water bills - AI detects fraud and calculates real load volume',
-    category: 'due-diligence',
-    isPremium: true,
-    difficulty: 'advanced',
-    useCount: 3420,
-    rating: 5.0,
-  },
-  {
-    id: '4',
-    name: 'Lease Risk Scoring',
-    slug: 'lease-risk-scoring',
-    description: 'AI-powered lease analysis - identifies red flags, escalation risks, and negotiation opportunities',
-    category: 'due-diligence',
-    isPremium: true,
-    difficulty: 'advanced',
-    useCount: 2890,
-    rating: 4.9,
-  },
-  {
-    id: '5',
-    name: 'Equipment Age Calculator',
-    slug: 'equipment-age-calculator',
-    description: 'Batch serial number lookup - calculates equipment age, remaining life, replacement timeline',
-    category: 'due-diligence',
-    isPremium: true,
-    difficulty: 'intermediate',
-    useCount: 4120,
-    rating: 4.8,
-  },
-  {
-    id: '6',
-    name: 'Demographic Score',
-    slug: 'demographic-score',
-    description: 'Market profitability analysis using Census + ATTOM data - scores location potential 1-100',
-    category: 'due-diligence',
-    isPremium: true,
-    difficulty: 'advanced',
-    useCount: 1950,
-    rating: 4.9,
-  },
-  {
-    id: '7',
-    name: 'Competitive Density Map',
-    slug: 'competitive-density-map',
-    description: 'Interactive Google Maps showing laundromats within 1-5 miles - calculates saturation index',
-    category: 'due-diligence',
-    isPremium: true,
-    difficulty: 'intermediate',
-    useCount: 3680,
-    rating: 5.0,
-  },
-  {
-    id: '8',
-    name: 'Utility Cost Analyzer',
-    slug: 'utility-cost-analyzer',
-    description: 'Compare water, electric, gas costs against benchmarks - identify savings opportunities',
-    category: 'operational',
-    isPremium: false,
-    difficulty: 'beginner',
-    useCount: 8920,
-    rating: 4.7,
-  },
-  {
-    id: '9',
-    name: 'Labor Cost Estimator',
-    slug: 'labor-cost-estimator',
-    description: 'Calculate optimal staffing requirements and labor costs for your location',
-    category: 'operational',
-    isPremium: false,
-    difficulty: 'intermediate',
-    useCount: 6140,
-    rating: 4.6,
-  },
-  {
-    id: '10',
-    name: 'Per-Pound Pricing Optimizer',
-    slug: 'per-pound-pricing-optimizer',
-    description: 'AI recommends optimal per-pound pricing ($1.25-$2.25/lb) based on market analysis',
-    category: 'operational',
-    isPremium: true,
-    difficulty: 'advanced',
-    useCount: 2340,
-    rating: 4.9,
-  },
+// Metadata mapping for all calculators in CALCULATOR_REGISTRY
+const CALCULATOR_METADATA: Record<CalculatorType, Omit<CalculatorMeta, 'id'>> = {
+  // Financial Analysis (11)
+  valuation: { name: 'Business Valuation', slug: 'valuation', description: 'SDE multiples + asset-based valuation', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  roi: { name: 'ROI Calculator', slug: 'roi', description: 'Return on investment with annual breakdown', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  npv: { name: 'Net Present Value', slug: 'npv', description: 'Discounted cash flow analysis', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  { id: 'irr', name: 'Internal Rate of Return', slug: 'irr', description: 'Newton-Raphson IRR calculation', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  { id: 'loan', name: 'Loan Calculator', slug: 'loan', description: 'Monthly payment & amortization schedule', category: 'financial', isPremium: false, difficulty: 'beginner' },
+  { id: 'leaseVsBuy', name: 'Lease vs Buy', slug: 'lease-vs-buy', description: 'Comprehensive NPV comparison', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  { id: 'clv', name: 'Customer Lifetime Value', slug: 'clv', description: 'LTV with retention curves', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  { id: 'cac', name: 'Customer Acquisition Cost', slug: 'cac', description: 'Marketing CAC & payback period', category: 'financial', isPremium: false, difficulty: 'beginner' },
+  { id: 'taxDeduction', name: 'Tax Deductions', slug: 'tax-deduction', description: 'Annual tax savings estimator', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  { id: 'exitValuation', name: 'Exit Valuation', slug: 'exit-valuation', description: 'Future business valuation projector', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  { id: 'subscriptionRevenue', name: 'Subscription Revenue', slug: 'subscription-revenue', description: 'MRR/ARR with churn modeling', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  
+  // Operational (11)
+  { id: 'tpd', name: 'Turns Per Day', slug: 'tpd', description: 'Equipment utilization & capacity', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  { id: 'utilities', name: 'Utility Costs', slug: 'utilities', description: 'Water, gas, electric projections', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  { id: 'energyCost', name: 'Energy Cost', slug: 'energy-cost', description: 'Peak/off-peak electric analysis', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'waterCost', name: 'Water Cost', slug: 'water-cost', description: 'Consumption + sewer analysis', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  { id: 'laborCost', name: 'Labor Cost', slug: 'labor-cost', description: 'Payroll + taxes + benefits', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'machineUtilization', name: 'Machine Utilization', slug: 'machine-utilization', description: 'Capacity & efficiency metrics', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'staffing', name: 'Staffing Requirements', slug: 'staffing', description: 'FTE requirements by volume', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'staffProductivity', name: 'Staff Productivity', slug: 'staff-productivity', description: 'Orders/hour & labor efficiency', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'maintenanceCost', name: 'Maintenance Cost', slug: 'maintenance-cost', description: 'Annual budget projector', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'peakHourAnalysis', name: 'Peak Hour Analysis', slug: 'peak-hour', description: 'Staffing multiplier calculator', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  { id: 'seasonalDemand', name: 'Seasonal Demand', slug: 'seasonal-demand', description: 'Annual revenue forecaster', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  
+  // Marketing & Growth (11)
+  { id: 'pricing', name: 'Pricing Optimizer', slug: 'pricing', description: 'Demand-based pricing engine', category: 'marketing', isPremium: false, difficulty: 'advanced' },
+  { id: 'pricingOptimizer', name: 'Price Per Pound', slug: 'price-per-pound', description: 'Competitive pricing analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'revenuePerSqFt', name: 'Revenue Per Sq Ft', slug: 'revenue-sqft', description: 'Space utilization metric', category: 'marketing', isPremium: false, difficulty: 'beginner' },
+  { id: 'marketingROI', name: 'Marketing ROI', slug: 'marketing-roi', description: 'Campaign return calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'churnRate', name: 'Churn Rate', slug: 'churn-rate', description: 'Customer retention analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'emailROI', name: 'Email Campaign ROI', slug: 'email-roi', description: 'Email marketing analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'referralProgram', name: 'Referral Program', slug: 'referral-program', description: 'Referral ROI calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'loyaltyProgramROI', name: 'Loyalty Program ROI', slug: 'loyalty-roi', description: 'Retention program value', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'socialMediaROI', name: 'Social Media ROI', slug: 'social-roi', description: 'Social campaign analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'websiteConversion', name: 'Website Conversion', slug: 'conversion', description: 'Conversion rate optimizer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  { id: 'competitivePricing', name: 'Competitive Pricing', slug: 'competitive-pricing', description: 'Market position analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  
+  // Real Estate (6)
+  { id: 'capRate', name: 'Cap Rate', slug: 'cap-rate', description: 'Capitalization rate calculator', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  { id: 'dscr', name: 'DSCR', slug: 'dscr', description: 'Debt service coverage ratio', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  { id: 'grm', name: 'Gross Rent Multiplier', slug: 'grm', description: 'GRM property valuation', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
+  { id: 'oer', name: 'Operating Expense Ratio', slug: 'oer', description: 'Expense efficiency metric', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  { id: 'depreciation', name: 'Depreciation', slug: 'depreciation', description: 'Straight-line & declining balance', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  { id: 'rentAffordability', name: 'Rent Affordability', slug: 'rent-affordability', description: 'Max affordable rent calculator', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
+  
+  // Startup & Planning (5)
+  { id: 'startupCost', name: 'Startup Costs', slug: 'startup-cost', description: 'Total capital requirements', category: 'startup', isPremium: false, difficulty: 'intermediate' },
+  { id: 'insurance', name: 'Insurance Estimator', slug: 'insurance', description: 'Annual insurance costs', category: 'startup', isPremium: false, difficulty: 'beginner' },
+  { id: 'expansionROI', name: 'Expansion ROI', slug: 'expansion-roi', description: 'Growth investment analysis', category: 'startup', isPremium: false, difficulty: 'intermediate' },
+  { id: 'profitMargin', name: 'Profit Margin', slug: 'profit-margin', description: 'Gross & net margin calculator', category: 'startup', isPremium: false, difficulty: 'beginner' },
+  { id: 'paybackPeriod', name: 'Payback Period', slug: 'payback', description: 'Investment recovery timeline', category: 'startup', isPremium: false, difficulty: 'beginner' },
+  
+  // Logistics (2)
+  { id: 'routeOptimization', name: 'Route Optimization', slug: 'route-optimization', description: 'Delivery cost calculator', category: 'logistics', isPremium: false, difficulty: 'advanced' },
+  { id: 'pickupDeliveryProfitability', name: 'Pickup/Delivery Profit', slug: 'pickup-delivery', description: 'Service margin analysis', category: 'logistics', isPremium: false, difficulty: 'intermediate' },
+  
+  // Simulation (1)
+  { id: 'monteCarlo', name: 'Monte Carlo Revenue', slug: 'monte-carlo', description: '10,000 simulation revenue forecaster', category: 'simulation', isPremium: true, difficulty: 'advanced' },
 ];
 
 export default function CalculatorsHub() {
@@ -153,7 +103,7 @@ export default function CalculatorsHub() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter calculators
-  const filteredCalculators = MOCK_CALCULATORS.filter(calc => {
+  const filteredCalculators = ALL_CALCULATORS.filter(calc => {
     const matchesCategory = selectedCategory === 'all' || calc.category === selectedCategory;
     const matchesSearch = searchQuery === '' || 
       calc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,28 +123,28 @@ export default function CalculatorsHub() {
   return (
     <>
       <SEO
-        title="50+ Laundromat Calculators & Business Tools"
-        description="Comprehensive suite of 50+ professional calculators for laundromat owners - ROI analysis, valuation tools, water bill fraud detection, lease risk scoring, demographic analysis, competitive mapping, and operational optimization. Free and premium tools available."
+        title="47 Laundromat Calculators & Business Tools | WashBizHub"
+        description="Comprehensive suite of 47 professional calculators for laundromat owners - Business valuation, ROI analysis, NPV, IRR, pricing optimization, staffing requirements, route optimization, and 40+ more tools. Production-grade formulas with instant results."
         canonicalUrl="/calculators"
         keywords={[
           "laundromat calculator",
           "laundry business ROI calculator",
           "laundromat valuation tool",
-          "water bill fraud detection",
-          "lease risk analysis",
-          "equipment age calculator",
-          "demographic profitability score",
-          "competitive density mapping",
-          "laundromat due diligence tools",
-          "coin laundry financial calculators"
+          "NPV calculator",
+          "IRR calculator",
+          "equipment depreciation",
+          "cap rate calculator",
+          "pricing optimization",
+          "laundromat financial tools",
+          "coin laundry business calculators"
         ]}
         breadcrumbs={[
           { name: "Calculators", url: "/calculators" }
         ]}
         author={{
           name: "WashBizHub Analytics Team",
-          expertise: "Laundromat Financial Analysis & Due Diligence",
-          credentials: "Powered by 50+ years combined industry experience and AI-driven analytics"
+          expertise: "Laundromat Financial Analysis & Operations",
+          credentials: "Production-grade calculators with industry-standard formulas"
         }}
       />
 
@@ -211,14 +161,14 @@ export default function CalculatorsHub() {
           <div className="mx-auto max-w-5xl px-6 text-center">
             <Badge className="mb-6 bg-primary/20 text-primary border-primary/30">
               <Calculator className="w-3 h-3 mr-1" />
-              50+ Professional Tools
+              47 Professional Tools
             </Badge>
             <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6 uppercase tracking-tight">
               Laundromat Calculator Suite
             </h1>
             <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto">
-              From basic ROI analysis to advanced AI-powered due diligence - the most comprehensive 
-              toolkit for laundromat investors, owners, and brokers.
+              From valuation and ROI analysis to route optimization and seasonal forecasting - the most comprehensive 
+              toolkit for laundromat investors, owners, and operators. All with production-grade formulas and instant results.
             </p>
 
             {/* Search */}
@@ -285,17 +235,7 @@ export default function CalculatorsHub() {
                     <CardDescription>{calc.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
-                      {calc.useCount && (
-                        <span>{calc.useCount.toLocaleString()} uses</span>
-                      )}
-                      {calc.rating && (
-                        <span className="flex items-center gap-1">
-                          ⭐ {calc.rating}
-                        </span>
-                      )}
-                    </div>
-                    <Link href={`/${calc.slug}`}>
+                    <Link href={`/calc/${calc.slug}`}>
                       <Button className="w-full hover-elevate active-elevate-2" data-testid={`button-use-calculator-${calc.id}`}>
                         Use Calculator
                         <ArrowRight className="w-4 h-4 ml-2" />
