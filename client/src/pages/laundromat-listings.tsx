@@ -69,6 +69,22 @@ export default function LaundromatListings() {
         contactEmail: "owner@example.com",
         createdAt: new Date().toISOString(),
       },
+      {
+        id: "l3",
+        title: "Newport Laundry - Premium High-Income Location with Fluff & Fold Potential",
+        location: "Newport Beach",
+        state: "CA",
+        price: 200000,
+        annualRevenue: 82753,
+        monthlyProfit: 950,
+        featured: true,
+        verified: true,
+        cleanbiScore: 85,
+        images: [],
+        description: "Unique premium opportunity in high-income Orange County location. Features 27 machines with Dexter equipment, full security infrastructure, PayRange + coin system. Graduated lease terms (up to 20 years) with owner financing available. Ideal for fluff & fold and pickup/delivery service expansion. Owner-operated building offers flexibility for qualified buyers.",
+        contactEmail: "larry@washbizhub.com",
+        createdAt: new Date().toISOString(),
+      },
     ],
   });
 
