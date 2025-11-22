@@ -2,10 +2,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Shield, DollarSign, ExternalLink } from 'lucide-react';
+import { CheckCircle, Shield, DollarSign, ExternalLink, Mail } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const INSURANCE_PARTNERS = [
+  {
+    name: 'Larry Larsen - Laundromat123.com',
+    category: 'California-Based Insurance Specialist',
+    description: 'Direct partnership with Larry Larsen, California-based laundromat insurance specialist. Specializes in California regulations, equipment protection, and multi-location expansion nationwide.',
+    commission: 'Direct referral partnership',
+    commissionType: 'Revenue share arrangement',
+    features: [
+      'California-specific insurance expertise',
+      'Commercial property & liability',
+      'Equipment breakdown protection',
+      'Multi-location support',
+      'Expanding nationwide soon',
+      'Direct broker relationship'
+    ],
+    links: [
+      { title: 'Visit Laundromat123.com', url: 'https://laundromat123.com' }
+    ],
+    badge: 'Primary Partner',
+    bestFor: 'California operators and multi-unit expansion'
+  },
   {
     name: 'Tivly',
     category: 'Multi-Carrier Insurance Platform',
@@ -373,7 +395,7 @@ export default function InsurancePartners() {
               </div>
               <div className="flex flex-col gap-2 pt-4 border-t">
                 <p className="text-sm text-muted-foreground">Interested in becoming an insurance affiliate partner?</p>
-                <a href="mailto:funding@washbizhub.com" target="_blank" rel="noopener noreferrer">
+                <a href="mailto:insurance@washbizhub.com" target="_blank" rel="noopener noreferrer">
                   <Button className="bg-green-600 hover:bg-green-700" data-testid="button-partner-inquiry">
                     Contact Partner Program
                   </Button>
@@ -381,8 +403,92 @@ export default function InsurancePartners() {
               </div>
             </CardContent>
           </Card>
+          {/* Insurance Lead Capture */}
+          <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
+            <CardHeader>
+              <CardTitle className="text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Get Personalized Insurance Quote
+              </CardTitle>
+              <CardDescription>Connect with our insurance specialists for a free quote</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InsuranceLeadForm />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
+  );
+}
+
+function InsuranceLeadForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    businessType: 'laundromat',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleChange = (e: any) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/insurance-leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!response.ok) throw new Error('Failed to submit');
+      toast({ title: 'Success!', description: 'We'll contact you soon with a quote.' });
+      setFormData({ name: '', email: '', phone: '', location: '', businessType: 'laundromat', message: '' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to submit. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium">Name</label>
+          <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full mt-1 px-3 py-2 border rounded-md text-sm" data-testid="input-name" />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Email</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full mt-1 px-3 py-2 border rounded-md text-sm" data-testid="input-email" />
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium">Phone</label>
+          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required className="w-full mt-1 px-3 py-2 border rounded-md text-sm" data-testid="input-phone" />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Location</label>
+          <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="City, State" className="w-full mt-1 px-3 py-2 border rounded-md text-sm" data-testid="input-location" />
+        </div>
+      </div>
+      <div>
+        <label className="text-sm font-medium">Additional Details</label>
+        <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Describe your insurance needs..." className="w-full mt-1 px-3 py-2 border rounded-md text-sm" rows={3} data-testid="textarea-message" />
+      </div>
+      <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700" data-testid="button-submit-lead">
+        {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
+      </Button>
+    </form>
   );
 }
