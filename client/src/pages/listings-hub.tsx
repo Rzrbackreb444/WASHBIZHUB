@@ -13,7 +13,7 @@ const LISTINGS = [
     location: 'Northeast Philadelphia, PA',
     price: 450000,
     revenue: 18000,
-    cleanbi: 89,
+    cleanbi: 'A',
     machines: 32,
     status: 'Active',
     image: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=300&fit=crop',
@@ -24,7 +24,7 @@ const LISTINGS = [
     location: 'State College, PA',
     price: 350000,
     revenue: 14500,
-    cleanbi: 76,
+    cleanbi: 'B',
     machines: 24,
     status: 'Active',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
@@ -35,7 +35,7 @@ const LISTINGS = [
     location: 'Pittsburgh, PA',
     price: 550000,
     revenue: 22000,
-    cleanbi: 92,
+    cleanbi: 'A',
     machines: 40,
     status: 'Active',
     image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c800?w=400&h=300&fit=crop',
@@ -46,7 +46,7 @@ const LISTINGS = [
     location: 'Philadelphia, PA',
     price: 380000,
     revenue: 16000,
-    cleanbi: 82,
+    cleanbi: 'C',
     machines: 28,
     status: 'Active',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
@@ -55,18 +55,25 @@ const LISTINGS = [
 
 export default function ListingsHub() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [minCleanBI, setMinCleanBI] = useState(0);
+  const [filterGrade, setFilterGrade] = useState<'all' | 'A' | 'B' | 'C' | 'needs-work'>('all');
 
-  const filteredListings = LISTINGS.filter(listing => 
-    (listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     listing.location.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    listing.cleanbi >= minCleanBI
-  );
+  const filteredListings = LISTINGS.filter(listing => {
+    const matchesSearch = 
+      listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      listing.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (filterGrade === 'all') return matchesSearch;
+    if (filterGrade === 'needs-work') return matchesSearch && !['A', 'B', 'C'].includes(listing.cleanbi);
+    return matchesSearch && listing.cleanbi === filterGrade;
+  });
 
-  const getCleanBIColor = (score: number) => {
-    if (score >= 85) return 'bg-green-500/20 text-green-400 border-green-500/30';
-    if (score >= 70) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    return 'bg-red-500/20 text-red-400 border-red-500/30';
+  const getCleanBIColor = (grade: string) => {
+    switch (grade) {
+      case 'A': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'B': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'C': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      default: return 'bg-red-500/20 text-red-400 border-red-500/30';
+    }
   };
 
   return (
@@ -105,38 +112,46 @@ export default function ListingsHub() {
                   data-testid="input-search-listings"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button 
-                  variant={minCleanBI === 0 ? 'default' : 'outline'}
-                  onClick={() => setMinCleanBI(0)}
+                  variant={filterGrade === 'all' ? 'default' : 'outline'}
+                  onClick={() => setFilterGrade('all')}
                   data-testid="button-filter-all-cleanbi"
                   size="sm"
                 >
-                  All
+                  All Grades
                 </Button>
                 <Button 
-                  variant={minCleanBI === 70 ? 'default' : 'outline'}
-                  onClick={() => setMinCleanBI(70)}
-                  data-testid="button-filter-cleanbi-70"
+                  variant={filterGrade === 'A' ? 'default' : 'outline'}
+                  onClick={() => setFilterGrade('A')}
+                  data-testid="button-filter-cleanbi-a"
                   size="sm"
                 >
-                  70+ CLEANBI
+                  Grade A
                 </Button>
                 <Button 
-                  variant={minCleanBI === 80 ? 'default' : 'outline'}
-                  onClick={() => setMinCleanBI(80)}
-                  data-testid="button-filter-cleanbi-80"
+                  variant={filterGrade === 'B' ? 'default' : 'outline'}
+                  onClick={() => setFilterGrade('B')}
+                  data-testid="button-filter-cleanbi-b"
                   size="sm"
                 >
-                  80+ CLEANBI
+                  Grade B
                 </Button>
                 <Button 
-                  variant={minCleanBI === 90 ? 'default' : 'outline'}
-                  onClick={() => setMinCleanBI(90)}
-                  data-testid="button-filter-cleanbi-90"
+                  variant={filterGrade === 'C' ? 'default' : 'outline'}
+                  onClick={() => setFilterGrade('C')}
+                  data-testid="button-filter-cleanbi-c"
                   size="sm"
                 >
-                  90+ CLEANBI
+                  Grade C
+                </Button>
+                <Button 
+                  variant={filterGrade === 'needs-work' ? 'default' : 'outline'}
+                  onClick={() => setFilterGrade('needs-work')}
+                  data-testid="button-filter-cleanbi-needswork"
+                  size="sm"
+                >
+                  Needs Work
                 </Button>
               </div>
             </div>
@@ -163,7 +178,7 @@ export default function ListingsHub() {
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <CardTitle className="line-clamp-2">{listing.title}</CardTitle>
                       <Badge className={getCleanBIColor(listing.cleanbi)} data-testid={`badge-cleanbi-${listing.id}`}>
-                        CLEANBI {listing.cleanbi}
+                        CLEANBI: {listing.cleanbi}
                       </Badge>
                     </div>
                     <CardDescription className="flex items-center gap-1">
