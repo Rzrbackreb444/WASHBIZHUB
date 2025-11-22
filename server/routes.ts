@@ -368,7 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/parts", async (req, res) => {
+  app.post("/api/parts", isAdmin, async (req, res) => {
     try {
       const validated = insertPartSchema.parse(req.body);
       const part = await storage.createPart(validated);
@@ -646,7 +646,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/lessons", async (req, res) => {
+  app.post("/api/lessons", isAdmin, async (req, res) => {
     try {
       const validated = insertLessonSchema.parse(req.body);
       const lesson = await storage.createLesson(validated);
@@ -781,7 +781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/book/chapters", async (req, res) => {
+  app.post("/api/book/chapters", isAdmin, async (req, res) => {
     try {
       const validated = insertBookChapterSchema.parse(req.body);
       const chapter = await storage.createBookChapter(validated);
@@ -1130,7 +1130,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/distributors", async (req, res) => {
+  app.post("/api/distributors", isAdmin, async (req, res) => {
     try {
       const validated = insertDistributorSchema.parse(req.body);
       const distributor = await storage.createDistributor(validated);
@@ -1160,7 +1160,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.patch("/api/distributor-inquiries/:id", async (req, res) => {
+  app.patch("/api/distributor-inquiries/:id", isAdmin, async (req, res) => {
     try {
       const validated = insertDistributorInquirySchema.partial().parse(req.body);
       const updated = await storage.updateDistributorInquiry(req.params.id, validated);
