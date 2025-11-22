@@ -1,43 +1,49 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
-  CheckCircle, XCircle, ArrowRight, RotateCcw, Award, 
-  Lightbulb, TrendingUp, Target, Trophy
+  CheckCircle2, XCircle, Award, Lightbulb, TrendingUp, Target, Trophy,
+  Zap, BarChart3
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
 interface QuizQuestion {
   id: string;
   question: string;
-  type: "multiple_choice" | "true_false" | "scenario";
+  type: "multiple_choice" | "true_false";
   options: string[];
+  correctAnswer: number;
+  explanation: string;
   points: number;
-  hint?: string;
 }
 
-interface QuizProps {
+interface InteractiveQuizProps {
   title: string;
   description: string;
   questions: QuizQuestion[];
   lessonId: string;
-  onComplete: (score: number, total: number) => void;
+  onComplete: (score: number, passed: boolean) => void;
+  passingScore?: number;
 }
 
-export function InteractiveQuiz({ title, description, questions, lessonId, onComplete }: QuizProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showHint, setShowHint] = useState(false);
-  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+export function InteractiveQuiz({ 
+  title, 
+  description, 
+  questions, 
+  lessonId, 
+  onComplete,
+  passingScore = 70
+}: InteractiveQuizProps) {
+  const { toast } = useToast();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [gradingResults, setGradingResults] = useState<any>(null);
-
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+  const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState<any>(null);
 
   const handleAnswerSelect = (index: number) => {
     setSelectedAnswer(index);

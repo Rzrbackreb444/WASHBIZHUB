@@ -3663,6 +3663,119 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     }
   });
 
+  // ========== PREMIUM COMBO PACKAGE ROUTES ==========
+  // POST /api/premium-combo/checkout - Create combo package checkout session
+  app.post("/api/premium-combo/checkout", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Premium Learning Combo",
+                description: "The Laundromat Bible + All Premium Courses + Lifetime Access",
+              },
+              unit_amount: 29700, // $297
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.protocol}://${req.hostname}/dashboard?combo=success`,
+        cancel_url: `${req.protocol}://${req.hostname}/pricing`,
+        customer_email: userEmail,
+        metadata: { userId, comboType: "all-access" },
+      });
+
+      res.json({ sessionId: session.id });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/premium-combo/status - Check user's combo access
+  app.get("/api/premium-combo/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      // Check if user has combo access
+      res.json({
+        hasCombo: false, // TODO: Query database
+        comboExpires: null,
+        allCoursesUnlocked: false,
+        bookAccess: false,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ========== GAMIFICATION & BADGES ROUTES ==========
+  // POST /api/badges - Award badge to user
+  app.post("/api/badges", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const { type, reason } = req.body;
+
+      const badge = {
+        id: `badge-${Date.now()}`,
+        userId,
+        type, // "first-course", "book-complete", "perfect-score", etc.
+        reason,
+        awardedAt: new Date().toISOString(),
+      };
+
+      res.status(201).json(badge);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/badges - Get user's badges
+  app.get("/api/badges", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      // Return mock badges for now
+      res.json([
+        { id: "1", type: "first-lesson", label: "First Step", icon: "🎯" },
+        { id: "2", type: "perfect-score", label: "Perfect 100%", icon: "⭐" },
+      ]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/learning-stats - Get user's learning statistics
+  app.get("/api/learning-stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      res.json({
+        totalLessonsCompleted: 0,
+        totalTimeSpent: 0, // minutes
+        averageScore: 0,
+        coursesEnrolled: 0,
+        certificatesEarned: 0,
+        currentStreak: 0, // days
+        badges: [],
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ========== SEO SUITE ROUTES ==========
   const { createSeoRoutes } = await import('./seo-routes');
   app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));
