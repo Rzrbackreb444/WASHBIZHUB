@@ -75,15 +75,17 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
 
   if (variant === "hero") {
     return (
-      <Card className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30 backdrop-blur">
-        <CardContent className="p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-accent/20 p-3 rounded-full">
-              <Sparkles className="h-6 w-6 text-accent" />
+      <Card className="bg-card/95 border-2 border-primary/40 shadow-2xl backdrop-blur-sm">
+        <CardContent className="p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+            <div className="bg-primary/20 p-3 rounded-full flex-shrink-0">
+              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white">Industry Intelligence Newsletter</h3>
-              <p className="text-white/70">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                Industry Intelligence Newsletter
+              </h3>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 Weekly insights, calculator updates, and exclusive marketplace deals
               </p>
             </div>
@@ -95,7 +97,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               disabled={subscribeMutation.isPending}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              className="flex-1 bg-background border-border"
               data-testid="input-newsletter-firstname"
             />
             <Input
@@ -105,33 +107,36 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
               onChange={(e) => setEmail(e.target.value)}
               disabled={subscribeMutation.isPending}
               required
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              className="flex-1 bg-background border-border"
               data-testid="input-newsletter-email"
             />
             <Button
               type="submit"
               disabled={subscribeMutation.isPending || !email}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold px-8"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 sm:px-8 whitespace-nowrap"
               data-testid="button-newsletter-subscribe"
             >
               {subscribeMutation.isPending ? "Subscribing..." : "Get Updates"}
             </Button>
           </form>
+          <p className="text-xs text-muted-foreground mt-4 text-center">
+            No spam. Unsubscribe anytime. 72,000+ industry professionals trust us.
+          </p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="bg-gradient-to-br from-primary/20 to-accent/10 border-accent/30">
+    <Card className="bg-card border-accent/50 shadow-lg">
       <CardContent className="p-6">
         <div className="flex items-start gap-4 mb-4">
           <div className="bg-accent/20 p-3 rounded-lg">
             <Mail className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white mb-1">Stay Informed</h3>
-            <p className="text-white/70 text-sm">
+            <h3 className="text-lg font-bold text-foreground mb-1">Stay Informed</h3>
+            <p className="text-muted-foreground text-sm">
               Get industry news, new calculators, and exclusive deals
             </p>
           </div>
@@ -144,7 +149,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
             onChange={(e) => setEmail(e.target.value)}
             disabled={subscribeMutation.isPending}
             required
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+            className="bg-background border-border"
             data-testid="input-newsletter-email"
           />
           <Button
@@ -163,9 +168,9 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
             )}
           </Button>
         </form>
-        <p className="text-xs text-white/50 mt-3 text-center">
+        <p className="text-xs text-muted-foreground mt-3 text-center">
           No spam. Unsubscribe anytime. 72,000+ industry professionals trust us.
-        </p>
+          </p>
       </CardContent>
     </Card>
   );

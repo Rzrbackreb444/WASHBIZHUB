@@ -6206,6 +6206,80 @@ export const insertSeoIndexingJobSchema = createInsertSchema(seoIndexingJobs).om
 export type InsertSeoIndexingJob = z.infer<typeof insertSeoIndexingJobSchema>;
 export type SeoIndexingJob = typeof seoIndexingJobs.$inferSelect;
 
+// Course Certificates (Auto-generated on completion)
+export const certificates = pgTable("certificates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  courseId: varchar("course_id").references(() => courses.id).notNull(),
+  certificateNumber: text("certificate_number").notNull().unique(), // e.g., "WBH-2025-001234"
+  studentName: text("student_name").notNull(),
+  courseTitle: text("course_title").notNull(),
+  completionDate: timestamp("completion_date").notNull(),
+  finalScore: integer("final_score"), // Percentage if applicable
+  verificationUrl: text("verification_url"), // Public verification link
+  issuedAt: timestamp("issued_at").defaultNow().notNull(),
+}, (table) => ({
+  userCourseIdx: index("certificates_user_course_idx").on(table.userId, table.courseId),
+}));
+
+export const insertCertificateSchema = createInsertSchema(certificates).omit({
+  id: true,
+  issuedAt: true,
+});
+
+export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
+export type Certificate = typeof certificates.$inferSelect;
+
+// Book Bookmarks, Notes, Highlights (Interactive Reading)
+export const bookAnnotations = pgTable("book_annotations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  chapterId: varchar("chapter_id").references(() => bookChapters.id).notNull(),
+  type: text("type").notNull(), // "bookmark", "note", "highlight"
+  position: integer("position").notNull(), // Character offset or paragraph index
+  selectedText: text("selected_text"), // For highlights/notes
+  noteContent: text("note_content"), // User's note
+  color: text("color").default("yellow"), // Highlight color
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userChapterIdx: index("book_annotations_user_chapter_idx").on(table.userId, table.chapterId),
+}));
+
+export const insertBookAnnotationSchema = createInsertSchema(bookAnnotations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBookAnnotation = z.infer<typeof insertBookAnnotationSchema>;
+export type BookAnnotation = typeof bookAnnotations.$inferSelect;
+
+// Quiz Attempts & Results (Detailed tracking)
+export const quizAttempts = pgTable("quiz_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  lessonId: varchar("lesson_id").references(() => lessons.id).notNull(),
+  score: integer("score").notNull(), // Percentage (0-100)
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  answers: jsonb("answers").notNull(), // Array of user answers
+  passed: boolean("passed").notNull(), // Score >= 70%
+  timeSpent: integer("time_spent"), // Seconds
+  attemptNumber: integer("attempt_number").notNull(), // 1st, 2nd, 3rd attempt
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+}, (table) => ({
+  userLessonIdx: index("quiz_attempts_user_lesson_idx").on(table.userId, table.lessonId),
+}));
+
+export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({
+  id: true,
+  completedAt: true,
+});
+
+export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
+export type QuizAttempt = typeof quizAttempts.$inferSelect;
+
 // ============================================================================
-// END OF SCHEMA - Complete platform schema
+// END OF SCHEMA - Complete platform schema with max interactivity
 // ============================================================================
