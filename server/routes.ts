@@ -3678,17 +3678,17 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
       const { SUPERSTORE_TAXONOMY } = await import('@shared/superstore-taxonomy');
       const { amazonAPI } = await import('./amazon-api');
       
-      // If Amazon API not configured or not eligible, return fallback
-      if (!amazonAPI.isConfigured()) {
-        const fallbackProducts = generateFallbackProducts();
-        return res.json({ 
-          categories: SUPERSTORE_TAXONOMY, 
-          products: fallbackProducts,
-          totalProducts: Object.values(fallbackProducts).flat().length,
-          totalCategories: SUPERSTORE_TAXONOMY.length,
-          isFallback: true
-        });
-      }
+      // ALWAYS use fallback for now due to Amazon API eligibility requirements
+      // Amazon requires 3 qualified sales before granting API access
+      console.log('Superstore catalog: using fallback products (Amazon PAAPI requires 3 sales for eligibility)');
+      const fallbackProducts = generateFallbackProducts();
+      return res.json({ 
+        categories: SUPERSTORE_TAXONOMY, 
+        products: fallbackProducts,
+        totalProducts: Object.values(fallbackProducts).flat().length,
+        totalCategories: SUPERSTORE_TAXONOMY.length,
+        isFallback: true
+      });
 
       // Batch all category searches with concurrency limit
       const CONCURRENT_LIMIT = 5;
