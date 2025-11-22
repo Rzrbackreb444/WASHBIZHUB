@@ -142,6 +142,11 @@ export function Footer() {
           <div>
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Analytics</h3>
             <div className="space-y-2">
+              <Link href="/equipment-diagnostics">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-diagnostics">
+                  Equipment Diagnostics
+                </span>
+              </Link>
               <Link href="/valuation-calculator">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-valuation">
                   Valuation Tool
