@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Building2, TrendingUp, CheckCircle, ExternalLink } from 'lucide-react';
+import { DollarSign, Building2, TrendingUp, CheckCircle, ExternalLink, Shield } from 'lucide-react';
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
@@ -233,16 +233,28 @@ export default function Funding() {
             </Link>
           </div>
 
-          {/* Calculator CTA */}
-          <div className="bg-gradient-to-r from-green-900 to-emerald-900 text-white rounded-lg p-8 text-center">
-            <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Calculate Your Loan Payments</h2>
-            <p className="mb-6 text-green-100">See monthly payments by funding type and lender</p>
-            <Link href="/loan-calculator">
-              <Button className="bg-white text-green-900 hover:bg-green-50" data-testid="button-calculator">
-                Open Loan Calculator
-              </Button>
-            </Link>
+          {/* Calculator & Insurance CTAs */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-r from-green-900 to-emerald-900 text-white rounded-lg p-8 text-center">
+              <TrendingUp className="w-12 h-12 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Calculate Your Loan Payments</h2>
+              <p className="mb-6 text-green-100">See monthly payments by funding type and lender</p>
+              <Link href="/loan-calculator">
+                <Button className="bg-white text-green-900 hover:bg-green-50" data-testid="button-calculator">
+                  Open Loan Calculator
+                </Button>
+              </Link>
+            </div>
+            <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-lg p-8 text-center">
+              <Shield className="w-12 h-12 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Insurance & Risk Protection</h2>
+              <p className="mb-6 text-purple-100">Connect with carriers for property, liability, and equipment coverage</p>
+              <Link href="/insurance-partners">
+                <Button className="bg-white text-purple-900 hover:bg-purple-50" data-testid="button-insurance">
+                  Explore Insurance Partners
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Featured Partners */}
