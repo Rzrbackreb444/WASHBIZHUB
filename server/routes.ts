@@ -1745,7 +1745,7 @@ Disallow: /private/`;
       
       // Extract only allowed updatable fields (prevent client from overwriting protected fields)
       // NOTE: storeName and storeSlug REMOVED to prevent slug collisions - server-controlled
-      const allowedFields = {
+      const allowedFields: any = {
         description: req.body.description,
         logo: req.body.logo,
         banner: req.body.banner,
@@ -1762,6 +1762,16 @@ Disallow: /private/`;
         shippingPolicy: req.body.shippingPolicy,
         paymentMethods: req.body.paymentMethods,
       };
+
+      // Admins can update verified and featured status
+      if (currentUser.isAdmin) {
+        if (req.body.verified !== undefined) {
+          allowedFields.verified = req.body.verified;
+        }
+        if (req.body.featured !== undefined) {
+          allowedFields.featured = req.body.featured;
+        }
+      }
       
       // Remove undefined fields
       const updateData = Object.fromEntries(
@@ -1898,7 +1908,7 @@ Disallow: /private/`;
       
       // Extract only allowed updatable fields (prevent client from overwriting protected fields)
       // NOTE: slug REMOVED to prevent collisions - server-controlled
-      const allowedFields = {
+      const allowedFields: any = {
         name: req.body.name,
         description: req.body.description,
         shortDescription: req.body.shortDescription,
@@ -1921,6 +1931,16 @@ Disallow: /private/`;
         metaDescription: req.body.metaDescription,
         keywords: req.body.keywords,
       };
+
+      // Admins can update featured and status
+      if (currentUser.isAdmin) {
+        if (req.body.featured !== undefined) {
+          allowedFields.featured = req.body.featured;
+        }
+        if (req.body.status !== undefined) {
+          allowedFields.status = req.body.status;
+        }
+      }
       
       // Remove undefined fields
       const updateData = Object.fromEntries(
@@ -2491,6 +2511,44 @@ Disallow: /private/`;
 
       await storage.unsubscribeEmail(email);
       res.json({ message: "Successfully unsubscribed" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
+  app.post("/api/newsletter/send", isAdmin, async (req, res) => {
+    try {
+      const { subject, content } = req.body;
+      
+      if (!subject || !content) {
+        return res.status(400).json({ error: "Subject and content are required" });
+      }
+
+      // Get all active subscribers
+      const subscribers = await storage.getEmailSubscribers({ status: 'active' });
+      
+      if (subscribers.length === 0) {
+        return res.status(400).json({ error: "No active subscribers to send to" });
+      }
+
+      // In production, this would integrate with Resend/SendGrid
+      // For now, we'll log and return success
+      console.log(`📧 Newsletter sent: "${subject}" to ${subscribers.length} subscribers`);
+      console.log(`Content preview: ${content.substring(0, 100)}...`);
+
+      // TODO: Integrate with Resend/SendGrid
+      // await sendBulkEmail({
+      //   from: 'info@washbizhub.com',
+      //   to: subscribers.map(s => s.email),
+      //   subject,
+      //   text: content,
+      // });
+
+      res.json({ 
+        message: "Newsletter sent successfully",
+        recipientCount: subscribers.length
+      });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

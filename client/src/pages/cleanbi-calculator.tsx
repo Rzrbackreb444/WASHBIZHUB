@@ -66,8 +66,10 @@ export default function CLEANBICalculator() {
 
   const exportToPDF = () => {
     const data = {
+      reportTitle: "CLEANBI 2.0 Business Intelligence Scorecard",
+      generatedAt: new Date().toLocaleString(),
       scorecard: {
-        totalScore,
+        totalScore: totalScore.toFixed(1),
         maxScore,
         percentageScore: percentageScore.toFixed(1),
         grade: grade.letter,
@@ -75,15 +77,28 @@ export default function CLEANBICalculator() {
       },
       factors: factors.map(f => ({
         name: f.name,
+        description: f.description,
         weight: f.weight,
         score: f.score,
         weightedScore: (f.score * f.weight).toFixed(1),
+        maxWeightedScore: f.weight * 10,
       })),
-      riskFactors: {
+      analysis: {
+        totalFactors: factors.length,
+        lowScoreFactors: lowScoreFactors.map(f => f.name),
+        criticalFactors: criticalFactors.map(f => f.name),
         lowScoreCount: lowScoreFactors.length,
         criticalCount: criticalFactors.length,
       },
-      timestamp: new Date().toISOString(),
+      recommendations: lowScoreFactors.length > 0 ? 
+        lowScoreFactors.sort((a, b) => b.weight - a.weight).map(f => ({
+          factor: f.name,
+          currentScore: f.score,
+          weight: f.weight,
+          priority: f.weight >= 10 ? 'High' : f.weight >= 5 ? 'Medium' : 'Low',
+          impact: `${f.weight}% of total score`,
+        })) : 
+        [{ note: 'All factors scored 5 or above - excellent performance!' }],
     };
     
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -91,7 +106,10 @@ export default function CLEANBICalculator() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `cleanbi-scorecard-${Date.now()}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
