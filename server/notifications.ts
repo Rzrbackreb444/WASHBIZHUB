@@ -224,7 +224,11 @@ Business Type: ${params.businessType}
 Additional Details: ${params.message || 'No additional details'}
 Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
 
-Forward to Larry Larsen for California leads! 🚀
+📍 ROUTING INSTRUCTIONS:
+- California leads → Forward to Larry Larsen (Laundromat123.com)
+- Other states → Use multi-carrier partners (Tivly, Next Insurance, etc.)
+
+🚀 Respond within 24 hours for best conversion!
 `.trim();
 
   await sendAdminNotification({
