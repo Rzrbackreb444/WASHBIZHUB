@@ -170,15 +170,27 @@ export default function Funding() {
         {/* Content */}
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
           {/* Quick Links */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="grid md:grid-cols-5 gap-4 mb-12">
+            <Link href="/startup-funding">
+              <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-startup">
+                <CardHeader>
+                  <CardTitle className="text-base">Startup Funding</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4 text-sm">Launch first laundromat.</p>
+                  <Badge className="bg-orange-500/20 text-orange-600 text-xs">$5K-$250K</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
             <Link href="/equipment-financing">
               <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-equipment">
                 <CardHeader>
-                  <CardTitle className="text-lg">Equipment Financing</CardTitle>
+                  <CardTitle className="text-base">Equipment Financing</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">Finance washers, dryers, card systems, dog wash, and more.</p>
-                  <Badge className="bg-blue-500/20 text-blue-600">$5K-$500K</Badge>
+                  <p className="text-muted-foreground mb-4 text-sm">Finance washers, dryers, systems.</p>
+                  <Badge className="bg-blue-500/20 text-blue-600 text-xs">$5K-$500K</Badge>
                 </CardContent>
               </Card>
             </Link>
@@ -186,11 +198,11 @@ export default function Funding() {
             <Link href="/real-estate-financing">
               <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-realtor">
                 <CardHeader>
-                  <CardTitle className="text-lg">Real Estate Financing</CardTitle>
+                  <CardTitle className="text-base">Real Estate Financing</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">Purchase property, refinance, or fund build-out projects.</p>
-                  <Badge className="bg-emerald-500/20 text-emerald-600">$50K-$2M+</Badge>
+                  <p className="text-muted-foreground mb-4 text-sm">Purchase or refinance property.</p>
+                  <Badge className="bg-emerald-500/20 text-emerald-600 text-xs">$50K-$2M+</Badge>
                 </CardContent>
               </Card>
             </Link>
@@ -198,11 +210,23 @@ export default function Funding() {
             <Link href="/working-capital-financing">
               <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-working">
                 <CardHeader>
-                  <CardTitle className="text-lg">Working Capital</CardTitle>
+                  <CardTitle className="text-base">Working Capital</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">Fund operations, inventory, marketing, and expansion.</p>
-                  <Badge className="bg-purple-500/20 text-purple-600">$10K-$500K</Badge>
+                  <p className="text-muted-foreground mb-4 text-sm">Fund operations and growth.</p>
+                  <Badge className="bg-purple-500/20 text-purple-600 text-xs">$10K-$500K</Badge>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/acquisitions-funding">
+              <Card className="hover-elevate cursor-pointer h-full" data-testid="card-quick-acquisitions">
+                <CardHeader>
+                  <CardTitle className="text-base">Acquisitions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4 text-sm">Multi-unit expansion.</p>
+                  <Badge className="bg-slate-500/20 text-slate-600 text-xs">$100K-$5M+</Badge>
                 </CardContent>
               </Card>
             </Link>
