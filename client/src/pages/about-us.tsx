@@ -51,11 +51,11 @@ export default function AboutUsPage() {
       borderColor: "border-accent/30"
     },
     {
-      name: "Larry Larsen",
+      name: '"Laundromat" Larry Larsen',
       title: "Senior Industry Advisor",
       subtitle: "50+ Years of Laundromat Expertise",
       image: null,
-      bio: "Larry Larsen is a legendary figure in the laundromat industry with over five decades of hands-on experience. As the founder of Laundromat123.com and a sought-after consultant, Larry has personally evaluated hundreds of laundromat businesses and guided countless entrepreneurs to success. His practical wisdom and deep industry knowledge form the foundation of WashBizHub's due diligence framework.",
+      bio: '"Laundromat" Larry Larsen is a legendary figure in the laundromat industry with over five decades of hands-on experience. As a sought-after consultant, Larry has personally evaluated hundreds of laundromat businesses and guided countless entrepreneurs to success. His practical wisdom and deep industry knowledge form the foundation of WashBizHub\'s due diligence framework.',
       expertise: [
         "Laundromat Acquisition Due Diligence",
         "Equipment Evaluation & Maintenance",
@@ -65,13 +65,11 @@ export default function AboutUsPage() {
       ],
       credentials: [
         "50+ Years Laundromat Industry Experience",
-        "Founder: Laundromat123.com",
         "Evaluated 500+ Laundromat Transactions",
         "Equipment Expert: Dexter, Speed Queen, Huebsch, Maytag",
         "Author: Larry Larsen Due Diligence Suite"
       ],
       contact: {
-        website: "laundromat123.com",
         email: "consult@washbizhub.com"
       },
       color: "from-blue-500/20 to-cyan-500/20",

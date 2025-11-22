@@ -427,26 +427,11 @@ export function Header() {
                       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Industry Experts</p>
                     </li>
                     <li>
-                      <a
-                        href="https://laundromat123.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5"
-                        data-testid="link-nav-laundromat123"
-                      >
-                        Laundromat123.com
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="https://laundromat123.com/about"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5"
-                        data-testid="link-nav-larry-larsen"
-                      >
-                        Larry Larsen
-                      </a>
+                      <Link href="/about">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-larry-larsen">
+                          "Laundromat" Larry Larsen
+                        </div>
+                      </Link>
                     </li>
                   </ul>
                 </div>

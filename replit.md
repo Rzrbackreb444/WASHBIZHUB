@@ -144,7 +144,9 @@ This multi-provider strategy ensures flexibility, cost optimization, and redunda
 - **Amazon Affiliate Program:** Product marketplace links using nicholaskreme-20 storefront API
 - **ATTOM Data:** For real estate and demographic data
 - **Mapbox:** For location mapping and analysis
-- **Email Services:** For user notifications and marketing
+- **Email Services (Resend/SendGrid):** For user notifications and marketing
+- **Admin Notifications:** Email-to-SMS gateway (AT&T) for instant alerts to 4798834314@txt.att.net + nick@washbizhub.com
+  - NOTE: Twilio integration was dismissed by user - using free email-to-SMS gateway instead
 
 ## Recent Feature Requests (November 21, 2025)
 
