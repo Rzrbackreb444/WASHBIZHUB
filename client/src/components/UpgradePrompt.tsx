@@ -141,6 +141,43 @@ export function UpgradePrompt({
     return originalPrice;
   };
 
+  const handleUpgrade = async (planName: string, price: number) => {
+    // Map plan names to Stripe price IDs from environment variables
+    const priceIdMap: Record<string, string> = {
+      "Pro": import.meta.env.VITE_STRIPE_PRICE_SEO_PRO || "price_seo_pro_monthly",
+      "Enterprise": import.meta.env.VITE_STRIPE_PRICE_SEO_ENTERPRISE || "price_seo_enterprise_monthly",
+    };
+
+    const priceId = priceIdMap[planName];
+    if (!priceId) {
+      console.error("Invalid plan selected");
+      return;
+    }
+
+    try {
+      // Call backend with promo code if applied
+      const response = await fetch("/api/subscriptions/upgrade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId,
+          promoCode: promoApplied ? promoCode : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url; // Redirect to Stripe checkout
+      }
+    } catch (error) {
+      console.error("Upgrade error:", error);
+    }
+  };
+
   const getTriggerHeadline = () => {
     switch (trigger) {
       case "usage_limit":
@@ -335,6 +372,7 @@ export function UpgradePrompt({
                   className="w-full"
                   variant={tier.highlight ? "default" : "outline"}
                   disabled={tier.price === 0}
+                  onClick={() => handleUpgrade(tier.name, tier.price)}
                   data-testid={`button-select-${tier.name.toLowerCase()}`}
                 >
                   {tier.price === 0 ? (

@@ -2601,9 +2601,18 @@ Disallow: /private/`;
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      const { priceId } = req.body;
+      const { priceId, promoCode } = req.body;
       if (!priceId) {
         return res.status(400).json({ error: "Price ID required" });
+      }
+
+      // Validate promo code server-side
+      const validPromoCode = process.env.SEO_SUITE_PROMO_CODE || "nickisthecoolest";
+      const promoDiscount = parseFloat(process.env.SEO_SUITE_PROMO_DISCOUNT || "0.40");
+      
+      let discountPercentage = 0;
+      if (promoCode && promoCode.toLowerCase() === validPromoCode.toLowerCase()) {
+        discountPercentage = Math.floor(promoDiscount * 100); // Convert to percentage for Stripe (40)
       }
 
       // Create or update Stripe customer
@@ -2621,20 +2630,34 @@ Disallow: /private/`;
 
       // Check if user has existing subscription
       if (currentUser.user.stripeSubscriptionId) {
-        // Update existing subscription
+        // Update existing subscription with promo code support
         const subscription = await stripe.subscriptions.retrieve(currentUser.user.stripeSubscriptionId);
-        const updatedSubscription = await stripe.subscriptions.update(currentUser.user.stripeSubscriptionId, {
+        
+        const updateConfig: any = {
           items: [{
             id: subscription.items.data[0].id,
             price: priceId,
           }],
           proration_behavior: 'create_prorations',
-        });
+          metadata: {
+            promoCode: promoCode || '',
+          },
+        };
+
+        // Apply discount if promo code is valid for existing subscriptions
+        if (discountPercentage > 0) {
+          updateConfig.coupon = await createOrGetCoupon(discountPercentage);
+        }
+
+        const updatedSubscription = await stripe.subscriptions.update(
+          currentUser.user.stripeSubscriptionId,
+          updateConfig
+        );
         
         res.json({ subscription: updatedSubscription });
       } else {
         // Create new subscription with checkout
-        const session = await stripe.checkout.sessions.create({
+        const sessionConfig: any = {
           customer: customerId,
           mode: 'subscription',
           payment_method_types: ['card'],
@@ -2644,7 +2667,19 @@ Disallow: /private/`;
           }],
           success_url: `${req.headers.origin}/settings?success=true`,
           cancel_url: `${req.headers.origin}/settings?canceled=true`,
-        });
+          metadata: {
+            promoCode: promoCode || '',
+          },
+        };
+
+        // Apply discount if promo code is valid
+        if (discountPercentage > 0) {
+          sessionConfig.discounts = [{
+            coupon: await createOrGetCoupon(discountPercentage),
+          }];
+        }
+
+        const session = await stripe.checkout.sessions.create(sessionConfig);
 
         res.json({ url: session.url });
       }
@@ -2653,6 +2688,29 @@ Disallow: /private/`;
       res.status(500).json({ error: error.message });
     }
   });
+
+  // Helper function to create or get Stripe coupon for promo code
+  async function createOrGetCoupon(percentOff: number): Promise<string> {
+    const couponId = `promo-${percentOff}-percent`;
+    
+    try {
+      // Try to retrieve existing coupon
+      const coupon = await stripe.coupons.retrieve(couponId);
+      return coupon.id;
+    } catch (error: any) {
+      if (error.code === 'resource_missing') {
+        // Create new coupon if it doesn't exist
+        const coupon = await stripe.coupons.create({
+          id: couponId,
+          percent_off: percentOff,
+          duration: 'forever',
+          name: `${percentOff}% Off Promo`,
+        });
+        return coupon.id;
+      }
+      throw error;
+    }
+  }
 
   // POST /api/subscriptions/cancel - Cancel subscription
   app.post("/api/subscriptions/cancel", isAuthenticated, async (req: any, res) => {
