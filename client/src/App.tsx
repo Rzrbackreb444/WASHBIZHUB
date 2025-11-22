@@ -51,6 +51,7 @@ import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
 import RepairGuide from "@/pages/repair-guide";
 import SeoCommandCenter from "@/pages/seo-command-center";
+import AboutUs from "@/pages/about-us";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -102,6 +103,7 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/repair-guide" component={RepairGuide} />
+      <Route path="/about" component={AboutUs} />
       <Route component={NotFound} />
     </Switch>
   );

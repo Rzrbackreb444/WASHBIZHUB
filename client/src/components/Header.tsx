@@ -368,6 +368,23 @@ export function Header() {
                       </Link>
                     </li>
                     <li className="pt-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Company</p>
+                    </li>
+                    <li>
+                      <Link href="/about">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-about">
+                          About Us
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/pricing">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-pricing-menu">
+                          Pricing
+                        </div>
+                      </Link>
+                    </li>
+                    <li className="pt-4 border-t border-border">
                       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Industry Experts</p>
                     </li>
                     <li>
