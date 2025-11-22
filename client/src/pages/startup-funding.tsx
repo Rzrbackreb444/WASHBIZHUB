@@ -16,8 +16,8 @@ const STARTUP_PARTNERS = [
     commission: 'Revenue share',
     specialization: 'Business Credit Builders',
     links: [
-      { title: 'Apply for Startup Funding', url: 'https://go.gocapital.com' },
-      { title: 'Get Pre-Qualified', url: 'https://go.gocapital.com/business-loans' },
+      { title: 'Apply for Startup Funding', url: 'https://itsgokapital.com' },
+      { title: 'Get Pre-Qualified', url: 'https://itsgokapital.com/business-loans' },
     ]
   },
   {
@@ -280,7 +280,7 @@ export default function StartupFunding() {
               Get pre-qualified in minutes. Both partners work with first-time operators.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="https://go.gocapital.com/business-loans" target="_blank" rel="noopener noreferrer">
+              <a href="https://itsgokapital.com" target="_blank" rel="noopener noreferrer">
                 <Button className="bg-white text-orange-900 hover:bg-orange-50" data-testid="button-apply-gocapital">
                   Start with GoCapital (Business Credit)
                 </Button>
