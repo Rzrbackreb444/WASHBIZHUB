@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { PDFExportButton } from "@/components/PDFExportButton";
 import { TrendingUp } from "lucide-react";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
@@ -10,6 +11,7 @@ import { Bar } from 'react-chartjs-2';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function ROICalculator() {
+  const contentRef = useRef<HTMLDivElement>(null);
   const [inputs, setInputs] = useState({
     purchasePrice: "250000",
     monthlyRevenue: "15000",
@@ -86,16 +88,26 @@ export default function ROICalculator() {
           <p className="text-xl text-white/70" data-testid="text-roi-subtitle">
             Project returns, break-even, and cash flow for your investment—faster and smarter than basic tools
           </p>
+          <div className="mt-6">
+            <PDFExportButton
+              contentRef={contentRef}
+              fileName="ROI_Analysis"
+              title="Export PDF Report"
+              variant="outline"
+              className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
+            />
+          </div>
         </div>
 
-        <Card className="bg-white/10 backdrop-blur border-white/20">
-          <CardHeader>
-            <CardTitle className="text-white text-2xl">Calculate Your Laundromat ROI</CardTitle>
-            <CardDescription className="text-white/70">
-              Enter details for instant projections
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div ref={contentRef}>
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white text-2xl">Calculate Your Laundromat ROI</CardTitle>
+              <CardDescription className="text-white/70">
+                Enter details for instant projections
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
@@ -186,11 +198,12 @@ export default function ROICalculator() {
               </div>
             </div>
 
-            <p className="text-sm text-white/60 text-center mt-8">
-              * Estimates based on standard laundromat benchmarks. Consult professionals for personalized advice.
-            </p>
-          </CardContent>
-        </Card>
+              <p className="text-sm text-white/60 text-center mt-8">
+                * Estimates based on standard laundromat benchmarks. Consult professionals for personalized advice.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

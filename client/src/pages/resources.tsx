@@ -413,10 +413,10 @@ export default function ResourcesPage() {
             Get unlimited access to 50+ premium calculators, templates, and tools with Pro membership
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/subscribe">
+            <Link href="/pricing">
               <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground" data-testid="button-upgrade-pro">
                 <Crown className="h-5 w-5 mr-2" />
-                Upgrade to Pro - $49/mo
+                View Pricing Plans
               </Button>
             </Link>
             <Link href="/vendors">

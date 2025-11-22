@@ -100,7 +100,7 @@ export default function Subscribe() {
         <div className="text-center mb-12">
           <Star className="h-16 w-16 text-accent mx-auto mb-4" />
           <h1 className="text-5xl font-black text-white mb-4" data-testid="text-subscribe-title">
-            Go Pro
+            Choose Your Plan
           </h1>
           <p className="text-xl text-white/70" data-testid="text-subscribe-subtitle">
             Unlock the complete WashBizHub platform for serious operators
@@ -156,10 +156,10 @@ export default function Subscribe() {
                 </CardTitle>
               </div>
               <div className="text-4xl font-black text-white mb-2">
-                $97<span className="text-xl font-normal text-white/60">/month</span>
+                $499<span className="text-xl font-normal text-white/60">/month</span>
               </div>
               <CardDescription className="text-white/90">
-                Complete platform access for professionals
+                Complete platform access for multi-location operators
               </CardDescription>
             </CardHeader>
             <CardContent>
