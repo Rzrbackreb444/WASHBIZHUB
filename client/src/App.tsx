@@ -49,6 +49,7 @@ import ForumCategory from "@/pages/forum-category";
 import ForumTopic from "@/pages/forum-topic";
 import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
+import RepairGuide from "@/pages/repair-guide";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -98,6 +99,7 @@ function Router() {
       <Route path="/forum/topic/:slug" component={ForumTopic} />
       <Route path="/settings" component={Settings} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/repair-guide" component={RepairGuide} />
       <Route component={NotFound} />
     </Switch>
   );
