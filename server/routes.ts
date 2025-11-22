@@ -3515,15 +3515,18 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   // GET /api/amazon/search - Search for parts on Amazon
   app.get("/api/amazon/search", async (req, res) => {
     try {
-      const { q, category, minPrice, maxPrice, brand, limit } = req.query;
+      const { q, keywords, category, minPrice, maxPrice, brand, limit, itemCount } = req.query;
+      
+      // Accept either 'q' or 'keywords' parameter
+      const searchQuery = (keywords || q) as string;
       
       // Validate input
-      if (!q || typeof q !== 'string' || q.length < 2) {
+      if (!searchQuery || typeof searchQuery !== 'string' || searchQuery.length < 2) {
         return res.status(400).json({ error: "Invalid search query" });
       }
 
       // Sanitize query length
-      const sanitizedQuery = q.slice(0, 200);
+      const sanitizedQuery = searchQuery.slice(0, 200);
 
       const { amazonAPI } = await import('./amazon-api');
       
@@ -3531,16 +3534,19 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
         return res.status(503).json({ error: "Amazon API not configured" });
       }
 
+      // Use itemCount or limit parameter, default to 10
+      const count = itemCount || limit;
+      
       const products = await amazonAPI.searchProducts({
         keywords: sanitizedQuery,
         category: category as string | undefined,
         minPrice: minPrice ? Math.max(0, parseFloat(minPrice as string)) : undefined,
         maxPrice: maxPrice ? Math.max(0, parseFloat(maxPrice as string)) : undefined,
         brand: brand as string | undefined,
-        itemCount: limit ? Math.min(10, Math.max(1, parseInt(limit as string))) : 10,
+        itemCount: count ? Math.min(10, Math.max(1, parseInt(count as string))) : 10,
       });
 
-      res.json(products);
+      res.json({ products });
     } catch (error: any) {
       console.error('Amazon search error:', error);
       res.status(500).json({ error: "Failed to search products" });
