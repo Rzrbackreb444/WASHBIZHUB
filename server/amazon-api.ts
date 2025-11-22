@@ -116,13 +116,14 @@ export class AmazonProductAPI {
   }
 
   /**
-   * Make signed request to Amazon PA-API with retry logic
+   * Make signed request to Amazon PA-API with retry logic and timeout
    */
   private async makeRequest<T>(
     path: string,
     target: string,
     payload: any,
-    retries = 3
+    retries = 1,  // Reduced retries for faster fallback
+    timeout = 5000  // 5 second timeout for fast failure
   ): Promise<T> {
     if (!this.isConfigured()) {
       throw new Error('Amazon API credentials not configured');
@@ -147,11 +148,18 @@ export class AmazonProductAPI {
           body,
         });
 
+        // Add timeout to fetch call
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
         const response = await fetch(url, {
           method: 'POST',
           headers: signedRequest.headers as any,
           body,
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorText = await response.text();
