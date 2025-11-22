@@ -26,6 +26,10 @@ import Advertising from "@/pages/advertising";
 import AdBuilder from "@/pages/ad-builder";
 import PartsCatalogue from "@/pages/parts-catalogue";
 import VendorDashboard from "@/pages/vendor-dashboard";
+import ListingForm from "@/pages/listing-form";
+import VendorForm from "@/pages/vendor-form";
+import ConsultantInquiry from "@/pages/consultant-inquiry";
+import ListingDetail from "@/pages/listing-detail";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -131,6 +135,10 @@ function Router() {
       <Route path="/ad-builder" component={AdBuilder} />
       <Route path="/parts-catalogue" component={PartsCatalogue} />
       <Route path="/vendor-dashboard" component={VendorDashboard} />
+      <Route path="/listing-form" component={ListingForm} />
+      <Route path="/vendor-form" component={VendorForm} />
+      <Route path="/consultant-inquiry" component={ConsultantInquiry} />
+      <Route path="/listings/:listingId" component={ListingDetail} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
