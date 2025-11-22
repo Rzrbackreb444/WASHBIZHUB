@@ -495,6 +495,16 @@ export interface IStorage {
   getCommissionLedger(filters?: { vendorId?: string; affiliateId?: string }): Promise<CommissionLedger[]>;
   createCommissionEntry(entry: InsertCommissionLedger): Promise<CommissionLedger>;
   
+  // Advertisement System
+  getAdvertisements(filters?: { status?: string; placement?: string; type?: string; vendorId?: string; userId?: string }): Promise<Advertisement[]>;
+  getAdvertisement(id: string): Promise<Advertisement | undefined>;
+  createAdvertisement(ad: InsertAdvertisement): Promise<Advertisement>;
+  updateAdvertisement(id: string, ad: Partial<InsertAdvertisement>): Promise<Advertisement>;
+  deleteAdvertisement(id: string): Promise<void>;
+  updateAdStatus(id: string, status: string, reviewerId?: string, rejectionReason?: string): Promise<Advertisement>;
+  trackAdImpression(id: string): Promise<void>;
+  trackAdClick(id: string): Promise<void>;
+  
   // Dashboard & Analytics
   getModuleMetrics(filters?: { userId?: string; module?: string; period?: string }): Promise<ModuleMetric[]>;
   createModuleMetric(metric: InsertModuleMetric): Promise<ModuleMetric>;

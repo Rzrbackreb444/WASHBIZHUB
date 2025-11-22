@@ -1872,6 +1872,80 @@ export class DbStorage implements IStorage {
         .where(eq(forumReplies.id, entityId));
     }
   }
+
+  // ========== ADVERTISEMENT SYSTEM ==========
+  async getAdvertisements(filters?: { status?: string; placement?: string; type?: string; vendorId?: string; userId?: string }): Promise<Advertisement[]> {
+    const conditions = [];
+    
+    if (filters?.status) conditions.push(eq(advertisements.status, filters.status));
+    if (filters?.placement) conditions.push(eq(advertisements.placement, filters.placement));
+    if (filters?.type) conditions.push(eq(advertisements.type, filters.type));
+    if (filters?.vendorId) conditions.push(eq(advertisements.vendorId, filters.vendorId));
+    if (filters?.userId) conditions.push(eq(advertisements.userId, filters.userId));
+    
+    if (conditions.length > 0) {
+      return db.select().from(advertisements).where(and(...conditions));
+    }
+    
+    return db.select().from(advertisements);
+  }
+
+  async getAdvertisement(id: string): Promise<Advertisement | undefined> {
+    const result = await db.select().from(advertisements)
+      .where(eq(advertisements.id, id));
+    return result[0];
+  }
+
+  async createAdvertisement(ad: InsertAdvertisement): Promise<Advertisement> {
+    const result = await db.insert(advertisements).values(ad).returning();
+    return result[0];
+  }
+
+  async updateAdvertisement(id: string, ad: Partial<InsertAdvertisement>): Promise<Advertisement> {
+    const result = await db.update(advertisements)
+      .set({ ...ad, updatedAt: new Date() })
+      .where(eq(advertisements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteAdvertisement(id: string): Promise<void> {
+    await db.delete(advertisements).where(eq(advertisements.id, id));
+  }
+
+  async updateAdStatus(id: string, status: string, reviewerId?: string, rejectionReason?: string): Promise<Advertisement> {
+    const updateData: any = {
+      status,
+      updatedAt: new Date(),
+    };
+    
+    if (reviewerId) {
+      updateData.reviewedBy = reviewerId;
+      updateData.reviewedAt = new Date();
+    }
+    
+    if (rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+    
+    const result = await db.update(advertisements)
+      .set(updateData)
+      .where(eq(advertisements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async trackAdImpression(id: string): Promise<void> {
+    await db.update(advertisements)
+      .set({ impressions: sql`${advertisements.impressions} + 1` })
+      .where(eq(advertisements.id, id));
+  }
+
+  async trackAdClick(id: string): Promise<void> {
+    await db.update(advertisements)
+      .set({ clicks: sql`${advertisements.clicks} + 1` })
+      .where(eq(advertisements.id, id));
+  }
 }
 
 export const dbStorage = new DbStorage();
