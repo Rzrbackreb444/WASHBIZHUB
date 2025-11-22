@@ -52,6 +52,8 @@ import {
   insertForumTopicSchema,
   insertForumReplySchema,
   insertForumVoteSchema,
+  insertPlatformSettingSchema,
+  insertNewsletterCampaignSchema,
 } from "@shared/schema";
 
 // Stripe optional - payments disabled if key not set
@@ -170,11 +172,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs/:id/optimize", async (req, res) => {
+  app.post("/api/designs/:id/optimize", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const design = await storage.getDesign(req.params.id);
       if (!design) {
         return res.status(404).json({ message: "Design not found" });
+      }
+
+      // CRITICAL: Verify ownership
+      if (design.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - can only optimize your own designs" });
       }
 
       const optimization = await optimizeLayout(
@@ -228,9 +240,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cleanbi", async (req, res) => {
+  app.post("/api/cleanbi", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertCleanbiScoreSchema.parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // CRITICAL: Force userId from authenticated user, ignore client input
+      const validated = insertCleanbiScoreSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
       const score = await storage.createCleanbiScore(validated);
       res.json(score);
     } catch (error: any) {
@@ -238,11 +259,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cleanbi/:id/insights", async (req, res) => {
+  app.post("/api/cleanbi/:id/insights", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const cleanbiScore = await storage.getCleanbiScore(req.params.id);
       if (!cleanbiScore) {
         return res.status(404).json({ message: "Score not found" });
+      }
+
+      // CRITICAL: Verify ownership
+      if (cleanbiScore.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - can only view insights for your own CLEANBI scores" });
       }
 
       const insights = await generateCleanbiInsights({
@@ -333,9 +364,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/calculator/scenarios", async (req, res) => {
+  app.post("/api/calculator/scenarios", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertCalculatorScenarioSchema.parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // CRITICAL: Force userId from authenticated user, ignore client input
+      const validated = insertCalculatorScenarioSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
       const scenario = await storage.createCalculatorScenario(validated);
       res.json(scenario);
     } catch (error: any) {
@@ -343,8 +383,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/calculator/scenarios/:id", async (req, res) => {
+  app.delete("/api/calculator/scenarios/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Verify ownership
+      const scenario = await storage.getCalculatorScenario(req.params.id);
+      if (!scenario) {
+        return res.status(404).json({ message: "Scenario not found" });
+      }
+      if (scenario.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - can only delete your own scenarios" });
+      }
+
       await storage.deleteCalculatorScenario(req.params.id);
       res.json({ success: true });
     } catch (error: any) {
@@ -376,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vendors", async (req, res) => {
+  app.post("/api/vendors", isAdmin, async (req, res) => {
     try {
       const validated = insertVendorSchema.parse(req.body);
       const vendor = await storage.createVendor(validated);
@@ -423,9 +477,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/affiliates", async (req, res) => {
+  app.post("/api/affiliates", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertAffiliateSchema.parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // CRITICAL: Force userId from authenticated user
+      const validated = insertAffiliateSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
       const affiliate = await storage.createAffiliate(validated);
       res.json(affiliate);
     } catch (error: any) {
@@ -471,9 +534,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/laundromats", async (req, res) => {
+  app.post("/api/laundromats", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertLaundromatSchema.parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // CRITICAL: Force userId from authenticated user
+      const validated = insertLaundromatSchema.parse({
+        ...req.body,
+        ownerId: currentUser.userId,
+      });
       const laundromat = await storage.createLaundromat(validated);
       res.json(laundromat);
     } catch (error: any) {
@@ -690,7 +762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit quiz answers for grading (server-side validation)
-  app.post("/api/lessons/:lessonId/grade", async (req, res) => {
+  app.post("/api/lessons/:lessonId/grade", isAuthenticated, async (req, res) => {
     try {
       const { lessonId } = req.params;
       const { answers } = req.body; // { questionId: selectedOption }
@@ -776,7 +848,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   */
 
-  app.put("/api/enrollments/:id/progress", async (req, res) => {
+  app.put("/api/enrollments/:id/progress", isAuthenticated, async (req, res) => {
     try {
       const { progress, currentLessonId, completedLessons } = req.body;
       const updated = await storage.updateEnrollmentProgress(
@@ -1238,15 +1310,8 @@ Create engaging, well-researched content that provides value to laundromat owner
 
   // ==================== AFFILIATE SYSTEM ====================
   
-  app.post("/api/affiliates", async (req, res) => {
-    try {
-      const validated = insertAffiliateSchema.parse(req.body);
-      const affiliate = await storage.createAffiliate(validated);
-      res.json(affiliate);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
+  // DUPLICATE - Already defined at line ~463 with proper auth
+  // app.post("/api/affiliates", ...) // REMOVED DUPLICATE
 
   app.get("/api/affiliates/:id", async (req, res) => {
     try {
@@ -1282,9 +1347,18 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/affiliate/content", async (req, res) => {
+  app.post("/api/affiliate/content", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertAffiliateContentSchema.parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // CRITICAL: Force affiliateId from authenticated user
+      const validated = insertAffiliateContentSchema.parse({
+        ...req.body,
+        affiliateId: currentUser.userId,
+      });
       const content = await storage.createAffiliateContent(validated);
       res.json(content);
     } catch (error: any) {
@@ -1643,7 +1717,21 @@ Create engaging, well-researched content that provides value to laundromat owner
   // Update vendor review (authenticated)
   app.put("/api/vendors/:vendorId/reviews/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertVendorReviewSchema.partial().parse(req.body);
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Verify ownership
+      const existingReview = await storage.getVendorReview(req.params.id);
+      if (!existingReview) {
+        return res.status(404).json({ message: "Review not found" });
+      }
+      if (existingReview.userId !== currentUser.userId) {
+        return res.status(403).json({ message: "Forbidden - can only edit your own reviews" });
+      }
+
+      const validated = insertVendorReviewSchema.omit({ userId: true, vendorId: true, id: true }).partial().parse(req.body);
       const review = await storage.updateVendorReview(req.params.id, validated);
       res.json(review);
     } catch (error: any) {
@@ -1771,7 +1859,7 @@ Disallow: /private/`;
   });
 
   // POST /api/vendor-stores - Create vendor store
-  app.post("/api/vendor-stores", async (req, res) => {
+  app.post("/api/vendor-stores", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1793,7 +1881,7 @@ Disallow: /private/`;
   });
 
   // PATCH /api/vendor-stores/:id - Update vendor store
-  app.patch("/api/vendor-stores/:id", async (req, res) => {
+  app.patch("/api/vendor-stores/:id", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1917,7 +2005,7 @@ Disallow: /private/`;
   });
 
   // POST /api/vendor-products - Create product
-  app.post("/api/vendor-products", async (req, res) => {
+  app.post("/api/vendor-products", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1952,7 +2040,7 @@ Disallow: /private/`;
   });
 
   // PATCH /api/vendor-products/:id - Update product
-  app.patch("/api/vendor-products/:id", async (req, res) => {
+  app.patch("/api/vendor-products/:id", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2023,7 +2111,7 @@ Disallow: /private/`;
   });
 
   // DELETE /api/vendor-products/:id - Delete product
-  app.delete("/api/vendor-products/:id", async (req, res) => {
+  app.delete("/api/vendor-products/:id", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2051,7 +2139,7 @@ Disallow: /private/`;
 
   // ==================== EQUIPMENT INQUIRIES (to nick@washbizhub.com) ====================
   // POST /api/equipment-inquiries - Submit equipment inquiry
-  app.post("/api/equipment-inquiries", async (req, res) => {
+  app.post("/api/equipment-inquiries", isAuthenticated, async (req, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       // Validate input using Zod schema - override server-controlled fields
@@ -2583,6 +2671,121 @@ Disallow: /private/`;
   });
 
   // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
+  // ==================== PLATFORM SETTINGS (ADMIN) ====================
+  
+  app.get("/api/admin/settings", isAdmin, async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const settings = await storage.getPlatformSettings(category);
+      res.json(settings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/settings/:key", isAdmin, async (req, res) => {
+    try {
+      const setting = await storage.getPlatformSetting(req.params.key);
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      res.json(setting);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/settings", isAdmin, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const validated = insertPlatformSettingSchema.parse(req.body);
+      const setting = await storage.upsertPlatformSetting({
+        ...validated,
+        updatedBy: currentUser.userId,
+      });
+      res.json(setting);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/settings/:key", isAdmin, async (req, res) => {
+    try {
+      await storage.deletePlatformSetting(req.params.key);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== NEWSLETTER CAMPAIGNS (ADMIN) ====================
+  
+  app.get("/api/admin/newsletter/campaigns", isAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const campaigns = await storage.getNewsletterCampaigns({ status });
+      res.json(campaigns);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+    try {
+      const campaign = await storage.getNewsletterCampaign(req.params.id);
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      res.json(campaign);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/newsletter/campaigns", isAdmin, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const validated = insertNewsletterCampaignSchema.parse(req.body);
+      const campaign = await storage.createNewsletterCampaign({
+        ...validated,
+        createdBy: currentUser.userId,
+      });
+      res.json(campaign);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+    try {
+      const validated = insertNewsletterCampaignSchema.omit({ id: true, createdBy: true, createdAt: true }).partial().parse(req.body);
+      const updated = await storage.updateNewsletterCampaign(req.params.id, validated);
+      if (!updated) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+    try {
+      await storage.deleteNewsletterCampaign(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/newsletter/send", isAdmin, async (req, res) => {
     try {
       const { subject, content } = req.body;
@@ -3107,7 +3310,7 @@ Disallow: /private/`;
   // ==================== AI CHAT ====================
 
   // POST /api/ai/chat - AI consultant chat endpoint
-  app.post("/api/ai/chat", async (req, res) => {
+  app.post("/api/ai/chat", isAuthenticated, async (req, res) => {
     try {
       const { message, conversationHistory } = req.body;
 
