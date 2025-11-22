@@ -57,6 +57,10 @@ import AdminAds from "@/pages/admin/ads";
 import LaundromatListings from "@/pages/laundromat-listings";
 import EquipmentMarketplace from "@/pages/equipment-marketplace";
 import LearningPage from "@/pages/learning";
+import MarketplaceLanding from "@/pages/landing/marketplace-landing";
+import PosLanding from "@/pages/landing/pos-landing";
+import CoursesLanding from "@/pages/landing/courses-landing";
+import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -115,6 +119,10 @@ function Router() {
       <Route path="/laundromat-listings" component={LaundromatListings} />
       <Route path="/equipment" component={EquipmentMarketplace} />
       <Route path="/learning" component={LearningPage} />
+      <Route path="/marketplace-landing" component={MarketplaceLanding} />
+      <Route path="/pos-landing" component={PosLanding} />
+      <Route path="/courses-landing" component={CoursesLanding} />
+      <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
       <Route component={NotFound} />
     </Switch>
   );
