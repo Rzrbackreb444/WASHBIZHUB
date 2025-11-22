@@ -1,8 +1,15 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter } from "lucide-react";
+import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/LOGO REAL_1762809085350.png";
+
+// Contact info from environment variables
+const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-883-4314";
+const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14798834314";
+const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 export function Footer() {
   const handleResourceClick = (resourceName: string, url: string) => {
@@ -33,8 +40,38 @@ export function Footer() {
               Enterprise-grade platform combining business intelligence, marketplace, IoT POS, AI pricing, predictive maintenance, SEO powerhouse, and comprehensive education for the global laundry industry.
             </p>
             
+            {/* Contact Buttons - WhatsApp & SMS */}
+            <div className="space-y-3">
+              <a
+                href={`https://wa.me/${CONTACT_PHONE_DIGITS}?text=Hi%2C%20I%27m%20interested%20in%20learning%20more%20about%20WashBizHub`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center"
+                data-testid="link-footer-whatsapp"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span className="font-semibold">WhatsApp: {CONTACT_PHONE}</span>
+              </a>
+              <a
+                href={`sms:+${CONTACT_PHONE_DIGITS}`}
+                className="flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center border border-primary/30"
+                data-testid="link-footer-sms"
+              >
+                <Phone className="h-4 w-4" />
+                <span className="font-semibold">Text: {CONTACT_PHONE}</span>
+              </a>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="flex items-center gap-2 bg-accent/20 hover:bg-accent/30 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center border border-accent/30"
+                data-testid="link-footer-email"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="font-semibold">{CONTACT_EMAIL}</span>
+              </a>
+            </div>
+
             {/* Social Links */}
-            <div className="flex gap-4">
+            <div className="flex gap-3 mt-4">
               <a
                 href="https://facebook.com/groups/thelaundromat"
                 target="_blank"
@@ -259,6 +296,22 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Promo Code CTA */}
+        <div className="border-t border-primary/20 pt-8 mb-8">
+          <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-accent/30 rounded-lg p-6 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Tag className="h-5 w-5 text-accent" />
+              <h3 className="text-white font-bold text-lg">Special Offer for SEO Suite</h3>
+            </div>
+            <p className="text-white/80 mb-4">Use promo code <Badge className="bg-accent text-white mx-1 font-mono text-base">nickisthecoolest</Badge> for 40% off!</p>
+            <Link href="/seo-optimizer">
+              <Button className="bg-accent hover:bg-accent/90 text-white font-bold" data-testid="button-footer-seo-promo">
+                Get SEO Suite Now →
+              </Button>
+            </Link>
+          </div>
+        </div>
+
         {/* Advertisement & Newsletter Section */}
         <div className="border-t border-primary/20 pt-8 mb-8">
           <div className="grid md:grid-cols-2 gap-6">
@@ -278,31 +331,35 @@ export function Footer() {
         <div className="border-t border-primary/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-white/60 text-sm text-center md:text-left">
-              © 2024 WashBizHub.com • The Bloomberg of Laundromats<br className="md:hidden" />
+              © 2025 WashBizHub.com • The Bloomberg of Laundromats<br className="md:hidden" />
               <span className="hidden md:inline"> • </span>
               <span className="text-accent font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-white/60 text-sm">
               <Link href="/subscribe">
                 <span className="hover:text-accent transition-colors cursor-pointer font-semibold" data-testid="link-footer-subscribe">
-                  Go Pro $97/mo
+                  Go Pro $49/mo
                 </span>
               </Link>
               <span className="text-white/30">|</span>
-              <Link href="/facebook-group">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-community-page">
-                  Community
+              <Link href="/about">
+                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-about">
+                  About Us
                 </span>
               </Link>
               <span className="text-white/30">|</span>
-              <Link href="/atm-services">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-atm-page">
-                  ATM Solutions
+              <Link href="/consultation">
+                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-consultation">
+                  Free Consultation
                 </span>
               </Link>
               <span className="text-white/30">|</span>
-              <a href="mailto:support@washbizhub.com" className="hover:text-accent transition-colors" data-testid="link-footer-support">
+              <a href="mailto:info@washbizhub.com" className="hover:text-accent transition-colors" data-testid="link-footer-support">
                 Support
+              </a>
+              <span className="text-white/30">|</span>
+              <a href={`tel:+${CONTACT_PHONE_DIGITS}`} className="hover:text-accent transition-colors" data-testid="link-footer-phone">
+                {CONTACT_PHONE}
               </a>
             </div>
           </div>
