@@ -161,6 +161,17 @@ import {
   type InsertDomainOrder,
   type SeoIndexingJob,
   type InsertSeoIndexingJob,
+  // Email Alerts
+  type PriceAlert,
+  type InsertPriceAlert,
+  type StockAlert,
+  type InsertStockAlert,
+  type NewProductAlert,
+  type InsertNewProductAlert,
+  type DealAlert,
+  type InsertDealAlert,
+  type BrowseAbandonment,
+  type InsertBrowseAbandonment,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -617,6 +628,41 @@ export interface IStorage {
   createNewsletterCampaign(campaign: InsertNewsletterCampaign): Promise<NewsletterCampaign>;
   updateNewsletterCampaign(id: string, campaign: Partial<InsertNewsletterCampaign>): Promise<NewsletterCampaign>;
   deleteNewsletterCampaign(id: string): Promise<void>;
+  
+  // ==================== EMAIL ALERT SYSTEM ====================
+  
+  // Price Alerts - notify when product price drops below target
+  getPriceAlerts(filters?: { email?: string; productASIN?: string; alertSent?: boolean }): Promise<PriceAlert[]>;
+  getPriceAlert(id: string): Promise<PriceAlert | undefined>;
+  createPriceAlert(alert: InsertPriceAlert): Promise<PriceAlert>;
+  updatePriceAlert(id: string, alert: Partial<InsertPriceAlert>): Promise<PriceAlert>;
+  deletePriceAlert(id: string): Promise<void>;
+  markPriceAlertSent(id: string): Promise<void>;
+  
+  // Stock Alerts - notify when out-of-stock product becomes available
+  getStockAlerts(filters?: { email?: string; productASIN?: string; alertSent?: boolean }): Promise<StockAlert[]>;
+  getStockAlert(id: string): Promise<StockAlert | undefined>;
+  createStockAlert(alert: InsertStockAlert): Promise<StockAlert>;
+  deleteStockAlert(id: string): Promise<void>;
+  markStockAlertSent(id: string): Promise<void>;
+  
+  // New Product Alerts - notify when new products added to category
+  getNewProductAlerts(filters?: { email?: string; category?: string }): Promise<NewProductAlert[]>;
+  getNewProductAlert(id: string): Promise<NewProductAlert | undefined>;
+  createNewProductAlert(alert: InsertNewProductAlert): Promise<NewProductAlert>;
+  deleteNewProductAlert(id: string): Promise<void>;
+  
+  // Deal Alerts - notify when products go on sale
+  getDealAlerts(filters?: { email?: string }): Promise<DealAlert[]>;
+  getDealAlert(id: string): Promise<DealAlert | undefined>;
+  createDealAlert(alert: InsertDealAlert): Promise<DealAlert>;
+  deleteDealAlert(id: string): Promise<void>;
+  
+  // Browse Abandonment - follow up when users view products but don't purchase
+  getBrowseAbandonment(filters?: { sessionId?: string; email?: string; reminderSent?: boolean }): Promise<BrowseAbandonment[]>;
+  createBrowseAbandonment(abandonment: InsertBrowseAbandonment): Promise<BrowseAbandonment>;
+  updateBrowseAbandonment(id: string, abandonment: Partial<InsertBrowseAbandonment>): Promise<BrowseAbandonment>;
+  markBrowseReminderSent(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -1219,6 +1265,35 @@ export class MemStorage implements IStorage {
   async createTemplate(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
   async updateTemplate(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
   async recordTemplateDownload(): Promise<any> { throw new Error("Use DbStorage for premium features"); }
+
+  // Email Alert System Stubs (use DbStorage for actual functionality)
+  async getPriceAlerts(): Promise<PriceAlert[]> { return []; }
+  async getPriceAlert(): Promise<PriceAlert | undefined> { return undefined; }
+  async createPriceAlert(): Promise<PriceAlert> { throw new Error("Use DbStorage for alert features"); }
+  async updatePriceAlert(): Promise<PriceAlert> { throw new Error("Use DbStorage for alert features"); }
+  async deletePriceAlert(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  async markPriceAlertSent(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  
+  async getStockAlerts(): Promise<StockAlert[]> { return []; }
+  async getStockAlert(): Promise<StockAlert | undefined> { return undefined; }
+  async createStockAlert(): Promise<StockAlert> { throw new Error("Use DbStorage for alert features"); }
+  async deleteStockAlert(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  async markStockAlertSent(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  
+  async getNewProductAlerts(): Promise<NewProductAlert[]> { return []; }
+  async getNewProductAlert(): Promise<NewProductAlert | undefined> { return undefined; }
+  async createNewProductAlert(): Promise<NewProductAlert> { throw new Error("Use DbStorage for alert features"); }
+  async deleteNewProductAlert(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  
+  async getDealAlerts(): Promise<DealAlert[]> { return []; }
+  async getDealAlert(): Promise<DealAlert | undefined> { return undefined; }
+  async createDealAlert(): Promise<DealAlert> { throw new Error("Use DbStorage for alert features"); }
+  async deleteDealAlert(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
+  
+  async getBrowseAbandonment(): Promise<BrowseAbandonment[]> { return []; }
+  async createBrowseAbandonment(): Promise<BrowseAbandonment> { throw new Error("Use DbStorage for alert features"); }
+  async updateBrowseAbandonment(): Promise<BrowseAbandonment> { throw new Error("Use DbStorage for alert features"); }
+  async markBrowseReminderSent(): Promise<void> { throw new Error("Use DbStorage for alert features"); }
 }
 
 // Use DbStorage for production-grade persistence

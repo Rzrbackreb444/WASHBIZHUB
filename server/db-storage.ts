@@ -43,6 +43,11 @@ import {
   websiteTemplates,
   customerWebsites,
   advertisements,
+  priceAlerts,
+  stockAlerts,
+  newProductAlerts,
+  dealAlerts,
+  browseAbandonment,
   type User,
   type UpsertUser,
   type Design,
@@ -127,6 +132,16 @@ import {
   type InsertCustomerWebsite,
   type Advertisement,
   type InsertAdvertisement,
+  type PriceAlert,
+  type InsertPriceAlert,
+  type StockAlert,
+  type InsertStockAlert,
+  type NewProductAlert,
+  type InsertNewProductAlert,
+  type DealAlert,
+  type InsertDealAlert,
+  type BrowseAbandonment,
+  type InsertBrowseAbandonment,
   brokerProfiles,
   type BrokerProfile,
   type InsertBrokerProfile,
@@ -1948,6 +1963,167 @@ export class DbStorage implements IStorage {
     await db.update(advertisements)
       .set({ clicks: sql`${advertisements.clicks} + 1` })
       .where(eq(advertisements.id, id));
+  }
+
+  // ============================================================================
+  // EMAIL ALERT SYSTEM
+  // ============================================================================
+  
+  // Price Alerts
+  async getPriceAlerts(filters?: { email?: string; productASIN?: string; alertSent?: boolean }): Promise<PriceAlert[]> {
+    const conditions: SQL[] = [];
+    if (filters?.email) conditions.push(eq(priceAlerts.email, filters.email));
+    if (filters?.productASIN) conditions.push(eq(priceAlerts.productASIN, filters.productASIN));
+    if (filters?.alertSent !== undefined) conditions.push(eq(priceAlerts.alertSent, filters.alertSent));
+    
+    if (conditions.length > 0) {
+      return db.select().from(priceAlerts).where(and(...conditions)).orderBy(desc(priceAlerts.createdAt));
+    }
+    return db.select().from(priceAlerts).orderBy(desc(priceAlerts.createdAt));
+  }
+
+  async getPriceAlert(id: string): Promise<PriceAlert | undefined> {
+    const result = await db.select().from(priceAlerts).where(eq(priceAlerts.id, id));
+    return result[0];
+  }
+
+  async createPriceAlert(alert: InsertPriceAlert): Promise<PriceAlert> {
+    const result = await db.insert(priceAlerts).values(alert).returning();
+    return result[0];
+  }
+
+  async updatePriceAlert(id: string, alert: Partial<InsertPriceAlert>): Promise<PriceAlert> {
+    const result = await db.update(priceAlerts)
+      .set(alert)
+      .where(eq(priceAlerts.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePriceAlert(id: string): Promise<void> {
+    await db.delete(priceAlerts).where(eq(priceAlerts.id, id));
+  }
+
+  async markPriceAlertSent(id: string): Promise<void> {
+    await db.update(priceAlerts)
+      .set({ alertSent: true, lastChecked: new Date() })
+      .where(eq(priceAlerts.id, id));
+  }
+
+  // Stock Alerts
+  async getStockAlerts(filters?: { email?: string; productASIN?: string; alertSent?: boolean }): Promise<StockAlert[]> {
+    const conditions: SQL[] = [];
+    if (filters?.email) conditions.push(eq(stockAlerts.email, filters.email));
+    if (filters?.productASIN) conditions.push(eq(stockAlerts.productASIN, filters.productASIN));
+    if (filters?.alertSent !== undefined) conditions.push(eq(stockAlerts.alertSent, filters.alertSent));
+    
+    if (conditions.length > 0) {
+      return db.select().from(stockAlerts).where(and(...conditions)).orderBy(desc(stockAlerts.createdAt));
+    }
+    return db.select().from(stockAlerts).orderBy(desc(stockAlerts.createdAt));
+  }
+
+  async getStockAlert(id: string): Promise<StockAlert | undefined> {
+    const result = await db.select().from(stockAlerts).where(eq(stockAlerts.id, id));
+    return result[0];
+  }
+
+  async createStockAlert(alert: InsertStockAlert): Promise<StockAlert> {
+    const result = await db.insert(stockAlerts).values(alert).returning();
+    return result[0];
+  }
+
+  async deleteStockAlert(id: string): Promise<void> {
+    await db.delete(stockAlerts).where(eq(stockAlerts.id, id));
+  }
+
+  async markStockAlertSent(id: string): Promise<void> {
+    await db.update(stockAlerts)
+      .set({ alertSent: true })
+      .where(eq(stockAlerts.id, id));
+  }
+
+  // New Product Alerts
+  async getNewProductAlerts(filters?: { email?: string; category?: string }): Promise<NewProductAlert[]> {
+    const conditions: SQL[] = [];
+    if (filters?.email) conditions.push(eq(newProductAlerts.email, filters.email));
+    if (filters?.category) conditions.push(eq(newProductAlerts.category, filters.category));
+    
+    if (conditions.length > 0) {
+      return db.select().from(newProductAlerts).where(and(...conditions)).orderBy(desc(newProductAlerts.createdAt));
+    }
+    return db.select().from(newProductAlerts).orderBy(desc(newProductAlerts.createdAt));
+  }
+
+  async getNewProductAlert(id: string): Promise<NewProductAlert | undefined> {
+    const result = await db.select().from(newProductAlerts).where(eq(newProductAlerts.id, id));
+    return result[0];
+  }
+
+  async createNewProductAlert(alert: InsertNewProductAlert): Promise<NewProductAlert> {
+    const result = await db.insert(newProductAlerts).values(alert).returning();
+    return result[0];
+  }
+
+  async deleteNewProductAlert(id: string): Promise<void> {
+    await db.delete(newProductAlerts).where(eq(newProductAlerts.id, id));
+  }
+
+  // Deal Alerts
+  async getDealAlerts(filters?: { email?: string }): Promise<DealAlert[]> {
+    const conditions: SQL[] = [];
+    if (filters?.email) conditions.push(eq(dealAlerts.email, filters.email));
+    
+    if (conditions.length > 0) {
+      return db.select().from(dealAlerts).where(and(...conditions)).orderBy(desc(dealAlerts.createdAt));
+    }
+    return db.select().from(dealAlerts).orderBy(desc(dealAlerts.createdAt));
+  }
+
+  async getDealAlert(id: string): Promise<DealAlert | undefined> {
+    const result = await db.select().from(dealAlerts).where(eq(dealAlerts.id, id));
+    return result[0];
+  }
+
+  async createDealAlert(alert: InsertDealAlert): Promise<DealAlert> {
+    const result = await db.insert(dealAlerts).values(alert).returning();
+    return result[0];
+  }
+
+  async deleteDealAlert(id: string): Promise<void> {
+    await db.delete(dealAlerts).where(eq(dealAlerts.id, id));
+  }
+
+  // Browse Abandonment
+  async getBrowseAbandonment(filters?: { sessionId?: string; email?: string; reminderSent?: boolean }): Promise<BrowseAbandonment[]> {
+    const conditions: SQL[] = [];
+    if (filters?.sessionId) conditions.push(eq(browseAbandonment.sessionId, filters.sessionId));
+    if (filters?.email) conditions.push(eq(browseAbandonment.email, filters.email));
+    if (filters?.reminderSent !== undefined) conditions.push(eq(browseAbandonment.reminderSent, filters.reminderSent));
+    
+    if (conditions.length > 0) {
+      return db.select().from(browseAbandonment).where(and(...conditions)).orderBy(desc(browseAbandonment.lastViewedAt));
+    }
+    return db.select().from(browseAbandonment).orderBy(desc(browseAbandonment.lastViewedAt));
+  }
+
+  async createBrowseAbandonment(abandonment: InsertBrowseAbandonment): Promise<BrowseAbandonment> {
+    const result = await db.insert(browseAbandonment).values(abandonment).returning();
+    return result[0];
+  }
+
+  async updateBrowseAbandonment(id: string, abandonment: Partial<InsertBrowseAbandonment>): Promise<BrowseAbandonment> {
+    const result = await db.update(browseAbandonment)
+      .set(abandonment)
+      .where(eq(browseAbandonment.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async markBrowseReminderSent(id: string): Promise<void> {
+    await db.update(browseAbandonment)
+      .set({ reminderSent: true, reminderSentAt: new Date() })
+      .where(eq(browseAbandonment.id, id));
   }
 }
 
