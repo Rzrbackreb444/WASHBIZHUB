@@ -8,13 +8,15 @@ import { ValuePropCards } from "@/components/ValuePropCards";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
-  Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users
+  Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import modernMachinesImg from "@assets/IMG_5795_1763738809544.jpeg";
-import industrialRowImg from "@assets/IMG_5793_1763738809544.jpeg";
-import vintageImg from "@assets/IMG_5792_1763738809544.jpeg";
-import lifestyleImg from "@assets/IMG_5788_1763738809544.jpeg";
+import modernMachinesImg from "@assets/AdobeStock_832897447_1763779877616.jpeg";
+import industrialRowImg from "@assets/AdobeStock_790549884_1763779877616.jpeg";
+import washerDrumsImg from "@assets/AdobeStock_561067303_1763779877613.jpeg";
+import colorfulLoadImg from "@assets/AdobeStock_711286802_1763779877615.jpeg";
+import dexterLaundromat from "@assets/Dexter Laundromat_1763779877618.jpg";
+import serviceGuyAI from "@assets/service guy ai_1763780009739.png";
 
 export default function Home() {
   const structuredData = {
@@ -186,9 +188,9 @@ export default function Home() {
             {/* Image */}
             <div className="relative overflow-hidden rounded-lg order-2 lg:order-1">
               <img 
-                src={vintageImg} 
-                alt="Classic vintage coin laundromat with retro commercial washers - authentic laundry business heritage showcasing decades of industry experience and traditional coin-op equipment"
-                className="w-full h-[400px] lg:h-[500px] object-cover grayscale"
+                src={washerDrumsImg} 
+                alt="Commercial washing machine drums and interior - professional laundromat equipment maintenance and diagnostics"
+                className="w-full h-[400px] lg:h-[500px] object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-transparent" />
@@ -314,10 +316,11 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-12 text-center">
             <Link href="/templates">
               <Button 
                 variant="outline"
+                size="lg"
                 className="hover-elevate active-elevate-2"
                 data-testid="button-see-all-templates"
               >
@@ -392,6 +395,68 @@ export default function Home() {
                 Book a Funding Consultation
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Guy AI Section - Honoring Guy Kremers */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Content */}
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <img 
+                  src={serviceGuyAI} 
+                  alt="Service Guy AI - AI-Powered Repair Diagnostics honoring Guy Kremers"
+                  className="h-16 w-auto"
+                  loading="lazy"
+                />
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 uppercase tracking-tight">
+                Service Guy AI
+              </h2>
+              <p className="text-sm text-white/60 italic mb-6">
+                Honoring Guy Kremers - A lifetime of service excellence
+              </p>
+              <p className="text-lg text-white/80 mb-6 leading-relaxed">
+                Get instant access to 2,800+ diagnostic codes with step-by-step repair instructions, 
+                safety warnings, and one-click parts ordering. Service Guy AI combines decades of 
+                technician expertise with modern AI to help you troubleshoot and repair equipment faster.
+              </p>
+              <div className="space-y-3 mb-8">
+                {["2,800+ diagnostic error codes", "Step-by-step repair instructions", "Amazon parts ordering integration", "Safety disclaimers & professional guidance"].map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                    <span className="text-white/90">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/60 mb-8 p-4 bg-white/5 rounded-md border border-white/10">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span className="italic">For educational purposes only. Always consult a certified professional technician.</span>
+              </div>
+              <Link href="/repair-guide">
+                <Button 
+                  size="lg"
+                  className="bg-accent text-accent-foreground hover-elevate active-elevate-2"
+                  data-testid="button-service-guy-ai"
+                >
+                  Launch Service Guy AI
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-lg order-first lg:order-last">
+              <img 
+                src={colorfulLoadImg} 
+                alt="Professional laundromat service and maintenance - Service Guy AI diagnostic tools"
+                className="w-full h-[400px] lg:h-[500px] object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent" />
+            </div>
           </div>
         </div>
       </section>
@@ -472,7 +537,7 @@ export default function Home() {
         {/* Background Image with Strong Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={lifestyleImg} 
+            src={washerDrumsImg} 
             alt="Satisfied laundromat customer smiling while loading washing machine - positive customer experience in modern self-service laundry facility demonstrating quality service"
             className="w-full h-full object-cover opacity-20"
             loading="lazy"

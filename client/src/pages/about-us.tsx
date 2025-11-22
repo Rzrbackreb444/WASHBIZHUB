@@ -19,6 +19,8 @@ import {
   Sparkles
 } from "lucide-react";
 import { Link } from "wouter";
+import professionalLaundromatImg from "@assets/Twin Cities Laundromat_1763780009740.jpg";
+import dexterLaundromatImg from "@assets/Dexter Laundromat_1763779877618.jpg";
 
 export default function AboutUsPage() {
   const teamMembers = [
@@ -45,7 +47,8 @@ export default function AboutUsPage() {
       contact: {
         phone: import.meta.env.VITE_CONTACT_PHONE || "1-479-883-4314",
         phoneDigits: import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14798834314",
-        email: "nick@washbizhub.com"
+        email: "nick@washbizhub.com",
+        website: "https://washbizhub.com"
       },
       color: "from-accent/20 to-yellow-500/20",
       borderColor: "border-accent/30"
@@ -70,7 +73,8 @@ export default function AboutUsPage() {
         "Author: Larry Larsen Due Diligence Suite"
       ],
       contact: {
-        email: "consult@washbizhub.com"
+        email: "consult@washbizhub.com",
+        website: "https://washbizhub.com"
       },
       color: "from-blue-500/20 to-cyan-500/20",
       borderColor: "border-blue-500/30"
@@ -118,9 +122,19 @@ export default function AboutUsPage() {
         <meta name="author" content="Larry Larsen, Laundromat123.com" />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-[#1e3a5f] via-[#2a4a6f] to-[#1a2332] text-white py-20">
+      {/* Hero Section with Background Image */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] via-[#2a4a6f] to-[#1a2332] text-white py-16 sm:py-24 lg:py-32">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 opacity-20">
+          <img 
+            src={professionalLaundromatImg} 
+            alt="Professional laundromat operations - WashBizHub team expertise"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f]/90 via-[#2a4a6f]/85 to-[#1a2332]/90" />
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:32px_32px]" />
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <Badge className="mb-4 bg-accent/20 text-accent border-accent/30" data-testid="badge-industry-experts">

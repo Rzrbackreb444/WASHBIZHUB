@@ -17,6 +17,7 @@ import {
   Clock,
   TrendingUp,
 } from "lucide-react";
+import serviceGuyAILogo from "@assets/service guy ai_1763780009739.png";
 
 interface DiagnosticCode {
   id: string;
@@ -81,14 +82,26 @@ export default function RepairGuide() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-950 dark:via-blue-950/30 dark:to-slate-950">
       <div className="container mx-auto py-8 px-4">
-        {/* Header */}
+        {/* Header with Service Guy AI Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-            Repair Guide & Diagnostics
+          <div className="flex justify-center items-center gap-4 mb-4">
+            <img 
+              src={serviceGuyAILogo} 
+              alt="Service Guy AI - AI-Powered Repair Diagnostics honoring Guy Kremers"
+              className="h-20 w-auto"
+              data-testid="img-service-guy-logo"
+            />
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-3">
+            Service Guy AI
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-3">
             2,800+ diagnostic codes with step-by-step repair instructions, safety warnings, and one-click parts ordering
           </p>
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 italic">
+            <AlertTriangle className="w-4 h-4" />
+            <span>For educational purposes only. Always consult a certified professional technician.</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -352,12 +365,18 @@ export default function RepairGuide() {
                         )}
 
                         <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Disclaimer:</h4>
-                          <p className="text-xs">
-                            WashBizHub provides this information for educational purposes only. Always consult
-                            manufacturer documentation and local codes. Repairs should be performed by qualified
-                            technicians. WashBizHub is not responsible for damages or injuries resulting from repair
-                            attempts. Your warranty may be voided by unauthorized repairs.
+                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Important Disclaimer:</h4>
+                          <p className="text-xs leading-relaxed">
+                            <strong>Service Guy AI</strong> provides this information <strong>for educational purposes only</strong>. 
+                            <strong> Always consult a certified professional technician</strong> before attempting any repairs. 
+                            This content is not a substitute for professional service. Always refer to manufacturer documentation, 
+                            safety guidelines, and local electrical codes. Repairs should only be performed by qualified, 
+                            licensed technicians with proper training and equipment. WashBizHub and Service Guy AI are not 
+                            responsible for damages, injuries, or warranty voidance resulting from repair attempts. 
+                            <strong> When in doubt, call a professional.</strong>
+                          </p>
+                          <p className="text-xs mt-2 italic text-slate-500">
+                            Service Guy AI honors Guy Kremers - a lifetime of service excellence.
                           </p>
                         </div>
                       </div>

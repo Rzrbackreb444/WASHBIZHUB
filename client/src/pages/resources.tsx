@@ -33,6 +33,7 @@ import {
   Lock,
 } from "lucide-react";
 import { Link } from "wouter";
+import resourcesHeroImg from "@assets/AdobeStock_824530835_1763779877616.jpeg";
 
 const INDUSTRY_SEGMENTS = [
   { id: "all", label: "All Resources", icon: Zap },
@@ -154,36 +155,46 @@ export default function ResourcesPage() {
         structuredData={structuredData}
       />
       <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/5 to-background border-b border-border py-16">
-          <div className="max-w-7xl mx-auto px-4">
+        {/* Hero Section with Professional Image */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-16 sm:py-20 lg:py-24 border-b border-gray-700">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 opacity-25">
+            <img 
+              src={resourcesHeroImg} 
+              alt="Professional laundromat resources and industry tools - WashBizHub"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-800/85 to-black/90" />
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center max-w-3xl mx-auto">
-              <Badge className="mb-4 bg-accent/10 text-accent border-accent/20" data-testid="badge-resource-hub">
+              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30" data-testid="badge-resource-hub">
                 <Zap className="w-3 h-3 mr-1" />
                 Resource Hub
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-resources-title">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" data-testid="text-resources-title">
                 Industry Resources Library
               </h1>
-            <p className="text-xl text-muted-foreground mb-8" data-testid="text-resources-subtitle">
-              100+ calculators, guides, templates, and tools for every role in the laundromat ecosystem
-            </p>
+              <p className="text-lg sm:text-xl text-white/80 mb-8" data-testid="text-resources-subtitle">
+                100+ calculators, guides, templates, and tools for every role in the laundromat ecosystem
+              </p>
 
-            {/* Search Bar */}
-            <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search resources..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 text-lg"
-                data-testid="input-search-resources"
-              />
+              {/* Search Bar */}
+              <div className="relative max-w-2xl mx-auto">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+                <Input
+                  type="text"
+                  placeholder="Search resources..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-12 text-lg bg-white/10 backdrop-blur border-white/20 text-white placeholder:text-white/50"
+                  data-testid="input-search-resources"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Main Content */}
       <section className="py-12">

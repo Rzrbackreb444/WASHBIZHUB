@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/select";
 import { Star, Download, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import laundromatInterior1 from "@assets/AdobeStock_832897447_1763779877616.jpeg";
+import laundromatInterior2 from "@assets/Twin Cities Laundromat_1763780009740.jpg";
+import dexterLaundromat from "@assets/Dexter Laundromat Stock photo_1763779877617.jpg";
 
 interface Template {
   id: string;
@@ -51,11 +54,18 @@ export default function Templates() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">Premium Templates</h1>
-          <p className="text-lg text-primary-foreground/90">
+      {/* Hero Section with Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-16 sm:py-20">
+        <div className="absolute inset-0 opacity-30">
+          <img 
+            src={laundromatInterior2} 
+            alt="Professional laundromat interior - modern equipment and design"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Premium Templates</h1>
+          <p className="text-base sm:text-lg text-white/90 max-w-2xl">
             Ready-to-use templates for design, operations, marketing, and business setup
           </p>
         </div>
