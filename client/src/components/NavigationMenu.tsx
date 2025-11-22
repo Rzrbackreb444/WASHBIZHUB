@@ -62,10 +62,10 @@ export function NavigationMenu() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/">
-          <a className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
+          <div className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer">
             <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" />
             <span className="hidden sm:inline text-xl font-bold text-accent">WashBizHub</span>
-          </a>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}

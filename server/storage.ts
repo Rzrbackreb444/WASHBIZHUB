@@ -70,6 +70,10 @@ import {
   type InsertBadge,
   type BadgeAward,
   type InsertBadgeAward,
+  type PlatformSetting,
+  type InsertPlatformSetting,
+  type NewsletterCampaign,
+  type InsertNewsletterCampaign,
   // AI Agent Builder
   type AiAgent,
   type InsertAiAgent,
