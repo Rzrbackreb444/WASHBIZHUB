@@ -16,23 +16,24 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16 py-2">
-          {/* Logo - Professional size */}
+        <div className="flex items-center justify-between py-4">
+          {/* Logo - 3x Larger (144px) */}
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer hover-elevate active-elevate-2 rounded-md px-2" data-testid="link-logo">
-              <img src={logoUrl} alt="WashBizHub" className="h-12 w-auto" />
+              <img src={logoUrl} alt="WashBizHub" className="h-36 w-auto" />
             </div>
           </Link>
 
-          {/* Desktop Navigation - Mega Menu Trigger */}
-          <nav className="hidden lg:flex items-center gap-2">
+          {/* Desktop Navigation - Mega Menu Trigger - ALWAYS VISIBLE */}
+          <nav className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              className="text-sm font-medium"
+              variant="default"
+              size="lg"
+              className="text-base font-bold bg-primary text-primary-foreground"
               onMouseEnter={() => setMegaMenuOpen(true)}
               data-testid="button-mega-menu"
             >
-              Explore Platform <ChevronDown className="ml-1 h-4 w-4" />
+              Explore Platform <ChevronDown className="ml-2 h-5 w-5" />
             </Button>
           </nav>
 
