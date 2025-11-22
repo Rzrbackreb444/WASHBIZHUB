@@ -141,6 +141,9 @@ import {
   type InsertSearchIndex,
   type EmailSubscriber,
   type InsertEmailSubscriber,
+  // Advertisements
+  type Advertisement,
+  type InsertAdvertisement,
   // SEO Suite
   type SeoProject,
   type InsertSeoProject,
