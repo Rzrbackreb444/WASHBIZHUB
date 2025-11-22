@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Building2, TrendingUp, CheckCircle, ExternalLink } from 'lucide-react';
+import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
 const FUNDING_PARTNERS = [
