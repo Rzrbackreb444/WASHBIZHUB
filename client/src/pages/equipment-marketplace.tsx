@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Zap, MapPin, Search, Plus, ShoppingCart, MessageSquare } from "lucide-react";
+import { Advertisement } from "@/components/Advertisement";
 
 interface Equipment {
   id: string;
@@ -86,6 +87,9 @@ export default function EquipmentMarketplace() {
               Buy new and used commercial laundromat equipment at wholesale prices
             </p>
           </div>
+
+          {/* Featured Partner Ad */}
+          <Advertisement placement="marketplace" />
 
           {/* Search & Filter */}
           <Card>
