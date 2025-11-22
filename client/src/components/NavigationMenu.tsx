@@ -29,6 +29,7 @@ import {
   BarChart3,
   MapPin,
   Zap,
+  DollarSign,
 } from "lucide-react";
 import logoUrl from "@assets/LOGO REAL_1763715525600.png";
 
