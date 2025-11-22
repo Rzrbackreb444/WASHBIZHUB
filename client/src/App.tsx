@@ -30,6 +30,10 @@ import ListingForm from "@/pages/listing-form";
 import VendorForm from "@/pages/vendor-form";
 import ConsultantInquiry from "@/pages/consultant-inquiry";
 import ListingDetail from "@/pages/listing-detail";
+import FeaturedListings from "@/pages/featured-listings";
+import VendorSpotlight from "@/pages/vendor-spotlight";
+import AboutUs from "@/pages/about-us";
+import Funding from "@/pages/funding";
 import Book from "@/pages/book";
 import AIBlogging from "@/pages/ai-blogging";
 import SEOOptimizer from "@/pages/seo-optimizer";
@@ -139,6 +143,10 @@ function Router() {
       <Route path="/vendor-form" component={VendorForm} />
       <Route path="/consultant-inquiry" component={ConsultantInquiry} />
       <Route path="/listings/:listingId" component={ListingDetail} />
+      <Route path="/featured-listings" component={FeaturedListings} />
+      <Route path="/vendor-spotlight" component={VendorSpotlight} />
+      <Route path="/about-us" component={AboutUs} />
+      <Route path="/funding" component={Funding} />
       <Route path="/facebook-group" component={FacebookGroup} />
       <Route path="/atm-services" component={AtmServices} />
       <Route path="/affiliate" component={AffiliateDashboard} />
