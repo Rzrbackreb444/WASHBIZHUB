@@ -40,63 +40,63 @@ const CALCULATOR_METADATA: Record<CalculatorType, Omit<CalculatorMeta, 'id'>> = 
   valuation: { name: 'Business Valuation', slug: 'valuation', description: 'SDE multiples + asset-based valuation', category: 'financial', isPremium: false, difficulty: 'intermediate' },
   roi: { name: 'ROI Calculator', slug: 'roi', description: 'Return on investment with annual breakdown', category: 'financial', isPremium: false, difficulty: 'intermediate' },
   npv: { name: 'Net Present Value', slug: 'npv', description: 'Discounted cash flow analysis', category: 'financial', isPremium: false, difficulty: 'advanced' },
-  { id: 'irr', name: 'Internal Rate of Return', slug: 'irr', description: 'Newton-Raphson IRR calculation', category: 'financial', isPremium: false, difficulty: 'advanced' },
-  { id: 'loan', name: 'Loan Calculator', slug: 'loan', description: 'Monthly payment & amortization schedule', category: 'financial', isPremium: false, difficulty: 'beginner' },
-  { id: 'leaseVsBuy', name: 'Lease vs Buy', slug: 'lease-vs-buy', description: 'Comprehensive NPV comparison', category: 'financial', isPremium: false, difficulty: 'intermediate' },
-  { id: 'clv', name: 'Customer Lifetime Value', slug: 'clv', description: 'LTV with retention curves', category: 'financial', isPremium: false, difficulty: 'intermediate' },
-  { id: 'cac', name: 'Customer Acquisition Cost', slug: 'cac', description: 'Marketing CAC & payback period', category: 'financial', isPremium: false, difficulty: 'beginner' },
-  { id: 'taxDeduction', name: 'Tax Deductions', slug: 'tax-deduction', description: 'Annual tax savings estimator', category: 'financial', isPremium: false, difficulty: 'intermediate' },
-  { id: 'exitValuation', name: 'Exit Valuation', slug: 'exit-valuation', description: 'Future business valuation projector', category: 'financial', isPremium: false, difficulty: 'advanced' },
-  { id: 'subscriptionRevenue', name: 'Subscription Revenue', slug: 'subscription-revenue', description: 'MRR/ARR with churn modeling', category: 'financial', isPremium: false, difficulty: 'advanced' },
-  
+  irr: { name: 'Internal Rate of Return', slug: 'irr', description: 'Newton-Raphson IRR calculation', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  loan: { name: 'Loan Calculator', slug: 'loan', description: 'Monthly payment & amortization schedule', category: 'financial', isPremium: false, difficulty: 'beginner' },
+  leaseVsBuy: { name: 'Lease vs Buy', slug: 'lease-vs-buy', description: 'Comprehensive NPV comparison', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  clv: { name: 'Customer Lifetime Value', slug: 'clv', description: 'LTV with retention curves', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  cac: { name: 'Customer Acquisition Cost', slug: 'cac', description: 'Marketing CAC & payback period', category: 'financial', isPremium: false, difficulty: 'beginner' },
+  taxDeduction: { name: 'Tax Deductions', slug: 'tax-deduction', description: 'Annual tax savings estimator', category: 'financial', isPremium: false, difficulty: 'intermediate' },
+  exitValuation: { name: 'Exit Valuation', slug: 'exit-valuation', description: 'Future business valuation projector', category: 'financial', isPremium: false, difficulty: 'advanced' },
+  subscriptionRevenue: { name: 'Subscription Revenue', slug: 'subscription-revenue', description: 'MRR/ARR with churn modeling', category: 'financial', isPremium: false, difficulty: 'advanced' },
   // Operational (11)
-  { id: 'tpd', name: 'Turns Per Day', slug: 'tpd', description: 'Equipment utilization & capacity', category: 'operational', isPremium: false, difficulty: 'beginner' },
-  { id: 'utilities', name: 'Utility Costs', slug: 'utilities', description: 'Water, gas, electric projections', category: 'operational', isPremium: false, difficulty: 'beginner' },
-  { id: 'energyCost', name: 'Energy Cost', slug: 'energy-cost', description: 'Peak/off-peak electric analysis', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'waterCost', name: 'Water Cost', slug: 'water-cost', description: 'Consumption + sewer analysis', category: 'operational', isPremium: false, difficulty: 'beginner' },
-  { id: 'laborCost', name: 'Labor Cost', slug: 'labor-cost', description: 'Payroll + taxes + benefits', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'machineUtilization', name: 'Machine Utilization', slug: 'machine-utilization', description: 'Capacity & efficiency metrics', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'staffing', name: 'Staffing Requirements', slug: 'staffing', description: 'FTE requirements by volume', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'staffProductivity', name: 'Staff Productivity', slug: 'staff-productivity', description: 'Orders/hour & labor efficiency', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'maintenanceCost', name: 'Maintenance Cost', slug: 'maintenance-cost', description: 'Annual budget projector', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'peakHourAnalysis', name: 'Peak Hour Analysis', slug: 'peak-hour', description: 'Staffing multiplier calculator', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  { id: 'seasonalDemand', name: 'Seasonal Demand', slug: 'seasonal-demand', description: 'Annual revenue forecaster', category: 'operational', isPremium: false, difficulty: 'intermediate' },
-  
+  tpd: { name: 'Turns Per Day', slug: 'tpd', description: 'Equipment utilization & capacity', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  utilities: { name: 'Utility Costs', slug: 'utilities', description: 'Water, gas, electric projections', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  energyCost: { name: 'Energy Cost', slug: 'energy-cost', description: 'Peak/off-peak electric analysis', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  waterCost: { name: 'Water Cost', slug: 'water-cost', description: 'Consumption + sewer analysis', category: 'operational', isPremium: false, difficulty: 'beginner' },
+  laborCost: { name: 'Labor Cost', slug: 'labor-cost', description: 'Payroll + taxes + benefits', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  machineUtilization: { name: 'Machine Utilization', slug: 'machine-utilization', description: 'Capacity & efficiency metrics', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  staffing: { name: 'Staffing Requirements', slug: 'staffing', description: 'FTE requirements by volume', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  staffProductivity: { name: 'Staff Productivity', slug: 'staff-productivity', description: 'Orders/hour & labor efficiency', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  maintenanceCost: { name: 'Maintenance Cost', slug: 'maintenance-cost', description: 'Annual budget projector', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  peakHourAnalysis: { name: 'Peak Hour Analysis', slug: 'peak-hour', description: 'Staffing multiplier calculator', category: 'operational', isPremium: false, difficulty: 'intermediate' },
+  seasonalDemand: { name: 'Seasonal Demand', slug: 'seasonal-demand', description: 'Annual revenue forecaster', category: 'operational', isPremium: false, difficulty: 'intermediate' },
   // Marketing & Growth (11)
-  { id: 'pricing', name: 'Pricing Optimizer', slug: 'pricing', description: 'Demand-based pricing engine', category: 'marketing', isPremium: false, difficulty: 'advanced' },
-  { id: 'pricingOptimizer', name: 'Price Per Pound', slug: 'price-per-pound', description: 'Competitive pricing analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'revenuePerSqFt', name: 'Revenue Per Sq Ft', slug: 'revenue-sqft', description: 'Space utilization metric', category: 'marketing', isPremium: false, difficulty: 'beginner' },
-  { id: 'marketingROI', name: 'Marketing ROI', slug: 'marketing-roi', description: 'Campaign return calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'churnRate', name: 'Churn Rate', slug: 'churn-rate', description: 'Customer retention analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'emailROI', name: 'Email Campaign ROI', slug: 'email-roi', description: 'Email marketing analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'referralProgram', name: 'Referral Program', slug: 'referral-program', description: 'Referral ROI calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'loyaltyProgramROI', name: 'Loyalty Program ROI', slug: 'loyalty-roi', description: 'Retention program value', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'socialMediaROI', name: 'Social Media ROI', slug: 'social-roi', description: 'Social campaign analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'websiteConversion', name: 'Website Conversion', slug: 'conversion', description: 'Conversion rate optimizer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  { id: 'competitivePricing', name: 'Competitive Pricing', slug: 'competitive-pricing', description: 'Market position analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
-  
+  pricing: { name: 'Pricing Optimizer', slug: 'pricing', description: 'Demand-based pricing engine', category: 'marketing', isPremium: false, difficulty: 'advanced' },
+  pricingOptimizer: { name: 'Price Per Pound', slug: 'price-per-pound', description: 'Competitive pricing analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  revenuePerSqFt: { name: 'Revenue Per Sq Ft', slug: 'revenue-sqft', description: 'Space utilization metric', category: 'marketing', isPremium: false, difficulty: 'beginner' },
+  marketingROI: { name: 'Marketing ROI', slug: 'marketing-roi', description: 'Campaign return calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  churnRate: { name: 'Churn Rate', slug: 'churn-rate', description: 'Customer retention analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  emailROI: { name: 'Email Campaign ROI', slug: 'email-roi', description: 'Email marketing analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  referralProgram: { name: 'Referral Program', slug: 'referral-program', description: 'Referral ROI calculator', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  loyaltyProgramROI: { name: 'Loyalty Program ROI', slug: 'loyalty-roi', description: 'Retention program value', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  socialMediaROI: { name: 'Social Media ROI', slug: 'social-roi', description: 'Social campaign analyzer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  websiteConversion: { name: 'Website Conversion', slug: 'conversion', description: 'Conversion rate optimizer', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
+  competitivePricing: { name: 'Competitive Pricing', slug: 'competitive-pricing', description: 'Market position analysis', category: 'marketing', isPremium: false, difficulty: 'intermediate' },
   // Real Estate (6)
-  { id: 'capRate', name: 'Cap Rate', slug: 'cap-rate', description: 'Capitalization rate calculator', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
-  { id: 'dscr', name: 'DSCR', slug: 'dscr', description: 'Debt service coverage ratio', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
-  { id: 'grm', name: 'Gross Rent Multiplier', slug: 'grm', description: 'GRM property valuation', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
-  { id: 'oer', name: 'Operating Expense Ratio', slug: 'oer', description: 'Expense efficiency metric', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
-  { id: 'depreciation', name: 'Depreciation', slug: 'depreciation', description: 'Straight-line & declining balance', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
-  { id: 'rentAffordability', name: 'Rent Affordability', slug: 'rent-affordability', description: 'Max affordable rent calculator', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
-  
+  capRate: { name: 'Cap Rate', slug: 'cap-rate', description: 'Capitalization rate calculator', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  dscr: { name: 'DSCR', slug: 'dscr', description: 'Debt service coverage ratio', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  grm: { name: 'Gross Rent Multiplier', slug: 'grm', description: 'GRM property valuation', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
+  oer: { name: 'Operating Expense Ratio', slug: 'oer', description: 'Expense efficiency metric', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  depreciation: { name: 'Depreciation', slug: 'depreciation', description: 'Straight-line & declining balance', category: 'real-estate', isPremium: false, difficulty: 'intermediate' },
+  rentAffordability: { name: 'Rent Affordability', slug: 'rent-affordability', description: 'Max affordable rent calculator', category: 'real-estate', isPremium: false, difficulty: 'beginner' },
   // Startup & Planning (5)
-  { id: 'startupCost', name: 'Startup Costs', slug: 'startup-cost', description: 'Total capital requirements', category: 'startup', isPremium: false, difficulty: 'intermediate' },
-  { id: 'insurance', name: 'Insurance Estimator', slug: 'insurance', description: 'Annual insurance costs', category: 'startup', isPremium: false, difficulty: 'beginner' },
-  { id: 'expansionROI', name: 'Expansion ROI', slug: 'expansion-roi', description: 'Growth investment analysis', category: 'startup', isPremium: false, difficulty: 'intermediate' },
-  { id: 'profitMargin', name: 'Profit Margin', slug: 'profit-margin', description: 'Gross & net margin calculator', category: 'startup', isPremium: false, difficulty: 'beginner' },
-  { id: 'paybackPeriod', name: 'Payback Period', slug: 'payback', description: 'Investment recovery timeline', category: 'startup', isPremium: false, difficulty: 'beginner' },
-  
+  startupCost: { name: 'Startup Costs', slug: 'startup-cost', description: 'Total capital requirements', category: 'startup', isPremium: false, difficulty: 'intermediate' },
+  insurance: { name: 'Insurance Estimator', slug: 'insurance', description: 'Annual insurance costs', category: 'startup', isPremium: false, difficulty: 'beginner' },
+  expansionROI: { name: 'Expansion ROI', slug: 'expansion-roi', description: 'Growth investment analysis', category: 'startup', isPremium: false, difficulty: 'intermediate' },
+  profitMargin: { name: 'Profit Margin', slug: 'profit-margin', description: 'Gross & net margin calculator', category: 'startup', isPremium: false, difficulty: 'beginner' },
+  paybackPeriod: { name: 'Payback Period', slug: 'payback', description: 'Investment recovery timeline', category: 'startup', isPremium: false, difficulty: 'beginner' },
   // Logistics (2)
-  { id: 'routeOptimization', name: 'Route Optimization', slug: 'route-optimization', description: 'Delivery cost calculator', category: 'logistics', isPremium: false, difficulty: 'advanced' },
-  { id: 'pickupDeliveryProfitability', name: 'Pickup/Delivery Profit', slug: 'pickup-delivery', description: 'Service margin analysis', category: 'logistics', isPremium: false, difficulty: 'intermediate' },
-  
+  routeOptimization: { name: 'Route Optimization', slug: 'route-optimization', description: 'Delivery cost calculator', category: 'logistics', isPremium: false, difficulty: 'advanced' },
+  pickupDeliveryProfitability: { name: 'Pickup/Delivery Profit', slug: 'pickup-delivery', description: 'Service margin analysis', category: 'logistics', isPremium: false, difficulty: 'intermediate' },
   // Simulation (1)
-  { id: 'monteCarlo', name: 'Monte Carlo Revenue', slug: 'monte-carlo', description: '10,000 simulation revenue forecaster', category: 'simulation', isPremium: true, difficulty: 'advanced' },
-];
+  monteCarlo: { name: 'Monte Carlo Revenue', slug: 'monte-carlo', description: '10,000 simulation revenue forecaster', category: 'simulation', isPremium: true, difficulty: 'advanced' },
+};
+
+// Generate calculator list from registry + metadata
+const ALL_CALCULATORS: CalculatorMeta[] = Object.keys(CALCULATOR_REGISTRY).map((id) => ({
+  id: id as CalculatorType,
+  ...CALCULATOR_METADATA[id as CalculatorType]
+}));
 
 export default function CalculatorsHub() {
   const [selectedCategory, setSelectedCategory] = useState('all');
