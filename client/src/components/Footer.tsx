@@ -296,21 +296,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Promo Code CTA */}
-        <div className="border-t border-primary/20 pt-8 mb-8">
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-accent/30 rounded-lg p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Tag className="h-5 w-5 text-accent" />
-              <h3 className="text-white font-bold text-lg">Special Offer for SEO Suite</h3>
-            </div>
-            <p className="text-white/80 mb-4">Use promo code <Badge className="bg-accent text-white mx-1 font-mono text-base">nickisthecoolest</Badge> for 40% off!</p>
-            <Link href="/seo-optimizer">
-              <Button className="bg-accent hover:bg-accent/90 text-white font-bold" data-testid="button-footer-seo-promo">
-                Get SEO Suite Now →
-              </Button>
-            </Link>
-          </div>
-        </div>
 
         {/* Advertisement & Newsletter Section */}
         <div className="border-t border-primary/20 pt-8 mb-8">
@@ -336,9 +321,9 @@ export function Footer() {
               <span className="text-accent font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-white/60 text-sm">
-              <Link href="/subscribe">
-                <span className="hover:text-accent transition-colors cursor-pointer font-semibold" data-testid="link-footer-subscribe">
-                  Go Pro $49/mo
+              <Link href="/pricing">
+                <span className="hover:text-accent transition-colors cursor-pointer font-semibold" data-testid="link-footer-pricing">
+                  View Pricing
                 </span>
               </Link>
               <span className="text-white/30">|</span>

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon, Users } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/components/Advertisement";
@@ -104,15 +104,15 @@ export function Header() {
                   </Button>
                 </Link>
                 
-                {/* Go Pro - show only if not already pro */}
+                {/* Upgrade CTA - show only if not already subscribed */}
                 {(!user?.isPro) && (
-                  <Link href="/subscribe">
+                  <Link href="/pricing">
                     <Button 
                       className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-md"
                       size="sm"
-                      data-testid="button-go-pro"
+                      data-testid="button-upgrade"
                     >
-                      Go Pro
+                      Upgrade
                     </Button>
                   </Link>
                 )}
@@ -141,7 +141,7 @@ export function Header() {
             data-testid="mega-menu-panel"
           >
             <div className="max-w-7xl mx-auto px-6 py-8">
-              <div className="grid grid-cols-5 gap-6">
+              <div className="grid grid-cols-6 gap-6">
                 {/* Platform Column */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
@@ -336,12 +336,50 @@ export function Header() {
                         </div>
                       </Link>
                     </li>
+                  </ul>
+                </div>
+
+                {/* Community Column */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Community</h3>
+                  </div>
+                  <ul className="space-y-2.5">
+                    <li>
+                      <Link href="/forum">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-forum">
+                          Discussion Forum
+                        </div>
+                      </Link>
+                    </li>
                     <li>
                       <Link href="/facebook-group">
                         <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-facebook-group">
                           Facebook Community
                         </div>
                       </Link>
+                    </li>
+                    <li className="pt-4 border-t border-border">
+                      <p className="text-xs text-primary/70 font-semibold uppercase tracking-wider mb-2">Our Values</p>
+                    </li>
+                    <li>
+                      <div className="text-xs text-muted-foreground px-2 py-1 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        <span>Clean & Professional</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="text-xs text-muted-foreground px-2 py-1 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        <span>Reliable Support</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="text-xs text-muted-foreground px-2 py-1 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        <span>Profitable Growth</span>
+                      </div>
                     </li>
                   </ul>
                 </div>
