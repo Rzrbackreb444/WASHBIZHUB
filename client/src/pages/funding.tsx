@@ -233,6 +233,18 @@ export default function Funding() {
             </Link>
           </div>
 
+          {/* Calculator CTA */}
+          <div className="bg-gradient-to-r from-green-900 to-emerald-900 text-white rounded-lg p-8 text-center">
+            <TrendingUp className="w-12 h-12 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Calculate Your Loan Payments</h2>
+            <p className="mb-6 text-green-100">See monthly payments by funding type and lender</p>
+            <Link href="/loan-calculator">
+              <Button className="bg-white text-green-900 hover:bg-green-50" data-testid="button-calculator">
+                Open Loan Calculator
+              </Button>
+            </Link>
+          </div>
+
           {/* Featured Partners */}
           <div>
             <h2 className="text-3xl font-bold mb-8">Featured Funding Partners</h2>
