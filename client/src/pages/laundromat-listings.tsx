@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Store, MapPin, DollarSign, TrendingUp, Search, Plus, Building2, BarChart3, MessageSquare, Settings } from "lucide-react";
+import { Store, MapPin, DollarSign, TrendingUp, Search, Plus, Building2, BarChart3, MessageSquare, Settings, Zap } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 interface LaundroListing {
   id: string;
@@ -18,6 +20,15 @@ interface LaundroListing {
   featured: boolean;
   verified: boolean;
   cleanbiScore: number;
+  cleanbiFactors?: {
+    market: number;
+    financial: number;
+    lease: number;
+    competition: number;
+    equipment: number;
+    utilities: number;
+    readiness: number;
+  };
   images: string[];
   description: string;
   contactEmail: string;
@@ -31,6 +42,7 @@ interface DashboardListing extends LaundroListing {
 }
 
 export default function LaundromatListings() {
+  const [, setLocation] = useLocation();
   const [userRole, setUserRole] = useState<"buyer" | "seller" | "broker">("buyer");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -49,7 +61,7 @@ export default function LaundromatListings() {
         verified: true,
         cleanbiScore: 82,
         images: [],
-        description: "Well-maintained laundromat in high-traffic downtown area with strong customer base",
+        description: "Well-maintained laundromat in high-traffic downtown area with strong customer base. SBA 7(a) loan eligible. Seller financing available ($40K-$80K down payment options). Traditional bank financing pre-qualified. Equipment lease-back options available.",
         contactEmail: "seller@example.com",
         createdAt: new Date().toISOString(),
       },
@@ -65,7 +77,7 @@ export default function LaundromatListings() {
         verified: true,
         cleanbiScore: 75,
         images: [],
-        description: "Established business with loyal customer base, opportunity for growth",
+        description: "Established business with loyal customer base, opportunity for growth. SBA eligible. Owner financing available. FHA small business loan qualified. Alternative lender options for qualified buyers.",
         contactEmail: "owner@example.com",
         createdAt: new Date().toISOString(),
       },
@@ -80,8 +92,17 @@ export default function LaundromatListings() {
         featured: true,
         verified: true,
         cleanbiScore: 85,
+        cleanbiFactors: {
+          market: 92,
+          financial: 88,
+          lease: 85,
+          competition: 78,
+          equipment: 82,
+          utilities: 81,
+          readiness: 85,
+        },
         images: [],
-        description: "Unique premium opportunity in high-income Orange County location. Features 27 machines with Dexter equipment, full security infrastructure, PayRange + coin system. Graduated lease terms (up to 20 years) with owner financing available. Ideal for fluff & fold and pickup/delivery service expansion. Owner-operated building offers flexibility for qualified buyers.",
+        description: "Unique premium opportunity in high-income Orange County location. Features 27 machines with Dexter equipment, full security infrastructure, PayRange + coin system. Graduated lease terms (up to 20 years) with owner financing available. SBA-eligible. Seller financing options available ($50K-$100K down). Ideal for fluff & fold and pickup/delivery service expansion. Owner-operated building offers flexibility for qualified buyers.",
         contactEmail: "larry@washbizhub.com",
         createdAt: new Date().toISOString(),
       },
@@ -98,18 +119,29 @@ export default function LaundromatListings() {
   // BUYER VIEW
   if (userRole === "buyer") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold flex items-center gap-3">
-              <Store className="w-10 h-10 text-primary" />
-              Find Your Next Laundromat
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Browse verified, profitable laundromat businesses ready for new ownership
-            </p>
-          </div>
+      <>
+        <Helmet>
+          <title>Buy Laundromats | WashBizHub Marketplace - Verified Profitable Businesses</title>
+          <meta name="description" content="Discover verified, profitable laundromat businesses with CLEANBI analysis. Browse high-income locations, equipment details, and financial metrics on WashBizHub Marketplace." />
+          <meta name="keywords" content="buy laundromat, laundromat for sale, laundromat business, profitable laundromats, laundromat marketplace" />
+          <link rel="canonical" href="https://washbizhub.com/laundromat-listings" />
+          <meta property="og:title" content="Buy Laundromats | WashBizHub Marketplace" />
+          <meta property="og:description" content="Verified laundromat businesses with CLEANBI scoring and financial analysis." />
+          <meta property="og:type" content="website" />
+          <meta name="robots" content="index, follow" />
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+          <div className="max-w-7xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold flex items-center gap-3">
+                <Store className="w-10 h-10 text-primary" />
+                Find Your Next Laundromat
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Browse verified, profitable laundromat businesses ready for new ownership. All listings include CLEANBI analysis.
+              </p>
+            </div>
 
           {/* Search */}
           <Card>
@@ -138,9 +170,13 @@ export default function LaundromatListings() {
                 className="hover-elevate transition-all overflow-hidden"
                 data-testid={`listing-${listing.id}`}
               >
-                <div className="flex gap-2 p-4 bg-muted/50">
-                  {listing.featured && <Badge>⭐ Featured</Badge>}
+                <div className="flex flex-wrap gap-2 p-4 bg-muted/50">
+                  {listing.featured && <Badge className="bg-yellow-600">⭐ Featured</Badge>}
                   {listing.verified && <Badge variant="outline">✓ Verified</Badge>}
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <DollarSign className="w-3 h-3" />
+                    Financing Available
+                  </Badge>
                 </div>
 
                 <CardHeader>
@@ -154,8 +190,19 @@ export default function LaundromatListings() {
                 <CardContent className="space-y-4">
                   {/* CLEANBI Score */}
                   <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">CLEANBI Score</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs text-muted-foreground">CLEANBI Score</p>
+                      <Zap className="w-3 h-3 text-yellow-500" />
+                    </div>
                     <div className="text-2xl font-bold">{listing.cleanbiScore}/100</div>
+                    {listing.cleanbiFactors && (
+                      <div className="mt-3 grid grid-cols-2 gap-1 text-xs">
+                        <div>Market: {listing.cleanbiFactors.market}</div>
+                        <div>Financial: {listing.cleanbiFactors.financial}</div>
+                        <div>Lease: {listing.cleanbiFactors.lease}</div>
+                        <div>Equipment: {listing.cleanbiFactors.equipment}</div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Financial Stats */}
@@ -178,7 +225,11 @@ export default function LaundromatListings() {
 
                   {/* CTAs */}
                   <div className="flex gap-2">
-                    <Button className="flex-1" data-testid={`button-view-${listing.id}`}>
+                    <Button 
+                      className="flex-1" 
+                      data-testid={`button-view-${listing.id}`}
+                      onClick={() => setLocation(`/listing/${listing.id}`)}
+                    >
                       View Details
                     </Button>
                     <Button variant="outline" size="icon" data-testid={`button-message-${listing.id}`}>
@@ -190,7 +241,7 @@ export default function LaundromatListings() {
             ))}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
