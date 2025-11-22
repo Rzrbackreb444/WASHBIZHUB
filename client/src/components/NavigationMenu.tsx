@@ -29,6 +29,7 @@ import {
   BarChart3,
   MapPin,
 } from "lucide-react";
+import logoUrl from "@assets/LOGO REAL_1763715525600.png";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },
@@ -56,9 +57,9 @@ export function NavigationMenu() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/">
-          <a className="text-2xl font-bold text-accent flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
-            <span className="hidden sm:inline">🧺</span>
-            <span>WashBizHub</span>
+          <a className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
+            <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" />
+            <span className="hidden sm:inline text-xl font-bold text-accent">WashBizHub</span>
           </a>
         </Link>
 
@@ -124,84 +125,80 @@ export function NavigationMenu() {
             <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
           ) : isAuthenticated && user ? (
             <div className="flex items-center gap-2">
-              <Link href="/settings">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2"
-                  data-testid="nav-settings-button"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline text-xs">{user.firstName || "Profile"}</span>
-                </Button>
-              </Link>
+              <span className="hidden sm:inline text-sm text-muted-foreground">
+                {user.email}
+              </span>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={logout}
-                data-testid="nav-logout-button"
-                className="gap-2"
+                onClick={() => logout()}
+                data-testid="button-logout"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline text-xs">Logout</span>
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link href="/login">
-                <Button variant="outline" size="sm" data-testid="nav-login-button" className="text-xs">
+            <Link href="/login">
+              <a>
+                <Button size="sm" data-testid="button-login">
                   Sign In
                 </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="sm" data-testid="nav-signup-button" className="text-xs">
-                  Start Free
-                </Button>
-              </Link>
-            </div>
+              </a>
+            </Link>
           )}
 
           {/* Mobile Menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" data-testid="nav-mobile-menu">
-                <Menu className="w-5 h-5" />
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                {mobileOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-64">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold">Menu</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setMobileOpen(false)}
-                  data-testid="nav-mobile-close"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+            <SheetContent side="right" className="w-80">
+              <div className="space-y-6 mt-8">
+                <div>
+                  <h3 className="font-semibold mb-3">Main</h3>
+                  <div className="space-y-2">
+                    {MAIN_LINKS.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link key={link.href} href={link.href}>
+                          <a
+                            className="flex items-center gap-2 p-2 rounded hover:bg-muted"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {link.label}
+                          </a>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-3">Tools</h3>
+                  <div className="space-y-2">
+                    {TOOLS_LINKS.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link key={link.href} href={link.href}>
+                          <a
+                            className="flex items-center gap-2 p-2 rounded hover:bg-muted"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {link.label}
+                          </a>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-
-              <nav className="space-y-2">
-                {[...MAIN_LINKS, ...TOOLS_LINKS].map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <Link key={link.href} href={link.href}>
-                      <a
-                        onClick={() => setMobileOpen(false)}
-                        className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                          isActive(link.href)
-                            ? "bg-accent text-accent-foreground"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        }`}
-                        data-testid={`nav-mobile-${link.label.toLowerCase()}`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        {link.label}
-                      </a>
-                    </Link>
-                  );
-                })}
-              </nav>
             </SheetContent>
           </Sheet>
         </div>
