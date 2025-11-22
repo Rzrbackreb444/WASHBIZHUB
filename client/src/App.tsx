@@ -74,6 +74,9 @@ import Login from "@/pages/login";
 import AdminLogin from "@/pages/admin-login";
 import ValuationCalculator from "@/pages/valuation-calculator";
 import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
+import TPDCalculator from "@/pages/tpd-calculator";
+import CLEANBICalculator from "@/pages/cleanbi-calculator";
+import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -149,6 +152,9 @@ function Router() {
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/valuation-calculator" component={ValuationCalculator} />
       <Route path="/equipment-diagnostics" component={EquipmentDiagnostics} />
+      <Route path="/tpd-calculator" component={TPDCalculator} />
+      <Route path="/cleanbi-calculator" component={CLEANBICalculator} />
+      <Route path="/roi-calculator-advanced" component={ROICalculatorAdvanced} />
       <Route component={NotFound} />
     </Switch>
   );

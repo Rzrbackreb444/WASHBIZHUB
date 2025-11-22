@@ -9,27 +9,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, BookOpen, Eye, EyeOff, Star } from "lucide-react";
+import { Mail, Send, Users, Pencil, Trash2, Plus } from "lucide-react";
 
-interface Course {
+interface NewsletterDraft {
   id: string;
-  title: string;
-  description: string;
-  instructorName: string;
-  price: string;
-  duration: number;
-  level: string;
-  category: string;
-  thumbnailUrl: string | null;
-  published: boolean;
-  featured: boolean;
-  stripePriceId: string | null;
+  subject: string;
+  content: string;
+  status: 'draft' | 'sent';
+  sentAt: string | null;
+  recipientCount: number | null;
 }
 
-export default function AdminCourses() {
+interface Subscriber {
+  id: string;
+  email: string;
+  firstName: string | null;
+  status: 'active' | 'unsubscribed';
+  source: string | null;
+  subscribedAt: string;
+}
+
+export default function AdminNewsletter() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
