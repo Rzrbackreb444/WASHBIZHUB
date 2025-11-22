@@ -451,7 +451,7 @@ function InsuranceLeadForm() {
         body: JSON.stringify(formData)
       });
       if (!response.ok) throw new Error('Failed to submit');
-      toast({ title: 'Success!', description: 'We'll contact you soon with a quote.' });
+      toast({ title: 'Success!', description: "We'll contact you soon with a quote." });
       setFormData({ name: '', email: '', phone: '', location: '', businessType: 'laundromat', message: '' });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to submit. Please try again.', variant: 'destructive' });

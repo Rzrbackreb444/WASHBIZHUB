@@ -7,7 +7,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
-import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest } from "./notifications";
+import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import {
   insertDesignSchema,
@@ -2671,6 +2671,37 @@ Disallow: /private/`;
   });
 
   // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
+
+  // ==================== INSURANCE LEADS ====================
+  
+  // POST /api/insurance-leads - Submit insurance quote request
+  app.post("/api/insurance-leads", async (req, res) => {
+    try {
+      const { name, email, phone, location, businessType, message } = req.body;
+      
+      if (!name || !email || !phone) {
+        return res.status(400).json({ error: "Name, email, and phone are required" });
+      }
+
+      // Send notification to insurance team
+      notifyInsuranceLeadRequest({
+        name,
+        email,
+        phone,
+        location: location || undefined,
+        businessType: businessType || 'laundromat',
+        message: message || undefined,
+      }).catch(err => {
+        console.error('Failed to send insurance lead notification:', err);
+        // Don't block the response if notification fails
+      });
+
+      res.json({ message: "Quote request submitted successfully. We'll contact you soon!" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== PLATFORM SETTINGS (ADMIN) ====================
   
   app.get("/api/admin/settings", isAdmin, async (req, res) => {
