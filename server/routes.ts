@@ -48,6 +48,7 @@ import {
   insertSearchIndexSchema,
   insertSearchAnalyticSchema,
   insertEmailSubscriberSchema,
+  insertAdvertisementSchema,
   insertForumCategorySchema,
   insertForumTopicSchema,
   insertForumReplySchema,
@@ -3666,10 +3667,119 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
     }
   });
 
+  // ========== ADVERTISEMENT SYSTEM API ROUTES ==========
+  
+  // GET /api/advertisements - Get active advertisements (public)
+  app.get("/api/advertisements", async (req, res) => {
+    try {
+      const { placement, type } = req.query;
+      const ads = await storage.getAdvertisements({
+        status: 'active',
+        placement: placement as string,
+        type: type as string,
+      });
+      res.json(ads);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/advertisements/:id/impression - Track ad impression
+  app.post("/api/advertisements/:id/impression", async (req, res) => {
+    try {
+      await storage.trackAdImpression(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/advertisements/:id/click - Track ad click
+  app.post("/api/advertisements/:id/click", async (req, res) => {
+    try {
+      await storage.trackAdClick(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/vendor/ads - Get vendor's advertisements (authenticated)
+  app.get("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const ads = await storage.getAdvertisements({ userId });
+      res.json(ads);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/vendor/ads - Submit new advertisement (authenticated)
+  app.post("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const adData = insertAdvertisementSchema.parse({
+        ...req.body,
+        userId,
+        status: 'pending', // Always starts as pending
+      });
+
+      const ad = await storage.createAdvertisement(adData);
+      
+      // TODO: Send email notification to admin
+      // await sendEmail({
+      //   to: 'nick@washbizhub.com',
+      //   subject: 'New Ad Submission Pending Review',
+      //   html: `New ad from ${ad.companyName} needs approval`
+      // });
+
+      res.status(201).json(ad);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/vendor/ads/:id - Update own advertisement (authenticated)
+  app.patch("/api/vendor/ads/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const existing = await storage.getAdvertisement(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Advertisement not found" });
+      if (existing.userId !== userId) return res.status(403).json({ error: "Forbidden" });
+
+      // Vendors can only update certain fields
+      const allowedFields = ['title', 'companyName', 'companyWebsite', 'contactEmail', 'logoUrl', 'imageUrl', 'linkUrl', 'altText', 'templateData', 'htmlContent'];
+      const updateData: any = {};
+      
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+          updateData[field] = req.body[field];
+        }
+      }
+
+      const ad = await storage.updateAdvertisement(req.params.id, updateData);
+      res.json(ad);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // GET /api/admin/ads - Get all advertisements (admin only)
   app.get("/api/admin/ads", isAdmin, async (req, res) => {
     try {
-      res.status(501).json({ error: "Not implemented" }); return;
+      const { status, placement, type } = req.query;
+      const ads = await storage.getAdvertisements({
+        status: status as string,
+        placement: placement as string,
+        type: type as string,
+      });
       res.json(ads);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -3679,42 +3789,39 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   // POST /api/admin/ads - Create advertisement (admin only)
   app.post("/api/admin/ads", isAdmin, async (req, res) => {
     try {
-      const adData = {
-        type: 'banner', // Default type
-        placement: req.body.placement,
-        imageUrl: req.body.imageUrl || '',
-        linkUrl: req.body.linkUrl || '',
-        altText: req.body.title,
-        startDate: req.body.startDate ? new Date(req.body.startDate) : new Date(),
-        endDate: req.body.endDate ? new Date(req.body.endDate) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-        active: req.body.isActive ?? true,
-        priority: req.body.priority || 1,
-        htmlContent: req.body.content,
-      };
-
-      res.status(501).json({ error: "Not implemented" }); return; // storage.createAdvertisement(adData);
-      res.json(ad);
+      const adData = insertAdvertisementSchema.parse(req.body);
+      const ad = await storage.createAdvertisement(adData);
+      res.status(201).json(ad);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(400).json({ error: error.message });
     }
   });
 
   // PATCH /api/admin/ads/:id - Update advertisement (admin only)
   app.patch("/api/admin/ads/:id", isAdmin, async (req, res) => {
     try {
-      const updateData: any = {};
-      
-      if (req.body.title !== undefined) updateData.altText = req.body.title;
-      if (req.body.content !== undefined) updateData.htmlContent = req.body.content;
-      if (req.body.imageUrl !== undefined) updateData.imageUrl = req.body.imageUrl;
-      if (req.body.linkUrl !== undefined) updateData.linkUrl = req.body.linkUrl;
-      if (req.body.placement !== undefined) updateData.placement = req.body.placement;
-      if (req.body.isActive !== undefined) updateData.active = req.body.isActive;
-      if (req.body.priority !== undefined) updateData.priority = req.body.priority;
-      if (req.body.startDate !== undefined) updateData.startDate = new Date(req.body.startDate);
-      if (req.body.endDate !== undefined) updateData.endDate = new Date(req.body.endDate);
+      const ad = await storage.updateAdvertisement(req.params.id, req.body);
+      res.json(ad);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
-      res.status(501).json({ error: "Not implemented" }); return; // storage.updateAdvertisement(req.params.id, updateData);
+  // PATCH /api/admin/ads/:id/status - Update ad status (admin only)
+  app.patch("/api/admin/ads/:id/status", isAdmin, async (req: any, res) => {
+    try {
+      const { status, rejectionReason } = req.body;
+      const reviewerId = req.user?.claims?.sub;
+
+      const ad = await storage.updateAdStatus(req.params.id, status, reviewerId, rejectionReason);
+      
+      // TODO: Send email notification to vendor
+      // await sendEmail({
+      //   to: ad.contactEmail,
+      //   subject: status === 'approved' ? 'Ad Approved!' : 'Ad Update',
+      //   html: `Your ad "${ad.title}" has been ${status}`
+      // });
+
       res.json(ad);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -3724,7 +3831,7 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
   // DELETE /api/admin/ads/:id - Delete advertisement (admin only)
   app.delete("/api/admin/ads/:id", isAdmin, async (req, res) => {
     try {
-      // TODO: await storage.deleteAdvertisement(req.params.id);
+      await storage.deleteAdvertisement(req.params.id);
       res.json({ message: "Advertisement deleted" });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

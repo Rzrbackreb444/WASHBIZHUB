@@ -1,15 +1,77 @@
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Target, BarChart3, DollarSign, Zap } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface AdvertisementProps {
-  placement: "header" | "banner" | "sidebar" | "footer" | "inline" | "compact";
+  placement: "header" | "banner" | "sidebar" | "footer" | "inline" | "compact" | "marketplace";
   className?: string;
 }
 
 export function Advertisement({ placement, className = "" }: AdvertisementProps) {
-  // Different ad content based on placement
-  const ads = {
+  const impressionTracked = useRef(false);
+
+  // Fetch active ads for this placement
+  const { data: ads } = useQuery({
+    queryKey: ['/api/advertisements', placement],
+    queryFn: async ({ queryKey }) => {
+      const [url, placementFilter] = queryKey;
+      const response = await fetch(`${url}?placement=${placementFilter}&status=active`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+  });
+
+  // Get the first active ad for this placement
+  const dbAd = ads?.[0];
+
+  // Track impression on mount (once per component lifecycle)
+  useEffect(() => {
+    if (dbAd && !impressionTracked.current) {
+      impressionTracked.current = true;
+      fetch(`/api/advertisements/${dbAd.id}/impression`, { method: 'POST' })
+        .catch(() => {});
+    }
+  }, [dbAd]);
+
+  // Track click
+  const handleClick = () => {
+    if (dbAd) {
+      fetch(`/api/advertisements/${dbAd.id}/click`, { method: 'POST' })
+        .catch(() => {});
+    }
+  };
+
+  // If we have a database ad, render it
+  if (dbAd?.htmlContent) {
+    return (
+      <a 
+        href={dbAd.linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={handleClick}
+        data-testid={`ad-${placement}`}
+        className={`block ${className}`}
+      >
+        <Card className="overflow-hidden hover-elevate active-elevate-2 border-primary/20">
+          <div 
+            dangerouslySetInnerHTML={{ __html: dbAd.htmlContent }}
+          />
+          <Badge 
+            variant="outline" 
+            className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 bg-background/80 backdrop-blur-sm"
+          >
+            Sponsored
+          </Badge>
+        </Card>
+      </a>
+    );
+  }
+
+  // Fallback to default internal ads
+  const defaultAds = {
     header: {
       title: "List Your Laundromat",
       description: "Sell faster with our 72,000+ buyer network",
@@ -23,6 +85,14 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
       description: "Sell faster with our 72,000+ buyer network",
       cta: "List Now - Free",
       link: "/listings/create",
+      bgClass: "bg-gradient-to-r from-primary/10 to-accent/10",
+      icon: Target
+    },
+    marketplace: {
+      title: "Advertise Your Business",
+      description: "Reach 72,000+ laundromat owners and investors",
+      cta: "Learn More",
+      link: "/contact",
       bgClass: "bg-gradient-to-r from-primary/10 to-accent/10",
       icon: Target
     },
@@ -60,8 +130,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
     }
   };
 
-  const ad = ads[placement];
-
+  const ad = defaultAds[placement] || defaultAds.banner;
   const Icon = ad.icon;
 
   // Compact version for header
@@ -82,7 +151,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
   }
 
   // Banner version for prominent placement
-  if (placement === "banner") {
+  if (placement === "banner" || placement === "marketplace") {
     return (
       <a 
         href={ad.link}
