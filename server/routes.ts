@@ -8,6 +8,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest } from "./notifications";
+import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
