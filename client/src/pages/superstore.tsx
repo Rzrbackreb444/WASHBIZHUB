@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,7 +214,8 @@ export default function Superstore() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {displayProducts.map((product: AmazonProduct) => (
-                  <Card key={product.asin} className="flex flex-col hover-elevate" data-testid={`card-product-${product.asin}`}>
+                  <Link key={product.asin} href={`/superstore/product/${product.asin}`}>
+                  <Card className="flex flex-col hover-elevate cursor-pointer" data-testid={`card-product-${product.asin}`}>
                     <CardHeader className="p-0">
                       {product.image && (
                         <div className="relative w-full h-64 bg-muted rounded-t-lg overflow-hidden">
@@ -258,6 +260,7 @@ export default function Superstore() {
                       </Button>
                     </CardFooter>
                   </Card>
+                  </Link>
                 ))}
               </div>
             </>
