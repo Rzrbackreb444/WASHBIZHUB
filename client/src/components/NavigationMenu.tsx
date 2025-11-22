@@ -170,13 +170,13 @@ export function NavigationMenu() {
                       const Icon = link.icon;
                       return (
                         <Link key={link.href} href={link.href}>
-                          <a
-                            className="flex items-center gap-2 p-2 rounded hover:bg-muted"
+                          <div
+                            className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer"
                             onClick={() => setMobileOpen(false)}
                           >
                             <Icon className="w-4 h-4" />
                             {link.label}
-                          </a>
+                          </div>
                         </Link>
                       );
                     })}
@@ -189,13 +189,13 @@ export function NavigationMenu() {
                       const Icon = link.icon;
                       return (
                         <Link key={link.href} href={link.href}>
-                          <a
-                            className="flex items-center gap-2 p-2 rounded hover:bg-muted"
+                          <div
+                            className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer"
                             onClick={() => setMobileOpen(false)}
                           >
                             <Icon className="w-4 h-4" />
                             {link.label}
-                          </a>
+                          </div>
                         </Link>
                       );
                     })}

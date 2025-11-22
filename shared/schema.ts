@@ -2352,6 +2352,68 @@ export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type ForumVote = typeof forumVotes.$inferSelect;
 
+// ==================== PLATFORM SETTINGS ====================
+
+export const platformSettings = pgTable("platform_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  category: varchar("category").notNull(), // "general", "email", "security", "payments"
+  key: varchar("key").notNull().unique(),
+  value: jsonb("value").notNull(),
+  dataType: varchar("data_type").notNull(), // "string", "number", "boolean", "json"
+  label: text("label").notNull(),
+  description: text("description"),
+  isPublic: boolean("is_public").default(false).notNull(), // Can be accessed by non-admins
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedBy: varchar("updated_by").references(() => users.id),
+});
+
+export const insertPlatformSettingSchema = createInsertSchema(platformSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertPlatformSetting = z.infer<typeof insertPlatformSettingSchema>;
+export type PlatformSetting = typeof platformSettings.$inferSelect;
+
+// ==================== NEWSLETTER CAMPAIGNS ====================
+
+export const newsletterCampaigns = pgTable("newsletter_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  content: text("content").notNull(), // HTML content
+  status: varchar("status").notNull().default("draft"), // "draft", "scheduled", "sending", "sent", "failed"
+  scheduledFor: timestamp("scheduled_for"),
+  sentAt: timestamp("sent_at"),
+  
+  // Targeting
+  recipientFilter: jsonb("recipient_filter"), // Filter criteria for email_subscribers
+  recipientCount: integer("recipient_count").default(0),
+  
+  // Delivery Stats
+  totalSent: integer("total_sent").default(0),
+  totalDelivered: integer("total_delivered").default(0),
+  totalFailed: integer("total_failed").default(0),
+  totalOpened: integer("total_opened").default(0),
+  totalClicked: integer("total_clicked").default(0),
+  
+  // Meta
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertNewsletterCampaignSchema = createInsertSchema(newsletterCampaigns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  recipientFilter: z.record(z.any()).optional(),
+});
+
+export type InsertNewsletterCampaign = z.infer<typeof insertNewsletterCampaignSchema>;
+export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
+
 // Enriched forum types with author information
 export type ForumAuthor = {
   id: string;
