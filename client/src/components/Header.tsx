@@ -35,9 +35,11 @@ export function Header() {
               size="lg"
               className="text-base font-bold bg-primary text-primary-foreground"
               onMouseEnter={() => setMegaMenuOpen(true)}
+              onMouseLeave={() => setMegaMenuOpen(false)}
+              onClick={() => setMegaMenuOpen(!megaMenuOpen)}
               data-testid="button-mega-menu"
             >
-              Explore Platform <ChevronDown className="ml-2 h-5 w-5" />
+              Explore Platform <ChevronDown className={`ml-2 h-5 w-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} />
             </Button>
           </nav>
 
@@ -169,6 +171,7 @@ export function Header() {
             className="hidden lg:block absolute left-0 right-0 top-full bg-card border-b border-border shadow-2xl z-50"
             onMouseEnter={() => setMegaMenuOpen(true)}
             onMouseLeave={() => setMegaMenuOpen(false)}
+            onClick={() => setMegaMenuOpen(false)}
             data-testid="mega-menu-panel"
           >
             <div className="max-w-7xl mx-auto px-6 py-8">
