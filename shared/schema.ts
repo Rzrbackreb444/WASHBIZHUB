@@ -6462,5 +6462,46 @@ export type InsertBrowseAbandonment = z.infer<typeof insertBrowseAbandonmentSche
 export type BrowseAbandonment = typeof browseAbandonment.$inferSelect;
 
 // ============================================================================
+// SECURITY: RATE LIMITING & EMAIL VERIFICATION
+// ============================================================================
+
+// Rate Limit Log - Track API requests per IP address to prevent abuse
+export const rateLimitLog = pgTable("rate_limit_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ipAddress: varchar("ip_address").notNull(),
+  endpoint: varchar("endpoint").notNull(), // e.g., "/api/alerts/price"
+  requestCount: integer("request_count").default(1).notNull(),
+  windowStart: timestamp("window_start").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(), // Auto-cleanup old entries
+}, (table) => ({
+  ipEndpointIdx: uniqueIndex("rate_limit_ip_endpoint_idx").on(table.ipAddress, table.endpoint, table.windowStart),
+  expiresAtIdx: index("rate_limit_expires_at_idx").on(table.expiresAt),
+}));
+
+export const insertRateLimitLogSchema = createInsertSchema(rateLimitLog).omit({ id: true, windowStart: true });
+export type InsertRateLimitLog = z.infer<typeof insertRateLimitLogSchema>;
+export type RateLimitLog = typeof rateLimitLog.$inferSelect;
+
+// Email Verification Tokens - Ensure users own the email addresses they register alerts for
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull(),
+  token: varchar("token").unique().notNull(), // Random UUID token sent via email
+  alertType: varchar("alert_type").notNull(), // "price", "stock", "new_product", "deal"
+  alertData: jsonb("alert_data").notNull(), // Store alert details until verified
+  verified: boolean("verified").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(), // Tokens expire in 24 hours
+}, (table) => ({
+  tokenIdx: index("email_verification_token_idx").on(table.token),
+  emailIdx: index("email_verification_email_idx").on(table.email),
+  expiresAtIdx: index("email_verification_expires_at_idx").on(table.expiresAt),
+}));
+
+export const insertEmailVerificationTokenSchema = createInsertSchema(emailVerificationTokens).omit({ id: true, createdAt: true, verified: true });
+export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificationTokenSchema>;
+export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete platform schema with max interactivity
 // ============================================================================
