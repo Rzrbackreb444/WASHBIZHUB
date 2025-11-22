@@ -42,6 +42,8 @@ const MAIN_LINKS = [
 const TOOLS_LINKS = [
   { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },
   { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3 },
+  { href: "/valuation-calculator", label: "Valuation Tool", icon: DollarSign },
+  { href: "/calculators", label: "All Calculators", icon: Calculator },
   { href: "/forum", label: "Community", icon: Users },
 ];
 

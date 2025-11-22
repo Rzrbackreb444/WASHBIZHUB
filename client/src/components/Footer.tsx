@@ -140,11 +140,21 @@ export function Footer() {
 
           {/* Calculators & Tools */}
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Calculators</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Analytics</h3>
             <div className="space-y-2">
+              <Link href="/valuation-calculator">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-valuation">
+                  Valuation Tool
+                </span>
+              </Link>
               <Link href="/roi-calculator">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-roi-calculator">
                   ROI Calculator
+                </span>
+              </Link>
+              <Link href="/cleanbi">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-cleanbi-footer">
+                  CLEANBI Analysis
                 </span>
               </Link>
               <Link href="/calculator">
@@ -157,14 +167,9 @@ export function Footer() {
                   Funding Matcher
                 </span>
               </Link>
-              <Link href="/locator">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-locator">
-                  Laundromat Locator
-                </span>
-              </Link>
-              <Link href="/distributor-locator">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-distributor-locator">
-                  Distributor Locator
+              <Link href="/calculators">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-all-calculators">
+                  All 50+ Tools
                 </span>
               </Link>
             </div>
