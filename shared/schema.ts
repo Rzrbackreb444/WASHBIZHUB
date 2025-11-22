@@ -755,41 +755,70 @@ export const insertCompetitionIntelligenceSchema = createInsertSchema(competitio
 export type InsertCompetitionIntelligence = z.infer<typeof insertCompetitionIntelligenceSchema>;
 export type CompetitionIntelligence = typeof competitionIntelligence.$inferSelect;
 
-// Advertisement Placements (Logo strip, banner ads)
+// Advertisement Placements (Logo strip, banner ads) with Canva-style builder
 export const advertisements = pgTable("advertisements", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   vendorId: varchar("vendor_id").references(() => vendorStorefronts.id),
+  userId: varchar("user_id").references(() => users.id), // Who created it
+  
+  // Company Info
+  companyName: text("company_name").notNull(),
+  companyWebsite: text("company_website"),
+  contactEmail: text("contact_email"),
+  logoUrl: text("logo_url"),
   
   // Ad Details
-  type: text("type").notNull(), // "logo_strip", "banner", "sidebar", "featured_listing"
-  placement: text("placement").notNull(), // "homepage", "marketplace", "blog", "design_studio"
-  imageUrl: text("image_url").notNull(),
+  title: text("title").notNull(),
+  type: text("type").notNull(), // "logo_strip", "banner", "sidebar", "featured_listing", "header", "footer", "inline"
+  placement: text("placement").notNull(), // "homepage", "marketplace", "blog", "design_studio", "calculators", "all"
+  imageUrl: text("image_url"), // Final rendered ad image
   linkUrl: text("link_url").notNull(),
   altText: text("alt_text"),
   
+  // Canva-style Template Data
+  templateId: text("template_id"), // Reference to pre-built templates
+  templateData: jsonb("template_data"), // {elements: [...], styles: {...}}
+  htmlContent: text("html_content"), // Custom HTML for advanced ads
+  
   // Scheduling
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
   
   // Performance
   impressions: integer("impressions").default(0).notNull(),
   clicks: integer("clicks").default(0).notNull(),
   
-  // Status
-  active: boolean("active").default(true).notNull(),
+  // Approval Workflow
+  status: text("status").default("pending").notNull(), // "pending", "approved", "rejected", "active", "inactive"
+  rejectionReason: text("rejection_reason"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  
+  // Priority & Display
+  priority: integer("priority").default(1).notNull(), // 1-10
   
   // Pricing
   costPerDay: decimal("cost_per_day", { precision: 10, scale: 2 }),
   totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
   
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  ogImageUrl: text("og_image_url"),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertAdvertisementSchema = createInsertSchema(advertisements).omit({
   id: true,
   impressions: true,
   clicks: true,
+  status: true, // Set by system
+  reviewedBy: true, // Set by admin
+  reviewedAt: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 export type InsertAdvertisement = z.infer<typeof insertAdvertisementSchema>;
