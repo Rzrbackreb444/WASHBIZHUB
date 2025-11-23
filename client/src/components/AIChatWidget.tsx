@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { 
@@ -21,10 +22,14 @@ import {
   Wrench,
   Calculator,
   Trash2,
-  Info
+  Info,
+  Crown,
+  Zap,
+  ArrowUpCircle
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -37,13 +42,28 @@ interface ChatResponse {
   content: string;
   provider: string;
   model: string;
+  quota?: {
+    tier: string;
+    used: number;
+    limit: number;
+    remaining: number;
+    resetDate?: string;
+  };
+}
+
+interface QuotaInfo {
+  tier: string;
+  used: number;
+  limit: number;
+  remaining: number;
+  resetDate?: string;
 }
 
 const SUGGESTED_PROMPTS = [
   {
     icon: DollarSign,
     label: "Valuation",
-    prompt: "How do I value a laundromat business I'm interested in buying?",
+    prompt: "How do I value a laundromat using the C.L.E.A.N. methodology?",
   },
   {
     icon: TrendingUp,
@@ -53,19 +73,45 @@ const SUGGESTED_PROMPTS = [
   {
     icon: MapPin,
     label: "Location",
-    prompt: "What demographics and location factors make a great laundromat site?",
+    prompt: "Walk me through the Kremers Doctrine for location evaluation.",
   },
   {
     icon: Wrench,
     label: "Equipment",
-    prompt: "Which commercial washer and dryer brands are most reliable?",
+    prompt: "Compare Speed Queen vs Dexter vs Electrolux washers for me.",
   },
   {
     icon: Calculator,
     label: "Pricing",
-    prompt: "How should I price my washers and dryers to maximize revenue?",
+    prompt: "What vend prices should I use to hit 25-35% EBITDA targets?",
   },
 ];
+
+const getTierBadge = (tier: string) => {
+  switch (tier) {
+    case "enterprise":
+      return (
+        <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white border-yellow-400 gap-1">
+          <Crown className="h-3 w-3" />
+          Enterprise
+        </Badge>
+      );
+    case "pro":
+      return (
+        <Badge variant="default" className="bg-gradient-to-r from-primary to-accent text-primary-foreground gap-1">
+          <Zap className="h-3 w-3" />
+          Pro
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline" className="gap-1">
+          <Sparkles className="h-3 w-3" />
+          Free
+        </Badge>
+      );
+  }
+};
 
 export function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,7 +119,7 @@ export function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "👋 Welcome to WashBizHub AI - **THE world's most advanced laundromat business consultant.**\n\nI have deep expertise in:\n• Business valuation & acquisition\n• Equipment selection & maintenance\n• Financial analysis & ROI optimization\n• Location analysis & market research\n• Operations & revenue optimization\n• Industry benchmarks & trends\n\n**Ask me anything about laundromats and commercial laundry equipment!**",
+      content: "👋 Welcome to **WashBizHub AI Consultant** - Powered by The Laundromat Bible.\n\n**Trained on 60+ years of Kremers family expertise:**\n\n📊 **C.L.E.A.N. Methodology** — Location evaluation framework\n🏆 **Kremers Doctrine** — Foundation First, Systems Over Hustle\n💰 **Financial Benchmarks** — 2.5-4.5x SDE valuations, 8-15% rent ratios\n🔧 **Equipment Intelligence** — Speed Queen, Dexter, Electrolux comparisons\n📈 **Revenue Optimization** — Pricing strategies, wash-dry-fold, commercial accounts\n\n**Ask me anything! I'll give you Bloomberg Terminal-grade insights.**",
       provider: "system",
       timestamp: new Date(),
     },
@@ -81,6 +127,26 @@ export function AIChatWidget() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Fetch user quota on open
+  const { data: user } = useQuery<any>({
+    queryKey: ["/api/user"],
+    enabled: isOpen,
+  });
+
+  useEffect(() => {
+    if (user) {
+      setQuotaInfo({
+        tier: user.aiConsultantTier || "free",
+        used: user.aiMessagesUsed || 0,
+        limit: user.aiMonthlyQuota || 10,
+        remaining: (user.aiMonthlyQuota || 10) - (user.aiMessagesUsed || 0),
+        resetDate: user.aiQuotaResetDate,
+      });
+    }
+  }, [user]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -111,18 +177,43 @@ export function AIChatWidget() {
           timestamp: new Date(),
         },
       ]);
+      
+      // Update quota if returned
+      if (data.quota) {
+        setQuotaInfo(data.quota);
+        
+        // Show upgrade prompt if running low
+        if (data.quota.remaining <= 2 && data.quota.tier === "free") {
+          setShowUpgradePrompt(true);
+        }
+      }
+      
       setShowSuggestions(false);
     },
-    onError: () => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "I apologize, but I encountered an error. Please try again or contact support.",
-          provider: "error",
-          timestamp: new Date(),
-        },
-      ]);
+    onError: (error: any) => {
+      // Handle quota exceeded error
+      if (error.message?.includes("quota") || error.message?.includes("exceeded")) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `⚠️ **You've reached your ${quotaInfo?.tier || 'free'} tier message limit (${quotaInfo?.limit || 10} messages/month).**\n\n**Upgrade to unlock more:**\n\n🚀 **Pro ($29/mo)** — 500 messages/month + GPT-4 intelligence\n👑 **Enterprise ($99/mo)** — Unlimited messages + Claude Opus priority\n\nClick the "Upgrade" button below to continue chatting!`,
+            provider: "system",
+            timestamp: new Date(),
+          },
+        ]);
+        setShowUpgradePrompt(true);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "I apologize, but I encountered an error. Please try again or contact support.",
+            provider: "error",
+            timestamp: new Date(),
+          },
+        ]);
+      }
     },
   });
 
@@ -153,12 +244,25 @@ export function AIChatWidget() {
     setMessages([
       {
         role: "assistant",
-        content: "👋 Welcome to WashBizHub AI - **THE world's most advanced laundromat business consultant.**\n\nI have deep expertise in:\n• Business valuation & acquisition\n• Equipment selection & maintenance\n• Financial analysis & ROI optimization\n• Location analysis & market research\n• Operations & revenue optimization\n• Industry benchmarks & trends\n\n**Ask me anything about laundromats and commercial laundry equipment!**",
+        content: "👋 Welcome to **WashBizHub AI Consultant** - Powered by The Laundromat Bible.\n\n**Trained on 60+ years of Kremers family expertise:**\n\n📊 **C.L.E.A.N. Methodology** — Location evaluation framework\n🏆 **Kremers Doctrine** — Foundation First, Systems Over Hustle\n💰 **Financial Benchmarks** — 2.5-4.5x SDE valuations, 8-15% rent ratios\n🔧 **Equipment Intelligence** — Speed Queen, Dexter, Electrolux comparisons\n📈 **Revenue Optimization** — Pricing strategies, wash-dry-fold, commercial accounts\n\n**Ask me anything! I'll give you Bloomberg Terminal-grade insights.**",
         provider: "system",
         timestamp: new Date(),
       },
     ]);
     setShowSuggestions(true);
+    setShowUpgradePrompt(false);
+  };
+
+  const getUsagePercentage = () => {
+    if (!quotaInfo) return 0;
+    return (quotaInfo.used / quotaInfo.limit) * 100;
+  };
+
+  const getUsageColor = () => {
+    const percentage = getUsagePercentage();
+    if (percentage >= 90) return "bg-destructive";
+    if (percentage >= 70) return "bg-yellow-500";
+    return "bg-primary";
   };
 
   if (!isOpen) {
@@ -173,7 +277,7 @@ export function AIChatWidget() {
             <Bot className="h-5 w-5 text-primary-foreground" />
             <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-primary-foreground" />
           </div>
-          <span className="text-sm font-semibold text-primary-foreground">WashBizHub AI</span>
+          <span className="text-sm font-semibold text-primary-foreground">AI Consultant</span>
         </div>
       </button>
     );
@@ -198,11 +302,11 @@ export function AIChatWidget() {
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse" />
           </div>
           <div>
-            <h3 className="font-bold text-sm flex items-center gap-1">
-              WashBizHub AI
-              <Sparkles className="h-3 w-3 text-accent" />
+            <h3 className="font-bold text-sm flex items-center gap-1.5">
+              AI Consultant
+              {quotaInfo && getTierBadge(quotaInfo.tier)}
             </h3>
-            <p className="text-xs text-muted-foreground">Laundromat Expert • Always Online</p>
+            <p className="text-xs text-muted-foreground">The Laundromat Bible • Live</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -242,6 +346,38 @@ export function AIChatWidget() {
 
       {!isMinimized && (
         <>
+          {/* Quota Bar */}
+          {quotaInfo && (
+            <div className="px-4 pt-3 pb-2 border-b bg-muted/30">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="text-muted-foreground font-medium">
+                  Monthly Usage: {quotaInfo.used} / {quotaInfo.limit === 999999 ? "∞" : quotaInfo.limit}
+                </span>
+                {quotaInfo.tier !== "enterprise" && quotaInfo.remaining <= 5 && (
+                  <Link href="/settings">
+                    <Button variant="ghost" size="sm" className="h-6 text-xs gap-1 hover-elevate">
+                      <ArrowUpCircle className="h-3 w-3" />
+                      Upgrade
+                    </Button>
+                  </Link>
+                )}
+              </div>
+              {quotaInfo.tier !== "enterprise" && (
+                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className={cn("h-full transition-all", getUsageColor())}
+                    style={{ width: `${getUsagePercentage()}%` }}
+                  />
+                </div>
+              )}
+              {quotaInfo.tier !== "enterprise" && quotaInfo.remaining <= 3 && (
+                <p className="text-xs text-destructive font-medium mt-1.5">
+                  ⚠️ Only {quotaInfo.remaining} messages remaining this month
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
@@ -275,7 +411,11 @@ export function AIChatWidget() {
                     {message.role === "assistant" && message.provider && message.provider !== "system" && message.provider !== "error" && (
                       <div className="mt-3 pt-2 border-t border-border/50 flex items-center justify-between">
                         <Badge variant="outline" className="text-[10px] font-medium">
-                          Powered by {message.provider}
+                          {message.provider === "openai" && "GPT-4"}
+                          {message.provider === "anthropic" && "Claude"}
+                          {message.provider === "gemini" && "Gemini Pro"}
+                          {message.provider === "perplexity" && "Perplexity"}
+                          {message.provider === "grok" && "Grok"}
                         </Badge>
                         <span className="text-[10px] text-muted-foreground">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -312,12 +452,36 @@ export function AIChatWidget() {
             </div>
           </ScrollArea>
 
+          {/* Upgrade Prompt */}
+          {showUpgradePrompt && quotaInfo && quotaInfo.tier === "free" && (
+            <div className="px-4 pb-3">
+              <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 p-3">
+                <div className="flex items-start gap-2">
+                  <ArrowUpCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm mb-1">Unlock Unlimited AI Insights</h4>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Get 500 messages/month with Pro or unlimited with Enterprise
+                    </p>
+                    <Link href="/settings">
+                      <Button size="sm" className="w-full gap-1" data-testid="button-upgrade-now">
+                        <Crown className="h-3 w-3" />
+                        View Plans
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              <Separator className="my-3" />
+            </div>
+          )}
+
           {/* Suggested Prompts */}
           {showSuggestions && messages.length === 1 && !chatMutation.isPending && (
             <div className="px-4 pb-3">
               <div className="flex items-center gap-2 mb-2">
                 <Info className="h-3 w-3 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground font-medium">Popular questions:</p>
+                <p className="text-xs text-muted-foreground font-medium">Try asking about:</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {SUGGESTED_PROMPTS.map((suggestion, idx) => (
@@ -345,7 +509,7 @@ export function AIChatWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about valuations, equipment, ROI..."
+                placeholder="Ask about C.L.E.A.N., valuations, equipment..."
                 className="flex-1 bg-muted/50 border-muted-foreground/20 focus-visible:ring-primary"
                 disabled={chatMutation.isPending}
                 data-testid="input-chat-message"
@@ -361,11 +525,15 @@ export function AIChatWidget() {
               </Button>
             </div>
             <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Powered by 5 AI models</span>
               <span className="flex items-center gap-1">
                 <Sparkles className="h-3 w-3 text-accent" />
-                Enterprise-grade insights
+                Trained on The Laundromat Bible
               </span>
+              {quotaInfo && (
+                <span className="font-mono">
+                  {quotaInfo.tier === "enterprise" ? "∞" : quotaInfo.remaining} left
+                </span>
+              )}
             </div>
           </div>
         </>
