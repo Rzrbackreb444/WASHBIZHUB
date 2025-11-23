@@ -58,8 +58,8 @@ async function getGoogleAccessToken(): Promise<{ token: string | null; error: st
     const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
     
     if (!serviceAccountJson) {
-      const error = "❌ GOOGLE_SERVICE_ACCOUNT_JSON not configured. See GOOGLE_OAUTH2_SETUP.md for setup instructions.";
-      console.error(error);
+      const error = "Google OAuth2 not configured. Set up GOOGLE_SERVICE_ACCOUNT_JSON secret to enable Google Indexing.";
+      console.log("ℹ️", error);
       return { token: null, error };
     }
 
