@@ -3826,13 +3826,47 @@ Disallow: /private/`;
   });
 
   // ==================== GEOCODING & LOCATION SERVICES ====================
-  // POST /api/geocode - Convert address to lat/lng
+  
+  // Simple rate limiter: Track requests per IP
+  const geocodingRateLimit = new Map<string, { count: number; resetTime: number }>();
+  const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+  const RATE_LIMIT_MAX = 30; // 30 requests per minute per IP
+
+  function checkRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const record = geocodingRateLimit.get(ip);
+    
+    if (!record || now > record.resetTime) {
+      geocodingRateLimit.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+      return true;
+    }
+    
+    if (record.count >= RATE_LIMIT_MAX) {
+      return false;
+    }
+    
+    record.count++;
+    return true;
+  }
+
+  // POST /api/geocode - Convert address to lat/lng (rate-limited)
   app.post("/api/geocode", async (req, res) => {
     try {
+      // Rate limiting
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
+      }
+
       const { address } = req.body;
       
+      // Validation
       if (!address || typeof address !== 'string') {
         return res.status(400).json({ error: "Address is required" });
+      }
+      
+      if (address.length > 500) {
+        return res.status(400).json({ error: "Address too long" });
       }
 
       const { geocodeAddress } = await import('./geocoding-service');
@@ -3849,11 +3883,18 @@ Disallow: /private/`;
     }
   });
 
-  // POST /api/distance - Calculate distance between two points
+  // POST /api/distance - Calculate distance between two points (rate-limited)
   app.post("/api/distance", async (req, res) => {
     try {
+      // Rate limiting
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
+      }
+
       const { origin, destination } = req.body;
       
+      // Validation
       if (!origin || !destination) {
         return res.status(400).json({ error: "Origin and destination are required" });
       }

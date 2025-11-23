@@ -3,6 +3,10 @@
  * 
  * Handles address → lat/lng conversions using Google Geocoding API
  * with caching to minimize API calls
+ * 
+ * NOTE: Currently uses in-memory caching for development.
+ * PRODUCTION: Migrate to Redis or persistent cache to preserve
+ * quota across server restarts.
  */
 
 interface GeocodeResult {
