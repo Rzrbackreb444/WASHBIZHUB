@@ -11,7 +11,7 @@ import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
-import { submitAllToGoogle } from "./auto-indexing";
+import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
 import { readFileSync } from "fs";
 import { join } from "path";
 import {
@@ -4891,10 +4891,35 @@ Disallow: /private/`;
       
       res.json({
         success: true,
+        engine: "Google",
         ...result,
       });
     } catch (error: any) {
-      console.error("Bulk indexing failed:", error);
+      console.error("Google bulk indexing failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/indexnow-all - Submit all URLs via IndexNow (Bing, Yahoo, Yandex, DuckDuckGo)
+  app.post("/api/admin/indexnow-all", isAdmin, async (req: any, res) => {
+    try {
+      // Read sitemap.xml from public folder
+      const sitemapPath = join(process.cwd(), "public", "sitemap.xml");
+      const sitemapXml = readFileSync(sitemapPath, "utf-8");
+      
+      // Submit all URLs via IndexNow
+      const result = await submitAllViaIndexNow(sitemapXml);
+      
+      res.json({
+        success: true,
+        engines: ["Bing", "Yahoo", "Yandex", "DuckDuckGo"],
+        ...result,
+      });
+    } catch (error: any) {
+      console.error("IndexNow bulk submission failed:", error);
       res.status(500).json({ 
         success: false,
         error: error.message 
