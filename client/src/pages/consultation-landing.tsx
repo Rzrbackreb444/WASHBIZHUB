@@ -58,9 +58,23 @@ export default function ConsultationLanding() {
           {/* Hero */}
           <div className="text-center mb-16">
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Expert Consultation Services</h1>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-6">
               Get personalized guidance on SBA financing, equipment upgrades, and strategic growth from industry experts.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link href="/consultation">
+                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" data-testid="button-book-consultation">
+                  Book Consultation Now
+                </Button>
+              </Link>
+              <a 
+                href="mailto:consult@washbizhub.com" 
+                className="text-accent font-semibold text-lg hover:underline flex items-center gap-2"
+                data-testid="link-email-hero"
+              >
+                📧 consult@washbizhub.com
+              </a>
+            </div>
           </div>
 
           {/* Consultation Options */}
