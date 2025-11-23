@@ -10,6 +10,7 @@ import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
 import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import Home from "@/pages/home";
 import WhyWashBizHub from "@/pages/why-washbizhub";
 import DesignStudio from "@/pages/design-studio";
@@ -111,7 +112,6 @@ import BookAdPreview from "@/pages/book-ad-preview";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
 import NotFound from "@/pages/not-found";
-import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -236,19 +236,22 @@ function AppContent() {
       </div>
       <Footer />
       <AIChatWidget />
-      <AiConsultantWidget />
     </div>
   );
 }
 
 function App() {
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <TooltipProvider>
-            <AppContent />
-            <Toaster />
+            <APIProvider apiKey={googleMapsApiKey}>
+              <AppContent />
+              <Toaster />
+            </APIProvider>
           </TooltipProvider>
         </ThemeProvider>
       </QueryClientProvider>
