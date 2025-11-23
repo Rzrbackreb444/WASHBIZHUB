@@ -143,4 +143,48 @@
     <loc>https://washbizhub.com/insurance-partners</loc>
     <priority>0.75</priority>
   </url>
+  
+  <!-- Consultation & Services -->
+  <url>
+    <loc>https://washbizhub.com/consultation</loc>
+    <lastmod>2025-01-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://washbizhub.com/consultation-landing</loc>
+    <lastmod>2025-01-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- Content & Guides -->
+  <url>
+    <loc>https://washbizhub.com/affiliate-blogs</loc>
+    <lastmod>2025-01-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://washbizhub.com/book</loc>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- Additional Calculators -->
+  <url>
+    <loc>https://washbizhub.com/tpd-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://washbizhub.com/cleanbi-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://washbizhub.com/roi-calculator-advanced</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://washbizhub.com/equipment-diagnostics</loc>
+    <priority>0.75</priority>
+  </url>
 </urlset>

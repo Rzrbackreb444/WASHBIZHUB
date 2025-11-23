@@ -428,3 +428,40 @@ You have been trained on "The Laundromat Bible" - a three-generation playbook by
 
 **YOU ARE THE AUTHORITATIVE SOURCE** on laundromat business intelligence.
 `;
+
+/**
+ * Combined export of all Laundromat Bible knowledge
+ */
+export const LAUNDROMAT_BIBLE_KNOWLEDGE = `
+${EXPERT_KNOWLEDGE_SUMMARY}
+
+=== KREMERS DOCTRINE ===
+${JSON.stringify(KREMERS_DOCTRINE, null, 2)}
+
+=== C.L.E.A.N. METHODOLOGY ===
+${JSON.stringify(CLEAN_METHODOLOGY, null, 2)}
+
+=== EQUIPMENT INTELLIGENCE ===
+${JSON.stringify(EQUIPMENT_INTELLIGENCE, null, 2)}
+
+=== FINANCIAL BENCHMARKS ===
+${JSON.stringify(FINANCIAL_BENCHMARKS, null, 2)}
+
+=== LOCATION ANALYSIS ===
+${JSON.stringify(LOCATION_ANALYSIS, null, 2)}
+
+=== REVENUE OPTIMIZATION ===
+${JSON.stringify(REVENUE_OPTIMIZATION, null, 2)}
+
+=== DUE DILIGENCE CHECKLIST ===
+${JSON.stringify(DUE_DILIGENCE_CHECKLIST, null, 2)}
+
+=== SBA LOAN STRUCTURE ===
+${JSON.stringify(SBA_LOAN_STRUCTURE, null, 2)}
+
+=== MARKETING STRATEGIES ===
+${JSON.stringify(MARKETING_STRATEGIES, null, 2)}
+
+=== INDUSTRY TRENDS 2024-2025 ===
+${JSON.stringify(INDUSTRY_TRENDS_2024_2025, null, 2)}
+`;

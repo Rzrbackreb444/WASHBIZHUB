@@ -62,17 +62,20 @@ export default function ConsultationLanding() {
               Get personalized guidance on SBA financing, equipment upgrades, and strategic growth from industry experts.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/consultation">
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" data-testid="button-book-consultation">
-                  Book Consultation Now
-                </Button>
+              <Link 
+                href="/consultation"
+                className="px-6 py-3 bg-accent text-accent-foreground hover:bg-accent/90 font-bold rounded-lg transition-colors inline-block"
+                data-testid="button-book-consultation"
+              >
+                Book Consultation Now
               </Link>
               <a 
                 href="mailto:consult@washbizhub.com" 
-                className="text-accent font-semibold text-lg hover:underline flex items-center gap-2"
+                className="text-accent font-semibold text-lg hover:underline"
                 data-testid="link-email-hero"
+                aria-label="Email our consultation team at consult@washbizhub.com"
               >
-                📧 consult@washbizhub.com
+                Email consult@washbizhub.com
               </a>
             </div>
           </div>
