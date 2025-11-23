@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { DroppableCanvas } from "@/components/website-builder/DroppableCanvas";
+import type { Block } from "@/components/website-builder/DroppableCanvas";
 import {
   Globe, Plus, Layout, Palette, Search, Eye, Code, Zap,
   Sparkles, TrendingUp, FileText, Image as ImageIcon, Type,
@@ -83,6 +85,7 @@ export default function WebsiteBuilder() {
   const [isCreating, setIsCreating] = useState(false);
   const [newSiteName, setNewSiteName] = useState('');
   const [newSubdomain, setNewSubdomain] = useState('');
+  const [blocks, setBlocks] = useState<Block[]>([]);
 
   // Fetch user's website projects
   const { data: projects = [], isLoading } = useQuery<SiteProject[]>({
@@ -263,16 +266,22 @@ export default function WebsiteBuilder() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-white min-h-[600px] rounded-lg p-8 shadow-2xl">
-                      <div className="text-center py-20">
-                        <Layout className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-                        <p className="text-gray-500 mb-4">Drop blocks here to start building</p>
-                        <Button variant="outline" data-testid="button-add-block">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Your First Block
-                        </Button>
-                      </div>
-                    </div>
+                    <DroppableCanvas
+                      projectId={selectedProject.id}
+                      onBlocksChange={(newBlocks) => {
+                        setBlocks(newBlocks);
+                        toast({
+                          title: "Changes Saved",
+                          description: "Your page has been updated",
+                        });
+                      }}
+                      onAISuggest={() => {
+                        toast({
+                          title: "AI Suggestions",
+                          description: "Analyzing your content to suggest improvements...",
+                        });
+                      }}
+                    />
                   </CardContent>
                 </Card>
               </div>
