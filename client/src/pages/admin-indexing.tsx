@@ -114,17 +114,17 @@ export default function AdminIndexing() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-indexnow-engines">
                   <span className="text-muted-foreground">Search Engines:</span>
                   <span className="font-medium">4</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-indexnow-rate-limit">
                   <span className="text-muted-foreground">Rate Limit:</span>
                   <span className="font-medium">Unlimited</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-indexnow-setup">
                   <span className="text-muted-foreground">Setup Required:</span>
-                  <Badge variant="default" className="text-xs">
+                  <Badge variant="default" className="text-xs" data-testid="badge-indexnow-setup-status">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Complete
                   </Badge>
@@ -201,17 +201,17 @@ export default function AdminIndexing() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-google-engines">
                   <span className="text-muted-foreground">Search Engines:</span>
                   <span className="font-medium">1 (Google)</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-google-rate-limit">
                   <span className="text-muted-foreground">Rate Limit:</span>
                   <span className="font-medium">200/day</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm" data-testid="info-google-setup">
                   <span className="text-muted-foreground">Setup Required:</span>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs" data-testid="badge-google-setup-status">
                     OAuth2 Credentials
                   </Badge>
                 </div>
@@ -300,7 +300,7 @@ export default function AdminIndexing() {
                 href="/INDEXNOW_README.md"
                 target="_blank"
                 className="flex items-center gap-2 p-3 rounded-lg border hover:bg-accent transition-colors"
-                data-testid="link-indexnow-docs"
+                data-testid="link-indexnow-docs-resource"
               >
                 <FileText className="h-5 w-5 text-muted-foreground" />
                 <div>
