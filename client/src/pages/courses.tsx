@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, CheckCircle, PlayCircle } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 interface Course {
   id: string;
@@ -60,6 +61,8 @@ export default function Courses() {
 
   if (coursesLoading) {
     return (
+      <>
+        <SEO title="WashBizHub Academy | Professional Laundromat Courses" description="Master laundromat operations with expert-led courses on business management, profitability, growth strategies, and industry best practices." keywords={["laundromat courses", "laundromat training", "business education", "industry certification"]} canonicalUrl="/courses" />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -80,10 +83,13 @@ export default function Courses() {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+      <SEO title="WashBizHub Academy | Professional Laundromat Courses" description="Master laundromat operations with expert-led courses on business management, profitability, growth strategies, and industry best practices." keywords={["laundromat courses", "laundromat training", "business education", "industry certification"]} canonicalUrl="/courses" />
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
@@ -212,5 +218,6 @@ export default function Courses() {
         )}
       </div>
     </div>
+    </>
   );
 }

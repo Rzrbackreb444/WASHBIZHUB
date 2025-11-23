@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { ForumCategory, EnrichedForumTopic } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
+import { SEO } from "@/components/SEO";
 
 export default function ForumPage() {
   const { data: categories, isLoading: categoriesLoading } = useQuery<ForumCategory[]>({
@@ -30,6 +31,8 @@ export default function ForumPage() {
     .slice(0, 10) || [];
 
   return (
+    <>
+      <SEO title="WashBizHub Community Forum | Laundromat Owner Discussions" description="Join 72,000+ laundromat owners in our community forum. Share experiences, ask questions, discuss operations, pricing strategies, and network with industry peers." keywords={["laundromat forum", "laundromat community", "laundromat owners network", "industry discussions"]} canonicalUrl="/forum" />
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
@@ -189,5 +192,6 @@ export default function ForumPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
