@@ -168,17 +168,20 @@ export default function AffiliateBlogsPage() {
             <div className="bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 border border-accent/30 rounded-lg p-6 max-w-3xl mx-auto">
               <p className="text-white text-lg mb-4 font-semibold">Ready to move forward with financing? Our experts are here to help.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Link href="/consultation">
-                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" data-testid="button-schedule-consultation">
-                    Schedule Expert Consultation
-                  </Button>
+                <Link 
+                  href="/consultation"
+                  className="px-6 py-3 bg-accent text-accent-foreground hover:bg-accent/90 font-bold rounded-lg transition-colors inline-block"
+                  data-testid="button-schedule-consultation"
+                >
+                  Schedule Expert Consultation
                 </Link>
                 <a 
                   href="mailto:consult@washbizhub.com" 
                   className="px-6 py-3 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent/10 transition-colors"
                   data-testid="link-email-consultation"
+                  aria-label="Email our consultation team at consult@washbizhub.com"
                 >
-                  Email: consult@washbizhub.com
+                  Email consult@washbizhub.com
                 </a>
               </div>
             </div>
