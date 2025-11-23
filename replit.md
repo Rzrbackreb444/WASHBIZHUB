@@ -1,7 +1,26 @@
 # Multi-Tenant SaaS Platform: Enterprise & Healthcare
 
 ## Overview
-This project is a multi-tenant SaaS platform supporting four distinct brands across enterprise and healthcare sectors: WashBizHub.com (B2B Laundromat SaaS), StrokeRecoveryAcademy.com (Educational & Community Forum), StrokeLyfe.app (AI Recovery Companion app), and StrokeLyfe.org (Nonprofit Community Hub). The platform aims to provide comprehensive solutions ranging from enterprise resource planning and IoT integration for laundromats to AI-powered personal recovery assistance and community engagement for stroke survivors. A core ambition is to partner with industry leaders and leverage AI/ML for personalized experiences and operational efficiencies, establishing market leadership in both niches.
+Multi-tenant SaaS platform powering TWO distinct markets:
+
+**1. WashBizHub.com** - "Bloomberg Terminal for Laundromats" (B2B Enterprise SaaS)
+Enterprise resource planning, IoT integration, POS system, route optimization, AI consultant, website builder, analytics dashboard for laundromat industry.
+
+**2. STROKE RECOVERY ECOSYSTEM** - ONE MAIN PLATFORM with satellite domains:
+- **StrokeRecoveryAcademy.com** ⭐ **[MAIN PLATFORM - WHERE EVERYTHING HAPPENS]**
+  - Educational courses with AI-powered Stroke Recovery Mastery curriculum
+  - World-class forum for stroke survivor community engagement (8 categories, voting, reputation system)
+  - Medication/appointment/exercise tracking with AI recovery companion
+  - Daily check-ins, progress visualization, hydration reminders
+  - Peer-to-peer knowledge sharing and mentorship
+
+- **StrokeLyfe.app** - Mobile landing page redirect to StrokeRecoveryAcademy.com (URL only, no separate functionality)
+
+- **StrokeLyfe.org** - Nonprofit donation platform for mission-driven funding (Stripe donations integrated, tax receipts, shares knowledge base with Academy)
+
+All stroke recovery features consolidated at StrokeRecoveryAcademy.com. StrokeLyfe.app and .org serve as marketing/nonprofit entry points redirecting to the main platform.
+
+Core ambition: Partner with industry leaders (Ryan Smith for laundromats), leverage multi-AI orchestration (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized experiences, establish market leadership through authentic expertise (Nick Kremers' 7-year 0%→90% recovery journey).
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
