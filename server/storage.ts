@@ -186,6 +186,10 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   
+  // AI Consultant Quota Management
+  resetAiQuota(userId: string): Promise<void>;
+  incrementAiUsage(userId: string): Promise<void>;
+  
   // Designs
   getDesigns(userId?: string): Promise<Design[]>;
   getDesign(id: string): Promise<Design | undefined>;

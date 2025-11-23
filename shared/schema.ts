@@ -53,6 +53,13 @@ export const users = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   
+  // AI Consultant subscription (separate from platform subscription)
+  aiConsultantTier: text("ai_consultant_tier").default("free"), // "free", "pro", "enterprise"
+  aiMonthlyQuota: integer("ai_monthly_quota").default(10), // Free: 10, Pro: 500, Enterprise: 999999
+  aiMessagesUsed: integer("ai_messages_used").default(0).notNull(),
+  aiQuotaResetDate: timestamp("ai_quota_reset_date").default(sql`NOW() + INTERVAL '1 month'`),
+  aiStripeSubscriptionId: text("ai_stripe_subscription_id"), // Separate Stripe sub for AI consultant
+  
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
