@@ -21,6 +21,8 @@ interface SEOProps {
   structuredData?: object;
   breadcrumbs?: BreadcrumbItem[];
   author?: AuthorInfo;
+  twitterHandle?: string;
+  fbAppId?: string;
 }
 
 export function SEO({
@@ -33,6 +35,8 @@ export function SEO({
   structuredData,
   breadcrumbs = [],
   author,
+  twitterHandle = "@washbizhub",
+  fbAppId = "557248372195",
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - The Bloomberg of Laundromats`;
@@ -118,15 +122,19 @@ export function SEO({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content={siteName} />
+      <meta property="fb:app_id" content={fbAppId} />
 
-      {/* Twitter */}
+      {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={canonical} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImageUrl} />
-      <meta name="twitter:site" content="@washbizhub" />
+      <meta name="twitter:site" content={twitterHandle} />
+      <meta name="twitter:creator" content={twitterHandle} />
 
       {/* Mobile & PWA Meta Tags */}
       <meta name="theme-color" content="#1a2332" />

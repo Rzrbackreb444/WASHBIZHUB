@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Brain, Sparkles, Loader2 } from "lucide-react";
 import { useCreateCleanbiScore, useGenerateInsights } from "@/hooks/use-cleanbi";
 import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 export default function CleanBI() {
   const [laundromatName, setLaundromatName] = useState("");
@@ -47,6 +48,14 @@ export default function CleanBI() {
   };
 
   const gradeInfo = getGrade(avgScore);
+
+  const seoKeywords = [
+    "CLEANBI score",
+    "laundromat business valuation",
+    "laundromat health score",
+    "business scoring system",
+    "laundromat analysis tool"
+  ];
 
   const handleGenerateInsights = async () => {
     if (!laundromatName.trim()) {
@@ -95,6 +104,14 @@ export default function CleanBI() {
   };
 
   return (
+    <>
+      <SEO 
+        title="CLEANBI™ Score | Laundromat Business Health Assessment" 
+        description="Evaluate your laundromat's business health using CLEANBI™ - the industry-standard 17-factor scoring system. Get AI-powered insights on customer experience, location quality, equipment, adaptability, financial metrics, business intelligence, and brand strength."
+        canonicalUrl="/cleanbi"
+        keywords={seoKeywords}
+        ogType="website"
+      />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
@@ -220,5 +237,6 @@ export default function CleanBI() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

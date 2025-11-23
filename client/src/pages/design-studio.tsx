@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { equipmentLibrary } from "@shared/schema";
 import { Palette, Box, Plus, Save, Move } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function DesignStudio() {
   const [studioType, setStudioType] = useState<"2d" | "3d">("2d");
@@ -36,6 +37,14 @@ export default function DesignStudio() {
   };
 
   return (
+    <>
+      <SEO 
+        title="Design Studio | 2D/3D Laundromat Layout Designer" 
+        description="Professional design studio for creating 2D and 3D laundromat floor plans. Drag-and-drop equipment library, real-time cost calculations, TPD analysis, and layout optimization."
+        canonicalUrl="/design-studio"
+        keywords={["design studio", "laundromat layout", "floor plan designer", "2D design", "3D design"]}
+        ogType="website"
+      />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
@@ -223,5 +232,6 @@ export default function DesignStudio() {
         </Tabs>
       </div>
     </div>
+    </>
   );
 }

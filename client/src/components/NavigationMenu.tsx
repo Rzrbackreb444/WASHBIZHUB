@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { SocialNavigation } from "./SocialNavigation";
 import {
   NavigationMenu as NavMenu,
   NavigationMenuContent,
@@ -60,15 +61,16 @@ export function NavigationMenu() {
   const isActive = useMemo(() => (path: string) => location === path, [location]);
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        {/* Logo - Responsive sizing (half the previous size) */}
+    <header className="sticky top-0 z-50 border-b bg-gradient-to-r from-background via-background/95 to-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
+        {/* Logo - Premium responsive sizing */}
         <Link href="/">
-          <div className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer">
+          <div className="flex items-center gap-2 hover:opacity-85 transition-opacity flex-shrink-0 cursor-pointer active-elevate-2">
             <img 
               src={logoUrl} 
-              alt="WashBizHub" 
-              className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto" 
+              alt="WashBizHub - The Bloomberg of Laundromats" 
+              className="h-8 sm:h-10 md:h-12 lg:h-16 w-auto" 
+              loading="lazy"
             />
           </div>
         </Link>
@@ -96,7 +98,12 @@ export function NavigationMenu() {
         </nav>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
+          {/* Social Navigation - Hidden on mobile, visible on tablet+ */}
+          <div className="hidden sm:block">
+            <SocialNavigation />
+          </div>
+
           {/* Desktop Tools Menu */}
           <div className="hidden xl:block">
             <NavMenu>
