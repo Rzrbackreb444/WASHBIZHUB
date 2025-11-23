@@ -3913,6 +3913,88 @@ Disallow: /private/`;
     }
   });
 
+  // POST /api/admin/geocode-listings - Geocode all listings missing coordinates (admin only)
+  app.post("/api/admin/geocode-listings", async (req, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      
+      if (!user?.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { geocodeAddress } = await import('./geocoding-service');
+      
+      // Find all listings without coordinates
+      const listingsToGeocode = await db
+        .select()
+        .from(listings)
+        .where(
+          or(
+            isNull(listings.latitude),
+            isNull(listings.longitude)
+          )
+        );
+
+      const results = {
+        total: listingsToGeocode.length,
+        successful: 0,
+        failed: 0,
+        errors: [] as string[]
+      };
+
+      // Geocode each listing
+      for (const listing of listingsToGeocode) {
+        try {
+          // Build address from available fields
+          const addressParts = [
+            listing.exactAddress,
+            listing.city,
+            listing.region,
+            listing.country
+          ].filter(Boolean);
+          
+          if (addressParts.length === 0) {
+            results.failed++;
+            results.errors.push(`Listing ${listing.id}: No address information available`);
+            continue;
+          }
+
+          const fullAddress = addressParts.join(', ');
+          const geocoded = await geocodeAddress(fullAddress);
+          
+          if (geocoded) {
+            // Update listing with coordinates
+            await db
+              .update(listings)
+              .set({
+                latitude: geocoded.lat.toString(),
+                longitude: geocoded.lng.toString(),
+                updatedAt: new Date()
+              })
+              .where(eq(listings.id, listing.id));
+            
+            results.successful++;
+            console.log(`✅ Geocoded listing ${listing.id}: ${fullAddress}`);
+          } else {
+            results.failed++;
+            results.errors.push(`Listing ${listing.id}: Geocoding failed for ${fullAddress}`);
+          }
+          
+          // Small delay to respect rate limits
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error: any) {
+          results.failed++;
+          results.errors.push(`Listing ${listing.id}: ${error.message}`);
+        }
+      }
+
+      res.json(results);
+    } catch (error: any) {
+      console.error('Batch geocoding error:', error);
+      res.status(500).json({ error: "Failed to geocode listings" });
+    }
+  });
+
   // ==================== AMAZON PARTS ORDERING ====================
   // GET /api/amazon/search - Search for parts on Amazon
   app.get("/api/amazon/search", async (req, res) => {
