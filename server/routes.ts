@@ -3825,6 +3825,53 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== GEOCODING & LOCATION SERVICES ====================
+  // POST /api/geocode - Convert address to lat/lng
+  app.post("/api/geocode", async (req, res) => {
+    try {
+      const { address } = req.body;
+      
+      if (!address || typeof address !== 'string') {
+        return res.status(400).json({ error: "Address is required" });
+      }
+
+      const { geocodeAddress } = await import('./geocoding-service');
+      const result = await geocodeAddress(address);
+      
+      if (!result) {
+        return res.status(404).json({ error: "Unable to geocode address" });
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error('Geocoding error:', error);
+      res.status(500).json({ error: "Failed to geocode address" });
+    }
+  });
+
+  // POST /api/distance - Calculate distance between two points
+  app.post("/api/distance", async (req, res) => {
+    try {
+      const { origin, destination } = req.body;
+      
+      if (!origin || !destination) {
+        return res.status(400).json({ error: "Origin and destination are required" });
+      }
+
+      const { calculateDistance } = await import('./geocoding-service');
+      const result = await calculateDistance(origin, destination);
+      
+      if (!result) {
+        return res.status(404).json({ error: "Unable to calculate distance" });
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error('Distance calculation error:', error);
+      res.status(500).json({ error: "Failed to calculate distance" });
+    }
+  });
+
   // ==================== AMAZON PARTS ORDERING ====================
   // GET /api/amazon/search - Search for parts on Amazon
   app.get("/api/amazon/search", async (req, res) => {

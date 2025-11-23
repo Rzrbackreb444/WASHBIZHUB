@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, DollarSign, Phone, Mail, Share2, Heart } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { ListingLocationMap } from '@/components/maps/ListingLocationMap';
 
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -91,29 +92,30 @@ export default function ListingDetail() {
                 </CardContent>
               </Card>
 
-              {/* Maps Integration */}
+              {/* Interactive Maps */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Location
+                    Location & Directions
                   </CardTitle>
+                  <CardDescription>
+                    View on map, get directions, and see distance from WashBizHub HQ
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden">
-                    {/* Google Maps Embed */}
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      loading="lazy"
-                      allowFullScreen
-                      src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${listing.latitude},${listing.longitude}`}
-                      data-testid="iframe-map"
+                    <ListingLocationMap
+                      latitude={listing.latitude}
+                      longitude={listing.longitude}
+                      title={listing.title}
+                      address={listing.location}
+                      price={`$${listing.price.toLocaleString()}`}
+                      showHQ={true}
                     />
                   </div>
                   <p className="text-sm text-muted-foreground mt-4">
-                    {listing.location} • GPS: {listing.latitude}, {listing.longitude}
+                    📍 {listing.location}
                   </p>
                 </CardContent>
               </Card>
