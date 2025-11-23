@@ -35,6 +35,14 @@ interface CatalogData {
 export default function Superstore() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "WashBizHub Equipment Superstore",
+    "description": "Browse commercial laundromat equipment, parts, and machines from leading manufacturers.",
+    "url": "https://washbizhub.com/superstore"
+  };
 
   // Load entire catalog with batched backend endpoint
   const { data: catalogData, isLoading: catalogLoading } = useQuery<CatalogData>({
