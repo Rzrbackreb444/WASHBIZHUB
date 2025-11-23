@@ -13,12 +13,12 @@ export default function AdminMarketplace() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: stores = [] } = useQuery({
+  const { data: stores = [] } = useQuery<any[]>({
     queryKey: ['/api/vendor-stores'],
     enabled: isAuthenticated && user?.isAdmin,
   });
 
-  const { data: products = [] } = useQuery({
+  const { data: products = [] } = useQuery<any[]>({
     queryKey: ['/api/vendor-products'],
     enabled: isAuthenticated && user?.isAdmin,
   });
