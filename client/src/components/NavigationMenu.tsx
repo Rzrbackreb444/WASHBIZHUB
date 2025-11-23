@@ -42,6 +42,7 @@ const MAIN_LINKS = [
   { href: "/laundromat-locator", label: "Locator", icon: MapPin },
   { href: "/learning", label: "Courses", icon: BookOpen },
   { href: "/calculators", label: "Calculators", icon: Calculator },
+  { href: "/affiliate-blogs", label: "Financing Guides", icon: BookOpen },
 ];
 
 const TOOLS_LINKS = [
