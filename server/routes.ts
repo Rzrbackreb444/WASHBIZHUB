@@ -5,6 +5,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { resolveTenant } from "./tenant-middleware";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
@@ -90,6 +91,12 @@ async function getCurrentUser(req: any): Promise<{ userId: string; user: any; is
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // ==================== MULTI-TENANT MIDDLEWARE ====================
+  
+  // Apply tenant resolution to ALL requests
+  // This attaches req.tenant based on domain (washbizhub.com, strokerecoveryacademy.com, strokelyfe.app)
+  app.use(resolveTenant);
   
   // ==================== AUTH ====================
   
@@ -3737,14 +3744,25 @@ Disallow: /private/`;
         });
       }
 
-      // Import AI provider service and knowledge base
-      const { aiProviderService } = await import("./ai-providers");
-      const { KREMERS_DOCTRINE, CLEAN_METHODOLOGY, EXPERT_KNOWLEDGE_SUMMARY } = await import("./laundromat-bible-knowledge");
+      // Get tenant from request (attached by tenant middleware)
+      const tenant = (req as any).tenant;
+      if (!tenant) {
+        return res.status(503).json({ error: "Platform configuration error. Please try again." });
+      }
 
-      // Build THE MOST LEGIT laundromat AI system prompt with Bible knowledge
-      const systemPrompt = {
-        role: "system" as const,
-        content: `You are THE WORLD'S LEADING AI CONSULTANT FOR LAUNDROMATS AND COMMERCIAL LAUNDRY EQUIPMENT.
+      // Import AI provider service and tenant-aware AI system
+      const { aiProviderService } = await import("./ai-providers");
+      const { buildTenantAISystemPrompt, determineAIMode } = await import("./tenant-ai-system");
+
+      // Determine AI mode based on tenant and user message (consultant, coach, or companion)
+      const aiMode = determineAIMode(tenant, message);
+
+      // Build tenant-specific AI system prompt
+      // WashBizHub: Laundromat Bible + Professional consultant
+      // StrokeRecoveryAcademy/StrokeLyfe: Stroke Recovery Bible + Empathetic coach/companion
+      const systemPrompt = buildTenantAISystemPrompt(tenant, aiMode);
+
+      console.log(`🤖 AI Mode: ${aiMode} | Tenant: ${tenant.name} | Knowledge: ${tenant.aiKnowledgeBasePath}`);
 
 You have been trained on "The Laundromat Bible" - a three-generation playbook by the Kremers family (Jerry, Guy, and Nicholas Kremers) representing 60+ years of combined industry expertise.
 
