@@ -30,7 +30,7 @@ export function SEO({
   description,
   canonicalUrl,
   ogType = "website",
-  ogImage = "/og-image.png",
+  ogImage = "/washbizhub-logo.png",
   keywords = [],
   structuredData,
   breadcrumbs = [],
@@ -53,7 +53,7 @@ export function SEO({
     "name": "WashBizHub",
     "alternateName": "The Bloomberg of Laundromats",
     "url": baseUrl,
-    "logo": `${baseUrl}/logo.png`,
+    "logo": `${baseUrl}/washbizhub-logo.png`,
     "description": "Enterprise-grade SaaS platform for the laundromat industry - combining POS systems, IoT monitoring, AI consulting, marketplace, and business intelligence serving 72,000+ potential customers worldwide.",
     "sameAs": [
       "https://www.facebook.com/washbizhub",
