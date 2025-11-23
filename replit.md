@@ -1,7 +1,14 @@
-# WashBizHub - The Bloomberg of Laundromats
+# Multi-Tenant SaaS Platform: Enterprise & Healthcare
+## Three Distinct Brands, One Powerful Infrastructure
 
-## Overview
-WashBizHub is a **world-class enterprise SaaS platform** for the laundromat industry serving **72,000+ potential customers**. It integrates: full POS system with per-pound pricing, IoT machine monitoring, preventive maintenance, pickup/delivery with route optimization, AI-powered consultant, **WYSIWYG website builder with SEO automation**, business intelligence, **Bloomberg Terminal-grade D3.js visualizations**, **50+ interactive calculators**, professional design tools, financial analysis, educational content, and multi-vendor marketplace. **User requirement: "COMPLETE means COMPLETE" - absolute enterprise-grade quality, no shortcuts, maximum ambition.**
+**Multi-Tenant Ecosystem (ONE Codebase, THREE Domains + .org):**
+1. **WashBizHub.com** - "Bloomberg Terminal for Laundromats" (Enterprise B2B)
+2. **StrokeRecoveryAcademy.com** - Educational platform with courses & resources
+3. **StrokeLyfe.app** - AI Recovery Companion with personal tracking (mobile-first)
+4. **StrokeLyfe.org** - Community-powered free recovery resource hub (mission-driven)
+
+### WashBizHub Overview
+World-class enterprise SaaS platform for the laundromat industry serving **72,000+ potential customers**. Integrates: full POS system with per-pound pricing, IoT machine monitoring, preventive maintenance, pickup/delivery with route optimization, AI-powered consultant, **WYSIWYG website builder with SEO automation**, business intelligence, **Bloomberg Terminal-grade D3.js visualizations**, **50+ interactive calculators**, professional design tools, financial analysis, educational content, and multi-vendor marketplace. **User requirement: "COMPLETE means COMPLETE" - absolute enterprise-grade quality, no shortcuts, maximum ambition.**
 
 The platform combines: 2D/3D design studio, 17-factor CLEANBI™ scoring, buying/selling marketplace, multi-AI content generation (OpenAI, Anthropic, Gemini, Perplexity, Grok), **D3.js + Chart.js hybrid visualization system**, Google Search Console + SERP API integration, Google Maps APIs (33 endpoints), real-time dashboards, and comprehensive SEO/AEO optimization. Vision: Modernize the laundromat industry through IoT, AI-powered dynamic pricing, predictive maintenance, marketing automation, and **professional web presence**.
 
