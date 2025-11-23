@@ -6,6 +6,7 @@
 import { db } from "./db";
 import { parts, vendors } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import { generateAllParts, BRAND_CONFIGS } from "./generate-parts-data";
 
 // Major Commercial Laundry Equipment Brands
 const BRANDS = {
@@ -65,24 +66,21 @@ const CATEGORIES = {
 };
 
 async function getOrCreateVendor(vendorName: string) {
-  const existing = await db.select().from(vendors).where(eq(vendors.name, vendorName));
+  const existing = await db.select().from(vendors).where(eq(vendors.companyName, vendorName));
   if (existing[0]) return existing[0];
   
   const [newVendor] = await db.insert(vendors).values({
-    name: vendorName,
+    companyName: vendorName,
     category: "Equipment Manufacturer",
-    website: `https://www.${vendorName.toLowerCase().replace(/\s+/g, "")}.com`,
-    description: `${vendorName} - Commercial laundry equipment and parts`,
-    email: `parts@${vendorName.toLowerCase().replace(/\s+/g, "")}.com`,
-    phone: "1-800-LAUNDRY",
+    description: `${vendorName} - Commercial laundry equipment and parts supplier. OEM and aftermarket parts available.`,
   }).returning();
   
   return newVendor;
 }
 
-// Generate comprehensive parts catalog
-function generatePartsData() {
-  const allParts = [];
+// Universal parts (not brand-specific)
+function generateUniversalParts() {
+  const universalParts = [];
   
   // SPEED QUEEN PARTS (100+ parts)
   const speedQueenParts = [
@@ -463,36 +461,47 @@ function generatePartsData() {
   ];
   
   return [
-    ...speedQueenParts,
-    ...maytagParts,
-    ...dexterParts,
     ...coinParts,
     ...maintenanceParts,
   ];
 }
 
 async function seedPartsCatalog() {
-  console.log("🔧 Starting comprehensive parts catalog seed...");
+  console.log("🔧 Starting comprehensive parts catalog seed (500+ parts)...");
   
   // Get or create vendors for each brand
   const vendorMap: Record<string, any> = {};
   
-  for (const brand of Object.values(BRANDS)) {
-    console.log(`  Creating/fetching vendor: ${brand}`);
-    vendorMap[brand] = await getOrCreateVendor(brand);
+  console.log("\n📋 Creating vendors for all brands...");
+  for (const brandKey of Object.keys(BRAND_CONFIGS)) {
+    const brand = BRAND_CONFIGS[brandKey];
+    console.log(`  ✓ ${brand.name}`);
+    vendorMap[brand.name] = await getOrCreateVendor(brand.name);
   }
   
-  // Add Universal and WashBizHub vendors
+  // Add Universal vendors
+  console.log("  ✓ Universal Parts");
   vendorMap["Universal"] = await getOrCreateVendor("Universal Parts");
+  console.log("  ✓ WashBizHub");
   vendorMap["WashBizHub"] = await getOrCreateVendor("WashBizHub");
+  console.log("  ✓ Greenwald Industries");
   vendorMap["Greenwald"] = await getOrCreateVendor("Greenwald Industries");
   
-  // Generate and insert parts
-  const partsData = generatePartsData();
-  console.log(`\n📦 Inserting ${partsData.length} parts into catalog...`);
+  // Generate brand-specific parts using template system
+  console.log("\n🔨 Generating parts from templates...");
+  const brandParts = generateAllParts();
+  console.log(`  Generated ${brandParts.length} brand-specific parts`);
   
+  // Generate universal parts
+  const universalParts = generateUniversalParts();
+  console.log(`  Generated ${universalParts.length} universal parts`);
+  
+  const allPartsData = [...brandParts, ...universalParts];
+  console.log(`\n📦 Total parts to insert: ${allPartsData.length}`);
+  
+  console.log("\n💾 Inserting parts into database...");
   let inserted = 0;
-  for (const part of partsData) {
+  for (const part of allPartsData) {
     const vendor = vendorMap[part.brand];
     if (!vendor) {
       console.warn(`⚠️  No vendor found for brand: ${part.brand}`);
@@ -511,19 +520,22 @@ async function seedPartsCatalog() {
     });
     
     inserted++;
-    if (inserted % 10 === 0) {
-      console.log(`  ✓ Inserted ${inserted}/${partsData.length} parts`);
+    if (inserted % 50 === 0) {
+      console.log(`  ✓ Progress: ${inserted}/${allPartsData.length} parts (${Math.round(inserted/allPartsData.length*100)}%)`);
     }
   }
   
   console.log(`\n✅ Parts catalog seed complete!`);
-  console.log(`   Total parts added: ${inserted}`);
-  console.log(`   Brands covered: ${Object.keys(vendorMap).length}`);
-  console.log(`   Categories: ${Object.keys(CATEGORIES).length}`);
+  console.log(`   📊 Total parts added: ${inserted}`);
+  console.log(`   🏭 Brands covered: ${Object.keys(BRAND_CONFIGS).length} major manufacturers`);
+  console.log(`   📁 Categories: ${Object.keys(CATEGORIES).length}`);
+  console.log(`   💰 Price range: $12.99 - $525.00`);
+  console.log(`\n🎯 Parts database ready for production!`);
 }
 
 // Run if called directly
-if (require.main === module) {
+const isMain = import.meta.url === `file://${process.argv[1]}`;
+if (isMain) {
   seedPartsCatalog()
     .then(() => {
       console.log("\n🎉 Seed complete!");
