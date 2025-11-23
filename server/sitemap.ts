@@ -10,7 +10,10 @@ interface SitemapUrl {
 export function registerSitemapRoutes(app: Express) {
   // XML Sitemap
   app.get('/sitemap.xml', (req, res) => {
-    const baseUrl = 'https://washbizhub.com';
+    // Dynamic base URL - use request hostname for proper IndexNow verification
+    const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+    const host = req.headers.host || 'washbizhub.com';
+    const baseUrl = `${protocol}://${host}`;
     const today = new Date().toISOString().split('T')[0];
 
     const urls: SitemapUrl[] = [
@@ -69,11 +72,16 @@ ${urls.map(url => `  <url>
 
   // robots.txt
   app.get('/robots.txt', (req, res) => {
+    // Dynamic sitemap URL - use request hostname
+    const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+    const host = req.headers.host || 'washbizhub.com';
+    const baseUrl = `${protocol}://${host}`;
+    
     const robotsTxt = `User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://washbizhub.com/sitemap.xml
+Sitemap: ${baseUrl}/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /admin
