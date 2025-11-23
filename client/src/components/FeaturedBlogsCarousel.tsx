@@ -60,8 +60,8 @@ export function FeaturedBlogsCarousel() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <CardDescription className="text-white/70">{blog.excerpt}</CardDescription>
-                <Link href={`/affiliate-blogs`}>
-                  <Button size="sm" variant="default" className="w-full">Read Guide</Button>
+                <Link href="/consultation">
+                  <Button size="sm" variant="default" className="w-full">Book Expert Consultation</Button>
                 </Link>
               </CardContent>
             </Card>
