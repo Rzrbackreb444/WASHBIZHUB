@@ -123,6 +123,13 @@ import {
   type SearchIndex,
   type InsertSearchIndex,
   type SearchAnalytic,
+  // Multi-Tenant
+  tenants,
+  tenantUsers,
+  type Tenant,
+  type InsertTenant,
+  type TenantUser,
+  type InsertTenantUser,
   type InsertSearchAnalytic,
   type EmailSubscriber,
   type InsertEmailSubscriber,
@@ -170,6 +177,68 @@ import {
 import type { IStorage } from "./storage";
 
 export class DbStorage implements IStorage {
+  // ============================================================================
+  // MULTI-TENANT
+  // ============================================================================
+  async getTenants(): Promise<Tenant[]> {
+    return await db.select().from(tenants).orderBy(asc(tenants.name));
+  }
+
+  async getTenant(id: string): Promise<Tenant | undefined> {
+    const result = await db.select().from(tenants).where(eq(tenants.id, id));
+    return result[0];
+  }
+
+  async getTenantByDomain(domain: string): Promise<Tenant | undefined> {
+    const result = await db.select().from(tenants).where(eq(tenants.domain, domain));
+    return result[0];
+  }
+
+  async getTenantBySlug(slug: string): Promise<Tenant | undefined> {
+    const result = await db.select().from(tenants).where(eq(tenants.slug, slug));
+    return result[0];
+  }
+
+  async createTenant(tenant: InsertTenant): Promise<Tenant> {
+    const result = await db.insert(tenants).values(tenant).returning();
+    return result[0];
+  }
+
+  async updateTenant(id: string, tenant: Partial<InsertTenant>): Promise<Tenant> {
+    const result = await db
+      .update(tenants)
+      .set({
+        ...tenant,
+        updatedAt: new Date(),
+      })
+      .where(eq(tenants.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Tenant Users
+  async getTenantUser(tenantId: string, userId: string): Promise<TenantUser | undefined> {
+    const result = await db
+      .select()
+      .from(tenantUsers)
+      .where(and(eq(tenantUsers.tenantId, tenantId), eq(tenantUsers.userId, userId)));
+    return result[0];
+  }
+
+  async createTenantUser(tenantUser: InsertTenantUser): Promise<TenantUser> {
+    const result = await db.insert(tenantUsers).values(tenantUser).returning();
+    return result[0];
+  }
+
+  async updateTenantUser(id: string, tenantUser: Partial<InsertTenantUser>): Promise<TenantUser> {
+    const result = await db
+      .update(tenantUsers)
+      .set(tenantUser)
+      .where(eq(tenantUsers.id, id))
+      .returning();
+    return result[0];
+  }
+
   // ============================================================================
   // USERS
   // ============================================================================

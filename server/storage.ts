@@ -176,10 +176,28 @@ import {
   type InsertRateLimitLog,
   type EmailVerificationToken,
   type InsertEmailVerificationToken,
+  // Multi-Tenant
+  type Tenant,
+  type InsertTenant,
+  type TenantUser,
+  type InsertTenantUser,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
+  // Multi-Tenant
+  getTenants(): Promise<Tenant[]>;
+  getTenant(id: string): Promise<Tenant | undefined>;
+  getTenantByDomain(domain: string): Promise<Tenant | undefined>;
+  getTenantBySlug(slug: string): Promise<Tenant | undefined>;
+  createTenant(tenant: InsertTenant): Promise<Tenant>;
+  updateTenant(id: string, tenant: Partial<InsertTenant>): Promise<Tenant>;
+  
+  // Tenant Users (multi-tenant access)
+  getTenantUser(tenantId: string, userId: string): Promise<TenantUser | undefined>;
+  createTenantUser(tenantUser: InsertTenantUser): Promise<TenantUser>;
+  updateTenantUser(id: string, tenantUser: Partial<InsertTenantUser>): Promise<TenantUser>;
+  
   // Users (Replit Auth compatible)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
