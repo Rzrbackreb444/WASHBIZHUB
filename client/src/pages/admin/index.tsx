@@ -12,7 +12,8 @@ import {
   MessageSquare,
   TrendingUp,
   Settings,
-  Monitor
+  Monitor,
+  Search
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -106,6 +107,14 @@ export default function AdminDashboard() {
       icon: TrendingUp,
       href: "/admin/analytics",
       color: "text-teal-500",
+      stats: null,
+    },
+    {
+      title: "SEO / Indexing",
+      description: "Search engine indexing control",
+      icon: Search,
+      href: "/admin/indexing",
+      color: "text-cyan-500",
       stats: null,
     },
     {

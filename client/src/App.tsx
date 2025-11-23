@@ -88,6 +88,7 @@ import AdminForum from "@/pages/admin/forum";
 import AdminUsers from "@/pages/admin/users";
 import AdminAnalytics from "@/pages/admin/analytics";
 import AdminSettings from "@/pages/admin/settings";
+import AdminIndexing from "@/pages/admin-indexing";
 import LaundromatListings from "@/pages/laundromat-listings";
 import EquipmentMarketplace from "@/pages/equipment-marketplace";
 import LearningPage from "@/pages/learning";
@@ -193,6 +194,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/indexing" component={AdminIndexing} />
       <Route path="/laundromat-listings" component={LaundromatListings} />
       <Route path="/equipment" component={EquipmentMarketplace} />
       <Route path="/learning" component={LearningPage} />
