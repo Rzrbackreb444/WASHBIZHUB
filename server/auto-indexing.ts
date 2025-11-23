@@ -55,10 +55,43 @@ export function generateSitemap(entries: SitemapEntry[]): string {
  */
 export async function submitToGoogle(url: string): Promise<{ success: boolean; message: string }> {
   try {
-    // Would use Google Search Console API here
-    // Requires OAuth2 authentication
+    const apiKey = process.env.GOOGLE_SEARCH_CONSOLE_API_KEY;
     
-    console.log(`Submitting to Google: ${url}`);
+    if (!apiKey) {
+      console.error("GOOGLE_SEARCH_CONSOLE_API_KEY not found");
+      return {
+        success: false,
+        message: "API key not configured",
+      };
+    }
+    
+    // Google Indexing API endpoint
+    const endpoint = `https://indexing.googleapis.com/v3/urlNotifications:publish?key=${apiKey}`;
+    
+    const payload = {
+      url: url,
+      type: "URL_UPDATED" // or "URL_DELETED" to remove from index
+    };
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Google indexing failed for ${url}:`, errorText);
+      return {
+        success: false,
+        message: `HTTP ${response.status}: ${errorText}`,
+      };
+    }
+    
+    const result = await response.json();
+    console.log(`✅ Successfully submitted to Google: ${url}`);
     
     return {
       success: true,
@@ -264,6 +297,63 @@ export async function getIndexingStats(): Promise<{
     notIndexed: 10,
     excluded: 5,
     indexingRate: 85,
+  };
+}
+
+/**
+ * Parse sitemap.xml and extract all URLs
+ */
+export function parseSitemapUrls(sitemapXml: string): string[] {
+  const urls: string[] = [];
+  const locRegex = /<loc>(.*?)<\/loc>/g;
+  let match;
+  
+  while ((match = locRegex.exec(sitemapXml)) !== null) {
+    urls.push(match[1]);
+  }
+  
+  return urls;
+}
+
+/**
+ * Submit all URLs from sitemap to Google
+ */
+export async function submitAllToGoogle(sitemapXml: string): Promise<{
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: { url: string; success: boolean; message: string }[];
+}> {
+  const urls = parseSitemapUrls(sitemapXml);
+  const results: { url: string; success: boolean; message: string }[] = [];
+  
+  console.log(`\n📊 Starting bulk indexing for ${urls.length} URLs...\n`);
+  
+  for (const url of urls) {
+    const result = await submitToGoogle(url);
+    results.push({
+      url,
+      success: result.success,
+      message: result.message,
+    });
+    
+    // Rate limiting: wait 100ms between requests
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  const succeeded = results.filter(r => r.success).length;
+  const failed = results.filter(r => !r.success).length;
+  
+  console.log(`\n✨ Indexing complete!`);
+  console.log(`✅ Succeeded: ${succeeded}`);
+  console.log(`❌ Failed: ${failed}`);
+  console.log(`📈 Total: ${urls.length}\n`);
+  
+  return {
+    total: urls.length,
+    succeeded,
+    failed,
+    results,
   };
 }
 

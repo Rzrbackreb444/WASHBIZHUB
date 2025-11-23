@@ -11,6 +11,9 @@ import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
+import { submitAllToGoogle } from "./auto-indexing";
+import { readFileSync } from "fs";
+import { join } from "path";
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
@@ -4872,6 +4875,30 @@ Disallow: /private/`;
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ========== GOOGLE INDEXING API ==========
+  // POST /api/admin/index-all - Submit all URLs from sitemap to Google
+  app.post("/api/admin/index-all", isAdmin, async (req: any, res) => {
+    try {
+      // Read sitemap.xml from public folder
+      const sitemapPath = join(process.cwd(), "public", "sitemap.xml");
+      const sitemapXml = readFileSync(sitemapPath, "utf-8");
+      
+      // Submit all URLs to Google
+      const result = await submitAllToGoogle(sitemapXml);
+      
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error: any) {
+      console.error("Bulk indexing failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
     }
   });
 
