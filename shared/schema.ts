@@ -6510,5 +6510,428 @@ export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificatio
 export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete platform schema with max interactivity
+// MULTI-TENANT PLATFORM ARCHITECTURE
+// Powers both WashBizHub.com AND StrokeRecoveryAcademy.com with shared infra
+// ============================================================================
+
+// Tenants - Core platform configuration table
+// Each tenant represents a distinct vertical (WashBizHub, StrokeRecoveryAcademy, etc.)
+export const tenants = pgTable("tenants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Tenant Identity
+  slug: varchar("slug").unique().notNull(), // "washbizhub", "strokerecoveryacademy"
+  name: varchar("name").notNull(), // "WashBizHub", "Stroke Recovery Academy"
+  domain: varchar("domain").unique().notNull(), // "washbizhub.com", "strokerecoveryacademy.com"
+  
+  // Branding & Theming
+  logoUrl: text("logo_url"),
+  primaryColor: varchar("primary_color").default("#C8A661"), // Gold for WashBizHub, adjustable per tenant
+  accentColor: varchar("accent_color").default("#1a2332"), // Navy for WashBizHub
+  heroTitle: text("hero_title").notNull(),
+  heroSubtitle: text("hero_subtitle").notNull(),
+  tagline: text("tagline"),
+  
+  // SEO & Meta
+  metaTitle: text("meta_title").notNull(),
+  metaDescription: text("meta_description").notNull(),
+  ogImage: text("og_image"),
+  
+  // AI Configuration
+  aiKnowledgeBasePath: text("ai_knowledge_base_path").notNull(), // "laundromat-bible", "stroke-recovery-bible"
+  aiWelcomeMessage: text("ai_welcome_message").notNull(),
+  aiSystemPromptOverride: text("ai_system_prompt_override"), // Optional tenant-specific AI behavior
+  
+  // Amazon Affiliate Configuration (same associate tag, different product catalogs)
+  amazonCatalogType: varchar("amazon_catalog_type").notNull(), // "commercial_laundry", "stroke_recovery"
+  
+  // Features & Capabilities
+  enableCourses: boolean("enable_courses").default(true),
+  enableMarketplace: boolean("enable_marketplace").default(true),
+  enableWhiteLabel: boolean("enable_white_label").default(false), // WashBizHub can white-label, SRA cannot
+  enableCommunity: boolean("enable_community").default(true),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertTenantSchema = createInsertSchema(tenants).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertTenant = z.infer<typeof insertTenantSchema>;
+export type Tenant = typeof tenants.$inferSelect;
+
+// Tenant Users - Junction table for multi-tenant user access
+// Allows users to have accounts on both WashBizHub AND StrokeRecoveryAcademy
+export const tenantUsers = pgTable("tenant_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").references(() => tenants.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: varchar("role").default("user"), // "user", "admin", "editor"
+  
+  // Tenant-specific subscription info
+  isPro: boolean("is_pro").default(false),
+  subscriptionTier: text("subscription_tier").default("free"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  
+  // Tenant-specific AI quota
+  aiConsultantTier: text("ai_consultant_tier").default("free"),
+  aiMonthlyQuota: integer("ai_monthly_quota").default(10),
+  aiMessagesUsed: integer("ai_messages_used").default(0),
+  aiQuotaResetDate: timestamp("ai_quota_reset_date").default(sql`NOW() + INTERVAL '1 month'`),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  tenantUserIdx: uniqueIndex("tenant_user_unique_idx").on(table.tenantId, table.userId),
+}));
+
+export const insertTenantUserSchema = createInsertSchema(tenantUsers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTenantUser = z.infer<typeof insertTenantUserSchema>;
+export type TenantUser = typeof tenantUsers.$inferSelect;
+
+// ============================================================================
+// AI RECOVERY COMPANION SYSTEM
+// Daily coaching, reminders, accountability, and progress tracking
+// Powers StrokeLyfe.app for stroke survivors
+// ============================================================================
+
+// Medication Schedule & Reminders
+export const medications = pgTable("medications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  name: varchar("name").notNull(),
+  dosage: varchar("dosage").notNull(), // "10mg", "2 tablets", etc.
+  frequency: varchar("frequency").notNull(), // "daily", "twice_daily", "as_needed"
+  timeOfDay: text("time_of_day"), // JSON array: ["08:00", "20:00"]
+  purpose: text("purpose"), // "Blood pressure", "Pain management", etc.
+  prescribedBy: varchar("prescribed_by"),
+  
+  reminderEnabled: boolean("reminder_enabled").default(true),
+  reminderMethod: varchar("reminder_method").default("email"), // "email", "sms", "both"
+  
+  isActive: boolean("is_active").default(true).notNull(),
+  startDate: timestamp("start_date").defaultNow().notNull(),
+  endDate: timestamp("end_date"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMedicationSchema = createInsertSchema(medications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMedication = z.infer<typeof insertMedicationSchema>;
+export type Medication = typeof medications.$inferSelect;
+
+// Medication Log - Track adherence
+export const medicationLogs = pgTable("medication_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  medicationId: varchar("medication_id").references(() => medications.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  scheduledTime: timestamp("scheduled_time").notNull(),
+  takenAt: timestamp("taken_at"),
+  status: varchar("status").notNull(), // "taken", "missed", "skipped", "pending"
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMedicationLogSchema = createInsertSchema(medicationLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMedicationLog = z.infer<typeof insertMedicationLogSchema>;
+export type MedicationLog = typeof medicationLogs.$inferSelect;
+
+// Appointments - Medical, PT, OT, Speech Therapy
+export const appointments = pgTable("appointments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  title: varchar("title").notNull(),
+  type: varchar("type").notNull(), // "doctor", "physical_therapy", "occupational_therapy", "speech_therapy", "lab", "other"
+  providerName: varchar("provider_name"),
+  location: text("location"),
+  
+  appointmentDate: timestamp("appointment_date").notNull(),
+  duration: integer("duration").default(60), // minutes
+  
+  reminderEnabled: boolean("reminder_enabled").default(true),
+  reminderBefore: integer("reminder_before").default(24), // hours before
+  reminderMethod: varchar("reminder_method").default("email"),
+  
+  notes: text("notes"),
+  completed: boolean("completed").default(false),
+  cancelled: boolean("cancelled").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAppointmentSchema = createInsertSchema(appointments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+export type Appointment = typeof appointments.$inferSelect;
+
+// Exercise Tracking & Accountability
+export const exercises = pgTable("exercises", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(), // "stretching", "strength", "balance", "walking", "pt_protocol"
+  description: text("description"),
+  instructions: text("instructions"),
+  
+  sets: integer("sets"),
+  reps: integer("reps"),
+  duration: integer("duration"), // minutes
+  
+  frequency: varchar("frequency").notNull(), // "daily", "3x_week", "custom"
+  scheduledDays: text("scheduled_days"), // JSON array: ["monday", "wednesday", "friday"]
+  scheduledTime: varchar("scheduled_time"), // "08:00"
+  
+  reminderEnabled: boolean("reminder_enabled").default(true),
+  
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertExerciseSchema = createInsertSchema(exercises).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertExercise = z.infer<typeof insertExerciseSchema>;
+export type Exercise = typeof exercises.$inferSelect;
+
+// Exercise Logs - Track completion and progress
+export const exerciseLogs = pgTable("exercise_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  exerciseId: varchar("exercise_id").references(() => exercises.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+  setsCompleted: integer("sets_completed"),
+  repsCompleted: integer("reps_completed"),
+  durationCompleted: integer("duration_completed"), // minutes
+  
+  difficulty: varchar("difficulty"), // "easy", "moderate", "hard"
+  painLevel: integer("pain_level"), // 0-10 scale
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertExerciseLogSchema = createInsertSchema(exerciseLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertExerciseLog = z.infer<typeof insertExerciseLogSchema>;
+export type ExerciseLog = typeof exerciseLogs.$inferSelect;
+
+// Hydration Tracking
+export const hydrationLogs = pgTable("hydration_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  loggedAt: timestamp("logged_at").defaultNow().notNull(),
+  amount: integer("amount").notNull(), // ounces
+  type: varchar("type").default("water"), // "water", "tea", "other"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userDateIdx: index("hydration_user_date_idx").on(table.userId, table.loggedAt),
+}));
+
+export const insertHydrationLogSchema = createInsertSchema(hydrationLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertHydrationLog = z.infer<typeof insertHydrationLogSchema>;
+export type HydrationLog = typeof hydrationLogs.$inferSelect;
+
+// Hydration Goals & Reminders
+export const hydrationGoals = pgTable("hydration_goals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  dailyGoal: integer("daily_goal").default(64).notNull(), // ounces
+  reminderEnabled: boolean("reminder_enabled").default(true),
+  reminderInterval: integer("reminder_interval").default(2), // hours
+  reminderStartTime: varchar("reminder_start_time").default("08:00"),
+  reminderEndTime: varchar("reminder_end_time").default("20:00"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertHydrationGoalSchema = createInsertSchema(hydrationGoals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertHydrationGoal = z.infer<typeof insertHydrationGoalSchema>;
+export type HydrationGoal = typeof hydrationGoals.$inferSelect;
+
+// Daily Check-ins - Mood, Progress, Challenges
+export const dailyCheckins = pgTable("daily_checkins", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  checkinDate: timestamp("checkin_date").defaultNow().notNull(),
+  
+  // Physical Status
+  painLevel: integer("pain_level"), // 0-10 scale
+  energyLevel: integer("energy_level"), // 0-10 scale
+  sleepQuality: integer("sleep_quality"), // 0-10 scale
+  
+  // Emotional Status
+  mood: varchar("mood"), // "great", "good", "okay", "struggling", "bad"
+  motivation: integer("motivation"), // 0-10 scale
+  
+  // Recovery Progress
+  progressToday: text("progress_today"), // What went well
+  challengesToday: text("challenges_today"), // What was difficult
+  goalsForTomorrow: text("goals_for_tomorrow"),
+  
+  // AI Companion Response
+  aiResponse: text("ai_response"), // Personalized encouragement/coaching
+  aiSentiment: varchar("ai_sentiment"), // "encouraging", "motivating", "empathetic"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userDateIdx: index("checkin_user_date_idx").on(table.userId, table.checkinDate),
+}));
+
+export const insertDailyCheckinSchema = createInsertSchema(dailyCheckins).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertDailyCheckin = z.infer<typeof insertDailyCheckinSchema>;
+export type DailyCheckin = typeof dailyCheckins.$inferSelect;
+
+// Progress Milestones - Track recovery achievements
+export const progressMilestones = pgTable("progress_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  category: varchar("category").notNull(), // "mobility", "strength", "speech", "cognitive", "independence"
+  
+  achievedAt: timestamp("achieved_at").defaultNow().notNull(),
+  celebrationMessage: text("celebration_message"), // AI-generated encouragement
+  
+  photoUrl: text("photo_url"), // Optional photo/video proof
+  notes: text("notes"),
+  
+  shared: boolean("shared").default(false), // Share with community?
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertProgressMilestoneSchema = createInsertSchema(progressMilestones).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertProgressMilestone = z.infer<typeof insertProgressMilestoneSchema>;
+export type ProgressMilestone = typeof progressMilestones.$inferSelect;
+
+// Recovery Goals - Short-term and long-term
+export const recoveryGoals = pgTable("recovery_goals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  title: varchar("title").notNull(),
+  description: text("description"),
+  category: varchar("category").notNull(), // "mobility", "strength", "speech", "cognitive", "independence"
+  
+  goalType: varchar("goal_type").notNull(), // "daily", "weekly", "monthly", "long_term"
+  targetDate: timestamp("target_date"),
+  
+  status: varchar("status").default("in_progress"), // "not_started", "in_progress", "completed", "abandoned"
+  completedAt: timestamp("completed_at"),
+  
+  milestoneId: varchar("milestone_id").references(() => progressMilestones.id), // Link to achievement
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertRecoveryGoalSchema = createInsertSchema(recoveryGoals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertRecoveryGoal = z.infer<typeof insertRecoveryGoalSchema>;
+export type RecoveryGoal = typeof recoveryGoals.$inferSelect;
+
+// AI Companion Settings - Personalized coaching preferences
+export const aiCompanionSettings = pgTable("ai_companion_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).unique().notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Communication Preferences
+  communicationStyle: varchar("communication_style").default("encouraging"), // "encouraging", "direct", "gentle", "tough_love"
+  checkInTime: varchar("check_in_time").default("09:00"), // Daily check-in reminder time
+  checkInEnabled: boolean("check_in_enabled").default(true),
+  
+  // Contact Preferences
+  phoneNumber: varchar("phone_number"), // For SMS reminders
+  emailAddress: varchar("email_address"),
+  preferredMethod: varchar("preferred_method").default("email"), // "email", "sms", "both"
+  
+  // Coaching Focus Areas
+  focusAreas: text("focus_areas"), // JSON array: ["mobility", "speech", "emotional"]
+  
+  // Privacy
+  shareProgress: boolean("share_progress").default(false), // Share with community
+  anonymousSharing: boolean("anonymous_sharing").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAiCompanionSettingsSchema = createInsertSchema(aiCompanionSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAiCompanionSettings = z.infer<typeof insertAiCompanionSettingsSchema>;
+export type AiCompanionSettings = typeof aiCompanionSettings.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete multi-tenant platform with AI Recovery Companion
 // ============================================================================
