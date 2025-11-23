@@ -188,6 +188,27 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  // AI Consultant Quota Management
+  async resetAiQuota(userId: string): Promise<void> {
+    const nextResetDate = new Date();
+    nextResetDate.setMonth(nextResetDate.getMonth() + 1);
+    
+    await db.update(users)
+      .set({ 
+        aiMessagesUsed: 0,
+        aiQuotaResetDate: nextResetDate,
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async incrementAiUsage(userId: string): Promise<void> {
+    await db.update(users)
+      .set({ 
+        aiMessagesUsed: sql`${users.aiMessagesUsed} + 1`,
+      })
+      .where(eq(users.id, userId));
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     if (!userData.id) {
       return this.createUser(userData);

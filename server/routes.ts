@@ -3686,13 +3686,55 @@ Disallow: /private/`;
 
   // ==================== AI CHAT ====================
 
-  // POST /api/ai/chat - AI consultant chat endpoint
+  // POST /api/ai/chat - AI consultant chat endpoint with freemium usage tracking
   app.post("/api/ai/chat", isAuthenticated, async (req, res) => {
     try {
       const { message, conversationHistory } = req.body;
 
       if (!message) {
         return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Get current user with quota info
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Get user from database to check AI quotas
+      const user = await storage.getUser(currentUser.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Check if quota needs to be reset (monthly billing cycle)
+      const now = new Date();
+      const quotaResetDate = user.aiQuotaResetDate ? new Date(user.aiQuotaResetDate) : now;
+      
+      if (now >= quotaResetDate) {
+        // Reset quota for new billing period
+        await storage.resetAiQuota(user.id);
+        // Reload user with fresh quota
+        const updatedUser = await storage.getUser(user.id);
+        if (!updatedUser) {
+          return res.status(500).json({ error: "Failed to reset quota" });
+        }
+        Object.assign(user, updatedUser);
+      }
+
+      // Check if user has exceeded their quota
+      const messagesUsed = user.aiMessagesUsed || 0;
+      const monthlyQuota = user.aiMonthlyQuota || 10; // Default free tier
+
+      if (messagesUsed >= monthlyQuota) {
+        return res.status(429).json({ 
+          error: "quota_exceeded",
+          message: `You've used all ${monthlyQuota} messages this month. Upgrade to Pro for 500 messages/month or Enterprise for unlimited.`,
+          tier: user.aiConsultantTier || "free",
+          used: messagesUsed,
+          quota: monthlyQuota,
+          resetDate: user.aiQuotaResetDate,
+        });
       }
 
       // Import AI provider service
@@ -3831,11 +3873,19 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
         },
       ];
 
-      // Use Gemini first (free tier), fallback to others
+      // Tier-based AI model routing
       const availableProviders = aiProviderService.getAvailableProviders();
+      const tier = user.aiConsultantTier || "free";
       
       let response;
-      if (availableProviders.includes("gemini")) {
+      // Free tier: Gemini only (cost-effective)
+      // Pro tier: GPT-4 or Claude for better quality
+      // Enterprise: Best available model with priority
+      if (tier === "enterprise" && availableProviders.includes("anthropic")) {
+        response = await aiProviderService.generate("anthropic", messages);
+      } else if (tier === "pro" && availableProviders.includes("openai")) {
+        response = await aiProviderService.generate("openai", messages);
+      } else if (availableProviders.includes("gemini")) {
         response = await aiProviderService.generate("gemini", messages);
       } else if (availableProviders.includes("anthropic")) {
         response = await aiProviderService.generate("anthropic", messages);
@@ -3849,7 +3899,20 @@ ALWAYS provide numbers, metrics, and specific examples. You are THE definitive e
         return res.status(503).json({ error: "No AI providers available" });
       }
 
-      res.json(response);
+      // Increment usage counter after successful generation
+      await storage.incrementAiUsage(user.id);
+
+      // Return response with quota information
+      res.json({
+        ...response,
+        quota: {
+          tier: user.aiConsultantTier || "free",
+          used: (user.aiMessagesUsed || 0) + 1, // +1 for the message we just used
+          limit: user.aiMonthlyQuota || 10,
+          remaining: (user.aiMonthlyQuota || 10) - (user.aiMessagesUsed || 0) - 1,
+          resetDate: user.aiQuotaResetDate,
+        },
+      });
     } catch (error: any) {
       console.error("AI chat error:", error);
       res.status(500).json({ error: error.message || "Failed to generate response" });
