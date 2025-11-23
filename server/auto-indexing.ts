@@ -51,22 +51,91 @@ export function generateSitemap(entries: SitemapEntry[]): string {
 }
 
 /**
- * Submit URL to Google Search Console via Indexing API
+ * Get OAuth2 access token from Google Service Account credentials
+ */
+async function getGoogleAccessToken(): Promise<string | null> {
+  try {
+    const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    
+    if (!serviceAccountJson) {
+      console.error("GOOGLE_SERVICE_ACCOUNT_JSON not configured");
+      return null;
+    }
+
+    const credentials = JSON.parse(serviceAccountJson);
+    const { client_email, private_key } = credentials;
+
+    if (!client_email || !private_key) {
+      console.error("Invalid service account credentials");
+      return null;
+    }
+
+    // Create JWT for Google OAuth2
+    const now = Math.floor(Date.now() / 1000);
+    const header = {
+      alg: "RS256",
+      typ: "JWT",
+    };
+
+    const payload = {
+      iss: client_email,
+      scope: "https://www.googleapis.com/auth/indexing",
+      aud: "https://oauth2.googleapis.com/token",
+      exp: now + 3600,
+      iat: now,
+    };
+
+    // Note: For production, use a proper JWT library like 'jsonwebtoken'
+    // This is a simplified version - you'll need to install 'jsonwebtoken' package
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(payload, private_key, { 
+      algorithm: 'RS256',
+      header: header
+    });
+
+    // Exchange JWT for access token
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: token,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text();
+      console.error("Failed to get access token:", error);
+      return null;
+    }
+
+    const tokenData = await tokenResponse.json();
+    return tokenData.access_token;
+  } catch (error) {
+    console.error("Error getting Google access token:", error);
+    return null;
+  }
+}
+
+/**
+ * Submit URL to Google Search Console via Indexing API (OAuth2)
  */
 export async function submitToGoogle(url: string): Promise<{ success: boolean; message: string }> {
   try {
-    const apiKey = process.env.GOOGLE_SEARCH_CONSOLE_API_KEY;
+    // Get OAuth2 access token
+    const accessToken = await getGoogleAccessToken();
     
-    if (!apiKey) {
-      console.error("GOOGLE_SEARCH_CONSOLE_API_KEY not found");
+    if (!accessToken) {
       return {
         success: false,
-        message: "API key not configured",
+        message: "Failed to authenticate with Google (OAuth2 service account required)",
       };
     }
     
     // Google Indexing API endpoint
-    const endpoint = `https://indexing.googleapis.com/v3/urlNotifications:publish?key=${apiKey}`;
+    const endpoint = "https://indexing.googleapis.com/v3/urlNotifications:publish";
     
     const payload = {
       url: url,
@@ -77,6 +146,7 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
@@ -107,7 +177,7 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
 }
 
 /**
- * Submit URL using IndexNow protocol (Bing, Yandex)
+ * Submit URL using IndexNow protocol (Bing, Yahoo, Yandex, DuckDuckGo)
  */
 export async function submitViaIndexNow(
   url: string,
@@ -115,21 +185,37 @@ export async function submitViaIndexNow(
 ): Promise<{ success: boolean; message: string }> {
   try {
     const indexNowUrl = "https://api.indexnow.org/indexnow";
+    const hostname = new URL(url).hostname;
     
     const payload = {
-      host: new URL(url).hostname,
+      host: hostname,
       key: apiKey,
-      keyLocation: `https://${new URL(url).hostname}/${apiKey}.txt`,
+      keyLocation: `https://${hostname}/${apiKey}.txt`,
       urlList: [url],
     };
 
-    // Would make actual HTTP request here
-    console.log(`Submitting via IndexNow: ${url}`);
-    
-    return {
-      success: true,
-      message: "URL submitted via IndexNow",
-    };
+    const response = await fetch(indexNowUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      console.log(`✅ IndexNow submission successful: ${url}`);
+      return {
+        success: true,
+        message: "URL submitted to Bing, Yahoo, Yandex, DuckDuckGo",
+      };
+    } else {
+      const errorText = await response.text();
+      console.error(`IndexNow submission failed for ${url}:`, errorText);
+      return {
+        success: false,
+        message: `HTTP ${response.status}: ${errorText}`,
+      };
+    }
   } catch (error) {
     console.error("IndexNow submission failed:", error);
     return {
@@ -327,7 +413,7 @@ export async function submitAllToGoogle(sitemapXml: string): Promise<{
   const urls = parseSitemapUrls(sitemapXml);
   const results: { url: string; success: boolean; message: string }[] = [];
   
-  console.log(`\n📊 Starting bulk indexing for ${urls.length} URLs...\n`);
+  console.log(`\n📊 Starting Google bulk indexing for ${urls.length} URLs...\n`);
   
   for (const url of urls) {
     const result = await submitToGoogle(url);
@@ -344,7 +430,61 @@ export async function submitAllToGoogle(sitemapXml: string): Promise<{
   const succeeded = results.filter(r => r.success).length;
   const failed = results.filter(r => !r.success).length;
   
-  console.log(`\n✨ Indexing complete!`);
+  console.log(`\n✨ Google indexing complete!`);
+  console.log(`✅ Succeeded: ${succeeded}`);
+  console.log(`❌ Failed: ${failed}`);
+  console.log(`📈 Total: ${urls.length}\n`);
+  
+  return {
+    total: urls.length,
+    succeeded,
+    failed,
+    results,
+  };
+}
+
+/**
+ * Submit all URLs from sitemap via IndexNow
+ */
+export async function submitAllViaIndexNow(sitemapXml: string): Promise<{
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: { url: string; success: boolean; message: string }[];
+}> {
+  const apiKey = process.env.INDEXNOW_API_KEY;
+  
+  if (!apiKey) {
+    console.error("INDEXNOW_API_KEY not configured");
+    return {
+      total: 0,
+      succeeded: 0,
+      failed: 0,
+      results: [],
+    };
+  }
+
+  const urls = parseSitemapUrls(sitemapXml);
+  const results: { url: string; success: boolean; message: string }[] = [];
+  
+  console.log(`\n📊 Starting IndexNow bulk submission for ${urls.length} URLs...\n`);
+  
+  for (const url of urls) {
+    const result = await submitViaIndexNow(url, apiKey);
+    results.push({
+      url,
+      success: result.success,
+      message: result.message,
+    });
+    
+    // Rate limiting: wait 100ms between requests
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  const succeeded = results.filter(r => r.success).length;
+  const failed = results.filter(r => !r.success).length;
+  
+  console.log(`\n✨ IndexNow submission complete!`);
   console.log(`✅ Succeeded: ${succeeded}`);
   console.log(`❌ Failed: ${failed}`);
   console.log(`📈 Total: ${urls.length}\n`);
