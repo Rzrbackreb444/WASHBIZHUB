@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ShoppingBag, Star, Search, Store, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useVendors } from "@/hooks/use-vendors";
+import { SEO } from "@/components/SEO";
 
 export default function Marketplace() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,6 +53,8 @@ export default function Marketplace() {
   ];
 
   return (
+    <>
+      <SEO title="WashBizHub Marketplace | Laundromat Equipment Vendors & Suppliers" description="Discover vetted vendors, equipment suppliers, laundromat services, and parts providers. Browse ratings, reviews, and storefronts from trusted partners in the laundromat industry." keywords={["laundromat suppliers", "laundromat equipment vendors", "laundromat parts suppliers", "coin laundry vendors", "laundromat maintenance services", "laundromat financing partners"]} canonicalUrl="/marketplace" />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
@@ -156,5 +159,6 @@ export default function Marketplace() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

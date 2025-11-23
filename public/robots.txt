@@ -25,3 +25,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
+
+# Sitemap
+Sitemap: https://washbizhub.com/sitemap.xml

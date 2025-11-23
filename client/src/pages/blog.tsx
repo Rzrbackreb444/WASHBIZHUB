@@ -10,6 +10,7 @@ import { FileText, Sparkles, Users, Award, Plus, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 export default function Blog() {
   const [activeTab, setActiveTab] = useState("browse");
@@ -24,6 +25,8 @@ export default function Blog() {
   const { data: posts = [], isLoading } = useBlogPosts();
   const createPost = useCreateBlogPost();
   const generateContent = useGenerateBlogContent();
+
+  const seoKeywords = ["laundromat business tips", "laundromat industry blog", "laundromat profitability", "laundromat operations guide", "coin laundry management", "self-service laundry advice"];
 
   const samplePosts = [
     {
@@ -137,6 +140,8 @@ export default function Blog() {
   };
 
   return (
+    <>
+      <SEO title="WashBizHub Blog | Laundromat Business Tips & Industry Insights" description="Read expert articles on laundromat profitability, operations, maintenance, growth strategies, and industry trends. Learn from successful laundromat owners." keywords={seoKeywords} canonicalUrl="/blog" />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
@@ -341,5 +346,6 @@ export default function Blog() {
         </Tabs>
       </div>
     </div>
+    </>
   );
 }

@@ -50,8 +50,12 @@ export default function Vendors() {
   return (
     <>
       <Helmet>
-        <title>Vendor Marketplace | WashBizHub - The Bloomberg of Laundromats</title>
-        <meta name="description" content="Browse verified vendors offering equipment, supplies, services, and digital products for the laundromat industry. Multi-vendor marketplace with trusted sellers." />
+        <title>WashBizHub Vendors | Laundromat Equipment & Service Providers</title>
+        <meta name="description" content="Discover verified laundromat vendors offering equipment, parts, supplies, maintenance services, consulting, and financial solutions. Browse ratings, reviews, and featured stores." />
+        <meta name="keywords" content="laundromat vendors, laundromat equipment suppliers, laundromat services, parts suppliers, maintenance contractors, laundromat financing, business consulting" />
+        <link rel="canonical" href="https://washbizhub.com/vendors" />
+        <meta property="og:title" content="WashBizHub Vendors | Laundromat Equipment & Services" />
+        <meta property="og:description" content="Verified vendors for laundromat equipment, parts, services, and solutions." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
