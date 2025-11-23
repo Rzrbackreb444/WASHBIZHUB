@@ -53,30 +53,47 @@ export function generateSitemap(entries: SitemapEntry[]): string {
 /**
  * Get OAuth2 access token from Google Service Account credentials
  */
-async function getGoogleAccessToken(): Promise<string | null> {
+async function getGoogleAccessToken(): Promise<{ token: string | null; error: string | null }> {
   try {
     const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
     
     if (!serviceAccountJson) {
-      console.error("GOOGLE_SERVICE_ACCOUNT_JSON not configured");
-      return null;
+      const error = "❌ GOOGLE_SERVICE_ACCOUNT_JSON not configured. See GOOGLE_OAUTH2_SETUP.md for setup instructions.";
+      console.error(error);
+      return { token: null, error };
     }
 
-    const credentials = JSON.parse(serviceAccountJson);
-    const { client_email, private_key } = credentials;
+    // Parse JSON and normalize private key (handle literal \n in secrets)
+    let credentials;
+    try {
+      credentials = JSON.parse(serviceAccountJson);
+    } catch (parseError) {
+      const error = "❌ Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON. Ensure it's valid JSON.";
+      console.error(error, parseError);
+      return { token: null, error };
+    }
+
+    let { client_email, private_key } = credentials;
 
     if (!client_email || !private_key) {
-      console.error("Invalid service account credentials");
-      return null;
+      const error = "❌ Service account JSON missing required fields (client_email or private_key)";
+      console.error(error);
+      return { token: null, error };
+    }
+
+    // Normalize private key: replace literal \n with actual newlines
+    // This is required when pasting JSON into Replit secrets
+    private_key = private_key.replace(/\\n/g, '\n');
+
+    // Validate private key format
+    if (!private_key.includes('BEGIN PRIVATE KEY')) {
+      const error = "❌ Invalid private key format. Must be PEM-encoded RSA private key.";
+      console.error(error);
+      return { token: null, error };
     }
 
     // Create JWT for Google OAuth2
     const now = Math.floor(Date.now() / 1000);
-    const header = {
-      alg: "RS256",
-      typ: "JWT",
-    };
-
     const payload = {
       iss: client_email,
       scope: "https://www.googleapis.com/auth/indexing",
@@ -85,13 +102,18 @@ async function getGoogleAccessToken(): Promise<string | null> {
       iat: now,
     };
 
-    // Note: For production, use a proper JWT library like 'jsonwebtoken'
-    // This is a simplified version - you'll need to install 'jsonwebtoken' package
     const jwt = require('jsonwebtoken');
-    const token = jwt.sign(payload, private_key, { 
-      algorithm: 'RS256',
-      header: header
-    });
+    let token: string;
+    
+    try {
+      token = jwt.sign(payload, private_key, { 
+        algorithm: 'RS256'
+      });
+    } catch (jwtError) {
+      const error = `❌ Failed to sign JWT: ${jwtError instanceof Error ? jwtError.message : 'Unknown error'}`;
+      console.error(error);
+      return { token: null, error };
+    }
 
     // Exchange JWT for access token
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -106,16 +128,25 @@ async function getGoogleAccessToken(): Promise<string | null> {
     });
 
     if (!tokenResponse.ok) {
-      const error = await tokenResponse.text();
-      console.error("Failed to get access token:", error);
-      return null;
+      const errorText = await tokenResponse.text();
+      const error = `❌ Google OAuth2 token exchange failed (HTTP ${tokenResponse.status}): ${errorText}`;
+      console.error(error);
+      return { token: null, error };
     }
 
     const tokenData = await tokenResponse.json();
-    return tokenData.access_token;
+    
+    if (!tokenData.access_token) {
+      const error = "❌ No access_token in Google OAuth2 response";
+      console.error(error);
+      return { token: null, error };
+    }
+
+    return { token: tokenData.access_token, error: null };
   } catch (error) {
-    console.error("Error getting Google access token:", error);
-    return null;
+    const errorMsg = `❌ Unexpected error getting Google access token: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    console.error(errorMsg, error);
+    return { token: null, error: errorMsg };
   }
 }
 
@@ -125,12 +156,12 @@ async function getGoogleAccessToken(): Promise<string | null> {
 export async function submitToGoogle(url: string): Promise<{ success: boolean; message: string }> {
   try {
     // Get OAuth2 access token
-    const accessToken = await getGoogleAccessToken();
+    const { token: accessToken, error: authError } = await getGoogleAccessToken();
     
-    if (!accessToken) {
+    if (!accessToken || authError) {
       return {
         success: false,
-        message: "Failed to authenticate with Google (OAuth2 service account required)",
+        message: authError || "Failed to authenticate with Google (OAuth2 service account required)",
       };
     }
     
@@ -153,7 +184,7 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Google indexing failed for ${url}:`, errorText);
+      console.error(`❌ Google indexing failed for ${url}:`, errorText);
       return {
         success: false,
         message: `HTTP ${response.status}: ${errorText}`,
@@ -168,10 +199,11 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
       message: "URL submitted successfully",
     };
   } catch (error) {
-    console.error("Google submission failed:", error);
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("❌ Google submission failed:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: errorMsg,
     };
   }
 }
