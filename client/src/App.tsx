@@ -107,6 +107,8 @@ import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
 import AffiliateBlogsPage from "@/pages/affiliate-blogs";
 import ConsultationLanding from "@/pages/consultation-landing";
 import BookAdPreview from "@/pages/book-ad-preview";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsOfService from "@/pages/terms-of-service";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
 
@@ -212,6 +214,8 @@ function Router() {
       <Route path="/roi-calculator-advanced" component={ROICalculatorAdvanced} />
       <Route path="/affiliate-blogs" component={AffiliateBlogsPage} />
       <Route path="/consultation-landing" component={ConsultationLanding} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
       <Route component={NotFound} />
     </Switch>
   );

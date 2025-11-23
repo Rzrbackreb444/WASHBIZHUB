@@ -57,6 +57,10 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/superstore/product/DEMO009', lastmod: today, changefreq: 'weekly', priority: 0.7 },
       { loc: '/superstore/product/DEMO010', lastmod: today, changefreq: 'weekly', priority: 0.7 },
       { loc: '/superstore/product/DEMO011', lastmod: today, changefreq: 'weekly', priority: 0.7 },
+
+      // Legal pages (required for Google OAuth)
+      { loc: '/privacy-policy', lastmod: today, changefreq: 'monthly', priority: 0.5 },
+      { loc: '/terms-of-service', lastmod: today, changefreq: 'monthly', priority: 0.5 },
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
