@@ -4,7 +4,7 @@ import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import logoUrl from "@assets/LOGO REAL_1762809085350.png";
+import logoUrl from "@assets/6_1763855398994.png";
 
 // Contact info from environment variables
 const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-883-4314";
@@ -23,22 +23,33 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[hsl(215,25%,16%)] py-16 border-t border-white/10">
+    <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]">
       <div className="max-w-7xl mx-auto px-4">
+        {/* Large Logo Hero Section */}
+        <div className="text-center mb-12 pb-12 border-b border-white/10">
+          <img 
+            src={logoUrl} 
+            alt="WashBizHub - The Bloomberg of Laundromats" 
+            className="h-40 sm:h-48 md:h-56 lg:h-60 w-auto mx-auto mb-6" 
+            data-testid="img-footer-logo"
+          />
+          <p className="text-[hsl(45,38%,59%)] text-lg sm:text-xl font-semibold tracking-wider">
+            STRATEGY · FUNDING · GROWTH
+          </p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-4 mb-3">
+            The Bloomberg of Laundromats
+          </h2>
+          <p className="text-white/70 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
+            Enterprise-grade platform combining business intelligence, marketplace, IoT POS, AI pricing, predictive maintenance, SEO powerhouse, and comprehensive education for the global laundry industry.
+          </p>
+        </div>
+
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           
-          {/* Brand Column - Spans 2 columns on large screens */}
+          {/* Contact Column - Spans 2 columns on large screens */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <img src={logoUrl} alt="WashBizHub" className="h-14" />
-            </div>
-            <h2 className="text-xl font-bold text-white mb-2">
-              The Bloomberg of Laundromats
-            </h2>
-            <p className="text-white/70 text-sm leading-relaxed mb-6">
-              Enterprise-grade platform combining business intelligence, marketplace, IoT POS, AI pricing, predictive maintenance, SEO powerhouse, and comprehensive education for the global laundry industry.
-            </p>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Contact Us</h3>
             
             {/* Contact Buttons - WhatsApp & SMS */}
             <div className="space-y-3">
