@@ -160,9 +160,28 @@ export default function AffiliateBlogsPage() {
           <div className="text-center mb-12">
             <BookOpen className="h-16 w-16 text-accent mx-auto mb-4" />
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Financing Guides & Resources</h1>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-6">
               20+ expert guides on laundromat, car wash, and dry cleaning financing. Learn SBA loans, equipment financing, and expansion strategies.
             </p>
+            
+            {/* CTA Banner */}
+            <div className="bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 border border-accent/30 rounded-lg p-6 max-w-3xl mx-auto">
+              <p className="text-white text-lg mb-4 font-semibold">Ready to move forward with financing? Our experts are here to help.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Link href="/consultation">
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" data-testid="button-schedule-consultation">
+                    Schedule Expert Consultation
+                  </Button>
+                </Link>
+                <a 
+                  href="mailto:consult@washbizhub.com" 
+                  className="px-6 py-3 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent/10 transition-colors"
+                  data-testid="link-email-consultation"
+                >
+                  Email: consult@washbizhub.com
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Search & Filters */}
