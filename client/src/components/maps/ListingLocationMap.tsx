@@ -31,7 +31,6 @@ export function ListingLocationMap({
       <Map
         defaultCenter={center}
         defaultZoom={14}
-        mapId="listing-detail-map"
         gestureHandling="cooperative"
         disableDefaultUI={false}
         zoomControl={true}

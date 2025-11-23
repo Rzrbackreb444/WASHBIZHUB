@@ -19,6 +19,10 @@ localPort = 33389
 externalPort = 3000
 
 [[ports]]
+localPort = 34335
+externalPort = 9000
+
+[[ports]]
 localPort = 34435
 externalPort = 4200
 
@@ -112,4 +116,3 @@ VITE_CONTACT_EMAIL = "consult@washbizhub.com"
 VITE_STRIPE_PRICE_SEO_PRO = "price_seo_pro_monthly"
 VITE_STRIPE_PRICE_SEO_ENTERPRISE = "price_seo_enterprise_monthly"
 INDEXNOW_API_KEY = "d8dd574359317a7a428e5402f039fd0a"
-VITE_GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}"
