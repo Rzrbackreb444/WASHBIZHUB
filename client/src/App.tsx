@@ -103,6 +103,8 @@ import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
 import TPDCalculator from "@/pages/tpd-calculator";
 import CLEANBICalculator from "@/pages/cleanbi-calculator";
 import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
+import AffiliateBlogsPage from "@/pages/affiliate-blogs";
+import ConsultationLanding from "@/pages/consultation-landing";
 import BookAdPreview from "@/pages/book-ad-preview";
 import NotFound from "@/pages/not-found";
 import { AiConsultantWidget } from "@/components/AiConsultantWidget";
@@ -206,6 +208,8 @@ function Router() {
       <Route path="/tpd-calculator" component={TPDCalculator} />
       <Route path="/cleanbi-calculator" component={CLEANBICalculator} />
       <Route path="/roi-calculator-advanced" component={ROICalculatorAdvanced} />
+      <Route path="/affiliate-blogs" component={AffiliateBlogsPage} />
+      <Route path="/consultation-landing" component={ConsultationLanding} />
       <Route component={NotFound} />
     </Switch>
   );

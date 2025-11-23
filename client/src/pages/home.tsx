@@ -7,6 +7,8 @@ import { Hero } from "@/components/Hero";
 import { ValuePropCards } from "@/components/ValuePropCards";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { FeaturedListings } from "@/components/FeaturedListings";
+import { FeaturedBlogsCarousel } from "@/components/FeaturedBlogsCarousel";
+import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
   Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle
@@ -74,6 +76,16 @@ export default function Home() {
 
       {/* Featured Listings */}
       <FeaturedListings />
+
+      {/* Featured Blogs Carousel */}
+      <section className="py-12 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <FeaturedBlogsCarousel />
+      </section>
+
+      {/* Featured Listings Carousel */}
+      <section className="py-12 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <FeaturedListingsCarousel />
+      </section>
 
       {/* Newsletter Signup */}
       <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">

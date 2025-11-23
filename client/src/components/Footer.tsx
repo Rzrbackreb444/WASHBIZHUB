@@ -215,6 +215,11 @@ export function Footer() {
                   Book Consultation
                 </span>
               </Link>
+              <Link href="/consultation-landing">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-consultation-services">
+                  Expert Services
+                </span>
+              </Link>
             </div>
           </div>
 
@@ -235,6 +240,11 @@ export function Footer() {
               <Link href="/blog">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-blog">
                   Industry Blog
+                </span>
+              </Link>
+              <Link href="/affiliate-blogs">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-financing-guides">
+                  Financing Guides
                 </span>
               </Link>
               <Link href="/resources">
