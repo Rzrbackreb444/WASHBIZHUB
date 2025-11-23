@@ -734,5 +734,155 @@ export function createSeoRoutes(storage: IStorage): Router {
     res.json({ jobs });
   });
 
+  // ==================== AI-POWERED SEO SUGGESTIONS ====================
+
+  /**
+   * POST /api/seo/suggest
+   * Generate AI-powered SEO metadata (Yoast-style)
+   * 
+   * Body: { pageTitle: string, pageContent: string, industry: string, targetKeywords?: string[] }
+   */
+  router.post("/suggest", async (req: Request, res: Response) => {
+    try {
+      const { pageTitle, pageContent, industry, targetKeywords } = req.body;
+      
+      if (!pageTitle || !pageContent) {
+        return res.status(400).json({ error: "pageTitle and pageContent required" });
+      }
+
+      // Import Gemini helper
+      const { generateSEOMetadata } = await import("./gemini");
+      
+      const suggestions = await generateSEOMetadata({
+        pageTitle,
+        pageContent,
+        industry: industry || "general",
+        targetKeywords: targetKeywords || [],
+      });
+
+      res.json(suggestions);
+    } catch (error: any) {
+      console.error("SEO suggestion failed:", error);
+      res.status(500).json({ error: error.message || "Failed to generate SEO suggestions" });
+    }
+  });
+
+  /**
+   * POST /api/seo/analyze
+   * Analyze page SEO and return score/issues
+   * 
+   * Body: { html: string, url: string, keywords?: string[] }
+   */
+  router.post("/analyze", async (req: Request, res: Response) => {
+    try {
+      const { html, url, keywords } = req.body;
+      
+      if (!html || !url) {
+        return res.status(400).json({ error: "html and url required" });
+      }
+
+      // Use existing 300-point SEO analyzer
+      const { analyzeMasterSEO } = await import("./seo-master-300");
+      
+      const result = await analyzeMasterSEO(url, html, {
+        keywords: keywords || [],
+        competitors: [],
+        includeLocalSEO: false,
+        includeBacklinks: false,
+      });
+
+      res.json({
+        score: result.totalScore,
+        percentage: result.percentage,
+        grade: result.grade,
+        breakdown: result.breakdown,
+        recommendations: result.recommendations,
+      });
+    } catch (error: any) {
+      console.error("SEO analysis failed:", error);
+      res.status(500).json({ error: error.message || "Failed to analyze SEO" });
+    }
+  });
+
+  // ==================== PAGE-LEVEL SEO MANAGEMENT ====================
+
+  /**
+   * GET /api/seo/pages/:pageId
+   * Get SEO metadata for a specific page
+   */
+  router.get("/pages/:pageId", async (req: Request, res: Response) => {
+    const user = getCurrentUser(req);
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const page = await storage.getSitePage(req.params.pageId);
+      if (!page) {
+        return res.status(404).json({ error: "Page not found" });
+      }
+
+      // Verify ownership through project
+      const project = await storage.getSiteProject(page.projectId);
+      if (!project || project.userId !== user.userId) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      res.json({ seoData: page });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch page SEO data" });
+    }
+  });
+
+  /**
+   * PUT /api/seo/pages/:pageId
+   * Update SEO metadata for a page
+   * 
+   * Body: { metaTitle, metaDescription, slug, ogTitle, ... }
+   */
+  router.put("/pages/:pageId", async (req: Request, res: Response) => {
+    const user = getCurrentUser(req);
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const page = await storage.getSitePage(req.params.pageId);
+      if (!page) {
+        return res.status(404).json({ error: "Page not found" });
+      }
+
+      // Verify ownership
+      const project = await storage.getSiteProject(page.projectId);
+      if (!project || project.userId !== user.userId) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      // Update page with SEO data
+      const updatedPage = await storage.updateSitePage(req.params.pageId, {
+        seoMode: req.body.seoMode,
+        metaTitle: req.body.metaTitle,
+        metaDescription: req.body.metaDescription,
+        canonicalUrl: req.body.canonicalUrl,
+        slug: req.body.slug,
+        ogTitle: req.body.ogTitle,
+        ogDescription: req.body.ogDescription,
+        ogImage: req.body.ogImage,
+        ogType: req.body.ogType,
+        twitterCard: req.body.twitterCard,
+        twitterTitle: req.body.twitterTitle,
+        twitterDescription: req.body.twitterDescription,
+        twitterImage: req.body.twitterImage,
+        seoScore: req.body.seoScore,
+        seoIssues: req.body.seoIssues,
+        lastAIGenerated: new Date(),
+      });
+
+      res.json({ page: updatedPage });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to update page SEO data" });
+    }
+  });
+
   return router;
 }

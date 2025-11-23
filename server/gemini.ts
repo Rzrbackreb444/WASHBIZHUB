@@ -104,3 +104,87 @@ Keep under 200 words.`;
     recommendations: text,
   };
 }
+
+/**
+ * Generate optimized SEO metadata using AI (Yoast-style)
+ */
+export async function generateSEOMetadata(input: {
+  pageTitle: string;
+  pageContent: string;
+  industry: string;
+  targetKeywords?: string[];
+}): Promise<{
+  metaTitle: string;
+  metaDescription: string;
+  slug: string;
+  ogTitle: string;
+  ogDescription: string;
+  twitterTitle: string;
+  twitterDescription: string;
+  keywords: string[];
+}> {
+  const prompt = `As an SEO expert, generate optimal metadata for this webpage:
+
+Page Title: ${input.pageTitle}
+Industry: ${input.industry}
+Target Keywords: ${input.targetKeywords?.join(", ") || "auto-detect from content"}
+Content Preview: ${input.pageContent.substring(0, 500)}...
+
+Generate:
+1. Meta Title (50-60 characters, include primary keyword, engaging)
+2. Meta Description (150-160 characters, include CTA, compelling)
+3. URL Slug (SEO-friendly, lowercase, hyphens, no stop words)
+4. Open Graph Title (engaging for social shares)
+5. Open Graph Description (concise, benefit-driven)
+6. Twitter Card Title (punchy, attention-grabbing)
+7. Twitter Card Description (conversational, value-focused)
+8. Target Keywords (5-7 relevant keywords)
+
+Return ONLY valid JSON in this exact format:
+{
+  "metaTitle": "Example Title Here",
+  "metaDescription": "Example description here...",
+  "slug": "example-slug-here",
+  "ogTitle": "Example OG Title",
+  "ogDescription": "Example OG description",
+  "twitterTitle": "Example Twitter Title",
+  "twitterDescription": "Example Twitter description",
+  "keywords": ["keyword1", "keyword2", "keyword3"]
+}`;
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  const text = response.text() || "";
+  
+  try {
+    // Extract JSON from markdown code blocks if present
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/) || [null, text];
+    const jsonText = jsonMatch[1] || text;
+    const parsed = JSON.parse(jsonText.trim());
+    
+    return {
+      metaTitle: parsed.metaTitle || input.pageTitle,
+      metaDescription: parsed.metaDescription || "",
+      slug: parsed.slug || input.pageTitle.toLowerCase().replace(/\s+/g, "-"),
+      ogTitle: parsed.ogTitle || parsed.metaTitle || input.pageTitle,
+      ogDescription: parsed.ogDescription || parsed.metaDescription || "",
+      twitterTitle: parsed.twitterTitle || parsed.metaTitle || input.pageTitle,
+      twitterDescription: parsed.twitterDescription || parsed.metaDescription || "",
+      keywords: parsed.keywords || [],
+    };
+  } catch (error) {
+    console.error("Failed to parse Gemini SEO response:", error);
+    // Fallback to basic generation
+    return {
+      metaTitle: input.pageTitle,
+      metaDescription: input.pageContent.substring(0, 160),
+      slug: input.pageTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      ogTitle: input.pageTitle,
+      ogDescription: input.pageContent.substring(0, 160),
+      twitterTitle: input.pageTitle,
+      twitterDescription: input.pageContent.substring(0, 160),
+      keywords: input.targetKeywords || [],
+    };
+  }
+}
