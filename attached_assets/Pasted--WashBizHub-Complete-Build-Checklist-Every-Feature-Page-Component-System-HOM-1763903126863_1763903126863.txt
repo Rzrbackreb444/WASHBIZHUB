@@ -1,0 +1,1234 @@
+# WashBizHub - Complete Build Checklist
+## Every Feature, Page, Component & System
+
+---
+
+## 🏠 **HOMEPAGE & CORE NAVIGATION**
+
+### Hero Section
+- [ ] Stats bar (71K members, $2.4B deals, 4.9 rating, #1 platform)
+- [ ] Main headline: "The #1 Laundromat Operating System™"
+- [ ] Tagline: "STRATEGY • FUNDING • GROWTH"
+- [ ] Hero image with glassmorphism overlay
+- [ ] Primary CTAs: Browse Marketplace, Get CLEANBI Report
+
+### Main Navigation
+- [ ] Marketplace dropdown (6 categories)
+- [ ] CLEANBI AI link
+- [ ] Funding Hub link
+- [ ] Training Academy link
+- [ ] Calculators Hub link
+- [ ] Template Vault link
+- [ ] Login/Sign Up buttons
+
+### Footer
+- [ ] Quick links (About, Contact, Terms, Privacy)
+- [ ] Social media links (Facebook group 71K)
+- [ ] Contact: consult@washbizhub.com, 479-926-5273
+- [ ] Newsletter signup form
+
+---
+
+## 🛒 **MARKETPLACE SYSTEM**
+
+### Marketplace Hub Page (`/marketplace`)
+- [ ] Hero: "10,000+ Products for Your Laundromat"
+- [ ] Amazon affiliate disclosure banner
+- [ ] 6 category cards with product counts:
+  - [ ] New Equipment (200+)
+  - [ ] Used Equipment (500+)
+  - [ ] Parts (5,000+)
+  - [ ] Supplies (3,000+)
+  - [ ] POS & Tech (300+)
+  - [ ] Furniture (1,000+)
+- [ ] "Want Your Products Here?" CTA for vendors
+- [ ] Stats footer: 10K products, 6 categories, 24/7 availability
+
+### Category Pages (6 pages)
+- [ ] `/marketplace/equipment/new` - New Equipment
+- [ ] `/marketplace/equipment/used` - Used Equipment
+- [ ] `/marketplace/parts` - Parts & Accessories
+- [ ] `/marketplace/supplies` - Supplies & Chemicals
+- [ ] `/marketplace/pos-tech` - POS & Technology
+- [ ] `/marketplace/furniture` - Furniture & Fixtures
+
+### Product Grid Components
+- [ ] Search bar with predictive text
+- [ ] Filter sidebar:
+  - [ ] Price range slider
+  - [ ] Brand checkboxes
+  - [ ] Condition (new/used)
+  - [ ] Rating filter
+  - [ ] Amazon Prime only toggle
+- [ ] Sort dropdown (Price, Rating, Relevance, Newest)
+- [ ] Product cards (320×480px):
+  - [ ] Product image with lazy loading
+  - [ ] Title + brand
+  - [ ] Price (current + was price)
+  - [ ] Amazon star rating
+  - [ ] Prime badge
+  - [ ] Wishlist heart icon
+  - [ ] "View on Amazon" CTA (affiliate link)
+- [ ] Pagination (30 products per page)
+- [ ] Grid layout: 3 cols desktop, 2 tablet, 1 mobile
+
+### Individual Product Pages
+- [ ] Product image gallery (4-6 images)
+- [ ] Product details:
+  - [ ] Full description
+  - [ ] Specifications table
+  - [ ] Customer reviews (Amazon embed)
+  - [ ] Related products carousel
+- [ ] Amazon affiliate purchase button
+- [ ] Share buttons (social media)
+
+### Vendor Storefronts
+- [ ] Vendor profile page (`/vendors/[vendor-slug]`)
+  - [ ] Hero banner (1200×300px)
+  - [ ] Vendor logo (120×120px circle)
+  - [ ] Rating (⭐⭐⭐⭐⭐ + review count)
+  - [ ] Stats: Products sold, years in business
+  - [ ] Follow button
+  - [ ] Message vendor button
+- [ ] About vendor sidebar:
+  - [ ] Company bio
+  - [ ] Location & contact
+  - [ ] Certifications/badges
+  - [ ] Response time
+  - [ ] Shipping policies
+  - [ ] Return policy
+- [ ] Vendor product grid (same as category pages)
+- [ ] Vendor directory page (`/vendors`)
+
+---
+
+## 🏢 **PROPERTY LISTINGS**
+
+### Listing Types (3 Business Types)
+- [ ] Laundromat listings
+- [ ] Car wash listings
+- [ ] Dry cleaner listings
+
+### Listing Card Variants
+- [ ] Featured listing card (1200×400px horizontal)
+  - [ ] Image gallery (4+ photos)
+  - [ ] Price + FEATURED badge
+  - [ ] Rating stars
+  - [ ] Location (city, state)
+  - [ ] Key metrics (revenue, machines, sq ft)
+  - [ ] CLEANBI score badge
+  - [ ] Contact Broker + Schedule Tour CTAs
+- [ ] Standard grid card (380×520px vertical)
+  - [ ] Hero image
+  - [ ] Price
+  - [ ] Business type + location
+  - [ ] Revenue/year
+  - [ ] Machine count
+  - [ ] CLEANBI score
+  - [ ] View Details CTA
+- [ ] NDA-gated listing (blurred data)
+  - [ ] Sign NDA modal before viewing
+  - [ ] Redacted financials
+  - [ ] Hidden owner info
+
+### Privacy Tiers
+- [ ] Free Preview (limited info, blurred)
+- [ ] Basic Listing ($99) - Full address, partial financials
+- [ ] Premium Listing ($199) - Complete data, photo gallery
+- [ ] Ultimate Listing ($349) - Featured placement, analytics
+
+### Listing Detail Page
+- [ ] Full image gallery (slideshow)
+- [ ] Price + business name
+- [ ] Location map (Google Maps embed)
+- [ ] Financial summary:
+  - [ ] Annual revenue
+  - [ ] Net profit
+  - [ ] Asking price
+  - [ ] Down payment required
+  - [ ] Monthly rent
+  - [ ] Monthly utilities
+- [ ] Equipment inventory table:
+  - [ ] Washer count + brands
+  - [ ] Dryer count + brands
+  - [ ] Age of equipment
+  - [ ] Condition ratings
+- [ ] CLEANBI analysis (full report)
+- [ ] Lease details
+- [ ] Demographics data (neighborhood)
+- [ ] Competitor analysis (within 1 mile)
+- [ ] Contact broker form
+- [ ] Schedule tour button
+- [ ] Share listing button
+- [ ] Save/bookmark button
+
+### Create Listing Wizard
+- [ ] Step 1: Business type selection
+- [ ] Step 2: Basic info (address, price, revenue)
+- [ ] Step 3: Equipment details
+- [ ] Step 4: Financial details
+- [ ] Step 5: Photos upload (drag & drop)
+- [ ] Step 6: Privacy tier selection
+- [ ] Step 7: Payment & checkout (Stripe)
+- [ ] Dual mode:
+  - [ ] FSBO mode (single location)
+  - [ ] Broker mode (multi-location)
+
+### Listing Search & Filters
+- [ ] Search bar with location autocomplete
+- [ ] Filter panel:
+  - [ ] Price range
+  - [ ] Business type
+  - [ ] Location (city/state/zip)
+  - [ ] Revenue range
+  - [ ] Machine count
+  - [ ] CLEANBI score minimum
+  - [ ] Sort by: Price, Revenue, TPD, Newest
+
+### Broker Dashboard
+- [ ] My Listings table
+- [ ] Analytics charts (views, inquiries)
+- [ ] Lead management (contact requests)
+- [ ] Edit/delete listings
+- [ ] Upgrade listing tier
+
+---
+
+## 📊 **CLEANBI PROPERTY INTELLIGENCE**
+
+### CLEANBI Landing Page (`/cleanbi`)
+- [ ] Hero: "Advanced Multi-Dimensional Analysis"
+- [ ] TPD Calculator (embedded, free)
+- [ ] Data sources diagram (6 sources)
+- [ ] Confidence score explanation
+- [ ] Sample report preview (blurred)
+- [ ] Pricing tiers CTA
+
+### TPD Calculator (Free)
+- [ ] Input fields:
+  - [ ] Annual revenue
+  - [ ] Machine count
+  - [ ] Avg price per load
+- [ ] Live calculation (no submit button)
+- [ ] Results panel:
+  - [ ] TPD score (large number)
+  - [ ] Daily revenue
+  - [ ] Utilization rate (%)
+  - [ ] Performance rating (Poor to Outstanding)
+  - [ ] Revenue per machine
+  - [ ] vs Industry benchmark (+/- %)
+- [ ] Color-coded progress bar
+- [ ] "Calculate Full CLEANBI Score" CTA
+
+### CLEANBI Analysis Dashboard (Paid)
+- [ ] Data source confidence matrix:
+  - [ ] POS Data (95%)
+  - [ ] Lease Docs (80%)
+  - [ ] Manufacturer Data (90%)
+  - [ ] Census Data (100%)
+  - [ ] Utilities Bills (60%)
+  - [ ] Seller Input (75%)
+- [ ] Overall confidence score (0-100%)
+- [ ] 8-Dimensional Scoring:
+  - [ ] Financial Performance (30% weight)
+  - [ ] Location Quality (20%)
+  - [ ] Competition (10%)
+  - [ ] Operations (15%)
+  - [ ] Revenue Efficiency (10%)
+  - [ ] Expense Management (10%)
+  - [ ] Growth Potential (3%)
+  - [ ] Market Position (2%)
+- [ ] CLEANBI Score (0-100) with letter grade (A+ to C)
+- [ ] Radar chart (Nivo - 8 axes)
+- [ ] Circular progress rings for each dimension
+- [ ] Recommendation: Strong Buy / Buy / Hold / Pass
+
+### Monte Carlo Risk Analysis (Deep Intelligence)
+- [ ] 1000-iteration simulation
+- [ ] Bell curve distribution chart
+- [ ] Confidence intervals:
+  - [ ] 50% confidence (P25-P75)
+  - [ ] 80% confidence (P10-P90)
+  - [ ] 95% confidence (P5-P95)
+- [ ] Best/Worst/Most Likely scenarios
+- [ ] Risk-adjusted valuation
+
+### Property Analysis Report (PDF Export)
+- [ ] Professional PDF template
+- [ ] Company logo + branding
+- [ ] Executive summary
+- [ ] All CLEANBI scores + charts
+- [ ] Financial breakdown
+- [ ] Neighborhood demographics
+- [ ] Competitor mapping
+- [ ] Investment recommendation
+- [ ] Download button
+
+### Pricing Tiers
+- [ ] Free Preview (TPD only, blurred CLEANBI)
+- [ ] Property Intelligence ($99-$199):
+  - [ ] Full CLEANBI score
+  - [ ] All 6 data sources
+  - [ ] Basic charts
+- [ ] Deep Intelligence ($249-$349):
+  - [ ] Monte Carlo analysis
+  - [ ] Neighborhood demographics
+  - [ ] Competitor mapping
+  - [ ] PDF export
+
+---
+
+## 💰 **FUNDING HUB**
+
+### Funding Hub Landing Page (`/funding`)
+- [ ] Hero: "Get $50K–$5M — Only My Trusted Partners"
+- [ ] Funding matcher form:
+  - [ ] Annual revenue slider
+  - [ ] Credit score range
+  - [ ] Time in business
+  - [ ] "Show My Options" CTA
+- [ ] Partner lender logos
+- [ ] Success stories (testimonials)
+- [ ] Loan type explainers
+
+### Funding Matcher Results
+- [ ] Matched lender cards:
+  - [ ] Lender name + logo
+  - [ ] Loan amount range
+  - [ ] Estimated rate
+  - [ ] Approval likelihood (%)
+  - [ ] "Pre-Qualify" button
+- [ ] Comparison table (side-by-side)
+- [ ] Affiliate tracking links
+
+### Lender Detail Pages
+- [ ] Lender profile
+- [ ] Loan products offered
+- [ ] Requirements checklist
+- [ ] Application process timeline
+- [ ] Apply now CTA (affiliate link)
+
+### Loan Types
+- [ ] SBA 7(a) Loans
+- [ ] Equipment Financing
+- [ ] Seller Financing
+- [ ] Commercial Real Estate
+- [ ] Working Capital Lines of Credit
+
+---
+
+## 🧮 **ALL 9 CALCULATORS**
+
+### Calculator Hub (`/calculators`)
+- [ ] Hero: "Professional Grade Calculators"
+- [ ] 3×3 grid of calculator cards:
+  - [ ] Icon (64px gradient circle)
+  - [ ] Calculator name
+  - [ ] Brief description
+  - [ ] "Calculate →" button
+- [ ] Email capture gate (after first use)
+
+### Calculator 1: TPD Calculator (`/calculators/tpd`)
+- [ ] Inputs:
+  - [ ] Annual Revenue
+  - [ ] Machine Count
+  - [ ] Avg Price per Load
+- [ ] Results:
+  - [ ] TPD score
+  - [ ] Daily revenue
+  - [ ] Utilization %
+  - [ ] Performance rating
+  - [ ] Revenue per machine
+  - [ ] vs Industry benchmark
+- [ ] Nivo line chart (TPD trends over time)
+- [ ] Save results button
+- [ ] PDF export
+
+### Calculator 2: ROI Analyzer (`/calculators/roi`)
+- [ ] Inputs:
+  - [ ] Purchase Price
+  - [ ] Down Payment (%)
+  - [ ] Annual Revenue
+  - [ ] Annual Expenses
+  - [ ] Loan Term (years)
+  - [ ] Interest Rate (%)
+- [ ] Results:
+  - [ ] Monthly payment
+  - [ ] Annual debt service
+  - [ ] NOI
+  - [ ] Annual cash flow
+  - [ ] Monthly cash flow
+  - [ ] Cash-on-cash ROI
+  - [ ] Cap rate
+  - [ ] Debt coverage ratio
+  - [ ] Payback period
+  - [ ] 5-year profit
+- [ ] Nivo charts:
+  - [ ] Line chart: 10-year cash flow
+  - [ ] Pie chart: Expense breakdown
+  - [ ] Gauge: ROI vs industry
+- [ ] Save results + PDF export
+
+### Calculator 3: Revenue Forecaster (`/calculators/revenue`)
+- [ ] Inputs:
+  - [ ] Washer count + price + TPD
+  - [ ] Dryer count + price + TPD
+  - [ ] Vending machines count + revenue
+  - [ ] Wash-Dry-Fold (yes/no) + lbs/mo + price/lb
+  - [ ] Operating days per month
+- [ ] Results:
+  - [ ] Monthly revenue (total)
+  - [ ] Annual revenue
+  - [ ] Revenue breakdown (washers, dryers, vending, WDF)
+  - [ ] Seasonal forecast (12 months)
+  - [ ] Scenarios (conservative, realistic, optimistic)
+  - [ ] Avg revenue per machine
+- [ ] Nivo charts:
+  - [ ] Stacked area chart: Monthly forecast
+  - [ ] Pie chart: Revenue breakdown
+  - [ ] Bar chart: Scenarios comparison
+- [ ] Save + PDF export
+
+### Calculator 4: Equipment Payback (`/calculators/payback`)
+- [ ] Inputs:
+  - [ ] Equipment cost
+  - [ ] Current monthly revenue
+  - [ ] Revenue increase (%)
+  - [ ] Monthly cost savings
+- [ ] Results:
+  - [ ] Monthly gain
+  - [ ] Payback period (months & years)
+  - [ ] 3-year ROI
+  - [ ] 5-year ROI
+  - [ ] Recommendation (Excellent/Good/Fair/Reconsider)
+- [ ] Nivo area chart: Cumulative gain with break-even marker
+- [ ] Save + PDF export
+
+### Calculator 5: Water Usage Verifier (`/calculators/water`)
+- [ ] Inputs:
+  - [ ] Machine count
+  - [ ] Avg loads per day (TPD)
+  - [ ] Water cost ($/1000 gal)
+  - [ ] Seller claimed bill
+  - [ ] Machine type (standard vs HE)
+- [ ] Results:
+  - [ ] Expected monthly gallons
+  - [ ] Expected bill
+  - [ ] Seller claimed bill
+  - [ ] Discrepancy ($)
+  - [ ] Discrepancy (%)
+  - [ ] Water cost per load
+  - [ ] Red flags array
+  - [ ] Verdict (Verified / Acceptable / Investigate)
+- [ ] Nivo bar chart: Expected vs claimed utilities
+- [ ] Save + PDF export
+
+### Calculator 6: Pricing Optimizer (`/calculators/pricing`)
+- [ ] Inputs:
+  - [ ] Water cost per load
+  - [ ] Electric cost per load
+  - [ ] Detergent cost per load
+  - [ ] Equipment depreciation per load
+  - [ ] Target margin (%)
+  - [ ] Competitor pricing (low-high range)
+  - [ ] Location quality (budget/mid/premium)
+- [ ] Results:
+  - [ ] Cost per load
+  - [ ] Recommended pricing (small/med/large/XL)
+  - [ ] Dynamic pricing strategy:
+    - [ ] Peak hours (6PM-10PM) +15%
+    - [ ] Off-peak (10AM-2PM) -10%
+    - [ ] Weekend +10%
+  - [ ] Competitive positioning
+  - [ ] vs Competitors (%)
+  - [ ] Monthly revenue (standard vs dynamic)
+  - [ ] Revenue uplift
+- [ ] Nivo charts:
+  - [ ] Bar chart: Price comparison
+  - [ ] Heatmap: Dynamic pricing by time/day
+- [ ] Save + PDF export
+
+### Calculator 7: Financing Calculator Pro (`/calculators/financing`)
+- [ ] Inputs:
+  - [ ] Loan amount
+  - [ ] Down payment
+  - [ ] Credit score (excellent/good/fair)
+- [ ] Results (4 loan options):
+  - [ ] SBA 7(a) Loan
+  - [ ] Equipment Financing
+  - [ ] Seller Financing
+  - [ ] Commercial RE Loan
+  - Each showing:
+    - [ ] Interest rate
+    - [ ] Term (years)
+    - [ ] Monthly payment
+    - [ ] Total interest
+    - [ ] Total payment
+    - [ ] Qualifications list
+- [ ] Nivo charts:
+  - [ ] Grouped bar chart: Monthly payment comparison
+  - [ ] Stacked bar chart: Principal vs interest
+- [ ] "Apply Now" buttons (affiliate links)
+- [ ] Save + PDF export
+
+### Calculator 8: What-If Simulator (`/calculators/what-if`)
+- [ ] Base case inputs:
+  - [ ] Machines
+  - [ ] Avg price
+  - [ ] TPD
+  - [ ] Monthly expenses
+- [ ] Scenario builder (add multiple scenarios):
+  - [ ] Scenario name
+  - [ ] Changes (any input)
+  - [ ] Investment cost (optional)
+- [ ] Results:
+  - [ ] Base case (revenue, profit, margin)
+  - [ ] Each scenario:
+    - [ ] Revenue
+    - [ ] Profit
+    - [ ] Revenue change (%)
+    - [ ] Profit change (%)
+    - [ ] Payback months (if investment)
+    - [ ] Monte Carlo results (1000 runs):
+      - [ ] Worst case
+      - [ ] P10, P25, P50, P75, P90
+      - [ ] Best case
+      - [ ] Mean
+      - [ ] Confidence intervals
+- [ ] Nivo charts:
+  - [ ] Bell curve: Monte Carlo distribution
+  - [ ] Bar chart: Scenario comparison
+  - [ ] Box plot: Confidence intervals
+- [ ] Save + PDF export
+
+### Calculator 9: CLEANBI Scoring (see CLEANBI section above)
+
+### Email Capture System
+- [ ] Modal after first calculator use
+- [ ] Email input + name
+- [ ] "Unlock Full Results" CTA
+- [ ] After capture:
+  - [ ] Full results visible
+  - [ ] PDF export enabled
+  - [ ] Save results to account
+  - [ ] Email with results link
+
+---
+
+## 🎓 **TRAINING ACADEMY**
+
+### Training Academy Hub (`/training-academy`)
+- [ ] Hero section:
+  - [ ] "Master the Laundromat Business"
+  - [ ] Course author: Nicholas Kremers
+  - [ ] Stats: 13 chapters, 1,022 lines, certification
+- [ ] Course overview:
+  - [ ] Part I: Foundation (Chapters 1-4)
+  - [ ] Part II: Operations (Chapters 5-9)
+  - [ ] Part III: Growth (Chapters 10-13)
+- [ ] 13 premium course cards (PremiumCourseCard):
+  - [ ] Chapter number
+  - [ ] Title
+  - [ ] Duration estimate
+  - [ ] Progress bar (if started)
+  - [ ] Lock icon (if not enrolled)
+  - [ ] "Start Chapter" / "Continue" CTA
+- [ ] Testimonials section
+- [ ] Pricing CTAs (Free preview / Full access / Power Pass)
+
+### Chapter Reading Pages (13 pages)
+- [ ] `/training-academy/chapter-1` through `/chapter-13`
+- [ ] Chapter header:
+  - [ ] Chapter number + title
+  - [ ] Progress indicator (% complete)
+  - [ ] Bookmark button
+  - [ ] Notes button
+- [ ] Content area:
+  - [ ] Premium typography (Inter font, generous spacing)
+  - [ ] Smooth scrolling
+  - [ ] Auto-save reading position
+  - [ ] Highlight text feature
+  - [ ] Add notes inline
+- [ ] Sidebar navigation:
+  - [ ] Chapter table of contents
+  - [ ] Jump to section links
+  - [ ] Bookmarks list
+  - [ ] My notes panel
+- [ ] Bottom navigation (ChapterNavigation):
+  - [ ] Previous chapter button
+  - [ ] Mark as complete button
+  - [ ] Next chapter button
+  - [ ] Get certificate button (after chapter 13)
+
+### Progress Dashboard (`/training-academy/progress`)
+- [ ] Overall progress ring (0-100%)
+- [ ] Chapters completed (13/13)
+- [ ] Time spent (hours)
+- [ ] Completion rate chart (Nivo line)
+- [ ] Chapter analytics:
+  - [ ] Completion status
+  - [ ] Time per chapter
+  - [ ] Last accessed date
+- [ ] Bookmarks list (all chapters)
+- [ ] Notes archive
+
+### Certificate System (`/training-academy/certificate`)
+- [ ] Certificate template (premium design):
+  - [ ] Student name
+  - [ ] Course completion date
+  - [ ] Verification code (unique)
+  - [ ] Nicholas Kremers signature
+  - [ ] WashBizHub logo + branding
+- [ ] Download PDF button
+- [ ] Share on LinkedIn button
+- [ ] Verification page (`/verify-certificate/[code]`)
+
+### Course Content (The Laundromat Bible)
+- [ ] Chapter 1: Introduction
+- [ ] Chapter 2: Market Analysis
+- [ ] Chapter 3: Financial Fundamentals
+- [ ] Chapter 4: Equipment Selection
+- [ ] Chapter 5: Location Intelligence
+- [ ] Chapter 6: Operations Management
+- [ ] Chapter 7: Marketing Strategies
+- [ ] Chapter 8: Customer Service
+- [ ] Chapter 9: Maintenance & Troubleshooting
+- [ ] Chapter 10: Scaling & Expansion
+- [ ] Chapter 11: Exit Planning
+- [ ] Chapter 12: Case Studies
+- [ ] Chapter 13: Future Trends
+
+### Pricing & Access Control
+- [ ] Free Preview (Chapters 1-2)
+- [ ] Full Course ($199 one-time)
+- [ ] Power Pass ($499/mo - includes unlimited CLEANBI)
+- [ ] Paywall gate after Chapter 2
+
+### Database Models
+- [ ] CourseEnrollment (user, access_type, enrolled_at)
+- [ ] ChapterProgress (enrollment, chapter_number, completed, time_spent)
+- [ ] ChapterBookmark (enrollment, chapter, position, note)
+- [ ] CourseCertificate (user, completion_date, verification_code)
+
+---
+
+## 📄 **TEMPLATE VAULT**
+
+### Template Vault Landing Page (`/template-vault`)
+- [ ] Hero: "$997 One-Time - 20 Business Templates"
+- [ ] Value prop: "Every document you need to succeed"
+- [ ] Sample download (1 free template)
+- [ ] 4×5 grid of template cards:
+  - [ ] Template thumbnail (PDF preview)
+  - [ ] Template name
+  - [ ] File format badges (PDF, Word, Excel)
+  - [ ] Brief description
+  - [ ] Hover: Preview overlay
+  - [ ] Click: Template detail modal
+- [ ] Purchase section:
+  - [ ] Price: $997
+  - [ ] What's included (20 templates)
+  - [ ] License terms
+  - [ ] Instant download
+  - [ ] Stripe checkout button
+
+### Template Detail Modals (20 templates)
+- [ ] Template preview (PDF pages)
+- [ ] Full description
+- [ ] What's included
+- [ ] Format details
+- [ ] Sample screenshots
+- [ ] "Included in vault" badge
+- [ ] Close modal
+
+### All 20 Templates:
+1. [ ] Business Plan Template (35-page Word + Excel)
+2. [ ] Property Due Diligence Checklist (PDF + Excel)
+3. [ ] Equipment Inventory Tracker (Excel workbook)
+4. [ ] Financial Tracking Dashboard (Excel)
+5. [ ] Lease Negotiation Guide (12-page PDF + Excel)
+6. [ ] Employee Handbook Template (25-page Word)
+7. [ ] Marketing Campaign Templates (PDF + Canva + Word)
+8. [ ] Price Sheet Builder (Excel)
+9. [ ] Maintenance Schedule Template (Excel + PDF)
+10. [ ] Customer Service Scripts (8-page PDF)
+11. [ ] Standard Operating Procedures (40-page PDF)
+12. [ ] Vendor Comparison Spreadsheet (Excel)
+13. [ ] Property Valuation Model (Excel with 50+ formulas)
+14. [ ] Exit Strategy Planner (Word + Excel)
+15. [ ] Utility Optimization Tracker (Excel dashboard)
+16. [ ] Compliance Audit Checklist (PDF by state)
+17. [ ] Partnership Agreement Template (Legal Word + Excel)
+18. [ ] Expansion Planning Workbook (Excel with 8 tabs)
+19. [ ] Tax Preparation Package (Excel + PDF)
+20. [ ] Emergency Response Plan (15-page PDF + Word)
+
+### Purchase & Download System
+- [ ] Stripe checkout integration
+- [ ] Order confirmation page
+- [ ] Download page (after purchase):
+  - [ ] ZIP file download (all 20 templates)
+  - [ ] Individual template downloads
+  - [ ] License key display
+  - [ ] Email with download link
+- [ ] Order history (in user dashboard)
+
+---
+
+## 🔧 **AI DIAGNOSTICS**
+
+### Diagnostics Landing Page (`/diagnostics`)
+- [ ] Hero: "AI-Powered Equipment Troubleshooting"
+- [ ] How it works (3 steps)
+- [ ] Error code search
+- [ ] Equipment selector
+- [ ] Pricing: Free preview / Pro ($79/mo)
+
+### Diagnostics Tool
+- [ ] Equipment selection:
+  - [ ] Type (washer/dryer)
+  - [ ] Brand dropdown (Speed Queen, Dexter, etc.)
+  - [ ] Model number input
+- [ ] Error code input
+- [ ] Symptom checklist
+- [ ] AI analysis results:
+  - [ ] Likely cause
+  - [ ] Repair steps (detailed)
+  - [ ] Parts needed (with Amazon affiliate links)
+  - [ ] Estimated repair cost
+  - [ ] DIY vs call tech recommendation
+- [ ] Video tutorials (embedded)
+- [ ] Predictive maintenance alerts
+
+### Equipment Inventory (`/diagnostics/inventory`)
+- [ ] Add equipment form
+- [ ] Machine list table:
+  - [ ] Serial number
+  - [ ] Brand/model
+  - [ ] Purchase date
+  - [ ] Last service date
+  - [ ] Next service due
+  - [ ] Repair history
+- [ ] Maintenance calendar
+- [ ] Service reminder emails
+
+---
+
+## 📱 **POS SYSTEM**
+
+### POS Dashboard (`/pos`)
+- [ ] Real-time sales tracking
+- [ ] Today's revenue (live counter)
+- [ ] Transactions list (live feed)
+- [ ] Payment breakdown (coin/card/mobile)
+- [ ] Multi-location selector
+- [ ] Date range picker
+
+### Sales Analytics
+- [ ] Revenue charts (Nivo):
+  - [ ] Daily revenue (line chart)
+  - [ ] Revenue by machine (bar chart)
+  - [ ] Payment method breakdown (pie chart)
+- [ ] Peak hours heatmap
+- [ ] Busiest days analysis
+- [ ] Month-over-month comparison
+
+### Machine Performance
+- [ ] Machine utilization table
+- [ ] Top performers (highest revenue)
+- [ ] Underperforming machines
+- [ ] Downtime tracking
+- [ ] Maintenance alerts
+
+### Multi-Location Management
+- [ ] Location selector dropdown
+- [ ] Aggregate dashboard (all locations)
+- [ ] Location comparison charts
+- [ ] Revenue by location (bar chart)
+
+### Subscription
+- [ ] $79/month per location
+- [ ] Stripe subscription management
+- [ ] Add/remove locations
+- [ ] Billing history
+
+---
+
+## 🎯 **AD BANNERS & SPONSORSHIPS**
+
+### Banner Placements
+- [ ] Header rotating strip (1200×100px):
+  - [ ] Sponsor logo + message
+  - [ ] Auto-rotate (5 second interval)
+  - [ ] Click tracking (GA event)
+- [ ] Sidebar ad units (300×250px):
+  - [ ] Sticky scroll behavior
+  - [ ] Max 3 per page
+  - [ ] "Sponsored" label
+- [ ] In-feed native ads:
+  - [ ] Match listing card design
+  - [ ] "SPONSORED" badge
+  - [ ] Every 6 organic listings
+- [ ] Footer banner strip
+
+### Sponsor Partners
+- [ ] Speed Queen
+- [ ] Dexter Laundry
+- [ ] Continental Girbau
+- [ ] Huebsch
+- [ ] Alliance Laundry Systems
+- [ ] Wascomat
+
+### Ad Management (Admin)
+- [ ] Create ad campaign
+- [ ] Upload creative assets
+- [ ] Set targeting (page, category)
+- [ ] Set budget & duration
+- [ ] Analytics dashboard (impressions, clicks, CTR)
+
+---
+
+## 👤 **USER ACCOUNTS & AUTH**
+
+### Registration & Login
+- [ ] Sign up form (email + password)
+- [ ] Login form
+- [ ] OAuth (Replit Auth integration)
+- [ ] Password reset flow
+- [ ] Email verification
+
+### User Dashboard (`/dashboard`)
+- [ ] Welcome section (user name + stats)
+- [ ] Quick actions:
+  - [ ] Create listing
+  - [ ] Run calculator
+  - [ ] View saved properties
+  - [ ] Access course
+- [ ] Recent activity feed
+- [ ] Saved items (properties, products)
+- [ ] My listings (if seller/broker)
+- [ ] Analytics (if pro user)
+
+### Account Settings (`/settings`)
+- [ ] Profile info (name, email, phone)
+- [ ] Avatar upload
+- [ ] Password change
+- [ ] Email preferences (notifications)
+- [ ] Subscription management
+- [ ] Billing history
+- [ ] Delete account
+
+### User Roles & Permissions
+- [ ] Free User (basic access)
+- [ ] Buyer (saved searches, alerts)
+- [ ] Seller (create listings)
+- [ ] Broker (multi-listing)
+- [ ] Vendor (storefront)
+- [ ] Power Pass (unlimited CLEANBI + Vision AI)
+- [ ] Admin (full access)
+
+---
+
+## 💳 **PAYMENT & SUBSCRIPTIONS**
+
+### Stripe Integration
+- [ ] One-time purchases:
+  - [ ] Property analysis reports
+  - [ ] Template Vault ($997)
+  - [ ] Course access ($199)
+  - [ ] Listing upgrades
+- [ ] Subscriptions:
+  - [ ] Power Pass ($499/mo)
+  - [ ] Diagnostics Pro ($79/mo)
+  - [ ] POS System ($79/mo per location)
+- [ ] Checkout flow
+- [ ] Payment success page
+- [ ] Payment failed page
+- [ ] Invoice generation
+- [ ] Refund processing (admin)
+
+### Revenue Tracking
+- [ ] Total revenue dashboard
+- [ ] Revenue by product type
+- [ ] MRR (monthly recurring revenue)
+- [ ] Churn rate
+- [ ] Customer lifetime value
+
+---
+
+## 📧 **EMAIL SYSTEM**
+
+### SendGrid Integration
+- [ ] Transactional emails:
+  - [ ] Welcome email (new user)
+  - [ ] Email verification
+  - [ ] Password reset
+  - [ ] Purchase confirmation
+  - [ ] Subscription renewal
+  - [ ] Course enrollment
+  - [ ] Calculator results
+  - [ ] Saved search alerts
+- [ ] Marketing emails:
+  - [ ] Newsletter (weekly)
+  - [ ] New listings alert
+  - [ ] Product recommendations
+  - [ ] Course promotions
+
+### Email Templates
+- [ ] Branded HTML templates
+- [ ] Plain text versions
+- [ ] Unsubscribe link
+- [ ] Footer (contact, social, legal)
+
+---
+
+## 🔍 **SEO & CONTENT**
+
+### SEO Pages (8 Property Types)
+- [ ] `/seo/washbi` - WASHBI™ (Laundromats)
+- [ ] `/seo/cleanbi` - CLEANBI™ (Dry Cleaners)
+- [ ] `/seo/shopbi` - SHOPBI™ (Retail)
+- [ ] `/seo/dinebi` - DINEBI™ (Restaurants)
+- [ ] `/seo/healthbi` - HEALTHBI™ (Healthcare)
+- [ ] `/seo/workbi` - WORKBI™ (Coworking)
+- [ ] `/seo/logisbi` - LOGISBI™ (Warehouses)
+- [ ] `/seo/spacebi` - SPACEBI™ (Storage)
+
+### Blog System
+- [ ] Blog index page
+- [ ] Individual blog posts
+- [ ] Categories & tags
+- [ ] Author profiles
+- [ ] Related posts
+- [ ] Comments (optional)
+- [ ] AI Blog Content Generator (admin tool)
+
+### Sitemap & Metadata
+- [ ] Dynamic sitemap.xml
+- [ ] robots.txt
+- [ ] Meta tags (title, description)
+- [ ] Open Graph tags (social sharing)
+- [ ] Schema.org markup (structured data)
+
+---
+
+## 📊 **ADMIN DASHBOARD**
+
+### Analytics Overview
+- [ ] Total users
+- [ ] Active subscriptions
+- [ ] MRR
+- [ ] Total revenue (all-time)
+- [ ] Today's revenue
+- [ ] New listings (this week)
+- [ ] Traffic sources (Nivo pie chart)
+- [ ] Conversion funnel (Nivo bar chart)
+
+### User Management
+- [ ] User list table (search, filter, sort)
+- [ ] User detail modal (activity, purchases)
+- [ ] Ban/unban user
+- [ ] Grant admin access
+- [ ] Impersonate user
+
+### Listing Management
+- [ ] All listings table
+- [ ] Approve/reject listings
+- [ ] Feature listings
+- [ ] Edit listings
+- [ ] Delete listings
+- [ ] Flag suspicious listings
+
+### Product Management
+- [ ] Add/edit products (marketplace)
+- [ ] Vendor management
+- [ ] Product categories
+- [ ] Inventory tracking
+
+### Financial Reports
+- [ ] Revenue by product (Nivo bar chart)
+- [ ] Revenue by month (Nivo line chart)
+- [ ] Subscription growth (Nivo area chart)
+- [ ] Churn analysis
+- [ ] Export to CSV
+
+### Email Campaign Manager
+- [ ] Create campaign
+- [ ] Segment users
+- [ ] Schedule send
+- [ ] A/B testing
+- [ ] Open rates / click rates
+
+---
+
+## 🌐 **INTERNATIONALIZATION**
+
+### Language Support (18 languages)
+- [ ] English (default)
+- [ ] Spanish
+- [ ] French
+- [ ] German
+- [ ] Portuguese
+- [ ] Italian
+- [ ] Dutch
+- [ ] Russian
+- [ ] Chinese (Simplified)
+- [ ] Chinese (Traditional)
+- [ ] Japanese
+- [ ] Korean
+- [ ] Arabic (RTL)
+- [ ] Hebrew (RTL)
+- [ ] Hindi
+- [ ] Turkish
+- [ ] Polish
+- [ ] Swedish
+
+### Currency Support
+- [ ] USD (default)
+- [ ] EUR
+- [ ] GBP
+- [ ] CAD
+- [ ] AUD
+- [ ] JPY
+- [ ] Real-time exchange rates (GitHub Currency API)
+- [ ] Zero-decimal currency handling
+
+### RTL Support
+- [ ] Arabic layout
+- [ ] Hebrew layout
+- [ ] Mirrored navigation
+- [ ] Flipped icons
+
+---
+
+## 🛠️ **TECHNICAL INFRASTRUCTURE**
+
+### Backend (FastAPI)
+- [ ] User authentication endpoints
+- [ ] Listing CRUD endpoints
+- [ ] Product catalog endpoints
+- [ ] Calculator API endpoints
+- [ ] CLEANBI analysis endpoints
+- [ ] Payment processing endpoints
+- [ ] Email service endpoints
+- [ ] File upload endpoints (Replit Object Storage)
+- [ ] Admin API endpoints
+- [ ] Analytics endpoints
+
+### Database (PostgreSQL + Drizzle)
+- [ ] User table
+- [ ] Listing table
+- [ ] Product table
+- [ ] Vendor table
+- [ ] Order table
+- [ ] Subscription table
+- [ ] CourseEnrollment table
+- [ ] ChapterProgress table
+- [ ] ChapterBookmark table
+- [ ] CourseCertificate table
+- [ ] SavedSearch table
+- [ ] SavedProperty table
+- [ ] CalculatorResult table
+- [ ] Analytics events table
+
+### External API Integrations
+- [ ] Google Maps Static API (satellite imagery)
+- [ ] Google Vision AI (image analysis)
+- [ ] OpenAI API (Nick AI consultant)
+- [ ] ATTOM Property Data (valuations)
+- [ ] Gemini AI (equipment appraisal)
+- [ ] US Census API (demographics)
+- [ ] FCC Geo API (lat/lng to FIPS)
+- [ ] Mapbox Geocoding API (address lookup)
+- [ ] Stripe (payments)
+- [ ] SendGrid (email)
+- [ ] GitHub Currency API (exchange rates)
+
+### Frontend (React + Vite)
+- [ ] React Router (navigation)
+- [ ] TanStack Query (server state)
+- [ ] Zustand (client state)
+- [ ] Framer Motion (animations)
+- [ ] Nivo (charts)
+- [ ] react-i18next (translations)
+- [ ] react-dropzone (file uploads)
+- [ ] React Helmet Async (SEO meta tags)
+
+### Design System
+- [ ] designTokens.ts (colors, spacing, typography)
+- [ ] Component library:
+  - [ ] Buttons (primary, secondary, ghost)
+  - [ ] Input fields (text, number, select, date)
+  - [ ] Cards (base, feature, stat)
+  - [ ] Badges (status, pill)
+  - [ ] Modals
+  - [ ] Tooltips
+  - [ ] Progress bars
+  - [ ] Loading skeletons
+  - [ ] Alert banners
+
+---
+
+## 🎨 **DESIGN QUALITY STANDARDS**
+
+### Glassmorphism
+- [ ] All cards: backdrop-blur-xl
+- [ ] Semi-transparent backgrounds (white/90)
+- [ ] Subtle borders (slate-200/50)
+
+### Smooth Curves
+- [ ] NO basic rectangles or squares
+- [ ] Border radius: minimum 16px
+- [ ] Cards: 24-32px
+- [ ] Buttons: 12-16px
+- [ ] Modals: 24px
+
+### Gradients
+- [ ] All CTAs use yellow→green gradient
+- [ ] Hover states: gradient shift
+- [ ] Gold badges: gradient backgrounds
+- [ ] Progress bars: gradient fills
+
+### Animations
+- [ ] Hover lift effect (translateY -4px to -8px)
+- [ ] Scale on hover (1.02 to 1.05)
+- [ ] Smooth transitions (300-500ms cubic-bezier)
+- [ ] Scroll-triggered animations (Framer Motion)
+- [ ] Page transitions
+- [ ] Skeleton loaders
+
+### Accessibility
+- [ ] WCAG AA compliance
+- [ ] ARIA labels on all interactive elements
+- [ ] Keyboard navigation
+- [ ] Focus states (gold ring)
+- [ ] Screen reader support
+- [ ] Reduced motion support (useReducedMotion)
+
+---
+
+## 📱 **RESPONSIVE DESIGN**
+
+### Breakpoints
+- [ ] Mobile (0-640px): 1 column, full-width
+- [ ] Tablet (640-1024px): 2 columns
+- [ ] Desktop (1024-1280px): 3 columns
+- [ ] Large (1280px+): 3-4 columns, max-width 1200px
+
+### Mobile-First
+- [ ] Touch-friendly buttons (min 44×44px)
+- [ ] Mobile navigation (hamburger menu)
+- [ ] Swipeable carousels
+- [ ] Sticky bottom navigation
+- [ ] Click-to-call buttons
+
+---
+
+## 🚀 **PERFORMANCE OPTIMIZATION**
+
+### Core Web Vitals
+- [ ] Lighthouse score: 95+
+- [ ] First Contentful Paint: <1.5s
+- [ ] Time to Interactive: <3s
+- [ ] Cumulative Layout Shift: <0.1
+
+### Optimization Techniques
+- [ ] Image lazy loading
+- [ ] Code splitting (React.lazy)
+- [ ] Bundle size optimization
+- [ ] CDN for static assets
+- [ ] Gzip/Brotli compression
+- [ ] Caching strategies
+- [ ] Database query optimization
+- [ ] API response caching
+
+---
+
+## 🔐 **SECURITY**
+
+### Best Practices
+- [ ] JWT authentication
+- [ ] HTTPS only
+- [ ] CSRF protection
+- [ ] XSS prevention
+- [ ] SQL injection prevention (ORM)
+- [ ] Rate limiting
+- [ ] Input validation (Pydantic)
+- [ ] Password hashing (bcrypt)
+- [ ] Secret management (environment variables)
+- [ ] File upload validation (magic bytes)
+
+---
+
+## 📈 **ANALYTICS & TRACKING**
+
+### Google Analytics
+- [ ] Page views
+- [ ] User flow
+- [ ] Conversion tracking
+- [ ] E-commerce events
+- [ ] Affiliate click tracking
+- [ ] Calculator usage
+- [ ] Custom dimensions (user type, subscription tier)
+
+### Internal Analytics
+- [ ] Listing views
+- [ ] Search queries
+- [ ] Calculator completions
+- [ ] Course progress
+- [ ] Email open rates
+- [ ] Revenue attribution
+
+---
+
+## ✅ **TESTING & QA**
+
+### Testing Strategy
+- [ ] Unit tests (backend)
+- [ ] Integration tests (API endpoints)
+- [ ] E2E tests (critical flows)
+- [ ] Cross-browser testing
+- [ ] Mobile device testing
+- [ ] Accessibility audit
+- [ ] Performance testing
+- [ ] Security audit
+
+---
+
+## 📦 **DEPLOYMENT**
+
+### Production Ready
+- [ ] Environment variables configured
+- [ ] Database migrations run
+- [ ] SSL certificate installed
+- [ ] CDN configured
+- [ ] Error monitoring (Sentry)
+- [ ] Uptime monitoring
+- [ ] Backup strategy
+- [ ] Rollback plan
+
+---
+
+## 🎯 **CONVERSION OPTIMIZATION**
+
+### Lead Capture Points
+- [ ] Calculator email gates
+- [ ] Newsletter signup (footer)
+- [ ] Saved search alerts
+- [ ] Property inquiry forms
+- [ ] Free trial CTAs
+- [ ] Exit-intent popups
+
+### A/B Testing
+- [ ] Headline variations
+- [ ] CTA button text
+- [ ] Pricing display
+- [ ] Landing page layouts
+
+---
+
+**TOTAL ITEMS: 500+ Features, Pages & Components**
+
+This is the complete build checklist. Every single feature that needs to exist on the platform.
+
+Which section should we start building? 🚀
