@@ -75,6 +75,94 @@ Authentication uses Replit Auth (OIDC), with sessions stored in PostgreSQL. Role
 -   **Mapbox:** For location mapping and analysis.
 -   **Email Services (Resend/SendGrid):** For user notifications and marketing campaigns.
 -   **Admin Notifications:** Email-to-SMS gateway for instant alerts to administrators.
+## Latest Updates (Session: Google Maps Integration for Marketplace)
+
+### Google Maps Integration Completed ✅
+
+**What Was Built:**
+1. **Server-Side Geocoding Service** (`server/geocoding-service.ts`):
+   - Address → lat/lng conversion using Google Geocoding API
+   - Reverse geocoding support
+   - Distance calculations via Distance Matrix API
+   - In-memory caching (migrate to Redis for production)
+   - WashBizHub HQ coordinates: 35.3366, -94.1769
+
+2. **Secure API Endpoints** (`server/routes.ts`):
+   - POST `/api/geocode` - Rate-limited (30 req/min per IP), converts addresses to coordinates
+   - POST `/api/distance` - Calculate distance between two points
+   - POST `/api/admin/geocode-listings` - Batch geocode all listings (admin only)
+   - Input validation and error handling
+
+3. **Interactive Map Component** (`client/src/components/maps/ListingLocationMap.tsx`):
+   - Uses @vis.gl/react-google-maps
+   - Shows listing marker + WashBizHub HQ marker (custom gold icon)
+   - Info windows with listing details
+   - "Get Directions" and "Open in Maps" buttons
+   - Cooperative gesture handling (scroll with Ctrl/Cmd)
+
+4. **Listing Detail Integration** (`client/src/pages/listing-detail.tsx`):
+   - Maps embedded in listing detail pages
+   - Shows both property location and HQ
+   - Professional card layout with directions
+
+5. **Geocoded Data**:
+   - Newport Beach listing geocoded: 33.6136791, -117.9314335
+   - Database updated with coordinates
+   - Ready for map display
+
+**Configuration:**
+- API Keys configured as secrets:
+  - `GOOGLE_MAPS_API_KEY` (server-side)
+  - `VITE_GOOGLE_MAPS_API_KEY` (client-side)
+- APIProvider wraps entire app in `App.tsx`
+- Rate limiting prevents quota abuse
+
+**⚠️ ACTION REQUIRED: Google Maps API Key Setup**
+
+The integration is complete, but the Google Maps API key needs to be properly configured in Google Cloud Console. Current browser errors show "InvalidKey".
+
+**Fix Required (User Action):**
+1. **Enable Billing** (Required even for free tier):
+   - Go to https://console.cloud.google.com/billing
+   - Link a billing account (credit card required)
+   - Google provides $200/month free credit
+
+2. **Enable Maps JavaScript API**:
+   - Go to https://console.cloud.google.com/apis/library
+   - Search for "Maps JavaScript API"
+   - Click "Enable"
+
+3. **Configure HTTP Referrers** (for production):
+   - Go to https://console.cloud.google.com/google/maps-api/credentials
+   - Click your API key
+   - Add HTTP referrers:
+     ```
+     https://*.replit.dev/*
+     https://*.replit.app/*
+     https://washbizhub.com/*
+     ```
+
+4. **Verify APIs Enabled**:
+   - Maps JavaScript API ✅
+   - Geocoding API ✅
+   - Distance Matrix API ✅
+
+**Testing Status:**
+- ✅ Code integration complete
+- ✅ Geocoding service working (tested via curl)
+- ✅ Rate limiting active
+- ✅ Database coordinates populated
+- ⏸️ **Map rendering blocked by InvalidKey error**
+- ⏸️ **Waiting for user to fix Google Cloud Console setup**
+
+**Next Steps After API Key Fix:**
+1. Run end-to-end test to verify maps render
+2. Test all interactive features (markers, info windows, directions)
+3. Verify distance calculations work
+4. Consider migrating in-memory cache to Redis for production
+
+---
+
 ## Latest Updates (Session: Search Engine Indexing - SUPERFAST Platform)
 
 ### Search Engine Indexing System (Admin Panel)
