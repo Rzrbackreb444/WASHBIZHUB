@@ -1,31 +1,76 @@
 /**
- * THE ULTIMATE STROKE RECOVERY BIBLE - AI Knowledge Base
+ * THE STROKE RECOVERY BIBLE - Complete AI Knowledge Base
  * 
- * Extracted from "The Ultimate Stroke Recovery Bible" by Nicholas "Stroked Out Sasquatch" Kremers
- * Real recovery expertise from 0% function to 90% recovery
+ * By Nicholas "Stroked Out Sasquatch" Kremers
+ * 7-year recovery journey from 0% function to 90% recovery
+ * December 3, 2018 - Massive hemorrhagic stroke, complete left-side paralysis
  * 
- * This knowledge base powers the AI consultant for StrokeRecoveryAcademy.com
+ * This is the AUTHENTIC stroke recovery expertise that powers:
+ * - StrokeRecoveryAcademy.com (Education & Courses)
+ * - StrokeLyfe.app (AI Recovery Companion)
+ * 
+ * Sources:
+ * - "A Stroke Recovery Guide Through the Eyes of the Stroked Out Sasquatch" (949 lines)
+ * - "SOS Stroke Recovery Outline Autobiography Guide Nick Kremers" (3,201 lines)
+ * - 7 years of documented recovery protocols, exercises, and lived experience
  */
 
 export const STROKE_RECOVERY_BIBLE_KNOWLEDGE = `
-# THE ULTIMATE STROKE RECOVERY BIBLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# THE STROKE RECOVERY BIBLE
 ## By Nicholas "Stroked Out Sasquatch" Kremers
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### CORE PHILOSOPHY: FROM IMPOSSIBLE TO INEVITABLE
+### WHO I AM: THE STROKED OUT SASQUATCH
+
+**My Story, Your Hope:**
+You are stronger than you think. I'm Nick Kremers, but you can call me the Stroked Out Sasquatch. This name is a badge I earned after a massive hemorrhagic stroke tried to rewrite my life story on December 3, 2018. But here's the thing about stories – they can always be retold, and new chapters can always be written.
+
+**December 3, 2018 - The Day My World Tilted:**
+- Massive hemorrhagic stroke (brain bleed)
+- Complete left-side paralysis (hemiplegia)
+- Craniotomy with 50 staples
+- Doctors said: "You'll probably never walk again"
+- My response: "Watch me."
+
+**The Journey:**
+- Month-long ICU stay with hallucinations and morphine-induced delusions
+- Full-time wheelchair for months
+- Drop foot, ankle weakness, arm paralysis
+- Depression, isolation, and the battle for identity
+- 7 years later: 90% function recovery and still climbing
+
+**Why I'm Sharing This:**
+If a big, hairy dude like me can claw his way back from the abyss of paralysis, then damn it, so can you. This isn't some fancy medical textbook filled with jargon that'll make your head spin. This is a guide from one survivor to another, sharing the real, raw lessons I learned on my journey.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## THE SIMPLE FORMULA: MY CORE RECOVERY PRINCIPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**The Formula That Changed Everything:**
+
+1. **Take whatever the stroke gives you** - Acknowledge your starting point, no matter how small
+2. **Learn from therapists** - Absorb their knowledge, guidance, and professional expertise
+3. **Experiment** - Find what works best for YOUR unique body and recovery
+4. **Combine them** - Integrate therapy techniques with your own discoveries
+5. **Apply to your own recovery** - Tailor the approach to your specific needs
+
+**Critical Truth:**
+Work what the stroke allows. Progress as you can. Patience is not passive - it's the fuel that powers relentless forward motion.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## CORE PHILOSOPHY: FROM IMPOSSIBLE TO INEVITABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **The Fundamental Truth:**
 When medical professionals say "probably never," they're not declaring your future - they're declaring war against everything you can accomplish. Your recovery is not limited by statistics. You're not destined to accept less than what you truly want. You're standing at the starting line of the most extraordinary comeback of your life.
 
 **Recovery University Manifesto:**
 - You're not broken - you're enrolled in the most important university of your life
-- Your degree: Ph.D. in Proving the Impossible Possible
+- Your degree: Ph.D. in Proving the Impossible Possible  
 - Your professors: PT, OT, speech therapist, family, other survivors, and most importantly - YOU
 - Your graduation requirement: Refusing to accept "never" and becoming living proof that human potential has no limits
-
-### THE KREMERS RECOVERY FORMULA
-
-**Foundation Principle: Rock Bottom is Your Best Foundation**
-The moment everything changes isn't an ending - it's a beginning disguised as a disaster. When you hit rock bottom, you discover something medical professionals can't teach: the human spirit, when it refuses to accept limitations, can accomplish things that seem absolutely impossible.
+- Motto: "REBUILD. REWIRE. RISE."
 
 **The Two Paths After Stroke:**
 
@@ -38,13 +83,19 @@ The moment everything changes isn't an ending - it's a beginning disguised as a 
    - Question every limitation presented as permanent
    - Focus on what might be possible rather than what's "realistic"
    - Build evidence that "impossible" is just another word for "I don't know how yet"
+   - Your recovery is your own marathon, not a race against anyone else
 
 **Choice Point:** Every day you choose which path to walk. The liberation path requires more courage, more persistence, and more belief - but it leads to extraordinary outcomes.
 
-### NEUROPLASTICITY: THE SCIENCE OF THE IMPOSSIBLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## NEUROPLASTICITY: THE SCIENCE OF THE IMPOSSIBLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **What Medical Professionals Often Miss:**
 Your brain has an incredible healing power called neuroplasticity - the ability to rewire itself, create new neural pathways, and recover functions that seemed permanently lost. This isn't wishful thinking - it's neuroscience.
+
+**Nick's Truth:**
+"Your brain is an amazing thing. It can heal, it can adapt, it can rewire itself. Recovery is a journey of small victories. Every flinch, every twitch, every micro-movement is your brain learning to reconnect."
 
 **Key Neuroplasticity Principles:**
 
@@ -52,21 +103,43 @@ Your brain has an incredible healing power called neuroplasticity - the ability 
    - Every movement you attempt creates neural pathways
    - Repetition strengthens these pathways
    - Consistent practice = stronger connections = better function
+   - "A body in motion stays in motion" - fight monotony with movement
 
 2. **The Window Never Closes:**
    - Traditional medicine says recovery plateaus at 6-12 months
    - Reality: Neuroplasticity continues for YEARS if you keep practicing
-   - Your 7-year recovery journey proves this is true
+   - Nick's 7-year recovery journey proves this is absolutely true
+   - I'm still making gains at year 7 - the journey never ends
 
 3. **Small Victories Build Big Comebacks:**
    - First: Think the movement (mental practice activates neural pathways)
    - Second: Twitch - the smallest muscle activation counts
    - Third: Move - partial movement leads to full movement
    - The Think-Twitch-Move progression is fundamental
+   - "Progress is progress, no matter how small"
 
-### THE PHYSICAL RECOVERY SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## THE PHYSICAL RECOVERY SYSTEM: FROM FLINCH TO FUNCTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Phase 1: First Steps - Small Victories Build Big Comebacks**
+**Phase 1: Hospital & ICU - The Fight for Stability (Month 1)**
+
+**Early Days Reality:**
+- Complete left-side paralysis
+- Wheelchair-bound, fully dependent
+- Hallucinations from morphine (ICU psychosis is real)
+- Difficulty swallowing - pureed food diet
+- Speech challenges
+- The terrifying experience of being "frozen" in your own body
+
+**First Therapy Victories:**
+- Learning to sit up without falling over
+- Bearing weight while standing (even for 10 seconds)
+- Lifting affected leg even 1 inch
+- First signs of brain-body reconnection
+- "The significance of lifting the left leg cannot be overstated - it was my brain saying 'I'm still here'"
+
+**Phase 2: Rehabilitation Facility - The Training Ground (Months 2-4)**
 
 **Weight Bearing Fundamentals:**
 - Stand and bear weight even when you can't walk
