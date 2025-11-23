@@ -123,8 +123,8 @@ const BLOGS = [
   }
 ];
 
-const CATEGORIES = ["All", ...new Set(BLOGS.map(b => b.category))];
-const INDUSTRIES = ["All", ...new Set(BLOGS.map(b => b.industry))];
+const CATEGORIES = ["All", ...Array.from(new Set(BLOGS.map(b => b.category)))];
+const INDUSTRIES = ["All", ...Array.from(new Set(BLOGS.map(b => b.industry)))];
 const LENGTHS = ["All", "Short", "Medium", "Long"];
 
 export default function AffiliateBlogsPage() {
