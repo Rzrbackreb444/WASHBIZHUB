@@ -2782,10 +2782,32 @@ export const sitePages = pgTable("site_pages", {
   title: text("title").notNull(),
   order: integer("order").default(0).notNull(),
   
-  // SEO
-  metaDescription: text("meta_description"),
+  // SEO (Yoast-style comprehensive fields)
+  seoMode: text("seo_mode").default("auto"), // "auto", "manual", "hybrid"
+  metaTitle: text("meta_title"), // Max 60 chars
+  metaDescription: text("meta_description"), // Max 160 chars
   metaKeywords: jsonb("meta_keywords"),
-  ogImage: text("og_image"),
+  canonicalUrl: text("canonical_url"),
+  
+  // Open Graph Tags
+  ogTitle: text("og_title"),
+  ogDescription: text("og_description"),
+  ogImage: text("og_image"), // URL to image (min 1200x630)
+  ogType: text("og_type").default("website"), // website, article, product
+  
+  // Twitter Card Tags
+  twitterCard: text("twitter_card").default("summary_large_image"), // summary, summary_large_image, player
+  twitterTitle: text("twitter_title"),
+  twitterDescription: text("twitter_description"),
+  twitterImage: text("twitter_image"),
+  
+  // AI-Generated Tracking
+  lastAIGenerated: timestamp("last_ai_generated"),
+  manualOverrides: jsonb("manual_overrides"), // Track which fields user manually edited
+  
+  // SEO Score (0-100)
+  seoScore: integer("seo_score").default(0),
+  seoIssues: jsonb("seo_issues"), // Array of issues from analyzeSEO
   
   // Status
   isPublished: boolean("is_published").default(true),

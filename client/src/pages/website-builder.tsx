@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { DroppableCanvas } from "@/components/website-builder/DroppableCanvas";
+import { SEOPanel } from "@/components/website-builder/SEOPanel";
 import type { Block } from "@/components/website-builder/DroppableCanvas";
 import {
   Globe, Plus, Layout, Palette, Search, Eye, Code, Zap,
@@ -350,46 +351,19 @@ export default function WebsiteBuilder() {
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="seo" className="space-y-4">
-                      <div>
-                        <Label>Page Title</Label>
-                        <Input 
-                          defaultValue={selectedProject.siteTitle || ''}
-                          placeholder="Your Laundromat Name"
-                          data-testid="input-site-title"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>SEO Score</Label>
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex-1 bg-muted rounded-full h-2">
-                            <div 
-                              className="bg-primary h-2 rounded-full transition-all"
-                              style={{ width: '0%' }}
-                            />
-                          </div>
-                          <span className="text-sm font-semibold text-muted-foreground">
-                            0%
-                          </span>
-                        </div>
-                        <Button variant="outline" size="sm" className="w-full mt-2" data-testid="button-audit-seo">
-                          <Search className="w-4 h-4 mr-2" />
-                          Run SEO Audit
-                        </Button>
-                      </div>
-
-                      <Separator />
-
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <p className="font-semibold">Auto-optimizations:</p>
-                        <ul className="space-y-1">
-                          <li>✓ Meta tags</li>
-                          <li>✓ Schema markup</li>
-                          <li>✓ Image alt text</li>
-                          <li>✓ Core Web Vitals</li>
-                        </ul>
-                      </div>
+                    <TabsContent value="seo" className="h-[600px] p-0">
+                      <SEOPanel
+                        pageTitle={selectedProject.siteTitle || selectedProject.name}
+                        pageId={selectedProject.id}
+                        blocks={blocks}
+                        onUpdate={(seoData) => {
+                          console.log("SEO data updated:", seoData);
+                          toast({
+                            title: "SEO Updated",
+                            description: "Your SEO settings have been saved",
+                          });
+                        }}
+                      />
                     </TabsContent>
                   </Tabs>
                 </CardContent>
