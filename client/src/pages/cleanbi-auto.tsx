@@ -41,7 +41,7 @@ export default function CleanbiAuto() {
     if (!address.trim()) {
       toast({
         title: "Address Required",
-        description: "Please enter a business address",
+        description: "Please enter an address (business or residential)",
         variant: "destructive",
       });
       return;
@@ -107,8 +107,8 @@ export default function CleanbiAuto() {
   return (
     <>
       <Helmet>
-        <title>Google-Powered CLEANBI™ Score | Instant Business Intelligence for ANY Industry</title>
-        <meta name="description" content="Get instant CLEANBI market intelligence scores for ANY business using Google Places data. Laundromats, car washes, restaurants, retail, gyms. 100% automatic, 100% free. For informational purposes only." />
+        <title>Google-Powered CLEANBI™ Score | Score ANY Address - Business OR Residential</title>
+        <meta name="description" content="Get instant CLEANBI scores for ANY address - commercial businesses AND residential properties. Laundromats, restaurants, retail, gyms, homes, condos, investment properties. 100% automatic, 100% free. For informational purposes only." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
@@ -118,13 +118,14 @@ export default function CleanbiAuto() {
               Powered by Google APIs
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Instant CLEANBI™ Universal Score
+              Score ANY Address: Business OR Residential
             </h1>
             <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-              Get comprehensive market intelligence in seconds for <span className="font-bold text-purple-100">ANY business type</span>. Just enter an address - our Google-powered engine does the rest.
+              Get comprehensive intelligence in seconds for <span className="font-bold text-purple-100">ANY address</span> - commercial businesses AND residential properties. Just enter an address - our Google-powered engine does the rest.
             </p>
             <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
-              Restaurants • Retail • Gyms • Salons • Car Washes • Gas Stations • Hotels • Laundromats • Grocery Stores • Trucking • Tech Stores • Resale Shops • Banks • Florists • Pet Stores • Barbers • And ANY Other Business!
+              <span className="font-semibold text-purple-100">Businesses:</span> Restaurants • Retail • Gyms • Salons • Car Washes • Laundromats • Gas Stations • Hotels • Any Business Type<br/>
+              <span className="font-semibold text-purple-100">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties
             </p>
             <div className="mt-6 flex items-center justify-center gap-6 text-white/80 text-sm">
               <div className="flex items-center gap-2">
@@ -146,24 +147,27 @@ export default function CleanbiAuto() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Calculate CLEANBI Score</CardTitle>
-              <CardDescription>Enter ANY business address and we'll analyze it using Google Maps data</CardDescription>
+              <CardDescription>Enter ANY address - business OR residential - and we'll analyze it using Google data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address">Business Address *</Label>
+                <Label htmlFor="address">Address *</Label>
                 <Input
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="123 Main St, City, State ZIP"
+                  placeholder="123 Main St, City, State ZIP (Business OR Residential)"
                   data-testid="input-address"
                   className="text-base"
                   onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleCalculate()}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Works for commercial businesses AND residential properties
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name (Optional)</Label>
+                <Label htmlFor="businessName">Business Name (Optional - For Businesses Only)</Label>
                 <Input
                   id="businessName"
                   value={businessName}
@@ -174,7 +178,7 @@ export default function CleanbiAuto() {
                   onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleCalculate()}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Leave blank to automatically detect any business at this address
+                  Leave blank to automatically detect the business, or skip for residential properties
                 </p>
               </div>
 
@@ -506,13 +510,20 @@ export default function CleanbiAuto() {
                 <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
                   <CardContent className="pt-6">
                     <div className="text-center space-y-4">
-                      <h3 className="text-xl font-bold">Want the Full $97 Intelligence Report?</h3>
+                      <h3 className="text-xl font-bold">Want the Full Intelligence Report?</h3>
                       <p className="text-muted-foreground">
-                        Get comprehensive market analysis, financial projections, and personalized acquisition strategy
+                        {result.addressType === 'residential' 
+                          ? 'Get comprehensive property analysis, neighborhood insights, and investment potential assessment'
+                          : 'Get comprehensive market analysis, financial projections, and personalized acquisition strategy'}
                       </p>
-                      <Button size="lg" className="bg-accent hover:bg-accent/90" data-testid="button-get-report">
-                        Get Full CLEANBI Report - $97
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <Button size="lg" className="bg-accent hover:bg-accent/90" data-testid="button-get-report">
+                          Get Full CLEANBI Report - $97
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          Available for businesses and residential properties
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
