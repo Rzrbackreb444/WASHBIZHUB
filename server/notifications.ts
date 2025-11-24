@@ -241,3 +241,23 @@ Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
     priority: 'high',
   });
 }
+
+/**
+ * Notify admin when someone uses AI Chat (Nick AI)
+ */
+export async function notifyAIChatMessage(data: {
+  userEmail: string;
+  message: string;
+  timestamp: string;
+}): Promise<void> {
+  // Send to AT&T SMS gateway + email
+  await sendAdminNotification({
+    to: [
+      '4798834314@txt.att.net', // AT&T SMS gateway for immediate SMS
+      'nick@washbizhub.com',     // Email backup
+    ],
+    subject: '💬 Nick AI Chat',
+    message: `New chat from ${data.userEmail}:\n\n"${data.message.substring(0, 100)}${data.message.length > 100 ? '...' : ''}"\n\nTime: ${data.timestamp}`,
+    priority: 'high',
+  });
+}

@@ -24,6 +24,12 @@ The platform's core ambition is to achieve market leadership by leveraging multi
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+**Owner Contact & Notifications:**
+- Owner phone: 479-883-4314 (AT&T)
+- SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
+- All AI chat widget messages trigger instant SMS + email notifications to owner
+- Backup notifications sent to nick@washbizhub.com
+
 ## System Architecture
 
 ### Frontend Architecture
