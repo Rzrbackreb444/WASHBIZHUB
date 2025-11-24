@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { useToast } from "@/hooks/use-toast";
+import { LegalDisclaimer } from "@/components/legal-disclaimer";
 
 interface CleanbiBreakdownItem {
   score: number;
@@ -110,8 +111,8 @@ export default function CleanbiAuto() {
   return (
     <>
       <Helmet>
-        <title>Google-Powered CLEANBI™ Score | Instant Business Valuation for ANY Industry</title>
-        <meta name="description" content="Get instant CLEANBI scores for ANY business using Google Places data. Laundromats, car washes, restaurants, retail, gyms. 100% automatic, 100% free." />
+        <title>Google-Powered CLEANBI™ Score | Instant Business Intelligence for ANY Industry</title>
+        <meta name="description" content="Get instant CLEANBI market intelligence scores for ANY business using Google Places data. Laundromats, car washes, restaurants, retail, gyms. 100% automatic, 100% free. For informational purposes only." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
@@ -124,7 +125,7 @@ export default function CleanbiAuto() {
               Instant CLEANBI™ Universal Score
             </h1>
             <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-              Get a comprehensive business valuation in seconds for <span className="font-bold text-purple-100">ANY business type</span>. Just enter an address - our Google-powered engine does the rest.
+              Get comprehensive market intelligence in seconds for <span className="font-bold text-purple-100">ANY business type</span>. Just enter an address - our Google-powered engine does the rest.
             </p>
             <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
               Laundromats • Car Washes • Restaurants • Retail Stores • Gyms • Gas Stations • ANY Business
@@ -202,6 +203,11 @@ export default function CleanbiAuto() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Legal Disclaimer */}
+          <div className="mb-8">
+            <LegalDisclaimer />
+          </div>
 
           {/* Results */}
           {result && (
@@ -393,9 +399,9 @@ export default function CleanbiAuto() {
                 <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
                   <CardContent className="pt-6">
                     <div className="text-center space-y-4">
-                      <h3 className="text-xl font-bold">Want the Full $97 Report?</h3>
+                      <h3 className="text-xl font-bold">Want the Full $97 Intelligence Report?</h3>
                       <p className="text-muted-foreground">
-                        Get comprehensive valuation, financial projections, and personalized acquisition strategy
+                        Get comprehensive market analysis, financial projections, and personalized acquisition strategy
                       </p>
                       <Button size="lg" className="bg-accent hover:bg-accent/90" data-testid="button-get-report">
                         Get Full CLEANBI Report - $97

@@ -352,6 +352,18 @@ export function Footer() {
               <span className="text-accent font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-white/60 text-sm">
+              <Link href="/privacy">
+                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-privacy">
+                  Privacy Policy
+                </span>
+              </Link>
+              <span className="text-white/30">|</span>
+              <Link href="/terms">
+                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-terms">
+                  Terms of Service
+                </span>
+              </Link>
+              <span className="text-white/30">|</span>
               <Link href="/pricing">
                 <span className="hover:text-accent transition-colors cursor-pointer font-semibold" data-testid="link-footer-pricing">
                   View Pricing
