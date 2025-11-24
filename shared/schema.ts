@@ -423,28 +423,316 @@ export const insertAeoPerformanceSchema = createInsertSchema(aeoPerformance).omi
 export type InsertAeoPerformance = z.infer<typeof insertAeoPerformanceSchema>;
 export type AeoPerformance = typeof aeoPerformance.$inferSelect;
 
-// Blog Posts (Manual/AI/UGB/UGE)
+// ========================================
+// ULTIMATE SEO BLOG SYSTEM (300 BLOGS)
+// ========================================
+
+// Blog Posts (AI-Generated with Perfect SEO)
 export const blogPosts = pgTable("blog_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  type: text("type").notNull(), // "manual", "ai", "ugb" (user-generated blog), "uge" (user-generated expert)
-  category: text("category").notNull(), // "Operations", "Marketing", "Maintenance", "Finance", etc.
+  
+  // ===== CORE CONTENT =====
+  title: text("title").notNull(), // H1 heading (50-60 chars)
+  content: text("content").notNull(), // Full HTML content with semantic markup
+  excerpt: text("excerpt").notNull(), // 150-160 char summary
+  
+  // ===== URL & ROUTING =====
+  slug: text("slug").notNull().unique(), // URL-friendly: "how-to-buy-laundromat-2024"
+  canonicalUrl: text("canonical_url"), // Absolute URL for duplicate content prevention
+  
+  // ===== SEO META TAGS =====
+  metaTitle: text("meta_title").notNull(), // 50-60 chars, keyword-optimized
+  metaDescription: text("meta_description").notNull(), // 150-160 chars, compelling CTA
+  metaKeywords: jsonb("meta_keywords"), // Array of target keywords ["laundromat ROI", "buy laundromat"]
+  focusKeyphrases: jsonb("focus_keyphrases").notNull(), // Primary + secondary keywords
+  
+  // ===== OPEN GRAPH (SOCIAL SHARING) =====
+  ogTitle: text("og_title"), // Facebook/LinkedIn title (defaults to metaTitle)
+  ogDescription: text("og_description"), // Social description (defaults to metaDescription)
+  ogImage: text("og_image"), // Social share image URL (1200×630px)
+  ogType: text("og_type").default("article"), // "article", "website"
+  
+  // ===== TWITTER CARDS =====
+  twitterCard: text("twitter_card").default("summary_large_image"), // "summary", "summary_large_image"
+  twitterTitle: text("twitter_title"), // Twitter-specific title
+  twitterDescription: text("twitter_description"), // Twitter-specific description
+  twitterImage: text("twitter_image"), // Twitter image (defaults to ogImage)
+  
+  // ===== SCHEMA.ORG STRUCTURED DATA =====
+  schemaMarkup: jsonb("schema_markup"), // Article, BreadcrumbList, Organization JSON-LD
+  authorName: text("author_name").default("WashBizHub Research Team"),
+  authorImage: text("author_image"),
+  datePublished: timestamp("date_published").defaultNow().notNull(),
+  dateModified: timestamp("date_modified").defaultNow().notNull(),
+  
+  // ===== CONTENT CLASSIFICATION =====
+  type: text("type").notNull(), // "ai_multi", "ai_single", "manual", "ugc"
+  category: text("category").notNull(), // "business_buying", "real_estate", "laundromat"
+  subcategory: text("subcategory"), // "due_diligence", "roi_analysis", "financing"
+  market: text("market").notNull(), // "global", "us", "ph", "jp", "au", "uk", "eu"
+  language: varchar("language", { length: 5 }).default("en").notNull(), // ISO 639-1
+  
+  // ===== AI GENERATION METADATA =====
+  aiProviders: jsonb("ai_providers"), // ["anthropic", "gemini", "perplexity", "grok"]
+  aiPrompt: text("ai_prompt"), // Original generation prompt
+  aiQualityScore: integer("ai_quality_score"), // 0-100 content quality rating
+  seoScore: integer("seo_score"), // 0-100 SEO optimization score
+  readabilityScore: integer("readability_score"), // Flesch reading ease
+  
+  // ===== IMAGES & MEDIA =====
+  featuredImage: text("featured_image"), // Hero image URL
+  featuredImageAlt: text("featured_image_alt"), // Accessibility alt text
+  imageGallery: jsonb("image_gallery"), // [{url, alt, caption}]
+  
+  // ===== INTERNAL LINKING =====
+  relatedPosts: jsonb("related_posts"), // Array of related post IDs
+  linkToCleanbi: boolean("link_to_cleanbi").default(true).notNull(), // Must link to CLEANBI tool
+  cleanbiAnchorText: text("cleanbi_anchor_text").default("Try our free property analysis tool"),
+  internalLinks: jsonb("internal_links"), // [{url, anchor, context}]
+  
+  // ===== PDF EXPORT =====
+  pdfGenerated: boolean("pdf_generated").default(false).notNull(),
+  pdfUrl: text("pdf_url"), // S3/CDN URL of downloadable PDF
+  pdfDownloads: integer("pdf_downloads").default(0).notNull(),
+  
+  // ===== PUBLISHING & STATUS =====
+  status: text("status").notNull().default("draft"), // "draft", "scheduled", "published", "archived"
+  scheduledFor: timestamp("scheduled_for"), // Auto-publish date
+  published: boolean("published").default(false).notNull(),
   featured: boolean("featured").default(false).notNull(),
-  published: boolean("published").default(true).notNull(),
+  
+  // ===== ANALYTICS & PERFORMANCE =====
   views: integer("views").default(0).notNull(),
+  avgTimeOnPage: integer("avg_time_on_page"), // Seconds
+  bounceRate: decimal("bounce_rate", { precision: 5, scale: 2 }), // 45.50 = 45.5%
+  conversions: integer("conversions").default(0).notNull(), // CLEANBI reports generated from this blog
+  organicTraffic: integer("organic_traffic").default(0).notNull(),
+  
+  // ===== SEO TRACKING =====
+  targetKeywordId: varchar("target_keyword_id").references(() => seoKeywords.id), // Primary keyword tracking
+  currentRanking: integer("current_ranking"), // Google position for target keyword
+  lastRankingCheck: timestamp("last_ranking_check"),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("blog_slug_idx").on(table.slug),
+  categoryIdx: index("blog_category_idx").on(table.category),
+  publishedIdx: index("blog_published_idx").on(table.published, table.datePublished),
+  keywordIdx: index("blog_keyword_idx").on(table.targetKeywordId),
+}));
 
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   id: true,
   views: true,
+  pdfDownloads: true,
+  conversions: true,
+  organicTraffic: true,
   createdAt: true,
+  updatedAt: true,
+  datePublished: true,
+  dateModified: true,
+}).extend({
+  bounceRate: z.string().optional(),
 });
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
+
+// ========================================
+// GLOBAL EMAIL CAPTURE SUITE
+// ========================================
+
+// Newsletter Subscribers (Industry-Segmented)
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // ===== CONTACT INFO =====
+  email: text("email").notNull().unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  
+  // ===== INDUSTRY SEGMENTATION =====
+  primaryIndustry: text("primary_industry").notNull(), // "business_buying", "real_estate", "laundromat", "general"
+  industries: jsonb("industries").notNull(), // Array of all interests ["business_buying", "real_estate"]
+  
+  // ===== GEOGRAPHIC SEGMENTATION =====
+  countryCode: varchar("country_code", { length: 2 }), // ISO 3166-1 (US, PH, JP, AU, GB)
+  language: varchar("language", { length: 5 }).default("en").notNull(), // ISO 639-1
+  timezone: text("timezone"), // "America/New_York"
+  
+  // ===== LEAD SOURCE TRACKING =====
+  source: text("source").notNull(), // "blog_pdf", "cleanbi_tool", "homepage", "landing_page"
+  sourceUrl: text("source_url"), // Original page URL
+  sourceBlogId: varchar("source_blog_id").references(() => blogPosts.id), // Which blog captured them
+  sourceKeyword: text("source_keyword"), // What keyword brought them
+  utmSource: text("utm_source"), // UTM tracking
+  utmMedium: text("utm_medium"),
+  utmCampaign: text("utm_campaign"),
+  
+  // ===== SUBSCRIPTION STATUS =====
+  status: text("status").notNull().default("active"), // "active", "unsubscribed", "bounced", "complained"
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  verifiedAt: timestamp("verified_at"),
+  
+  // ===== ENGAGEMENT PREFERENCES =====
+  frequency: text("frequency").default("weekly"), // "daily", "weekly", "biweekly", "monthly"
+  contentPreferences: jsonb("content_preferences"), // ["due_diligence", "roi_analysis", "market_trends"]
+  emailFormat: text("email_format").default("html"), // "html", "text"
+  
+  // ===== ENGAGEMENT METRICS =====
+  totalEmailsSent: integer("total_emails_sent").default(0).notNull(),
+  totalEmailsOpened: integer("total_emails_opened").default(0).notNull(),
+  totalLinksClicked: integer("total_links_clicked").default(0).notNull(),
+  lastEmailSent: timestamp("last_email_sent"),
+  lastEmailOpened: timestamp("last_email_opened"),
+  lastLinkClicked: timestamp("last_link_clicked"),
+  engagementScore: integer("engagement_score").default(0).notNull(), // 0-100 based on opens/clicks
+  
+  // ===== LEAD SCORING =====
+  leadScore: integer("lead_score").default(0).notNull(), // 0-100 conversion likelihood
+  leadStatus: text("lead_status").default("cold"), // "cold", "warm", "hot", "customer"
+  cleanbReportsGenerated: integer("cleanbi_reports_generated").default(0).notNull(),
+  pdfDownloads: integer("pdf_downloads").default(0).notNull(),
+  
+  // ===== UNSUBSCRIBE TRACKING =====
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  unsubscribeReason: text("unsubscribe_reason"),
+  
+  // ===== RESEND INTEGRATION =====
+  resendContactId: text("resend_contact_id"), // Resend API contact ID
+  resendAudienceId: text("resend_audience_id"), // Segmented audience ID
+  
+  subscribedAt: timestamp("subscribed_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  emailIdx: uniqueIndex("newsletter_email_idx").on(table.email),
+  industryIdx: index("newsletter_industry_idx").on(table.primaryIndustry),
+  statusIdx: index("newsletter_status_idx").on(table.status),
+  countryIdx: index("newsletter_country_idx").on(table.countryCode),
+  leadScoreIdx: index("newsletter_lead_score_idx").on(table.leadScore),
+}));
+
+export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({
+  id: true,
+  totalEmailsSent: true,
+  totalEmailsOpened: true,
+  totalLinksClicked: true,
+  engagementScore: true,
+  leadScore: true,
+  cleanbReportsGenerated: true,
+  pdfDownloads: true,
+  subscribedAt: true,
+  updatedAt: true,
+});
+
+export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
+// Email Campaigns (Industry-Specific Blasts)
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // ===== CAMPAIGN DETAILS =====
+  name: text("name").notNull(), // "Weekly Real Estate Digest"
+  subject: text("subject").notNull(), // Email subject line
+  preheader: text("preheader"), // Preview text
+  
+  // ===== CONTENT =====
+  htmlContent: text("html_content").notNull(),
+  textContent: text("text_content"), // Plain text fallback
+  
+  // ===== TARGETING =====
+  targetIndustries: jsonb("target_industries").notNull(), // ["real_estate", "business_buying"]
+  targetCountries: jsonb("target_countries"), // ["US", "PH", "JP"] or null = all
+  targetLanguages: jsonb("target_languages"), // ["en", "es"] or null = all
+  minLeadScore: integer("min_lead_score"), // Only send to leads with score >= X
+  
+  // ===== BLOG INTEGRATION =====
+  featuredBlogIds: jsonb("featured_blog_ids"), // Array of blog post IDs to feature
+  
+  // ===== SCHEDULING =====
+  status: text("status").notNull().default("draft"), // "draft", "scheduled", "sending", "sent", "failed"
+  scheduledFor: timestamp("scheduled_for"),
+  sentAt: timestamp("sent_at"),
+  
+  // ===== PERFORMANCE METRICS =====
+  totalRecipients: integer("total_recipients").default(0).notNull(),
+  totalSent: integer("total_sent").default(0).notNull(),
+  totalDelivered: integer("total_delivered").default(0).notNull(),
+  totalOpened: integer("total_opened").default(0).notNull(),
+  totalClicked: integer("total_clicked").default(0).notNull(),
+  totalBounced: integer("total_bounced").default(0).notNull(),
+  totalUnsubscribed: integer("total_unsubscribed").default(0).notNull(),
+  
+  // ===== CALCULATED RATES =====
+  openRate: decimal("open_rate", { precision: 5, scale: 2 }), // 45.50 = 45.5%
+  clickRate: decimal("click_rate", { precision: 5, scale: 2 }),
+  conversionRate: decimal("conversion_rate", { precision: 5, scale: 2 }),
+  
+  // ===== RESEND INTEGRATION =====
+  resendBatchId: text("resend_batch_id"), // Resend API batch ID
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  statusIdx: index("campaign_status_idx").on(table.status),
+  scheduledIdx: index("campaign_scheduled_idx").on(table.scheduledFor),
+}));
+
+export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns).omit({
+  id: true,
+  totalRecipients: true,
+  totalSent: true,
+  totalDelivered: true,
+  totalOpened: true,
+  totalClicked: true,
+  totalBounced: true,
+  totalUnsubscribed: true,
+  createdAt: true,
+}).extend({
+  openRate: z.string().optional(),
+  clickRate: z.string().optional(),
+  conversionRate: z.string().optional(),
+});
+
+export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+
+// Email Events (Individual Tracking)
+export const emailEvents = pgTable("email_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  subscriberId: varchar("subscriber_id").references(() => newsletterSubscribers.id).notNull(),
+  campaignId: varchar("campaign_id").references(() => emailCampaigns.id),
+  
+  eventType: text("event_type").notNull(), // "sent", "delivered", "opened", "clicked", "bounced", "complained", "unsubscribed"
+  
+  // ===== EVENT DETAILS =====
+  clickedUrl: text("clicked_url"), // For click events
+  bounceType: text("bounce_type"), // "hard", "soft"
+  bounceReason: text("bounce_reason"),
+  userAgent: text("user_agent"), // Browser/device info
+  ipAddress: text("ip_address"),
+  
+  // ===== RESEND WEBHOOK DATA =====
+  resendEventId: text("resend_event_id"),
+  webhookPayload: jsonb("webhook_payload"), // Full Resend webhook data
+  
+  occurredAt: timestamp("occurred_at").defaultNow().notNull(),
+}, (table) => ({
+  subscriberEventIdx: index("email_event_subscriber_idx").on(table.subscriberId, table.eventType),
+  campaignEventIdx: index("email_event_campaign_idx").on(table.campaignId, table.eventType),
+  occurredIdx: index("email_event_occurred_idx").on(table.occurredAt),
+}));
+
+export const insertEmailEventSchema = createInsertSchema(emailEvents).omit({
+  id: true,
+  occurredAt: true,
+});
+
+export type InsertEmailEvent = z.infer<typeof insertEmailEventSchema>;
+export type EmailEvent = typeof emailEvents.$inferSelect;
 
 // Calculator Scenarios
 export const calculatorScenarios = pgTable("calculator_scenarios", {

@@ -36,13 +36,16 @@ The backend uses Node.js and Express in TypeScript, providing RESTful JSON APIs 
 -   **POS System:** Manages orders, pricing, payments (Stripe), and multi-location support.
 -   **IoT & Diagnostics:** Ingests sensor data (MQTT/HTTPS) for machine telemetry and predictive maintenance.
 -   **Route Optimization:** Uses Google Maps and OR-Tools for logistics, GPS tracking, and Twilio for SMS.
--   **AI Consultant:** Orchestrates multiple AI models (OpenAI, Anthropic, Gemini, Perplexity) with a RAG pipeline and pgvector.
+-   **AI Consultant:** Orchestrates multiple AI models (Anthropic, Gemini, Perplexity, Grok) with a RAG pipeline and pgvector.
 -   **Analytics:** Provides materialized views and scheduled aggregations for business metrics.
 -   **Website Hosting:** Offers multi-tenant provisioning, custom domains, and CDN integration (Cloudflare).
 -   **Google Integrations:** Connects with Google Search Console, SERP API, Workspace, and Cloud APIs.
 -   **Resources Hub:** Provides industry-specific resources with secure filtering.
--   **Newsletter System:** Manages email capture, validation, and subscriber management.
--   **CLEANBI Intelligence System:** Google-powered tool for scoring laundromats, including an auto-calculator and a Chrome extension for viral distribution.
+-   **ULTIMATE SEO BLOG SUITE (300+ BLOGS):** Multi-AI orchestration system (Anthropic, Gemini, Perplexity, Grok) generating 300+ SEO-optimized blogs across 3 markets (business buying, real estate, laundromat). Each blog includes perfect meta tags, Open Graph, Twitter Cards, schema.org markup, canonical URLs, breadcrumbs, alt text, PDF export, internal linking to CLEANBI tool, and SERP ranking tracking. Targets 50+ high-value keywords with daily automated content generation using free AI tiers.
+-   **GLOBAL EMAIL CAPTURE SUITE:** Industry-segmented newsletter system with 3 tables (subscribers, campaigns, events). Tracks email capture by industry (business_buying, real_estate, laundromat), country (220+ supported), lead source (blog_pdf, cleanbi_tool), and engagement metrics. Integrates with Resend for automated campaigns, tracks opens/clicks/bounces, lead scoring (0-100), and conversion attribution. Supports targeted email blasts by industry, geography, and lead score.
+-   **GLOBAL SEO/AEO TRACKING:** Comprehensive system tracking keyword rankings (SERP API), organic traffic analytics by country/source, Answer Engine Optimization performance (Google SGE, Perplexity, ChatGPT citations), and competitor analysis. Links blogs to keyword performance, tracks conversions per blog, and monitors 50+ target keywords across global markets.
+-   **REGIONAL PRICING SYSTEM:** PPP-adjusted pricing for 220+ countries with multi-currency support (USD, PHP, JPY, AUD, GBP, EUR). Tracks Stripe price IDs per country, enables/disables markets, and supports phased rollout starting with 6 priority markets.
+-   **CLEANBI Intelligence System:** Google-powered tool for scoring ANY address globally (businesses AND residential properties), including an auto-calculator and a Chrome extension for viral distribution.
 -   **Google Maps Integration:** Server-side geocoding and interactive map components displaying listings and HQ.
 -   **Search Engine Indexing:** Admin panel for IndexNow (Bing, etc.) and Google Indexing API integration for dynamic sitemaps and bulk submission.
 -   **Affiliate Blogs & Consultation:** Optimized content for financing guides, featured carousels on the homepage, and a consultation landing page with comprehensive SEO.
