@@ -133,10 +133,17 @@ class AIProviderService {
     const systemMessage = messages.find(m => m.role === "system");
     const userMessages = messages.filter(m => m.role !== "system");
 
-    const chatHistory = userMessages.slice(0, -1).map(m => ({
+    // Build chat history - Gemini requires it to start with "user" role
+    let chatHistory = userMessages.slice(0, -1).map(m => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.content }],
     }));
+
+    // Ensure history starts with user message (Gemini requirement)
+    // Remove only leading model messages, keep the rest of the history
+    while (chatHistory.length > 0 && chatHistory[0].role === "model") {
+      chatHistory = chatHistory.slice(1);
+    }
 
     const chat = genModel.startChat({
       history: chatHistory,

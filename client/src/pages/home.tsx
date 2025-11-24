@@ -26,7 +26,7 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "WashBizHub",
-    "alternateName": "The Bloomberg of Laundromats",
+    "alternateName": "Professional Laundromat Business Platform",
     "url": typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com",
     "description": "Enterprise-grade SaaS platform for laundromat owners, investors, and operators. Features CLEANBI™ scoring, 2D/3D design studio, marketplace, IoT POS integration, AI-powered pricing, and comprehensive industry resources.",
     "potentialAction": {

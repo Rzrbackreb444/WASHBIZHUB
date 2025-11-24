@@ -3,7 +3,7 @@
 ## Overview
 This project is a multi-tenant SaaS platform targeting two distinct markets:
 
-1.  **WashBizHub.com**: An enterprise (B2B) SaaS platform for the laundromat industry, offering ERP, IoT integration, POS, route optimization, AI consulting, website building, and analytics. It aims to be the "Bloomberg Terminal for Laundromats."
+1.  **WashBizHub.com**: A professional SaaS platform for the laundromat industry, offering business intelligence, market analysis, AI consulting, valuation tools, and industry resources. Providing data-driven insights for laundromat investors and operators.
     
     **MAJOR STRATEGIC PIVOT (Nov 2024)**: 
     - **UNIVERSAL CLEANBI System** launched - backend works for ANY address GLOBALLY (businesses AND residential properties)
@@ -33,7 +33,7 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-The frontend is built with React 18, TypeScript, Wouter for routing, and TanStack Query for state management. It uses Radix UI and shadcn/ui for components, styled with Tailwind CSS to achieve a Bloomberg-inspired aesthetic. Features include real-time updates via WebSockets, responsive dashboards with Chart.js/Recharts, and PWA support. Development is handled with Vite.
+The frontend is built with React 18, TypeScript, Wouter for routing, and TanStack Query for state management. It uses Radix UI and shadcn/ui for components, styled with Tailwind CSS for a clean, professional interface. Features include real-time updates via WebSockets, responsive dashboards with Chart.js/Recharts, and PWA support. Development is handled with Vite.
 
 ### Backend Architecture
 The backend uses Node.js and Express in TypeScript, providing RESTful JSON APIs and WebSockets. It employs Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Key services include POS, IoT & Diagnostics, Route Optimization, AI Consultant, Analytics, Website Hosting, and Google Integrations. It features role-based access control and a multi-tenant design.

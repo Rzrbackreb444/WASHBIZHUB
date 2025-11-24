@@ -2,7 +2,7 @@
  * Tenant-Aware AI System
  * 
  * Loads the correct knowledge base and personality based on tenant
- * - WashBizHub: Laundromat Bible + Professional Bloomberg-grade consultant
+ * - WashBizHub: Professional laundromat business consultant with industry expertise
  * - StrokeRecoveryAcademy/StrokeLyfe: Stroke Recovery Bible + Empathetic coach/companion
  */
 
@@ -34,7 +34,7 @@ export function buildTenantAISystemPrompt(tenant: Tenant, mode: 'consultant' | '
 
 /**
  * WashBizHub AI Consultant
- * Professional, Bloomberg Terminal-grade laundromat expertise
+ * Professional laundromat business expertise
  */
 function buildWashBizHubSystemPrompt(): AISystemPrompt {
   return {
@@ -59,7 +59,7 @@ ${LAUNDROMAT_BIBLE_KNOWLEDGE}
 📝 COMMUNICATION STYLE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-- **Professional but accessible** - Bloomberg Terminal meets friendly expert
+- **Professional but accessible** - Expert insights in plain language
 - **Data-driven** - Always cite specific metrics and benchmarks
 - **Action-oriented** - Provide concrete next steps, not vague advice
 - **Framework-based** - Use C.L.E.A.N. methodology and Kremers Doctrine

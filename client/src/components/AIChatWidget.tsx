@@ -119,7 +119,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "👋 Welcome to **WashBizHub AI Consultant** - Powered by The Laundromat Bible.\n\n**Trained on 60+ years of Kremers family expertise:**\n\n📊 **C.L.E.A.N. Methodology** — Location evaluation framework\n🏆 **Kremers Doctrine** — Foundation First, Systems Over Hustle\n💰 **Financial Benchmarks** — 2.5-4.5x SDE valuations, 8-15% rent ratios\n🔧 **Equipment Intelligence** — Speed Queen, Dexter, Electrolux comparisons\n📈 **Revenue Optimization** — Pricing strategies, wash-dry-fold, commercial accounts\n\n**Ask me anything! I'll give you Bloomberg Terminal-grade insights.**",
+      content: "👋 **Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
       provider: "system",
       timestamp: new Date(),
     },
@@ -244,7 +244,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
     setMessages([
       {
         role: "assistant",
-        content: "👋 Welcome to **WashBizHub AI Consultant** - Powered by The Laundromat Bible.\n\n**Trained on 60+ years of Kremers family expertise:**\n\n📊 **C.L.E.A.N. Methodology** — Location evaluation framework\n🏆 **Kremers Doctrine** — Foundation First, Systems Over Hustle\n💰 **Financial Benchmarks** — 2.5-4.5x SDE valuations, 8-15% rent ratios\n🔧 **Equipment Intelligence** — Speed Queen, Dexter, Electrolux comparisons\n📈 **Revenue Optimization** — Pricing strategies, wash-dry-fold, commercial accounts\n\n**Ask me anything! I'll give you Bloomberg Terminal-grade insights.**",
+        content: "👋 **Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
         provider: "system",
         timestamp: new Date(),
       },
@@ -272,10 +272,10 @@ export const AIChatWidget = memo(function AIChatWidget() {
         className="fixed bottom-6 right-6 z-50 group"
         data-testid="button-open-chat"
       >
-        <div className="bg-gradient-to-r from-yellow-500 via-amber-500 to-green-500 px-6 py-3.5 rounded-full shadow-2xl border-2 border-yellow-400/30 flex items-center gap-3 transition-all duration-300 hover:shadow-yellow-500/50 hover:scale-105 active:scale-95">
+        <div className="bg-primary px-6 py-3.5 rounded-full shadow-2xl border-2 border-primary/30 flex items-center gap-3 transition-all duration-300 hover:shadow-primary/50 hover:scale-105 active:scale-95">
           <div className="relative">
             <Sparkles className="h-6 w-6 text-white animate-pulse" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
           </div>
           <div className="flex flex-col items-start">
             <span className="text-base font-bold text-white">Nick AI</span>
@@ -296,20 +296,20 @@ export const AIChatWidget = memo(function AIChatWidget() {
       data-testid="widget-ai-chat"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-green-500">
+      <div className="flex items-center justify-between p-4 bg-primary">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white animate-pulse" />
           </div>
           <div>
             <h3 className="font-bold text-base text-white flex items-center gap-2">
               Nick AI
               {quotaInfo && getTierBadge(quotaInfo.tier)}
             </h3>
-            <p className="text-xs text-white/80 font-medium">The Laundromat Bible • Online</p>
+            <p className="text-xs text-white/80 font-medium">Laundromat Expert • Online</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -530,17 +530,11 @@ export const AIChatWidget = memo(function AIChatWidget() {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-accent" />
-                Trained on The Laundromat Bible
-              </span>
-              {quotaInfo && (
-                <span className="font-mono">
-                  {quotaInfo.tier === "enterprise" ? "∞" : quotaInfo.remaining} left
-                </span>
-              )}
-            </div>
+            {quotaInfo && quotaInfo.tier !== "enterprise" && (
+              <div className="mt-2 text-xs text-muted-foreground text-right font-mono">
+                {quotaInfo.remaining} messages left
+              </div>
+            )}
           </div>
         </>
       )}
