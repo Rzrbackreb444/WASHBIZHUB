@@ -148,6 +148,26 @@ export const insertCleanbiScoreSchema = createInsertSchema(cleanbiScores).omit({
 export type InsertCleanbiScore = z.infer<typeof insertCleanbiScoreSchema>;
 export type CleanbiScore = typeof cleanbiScores.$inferSelect;
 
+// CLEANBI Usage Tracking (for subscription quotas & MRR/ARR analytics)
+export const cleanbiUsage = pgTable("cleanbi_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  reportType: text("report_type").notNull(), // "basic", "detailed", "api"
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  month: varchar("month").notNull(), // "YYYY-MM" for quota tracking
+  addressScored: text("address_scored"), // Optional: which address was scored
+  metadata: jsonb("metadata"), // Optional: capture email, score, etc.
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCleanbiUsageSchema = createInsertSchema(cleanbiUsage).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCleanbiUsage = z.infer<typeof insertCleanbiUsageSchema>;
+export type CleanbiUsage = typeof cleanbiUsage.$inferSelect;
+
 // Residential Property Scores (for ANY address - homes, apartments, land)
 export const residentialScores = pgTable("residential_scores", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
