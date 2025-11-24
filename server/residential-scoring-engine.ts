@@ -48,6 +48,7 @@ export interface ResidentialScoringResult {
   };
   rentalPotential: 'excellent' | 'good' | 'fair' | 'poor';
   recommendations: string[];
+  warnings: string[]; // Empty array for API contract consistency with business scoring
   dataQuality: 'excellent' | 'good' | 'fair' | 'limited';
 }
 
@@ -400,6 +401,7 @@ export async function scoreResidentialProperty(
     },
     rentalPotential,
     recommendations,
+    warnings: [], // Empty array for consistency with business scoring API contract
     dataQuality
   };
 
