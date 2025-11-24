@@ -4,6 +4,13 @@
 This project is a multi-tenant SaaS platform targeting two distinct markets:
 
 1.  **WashBizHub.com**: An enterprise (B2B) SaaS platform for the laundromat industry, offering ERP, IoT integration, POS, route optimization, AI consulting, website building, and analytics. It aims to be the "Bloomberg Terminal for Laundromats."
+    
+    **MAJOR STRATEGIC PIVOT (Nov 2024)**: 
+    - **UNIVERSAL CLEANBI System** launched - backend works for ANY business type (laundromats, car washes, restaurants, gyms, retail, gas stations, salons, hotels, generic)
+    - **Marketing Strategy**: Site still laundromat-branded (WashBizHub brand loyalty), but CLEANBI tool + Chrome extension are universal
+    - **Distribution**: Chrome extension "CLEANBI Anywhere" is industry-agnostic for viral spread across 8+ industries
+    - **Market Expansion**: 71K laundromat users → 18M+ business buyers (100x expansion), $172K → $44M+ revenue potential
+    
 2.  **STROKE RECOVERY ECOSYSTEM**: A healthcare platform centered around **StrokeRecoveryAcademy.com**, which provides educational courses with AI-powered curricula, a community forum, medication/appointment/exercise tracking with an AI companion, and peer-to-peer knowledge sharing. Satellite domains (StrokeLyfe.app, StrokeLyfe.org) serve as marketing and nonprofit entry points redirecting to the main academy.
 
 The platform's core ambition is to achieve market leadership by leveraging multi-AI orchestration (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized experiences and authentic expertise.
