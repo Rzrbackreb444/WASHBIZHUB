@@ -104,6 +104,7 @@ import ValuationCalculator from "@/pages/valuation-calculator";
 import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
 import TPDCalculator from "@/pages/tpd-calculator";
 import CLEANBICalculator from "@/pages/cleanbi-calculator";
+import CleanbiAuto from "@/pages/cleanbi-auto";
 import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
 import ROICalculatorEnhanced from "@/pages/roi-calculator-enhanced";
 import AffiliateBlogsPage from "@/pages/affiliate-blogs";
@@ -124,6 +125,7 @@ function Router() {
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
+      <Route path="/cleanbi-auto" component={CleanbiAuto} />
       <Route path="/calculators" component={CalculatorsHub} />
       <Route path="/calc/:slug" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />

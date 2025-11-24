@@ -418,6 +418,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== GOOGLE-POWERED CLEANBI ====================
+  
+  // POST /api/cleanbi/auto - Calculate CLEANBI score using ONLY Google APIs (rate-limited)
+  app.post("/api/cleanbi/auto", async (req, res) => {
+    try {
+      // Rate limiting (30 req/min per IP)
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
+
+      const { address, businessName } = req.body;
+      
+      // Validation
+      if (!address || typeof address !== 'string') {
+        return res.status(400).json({ error: "Address is required" });
+      }
+      
+      if (address.length > 500) {
+        return res.status(400).json({ error: "Address too long" });
+      }
+
+      const { calculateGoogleCleanbi } = await import('./google-cleanbi-engine');
+      const result = await calculateGoogleCleanbi({ address, businessName });
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('Google CLEANBI error:', error);
+      res.status(500).json({ 
+        error: error.message || "Failed to calculate CLEANBI score",
+        hint: "Verify the address is correct and the business exists on Google Maps"
+      });
+    }
+  });
+
   // ==================== MARKETPLACE ====================
   
   app.get("/api/vendors", async (req, res) => {
