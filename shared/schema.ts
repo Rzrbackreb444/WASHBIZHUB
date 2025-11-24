@@ -208,6 +208,221 @@ export const insertResidentialScoreSchema = createInsertSchema(residentialScores
 export type InsertResidentialScore = z.infer<typeof insertResidentialScoreSchema>;
 export type ResidentialScore = typeof residentialScores.$inferSelect;
 
+// Regional Pricing (PPP-adjusted pricing for global markets)
+export const regionalPricing = pgTable("regional_pricing", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Region/Country
+  countryCode: varchar("country_code", { length: 2 }).notNull(), // ISO 3166-1 alpha-2 (US, PH, JP, AU, GB, etc.)
+  countryName: text("country_name").notNull(), // "United States", "Philippines", "Japan"
+  region: text("region").notNull(), // "North America", "Southeast Asia", "East Asia", "Europe", "Oceania"
+  
+  // Currency
+  currency: varchar("currency", { length: 3 }).notNull(), // ISO 4217 (USD, PHP, JPY, EUR, GBP, AUD)
+  currencySymbol: varchar("currency_symbol", { length: 5 }).notNull(), // "$", "₱", "¥", "€", "£"
+  
+  // CLEANBI Report Pricing (one-time purchases in cents/smallest currency unit)
+  basicReportPrice: integer("basic_report_price").notNull(), // e.g., 4700 = $47.00, 250000 = ₱2,500
+  standardReportPrice: integer("standard_report_price").notNull(), // e.g., 9700 = $97.00, 500000 = ₱5,000
+  premiumReportPrice: integer("premium_report_price").notNull(), // e.g., 49700 = $497.00, 2500000 = ₱25,000
+  
+  // Subscription Pricing (monthly, in cents/smallest currency unit)
+  monthlySubscriptionPrice: integer("monthly_subscription_price").notNull(), // e.g., 2900 = $29/mo, 80000 = ₱800/mo
+  
+  // Purchasing Power Parity Adjustment
+  pppMultiplier: decimal("ppp_multiplier", { precision: 5, scale: 2 }).notNull(), // 1.00 = USA baseline, 0.50 = 50% of USA price
+  
+  // Display Settings
+  isActive: boolean("is_active").default(true).notNull(),
+  displayOrder: integer("display_order").default(0).notNull(), // Sort order in dropdowns
+  
+  // Stripe Integration
+  stripeBasicPriceId: text("stripe_basic_price_id"), // Stripe Price ID for basic report
+  stripeStandardPriceId: text("stripe_standard_price_id"), // Stripe Price ID for standard report
+  stripePremiumPriceId: text("stripe_premium_price_id"), // Stripe Price ID for premium report
+  stripeSubscriptionPriceId: text("stripe_subscription_price_id"), // Stripe Price ID for monthly subscription
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  countryCodeIdx: uniqueIndex("country_code_idx").on(table.countryCode),
+}));
+
+export const insertRegionalPricingSchema = createInsertSchema(regionalPricing).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  pppMultiplier: z.string(), // decimal as string
+});
+
+export type InsertRegionalPricing = z.infer<typeof insertRegionalPricingSchema>;
+export type RegionalPricing = typeof regionalPricing.$inferSelect;
+
+// ========================================
+// GLOBAL SEO/AEO TRACKING SYSTEM
+// ========================================
+
+// Target Keywords (what we want to rank for globally)
+export const seoKeywords = pgTable("seo_keywords", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Keyword Details
+  keyword: text("keyword").notNull(), // "cleanbi score", "laundromat investment calculator"
+  language: varchar("language", { length: 5 }).notNull(), // ISO 639-1 (en, es, ja, zh, tl)
+  countryCode: varchar("country_code", { length: 2 }).notNull(), // ISO 3166-1 (US, PH, JP, AU, GB)
+  
+  // Search Intent
+  intent: text("intent").notNull(), // "commercial", "informational", "navigational", "transactional"
+  category: text("category").notNull(), // "cleanbi", "real_estate", "business_buying", "laundromat"
+  priority: integer("priority").default(5).notNull(), // 1-10 (10 = highest)
+  
+  // Target Metrics
+  targetPosition: integer("target_position").default(1).notNull(), // Goal: rank #1-3
+  monthlySearchVolume: integer("monthly_search_volume"), // From SERP API
+  competitionLevel: text("competition_level"), // "low", "medium", "high"
+  cpcEstimate: decimal("cpc_estimate", { precision: 6, scale: 2 }), // Cost per click in USD
+  
+  // Tracking Status
+  isActive: boolean("is_active").default(true).notNull(),
+  isTracking: boolean("is_tracking").default(true).notNull(), // Track rankings daily?
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  keywordCountryIdx: index("seo_keyword_country_idx").on(table.keyword, table.countryCode),
+}));
+
+export const insertSeoKeywordSchema = createInsertSchema(seoKeywords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  cpcEstimate: z.string().optional(),
+});
+
+export type InsertSeoKeyword = z.infer<typeof insertSeoKeywordSchema>;
+export type SeoKeyword = typeof seoKeywords.$inferSelect;
+
+// Keyword Rankings (daily tracking via SERP API)
+export const keywordRankings = pgTable("keyword_rankings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  keywordId: varchar("keyword_id").references(() => seoKeywords.id).notNull(),
+  
+  // Ranking Data (from SERP API)
+  position: integer("position"), // Our ranking position (1-100)
+  previousPosition: integer("previous_position"), // Yesterday's position
+  url: text("url"), // Which URL is ranking (e.g., /cleanbi-auto)
+  title: text("title"), // Page title in SERP
+  snippet: text("snippet"), // Meta description shown
+  
+  // SERP Features
+  hasFeaturedSnippet: boolean("has_featured_snippet").default(false).notNull(),
+  hasPeopleAlsoAsk: boolean("has_people_also_ask").default(false).notNull(),
+  hasLocalPack: boolean("has_local_pack").default(false).notNull(),
+  hasKnowledgeGraph: boolean("has_knowledge_graph").default(false).notNull(),
+  
+  // Competitor Analysis
+  topCompetitors: jsonb("top_competitors"), // Top 3 competitors [{domain, position, url}]
+  
+  // Raw SERP API Response
+  serpApiData: jsonb("serp_api_data"), // Full response for debugging
+  
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+}, (table) => ({
+  keywordCheckedIdx: index("keyword_checked_idx").on(table.keywordId, table.checkedAt),
+}));
+
+export const insertKeywordRankingSchema = createInsertSchema(keywordRankings).omit({
+  id: true,
+  checkedAt: true,
+});
+
+export type InsertKeywordRanking = z.infer<typeof insertKeywordRankingSchema>;
+export type KeywordRanking = typeof keywordRankings.$inferSelect;
+
+// Organic Traffic Analytics (Google Search Console + Custom)
+export const organicTraffic = pgTable("organic_traffic", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Traffic Source
+  source: text("source").notNull(), // "google", "bing", "yahoo", "duckduckgo", "baidu"
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  language: varchar("language", { length: 5 }).notNull(),
+  
+  // Traffic Metrics
+  date: timestamp("date").notNull(), // Daily aggregation
+  sessions: integer("sessions").default(0).notNull(),
+  pageviews: integer("pageviews").default(0).notNull(),
+  uniqueVisitors: integer("unique_visitors").default(0).notNull(),
+  avgSessionDuration: integer("avg_session_duration"), // Seconds
+  bounceRate: decimal("bounce_rate", { precision: 5, scale: 2 }), // 45.50 = 45.5%
+  
+  // Landing Pages
+  topLandingPage: text("top_landing_page"), // Most visited page (/cleanbi-auto)
+  landingPageBreakdown: jsonb("landing_page_breakdown"), // [{path, sessions, conversions}]
+  
+  // Conversions
+  cleanbScoresGenerated: integer("cleanbi_scores_generated").default(0).notNull(),
+  reportsPurchased: integer("reports_purchased").default(0).notNull(),
+  conversionRate: decimal("conversion_rate", { precision: 5, scale: 2 }), // 3.50 = 3.5%
+  revenue: decimal("revenue", { precision: 12, scale: 2 }), // Total revenue from organic traffic
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  dateCountryIdx: index("traffic_date_country_idx").on(table.date, table.countryCode),
+}));
+
+export const insertOrganicTrafficSchema = createInsertSchema(organicTraffic).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  bounceRate: z.string().optional(),
+  conversionRate: z.string().optional(),
+  revenue: z.string().optional(),
+});
+
+export type InsertOrganicTraffic = z.infer<typeof insertOrganicTrafficSchema>;
+export type OrganicTraffic = typeof organicTraffic.$inferSelect;
+
+// AEO (Answer Engine Optimization) Performance
+export const aeoPerformance = pgTable("aeo_performance", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Answer Engine
+  engine: text("engine").notNull(), // "google_sge", "perplexity", "chatgpt", "claude", "gemini"
+  query: text("query").notNull(), // User question
+  language: varchar("language", { length: 5 }).notNull(),
+  countryCode: varchar("country_code", { length: 2 }),
+  
+  // Citation Performance
+  isCited: boolean("is_cited").default(false).notNull(), // Did we get cited?
+  citationPosition: integer("citation_position"), // Position in citations (1-10)
+  citedUrl: text("cited_url"), // Which URL was cited
+  citationText: text("citation_text"), // Snippet that was cited
+  
+  // Answer Analysis
+  answerContainsCleanbi: boolean("answer_contains_cleanbi").default(false).notNull(),
+  answerSentiment: text("answer_sentiment"), // "positive", "neutral", "negative"
+  
+  // Raw Response
+  fullResponse: text("full_response"), // Full AI-generated answer
+  metadata: jsonb("metadata"), // Additional tracking data
+  
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+}, (table) => ({
+  engineQueryIdx: index("aeo_engine_query_idx").on(table.engine, table.query),
+}));
+
+export const insertAeoPerformanceSchema = createInsertSchema(aeoPerformance).omit({
+  id: true,
+  checkedAt: true,
+});
+
+export type InsertAeoPerformance = z.infer<typeof insertAeoPerformanceSchema>;
+export type AeoPerformance = typeof aeoPerformance.$inferSelect;
+
 // Blog Posts (Manual/AI/UGB/UGE)
 export const blogPosts = pgTable("blog_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -590,26 +805,9 @@ export const insertAiBlogTaskSchema = createInsertSchema(aiBlogTasks).omit({
 export type InsertAiBlogTask = z.infer<typeof insertAiBlogTaskSchema>;
 export type AiBlogTask = typeof aiBlogTasks.$inferSelect;
 
-// SEO Keyword Research
-export const seoKeywords = pgTable("seo_keywords", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  keyword: text("keyword").notNull(),
-  searchVolume: integer("search_volume"), // Monthly searches
-  competition: text("competition"), // "low", "medium", "high"
-  cpc: decimal("cpc", { precision: 10, scale: 2 }), // Cost per click
-  difficulty: integer("difficulty"), // 0-100
-  relevanceScore: integer("relevance_score"), // Custom relevance to laundromats
-  relatedKeywords: jsonb("related_keywords"), // LSI keywords array
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertSeoKeywordSchema = createInsertSchema(seoKeywords).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertSeoKeyword = z.infer<typeof insertSeoKeywordSchema>;
-export type SeoKeyword = typeof seoKeywords.$inferSelect;
+// NOTE: Comprehensive SEO/AEO tracking schema is defined earlier (after regionalPricing)
+// The global seoKeywords, keywordRankings, organicTraffic, and aeoPerformance tables
+// provide full international SEO tracking with SERP API integration
 
 // Competitor Analysis
 export const competitorAnalysis = pgTable("competitor_analysis", {
