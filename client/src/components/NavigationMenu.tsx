@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { SocialNavigation } from "./SocialNavigation";
+import { ThemeToggle } from "./ThemeToggle";
 import {
   NavigationMenu as NavMenu,
   NavigationMenuContent,
@@ -104,6 +105,9 @@ export function NavigationMenu() {
           <div className="hidden sm:block">
             <SocialNavigation />
           </div>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Desktop Tools Menu */}
           <div className="hidden xl:block">
