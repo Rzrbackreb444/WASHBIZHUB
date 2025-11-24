@@ -12,6 +12,8 @@ import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, n
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
 import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
+import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
+import { optimizeBlogForSEO } from "./seo-optimizer";
 import { readFileSync } from "fs";
 import { join } from "path";
 import {
@@ -348,6 +350,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const content = await generateBlogContent(topic, category);
       res.json({ content });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== MULTI-AI BLOG GENERATION ====================
+
+  app.post("/api/blog/generate-multi-ai", isAdmin, async (req, res) => {
+    try {
+      const { keyword, category, targetWordCount, tone } = req.body;
+      
+      console.log(`🚀 Multi-AI blog generation started for: "${keyword}"`);
+      
+      // Generate blog using 4 AI providers
+      const blogContent = await generateBlogWithMultiAI({
+        keyword,
+        category: category || "laundromat",
+        targetWordCount: targetWordCount || 1500,
+        tone: tone || "professional"
+      });
+      
+      // Optimize for SEO
+      const seoData = optimizeBlogForSEO(blogContent);
+      
+      // Create blog post in database
+      const blogPost = await storage.createBlogPost({
+        title: blogContent.title,
+        content: seoData.optimizedContent,
+        excerpt: blogContent.excerpt,
+        slug: seoData.slug,
+        canonicalUrl: seoData.canonicalUrl,
+        metaTitle: blogContent.metaTitle,
+        metaDescription: blogContent.metaDescription,
+        focusKeyphrases: blogContent.focusKeyphrases,
+        ogTitle: seoData.ogTitle,
+        ogDescription: seoData.ogDescription,
+        ogImage: seoData.ogImage,
+        twitterCard: seoData.twitterCard,
+        twitterTitle: seoData.twitterTitle,
+        twitterDescription: seoData.twitterDescription,
+        twitterImage: seoData.twitterImage,
+        schemaMarkup: seoData.schemaMarkup,
+        type: "ai_multi",
+        category,
+        market: "global",
+        aiProviders: [blogContent.provider],
+        aiQualityScore: blogContent.qualityScore,
+        seoScore: seoData.seoScore,
+        internalLinks: seoData.internalLinks,
+        linkToCleanbi: true,
+        cleanbiAnchorText: "Try our free property analysis tool",
+        status: "published",
+        published: true
+      });
+      
+      console.log(`✅ Blog created: ${blogPost.id} (SEO Score: ${seoData.seoScore})`);
+      
+      res.json({ 
+        success: true, 
+        blog: blogPost,
+        provider: blogContent.provider,
+        qualityScore: blogContent.qualityScore,
+        seoScore: seoData.seoScore
+      });
+    } catch (error: any) {
+      console.error('❌ Multi-AI blog generation failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/blog/batch-generate", isAdmin, async (req, res) => {
+    try {
+      const { keywords, category } = req.body;
+      
+      if (!Array.isArray(keywords) || keywords.length === 0) {
+        return res.status(400).json({ message: "Keywords array required" });
+      }
+      
+      console.log(`📚 Batch generating ${keywords.length} blogs for ${category}...`);
+      
+      // Generate all blogs
+      const blogContents = await generateBlogsInBatch(keywords, category);
+      
+      // Optimize and save each blog
+      const savedBlogs = [];
+      for (const blogContent of blogContents) {
+        const seoData = optimizeBlogForSEO(blogContent);
+        
+        const blogPost = await storage.createBlogPost({
+          title: blogContent.title,
+          content: seoData.optimizedContent,
+          excerpt: blogContent.excerpt,
+          slug: seoData.slug,
+          canonicalUrl: seoData.canonicalUrl,
+          metaTitle: blogContent.metaTitle,
+          metaDescription: blogContent.metaDescription,
+          focusKeyphrases: blogContent.focusKeyphrases,
+          ogTitle: seoData.ogTitle,
+          ogDescription: seoData.ogDescription,
+          ogImage: seoData.ogImage,
+          twitterCard: seoData.twitterCard,
+          twitterTitle: seoData.twitterTitle,
+          twitterDescription: seoData.twitterDescription,
+          twitterImage: seoData.twitterImage,
+          schemaMarkup: seoData.schemaMarkup,
+          type: "ai_multi",
+          category,
+          market: "global",
+          aiProviders: [blogContent.provider],
+          aiQualityScore: blogContent.qualityScore,
+          seoScore: seoData.seoScore,
+          internalLinks: seoData.internalLinks,
+          linkToCleanbi: true,
+          status: "published",
+          published: true
+        });
+        
+        savedBlogs.push(blogPost);
+      }
+      
+      console.log(`✅ Batch complete: ${savedBlogs.length} blogs created`);
+      
+      res.json({ 
+        success: true, 
+        count: savedBlogs.length,
+        blogs: savedBlogs 
+      });
+    } catch (error: any) {
+      console.error('❌ Batch generation failed:', error);
       res.status(500).json({ message: error.message });
     }
   });
