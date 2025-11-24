@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "CLEANBI Anywhere - Instant Laundromat Scores",
+  "version": "1.0.0",
+  "description": "See instant CLEANBI scores on Google Maps, LoopNet, BizBuySell. Never buy a bad laundromat again.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.google.com/maps/*",
+    "https://maps.google.com/*",
+    "https://www.loopnet.com/*",
+    "https://www.bizbuysell.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps/*",
+        "https://maps.google.com/*"
+      ],
+      "js": ["scripts/google-maps-injector.js"],
+      "css": ["scripts/cleanbi-overlay.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.loopnet.com/*"
+      ],
+      "js": ["scripts/loopnet-injector.js"],
+      "css": ["scripts/cleanbi-overlay.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.bizbuysell.com/*"
+      ],
+      "js": ["scripts/bizbuysell-injector.js"],
+      "css": ["scripts/cleanbi-overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
