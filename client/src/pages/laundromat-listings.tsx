@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Store, MapPin, DollarSign, TrendingUp, Search, Plus, Building2, BarChart3, MessageSquare, Settings, Zap } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
 
 interface LaundroListing {
   id: string;
@@ -101,7 +102,7 @@ export default function LaundromatListings() {
           utilities: 81,
           readiness: 85,
         },
-        images: [],
+        images: [newportImage],
         description: "Unique premium opportunity in high-income Orange County location. Features 27 machines with Dexter equipment, full security infrastructure, PayRange + coin system. Graduated lease terms (up to 20 years) with owner financing available. SBA-eligible. Seller financing options available ($50K-$100K down). Ideal for fluff & fold and pickup/delivery service expansion. Owner-operated building offers flexibility for qualified buyers.",
         contactEmail: "larry@washbizhub.com",
         createdAt: new Date().toISOString(),
