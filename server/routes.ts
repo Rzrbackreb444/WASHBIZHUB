@@ -3901,56 +3901,77 @@ Disallow: /private/`;
 
   // ==================== AI CHAT ====================
 
-  // POST /api/ai/chat - AI consultant chat endpoint with freemium usage tracking
-  app.post("/api/ai/chat", isAuthenticated, async (req, res) => {
+  // POST /api/ai/chat - Tiered chat access with optimal conversion funnel
+  // Guests: 2 msgs → Free: 10/mo → Pro: 500/mo → Enterprise: unlimited
+  app.post("/api/ai/chat", rateLimiter("/api/ai/chat", 10, 60), async (req, res) => {
     try {
-      const { message, conversationHistory } = req.body;
+      const { message, conversationHistory, guestSessionId } = req.body;
 
       if (!message) {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      // Get current user with quota info
+      // Check if user is authenticated
       const currentUser = await getCurrentUser(req);
-      if (!currentUser) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
+      let user = null;
+      let tier = "guest"; // guest, free, pro, enterprise
+      let messagesUsed = 0;
+      let monthlyQuota = 2; // Guests get 2 messages to taste value
 
-      // Get user from database to check AI quotas
-      const user = await storage.getUser(currentUser.userId);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      // Check if quota needs to be reset (monthly billing cycle)
-      const now = new Date();
-      const quotaResetDate = user.aiQuotaResetDate ? new Date(user.aiQuotaResetDate) : now;
-      
-      if (now >= quotaResetDate) {
-        // Reset quota for new billing period
-        await storage.resetAiQuota(user.id);
-        // Reload user with fresh quota
-        const updatedUser = await storage.getUser(user.id);
-        if (!updatedUser) {
-          return res.status(500).json({ error: "Failed to reset quota" });
+      if (currentUser) {
+        // Authenticated user - check quotas
+        user = await storage.getUser(currentUser.userId);
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
         }
-        Object.assign(user, updatedUser);
+        
+        tier = user.aiConsultantTier || "free";
+        messagesUsed = user.aiMessagesUsed || 0;
+        monthlyQuota = user.aiMonthlyQuota || 10; // Free: 10, Pro: 500, Enterprise: 999999
+      } else {
+        // Guest user - count messages in conversation history
+        messagesUsed = (conversationHistory || []).filter((m: any) => m.role === "user").length;
+        if (messagesUsed >= 2) {
+          return res.status(429).json({ 
+            error: "guest_limit_exceeded",
+            message: "Sign up for a free account to get 10 messages per month!",
+            tier: "guest",
+            used: messagesUsed,
+            quota: 2,
+          });
+        }
       }
 
-      // Check if user has exceeded their quota
-      const messagesUsed = user.aiMessagesUsed || 0;
-      const monthlyQuota = user.aiMonthlyQuota || 10; // Default free tier
+      // For authenticated users, check quota reset and limits
+      if (user) {
+        const now = new Date();
+        const quotaResetDate = user.aiQuotaResetDate ? new Date(user.aiQuotaResetDate) : now;
+        
+        if (now >= quotaResetDate) {
+          // Reset quota for new billing period
+          await storage.resetAiQuota(user.id);
+          // Reload user with fresh quota
+          const updatedUser = await storage.getUser(user.id);
+          if (!updatedUser) {
+            return res.status(500).json({ error: "Failed to reset quota" });
+          }
+          Object.assign(user, updatedUser);
+          messagesUsed = 0;
+        }
 
-      if (messagesUsed >= monthlyQuota) {
-        return res.status(429).json({ 
-          error: "quota_exceeded",
-          message: `You've used all ${monthlyQuota} messages this month. Upgrade to Pro for 500 messages/month or Enterprise for unlimited.`,
-          tier: user.aiConsultantTier || "free",
-          used: messagesUsed,
-          quota: monthlyQuota,
-          resetDate: user.aiQuotaResetDate,
-        });
+        // Check if authenticated user has exceeded their quota
+        if (messagesUsed >= monthlyQuota) {
+          return res.status(429).json({ 
+            error: "quota_exceeded",
+            message: `You've used all ${monthlyQuota} messages this month. Upgrade to Pro for 500 messages/month or Enterprise for unlimited.`,
+            tier: tier,
+            used: messagesUsed,
+            quota: monthlyQuota,
+            resetDate: user.aiQuotaResetDate,
+          });
+        }
       }
+      // Note: Guest users are rate-limited by IP (10 req/min) via rateLimiter middleware
 
       // Get tenant from request (attached by tenant middleware)
       const tenant = (req as any).tenant;
@@ -3984,19 +4005,16 @@ Disallow: /private/`;
         },
       ];
 
-      // Tier-based AI model routing
+      // Tier-based AI model routing (guests + free = Gemini, pro = GPT-4, enterprise = Claude)
       const availableProviders = aiProviderService.getAvailableProviders();
-      const tier = user.aiConsultantTier || "free";
       
       let response;
-      // Free tier: Gemini only (cost-effective)
-      // Pro tier: GPT-4 or Claude for better quality
-      // Enterprise: Best available model with priority
       if (tier === "enterprise" && availableProviders.includes("anthropic")) {
         response = await aiProviderService.generate("anthropic", messages);
       } else if (tier === "pro" && availableProviders.includes("openai")) {
         response = await aiProviderService.generate("openai", messages);
       } else if (availableProviders.includes("gemini")) {
+        // Guests and free tier use Gemini (cost-effective)
         response = await aiProviderService.generate("gemini", messages);
       } else if (availableProviders.includes("anthropic")) {
         response = await aiProviderService.generate("anthropic", messages);
@@ -4010,32 +4028,42 @@ Disallow: /private/`;
         return res.status(503).json({ error: "No AI providers available" });
       }
 
-      // Increment usage counter after successful generation
-      await storage.incrementAiUsage(user.id);
+      // Increment usage counter for authenticated users only
+      if (user) {
+        await storage.incrementAiUsage(user.id);
 
-      // Send SMS notification to owner (async, non-blocking)
-      notifyAIChatMessage({
-        userEmail: user.email,
-        message: message,
-        timestamp: new Date().toLocaleString('en-US', { 
-          timeZone: 'America/Chicago',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-      }).catch(err => console.error('Failed to send chat notification:', err));
+        // Send SMS notification to owner (async, non-blocking)
+        notifyAIChatMessage({
+          userEmail: user.email,
+          message: message,
+          timestamp: new Date().toLocaleString('en-US', { 
+            timeZone: 'America/Chicago',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+        }).catch(err => console.error('Failed to send chat notification:', err));
+      }
 
-      // Return response with quota information
+      // Return response with tier-aware quota information
+      const quotaData = user ? {
+        tier: tier,
+        used: messagesUsed + 1, // +1 for the message we just used
+        limit: monthlyQuota,
+        remaining: monthlyQuota - messagesUsed - 1,
+        resetDate: user.aiQuotaResetDate,
+      } : {
+        // Guest quota info
+        tier: "guest",
+        used: messagesUsed + 1,
+        limit: 2,
+        remaining: 2 - messagesUsed - 1,
+      };
+
       res.json({
         ...response,
-        quota: {
-          tier: user.aiConsultantTier || "free",
-          used: (user.aiMessagesUsed || 0) + 1, // +1 for the message we just used
-          limit: user.aiMonthlyQuota || 10,
-          remaining: (user.aiMonthlyQuota || 10) - (user.aiMessagesUsed || 0) - 1,
-          resetDate: user.aiQuotaResetDate,
-        },
+        quota: quotaData,
       });
     } catch (error: any) {
       console.error("AI chat error:", error);
