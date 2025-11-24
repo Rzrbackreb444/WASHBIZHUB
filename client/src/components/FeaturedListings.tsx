@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
 
 interface FeaturedListing {
   id: string;
@@ -28,6 +29,7 @@ const FEATURED_LISTINGS: FeaturedListing[] = [
     name: "Newport Laundry",
     location: "Newport Beach",
     state: "California",
+    image: newportImage,
     price: "$200,000",
     annualRevenue: "$82,753",
     netIncome: "$11,393",
@@ -67,18 +69,27 @@ export function FeaturedListings() {
             <Card key={listing.id} className="overflow-hidden hover-elevate">
               <div className="grid md:grid-cols-3 gap-0">
                 {/* Image/Visual Section */}
-                <div className="md:col-span-1 bg-gradient-to-br from-accent/20 to-primary/20 p-6 flex flex-col justify-center">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-1">{listing.name}</h3>
-                      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <div className="md:col-span-1 relative overflow-hidden">
+                  {listing.image ? (
+                    <img 
+                      src={listing.image} 
+                      alt={`${listing.name} - ${listing.location}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-gradient-to-br from-accent/20 to-primary/20 h-full" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-6">
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-white mb-1">{listing.name}</h3>
+                      <div className="flex items-center gap-2 text-white/90 mb-2">
                         <MapPin className="w-4 h-4" />
                         <span>{listing.location}, {listing.state}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                        <span className="font-semibold">{listing.rating}</span>
-                        <span className="text-sm text-muted-foreground">Premium Listing</span>
+                        <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold text-white">{listing.rating}</span>
+                        <span className="text-sm text-white/80">Premium Listing</span>
                       </div>
                     </div>
                   </div>

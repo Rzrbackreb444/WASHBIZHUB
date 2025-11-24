@@ -28,16 +28,27 @@ class AIProviderService {
   private grok: OpenAI | null = null;
 
   constructor() {
-    if (process.env.OPENAI_API_KEY) {
+    // Replit AI Integrations OpenAI (primary - no API key needed, billed to credits)
+    if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+      this.openai = new OpenAI({ 
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      });
+      console.log('✅ OpenAI configured via Replit AI Integrations');
+    } else if (process.env.OPENAI_API_KEY) {
+      // Fallback to user's own API key
       this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      console.log('✅ OpenAI configured with user API key');
     }
 
     if (process.env.ANTHROPIC_API_KEY) {
       this.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      console.log('✅ Anthropic configured');
     }
 
     if (process.env.GEMINI_API_KEY) {
       this.gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      console.log('✅ Gemini configured');
     }
 
     if (process.env.PERPLEXITY_API_KEY) {
@@ -45,6 +56,7 @@ class AIProviderService {
         apiKey: process.env.PERPLEXITY_API_KEY,
         baseURL: "https://api.perplexity.ai",
       });
+      console.log('✅ Perplexity configured');
     }
 
     if (process.env.GROK_API_KEY) {
@@ -52,6 +64,7 @@ class AIProviderService {
         apiKey: process.env.GROK_API_KEY,
         baseURL: "https://api.x.ai/v1",
       });
+      console.log('✅ Grok configured');
     }
   }
 
