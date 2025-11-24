@@ -20,6 +20,7 @@ import {
   competitorAnalysis,
   consultations,
   listings,
+  listingMedia,
   distributors,
   distributorInquiries,
   affiliateContent,
@@ -86,6 +87,8 @@ import {
   type InsertConsultation,
   type Listing,
   type InsertListing,
+  type ListingMedia,
+  type InsertListingMedia,
   type Distributor,
   type InsertDistributor,
   type DistributorInquiry,
@@ -867,6 +870,42 @@ export class DbStorage implements IStorage {
   async updateBrokerProfile(id: string, updates: Partial<InsertBrokerProfile>): Promise<BrokerProfile> {
     const result = await db.update(brokerProfiles).set(updates).where(eq(brokerProfiles.id, id)).returning();
     return result[0];
+  }
+
+  // ============================================================================
+  // LISTING MEDIA (Images, Videos, Documents)
+  // ============================================================================
+  async getListingMedia(listingId: string): Promise<ListingMedia[]> {
+    return db.select().from(listingMedia)
+      .where(eq(listingMedia.listingId, listingId))
+      .orderBy(asc(listingMedia.sortOrder));
+  }
+
+  async getListingMediaItem(id: string): Promise<ListingMedia | undefined> {
+    const result = await db.select().from(listingMedia).where(eq(listingMedia.id, id));
+    return result[0];
+  }
+
+  async createListingMedia(media: InsertListingMedia): Promise<ListingMedia> {
+    const result = await db.insert(listingMedia).values(media).returning();
+    return result[0];
+  }
+
+  async updateListingMedia(id: string, updates: Partial<InsertListingMedia>): Promise<ListingMedia> {
+    const result = await db.update(listingMedia).set(updates).where(eq(listingMedia.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteListingMedia(id: string): Promise<void> {
+    await db.delete(listingMedia).where(eq(listingMedia.id, id));
+  }
+
+  async reorderListingMedia(listingId: string, mediaIdOrder: string[]): Promise<void> {
+    for (let i = 0; i < mediaIdOrder.length; i++) {
+      await db.update(listingMedia)
+        .set({ sortOrder: i })
+        .where(eq(listingMedia.id, mediaIdOrder[i]));
+    }
   }
 
   // ============================================================================
