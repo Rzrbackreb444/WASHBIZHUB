@@ -6,10 +6,16 @@ This project is a multi-tenant SaaS platform targeting two distinct markets:
 1.  **WashBizHub.com**: An enterprise (B2B) SaaS platform for the laundromat industry, offering ERP, IoT integration, POS, route optimization, AI consulting, website building, and analytics. It aims to be the "Bloomberg Terminal for Laundromats."
     
     **MAJOR STRATEGIC PIVOT (Nov 2024)**: 
-    - **UNIVERSAL CLEANBI System** launched - backend works for ANY business type (laundromats, car washes, restaurants, gyms, retail, gas stations, salons, hotels, generic)
-    - **Marketing Strategy**: Site still laundromat-branded (WashBizHub brand loyalty), but CLEANBI tool + Chrome extension are universal
-    - **Distribution**: Chrome extension "CLEANBI Anywhere" is industry-agnostic for viral spread across 8+ industries
-    - **Market Expansion**: 71K laundromat users → 18M+ business buyers (100x expansion), $172K → $44M+ revenue potential
+    - **UNIVERSAL CLEANBI System** launched - backend works for ANY address GLOBALLY (businesses AND residential properties)
+    - **Dual Market**: Commercial businesses (laundromats, restaurants, retail, gyms, car washes, gas stations, hotels, salons) + Residential real estate (homes, condos, investment properties)
+    - **Global Reach**: Works in 220+ countries via Google Maps API - Philippines, Japan, Australia, UK, EU, Asia, Africa, Americas
+    - **Distribution**: Chrome extension "CLEANBI Anywhere" for viral spread across business marketplaces (LoopNet, BizBuySell) + real estate sites (Zillow, Realtor.com, Redfin)
+    - **GLOBAL Market Expansion**:
+      - **US Market**: 18M business buyers + 10M real estate investors = 28M addresses
+      - **Global Market**: 120M+ addressable users across 220+ countries
+      - **Revenue Potential**: $18B total addressable market (120M × $150 avg report)
+      - **At 1% penetration**: $180M annual revenue
+      - **Subscriptions**: 1M global subscribers × $29/mo = $348M ARR potential
     
 2.  **STROKE RECOVERY ECOSYSTEM**: A healthcare platform centered around **StrokeRecoveryAcademy.com**, which provides educational courses with AI-powered curricula, a community forum, medication/appointment/exercise tracking with an AI companion, and peer-to-peer knowledge sharing. Satellite domains (StrokeLyfe.app, StrokeLyfe.org) serve as marketing and nonprofit entry points redirecting to the main academy.
 
