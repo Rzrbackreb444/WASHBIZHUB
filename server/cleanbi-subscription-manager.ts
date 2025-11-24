@@ -19,35 +19,107 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 /**
  * Get user's CLEANBI subscription tier
- * MVP: Uses aiConsultantTier field, defaults to FREE
- * Production TODO: Add dedicated cleanbiTier field to users table
+ * Production: Uses dedicated cleanbiTier field, with Stripe fallback
  */
 export async function getUserCLEANBITier(userId: string): Promise<keyof typeof CLEANBI_PRICING_TIERS> {
   try {
-    const [user] = await db.select({ tier: users.aiConsultantTier })
+    const [user] = await db.select({ 
+      tier: users.cleanbiTier,
+      subscriptionId: users.cleanbiSubscriptionId,
+      subscriptionStatus: users.cleanbiSubscriptionStatus,
+      stripeCustomerId: users.stripeCustomerId
+    })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
     
-    if (!user || !user.tier) {
+    if (!user) {
       return 'FREE';
     }
     
-    // Map aiConsultantTier values to CLEANBI tiers
-    const tierMap: Record<string, keyof typeof CLEANBI_PRICING_TIERS> = {
-      'free': 'FREE',
-      'pro': 'PRO',
-      'enterprise': 'ENTERPRISE',
-      'white_label': 'WHITE_LABEL',
-      'api_basic': 'API_BASIC',
-      'api_pro': 'API_PRO',
-      'api_enterprise': 'API_ENTERPRISE'
-    };
+    // If tier is set and subscription is active, use it
+    if (user.tier && user.subscriptionStatus === 'active') {
+      return normalizeTier(user.tier);
+    }
     
-    return tierMap[user.tier.toLowerCase()] || 'FREE';
+    // Fallback: Query Stripe for active subscriptions
+    if (stripe && user.stripeCustomerId) {
+      const tier = await getStripeSubscriptionTier(user.stripeCustomerId);
+      if (tier) {
+        // Sync to database for faster future lookups
+        await db.update(users)
+          .set({ 
+            cleanbiTier: tier.toLowerCase(),
+            cleanbiSubscriptionStatus: 'active'
+          })
+          .where(eq(users.id, userId));
+        
+        return tier;
+      }
+    }
+    
+    // Default to stored tier or FREE
+    return user.tier ? normalizeTier(user.tier) : 'FREE';
   } catch (error) {
     console.error('Error loading user CLEANBI tier:', error);
     return 'FREE'; // Safe default
+  }
+}
+
+/**
+ * Normalize tier string to CLEANBI_PRICING_TIERS key
+ */
+function normalizeTier(tier: string): keyof typeof CLEANBI_PRICING_TIERS {
+  const tierMap: Record<string, keyof typeof CLEANBI_PRICING_TIERS> = {
+    'free': 'FREE',
+    'pro': 'PRO',
+    'enterprise': 'ENTERPRISE',
+    'white_label': 'WHITE_LABEL',
+    'api_basic': 'API_BASIC',
+    'api_pro': 'API_PRO',
+    'api_enterprise': 'API_ENTERPRISE'
+  };
+  
+  return tierMap[tier.toLowerCase()] || 'FREE';
+}
+
+/**
+ * Query Stripe for user's active CLEANBI subscription tier
+ */
+async function getStripeSubscriptionTier(stripeCustomerId: string): Promise<keyof typeof CLEANBI_PRICING_TIERS | null> {
+  if (!stripe) return null;
+  
+  try {
+    const subscriptions = await stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: 'active',
+      limit: 10
+    });
+    
+    // Find CLEANBI subscription by metadata
+    for (const sub of subscriptions.data) {
+      if (sub.metadata.tierId) {
+        return normalizeTier(sub.metadata.tierId);
+      }
+      
+      // Fallback: Check price IDs
+      for (const item of sub.items.data) {
+        const priceId = item.price.id;
+        
+        // Match against known CLEANBI price IDs
+        for (const [tierKey, tierConfig] of Object.entries(CLEANBI_PRICING_TIERS)) {
+          if (priceId === tierConfig.stripePriceId || 
+              ('annualStripePriceId' in tierConfig && priceId === tierConfig.annualStripePriceId)) {
+            return tierKey as keyof typeof CLEANBI_PRICING_TIERS;
+          }
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error querying Stripe subscriptions:', error);
+    return null;
   }
 }
 
@@ -289,7 +361,7 @@ export async function createCLEANBISubscription(
     throw new Error('This tier does not support subscriptions');
   }
   
-  const priceId = interval === 'year' && tier.annualStripePriceId
+  const priceId = interval === 'year' && 'annualStripePriceId' in tier && tier.annualStripePriceId
     ? tier.annualStripePriceId
     : tier.stripePriceId;
   
@@ -369,7 +441,7 @@ export async function upgradeCLEANBISubscription(
   const updated = await stripe.subscriptions.update(currentSub.id, {
     items: [{
       id: currentSub.items.data[0].id,
-      price: newTier.stripePriceId
+      price: newTier.stripePriceId || undefined
     }],
     proration_behavior: 'always_invoice',
     metadata: {
