@@ -78,11 +78,11 @@
         <div class="cleanbi-breakdown">
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">👥 Foot Traffic</span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.footTraffic.score}/30</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.footTraffic.score)} pts</span>
           </div>
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">⭐ Reviews</span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.reviews.score}/25</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.reviews.score)} pts</span>
           </div>
         </div>
         <div class="cleanbi-cta">
@@ -104,9 +104,11 @@
     return overlay;
   }
 
-  function isLaundromatElement(element) {
+  function isBusinessElement(element) {
     const text = element.textContent.toLowerCase();
-    return text.includes('laundromat') || text.includes('laundry') || text.includes('coin');
+    // Accept ANY business for sale listing
+    return text.includes('for sale') || text.includes('business') || 
+           text.includes('asking price') || text.includes('revenue');
   }
 
   function extractAddressFromElement(element) {
@@ -122,8 +124,8 @@
     return nameEl ? nameEl.textContent.trim() : null;
   }
 
-  async function handleLaundromatHover(element) {
-    if (!isLaundromatElement(element)) {
+  async function handleBusinessHover(element) {
+    if (!isBusinessElement(element)) {
       return;
     }
 
@@ -159,7 +161,7 @@
         element.setAttribute('data-cleanbi-initialized', 'true');
 
         element.addEventListener('mouseenter', () => {
-          handleLaundromatHover(element);
+          handleBusinessHover(element);
         });
 
         element.addEventListener('mouseleave', () => {

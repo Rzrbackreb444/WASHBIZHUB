@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CLEANBI Anywhere - Instant Laundromat Scores",
-  "version": "1.0.0",
-  "description": "See instant CLEANBI scores on Google Maps, LoopNet, BizBuySell. Never buy a bad laundromat again.",
+  "name": "CLEANBI Anywhere - Instant Business Intelligence Scores",
+  "version": "2.0.0",
+  "description": "Get instant investment scores for ANY business on Google Maps, LoopNet, BizBuySell. Works for laundromats, car washes, restaurants, retail, gyms, and more!",
   "permissions": [
     "activeTab",
     "storage"

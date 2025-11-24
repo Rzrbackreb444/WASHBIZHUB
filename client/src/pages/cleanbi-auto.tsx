@@ -19,6 +19,8 @@ interface CleanbiResult {
   score: number;
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
   confidence: number;
+  industry?: string; // Auto-detected industry
+  industryDisplay?: string; // Human-readable industry name
   breakdown: {
     footTraffic: CleanbiBreakdownItem;
     competition: CleanbiBreakdownItem;
@@ -42,7 +44,7 @@ export default function CleanbiAuto() {
     if (!address.trim()) {
       toast({
         title: "Address Required",
-        description: "Please enter a laundromat address",
+        description: "Please enter a business address",
         variant: "destructive",
       });
       return;
@@ -108,8 +110,8 @@ export default function CleanbiAuto() {
   return (
     <>
       <Helmet>
-        <title>Google-Powered CLEANBI™ Score | Instant Laundromat Valuation</title>
-        <meta name="description" content="Get instant CLEANBI scores for any laundromat using Google Places data. 100% automatic, 100% free. Real-time foot traffic, competition analysis, and reviews." />
+        <title>Google-Powered CLEANBI™ Score | Instant Business Valuation for ANY Industry</title>
+        <meta name="description" content="Get instant CLEANBI scores for ANY business using Google Places data. Laundromats, car washes, restaurants, retail, gyms. 100% automatic, 100% free." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
@@ -119,10 +121,13 @@ export default function CleanbiAuto() {
               Powered by Google APIs
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Instant CLEANBI™ Score
+              Instant CLEANBI™ Universal Score
             </h1>
             <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-              Get a comprehensive laundromat valuation in seconds. Just enter an address - our Google-powered engine does the rest.
+              Get a comprehensive business valuation in seconds for <span className="font-bold text-purple-100">ANY business type</span>. Just enter an address - our Google-powered engine does the rest.
+            </p>
+            <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
+              Laundromats • Car Washes • Restaurants • Retail Stores • Gyms • Gas Stations • ANY Business
             </p>
             <div className="mt-6 flex items-center justify-center gap-6 text-white/80 text-sm">
               <div className="flex items-center gap-2">
@@ -144,11 +149,11 @@ export default function CleanbiAuto() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Calculate CLEANBI Score</CardTitle>
-              <CardDescription>Enter the laundromat address and we'll analyze it using Google Maps data</CardDescription>
+              <CardDescription>Enter ANY business address and we'll analyze it using Google Maps data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address">Laundromat Address *</Label>
+                <Label htmlFor="address">Business Address *</Label>
                 <Input
                   id="address"
                   value={address}
@@ -166,13 +171,13 @@ export default function CleanbiAuto() {
                   id="businessName"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g., Sunshine Laundromat"
+                  placeholder="e.g., Joe's Coffee Shop"
                   data-testid="input-business-name"
                   className="text-base"
                   onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleCalculate()}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Leave blank to search for any laundromat at this address
+                  Leave blank to automatically detect any business at this address
                 </p>
               </div>
 
@@ -206,7 +211,9 @@ export default function CleanbiAuto() {
                 <Card>
                   <CardHeader>
                     <CardTitle>CLEANBI Score</CardTitle>
-                    <CardDescription>Overall Rating</CardDescription>
+                    <CardDescription>
+                      {result.industryDisplay ? `${result.industryDisplay} Analysis` : 'Overall Rating'}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="text-center">
@@ -225,6 +232,12 @@ export default function CleanbiAuto() {
                     <Separator />
 
                     <div className="space-y-3 text-sm">
+                      {result.industryDisplay && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Industry</span>
+                          <Badge variant="secondary" className="capitalize">{result.industryDisplay}</Badge>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Confidence</span>
                         <span className="font-bold">{result.confidence}%</span>
