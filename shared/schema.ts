@@ -59,6 +59,12 @@ export const users = pgTable("users", {
   aiMessagesUsed: integer("ai_messages_used").default(0).notNull(),
   aiQuotaResetDate: timestamp("ai_quota_reset_date").default(sql`NOW() + INTERVAL '1 month'`),
   
+  // CLEANBI subscription (dedicated field synced with Stripe)
+  cleanbiTier: text("cleanbi_tier").default("free"), // "free", "pro", "enterprise", "white_label", "api_basic", "api_pro", "api_enterprise"
+  cleanbiSubscriptionId: text("cleanbi_subscription_id"), // Stripe subscription ID for CLEANBI
+  cleanbiSubscriptionStatus: text("cleanbi_subscription_status"), // "active", "canceled", "past_due", etc.
+  cleanbiQuotaResetDate: timestamp("cleanbi_quota_reset_date").default(sql`NOW() + INTERVAL '1 month'`),
+  
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
