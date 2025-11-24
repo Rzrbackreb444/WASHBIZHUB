@@ -243,6 +243,51 @@ class AIProviderService {
     }
   }
 
+  /**
+   * Generate AI response with automatic fallback to other providers
+   * Tries providers in order: preferred → fallback chain → throws error if all fail
+   */
+  async generateWithFallback(
+    preferredProvider: AIProvider,
+    messages: AIMessage[],
+    model?: string
+  ): Promise<AIResponse> {
+    // Define fallback chain: Gemini → OpenAI → Anthropic → Perplexity → Grok
+    const fallbackChain: AIProvider[] = ["gemini", "openai", "anthropic", "perplexity", "grok"];
+    
+    // Move preferred provider to front
+    const providersToTry = [
+      preferredProvider,
+      ...fallbackChain.filter(p => p !== preferredProvider)
+    ];
+
+    const errors: Array<{provider: AIProvider, error: string}> = [];
+
+    for (const provider of providersToTry) {
+      if (!this.isProviderAvailable(provider)) {
+        continue; // Skip unavailable providers
+      }
+
+      try {
+        console.log(`🤖 Attempting AI generation with ${provider}...`);
+        const response = await this.generate(provider, messages, model);
+        console.log(`✅ AI generation successful with ${provider}`);
+        return response;
+      } catch (error: any) {
+        const errorMsg = error.message || String(error);
+        console.warn(`⚠️ ${provider} failed:`, errorMsg);
+        errors.push({ provider, error: errorMsg });
+        // Continue to next provider
+      }
+    }
+
+    // All providers failed
+    console.error('❌ All AI providers failed:', errors);
+    throw new Error(
+      'AI service temporarily unavailable. Our team has been notified. Please try again in a moment.'
+    );
+  }
+
   getAvailableProviders(): AIProvider[] {
     const providers: AIProvider[] = [];
     if (this.openai) providers.push("openai");
