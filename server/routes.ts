@@ -420,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== GOOGLE-POWERED CLEANBI ====================
   
-  // POST /api/cleanbi/auto - Calculate CLEANBI score using ONLY Google APIs (rate-limited)
+  // POST /api/cleanbi/auto - Calculate CLEANBI score for ANY address (business OR residential)
   app.post("/api/cleanbi/auto", async (req, res) => {
     try {
       // Rate limiting (30 req/min per IP)
@@ -440,15 +440,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Address too long" });
       }
 
-      const { calculateGoogleCleanbi } = await import('./google-cleanbi-engine');
-      const result = await calculateGoogleCleanbi({ address, businessName });
-      
-      res.json(result);
+      // UNIVERSAL SCORING: Detect if address is business or residential
+      const { detectAddressType } = await import('./address-type-detector');
+      const addressType = await detectAddressType(address, businessName);
+
+      console.log(`🎯 Address type detected: ${addressType.type.toUpperCase()} (${addressType.confidence}% confidence)`);
+
+      if (addressType.type === 'business') {
+        // Score as BUSINESS using existing Google CLEANBI engine
+        const { calculateGoogleCleanbi } = await import('./google-cleanbi-engine');
+        const result = await calculateGoogleCleanbi({ address, businessName });
+        
+        res.json({
+          ...result,
+          addressType: 'business',
+          confidence: addressType.confidence
+        });
+      } else {
+        // Score as RESIDENTIAL using new residential scoring engine
+        const { scoreResidentialProperty } = await import('./residential-scoring-engine');
+        const result = await scoreResidentialProperty({ address });
+        
+        res.json({
+          ...result,
+          addressType: 'residential',
+          // Normalize structure to match business response
+          industry: 'Residential Property',
+          industryDisplay: 'Residential Property',
+        });
+      }
     } catch (error: any) {
-      console.error('Google CLEANBI error:', error);
+      console.error('Universal CLEANBI error:', error);
       res.status(500).json({ 
-        error: error.message || "Failed to calculate CLEANBI score",
-        hint: "Verify the address is correct and the business exists on Google Maps"
+        error: error.message || "Failed to calculate score",
+        hint: "Verify the address is correct"
       });
     }
   });
