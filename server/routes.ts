@@ -5,6 +5,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
@@ -35,6 +36,7 @@ import {
   insertCompetitorAnalysisSchema,
   insertConsultationSchema,
   insertListingSchema,
+  insertListingMediaSchema,
   insertDistributorSchema,
   insertTemplateSchema,
   insertTemplateDownloadSchema,
@@ -117,6 +119,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // ==================== OBJECT STORAGE (Private Media Serving) ====================
+  
+  // Serve private objects with ACL check
+  app.get("/objects/:objectPath(*)", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId,
+        requestedPermission: undefined, // Defaults to READ
+      });
+      
+      if (!canAccess) {
+        return res.sendStatus(403);
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error: any) {
+      console.error("Error accessing object:", error);
+      return res.sendStatus(404);
     }
   });
   
@@ -1451,6 +1479,143 @@ Create engaging, well-researched content that provides value to laundromat owner
       }
 
       await storage.deleteListing(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== LISTING MEDIA (Images, Videos, Documents) ====================
+  
+  app.get("/api/listings/:id/media", async (req, res) => {
+    try {
+      const media = await storage.getListingMedia(req.params.id);
+      res.json(media);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/listings/:id/media/upload-url", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only upload media to your own listings" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/listings/:id/media", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only add media to your own listings" });
+      }
+
+      const validated = insertListingMediaSchema.parse({
+        ...req.body,
+        listingId: req.params.id,
+      });
+
+      // Normalize the URL to use our /objects/ path
+      const objectStorageService = new ObjectStorageService();
+      const normalizedUrl = objectStorageService.normalizeObjectEntityPath(validated.url);
+      
+      // Set ACL policy for the uploaded media
+      await objectStorageService.trySetObjectEntityAclPolicy(validated.url, {
+        owner: currentUser.userId,
+        visibility: validated.requiresNDA ? "private" : "public",
+      });
+
+      const media = await storage.createListingMedia({
+        ...validated,
+        url: normalizedUrl,
+      });
+      
+      res.json(media);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/listings/:id/media/reorder", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only reorder media for your own listings" });
+      }
+
+      const { mediaIds } = req.body;
+      if (!Array.isArray(mediaIds)) {
+        return res.status(400).json({ message: "mediaIds must be an array" });
+      }
+
+      await storage.reorderListingMedia(req.params.id, mediaIds);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/listings/:id/media/:mediaId", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only delete media from your own listings" });
+      }
+
+      const media = await storage.getListingMediaItem(req.params.mediaId);
+      if (!media) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+
+      if (media.listingId !== req.params.id) {
+        return res.status(400).json({ message: "Media does not belong to this listing" });
+      }
+
+      await storage.deleteListingMedia(req.params.mediaId);
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
