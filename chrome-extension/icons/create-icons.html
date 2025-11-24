@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CLEANBI Icon Generator</title>
+</head>
+<body>
+  <canvas id="canvas16" width="16" height="16"></canvas>
+  <canvas id="canvas48" width="48" height="48"></canvas>
+  <canvas id="canvas128" width="128" height="128"></canvas>
+  <script>
+    // Generate CLEANBI icons programmatically
+    function createIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      
+      // Background - Navy blue gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#1e293b');
+      gradient.addColorStop(1, '#0f172a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Gold border
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = size * 0.04;
+      ctx.strokeRect(0, 0, size, size);
+      
+      // Letter "C" for CLEANBI
+      ctx.font = `bold ${size * 0.7}px Arial`;
+      ctx.fillStyle = '#d4af37';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('C', size / 2, size / 2);
+      
+      return canvas;
+    }
+    
+    // Create all icons
+    const canvas16 = createIcon(document.getElementById('canvas16'));
+    const canvas48 = createIcon(document.getElementById('canvas48'));
+    const canvas128 = createIcon(document.getElementById('canvas128'));
+    
+    // Download as PNG
+    console.log('Icons generated! Right-click each canvas and "Save image as..."');
+    console.log('Save as icon16.png, icon48.png, icon128.png');
+  </script>
+</body>
+</html>
