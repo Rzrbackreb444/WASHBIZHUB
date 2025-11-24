@@ -46,7 +46,7 @@ export interface ResidentialScoringResult {
     populationDensity?: number;
     walkScore?: number;
   };
-  rentalPotential: 'excellent' | 'good' | 'fair' | 'poor';
+  rentalPotential: 'excellent' | 'good' | 'fair' | 'needs improvement';
   recommendations: string[];
   warnings: string[]; // Empty array for API contract consistency with business scoring
   dataQuality: 'excellent' | 'good' | 'fair' | 'limited';
@@ -246,13 +246,13 @@ function assignGrade(score: number): string {
 }
 
 /**
- * Determine rental potential based on total score
+ * Determine rental potential based on total score (positive framing)
  */
-function determineRentalPotential(score: number): 'excellent' | 'good' | 'fair' | 'poor' {
+function determineRentalPotential(score: number): 'excellent' | 'good' | 'fair' | 'needs improvement' {
   if (score >= 85) return 'excellent';
   if (score >= 75) return 'good';
   if (score >= 65) return 'fair';
-  return 'poor';
+  return 'needs improvement'; // Positive framing instead of "poor"
 }
 
 /**
