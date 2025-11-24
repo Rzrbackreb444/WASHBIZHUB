@@ -24,6 +24,55 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-10-29.clover",
 });
 
+// Helper: Sync CLEANBI subscription from Stripe to database
+async function syncCLEANBISubscription(subscription: Stripe.Subscription) {
+  const { db } = await import("./db");
+  const { users } = await import("@shared/schema");
+  const { eq } = await import("drizzle-orm");
+  const { CLEANBI_PRICING_TIERS } = await import("./cleanbi-subscription-manager");
+  
+  try {
+    const customerId = typeof subscription.customer === 'string' 
+      ? subscription.customer 
+      : subscription.customer.id;
+    
+    // Determine CLEANBI tier from subscription metadata or price ID
+    let tier: string | null = subscription.metadata.tierId || null;
+    
+    // Fallback: Match price ID to tier
+    if (!tier) {
+      for (const item of subscription.items.data) {
+        const priceId = item.price.id;
+        
+        for (const [tierKey, tierConfig] of Object.entries(CLEANBI_PRICING_TIERS)) {
+          if (priceId === tierConfig.stripePriceId || 
+              ('annualStripePriceId' in tierConfig && priceId === tierConfig.annualStripePriceId)) {
+            tier = tierKey.toLowerCase();
+            break;
+          }
+        }
+        
+        if (tier) break;
+      }
+    }
+    
+    // Only sync if this is a CLEANBI subscription
+    if (tier) {
+      await db.update(users)
+        .set({
+          cleanbiTier: tier,
+          cleanbiSubscriptionId: subscription.id,
+          cleanbiSubscriptionStatus: subscription.status
+        })
+        .where(eq(users.stripeCustomerId, customerId));
+      
+      console.log(`✅ CLEANBI tier synced: customer ${customerId} → ${tier.toUpperCase()} (${subscription.status})`);
+    }
+  } catch (error: any) {
+    console.error(`❌ Failed to sync CLEANBI subscription: ${error.message}`);
+  }
+}
+
 app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
   
@@ -136,40 +185,88 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       }
     }
 
-    // Handle subscription creation
+    // Handle subscription creation - CLEANBI tier sync
     if (event.type === "customer.subscription.created") {
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`✅ Subscription created: ${subscription.id} for customer ${subscription.customer}`);
-      // TODO: Update user subscription status in database
+      
+      // Sync CLEANBI subscription to database
+      await syncCLEANBISubscription(subscription);
     }
 
-    // Handle subscription updates
+    // Handle subscription updates - CLEANBI tier sync
     if (event.type === "customer.subscription.updated") {
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`✅ Subscription updated: ${subscription.id}, status: ${subscription.status}`);
-      // TODO: Update user subscription status in database
+      
+      // Sync CLEANBI subscription changes to database
+      await syncCLEANBISubscription(subscription);
     }
 
-    // Handle subscription deletion/cancellation
+    // Handle subscription deletion/cancellation - Revert to FREE tier
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`⚠️  Subscription canceled: ${subscription.id}`);
-      // TODO: Revoke user access, update database
+      
+      // Revert CLEANBI tier to FREE
+      const customerId = typeof subscription.customer === 'string' 
+        ? subscription.customer 
+        : subscription.customer.id;
+      
+      const { db } = await import("./db");
+      const { users } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      
+      await db.update(users)
+        .set({
+          cleanbiTier: 'free',
+          cleanbiSubscriptionId: null,
+          cleanbiSubscriptionStatus: 'canceled'
+        })
+        .where(eq(users.stripeCustomerId, customerId));
+      
+      console.log(`✅ CLEANBI tier reverted to FREE for customer ${customerId}`);
     }
 
-    // Handle successful subscription payments
+    // Handle successful subscription payments - Keep subscription active
     if (event.type === "invoice.payment_succeeded") {
       const invoice: any = event.data.object;
       const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
       console.log(`✅ Invoice paid: ${invoice.id} for subscription ${subscriptionId || 'none'}`);
-      // TODO: Extend user subscription, send receipt
+      
+      if (subscriptionId) {
+        // Mark subscription as active (payment succeeded)
+        const { db } = await import("./db");
+        const { users } = await import("@shared/schema");
+        const { eq } = await import("drizzle-orm");
+        
+        await db.update(users)
+          .set({ cleanbiSubscriptionStatus: 'active' })
+          .where(eq(users.cleanbiSubscriptionId, subscriptionId));
+      }
     }
 
-    // Handle failed subscription payments
+    // Handle failed subscription payments - Mark as past_due
     if (event.type === "invoice.payment_failed") {
-      const invoice = event.data.object as Stripe.Invoice;
+      const invoice: any = event.data.object;
       console.error(`❌ Invoice payment failed: ${invoice.id} for customer ${invoice.customer}`);
-      // TODO: Send payment failure notification, suspend access after grace period
+      
+      const subscriptionId = typeof invoice.subscription === 'string' 
+        ? invoice.subscription 
+        : invoice.subscription?.id;
+      
+      if (subscriptionId) {
+        // Mark subscription as past_due
+        const { db } = await import("./db");
+        const { users } = await import("@shared/schema");
+        const { eq } = await import("drizzle-orm");
+        
+        await db.update(users)
+          .set({ cleanbiSubscriptionStatus: 'past_due' })
+          .where(eq(users.cleanbiSubscriptionId, subscriptionId));
+        
+        console.log(`⚠️  CLEANBI subscription marked past_due for ${subscriptionId}`);
+      }
     }
 
     // Handle Stripe Connect account updates (for vendors)
@@ -291,7 +388,13 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
     
     // Initialize CLEANBI infrastructure
-    await initializeCacheLayer();
+    const { runDatabaseMigrations } = await import('./db-migrations');
+    await runDatabaseMigrations(); // Ensure critical tables exist
+    
+    const { initializeRedis } = await import('./redis-connection');
+    await initializeRedis(); // Redis connection (with graceful fallback)
+    
+    await initializeCacheLayer(); // Cache layer (uses Redis if available)
     
     await seedTemplatesIfNeeded();
   });
