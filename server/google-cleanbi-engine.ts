@@ -32,7 +32,7 @@ interface GoogleCleanbiInput {
 
 interface GoogleCleanbiResult {
   score: number; // 0-100
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A' | 'B' | 'C' | 'Needs Work'; // Positive grading scale (no D/F)
   confidence: number; // 0-100%
   industry: string; // Detected industry
   industryDisplay: string; // Human-readable industry name
@@ -276,13 +276,12 @@ export async function calculateGoogleCleanbi(input: GoogleCleanbiInput): Promise
   // ==== CALCULATE FINAL SCORE ====
   const totalScore = Math.round(footTrafficScore + competitionScore + reviewsScore + locationScore + visibilityScore);
   
-  // Grade mapping
-  let grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  if (totalScore >= 85) grade = 'A';
-  else if (totalScore >= 75) grade = 'B';
-  else if (totalScore >= 65) grade = 'C';
-  else if (totalScore >= 50) grade = 'D';
-  else grade = 'F';
+  // Grade mapping (positive grading scale - no D/F grades)
+  let grade: 'A' | 'B' | 'C' | 'Needs Work';
+  if (totalScore >= 90) grade = 'A';
+  else if (totalScore >= 80) grade = 'B';
+  else if (totalScore >= 70) grade = 'C';
+  else grade = 'Needs Work';
   
   // Confidence based on data availability
   let confidence = 70; // Base confidence
@@ -300,8 +299,7 @@ export async function calculateGoogleCleanbi(input: GoogleCleanbiInput): Promise
   // Add industry-specific recommendations based on score
   const scoreLevel = grade === 'A' || grade === 'B' ? 'excellent' 
                    : grade === 'C' ? 'good'
-                   : grade === 'D' ? 'fair'
-                   : 'poor';
+                   : 'fair'; // "Needs Work" = fair (opportunity for improvement)
   recommendations.push(...industryConfig.recommendations[scoreLevel]);
   
   return {
