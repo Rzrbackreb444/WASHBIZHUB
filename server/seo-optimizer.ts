@@ -112,43 +112,66 @@ export function generateSchemaMarkup(blog: {
 }
 
 export function injectCleanbiLinks(content: string, anchorText: string = "Try our free property analysis tool"): string {
-  // Find natural insertion points for CLEANBI links
-  const insertionPatterns = [
-    /\b(due diligence|property analysis|business valuation|ROI calculation|investment analysis)\b/gi,
-    /\b(analyze|evaluate|assess|calculate|determine)\b.*\b(property|business|investment|opportunity)\b/gi
+  // Keywords to look for (case insensitive)
+  const targetKeywords = [
+    'due diligence',
+    'property analysis',
+    'business valuation',
+    'ROI calculation',
+    'investment analysis',
+    'analyze',
+    'evaluate',
+    'assess'
   ];
   
-  let modifiedContent = content;
-  let linkInserted = false;
+  const linkHtml = ` <a href="/cleanbi-auto" data-internal-link="cleanbi-tool">${anchorText}</a>`;
   
-  for (const pattern of insertionPatterns) {
-    if (linkInserted) break;
-    
-    const match = modifiedContent.match(pattern);
-    if (match && match.index !== undefined) {
-      const insertPosition = match.index + match[0].length;
-      const linkHtml = ` <a href="/cleanbi-auto" data-internal-link="cleanbi-tool">${anchorText}</a>`;
-      
-      modifiedContent = 
-        modifiedContent.substring(0, insertPosition) + 
-        linkHtml + 
-        modifiedContent.substring(insertPosition);
-      
-      linkInserted = true;
-    }
+  // Split content into paragraphs (handle both <p> and </p> variations)
+  const paragraphRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+  const paragraphs: Array<{ match: string; index: number; innerText: string }> = [];
+  
+  let match;
+  // Reset regex state
+  paragraphRegex.lastIndex = 0;
+  
+  while ((match = paragraphRegex.exec(content)) !== null) {
+    paragraphs.push({
+      match: match[0],
+      index: match.index,
+      innerText: match[1]
+    });
   }
   
-  // If no natural spot found, add at the end of first paragraph
-  if (!linkInserted) {
-    const firstParagraphEnd = modifiedContent.indexOf('</p>');
-    if (firstParagraphEnd !== -1) {
-      const linkHtml = ` <a href="/cleanbi-auto" data-internal-link="cleanbi-tool">${anchorText}</a>`;
-      modifiedContent = 
-        modifiedContent.substring(0, firstParagraphEnd) + 
-        linkHtml + 
-        modifiedContent.substring(firstParagraphEnd);
-    }
+  // Find first paragraph containing target keywords
+  let targetParagraph = paragraphs.find(p => {
+    const lowerText = p.innerText.toLowerCase();
+    return targetKeywords.some(keyword => lowerText.includes(keyword));
+  });
+  
+  // If no keyword match, use first paragraph
+  if (!targetParagraph && paragraphs.length > 0) {
+    targetParagraph = paragraphs[0];
   }
+  
+  if (!targetParagraph) {
+    // No paragraphs found, return original content
+    return content;
+  }
+  
+  // Find the closing </p> tag for this paragraph (case insensitive)
+  const closingTagMatch = targetParagraph.match.match(/<\/p>/i);
+  if (!closingTagMatch) {
+    return content; // No closing tag found, return original
+  }
+  
+  // Calculate position to insert link (before closing tag)
+  const insertPosition = targetParagraph.index + targetParagraph.match.length - closingTagMatch[0].length;
+  
+  // Insert link
+  const modifiedContent = 
+    content.substring(0, insertPosition) + 
+    linkHtml + 
+    content.substring(insertPosition);
   
   return modifiedContent;
 }
@@ -264,11 +287,11 @@ export function optimizeBlogForSEO(blog: {
   const slug = generateSlug(blog.title);
   const canonicalUrl = generateCanonicalUrl(slug);
   
-  // Inject CLEANBI links
-  let optimizedContent = injectCleanbiLinks(blog.content);
+  // Add image alt tags FIRST (before injecting links to avoid breaking image tags)
+  let optimizedContent = addImageAltTags(blog.content, blog.title);
   
-  // Add image alt tags
-  optimizedContent = addImageAltTags(optimizedContent, blog.title);
+  // Inject CLEANBI links (after image processing)
+  optimizedContent = injectCleanbiLinks(optimizedContent);
   
   // Generate schema markup
   const schemaMarkup = generateSchemaMarkup({
@@ -282,16 +305,35 @@ export function optimizeBlogForSEO(blog: {
     featuredImage: undefined
   });
   
-  // Extract internal links
+  // Extract internal links with proper context
   const internalLinks: { url: string; anchor: string; context: string }[] = [];
   const linkRegex = /<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/g;
   let linkMatch;
   
   while ((linkMatch = linkRegex.exec(optimizedContent)) !== null) {
+    // Extract surrounding paragraph for better context
+    const startPos = Math.max(0, linkMatch.index - 150);
+    const endPos = Math.min(optimizedContent.length, linkMatch.index + linkMatch[0].length + 150);
+    const contextSnippet = optimizedContent.substring(startPos, endPos)
+      .replace(/<[^>]+>/g, '') // Remove HTML tags for clean context
+      .trim();
+    
     internalLinks.push({
       url: linkMatch[1],
       anchor: linkMatch[2],
-      context: optimizedContent.substring(Math.max(0, linkMatch.index - 100), linkMatch.index + 100)
+      context: contextSnippet
+    });
+  }
+  
+  // Extract image alt texts
+  const imageAltTexts: { url: string; alt: string }[] = [];
+  const imgRegex = /<img[^>]+src="([^"]+)"[^>]+alt="([^"]+)"[^>]*>/g;
+  let imgMatch;
+  
+  while ((imgMatch = imgRegex.exec(optimizedContent)) !== null) {
+    imageAltTexts.push({
+      url: imgMatch[1],
+      alt: imgMatch[2]
     });
   }
   
@@ -315,7 +357,7 @@ export function optimizeBlogForSEO(blog: {
     twitterDescription: blog.metaDescription,
     twitterImage: "https://washbizhub.com/og-default.jpg",
     schemaMarkup,
-    imageAltTexts: [],
+    imageAltTexts,
     internalLinks,
     optimizedContent,
     seoScore
