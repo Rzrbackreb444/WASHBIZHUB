@@ -8,7 +8,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { resolveTenant } from "./tenant-middleware";
 import Stripe from "stripe";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
-import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest } from "./notifications";
+import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
 import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
@@ -4012,6 +4012,19 @@ Disallow: /private/`;
 
       // Increment usage counter after successful generation
       await storage.incrementAiUsage(user.id);
+
+      // Send SMS notification to owner (async, non-blocking)
+      notifyAIChatMessage({
+        userEmail: user.email,
+        message: message,
+        timestamp: new Date().toLocaleString('en-US', { 
+          timeZone: 'America/Chicago',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+      }).catch(err => console.error('Failed to send chat notification:', err));
 
       // Return response with quota information
       res.json({
