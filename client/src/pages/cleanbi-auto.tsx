@@ -18,20 +18,16 @@ interface CleanbiBreakdownItem {
 
 interface CleanbiResult {
   score: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: string; // A+, A, A-, B+, B, etc. (residential) or A, B, C, D, F (business)
   confidence: number;
   industry?: string; // Auto-detected industry
   industryDisplay?: string; // Human-readable industry name
-  breakdown: {
-    footTraffic: CleanbiBreakdownItem;
-    competition: CleanbiBreakdownItem;
-    reviews: CleanbiBreakdownItem;
-    location: CleanbiBreakdownItem;
-    visibility: CleanbiBreakdownItem;
-  };
+  breakdown: any; // Can be business OR residential breakdown
   recommendations: string[];
-  warnings: string[];
+  warnings?: string[]; // Optional for residential
   dataQuality: 'excellent' | 'good' | 'fair' | 'limited';
+  addressType?: 'business' | 'residential'; // NEW: Address type
+  rentalPotential?: string; // NEW: For residential properties
 }
 
 export default function CleanbiAuto() {
@@ -257,7 +253,7 @@ export default function CleanbiAuto() {
                 </Card>
 
                 {/* Warnings */}
-                {result.warnings.length > 0 && (
+                {result.warnings && result.warnings.length > 0 && (
                   <Card className="border-orange-200 dark:border-orange-800">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
@@ -277,6 +273,22 @@ export default function CleanbiAuto() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Rental Potential (Residential Only) */}
+                {result.addressType === 'residential' && result.rentalPotential && (
+                  <Card className="border-green-200 dark:border-green-800">
+                    <CardHeader>
+                      <CardTitle className="text-green-600 dark:text-green-400">
+                        Rental Potential
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge variant="outline" className="capitalize text-lg px-4 py-2">
+                        {result.rentalPotential}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Breakdown */}
@@ -284,91 +296,186 @@ export default function CleanbiAuto() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Score Breakdown</CardTitle>
-                    <CardDescription>Powered by Google Places API</CardDescription>
+                    <CardDescription>
+                      {result.addressType === 'residential' ? 'Investment Analysis' : 'Powered by Google Places API'}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Foot Traffic */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-semibold">Foot Traffic</span>
+                    {/* BUSINESS BREAKDOWN */}
+                    {result.addressType !== 'residential' && result.breakdown.footTraffic && (
+                      <>
+                        {/* Foot Traffic */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Foot Traffic</span>
+                            </div>
+                            <Badge>{result.breakdown.footTraffic.score}/30</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.footTraffic.data.description}
+                          </p>
+                          <Progress value={(result.breakdown.footTraffic.score / 30) * 100} className="h-2" />
                         </div>
-                        <Badge>{result.breakdown.footTraffic.score}/30</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {result.breakdown.footTraffic.data.description}
-                      </p>
-                      <Progress value={(result.breakdown.footTraffic.score / 30) * 100} className="h-2" />
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Competition */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-semibold">Competition</span>
+                        {/* Competition */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Competition</span>
+                            </div>
+                            <Badge>{result.breakdown.competition.score}/20</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.competition.data.competitorCount} competitors within 5 miles
+                          </p>
+                          <Progress value={(result.breakdown.competition.score / 20) * 100} className="h-2" />
                         </div>
-                        <Badge>{result.breakdown.competition.score}/20</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {result.breakdown.competition.data.competitorCount} competitors within 5 miles
-                      </p>
-                      <Progress value={(result.breakdown.competition.score / 20) * 100} className="h-2" />
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Reviews */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-semibold">Customer Reviews</span>
+                        {/* Reviews */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Star className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Customer Reviews</span>
+                            </div>
+                            <Badge>{result.breakdown.reviews.score}/25</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.reviews.data.rating}/5 stars · {result.breakdown.reviews.data.totalReviews} reviews
+                          </p>
+                          <Progress value={(result.breakdown.reviews.score / 25) * 100} className="h-2" />
                         </div>
-                        <Badge>{result.breakdown.reviews.score}/25</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {result.breakdown.reviews.data.rating}/5 stars · {result.breakdown.reviews.data.totalReviews} reviews
-                      </p>
-                      <Progress value={(result.breakdown.reviews.score / 25) * 100} className="h-2" />
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Location */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-semibold">Location Quality</span>
+                        {/* Location */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Location Quality</span>
+                            </div>
+                            <Badge>{result.breakdown.location.score}/15</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.location.data.address}
+                          </p>
+                          <Progress value={(result.breakdown.location.score / 15) * 100} className="h-2" />
                         </div>
-                        <Badge>{result.breakdown.location.score}/15</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {result.breakdown.location.data.address}
-                      </p>
-                      <Progress value={(result.breakdown.location.score / 15) * 100} className="h-2" />
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Visibility */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-semibold">Online Visibility</span>
+                        {/* Visibility */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Eye className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Online Visibility</span>
+                            </div>
+                            <Badge>{result.breakdown.visibility.score}/10</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.visibility.data.photoCount} photos · {result.breakdown.visibility.data.businessStatus}
+                          </p>
+                          <Progress value={(result.breakdown.visibility.score / 10) * 100} className="h-2" />
                         </div>
-                        <Badge>{result.breakdown.visibility.score}/10</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {result.breakdown.visibility.data.photoCount} photos · {result.breakdown.visibility.data.businessStatus}
-                      </p>
-                      <Progress value={(result.breakdown.visibility.score / 10) * 100} className="h-2" />
-                    </div>
+                      </>
+                    )}
+
+                    {/* RESIDENTIAL BREAKDOWN */}
+                    {result.addressType === 'residential' && result.breakdown.propertyValueTrend && (
+                      <>
+                        {/* Property Value Trend */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Property Value Trend</span>
+                            </div>
+                            <Badge>{result.breakdown.propertyValueTrend.score}/30</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Appreciation potential based on location characteristics
+                          </p>
+                          <Progress value={(result.breakdown.propertyValueTrend.score / 30) * 100} className="h-2" />
+                        </div>
+
+                        <Separator />
+
+                        {/* Neighborhood Quality */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Neighborhood Quality</span>
+                            </div>
+                            <Badge>{result.breakdown.neighborhoodQuality.score}/25</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Based on area characteristics and amenities
+                          </p>
+                          <Progress value={(result.breakdown.neighborhoodQuality.score / 25) * 100} className="h-2" />
+                        </div>
+
+                        <Separator />
+
+                        {/* School Rating */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Star className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">School Ratings</span>
+                            </div>
+                            <Badge>{result.breakdown.schoolRating.score}/20</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.breakdown.schoolRating.data.schools?.length || 0} nearby schools
+                          </p>
+                          <Progress value={(result.breakdown.schoolRating.score / 20) * 100} className="h-2" />
+                        </div>
+
+                        <Separator />
+
+                        {/* Crime Score */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Safety Score</span>
+                            </div>
+                            <Badge>{result.breakdown.crimeScore.score}/15</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Higher score indicates safer neighborhood
+                          </p>
+                          <Progress value={(result.breakdown.crimeScore.score / 15) * 100} className="h-2" />
+                        </div>
+
+                        <Separator />
+
+                        {/* Walkability */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-semibold">Walkability</span>
+                            </div>
+                            <Badge>{result.breakdown.walkability.score}/10</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Urban accessibility and pedestrian-friendliness
+                          </p>
+                          <Progress value={(result.breakdown.walkability.score / 10) * 100} className="h-2" />
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
