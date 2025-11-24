@@ -148,6 +148,66 @@ export const insertCleanbiScoreSchema = createInsertSchema(cleanbiScores).omit({
 export type InsertCleanbiScore = z.infer<typeof insertCleanbiScoreSchema>;
 export type CleanbiScore = typeof cleanbiScores.$inferSelect;
 
+// Residential Property Scores (for ANY address - homes, apartments, land)
+export const residentialScores = pgTable("residential_scores", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  address: text("address").notNull(),
+  
+  // Core Metrics (0-100 scale for consistency)
+  propertyValueTrend: integer("property_value_trend").notNull(), // 0-30 points
+  neighborhoodQuality: integer("neighborhood_quality").notNull(), // 0-25 points
+  schoolRating: integer("school_rating").notNull(), // 0-20 points
+  crimeScore: integer("crime_score").notNull(), // 0-15 points (higher = safer)
+  walkability: integer("walkability").notNull(), // 0-10 points
+  
+  totalScore: integer("total_score").notNull(), // Sum (0-100)
+  grade: text("grade").notNull(), // A+, A, A-, B+, B, etc.
+  
+  // Property Details (from ATTOM)
+  propertyType: text("property_type"), // "single_family", "condo", "townhouse", "multi_family", "land"
+  estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }), // Current market value
+  yearBuilt: integer("year_built"),
+  squareFeet: integer("square_feet"),
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  lotSize: decimal("lot_size", { precision: 10, scale: 2 }), // Square feet
+  
+  // Neighborhood Data
+  medianIncome: decimal("median_income", { precision: 10, scale: 2 }),
+  populationDensity: integer("population_density"), // Per square mile
+  avgSchoolRating: decimal("avg_school_rating", { precision: 3, scale: 1 }), // 0-10
+  walkScore: integer("walk_score"), // 0-100
+  
+  // Investment Metrics
+  rentalPotential: text("rental_potential"), // "excellent", "good", "fair", "poor"
+  appreciationRate: decimal("appreciation_rate", { precision: 5, scale: 2 }), // Annual % (e.g., 8.50 = 8.5%)
+  
+  // AI Analysis
+  aiInsights: text("ai_insights"), // Gemini-generated investment recommendations
+  recommendations: jsonb("recommendations"), // Array of actionable insights
+  
+  // Breakdown for transparency
+  breakdown: jsonb("breakdown").notNull(), // Detailed scoring breakdown
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertResidentialScoreSchema = createInsertSchema(residentialScores).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  estimatedValue: z.string().optional(),
+  bathrooms: z.string().optional(),
+  lotSize: z.string().optional(),
+  medianIncome: z.string().optional(),
+  avgSchoolRating: z.string().optional(),
+  appreciationRate: z.string().optional(),
+});
+
+export type InsertResidentialScore = z.infer<typeof insertResidentialScoreSchema>;
+export type ResidentialScore = typeof residentialScores.$inferSelect;
+
 // Blog Posts (Manual/AI/UGB/UGE)
 export const blogPosts = pgTable("blog_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
