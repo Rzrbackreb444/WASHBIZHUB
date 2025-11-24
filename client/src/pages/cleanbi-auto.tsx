@@ -109,8 +109,8 @@ export default function CleanbiAuto() {
   return (
     <>
       <Helmet>
-        <title>Google-Powered CLEANBI™ Score | Score ANY Address - Business OR Residential</title>
-        <meta name="description" content="Get instant CLEANBI scores for ANY address - commercial businesses AND residential properties. Laundromats, restaurants, retail, gyms, homes, condos, investment properties. 100% automatic, 100% free. For informational purposes only." />
+        <title>Google-Powered CLEANBI™ Score | Score ANY Address GLOBALLY - Business OR Residential</title>
+        <meta name="description" content="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, homes, condos, investment properties in USA, Philippines, Japan, Australia, UK, EU, Asia, Africa. 100% automatic, 100% free. For informational purposes only." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
@@ -120,14 +120,15 @@ export default function CleanbiAuto() {
               Powered by Google APIs
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Score ANY Address: Business OR Residential
+              Score ANY Address GLOBALLY: Business OR Residential
             </h1>
             <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-              Get comprehensive intelligence in seconds for <span className="font-bold text-purple-100">ANY address</span> - commercial businesses AND residential properties. Just enter an address - our Google-powered engine does the rest.
+              Get comprehensive intelligence in seconds for <span className="font-bold text-purple-100">ANY address worldwide</span> - commercial businesses AND residential properties in <span className="font-bold text-purple-100">220+ countries</span>. Just enter an address - our Google-powered engine does the rest.
             </p>
             <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
               <span className="font-semibold text-purple-100">Businesses:</span> Restaurants • Retail • Gyms • Salons • Car Washes • Laundromats • Gas Stations • Hotels • Any Business Type<br/>
-              <span className="font-semibold text-purple-100">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties
+              <span className="font-semibold text-purple-100">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties<br/>
+              <span className="font-semibold text-purple-100">Global Coverage:</span> USA • Philippines • Japan • Australia • UK • EU • Asia • Africa • Americas • 220+ Countries
             </p>
             <div className="mt-6 flex items-center justify-center gap-6 text-white/80 text-sm">
               <div className="flex items-center gap-2">
