@@ -22,6 +22,7 @@ interface BlogContent {
   focusKeyphrases: string[];
   provider: string;
   qualityScore: number;
+  allProviders?: string[]; // Track all providers that contributed
 }
 
 // Initialize AI clients
@@ -191,15 +192,51 @@ Return ONLY valid JSON:
   }
 
   const data = await response.json();
-  const responseText = data.choices[0].message.content;
+  
+  // Handle both string and array content formats
+  let responseText: string;
+  const messageContent = data.choices[0].message.content;
+  
+  if (Array.isArray(messageContent)) {
+    // Content is array of segments (newer API format with citations)
+    responseText = messageContent
+      .filter((segment: any) => {
+        // Only include text segments, skip citations/references
+        if (typeof segment === 'string') return true;
+        if (segment.type === 'text') return true;
+        // Log skipped segments for debugging
+        if (segment.type) {
+          console.log(`Skipping Perplexity segment type: ${segment.type}`);
+        }
+        return false;
+      })
+      .map((segment: any) => 
+        typeof segment === 'string' ? segment : (segment.text || '')
+      )
+      .join('');
+  } else {
+    // Content is plain string (older API format)
+    responseText = messageContent;
+  }
+  
+  // Validate we have content
+  if (!responseText || responseText.trim().length === 0) {
+    throw new Error('Perplexity returned empty content');
+  }
   
   // Extract JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error('Failed to parse Perplexity response');
+    throw new Error('Failed to parse Perplexity response - no JSON found');
   }
 
-  const parsed = JSON.parse(jsonMatch[0]);
+  // Validate JSON before parsing
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch (parseError: any) {
+    throw new Error(`Perplexity JSON parse failed: ${parseError.message}`);
+  }
   
   return {
     title: parsed.title,
@@ -261,15 +298,51 @@ Return ONLY valid JSON:
   }
 
   const data = await response.json();
-  const responseText = data.choices[0].message.content;
+  
+  // Handle both string and array content formats
+  let responseText: string;
+  const messageContent = data.choices[0].message.content;
+  
+  if (Array.isArray(messageContent)) {
+    // Content is array of segments (newer API format with citations)
+    responseText = messageContent
+      .filter((segment: any) => {
+        // Only include text segments, skip citations/references
+        if (typeof segment === 'string') return true;
+        if (segment.type === 'text') return true;
+        // Log skipped segments for debugging
+        if (segment.type) {
+          console.log(`Skipping Grok segment type: ${segment.type}`);
+        }
+        return false;
+      })
+      .map((segment: any) => 
+        typeof segment === 'string' ? segment : (segment.text || '')
+      )
+      .join('');
+  } else {
+    // Content is plain string (older API format)
+    responseText = messageContent;
+  }
+  
+  // Validate we have content
+  if (!responseText || responseText.trim().length === 0) {
+    throw new Error('Grok returned empty content');
+  }
   
   // Extract JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error('Failed to parse Grok response');
+    throw new Error('Failed to parse Grok response - no JSON found');
   }
 
-  const parsed = JSON.parse(jsonMatch[0]);
+  // Validate JSON before parsing
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch (parseError: any) {
+    throw new Error(`Grok JSON parse failed: ${parseError.message}`);
+  }
   
   return {
     title: parsed.title,
@@ -323,7 +396,7 @@ function calculateQualityScore(content: string, targetWordCount: number): number
 export async function generateBlogWithMultiAI(request: BlogGenerationRequest): Promise<BlogContent> {
   console.log(`🤖 Generating blog for keyword: "${request.keyword}" using 4 AI providers...`);
   
-  // Generate from all providers in parallel
+  // Generate from all providers in parallel (Promise.allSettled handles failures gracefully)
   const results = await Promise.allSettled([
     generateWithAnthropic(request),
     generateWithGemini(request),
@@ -331,22 +404,41 @@ export async function generateBlogWithMultiAI(request: BlogGenerationRequest): P
     generateWithGrok(request)
   ]);
   
-  // Extract successful results
-  const successfulResults: BlogContent[] = results
-    .filter((result): result is PromiseFulfilledResult<BlogContent> => result.status === 'fulfilled')
-    .map(result => result.value);
+  // Extract successful results and log failures
+  const successfulResults: BlogContent[] = [];
+  const failedProviders: string[] = [];
+  
+  results.forEach((result, index) => {
+    const providerName = ['anthropic', 'gemini', 'perplexity', 'grok'][index];
+    
+    if (result.status === 'fulfilled') {
+      successfulResults.push(result.value);
+    } else {
+      console.warn(`⚠️  ${providerName} failed: ${result.reason.message}`);
+      failedProviders.push(providerName);
+    }
+  });
+  
+  const allProviders = successfulResults.map(r => r.provider);
   
   if (successfulResults.length === 0) {
-    throw new Error('All AI providers failed to generate content');
+    throw new Error(`All AI providers failed. Errors: ${failedProviders.join(', ')}`);
   }
   
   // Sort by quality score (highest first)
   successfulResults.sort((a, b) => b.qualityScore - a.qualityScore);
   
-  console.log(`✅ Generated ${successfulResults.length} blogs. Best: ${successfulResults[0].provider} (score: ${successfulResults[0].qualityScore})`);
+  const bestResult = successfulResults[0];
   
-  // Return the highest quality result
-  return successfulResults[0];
+  console.log(`✅ Generated ${successfulResults.length}/4 blogs. Best: ${bestResult.provider} (score: ${bestResult.qualityScore})`);
+  if (failedProviders.length > 0) {
+    console.log(`⚠️  Failed providers: ${failedProviders.join(', ')}`);
+  }
+  
+  // Add all providers metadata to best result
+  bestResult.allProviders = allProviders;
+  
+  return bestResult;
 }
 
 // ========================================
