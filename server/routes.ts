@@ -4005,30 +4005,20 @@ Disallow: /private/`;
         },
       ];
 
-      // Tier-based AI model routing (guests + free = Gemini, pro = GPT-4, enterprise = Claude)
-      const availableProviders = aiProviderService.getAvailableProviders();
+      // Tier-based AI model routing with automatic fallback
+      // Enterprise → Claude (preferred), Pro → GPT-4 (preferred), Free/Guest → Gemini (preferred)
+      // All tiers fall back to: Gemini → OpenAI → Anthropic → Perplexity → Grok
+      let preferredProvider: AIProvider = "gemini"; // Default for guests/free
       
-      let response;
-      if (tier === "enterprise" && availableProviders.includes("anthropic")) {
-        response = await aiProviderService.generate("anthropic", messages);
-      } else if (tier === "pro" && availableProviders.includes("openai")) {
-        response = await aiProviderService.generate("openai", messages);
-      } else if (availableProviders.includes("gemini")) {
-        // Guests and free tier use Gemini (cost-effective)
-        response = await aiProviderService.generate("gemini", messages);
-      } else if (availableProviders.includes("anthropic")) {
-        response = await aiProviderService.generate("anthropic", messages);
-      } else if (availableProviders.includes("openai")) {
-        response = await aiProviderService.generate("openai", messages);
-      } else if (availableProviders.includes("perplexity")) {
-        response = await aiProviderService.generate("perplexity", messages);
-      } else if (availableProviders.includes("grok")) {
-        response = await aiProviderService.generate("grok", messages);
-      } else {
-        return res.status(503).json({ error: "No AI providers available" });
+      if (tier === "enterprise") {
+        preferredProvider = "anthropic"; // Claude Opus for enterprise
+      } else if (tier === "pro") {
+        preferredProvider = "openai"; // GPT-4 for pro
       }
 
-      // Increment usage counter for authenticated users only
+      const response = await aiProviderService.generateWithFallback(preferredProvider, messages);
+
+      // CRITICAL: Only increment quota AFTER successful generation
       if (user) {
         await storage.incrementAiUsage(user.id);
 

@@ -119,7 +119,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "👋 **Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
+      content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
       provider: "system",
       timestamp: new Date(),
     },
@@ -201,7 +201,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
           ...prev,
           {
             role: "assistant",
-            content: `🎉 **You've used your 2 free guest messages!**\n\n**Sign up for a free account to get:**\n• 10 messages per month\n• Save your conversation history\n• Access to all platform features\n\nCreate your free account now!`,
+            content: `**You've used your 2 free guest messages!**\n\n**Sign up for a free account to get:**\n• 10 messages per month\n• Save your conversation history\n• Access to all platform features\n\nCreate your free account now!`,
             provider: "system",
             timestamp: new Date(),
           },
@@ -212,7 +212,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
           ...prev,
           {
             role: "assistant",
-            content: `⚠️ **You've reached your ${quotaInfo?.tier || 'free'} tier message limit (${quotaInfo?.limit || 10} messages/month).**\n\n**Upgrade to unlock more:**\n\n🚀 **Pro ($29/mo)** — 500 messages/month + GPT-4 intelligence\n👑 **Enterprise ($99/mo)** — Unlimited messages + Claude Opus priority\n\nClick "View Plans" below to upgrade!`,
+            content: `**You've reached your ${quotaInfo?.tier || 'free'} tier message limit (${quotaInfo?.limit || 10} messages/month).**\n\n**Upgrade to unlock more:**\n\n**Pro ($29/mo)** — 500 messages/month + GPT-4 intelligence\n**Enterprise ($99/mo)** — Unlimited messages + Claude Opus priority\n\nClick "View Plans" below to upgrade!`,
             provider: "system",
             timestamp: new Date(),
           },
@@ -223,7 +223,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
           ...prev,
           {
             role: "assistant",
-            content: "I apologize, but I encountered an error. Please try again or contact support.",
+            content: "I apologize, but I encountered an error. Please try again or contact support if the issue persists.",
             provider: "error",
             timestamp: new Date(),
           },
@@ -259,7 +259,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
     setMessages([
       {
         role: "assistant",
-        content: "👋 **Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
+        content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
         provider: "system",
         timestamp: new Date(),
       },
