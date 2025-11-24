@@ -70,7 +70,7 @@ export default function SettingsPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         toast({
           title: "Subscription updated!",
           description: "Your plan has been upgraded successfully.",
@@ -91,7 +91,7 @@ export default function SettingsPage() {
       await apiRequest("POST", "/api/subscriptions/cancel", { reason });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Subscription cancelled",
         description: "Your subscription will remain active until the end of the billing period.",
