@@ -88,31 +88,31 @@
             <span class="cleanbi-breakdown-label">
               👥 Foot Traffic
             </span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.footTraffic.score}/30</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.footTraffic.score)} pts</span>
           </div>
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">
               📍 Competition
             </span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.competition.score}/20</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.competition.score)} pts</span>
           </div>
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">
               ⭐ Reviews
             </span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.reviews.score}/25</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.reviews.score)} pts</span>
           </div>
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">
               📌 Location
             </span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.location.score}/15</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.location.score)} pts</span>
           </div>
           <div class="cleanbi-breakdown-item">
             <span class="cleanbi-breakdown-label">
               👁️ Visibility
             </span>
-            <span class="cleanbi-breakdown-score">${scoreData.breakdown.visibility.score}/10</span>
+            <span class="cleanbi-breakdown-score">${Math.round(scoreData.breakdown.visibility.score)} pts</span>
           </div>
         </div>
         <div class="cleanbi-cta">
@@ -136,22 +136,34 @@
   }
 
   /**
-   * Check if element is a laundromat listing
+   * Check if element is a business listing (NOW WORKS FOR ANY BUSINESS!)
+   * 
+   * Target industries: Laundromats, Car Washes, Restaurants, Gas Stations, 
+   * Retail Stores, Gyms, and ANY other business
    */
-  function isLaundromatElement(element) {
+  function isBusinessElement(element) {
     const text = element.textContent.toLowerCase();
-    const laundromatKeywords = [
-      'laundromat',
-      'laundry',
-      'wash & fold',
-      'coin laundry',
-      'launderette',
-      'washeria',
-      'coin-op',
-      'self-service laundry'
-    ];
     
-    return laundromatKeywords.some(keyword => text.includes(keyword));
+    // Must have BOTH business name AND address indicators (strict filtering)
+    const hasTitle = element.querySelector('[class*="title"]') || 
+                     element.querySelector('h1') || 
+                     element.querySelector('h2') ||
+                     element.querySelector('h3');
+    
+    const hasAddress = text.includes('directions') || 
+                       text.includes('get directions') ||
+                       element.querySelector('[class*="address"]') ||
+                       element.querySelector('[class*="location"]');
+    
+    // Priority keywords for high-value industries
+    const priorityKeywords = [
+      'laundromat', 'laundry', 'car wash', 'restaurant', 'cafe',
+      'gas station', 'gym', 'fitness', 'retail', 'store'
+    ];
+    const isPriorityBusiness = priorityKeywords.some(keyword => text.includes(keyword));
+    
+    // Must have basic structure (title + address) OR be priority industry
+    return (hasTitle && hasAddress) || isPriorityBusiness;
   }
 
   /**
@@ -201,18 +213,19 @@
   }
 
   /**
-   * Handle hover on potential laundromat elements
+   * Handle hover on potential business elements
    */
-  async function handleLaundromatHover(element) {
-    if (!isLaundromatElement(element)) {
+  async function handleBusinessHover(element) {
+    if (!isBusinessElement(element)) {
       return;
     }
 
     const address = extractAddressFromElement(element);
     const businessName = extractBusinessName(element);
 
-    if (!address && !businessName) {
-      console.log('[CLEANBI] Could not extract address or business name');
+    // STRICT REQUIREMENT: Must have EITHER address OR (business name + priority industry keyword)
+    if (!address) {
+      console.log('[CLEANBI] No address found, skipping');
       return;
     }
 
@@ -227,7 +240,7 @@
   }
 
   /**
-   * Set up hover listeners on laundromat elements
+   * Set up hover listeners on business elements
    */
   function setupHoverListeners() {
     // Google Maps uses various selectors for listings
@@ -248,7 +261,7 @@
         element.setAttribute('data-cleanbi-initialized', 'true');
 
         element.addEventListener('mouseenter', () => {
-          handleLaundromatHover(element);
+          handleBusinessHover(element);
         });
 
         element.addEventListener('mouseleave', () => {
