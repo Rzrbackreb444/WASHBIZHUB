@@ -83,7 +83,9 @@ export default function CleanbiAuto() {
   };
 
   const getGradeColor = (grade: string) => {
-    switch (grade) {
+    // Handle both business (A, B, C, D, F) and residential (A+, A, A-, B+, etc.) grades
+    const baseGrade = grade.charAt(0).toUpperCase();
+    switch (baseGrade) {
       case 'A': return 'text-green-600 dark:text-green-400';
       case 'B': return 'text-blue-600 dark:text-blue-400';
       case 'C': return 'text-yellow-600 dark:text-yellow-400';
@@ -94,7 +96,9 @@ export default function CleanbiAuto() {
   };
 
   const getGradeDescription = (grade: string) => {
-    switch (grade) {
+    // Handle both business (A, B, C, D, F) and residential (A+, A, A-, B+, etc.) grades
+    const baseGrade = grade.charAt(0).toUpperCase();
+    switch (baseGrade) {
       case 'A': return 'Excellent Investment';
       case 'B': return 'Strong Buy';
       case 'C': return 'Average - Due Diligence Required';
@@ -232,7 +236,7 @@ export default function CleanbiAuto() {
                       <div className="text-sm text-muted-foreground mb-4">
                         {getGradeDescription(result.grade)}
                       </div>
-                      <Progress value={result.score} className="h-3" />
+                      <Progress value={result.score} className="h-3" data-testid="progress-overall-score" />
                     </div>
 
                     <Separator />
