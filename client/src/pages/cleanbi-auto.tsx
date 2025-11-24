@@ -83,27 +83,25 @@ export default function CleanbiAuto() {
   };
 
   const getGradeColor = (grade: string) => {
-    // Handle both business (A, B, C, D, F) and residential (A+, A, A-, B+, etc.) grades
+    // Handle business (A, B, C, Needs Work) and residential (A+, A-, B+, B-, C+, C-, Needs Work) grades
     const baseGrade = grade.charAt(0).toUpperCase();
     switch (baseGrade) {
       case 'A': return 'text-green-600 dark:text-green-400';
       case 'B': return 'text-blue-600 dark:text-blue-400';
       case 'C': return 'text-yellow-600 dark:text-yellow-400';
-      case 'D': return 'text-orange-600 dark:text-orange-400';
-      case 'F': return 'text-red-600 dark:text-red-400';
+      case 'N': return 'text-orange-600 dark:text-orange-400'; // "Needs Work"
       default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
   const getGradeDescription = (grade: string) => {
-    // Handle both business (A, B, C, D, F) and residential (A+, A, A-, B+, etc.) grades
+    // Handle business (A, B, C, Needs Work) and residential (A+, A-, B+, B-, C+, C-, Needs Work) grades
     const baseGrade = grade.charAt(0).toUpperCase();
     switch (baseGrade) {
-      case 'A': return 'Excellent Investment';
-      case 'B': return 'Strong Buy';
+      case 'A': return 'Excellent Investment Opportunity';
+      case 'B': return 'Strong Buy - Above Average';
       case 'C': return 'Average - Due Diligence Required';
-      case 'D': return 'Below Average - High Risk';
-      case 'F': return 'Poor - Avoid';
+      case 'N': return 'Opportunity for Improvement - Turnaround Potential'; // "Needs Work"
       default: return '';
     }
   };

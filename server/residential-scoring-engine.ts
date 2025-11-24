@@ -24,7 +24,7 @@ export interface ResidentialScoringInput {
 
 export interface ResidentialScoringResult {
   score: number; // 0-100
-  grade: string; // A+, A, A-, B+, B, B-, C+, C, C-, D, F
+  grade: string; // A+, A, A-, B+, B, B-, C+, C, C-, Needs Work (positive grading scale)
   confidence: number; // 0-100%
   breakdown: {
     propertyValueTrend: { score: number; data: any };
@@ -232,6 +232,7 @@ function calculateWalkability(geocodeData: any): number {
  * Assign letter grade based on total score
  */
 function assignGrade(score: number): string {
+  // Positive grading scale (no D/F - everything below C- is "Needs Work")
   if (score >= 97) return 'A+';
   if (score >= 93) return 'A';
   if (score >= 90) return 'A-';
@@ -241,8 +242,7 @@ function assignGrade(score: number): string {
   if (score >= 77) return 'C+';
   if (score >= 73) return 'C';
   if (score >= 70) return 'C-';
-  if (score >= 60) return 'D';
-  return 'F';
+  return 'Needs Work'; // Below 70 = opportunity for improvement
 }
 
 /**
