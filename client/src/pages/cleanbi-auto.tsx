@@ -128,7 +128,7 @@ export default function CleanbiAuto() {
               Get comprehensive market intelligence in seconds for <span className="font-bold text-purple-100">ANY business type</span>. Just enter an address - our Google-powered engine does the rest.
             </p>
             <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
-              Laundromats • Car Washes • Restaurants • Retail Stores • Gyms • Gas Stations • ANY Business
+              Restaurants • Retail • Gyms • Salons • Car Washes • Gas Stations • Hotels • Laundromats • Grocery Stores • Trucking • Tech Stores • Resale Shops • Banks • Florists • Pet Stores • Barbers • And ANY Other Business!
             </p>
             <div className="mt-6 flex items-center justify-center gap-6 text-white/80 text-sm">
               <div className="flex items-center gap-2">
