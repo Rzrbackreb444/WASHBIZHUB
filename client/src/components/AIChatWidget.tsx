@@ -182,8 +182,12 @@ export const AIChatWidget = memo(function AIChatWidget() {
       if (data.quota) {
         setQuotaInfo(data.quota);
         
-        // Show upgrade prompt if running low
-        if (data.quota.remaining <= 2 && data.quota.tier === "free") {
+        // Show upgrade prompts based on tier
+        // Guest: After message 2, prompt to sign up
+        // Free: When ≤2 remaining, prompt to upgrade
+        if (data.quota.tier === "guest" && data.quota.remaining === 0) {
+          setShowUpgradePrompt(true);
+        } else if (data.quota.tier === "free" && data.quota.remaining <= 2) {
           setShowUpgradePrompt(true);
         }
       }
@@ -191,13 +195,24 @@ export const AIChatWidget = memo(function AIChatWidget() {
       setShowSuggestions(false);
     },
     onError: (error: any) => {
-      // Handle quota exceeded error
-      if (error.message?.includes("quota") || error.message?.includes("exceeded")) {
+      // Handle quota exceeded errors
+      if (error.message?.includes("guest_limit_exceeded")) {
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: `⚠️ **You've reached your ${quotaInfo?.tier || 'free'} tier message limit (${quotaInfo?.limit || 10} messages/month).**\n\n**Upgrade to unlock more:**\n\n🚀 **Pro ($29/mo)** — 500 messages/month + GPT-4 intelligence\n👑 **Enterprise ($99/mo)** — Unlimited messages + Claude Opus priority\n\nClick the "Upgrade" button below to continue chatting!`,
+            content: `🎉 **You've used your 2 free guest messages!**\n\n**Sign up for a free account to get:**\n• 10 messages per month\n• Save your conversation history\n• Access to all platform features\n\nCreate your free account now!`,
+            provider: "system",
+            timestamp: new Date(),
+          },
+        ]);
+        setShowUpgradePrompt(true);
+      } else if (error.message?.includes("quota") || error.message?.includes("exceeded")) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `⚠️ **You've reached your ${quotaInfo?.tier || 'free'} tier message limit (${quotaInfo?.limit || 10} messages/month).**\n\n**Upgrade to unlock more:**\n\n🚀 **Pro ($29/mo)** — 500 messages/month + GPT-4 intelligence\n👑 **Enterprise ($99/mo)** — Unlimited messages + Claude Opus priority\n\nClick "View Plans" below to upgrade!`,
             provider: "system",
             timestamp: new Date(),
           },
@@ -458,23 +473,42 @@ export const AIChatWidget = memo(function AIChatWidget() {
             </div>
           </ScrollArea>
 
-          {/* Upgrade Prompt */}
-          {showUpgradePrompt && quotaInfo && quotaInfo.tier === "free" && (
+          {/* Upgrade Prompt - Tier-aware */}
+          {showUpgradePrompt && quotaInfo && (
             <div className="px-4 pb-3">
               <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 p-3">
                 <div className="flex items-start gap-2">
                   <ArrowUpCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-sm mb-1">Unlock Unlimited AI Insights</h4>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Get 500 messages/month with Pro or unlimited with Enterprise
-                    </p>
-                    <Link href="/settings">
-                      <Button size="sm" className="w-full gap-1" data-testid="button-upgrade-now">
-                        <Crown className="h-3 w-3" />
-                        View Plans
-                      </Button>
-                    </Link>
+                    {quotaInfo.tier === "guest" ? (
+                      <>
+                        <h4 className="font-semibold text-sm mb-1">Create Free Account</h4>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Get 10 messages/month + save your conversations
+                        </p>
+                        <a href="/api/auth/login">
+                          <Button size="sm" className="w-full gap-1" data-testid="button-signup-now">
+                            <Sparkles className="h-3 w-3" />
+                            Sign Up Free
+                          </Button>
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="font-semibold text-sm mb-1">Unlock More AI Power</h4>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {quotaInfo.tier === "free" 
+                            ? "Get 500 messages/month with Pro or unlimited with Enterprise"
+                            : "Upgrade to Enterprise for unlimited messages"}
+                        </p>
+                        <Link href="/settings">
+                          <Button size="sm" className="w-full gap-1" data-testid="button-upgrade-now">
+                            <Crown className="h-3 w-3" />
+                            View Plans
+                          </Button>
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
