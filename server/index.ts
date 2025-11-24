@@ -4,6 +4,7 @@ import { registerSitemapRoutes } from "./sitemap";
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
+import { initializeCacheLayer } from "./cleanbi-cache-layer";
 
 const app = express();
 
@@ -288,6 +289,10 @@ app.use((req, res, next) => {
     reusePort: true,
   }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize CLEANBI infrastructure
+    await initializeCacheLayer();
+    
     await seedTemplatesIfNeeded();
   });
 })();

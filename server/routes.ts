@@ -577,9 +577,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🎯 Address type detected: ${addressType.type.toUpperCase()} (${addressType.confidence}% confidence)`);
 
       if (addressType.type === 'business') {
-        // Score as BUSINESS using existing Google CLEANBI engine
-        const { calculateGoogleCleanbi } = await import('./google-cleanbi-engine');
-        const result = await calculateGoogleCleanbi({ address, businessName });
+        // Score as BUSINESS using OPTIMIZED wrapper (caching + rate limiting + batching)
+        const { calculateCLEANBIScore } = await import('./cleanbi-engine-wrapper');
+        const { getUserCLEANBITier } = await import('./cleanbi-subscription-manager');
+        
+        // Get user info for quota tracking (if authenticated)
+        const currentUser = await getCurrentUser(req).catch(() => null);
+        
+        // Load user's REAL subscription tier (defaults to FREE if not authenticated)
+        let userTier: Awaited<ReturnType<typeof getUserCLEANBITier>> | undefined;
+        if (currentUser) {
+          userTier = await getUserCLEANBITier(currentUser.userId);
+        }
+        
+        const result = await calculateCLEANBIScore({
+          address,
+          userId: currentUser?.userId,
+          userTier
+        });
         
         res.json({
           ...result,
