@@ -17,7 +17,8 @@ export function useCleanbiScores(userId?: string) {
 export function useCreateCleanbiScore() {
   return useMutation({
     mutationFn: async (score: InsertCleanbiScore) => {
-      return apiRequest("POST", "/api/cleanbi", score);
+      const response = await apiRequest("POST", "/api/cleanbi", score);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/cleanbi"] });
@@ -28,7 +29,8 @@ export function useCreateCleanbiScore() {
 export function useGenerateInsights() {
   return useMutation({
     mutationFn: async (scoreId: string) => {
-      return apiRequest("POST", `/api/cleanbi/${scoreId}/insights`, {});
+      const response = await apiRequest("POST", `/api/cleanbi/${scoreId}/insights`, {});
+      return response.json();
     },
   });
 }
