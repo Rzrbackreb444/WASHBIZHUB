@@ -132,7 +132,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
 
   // Fetch user quota on open
   const { data: user } = useQuery<any>({
-    queryKey: ["/api/user"],
+    queryKey: ["/api/auth/user"],
     enabled: isOpen,
   });
 
