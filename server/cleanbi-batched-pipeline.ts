@@ -4,7 +4,51 @@
 // ========================================
 
 import { cachedFetch, CACHE_TTL } from './cleanbi-cache-layer';
-import { atomicRateLimitedCall } from './cleanbi-atomic-rate-limiter';
+import { checkRateLimit } from './redis-rate-limiter';
+
+// ========================================
+// RATE LIMIT CONFIGURATIONS
+// ========================================
+
+const RATE_LIMITS = {
+  google_geocode: {
+    limit: 40000,      // Google Maps Geocoding API: 40K/month free tier
+    windowMs: 30 * 24 * 60 * 60 * 1000  // 30 days
+  },
+  google_places: {
+    limit: 2500,       // Google Places API: ~2.5K/day free tier
+    windowMs: 24 * 60 * 60 * 1000  // 24 hours
+  },
+  google_distance: {
+    limit: 2500,       // Google Distance Matrix: ~2.5K/day
+    windowMs: 24 * 60 * 60 * 1000
+  }
+};
+
+/**
+ * Rate-limited API call wrapper (Redis-backed with fallback)
+ * Replaces old atomic rate limiter with production-grade solution
+ */
+async function rateLimitedCall<T>(
+  apiName: keyof typeof RATE_LIMITS,
+  fn: () => Promise<T>
+): Promise<T> {
+  const config = RATE_LIMITS[apiName];
+  
+  // Check rate limit
+  const limitResult = await checkRateLimit({
+    apiName,
+    limit: config.limit,
+    windowMs: config.windowMs
+  });
+  
+  if (!limitResult.allowed) {
+    throw new Error(`Rate limit exceeded for ${apiName}. ${limitResult.remaining} remaining. Resets at ${new Date(limitResult.resetAt).toISOString()}`);
+  }
+  
+  // Execute API call
+  return await fn();
+}
 
 // ========================================
 // TYPES
@@ -86,7 +130,7 @@ async function batchGeocode(addresses: string[]): Promise<Map<string, any>> {
             // Call Google Geocoding API
             const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
             
-            const response = await atomicRateLimitedCall('google_geocode', async () => {
+            const response = await rateLimitedCall('google_geocode', async () => {
               const res = await fetch(url);
               return res.json();
             });
@@ -149,7 +193,7 @@ async function batchPlaceDetails(placeIds: string[]): Promise<Map<string, any>> 
             
             const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
             
-            const response = await atomicRateLimitedCall('google_places', async () => {
+            const response = await rateLimitedCall('google_places', async () => {
               const res = await fetch(url);
               return res.json();
             });
@@ -207,7 +251,7 @@ async function batchNearbySearch(
           async () => {
             const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=1600&keyword=${keyword}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
             
-            const response = await atomicRateLimitedCall('google_places', async () => {
+            const response = await rateLimitedCall('google_places', async () => {
               const res = await fetch(url);
               return res.json();
             });

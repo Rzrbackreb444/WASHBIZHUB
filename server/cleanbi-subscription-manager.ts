@@ -37,8 +37,9 @@ export async function getUserCLEANBITier(userId: string): Promise<keyof typeof C
       return 'FREE';
     }
     
-    // If tier is set and subscription is active, use it
-    if (user.tier && user.subscriptionStatus === 'active') {
+    // If tier is set and subscription is valid (active, trialing, past_due), use it
+    const validStatuses = ['active', 'trialing', 'past_due'];
+    if (user.tier && user.subscriptionStatus && validStatuses.includes(user.subscriptionStatus)) {
       return normalizeTier(user.tier);
     }
     
@@ -90,11 +91,16 @@ async function getStripeSubscriptionTier(stripeCustomerId: string): Promise<keyo
   if (!stripe) return null;
   
   try {
-    const subscriptions = await stripe.subscriptions.list({
-      customer: stripeCustomerId,
-      status: 'active',
-      limit: 10
-    });
+    // Query all valid subscription statuses (not just "active")
+    const allSubs = await Promise.all([
+      stripe.subscriptions.list({ customer: stripeCustomerId, status: 'active', limit: 5 }),
+      stripe.subscriptions.list({ customer: stripeCustomerId, status: 'trialing', limit: 5 }),
+      stripe.subscriptions.list({ customer: stripeCustomerId, status: 'past_due', limit: 5 })
+    ]);
+    
+    const subscriptions = {
+      data: [...allSubs[0].data, ...allSubs[1].data, ...allSubs[2].data]
+    };
     
     // Find CLEANBI subscription by metadata
     for (const sub of subscriptions.data) {
@@ -402,6 +408,17 @@ export async function createCLEANBISubscription(
       interval
     }
   });
+  
+  // Sync tier to database immediately (webhook will sync again, but this is faster)
+  await db.update(users)
+    .set({
+      cleanbiTier: tierId.toLowerCase(),
+      cleanbiSubscriptionId: subscription.id,
+      cleanbiSubscriptionStatus: subscription.status
+    })
+    .where(eq(users.id, userId));
+  
+  console.log(`✅ CLEANBI subscription created and synced: ${userId} → ${tierId}`);
   
   return subscription;
 }
