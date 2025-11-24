@@ -229,16 +229,18 @@ function AppContent() {
   usePageTracking(); // Track page views on route changes
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <GoogleAnalytics />
-      <FacebookPixel />
-      <NavigationMenu />
-      <div className="flex-1">
-        <Router />
+    <>
+      <div className="min-h-screen flex flex-col">
+        <GoogleAnalytics />
+        <FacebookPixel />
+        <NavigationMenu />
+        <div className="flex-1">
+          <Router />
+        </div>
+        <Footer />
       </div>
-      <Footer />
       <AIChatWidget />
-    </div>
+    </>
   );
 }
 

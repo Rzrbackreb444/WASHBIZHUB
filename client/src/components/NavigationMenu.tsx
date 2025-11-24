@@ -64,137 +64,71 @@ export function NavigationMenu() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-gradient-to-r from-background via-background/95 to-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
-        {/* Logo - Premium responsive sizing */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
+        {/* Logo */}
         <Link href="/">
-          <div className="flex items-center gap-2 hover:opacity-85 transition-opacity flex-shrink-0 cursor-pointer active-elevate-2">
+          <div className="flex items-center gap-2 hover:opacity-85 active:opacity-75 transition-opacity cursor-pointer">
             <img 
               src={logoUrl} 
               alt="WashBizHub - The Bloomberg of Laundromats" 
-              className="h-8 sm:h-10 md:h-12 lg:h-16 w-auto" 
+              className="h-10 sm:h-12 md:h-14 w-auto" 
               loading="lazy"
             />
           </div>
         </Link>
 
-        {/* Desktop Navigation - Shows on tablet/laptop (768px+) */}
-        <nav className="hidden md:flex items-center gap-1 flex-1 px-4">
-          {MAIN_LINKS.map((link) => {
-            const Icon = link.icon;
-            return (
-              <button
-                key={link.href}
-                onClick={() => navigate(link.href)}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap ${
-                  isActive(link.href)
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-                data-testid={`nav-link-${link.label.toLowerCase()}`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{link.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
         {/* Right Section */}
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
-          {/* Social Navigation - Hidden on mobile, visible on tablet+ */}
-          <div className="hidden sm:block">
-            <SocialNavigation />
-          </div>
-
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Desktop Tools Menu */}
-          <div className="hidden xl:block">
-            <NavMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="gap-1" data-testid="nav-tools-menu">
-                    Tools
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid gap-2 p-4 w-60">
-                      {TOOLS_LINKS.map((link) => {
-                        const Icon = link.icon;
-                        return (
-                          <Link key={link.href} href={link.href}>
-                            <div
-                              className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
-                              data-testid={`nav-tool-${link.label.toLowerCase()}`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Icon className="w-4 h-4" />
-                                <span className="text-sm font-medium">{link.label}</span>
-                              </div>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavMenu>
-          </div>
-
-          {/* Auth Section */}
+          {/* Auth */}
           {isLoading ? (
             <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
           ) : isAuthenticated && user ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden md:inline text-sm text-muted-foreground">
-                {user.email}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => logout()}
-                data-testid="button-logout"
-                className="flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => logout()}
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Logout</span>
+            </Button>
           ) : (
             <Link href="/login">
-              <Button size="sm" data-testid="button-login" className="whitespace-nowrap">
+              <Button size="sm" data-testid="button-login">
                 Sign In
               </Button>
             </Link>
           )}
 
-          {/* Mobile Menu - Shows below xl (provides Tools access on medium screens) */}
+          {/* Hamburger Drawer */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="xl:hidden flex-shrink-0" data-testid="button-mobile-menu">
-                {mobileOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+              <Button variant="outline" size="icon" data-testid="button-mobile-menu">
+                <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80">
+            <SheetContent side="right" className="w-80 sm:w-96">
               <div className="space-y-6 mt-8">
                 <div>
-                  <h3 className="font-semibold mb-3">Main</h3>
-                  <div className="space-y-2">
+                  <h3 className="font-bold text-lg mb-4 text-primary">Navigation</h3>
+                  <div className="space-y-1">
                     {MAIN_LINKS.map((link) => {
                       const Icon = link.icon;
                       return (
                         <Link key={link.href} href={link.href}>
                           <div
-                            className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer"
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                              isActive(link.href)
+                                ? "bg-accent text-accent-foreground font-semibold"
+                                : "hover:bg-muted"
+                            }`}
                             onClick={() => setMobileOpen(false)}
                           >
-                            <Icon className="w-4 h-4" />
-                            {link.label}
+                            <Icon className="w-5 h-5" />
+                            <span>{link.label}</span>
                           </div>
                         </Link>
                       );
@@ -202,23 +136,26 @@ export function NavigationMenu() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-3">Tools</h3>
-                  <div className="space-y-2">
+                  <h3 className="font-bold text-lg mb-4 text-primary">Tools</h3>
+                  <div className="space-y-1">
                     {TOOLS_LINKS.map((link) => {
                       const Icon = link.icon;
                       return (
                         <Link key={link.href} href={link.href}>
                           <div
-                            className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer"
+                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
                             onClick={() => setMobileOpen(false)}
                           >
-                            <Icon className="w-4 h-4" />
-                            {link.label}
+                            <Icon className="w-5 h-5" />
+                            <span>{link.label}</span>
                           </div>
                         </Link>
                       );
                     })}
                   </div>
+                </div>
+                <div className="pt-4 border-t">
+                  <SocialNavigation />
                 </div>
               </div>
             </SheetContent>
