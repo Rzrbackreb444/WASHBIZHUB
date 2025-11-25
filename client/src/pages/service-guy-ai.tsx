@@ -33,7 +33,7 @@ import {
   Users,
   ArrowRight
 } from "lucide-react";
-import serviceGuyAiLogoUrl from "@assets/Guy_1764032619732.png";
+import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
 const MANUFACTURERS = [
   { id: "speed_queen", name: "Speed Queen", logo: "SQ" },
@@ -186,7 +186,7 @@ export default function ServiceGuyAI() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">500+</div>
+            <div className="text-3xl font-bold text-primary">2,800+</div>
             <div className="text-sm text-muted-foreground">Error Codes</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
@@ -194,7 +194,7 @@ export default function ServiceGuyAI() {
             <div className="text-sm text-muted-foreground">Manufacturers</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">2000+</div>
+            <div className="text-3xl font-bold text-primary">5,000+</div>
             <div className="text-sm text-muted-foreground">Part Numbers</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">

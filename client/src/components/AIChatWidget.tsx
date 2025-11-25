@@ -119,7 +119,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
+      content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat would you like to know?",
       provider: "system",
       timestamp: new Date(),
     },

@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
 import londrLogoUrl from "@assets/Londr_1763778448894.png";
-import serviceGuyAiLogoUrl from "@assets/Guy_1764032619732.png";
+import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
 export function Hero() {
   return (
