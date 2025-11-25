@@ -333,12 +333,15 @@ async function generateAAdvantageBlogs() {
   }
 }
 
-// Run if called directly
+// Run if called directly (ES module compatible)
 // Usage: npx tsx server/generate-blogs.ts [aadvantage|all|300]
 const args = process.argv.slice(2);
 const mode = args[0] || 'aadvantage'; // Default to aadvantage
 
-if (require.main === module) {
+// ES module entry point detection using import.meta.url
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+
+if (isMainModule) {
   if (mode === 'aadvantage' || mode === '120') {
     generateAAdvantageBlogs()
       .then(() => process.exit(0))

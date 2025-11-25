@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 import { storage } from "./storage";
 import { generateSlug, generateCanonicalUrl, generateSchemaMarkup } from "./seo-optimizer";
 
@@ -82,12 +83,23 @@ const FORUM_TOPICS = [
 // Word count variations for SEO diversity
 const WORD_COUNTS = [900, 1200, 1500, 1800, 2000, 2500];
 
-// Initialize AI clients
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-});
+// Initialize AI clients - prioritize Replit AI Integrations OpenAI
+const openai = process.env.AI_INTEGRATIONS_OPENAI_API_KEY 
+  ? new OpenAI({ 
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    })
+  : process.env.OPENAI_API_KEY
+    ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    : null;
 
-const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const anthropic = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
+
+const gemini = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  : null;
 
 interface GeneratedBlog {
   title: string;
@@ -197,6 +209,75 @@ function injectAffiliateLinks(content: string, state: string, brand: string): st
 // AI BLOG GENERATION
 // ========================================
 
+async function generateWithOpenAI(
+  topic: string,
+  state: string,
+  brand: string,
+  wordCount: number
+): Promise<GeneratedBlog> {
+  if (!openai) {
+    throw new Error("OpenAI not configured");
+  }
+
+  const prompt = `You are an expert commercial laundry industry content writer. Write a comprehensive, SEO-optimized blog post.
+
+TOPIC: "${topic}"
+
+CONTEXT:
+- This is for WashBizHub.com, the leading laundromat industry resource
+- Target audience: Laundromat owners, investors, and entrepreneurs in ${state}
+- Featured brand: ${brand} commercial laundry equipment
+- Distributor: AAdvantage Laundry Systems (leading Southern US distributor)
+
+REQUIREMENTS:
+- Word count: ${wordCount} words minimum
+- Tone: Professional yet conversational, authoritative
+- Structure: 
+  * Compelling introduction with hook
+  * 4-6 H2 sections with detailed content
+  * Include specific ${brand} model recommendations where appropriate
+  * Address common buyer questions
+  * Strong conclusion with clear call-to-action
+- Use semantic HTML: h2, h3, p, ul, ol, strong, em
+- Include real statistics about the laundromat industry
+- Mention energy efficiency, ROI, and operational benefits
+- Reference local market conditions in ${state}
+
+SEO REQUIREMENTS:
+- Focus keyword should appear in first 100 words
+- Use related keywords naturally throughout
+- Include location-based keywords (${state}, specific cities)
+- Create scannable content with bullet points and numbered lists
+
+RETURN ONLY VALID JSON:
+{
+  "title": "Compelling H1 title (50-60 characters)",
+  "metaTitle": "SEO meta title with primary keyword (50-60 chars)",
+  "metaDescription": "Compelling meta description with CTA (150-160 chars)",
+  "excerpt": "Brief summary for preview cards (150-160 chars)",
+  "content": "Full HTML content with semantic tags - NO markdown, only HTML",
+  "focusKeyphrases": ["primary keyword", "secondary keyword 1", "secondary keyword 2", "local keyword"]
+}`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 6000,
+  });
+
+  const responseText = response.choices[0].message.content || "";
+  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error("Failed to parse OpenAI response");
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  return {
+    ...parsed,
+    provider: "openai",
+  };
+}
+
 async function generateWithAnthropic(
   topic: string,
   state: string,
@@ -268,7 +349,7 @@ async function generateWithGemini(
   brand: string,
   wordCount: number
 ): Promise<GeneratedBlog> {
-  const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
   const prompt = `You are an expert commercial laundry industry content writer. Write a comprehensive, SEO-optimized blog post.
 
@@ -346,23 +427,69 @@ RETURN ONLY VALID JSON:
   "focusKeyphrases": ["laundromat forum", "laundromat community", "laundromat owners group", "laundromat advice"]
 }`;
 
-  const message = await anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 5000,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error("Failed to parse forum blog response");
+  // Use OpenAI first (Replit AI Integrations), fallback to Gemini, then Anthropic
+  const errors: string[] = [];
+  
+  // Try OpenAI first
+  if (openai) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 5000,
+      });
+      const responseText = response.choices[0].message.content || "";
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("Failed to parse OpenAI forum blog response");
+      }
+      const parsed = JSON.parse(jsonMatch[0]);
+      return { ...parsed, provider: "openai" };
+    } catch (openaiError: any) {
+      errors.push(`OpenAI: ${openaiError.message}`);
+      console.log(`OpenAI failed for forum blog (${openaiError.message}), trying Gemini...`);
+    }
   }
-
-  const parsed = JSON.parse(jsonMatch[0]);
-  return {
-    ...parsed,
-    provider: "anthropic",
-  };
+  
+  // Fallback to Gemini
+  if (gemini) {
+    try {
+      const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("Failed to parse Gemini forum blog response");
+      }
+      const parsed = JSON.parse(jsonMatch[0]);
+      return { ...parsed, provider: "gemini" };
+    } catch (geminiError: any) {
+      errors.push(`Gemini: ${geminiError.message}`);
+      console.log(`Gemini failed for forum blog (${geminiError.message}), trying Anthropic...`);
+    }
+  }
+  
+  // Fallback to Anthropic
+  if (anthropic) {
+    try {
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 5000,
+        messages: [{ role: "user", content: prompt }],
+      });
+      const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("Failed to parse Anthropic forum blog response");
+      }
+      const parsed = JSON.parse(jsonMatch[0]);
+      return { ...parsed, provider: "anthropic" };
+    } catch (anthropicError: any) {
+      errors.push(`Anthropic: ${anthropicError.message}`);
+    }
+  }
+  
+  throw new Error(`All AI providers failed for forum blog: ${errors.join("; ")}`);
 }
 
 function injectForumLinks(content: string): string {
@@ -445,13 +572,44 @@ export async function generateEquipmentBlog(
       .replace("{city}", city);
 
     const wordCount = WORD_COUNTS[Math.floor(Math.random() * WORD_COUNTS.length)];
-    const useAnthropic = Math.random() > 0.5;
 
-    let generated: GeneratedBlog;
-    if (useAnthropic) {
-      generated = await generateWithAnthropic(topic, state.name, brand.name, wordCount);
-    } else {
-      generated = await generateWithGemini(topic, state.name, brand.name, wordCount);
+    // Use OpenAI first (Replit AI Integrations), fallback to Gemini, then Anthropic
+    let generated: GeneratedBlog | undefined;
+    const errors: string[] = [];
+    
+    // Try OpenAI first
+    if (openai) {
+      try {
+        generated = await generateWithOpenAI(topic, state.name, brand.name, wordCount);
+        // Success - continue to save blog
+      } catch (openaiError: any) {
+        errors.push(`OpenAI: ${openaiError.message}`);
+        console.log(`OpenAI failed (${openaiError.message}), trying Gemini...`);
+      }
+    }
+    
+    // Fallback to Gemini if OpenAI failed
+    if (!generated && gemini) {
+      try {
+        generated = await generateWithGemini(topic, state.name, brand.name, wordCount);
+      } catch (geminiError: any) {
+        errors.push(`Gemini: ${geminiError.message}`);
+        console.log(`Gemini failed (${geminiError.message}), trying Anthropic...`);
+      }
+    }
+    
+    // Fallback to Anthropic if both failed
+    if (!generated && anthropic) {
+      try {
+        generated = await generateWithAnthropic(topic, state.name, brand.name, wordCount);
+      } catch (anthropicError: any) {
+        errors.push(`Anthropic: ${anthropicError.message}`);
+        throw new Error(`All AI providers failed: ${errors.join("; ")}`);
+      }
+    }
+    
+    if (!generated) {
+      throw new Error(`No AI providers available. Errors: ${errors.join("; ")}`);
     }
 
     const contentWithLinks = injectAffiliateLinks(generated.content, state.name, brand.name);
