@@ -143,6 +143,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== TENANT (Public) ====================
+  
+  // Get current tenant info for frontend theming and configuration
+  app.get('/api/tenant', (req: any, res) => {
+    try {
+      if (!req.tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Return tenant info with branding grouped for frontend convenience
+      const tenant = req.tenant;
+      res.json({
+        id: tenant.id,
+        slug: tenant.slug,
+        name: tenant.name,
+        domain: tenant.domain,
+        branding: {
+          logoUrl: tenant.logoUrl,
+          primaryColor: tenant.primaryColor,
+          accentColor: tenant.accentColor,
+          heroTitle: tenant.heroTitle,
+          heroSubtitle: tenant.heroSubtitle,
+          tagline: tenant.tagline,
+        },
+        metaTitle: tenant.metaTitle,
+        metaDescription: tenant.metaDescription,
+        ogImage: tenant.ogImage,
+        enableCourses: tenant.enableCourses,
+        enableMarketplace: tenant.enableMarketplace,
+        enableCommunity: tenant.enableCommunity,
+        enableWhiteLabel: tenant.enableWhiteLabel,
+      });
+    } catch (error: any) {
+      console.error("Error fetching tenant:", error);
+      res.status(500).json({ message: "Failed to fetch tenant" });
+    }
+  });
+
   // ==================== PLATFORM STATS (Public) ====================
   
   // Get platform stats for homepage (cached for 5 minutes)
