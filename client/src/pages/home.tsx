@@ -22,6 +22,15 @@ import colorfulLoadImg from "@assets/AdobeStock_711286802_1763779877615.jpeg";
 import dexterLaundromat from "@assets/Dexter Laundromat_1763779877618.jpg";
 import serviceGuyAI from "@assets/service guy ai_1763780009739.png";
 
+interface PlatformStats {
+  blogPosts: number;
+  resources: number;
+  listings: number;
+  industryMembers: number;
+  downtimeReduction: number;
+  savedInRepairs: number;
+}
+
 export default function Home() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -39,6 +48,12 @@ export default function Home() {
       "query-input": "required name=search_term_string"
     }
   };
+  
+  // Fetch platform stats for dynamic display
+  const { data: stats } = useQuery<PlatformStats>({
+    queryKey: ['/api/platform-stats'],
+  });
+  
   // Fetch templates for display
   const { data: templates = [] } = useQuery<any[]>({
     queryKey: ['/api/templates'],
@@ -582,13 +597,14 @@ export default function Home() {
               </div>
             </footer>
           </blockquote>
-          <div className="grid sm:grid-cols-3 gap-8 mt-12 pt-12 border-t border-white/10">
+          <div className="grid sm:grid-cols-4 gap-8 mt-12 pt-12 border-t border-white/10">
             {[
+              { value: stats?.blogPosts ? `${stats.blogPosts}+` : "90+", label: "SEO Blog Posts" },
               { value: "72,000+", label: "Industry Members" },
               { value: "40%", label: "Downtime Reduction" },
               { value: "$1.2M+", label: "Saved in Repairs" },
             ].map((stat, idx) => (
-              <div key={idx}>
+              <div key={idx} data-testid={`stat-${idx}`}>
                 <div className="text-4xl font-bold text-primary mb-2">{stat.value}</div>
                 <div className="text-sm text-white/70 uppercase tracking-wide">{stat.label}</div>
               </div>

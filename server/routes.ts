@@ -142,6 +142,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== PLATFORM STATS (Public) ====================
+  
+  // Get platform stats for homepage (cached for 5 minutes)
+  let cachedStats: any = null;
+  let lastStatsUpdate = 0;
+  const STATS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  
+  app.get('/api/platform-stats', async (_req, res) => {
+    try {
+      const now = Date.now();
+      if (cachedStats && (now - lastStatsUpdate) < STATS_CACHE_TTL) {
+        return res.json(cachedStats);
+      }
+      
+      // Fetch real-time stats from database
+      const [blogPosts, resources, listings] = await Promise.all([
+        storage.getBlogPosts({ status: 'published' }),
+        storage.getResources({}),
+        storage.getListings({})
+      ]);
+      
+      cachedStats = {
+        blogPosts: blogPosts.length,
+        resources: resources.length,
+        listings: listings.length,
+        industryMembers: 72000,
+        downtimeReduction: 40,
+        savedInRepairs: 1200000,
+        updatedAt: new Date().toISOString()
+      };
+      lastStatsUpdate = now;
+      
+      res.json(cachedStats);
+    } catch (error: any) {
+      console.error("Error fetching platform stats:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== OBJECT STORAGE (Private Media Serving) ====================
   
   // Serve private objects with ACL check
@@ -3129,37 +3168,41 @@ Disallow: /private/`;
     try {
       const baseUrl = process.env.VITE_BASE_URL || "https://washbizhub.com";
       
-      // Fetch all resources for sitemap
+      // Fetch all resources and blog posts for sitemap
       const resources = await storage.getResources({});
+      const blogPosts = await storage.getBlogPosts({ status: 'published' });
       
-      // Static pages
+      // Static pages with comprehensive coverage
       const staticPages = [
         { url: "/", priority: "1.0", changefreq: "daily" },
         { url: "/resources", priority: "0.9", changefreq: "daily" },
         { url: "/superstore", priority: "0.9", changefreq: "daily" },
         { url: "/design-studio", priority: "0.8", changefreq: "weekly" },
-        { url: "/cleanbi", priority: "0.8", changefreq: "weekly" },
-        { url: "/marketplace", priority: "0.8", changefreq: "daily" },
+        { url: "/cleanbi", priority: "0.9", changefreq: "weekly" },
+        { url: "/marketplace", priority: "0.9", changefreq: "daily" },
         { url: "/buyers-guides", priority: "0.8", changefreq: "monthly" },
         { url: "/superstore/compare", priority: "0.8", changefreq: "weekly" },
         { url: "/courses", priority: "0.7", changefreq: "weekly" },
         { url: "/book", priority: "0.7", changefreq: "weekly" },
-        { url: "/blog", priority: "0.7", changefreq: "daily" },
-        { url: "/roi-calculator", priority: "0.7", changefreq: "weekly" },
+        { url: "/blog", priority: "0.9", changefreq: "daily" },
+        { url: "/affiliate-blogs", priority: "0.9", changefreq: "daily" },
+        { url: "/roi-calculator", priority: "0.8", changefreq: "weekly" },
         { url: "/calculator", priority: "0.7", changefreq: "weekly" },
+        { url: "/valuation-calculator", priority: "0.8", changefreq: "weekly" },
+        { url: "/tpd-calculator", priority: "0.8", changefreq: "weekly" },
         { url: "/subscribe", priority: "0.6", changefreq: "monthly" },
-        // Superstore product pages
-        { url: "/superstore/product/DEMO001", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO002", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO003", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO004", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO005", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO006", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO007", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO008", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO009", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO010", priority: "0.7", changefreq: "weekly" },
-        { url: "/superstore/product/DEMO011", priority: "0.7", changefreq: "weekly" },
+        { url: "/funding", priority: "0.8", changefreq: "weekly" },
+        { url: "/funding-matcher", priority: "0.8", changefreq: "weekly" },
+        { url: "/consultation", priority: "0.8", changefreq: "monthly" },
+        { url: "/about-us", priority: "0.7", changefreq: "monthly" },
+        { url: "/pricing", priority: "0.8", changefreq: "weekly" },
+        { url: "/why-washbizhub", priority: "0.8", changefreq: "monthly" },
+        { url: "/vendors", priority: "0.7", changefreq: "weekly" },
+        { url: "/forum", priority: "0.7", changefreq: "daily" },
+        { url: "/laundromat-locator", priority: "0.7", changefreq: "weekly" },
+        { url: "/equipment-diagnostics", priority: "0.7", changefreq: "weekly" },
+        { url: "/insurance-partners", priority: "0.6", changefreq: "monthly" },
+        { url: "/affiliate", priority: "0.6", changefreq: "monthly" },
       ];
       
       // Build sitemap XML
@@ -3184,11 +3227,25 @@ Disallow: /private/`;
         sitemap += '  </url>\n';
       });
       
+      // Add all blog posts (high priority for SEO)
+      blogPosts.forEach(post => {
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${baseUrl}/blog/${post.slug}</loc>\n`;
+        if (post.createdAt) {
+          const date = new Date(post.createdAt).toISOString().split('T')[0];
+          sitemap += `    <lastmod>${date}</lastmod>\n`;
+        }
+        sitemap += `    <changefreq>monthly</changefreq>\n`;
+        sitemap += `    <priority>0.8</priority>\n`;
+        sitemap += '  </url>\n';
+      });
+      
       sitemap += '</urlset>';
       
       res.header('Content-Type', 'application/xml');
       res.send(sitemap);
     } catch (error: any) {
+      console.error('Error generating sitemap:', error);
       res.status(500).send('Error generating sitemap');
     }
   });
