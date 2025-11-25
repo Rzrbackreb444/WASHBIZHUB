@@ -9,6 +9,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { FeaturedListings } from "@/components/FeaturedListings";
 import { FeaturedBlogsCarousel } from "@/components/FeaturedBlogsCarousel";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
+import { AAdvantageSpotlight } from "@/components/AAdvantageSpotlight";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
   Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle
@@ -86,6 +87,9 @@ export default function Home() {
       <section className="py-12 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <FeaturedListingsCarousel />
       </section>
+
+      {/* AAdvantage Laundry Equipment Spotlight - Ultra SEO Optimized */}
+      <AAdvantageSpotlight />
 
       {/* Newsletter Signup */}
       <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
