@@ -8,6 +8,12 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import Stripe from "stripe";
+import { db } from "./db";
+import { listings } from "@shared/schema";
+import { eq, or, isNull } from "drizzle-orm";
+
+// Type definition for AI providers
+type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
@@ -578,6 +584,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quick batch generation (generates 10 blogs at a time for faster results)
+  // Protected with API key for automation scripts
+  app.post("/api/blog/aadvantage/generate-batch", async (req, res) => {
+    try {
+      // Check for API key or admin auth
+      const apiKey = req.headers['x-api-key'] || req.body.apiKey;
+      const expectedKey = process.env.BLOG_GENERATION_API_KEY || process.env.SESSION_SECRET;
+      
+      if (apiKey !== expectedKey) {
+        const user = await getCurrentUser(req).catch(() => null);
+        if (!user?.isAdmin) {
+          return res.status(401).json({ message: "Unauthorized - API key or admin access required" });
+        }
+      }
+      
+      const { batchSize = 10, startIndex = 0 } = req.body;
+      const { STATES, BRANDS, EQUIPMENT_TOPICS, FORUM_TOPICS, generateEquipmentBlog, generateForumBlogPost } = await import("./aadvantage-blog-generator");
+      
+      const results: any[] = [];
+      let currentIndex = startIndex;
+      const maxBatch = Math.min(batchSize, 10); // Max 10 per batch
+      
+      // Calculate total equipment blogs needed
+      const equipmentBlogsTotal = 100;
+      const forumBlogsTotal = 20;
+      
+      for (let i = 0; i < maxBatch && currentIndex < 120; i++) {
+        if (currentIndex < equipmentBlogsTotal) {
+          // Generate equipment blog
+          const stateIndex = Math.floor(currentIndex / (BRANDS.length * 4)) % STATES.length;
+          const brandIndex = Math.floor(currentIndex / 4) % BRANDS.length;
+          const topicIndex = currentIndex % 4;
+          
+          const state = STATES[stateIndex];
+          const brand = BRANDS[brandIndex];
+          const topic = EQUIPMENT_TOPICS[topicIndex % EQUIPMENT_TOPICS.length];
+          
+          console.log(`📄 Generating: ${state.name} + ${brand.name} (${currentIndex + 1}/120)`);
+          const result = await generateEquipmentBlog(state, brand, topic, currentIndex);
+          results.push(result);
+        } else {
+          // Generate forum blog
+          const forumIndex = currentIndex - equipmentBlogsTotal;
+          const topic = FORUM_TOPICS[forumIndex % FORUM_TOPICS.length];
+          
+          console.log(`📢 Generating forum blog ${forumIndex + 1}/20`);
+          const result = await generateForumBlogPost(topic);
+          results.push(result);
+        }
+        
+        currentIndex++;
+        // Small delay between generations
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+      
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      
+      res.json({
+        success: true,
+        generated: results.length,
+        successful,
+        failed,
+        nextIndex: currentIndex,
+        remaining: 120 - currentIndex,
+        results
+      });
+    } catch (error: any) {
+      console.error('❌ Batch generation failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/blog/aadvantage/generate-single", isAdmin, async (req, res) => {
     try {
       const { state, brand, topic } = req.body;
@@ -907,6 +986,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/create-subscription", async (req, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
       const { email, name } = req.body;
 
       // Create Stripe customer
@@ -999,6 +1082,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existing = await storage.getEnrollment(userId, course.id);
       if (existing) {
         return res.status(400).json({ message: "Already enrolled in this course" });
+      }
+
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -1270,6 +1357,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existing = await storage.getUserBookAccess(userId);
       if (existing) {
         return res.status(400).json({ message: "Already has book access" });
+      }
+
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -2683,12 +2774,12 @@ Disallow: /private/`;
       const results = await storage.searchContent(q, limit ? parseInt(limit as string) : 10);
       
       // Track search analytics
-      if (req.user?.claims) {
+      if ((req as any).user?.claims || (req as any).user?.sub) {
         await storage.createSearchAnalytic({
           query: q,
           resultsCount: results.length,
-          userId: req.user?.sub || (req.user as any)?.claims?.sub || null,
-          sessionId: req.sessionID,
+          userId: (req as any).user?.claims?.sub || (req as any).user?.sub || null,
+          sessionId: (req as any).sessionID,
         });
       }
       
@@ -3238,7 +3329,7 @@ Disallow: /private/`;
   app.get("/api/alerts/price", async (req: any, res) => {
     try {
       const email = req.query.email as string | undefined;
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
 
       if (!email && !userId) {
         return res.status(400).json({ error: "Email or authentication required" });
@@ -3309,7 +3400,7 @@ Disallow: /private/`;
   app.get("/api/alerts/stock", async (req: any, res) => {
     try {
       const email = req.query.email as string | undefined;
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
 
       if (!email && !userId) {
         return res.status(400).json({ error: "Email or authentication required" });
@@ -3379,7 +3470,7 @@ Disallow: /private/`;
     try {
       const email = req.query.email as string | undefined;
       const category = req.query.category as string | undefined;
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
 
       if (!email && !userId) {
         return res.status(400).json({ error: "Email or authentication required" });
@@ -3452,7 +3543,7 @@ Disallow: /private/`;
   app.get("/api/alerts/deals", async (req: any, res) => {
     try {
       const email = req.query.email as string | undefined;
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
 
       if (!email && !userId) {
         return res.status(400).json({ error: "Email or authentication required" });
@@ -3757,6 +3848,10 @@ Disallow: /private/`;
   // POST /api/subscriptions/upgrade - Upgrade subscription plan
   app.post("/api/subscriptions/upgrade", isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
         return res.status(401).json({ error: "Unauthorized" });
@@ -3852,6 +3947,10 @@ Disallow: /private/`;
 
   // Helper function to create or get Stripe coupon for promo code
   async function createOrGetCoupon(percentOff: number): Promise<string> {
+    if (!stripe) {
+      throw new Error("Stripe not configured");
+    }
+    
     const couponId = `promo-${percentOff}-percent`;
     
     try {
@@ -3876,6 +3975,10 @@ Disallow: /private/`;
   // POST /api/subscriptions/cancel - Cancel subscription
   app.post("/api/subscriptions/cancel", isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
         return res.status(401).json({ error: "Unauthorized" });
@@ -4580,10 +4683,10 @@ Disallow: /private/`;
       }
 
       // Track click analytics only if user is logged in
-      if (req.user?.claims?.sub) {
+      if ((req as any).user?.claims?.sub || (req as any).user?.sub) {
         // TODO: implement activity tracking
         // await storage.createActivityEvent({
-        //   userId: req.user?.sub || (req.user as any)?.claims?.sub,
+        //   userId: (req as any).user?.claims?.sub || (req as any).user?.sub,
         //   eventType: 'amazon_click',
         //   module: source || 'parts-ordering',
         //   metadata: { asin },
@@ -4975,37 +5078,22 @@ Disallow: /private/`;
   // GET /api/admin/stats - Admin dashboard statistics (admin only)
   app.get("/api/admin/stats", isAdmin, async (req, res) => {
     try {
-      // Get all stats for dashboard
-      const [
-        users,
-        subscribers,
-        courses,
-        resources,
-        vendors,
-        topics,
-        ads
-      ] = await Promise.all([
-        // storage.getAllUsers(),
-        storage.getEmailSubscribers(),
-        // storage.getAllCourses(),
-        // storage.getAllResources(),
-        // storage.getAllVendors(),
-        // storage.getAllForumTopics(),
-        // storage.getAllAdvertisements(),
-      ]);
-
+      // Get all stats for dashboard - fetch subscribers which is the only working method
+      const subscribers = await storage.getEmailSubscribers();
+      
+      // Use subscribers as a proxy for user data (the only method available)
       const stats = {
-        users: users.length,
-        activeUsers: users.filter(u => u.isPro).length,
+        users: subscribers.length,
+        activeUsers: 0, // Would need getAllUsers to calculate
         subscribers: subscribers.length,
-        courses: courses.length,
-        resources: resources.length,
-        vendors: vendors.length,
-        topics: topics.length,
-        ads: ads.length,
+        courses: 0, // Would need getAllCourses
+        resources: 0, // Would need getAllResources
+        vendors: 0, // Would need getAllVendors
+        topics: 0, // Would need getAllForumTopics
+        ads: 0, // Would need getAllAdvertisements
         posts: 0, // TODO: Add blog posts count
         revenue: 12850, // TODO: Calculate from Stripe
-        totalContent: courses.length + resources.length + vendors.length,
+        totalContent: 0,
       };
 
       res.json(stats);
@@ -5054,7 +5142,7 @@ Disallow: /private/`;
   // GET /api/vendor/ads - Get vendor's advertisements (authenticated)
   app.get("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const ads = await storage.getAdvertisements({ userId });
@@ -5067,7 +5155,7 @@ Disallow: /private/`;
   // POST /api/vendor/ads - Submit new advertisement (authenticated)
   app.post("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const adData = insertAdvertisementSchema.parse({
@@ -5094,7 +5182,7 @@ Disallow: /private/`;
   // PATCH /api/vendor/ads/:id - Update own advertisement (authenticated)
   app.patch("/api/vendor/ads/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const existing = await storage.getAdvertisement(req.params.id);
@@ -5158,7 +5246,7 @@ Disallow: /private/`;
   app.patch("/api/admin/ads/:id/status", isAdmin, async (req: any, res) => {
     try {
       const { status, rejectionReason } = req.body;
-      const reviewerId = req.user?.claims?.sub;
+      const reviewerId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
 
       const ad = await storage.updateAdStatus(req.params.id, status, reviewerId, rejectionReason);
       
@@ -5220,7 +5308,7 @@ Disallow: /private/`;
   // POST /api/courses/:courseId/enroll - Enroll in course
   app.post("/api/courses/:courseId/enroll", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const existing = await storage.getEnrollment(userId, req.params.courseId);
@@ -5229,7 +5317,6 @@ Disallow: /private/`;
       const enrollment = await storage.createEnrollment({
         userId,
         courseId: req.params.courseId,
-        progress: 0,
         completedLessons: [],
       });
       res.status(201).json(enrollment);
@@ -5291,7 +5378,7 @@ Disallow: /private/`;
   // GET /api/book/access - Check user's book access
   app.get("/api/book/access", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const access = await storage.getUserBookAccess(userId);
@@ -5304,8 +5391,12 @@ Disallow: /private/`;
   // POST /api/book/purchase - Create checkout session for book
   app.post("/api/book/purchase", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
+      const userEmail = (req.user as any)?.claims?.email;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const session = await stripe.checkout.sessions.create({
@@ -5340,7 +5431,7 @@ Disallow: /private/`;
   // POST /api/quizzes/:lessonId/attempt - Submit quiz attempt
   app.post("/api/quizzes/:lessonId/attempt", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const { answers, score, totalQuestions, correctAnswers, timeSpent } = req.body;
@@ -5366,8 +5457,8 @@ Disallow: /private/`;
   // POST /api/certificates - Generate certificate on course completion
   app.post("/api/certificates", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const firstName = req.user?.claims?.first_name || "Student";
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
+      const firstName = (req.user as any)?.claims?.first_name || "Student";
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const { courseId, courseName } = req.body;
@@ -5394,7 +5485,7 @@ Disallow: /private/`;
   // GET /api/annotations/:chapterId - Get user's annotations for chapter
   app.get("/api/annotations/:chapterId", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       // Return empty array for now (storage method needed)
@@ -5407,7 +5498,7 @@ Disallow: /private/`;
   // POST /api/annotations - Create annotation (bookmark/note/highlight)
   app.post("/api/annotations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const { chapterId, type, position, selectedText, noteContent, color } = req.body;
@@ -5443,8 +5534,12 @@ Disallow: /private/`;
   // POST /api/premium-combo/checkout - Create combo package checkout session
   app.post("/api/premium-combo/checkout", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
+      const userEmail = (req.user as any)?.claims?.email;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const session = await stripe.checkout.sessions.create({
@@ -5478,7 +5573,7 @@ Disallow: /private/`;
   // GET /api/premium-combo/status - Check user's combo access
   app.get("/api/premium-combo/status", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       // Check if user has combo access
@@ -5497,7 +5592,7 @@ Disallow: /private/`;
   // POST /api/badges - Award badge to user
   app.post("/api/badges", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       const { type, reason } = req.body;
@@ -5519,7 +5614,7 @@ Disallow: /private/`;
   // GET /api/badges - Get user's badges
   app.get("/api/badges", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       // Return mock badges for now
@@ -5535,7 +5630,7 @@ Disallow: /private/`;
   // GET /api/learning-stats - Get user's learning statistics
   app.get("/api/learning-stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
       res.json({

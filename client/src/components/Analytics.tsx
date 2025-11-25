@@ -27,7 +27,12 @@ export function GoogleAnalytics() {
 
 // Facebook Pixel
 export function FacebookPixel() {
-  const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || '000000000000000';
+  const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID;
+  
+  // Don't render if no valid Pixel ID is configured
+  if (!FB_PIXEL_ID) {
+    return null;
+  }
   
   return (
     <Helmet>
@@ -63,8 +68,9 @@ export function usePageTracking() {
       });
     }
 
-    // Facebook Pixel pageview
-    if (typeof window !== 'undefined' && (window as any).fbq) {
+    // Facebook Pixel pageview (only if configured and initialized)
+    const fbPixelId = import.meta.env.VITE_FB_PIXEL_ID;
+    if (fbPixelId && typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'PageView');
     }
   }, [location]);
@@ -77,8 +83,9 @@ export function trackConversion(eventName: string, data?: Record<string, any>) {
     (window as any).gtag('event', eventName, data);
   }
 
-  // Facebook Pixel event
-  if (typeof window !== 'undefined' && (window as any).fbq) {
+  // Facebook Pixel event (only if configured)
+  const fbPixelId = import.meta.env.VITE_FB_PIXEL_ID;
+  if (fbPixelId && typeof window !== 'undefined' && (window as any).fbq) {
     (window as any).fbq('track', eventName, data);
   }
 }
