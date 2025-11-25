@@ -7526,5 +7526,224 @@ export type InsertAiCompanionSettings = z.infer<typeof insertAiCompanionSettings
 export type AiCompanionSettings = typeof aiCompanionSettings.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete multi-tenant platform with AI Recovery Companion
+// GHOSTWRITING SUITE - Help survivors write & publish their recovery stories
+// ============================================================================
+
+// Ghostwriting Projects - Book manuscripts for KDP publishing
+export const ghostwritingProjects = pgTable("ghostwriting_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Book Details
+  title: varchar("title").notNull(),
+  subtitle: text("subtitle"),
+  authorName: varchar("author_name").notNull(), // Pen name or real name
+  genre: varchar("genre").default("memoir"), // "memoir", "self_help", "inspirational"
+  
+  // Project Status
+  status: varchar("status").default("draft"), // "draft", "writing", "editing", "review", "published"
+  currentChapter: integer("current_chapter").default(1),
+  totalChapters: integer("total_chapters").default(10),
+  wordCount: integer("word_count").default(0),
+  targetWordCount: integer("target_word_count").default(50000),
+  
+  // Book Structure (JSON)
+  outline: jsonb("outline"), // Array of chapter outlines
+  frontMatter: jsonb("front_matter"), // Dedication, foreword, introduction
+  backMatter: jsonb("back_matter"), // About author, resources, acknowledgments
+  
+  // KDP Publishing Info
+  isbn: varchar("isbn"),
+  asin: varchar("asin"), // Amazon ASIN
+  kdpStatus: varchar("kdp_status").default("not_submitted"), // "not_submitted", "pending", "approved", "live"
+  publishedAt: timestamp("published_at"),
+  amazonUrl: text("amazon_url"),
+  
+  // Cover & Formatting
+  coverImageUrl: text("cover_image_url"),
+  trimSize: varchar("trim_size").default("6x9"), // "5x8", "6x9", "5.5x8.5"
+  interiorType: varchar("interior_type").default("black_white"), // "black_white", "color"
+  
+  // AI Assistance Tracking
+  aiAssistanceLevel: varchar("ai_assistance_level").default("guided"), // "minimal", "guided", "collaborative"
+  aiSuggestionsUsed: integer("ai_suggestions_used").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userProjectIdx: index("ghostwriting_user_idx").on(table.userId),
+  statusIdx: index("ghostwriting_status_idx").on(table.status),
+}));
+
+export const insertGhostwritingProjectSchema = createInsertSchema(ghostwritingProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertGhostwritingProject = z.infer<typeof insertGhostwritingProjectSchema>;
+export type GhostwritingProject = typeof ghostwritingProjects.$inferSelect;
+
+// Ghostwriting Chapters - Individual chapters of the book
+export const ghostwritingChapters = pgTable("ghostwriting_chapters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Chapter Details
+  chapterNumber: integer("chapter_number").notNull(),
+  title: varchar("title").notNull(),
+  theme: text("theme"), // e.g., "The rupture that rewrote everything"
+  canonPrinciple: text("canon_principle"), // e.g., "You don't survive a stroke. You interrogate it."
+  
+  // Content
+  content: text("content"), // Full chapter text
+  wordCount: integer("word_count").default(0),
+  targetWordCount: integer("target_word_count").default(3000),
+  
+  // Structure (JSON)
+  sections: jsonb("sections"), // Array of section headers/content
+  keyMoments: jsonb("key_moments"), // Important scenes/memories
+  supportingCharacters: jsonb("supporting_characters"), // People mentioned
+  beforeAfterMoments: jsonb("before_after_moments"), // Contrast moments
+  
+  // Writing Status
+  status: varchar("status").default("outline"), // "outline", "draft", "revision", "final"
+  draftVersion: integer("draft_version").default(1),
+  
+  // AI Assistance
+  aiPrompts: jsonb("ai_prompts"), // Prompts used to generate content
+  aiSuggestions: text("ai_suggestions"), // Suggestions for improvement
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  projectChapterIdx: index("chapter_project_idx").on(table.projectId, table.chapterNumber),
+}));
+
+export const insertGhostwritingChapterSchema = createInsertSchema(ghostwritingChapters).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertGhostwritingChapter = z.infer<typeof insertGhostwritingChapterSchema>;
+export type GhostwritingChapter = typeof ghostwritingChapters.$inferSelect;
+
+// AI Companion Conversations - Chat history with recovery AI
+export const aiCompanionChats = pgTable("ai_companion_chats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Conversation Context
+  sessionId: varchar("session_id").notNull(), // Group messages in a session
+  topic: varchar("topic"), // "motivation", "exercise", "medication", "emotional", "ghostwriting"
+  
+  // Message
+  role: varchar("role").notNull(), // "user", "assistant"
+  content: text("content").notNull(),
+  
+  // AI Metadata
+  aiModel: varchar("ai_model"), // Which model responded
+  promptTokens: integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
+  
+  // Sentiment & Analysis
+  userSentiment: varchar("user_sentiment"), // "positive", "neutral", "struggling", "crisis"
+  responseType: varchar("response_type"), // "encouragement", "guidance", "exercise", "reminder"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userSessionIdx: index("chat_user_session_idx").on(table.userId, table.sessionId),
+  topicIdx: index("chat_topic_idx").on(table.topic),
+}));
+
+export const insertAiCompanionChatSchema = createInsertSchema(aiCompanionChats).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAiCompanionChat = z.infer<typeof insertAiCompanionChatSchema>;
+export type AiCompanionChat = typeof aiCompanionChats.$inferSelect;
+
+// Book Templates - Based on "The Stroked Out Sasquatch" structure
+export const bookTemplates = pgTable("book_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  name: varchar("name").notNull(),
+  description: text("description"),
+  genre: varchar("genre").default("memoir"),
+  
+  // Template Structure
+  chapterCount: integer("chapter_count").default(10),
+  chapterTemplates: jsonb("chapter_templates"), // Array of chapter templates with themes/prompts
+  frontMatterTemplate: jsonb("front_matter_template"),
+  backMatterTemplate: jsonb("back_matter_template"),
+  
+  // Formatting
+  trimSize: varchar("trim_size").default("6x9"),
+  targetWordCount: integer("target_word_count").default(50000),
+  
+  // Source
+  basedOn: varchar("based_on"), // "stroked_out_sasquatch", "custom"
+  authorCredit: varchar("author_credit"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBookTemplateSchema = createInsertSchema(bookTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookTemplate = z.infer<typeof insertBookTemplateSchema>;
+export type BookTemplate = typeof bookTemplates.$inferSelect;
+
+// ============================================================================
+// VR RECOVERY SESSIONS - Future Neuro VR App tracking
+// ============================================================================
+
+export const vrRecoverySessions = pgTable("vr_recovery_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Session Details
+  sessionType: varchar("session_type").notNull(), // "hand_therapy", "balance", "cognitive", "speech"
+  exerciseName: varchar("exercise_name").notNull(),
+  difficulty: varchar("difficulty").default("beginner"), // "beginner", "intermediate", "advanced"
+  
+  // Performance Metrics
+  duration: integer("duration"), // seconds
+  repetitions: integer("repetitions"),
+  accuracy: decimal("accuracy", { precision: 5, scale: 2 }), // percentage
+  score: integer("score"),
+  
+  // Motion Tracking Data (JSON)
+  motionData: jsonb("motion_data"), // Hand tracking, balance metrics, etc.
+  
+  // Progress
+  improvement: decimal("improvement", { precision: 5, scale: 2 }), // vs previous session
+  personalBest: boolean("personal_best").default(false),
+  
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userSessionTypeIdx: index("vr_user_type_idx").on(table.userId, table.sessionType),
+}));
+
+export const insertVrRecoverySessionSchema = createInsertSchema(vrRecoverySessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVrRecoverySession = z.infer<typeof insertVrRecoverySessionSchema>;
+export type VrRecoverySession = typeof vrRecoverySessions.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete SRA Platform with Ghostwriting & VR Recovery
 // ============================================================================
