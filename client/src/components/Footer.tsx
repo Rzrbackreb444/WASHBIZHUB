@@ -1,14 +1,15 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag } from "lucide-react";
+import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag, Wrench, AlertTriangle, Settings, Shield } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/6_1763855398994.png";
+import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
-// Contact info from environment variables
-const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-883-4314";
-const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14798834314";
+// Contact info - Kremers Laundry Equipment Co, Inc (Dad's number for customer communications)
+const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-629-0484";
+const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14796290484";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 export function Footer() {
@@ -327,6 +328,60 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Service Guy AI Premium Section - SEO Optimized */}
+        <div className="border-t border-primary/20 pt-8 mb-8">
+          <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-6 md:p-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-shrink-0">
+                <Link href="/service-guy-ai">
+                  <img 
+                    src={serviceGuyAiLogoUrl} 
+                    alt="Service Guy AI - Premium Commercial Laundry Equipment Diagnostics" 
+                    className="h-24 md:h-32 w-auto object-contain cursor-pointer hover:scale-105 transition-transform"
+                    data-testid="img-footer-service-guy-ai"
+                  />
+                </Link>
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                  <h3 className="text-white font-bold text-xl">Service Guy AI</h3>
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-none">
+                    PREMIUM
+                  </Badge>
+                </div>
+                <p className="text-white/80 text-sm mb-3">
+                  Industrial-grade diagnostic intelligence for commercial laundry equipment. 
+                  Named in honor of our founder's father, a lifelong service professional.
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-white/70 mb-4">
+                  <span className="flex items-center gap-1">
+                    <AlertTriangle className="h-4 w-4 text-primary" />
+                    2,800+ Error Codes
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Settings className="h-4 w-4 text-primary" />
+                    5,000+ Part Numbers
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Shield className="h-4 w-4 text-primary" />
+                    Step-by-Step Guides
+                  </span>
+                </div>
+                <Link href="/service-guy-ai">
+                  <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90" data-testid="button-footer-service-guy-ai">
+                    <Wrench className="h-4 w-4 mr-2" />
+                    Access Diagnostic Tools
+                  </Button>
+                </Link>
+              </div>
+              <div className="hidden lg:block text-right">
+                <p className="text-xs text-white/50 mb-1">Service Directory Partner:</p>
+                <p className="text-sm text-white/80 font-semibold">Kremers Laundry Equipment Co, Inc</p>
+                <p className="text-xs text-white/60">Fort Smith, AR · (479) 629-0484</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Advertisement & Newsletter Section */}
         <div className="border-t border-primary/20 pt-8 mb-8">
