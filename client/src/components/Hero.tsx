@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
 import londrLogoUrl from "@assets/Londr_1763778448894.png";
+import serviceGuyAiLogoUrl from "@assets/Guy_1764032619732.png";
 
 export function Hero() {
   return (
@@ -101,6 +102,20 @@ export function Hero() {
                   className="h-full w-auto object-contain"
                 />
               </a>
+              
+              {/* Service Guy AI Logo - Clickable - Named after founder's father */}
+              <Link href="/service-guy-ai">
+                <div
+                  className="h-20 flex items-center opacity-90 hover:opacity-100 transition-all hover:scale-105 active-elevate-2 cursor-pointer"
+                  data-testid="brand-logo-service-guy-ai"
+                >
+                  <img 
+                    src={serviceGuyAiLogoUrl} 
+                    alt="Service Guy AI - AI-Powered Equipment Diagnostics" 
+                    className="h-full w-auto object-contain"
+                  />
+                </div>
+              </Link>
             </div>
           </div>
         </div>

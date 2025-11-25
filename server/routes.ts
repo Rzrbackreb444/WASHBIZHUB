@@ -17,6 +17,20 @@ import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generat
 import { optimizeBlogForSEO } from "./seo-optimizer";
 import { readFileSync } from "fs";
 import { join } from "path";
+import multer from "multer";
+
+// Configure multer for file uploads (memory storage for PDF processing)
+const multerUpload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
@@ -5495,6 +5509,111 @@ Disallow: /private/`;
         success: false,
         error: error.message 
       });
+    }
+  });
+
+  // ========== SERVICE GUY AI - Equipment Diagnostics ==========
+  app.post("/api/service-guy-ai/diagnose", async (req, res) => {
+    try {
+      const { symptoms, manufacturer, machineType } = req.body;
+      
+      if (!symptoms) {
+        return res.status(400).json({ error: "Symptoms description required" });
+      }
+
+      // Use Gemini for AI-powered diagnosis
+      const { GoogleGenerativeAI } = await import("@google/generative-ai");
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+      const prompt = `You are Service Guy AI, an expert commercial laundry equipment diagnostic assistant named after a lifelong service industry professional.
+
+EQUIPMENT CONTEXT:
+- Manufacturer: ${manufacturer || "Unknown"}
+- Machine Type: ${machineType || "Unknown"}
+
+SYMPTOMS REPORTED:
+${symptoms}
+
+Provide a professional diagnosis including:
+1. LIKELY CAUSES (ranked by probability)
+2. IMMEDIATE CHECKS (what the operator can verify)
+3. TROUBLESHOOTING STEPS (detailed step-by-step)
+4. REQUIRED PARTS (with real part numbers if manufacturer is known)
+5. SKILL LEVEL REQUIRED (Basic/Intermediate/Professional)
+6. ESTIMATED REPAIR TIME
+7. SAFETY WARNINGS (if applicable)
+8. WHEN TO CALL A PROFESSIONAL
+
+Format your response in a clear, numbered structure. Be specific and actionable.
+If the manufacturer is Speed Queen, Dexter, Maytag, LG, Wascomat, Continental Girbau, Huebsch, IPSO, UniMac, or Electrolux, include actual part numbers.`;
+
+      const result = await model.generateContent(prompt);
+      const diagnosis = result.response.text();
+
+      res.json({ 
+        diagnosis,
+        manufacturer: manufacturer || "Unknown",
+        machineType: machineType || "Unknown",
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Service Guy AI diagnosis error:", error);
+      res.status(500).json({ 
+        error: "Diagnosis failed",
+        message: error.message,
+        fallback: `Based on the reported symptoms, we recommend:
+1. Check the error code display on the machine
+2. Verify all water connections and valves
+3. Inspect the drain system for clogs
+4. Check electrical connections
+5. Review the service manual for your specific model
+6. Contact a certified technician if the issue persists
+
+For immediate assistance, contact: 479-883-4314 or nick@washbizhub.com`
+      });
+    }
+  });
+
+  // Service Guy AI - PDF Manual Extraction
+  app.post("/api/service-guy-ai/extract-manual", multerUpload.single("manual"), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No PDF file uploaded" });
+      }
+
+      const pdfParse = (await import("pdf-parse")).default;
+      const pdfData = await pdfParse(req.file.buffer);
+      
+      // Extract text and use AI to structure the data
+      const { GoogleGenerativeAI } = await import("@google/generative-ai");
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+      const prompt = `Analyze this service manual excerpt and extract:
+1. All ERROR CODES with their descriptions
+2. All PART NUMBERS mentioned
+3. Key TROUBLESHOOTING PROCEDURES
+4. SAFETY WARNINGS
+
+Format as structured JSON with arrays for each category.
+
+MANUAL TEXT:
+${pdfData.text.substring(0, 15000)}`;
+
+      const result = await model.generateContent(prompt);
+      const analysis = result.response.text();
+
+      res.json({
+        success: true,
+        pages: pdfData.numpages,
+        textLength: pdfData.text.length,
+        analysis,
+        extractedAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("PDF extraction error:", error);
+      res.status(500).json({ error: "PDF extraction failed", message: error.message });
     }
   });
 
