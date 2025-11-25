@@ -5692,6 +5692,178 @@ Disallow: /private/`;
     }
   });
 
+  // ========== VAULT CHECKOUT ROUTES ==========
+  
+  // Vault template definitions (matching frontend)
+  const vaultTemplates = [
+    { id: "business-plan", name: "Full Business Plan (30+ Pages)", price: 197 },
+    { id: "financial-proforma", name: "5-Year Financial Pro Forma", price: 147 },
+    { id: "employee-handbook", name: "Employee Handbook (40+ Pages)", price: 97 },
+    { id: "grand-opening", name: "Grand Opening Marketing Kit", price: 197 },
+    { id: "due-diligence", name: "Due Diligence Master Packet", price: 197 },
+    { id: "wdf-manual", name: "WDF Operations Manual", price: 127 },
+    { id: "lease-script", name: "Lease Negotiation Script", price: 97 },
+    { id: "cleanbi-template", name: "CLEANBI Report Template", price: 97 },
+    { id: "pricing-calendar", name: "Dynamic Pricing Calendar", price: 77 },
+    { id: "roi-calculator", name: "Equipment ROI Calculator", price: 97 },
+    { id: "nda-template", name: "NDA Template", price: 47 },
+    { id: "loi-template", name: "Letter of Intent (LOI)", price: 67 },
+    { id: "purchase-agreement", name: "Purchase Agreement Outline", price: 127 },
+    { id: "maintenance-schedule", name: "Preventative Maintenance Schedule", price: 77 },
+    { id: "customer-survey", name: "Customer Survey System", price: 47 },
+    { id: "emergency-plan", name: "Emergency Response Plan", price: 47 },
+    { id: "insurance-checklist", name: "Insurance Checklist", price: 47 },
+    { id: "exit-workbook", name: "Exit Strategy Workbook", price: 97 },
+    { id: "broker-disclosure", name: "Broker Disclosure Form", price: 47 },
+    { id: "ops-checklist", name: "Operations Checklist (D/W/M)", price: 97 },
+  ];
+  
+  // POST /api/vault/checkout - Create Stripe checkout session for Vault products
+  app.post("/api/vault/checkout", async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment processing is currently unavailable. Please try again later." });
+      }
+      
+      const { type, templateId } = req.body;
+      
+      // Validate request body
+      if (!type || (type !== 'bundle' && type !== 'template')) {
+        return res.status(400).json({ message: "Invalid checkout type. Must be 'bundle' or 'template'." });
+      }
+      if (type === 'template' && !templateId) {
+        return res.status(400).json({ message: "Template ID is required for individual template purchases." });
+      }
+      
+      // Get user info if authenticated, allow guest checkout
+      const userEmail = req.user?.claims?.email || req.user?.email || undefined;
+      const userId = req.user?.claims?.sub || req.user?.sub || 'guest';
+      
+      let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+      let productName = "";
+      let productDescription = "";
+      let successPath = "/vault?success=true";
+      
+      if (type === "bundle") {
+        // Full Vault bundle - $997
+        productName = "The Operator's Vault - Complete Bundle";
+        productDescription = "All 20 premium laundromat templates ($5,917 value)";
+        lineItems = [{
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: productName,
+              description: productDescription,
+            },
+            unit_amount: 99700, // $997
+          },
+          quantity: 1,
+        }];
+        successPath = "/vault?success=bundle";
+      } else if (type === "template" && templateId) {
+        // Individual template purchase
+        const template = vaultTemplates.find(t => t.id === templateId);
+        if (!template) {
+          return res.status(400).json({ message: "Template not found" });
+        }
+        
+        productName = template.name;
+        productDescription = `Premium laundromat template from The Operator's Vault`;
+        lineItems = [{
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: productName,
+              description: productDescription,
+            },
+            unit_amount: template.price * 100, // Convert to cents
+          },
+          quantity: 1,
+        }];
+        successPath = `/vault?success=${templateId}`;
+      } else {
+        return res.status(400).json({ message: "Invalid checkout type" });
+      }
+      
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : `${req.protocol}://${req.hostname}`;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: lineItems,
+        mode: "payment",
+        success_url: `${baseUrl}${successPath}`,
+        cancel_url: `${baseUrl}/vault`,
+        customer_email: userEmail,
+        metadata: { 
+          userId, 
+          type, 
+          templateId: templateId || 'bundle',
+          product: productName 
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      console.error("Vault checkout error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/cleanbi/checkout - Create Stripe checkout for $97 CLEANBI report
+  app.post("/api/cleanbi/checkout", async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment processing is currently unavailable. Please try again later." });
+      }
+      
+      const { address } = req.body;
+      
+      // Validate address is provided
+      if (!address || typeof address !== 'string' || address.trim().length < 5) {
+        return res.status(400).json({ message: "A valid property address is required for CLEANBI analysis." });
+      }
+      
+      // Get user info if authenticated, allow guest checkout
+      const userEmail = req.user?.claims?.email || req.user?.email || undefined;
+      const userId = req.user?.claims?.sub || req.user?.sub || 'guest';
+      
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : `${req.protocol}://${req.hostname}`;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [{
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "CLEANBI Professional Report",
+              description: `17-factor property intelligence analysis${address ? ` for: ${address}` : ''}`,
+            },
+            unit_amount: 9700, // $97
+          },
+          quantity: 1,
+        }],
+        mode: "payment",
+        success_url: `${baseUrl}/cleanbi?success=true&address=${encodeURIComponent(address || '')}`,
+        cancel_url: `${baseUrl}/cleanbi`,
+        customer_email: userEmail,
+        metadata: { 
+          userId, 
+          type: 'cleanbi-report',
+          address: address || ''
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      console.error("CLEANBI checkout error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ========== GAMIFICATION & BADGES ROUTES ==========
   // POST /api/badges - Award badge to user
   app.post("/api/badges", isAuthenticated, async (req: any, res) => {

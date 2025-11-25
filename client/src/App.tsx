@@ -62,6 +62,7 @@ import Lesson from "@/pages/lesson";
 import FacebookGroup from "@/pages/FacebookGroup";
 import AtmServices from "@/pages/AtmServices";
 import Templates from "@/pages/templates";
+import Vault from "@/pages/vault";
 import Resources from "@/pages/resources";
 import ResourceDetail from "@/pages/resource-detail";
 import Vendors from "@/pages/vendors";
@@ -156,6 +157,7 @@ function Router() {
       <Route path="/consultation" component={Consultation} />
       <Route path="/listings" component={ListingsHub} />
       <Route path="/templates" component={Templates} />
+      <Route path="/vault" component={Vault} />
       <Route path="/resources" component={Resources} />
       <Route path="/resources/:slug" component={ResourceDetail} />
       <Route path="/vendors" component={VendorsHub} />
