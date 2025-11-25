@@ -1,30 +1,18 @@
 # Multi-Tenant SaaS Platform: Enterprise & Healthcare
 
 ## Overview
-This project is a multi-tenant SaaS platform targeting two distinct markets:
+This project is a multi-tenant SaaS platform with two main focuses: **WashBizHub.com** and **StrokeRecoveryAcademy.com**.
 
-1.  **WashBizHub.com**: A professional SaaS platform for the laundromat industry, offering business intelligence, market analysis, AI consulting, valuation tools, and industry resources. Providing data-driven insights for laundromat investors and operators.
-    
-    **MAJOR STRATEGIC PIVOT (Nov 2024)**: 
-    - **UNIVERSAL CLEANBI System** launched - backend works for ANY address GLOBALLY (businesses AND residential properties)
-    - **Dual Market**: Commercial businesses (laundromats, restaurants, retail, gyms, car washes, gas stations, hotels, salons) + Residential real estate (homes, condos, investment properties)
-    - **Global Reach**: Works in 220+ countries via Google Maps API - Philippines, Japan, Australia, UK, EU, Asia, Africa, Americas
-    - **Distribution**: Chrome extension "CLEANBI Anywhere" for viral spread across business marketplaces (LoopNet, BizBuySell) + real estate sites (Zillow, Realtor.com, Redfin)
-    - **GLOBAL Market Expansion**:
-      - **US Market**: 18M business buyers + 10M real estate investors = 28M addresses
-      - **Global Market**: 120M+ addressable users across 220+ countries
-      - **Revenue Potential**: $18B total addressable market (120M × $150 avg report)
-      - **At 1% penetration**: $180M annual revenue
-      - **Subscriptions**: 1M global subscribers × $29/mo = $348M ARR potential
-    
-2.  **STROKE RECOVERY ECOSYSTEM**: A healthcare platform centered around **StrokeRecoveryAcademy.com**, which provides educational courses with AI-powered curricula, a community forum, medication/appointment/exercise tracking with an AI companion, and peer-to-peer knowledge sharing. Satellite domains (StrokeLyfe.app, StrokeLyfe.org) serve as marketing and nonprofit entry points redirecting to the main academy.
+**WashBizHub.com** is a professional SaaS platform for the laundromat industry, providing business intelligence, market analysis, AI consulting, valuation tools, and industry resources. It has undergone a strategic pivot to the "UNIVERSAL CLEANBI System," expanding its backend to analyze any address globally (businesses and residential properties) across 220+ countries using the Google Maps API. This expansion targets a global market of over 120 million users, with significant revenue potential through reports and subscriptions. Distribution is enhanced via a Chrome extension, "CLEANBI Anywhere," targeting business marketplaces and real estate sites.
 
-The platform's core ambition is to achieve market leadership by leveraging multi-AI orchestration (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized experiences and authentic expertise.
+**StrokeRecoveryAcademy.com** is a healthcare platform offering educational courses with AI-powered curricula, a community forum, tracking tools (medication, appointments, exercise) with an AI companion, and peer-to-peer knowledge sharing. Satellite domains (StrokeLyfe.app, StrokeLyfe.org) support marketing and non-profit initiatives.
+
+The platform aims for market leadership by leveraging multi-AI orchestration (OpenAI, Anthropic, Gemini, Perplexity, Grok) to deliver personalized experiences and authentic expertise across both verticals.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
-**Owner Contact & Notifications:**
+Owner Contact & Notifications:
 - Owner phone: 479-883-4314 (AT&T)
 - SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
 - All AI chat widget messages trigger instant SMS + email notifications to owner
@@ -33,51 +21,40 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-The frontend is built with React 18, TypeScript, Wouter for routing, and TanStack Query for state management. It uses Radix UI and shadcn/ui for components, styled with Tailwind CSS for a clean, professional interface. Features include real-time updates via WebSockets, responsive dashboards with Chart.js/Recharts, and PWA support. Development is handled with Vite.
+The frontend uses React 18, TypeScript, Wouter for routing, and TanStack Query for state management. It leverages Radix UI and shadcn/ui for components, styled with Tailwind CSS. Key features include real-time updates via WebSockets, responsive dashboards with Chart.js/Recharts, and PWA support. Development is managed with Vite.
 
 ### Backend Architecture
-The backend uses Node.js and Express in TypeScript, providing RESTful JSON APIs and WebSockets. It employs Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Key services include POS, IoT & Diagnostics, Route Optimization, AI Consultant, Analytics, Website Hosting, and Google Integrations. It features role-based access control and a multi-tenant design.
+The backend is built with Node.js and Express in TypeScript, offering RESTful JSON APIs and WebSockets. It uses Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Core services include POS, IoT & Diagnostics, Route Optimization, AI Consultant, Analytics, Website Hosting, and Google Integrations. It supports role-based access control and a multi-tenant design.
 
 **Core Services & Features:**
--   **POS System:** Manages orders, pricing, payments (Stripe), and multi-location support.
--   **IoT & Diagnostics:** Ingests sensor data (MQTT/HTTPS) for machine telemetry and predictive maintenance.
--   **Route Optimization:** Uses Google Maps and OR-Tools for logistics, GPS tracking, and Twilio for SMS.
--   **AI Consultant:** Orchestrates multiple AI models (Anthropic, Gemini, Perplexity, Grok) with a RAG pipeline and pgvector.
+-   **POS System:** Manages orders, payments (Stripe), and multi-location support.
+-   **IoT & Diagnostics:** Ingests sensor data for machine telemetry and predictive maintenance.
+-   **Route Optimization:** Uses Google Maps and OR-Tools for logistics, GPS tracking, and Twilio.
+-   **AI Consultant:** Orchestrates multiple AI models (Anthropic, Gemini, Perplexity, Grok) with a RAG pipeline and pgvector for contextual responses.
 -   **Analytics:** Provides materialized views and scheduled aggregations for business metrics.
 -   **Website Hosting:** Offers multi-tenant provisioning, custom domains, and CDN integration (Cloudflare).
--   **Google Integrations:** Connects with Google Search Console, SERP API, Workspace, and Cloud APIs.
+-   **Google Integrations:** Connects with various Google APIs for search, workspace, and cloud services.
 -   **Resources Hub:** Provides industry-specific resources with secure filtering.
--   **ULTIMATE SEO BLOG SUITE (300+ BLOGS):** Multi-AI orchestration system (Anthropic, Gemini, Perplexity, Grok) generating 300+ SEO-optimized blogs across 3 markets (business buying, real estate, laundromat). Each blog includes perfect meta tags, Open Graph, Twitter Cards, schema.org markup, canonical URLs, breadcrumbs, alt text, PDF export, internal linking to CLEANBI tool, and SERP ranking tracking. Targets 50+ high-value keywords with daily automated content generation using free AI tiers.
--   **GLOBAL EMAIL CAPTURE SUITE:** Industry-segmented newsletter system with 3 tables (subscribers, campaigns, events). Tracks email capture by industry (business_buying, real_estate, laundromat), country (220+ supported), lead source (blog_pdf, cleanbi_tool), and engagement metrics. Integrates with Resend for automated campaigns, tracks opens/clicks/bounces, lead scoring (0-100), and conversion attribution. Supports targeted email blasts by industry, geography, and lead score.
--   **GLOBAL SEO/AEO TRACKING:** Comprehensive system tracking keyword rankings (SERP API), organic traffic analytics by country/source, Answer Engine Optimization performance (Google SGE, Perplexity, ChatGPT citations), and competitor analysis. Links blogs to keyword performance, tracks conversions per blog, and monitors 50+ target keywords across global markets.
--   **REGIONAL PRICING SYSTEM:** PPP-adjusted pricing for 220+ countries with multi-currency support (USD, PHP, JPY, AUD, GBP, EUR). Tracks Stripe price IDs per country, enables/disables markets, and supports phased rollout starting with 6 priority markets.
--   **CLEANBI Intelligence System:** Google-powered tool for scoring ANY address globally (businesses AND residential properties), including an auto-calculator and a Chrome extension for viral distribution.
--   **CLEANBI OPTIMIZATION INFRASTRUCTURE (Nov 2024):** Production-grade optimization stack for global scale + MRR/ARR maximization:
-    *   **Shared Metrics Service** (`shared-cleanbi-metrics.ts`): Regional baselines for 220+ countries with PPP-adjusted normalization, reusable calculations (revenue, NOI, ROI, DSCR, valuation), and improved confidence scoring that penalizes imputation (0.95^imputationCount).
-    *   **Tiered Subscription System** (`cleanbi-subscription-manager.ts`): 7 revenue tiers (FREE: 3 reports/mo, PRO: $29/mo 50 reports, ENTERPRISE: $149/mo unlimited, WHITE_LABEL: $999/mo, API tiers: $99-$499/mo). **PRODUCTION ENHANCEMENTS (Nov 24, 2024):** Dedicated `cleanbiTier` field in users table for fast tier lookups, Stripe webhook auto-sync (`customer.subscription.*` events), getUserCLEANBITier() with Stripe API fallback (queries 'active', 'trialing', 'past_due' statuses), usage tracking via cleanbiUsage table with composite indexes (user_id, month, report_type), quota enforcement with no revenue leakage, overage billing ($2/report), MRR/ARR calculation.
-    *   **Redis Caching Layer** (`cleanbi-cache-layer.ts`): Redis primary + memory fallback, initialized on server startup, generic cachedFetch<T>() wrapper, batch operations, TTL recommendations by data type (geocode: 7d, places: 1d, demographics: 30d), cache analytics with hit rate tracking. Target: 85%+ hit rate, 10x API call reduction.
-    *   **Redis Infrastructure** (`redis-connection.ts`, `redis-rate-limiter.ts`): **PRODUCTION-READY (Nov 24, 2024):** Connection manager with auto-reconnect (5 attempts, exponential backoff), health checks, graceful fallback to in-memory Map. Atomic sliding-window rate limiter using Lua scripts for cross-instance quota protection (Google Maps: 40K/mo, Places: 2.5K/day, SERP: 100/mo). In-memory fallback with automatic timestamp purging (fixes memory leak), ensures safe degradation when Redis unavailable. Supports multi-instance deployments with true atomicity.
-    *   **Batched API Pipeline** (`cleanbi-batched-pipeline.ts`): Reduces 10+ sequential API calls to 1-2 parallel batched calls, integrated with Redis rate limiting & caching, parallel batching (geocode + place details + nearby search), bulk processing with automatic backoff, performance measurement.
-    *   **Integration Wrapper** (`cleanbi-engine-wrapper.ts`): Production entry point that connects all infrastructure, calculateCLEANBIScore() main function, bulk processing support, usage tracking & quota enforcement with graceful error handling.
-    *   **Database Migrations** (`db-migrations.ts`): **PRODUCTION-READY (Nov 24, 2024):** Auto-migration system runs on server startup, ensures cleanbiUsage table exists with proper composite indexes (user_id, month, report_type) for fast quota queries, idempotent (safe to run multiple times), health check system for critical tables (users, cleanbi_usage, cleanbi_scores).
-    *   **Revenue Projections**: Target 165 subscribers = $16,835 MRR = $202K ARR. At 1% global penetration (120M addresses) = $180M ARR potential.
-    *   **Production Deployment Status**: Multi-instance ready with Redis-backed rate limiting, graceful degradation without Redis, no memory leaks, Stripe tier synchronization prevents revenue leakage, database migrations automated. Validated via end-to-end testing (Nov 24, 2024).
--   **Google Maps Integration:** Server-side geocoding and interactive map components displaying listings and HQ.
--   **Search Engine Indexing:** Admin panel for IndexNow (Bing, etc.) and Google Indexing API integration for dynamic sitemaps and bulk submission.
--   **Affiliate Blogs & Consultation:** Optimized content for financing guides, featured carousels on the homepage, and a consultation landing page with comprehensive SEO.
--   **AADVANTAGE AFFILIATE BLOG SYSTEM (Nov 2024):** Bulk generation system for 120 ultra SEO-optimized blog posts featuring AAdvantage Laundry Equipment affiliate links. Includes:
-    *   **Blog Generator** (`server/aadvantage-blog-generator.ts`): State-specific (TX, LA, OK, AR) + forum blogs with affiliate link integration
-    *   **Homepage Spotlight** (`client/src/components/AAdvantageSpotlight.tsx`): Featured section with gradient CTAs for affiliate form, Facebook group link, and state-colored blog badges
-    *   **Affiliate Link**: `https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry` for commission tracking
-    *   **Word Count Strategy**: 900-2,000 words per blog for SEO optimization
-    *   **Internal Linking**: Each blog links to CLEANBI tool and other WashBizHub resources
-    *   **State Colors**: Texas=orange, Louisiana=purple, Oklahoma=red, Arkansas=blue for visual identification
+-   **ULTIMATE SEO BLOG SUITE:** Multi-AI orchestration system generating 300+ SEO-optimized blogs across three markets (business buying, real estate, laundromat), with comprehensive metadata and internal linking to the CLEANBI tool.
+-   **GLOBAL EMAIL CAPTURE SUITE:** Industry-segmented newsletter system with Resend integration for automated campaigns, tracking engagement, lead scoring, and conversion attribution.
+-   **GLOBAL SEO/AEO TRACKING:** Comprehensive system for tracking keyword rankings (SERP API), organic traffic, Answer Engine Optimization performance, and competitor analysis, linking blog performance to conversions.
+-   **REGIONAL PRICING SYSTEM:** PPP-adjusted pricing for 220+ countries with multi-currency support, tracking Stripe price IDs and supporting phased market rollouts.
+-   **CLEANBI Intelligence System:** A Google-powered tool for scoring any address globally (businesses and residential properties), including an auto-calculator and a Chrome extension for viral distribution.
+-   **CLEANBI Optimization Infrastructure:** Production-grade optimization stack including:
+    *   **Shared Metrics Service:** Regional baselines with PPP-adjusted normalization and reusable calculations.
+    *   **Tiered Subscription System:** Seven revenue tiers with Stripe webhook synchronization, usage tracking, quota enforcement, and overage billing.
+    *   **Redis Caching Layer:** Primary Redis cache with memory fallback, aiming for high hit rates and API call reduction.
+    *   **Redis Infrastructure:** Robust connection manager and atomic sliding-window rate limiter using Lua scripts for cross-instance quota protection and graceful degradation.
+    *   **Batched API Pipeline:** Reduces sequential API calls to parallel batched calls, integrated with Redis caching and rate limiting.
+    *   **Integration Wrapper:** Production entry point for the CLEANBI system, handling usage tracking and quota enforcement.
+    *   **Database Migrations:** Automated system ensuring critical tables and indexes are in place on server startup.
+-   **Affiliate Blog Systems (AADVANTAGE, DAVID ALLEN CAPITAL, SOUTH END CAPITAL):** Bulk generation systems for SEO-optimized blogs featuring affiliate links for laundry equipment financing, general business financing across diverse industries, and SBA loans/commercial financing, respectively.
 
 ### Data Storage Solutions
-Primary data storage is PostgreSQL (Neon Serverless) via Drizzle ORM. Redis is used for pub/sub, session storage, and caching. BullMQ handles background jobs, and EMQX is the MQTT broker for IoT.
+PostgreSQL (Neon Serverless) is the primary data store via Drizzle ORM. Redis is used for pub/sub, sessions, and caching. BullMQ manages background jobs, and EMQX serves as the MQTT broker for IoT.
 
 ### Authentication and Authorization
-Authentication uses Replit Auth (OIDC), with sessions in PostgreSQL. Role-based access control is implemented via an `isAdmin` field. Security includes Zod validation, authorization patterns, and protection of server-controlled fields.
+Replit Auth (OIDC) handles authentication, with sessions stored in PostgreSQL. Role-based access control is implemented using an `isAdmin` field. Security includes Zod validation and robust authorization patterns.
 
 ## External Dependencies
 
@@ -103,7 +80,7 @@ Authentication uses Replit Auth (OIDC), with sessions in PostgreSQL. Role-based 
 -   **Amazon Affiliate Program:** Product marketplace links via Product Advertising API 5.0.
 -   **ATTOM Data:** Real estate and demographic data.
 -   **Mapbox:** Location mapping and analysis.
--   **Email Services (Resend/SendGrid):** User notifications and marketing.
+-   **Resend/SendGrid:** Email services for notifications and marketing.
 -   **Twilio:** Two-way SMS for route optimization.
 -   **Google APIs:** Places, Reviews, Distance Matrix, Geocoding, Search Console, SERP, Workspace, Cloud APIs, Indexing API.
 -   **IndexNow:** For search engine indexing (Bing, Yahoo, Yandex, DuckDuckGo).

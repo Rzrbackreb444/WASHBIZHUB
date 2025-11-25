@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import {
   Users,
   MessageSquare,
@@ -24,65 +27,24 @@ import {
   CheckCircle2
 } from "lucide-react";
 import sosLogo from "@assets/sos logo_1764087549375.png";
+import type { ForumCategory, ForumTopic } from "@shared/schema";
 
-const categories = [
-  { id: "all", name: "All Posts", icon: MessageSquare, count: 1247 },
-  { id: "wins", name: "Victories", icon: Award, count: 342 },
-  { id: "support", name: "Support", icon: Heart, count: 456 },
-  { id: "questions", name: "Questions", icon: MessageCircle, count: 289 },
-  { id: "tips", name: "Recovery Tips", icon: Star, count: 160 },
-];
+const categoryIcons: Record<string, typeof MessageSquare> = {
+  "all": MessageSquare,
+  "wins": Award,
+  "victories": Award,
+  "support": Heart,
+  "questions": MessageCircle,
+  "tips": Star,
+  "recovery-tips": Star,
+};
 
-const mockPosts = [
-  {
-    id: "1",
-    author: "RecoveryWarrior23",
-    avatar: null,
-    title: "Just walked 100 steps without my cane!",
-    content: "After 8 months of grinding every day, I finally hit this milestone. Nick always says 'the grind is the gospel' and he's right. Don't give up, warriors!",
-    category: "wins",
-    likes: 247,
-    comments: 52,
-    timeAgo: "2 hours ago",
-    verified: true,
-    pinned: true
-  },
-  {
-    id: "2",
-    author: "StrokeSurvivor2023",
-    avatar: null,
-    title: "Struggling with fatigue - any tips?",
-    content: "I'm 6 months post-stroke and the fatigue is overwhelming. Some days I can barely get out of bed. Has anyone found strategies that help?",
-    category: "support",
-    likes: 89,
-    comments: 34,
-    timeAgo: "4 hours ago",
-    verified: false
-  },
-  {
-    id: "3",
-    author: "TherapyChamp",
-    avatar: null,
-    title: "MusicGlove changed everything for my hand recovery",
-    content: "I was skeptical about the MusicGlove but after 6 weeks of daily use, I can finally grip a cup again. The gamification makes therapy actually fun!",
-    category: "tips",
-    likes: 156,
-    comments: 28,
-    timeAgo: "6 hours ago",
-    verified: true
-  },
-  {
-    id: "4",
-    author: "NewToRecovery",
-    avatar: null,
-    title: "Day 30 of my recovery journey",
-    content: "Just hit my 30-day streak on the tracker! Small wins but they add up. Grateful for this community.",
-    category: "wins",
-    likes: 203,
-    comments: 41,
-    timeAgo: "8 hours ago",
-    verified: false
-  }
+const defaultCategories = [
+  { id: "all", name: "All Posts", icon: MessageSquare, count: 0 },
+  { id: "wins", name: "Victories", icon: Award, count: 0 },
+  { id: "support", name: "Support", icon: Heart, count: 0 },
+  { id: "questions", name: "Questions", icon: MessageCircle, count: 0 },
+  { id: "tips", name: "Recovery Tips", icon: Star, count: 0 },
 ];
 
 const topContributors = [
@@ -92,13 +54,106 @@ const topContributors = [
   { name: "HopeAndHeal", posts: 87, streak: 34, avatar: null },
 ];
 
+function formatTimeAgo(dateString: string | Date): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 60) {
+    return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  } else {
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
+}
+
+function PostSkeleton() {
+  return (
+    <Card className="bg-gray-900 border-gray-800">
+      <CardContent className="p-4">
+        <div className="flex gap-4">
+          <Skeleton className="h-10 w-10 rounded-full bg-gray-800" />
+          <div className="flex-1 space-y-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-24 bg-gray-800" />
+              <Skeleton className="h-4 w-16 bg-gray-800" />
+            </div>
+            <Skeleton className="h-5 w-3/4 bg-gray-800" />
+            <Skeleton className="h-4 w-full bg-gray-800" />
+            <Skeleton className="h-4 w-2/3 bg-gray-800" />
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-8 w-16 bg-gray-800" />
+              <Skeleton className="h-8 w-16 bg-gray-800" />
+              <Skeleton className="h-6 w-20 bg-gray-800" />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SRACommunity() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPosts = mockPosts.filter(post => 
-    activeCategory === "all" || post.category === activeCategory
-  );
+  const { data: apiCategories, isLoading: categoriesLoading } = useQuery<ForumCategory[]>({
+    queryKey: ['/api/sra/forum/categories'],
+  });
+
+  const { data: topics, isLoading: topicsLoading } = useQuery<ForumTopic[]>({
+    queryKey: ['/api/sra/forum/topics', activeCategory !== 'all' ? activeCategory : null],
+    queryFn: async () => {
+      const url = activeCategory !== 'all' 
+        ? `/api/sra/forum/topics?categoryId=${activeCategory}`
+        : '/api/sra/forum/topics';
+      const res = await fetch(url, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch topics');
+      return res.json();
+    },
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: async ({ entityType, entityId, voteType }: { entityType: string; entityId: string; voteType: number }) => {
+      const res = await apiRequest('POST', '/api/sra/forum/vote', { entityType, entityId, voteType });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sra/forum/topics'] });
+    },
+  });
+
+  const categories = apiCategories && apiCategories.length > 0
+    ? [
+        { id: "all", name: "All Posts", icon: MessageSquare, count: apiCategories.reduce((sum, c) => sum + (c.totalTopics || 0), 0) },
+        ...apiCategories.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          icon: categoryIcons[cat.slug?.toLowerCase() || ''] || MessageSquare,
+          count: cat.totalTopics || 0,
+        })),
+      ]
+    : defaultCategories;
+
+  const filteredTopics = topics?.filter(topic => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return topic.title.toLowerCase().includes(query) || 
+             topic.content.toLowerCase().includes(query);
+    }
+    return true;
+  }) || [];
+
+  const handleVote = (topicId: string, voteType: number) => {
+    voteMutation.mutate({ entityType: 'topic', entityId: topicId, voteType });
+  };
+
+  const isLoading = categoriesLoading || topicsLoading;
+  const totalPosts = apiCategories?.reduce((sum, c) => sum + (c.totalTopics || 0), 0) || 0;
 
   return (
     <>
@@ -148,7 +203,9 @@ export default function SRACommunity() {
                   <div className="text-xs text-gray-400">Warriors</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-500" data-testid="stat-posts">8,923</div>
+                  <div className="text-2xl font-bold text-orange-500" data-testid="stat-posts">
+                    {categoriesLoading ? <Skeleton className="h-7 w-12 bg-gray-800 inline-block" /> : totalPosts.toLocaleString()}
+                  </div>
                   <div className="text-xs text-gray-400">Posts</div>
                 </div>
                 <div className="text-center">
@@ -183,66 +240,132 @@ export default function SRACommunity() {
 
               {/* Categories */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={activeCategory === category.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setActiveCategory(category.id)}
-                    className={activeCategory === category.id ? "bg-orange-600 hover:bg-orange-700" : "border-gray-700"}
-                    data-testid={`button-category-${category.id}`}
-                  >
-                    <category.icon className="h-4 w-4 mr-2" />
-                    {category.name}
-                    <Badge variant="secondary" className="ml-2 bg-gray-700 text-xs">
-                      {category.count}
-                    </Badge>
-                  </Button>
-                ))}
+                {categoriesLoading ? (
+                  <>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Skeleton key={i} className="h-9 w-28 bg-gray-800 rounded-md" />
+                    ))}
+                  </>
+                ) : (
+                  categories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={activeCategory === category.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveCategory(category.id)}
+                      className={activeCategory === category.id ? "bg-orange-600 hover:bg-orange-700" : "border-gray-700"}
+                      data-testid={`button-category-${category.id}`}
+                    >
+                      <category.icon className="h-4 w-4 mr-2" />
+                      {category.name}
+                      <Badge variant="secondary" className="ml-2 bg-gray-700 text-xs">
+                        {category.count}
+                      </Badge>
+                    </Button>
+                  ))
+                )}
               </div>
 
               {/* Posts */}
               <div className="space-y-4">
-                {filteredPosts.map((post) => (
-                  <Card key={post.id} className={`bg-gray-900 border-gray-800 hover-elevate cursor-pointer ${post.pinned ? 'border-orange-600/50' : ''}`} data-testid={`post-card-${post.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex gap-4">
-                        <Avatar className="h-10 w-10 border border-gray-700">
-                          <AvatarFallback className="bg-orange-600 text-sm">
-                            {post.author.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{post.author}</span>
-                            {post.verified && (
-                              <CheckCircle2 className="h-4 w-4 text-orange-500" />
-                            )}
-                            {post.pinned && (
-                              <Badge className="bg-orange-600 text-xs">Pinned</Badge>
-                            )}
-                            <span className="text-xs text-gray-500">• {post.timeAgo}</span>
-                          </div>
-                          <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{post.content}</p>
-                          <div className="flex items-center gap-4">
-                            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-orange-500" data-testid={`button-like-${post.id}`}>
-                              <ThumbsUp className="h-4 w-4 mr-1" />
-                              {post.likes}
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-orange-500" data-testid={`button-comment-${post.id}`}>
-                              <MessageCircle className="h-4 w-4 mr-1" />
-                              {post.comments}
-                            </Button>
-                            <Badge variant="outline" className="border-gray-600 text-xs">
-                              {categories.find(c => c.id === post.category)?.name}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
+                {topicsLoading ? (
+                  <>
+                    <PostSkeleton />
+                    <PostSkeleton />
+                    <PostSkeleton />
+                  </>
+                ) : filteredTopics.length === 0 ? (
+                  <Card className="bg-gray-900 border-gray-800">
+                    <CardContent className="p-8 text-center">
+                      <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                      <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
+                      <p className="text-gray-400 text-sm mb-4">
+                        Be the first to share your story or ask a question!
+                      </p>
+                      <Button className="bg-orange-600 hover:bg-orange-700" data-testid="button-first-post">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create First Post
+                      </Button>
                     </CardContent>
                   </Card>
-                ))}
+                ) : (
+                  filteredTopics.map((topic) => {
+                    const category = categories.find(c => c.id === topic.categoryId);
+                    return (
+                      <Card 
+                        key={topic.id} 
+                        className={`bg-gray-900 border-gray-800 hover-elevate cursor-pointer ${topic.isPinned ? 'border-orange-600/50' : ''}`} 
+                        data-testid={`post-card-${topic.id}`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+                            <Avatar className="h-10 w-10 border border-gray-700">
+                              <AvatarFallback className="bg-orange-600 text-sm">
+                                {(topic.title || 'U').slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold">User</span>
+                                {topic.isPinned && (
+                                  <Badge className="bg-orange-600 text-xs">Pinned</Badge>
+                                )}
+                                {topic.isHot && (
+                                  <Badge className="bg-red-600 text-xs">
+                                    <Flame className="h-3 w-3 mr-1" />
+                                    Hot
+                                  </Badge>
+                                )}
+                                {topic.isSolved && (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                )}
+                                <span className="text-xs text-gray-500">• {formatTimeAgo(topic.createdAt)}</span>
+                              </div>
+                              <h3 className="font-semibold text-lg mb-2">{topic.title}</h3>
+                              <p className="text-gray-400 text-sm mb-3 line-clamp-2">{topic.content}</p>
+                              <div className="flex items-center gap-4 flex-wrap">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-gray-400 hover:text-orange-500"
+                                  onClick={() => handleVote(topic.id, 1)}
+                                  disabled={voteMutation.isPending}
+                                  data-testid={`button-like-${topic.id}`}
+                                >
+                                  <ThumbsUp className="h-4 w-4 mr-1" />
+                                  {topic.upvotes || 0}
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-gray-400 hover:text-orange-500" 
+                                  data-testid={`button-comment-${topic.id}`}
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-1" />
+                                  {topic.replyCount || 0}
+                                </Button>
+                                {category && (
+                                  <Badge variant="outline" className="border-gray-600 text-xs">
+                                    {category.name}
+                                  </Badge>
+                                )}
+                                {topic.tags && topic.tags.length > 0 && (
+                                  <div className="flex gap-1 flex-wrap">
+                                    {topic.tags.slice(0, 3).map((tag) => (
+                                      <Badge key={tag} variant="secondary" className="bg-gray-800 text-xs">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
               </div>
             </div>
 

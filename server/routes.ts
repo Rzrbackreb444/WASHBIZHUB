@@ -770,6 +770,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== DAVID ALLEN CAPITAL BLOG GENERATION ====================
+  
+  // Get DAC blog topics info
+  app.get("/api/blog/dac/topics", async (req, res) => {
+    try {
+      const { getDACBlogTopics } = await import("./dac-blog-generator");
+      res.json(getDACBlogTopics());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Generate all DAC blogs (50+ blogs)
+  app.post("/api/blog/dac/generate-all", isAdmin, async (req, res) => {
+    try {
+      const { generateAllDACBlogs } = await import("./dac-blog-generator");
+      
+      console.log("Starting David Allen Capital blog generation (50+ posts)...");
+      
+      res.json({ 
+        success: true, 
+        message: "DAC blog generation started. This will take approximately 15-20 minutes.",
+        info: "Check server logs for progress updates."
+      });
+      
+      // Run generation in background
+      generateAllDACBlogs().then(result => {
+        console.log(`DAC blog generation complete: ${result.successful}/${result.total} successful`);
+      }).catch(error => {
+        console.error(`DAC blog generation failed: ${error.message}`);
+      });
+      
+    } catch (error: any) {
+      console.error('DAC generation failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get DAC blogs
+  app.get("/api/blog/dac", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts({ category: "business_financing" });
+      res.json(posts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== SOUTH END CAPITAL BLOG GENERATION ====================
+  
+  // Get SEC blog topics info
+  app.get("/api/blog/sec/topics", async (req, res) => {
+    try {
+      const { getSECBlogTopics } = await import("./sec-blog-generator");
+      res.json(getSECBlogTopics());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Generate all SEC blogs (50+ blogs)
+  app.post("/api/blog/sec/generate-all", isAdmin, async (req, res) => {
+    try {
+      const { generateAllSECBlogs } = await import("./sec-blog-generator");
+      
+      console.log("Starting South End Capital blog generation (50+ posts)...");
+      
+      res.json({ 
+        success: true, 
+        message: "SEC blog generation started. This will take approximately 15-20 minutes.",
+        info: "Check server logs for progress updates."
+      });
+      
+      // Run generation in background
+      generateAllSECBlogs().then(result => {
+        console.log(`SEC blog generation complete: ${result.successful}/${result.total} successful`);
+      }).catch(error => {
+        console.error(`SEC blog generation failed: ${error.message}`);
+      });
+      
+    } catch (error: any) {
+      console.error('SEC generation failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get SEC blogs  
+  app.get("/api/blog/sec", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts({ category: "sba_financing" });
+      res.json(posts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== CALCULATOR SCENARIOS ====================
   
   app.get("/api/calculator/scenarios", async (req, res) => {

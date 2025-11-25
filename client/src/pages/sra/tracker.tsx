@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -55,33 +58,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import sosLogo from "@assets/sos logo_1764087549375.png";
-
-interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  time: string;
-  taken: boolean;
-  status: "taken" | "upcoming" | "missed";
-}
-
-interface Appointment {
-  id: string;
-  title: string;
-  type: "doctor" | "pt" | "ot" | "speech" | "other";
-  date: string;
-  time: string;
-  location: string;
-}
-
-interface Exercise {
-  id: string;
-  name: string;
-  category: "physical" | "speech" | "cognitive" | "balance";
-  duration: number;
-  completed: number;
-  target: number;
-}
+import type { Medication, Appointment, Exercise, DailyCheckin } from "@shared/schema";
 
 interface CheckInData {
   mood: number;
@@ -91,40 +68,24 @@ interface CheckInData {
   completed: boolean;
 }
 
-const mockMedications: Medication[] = [
-  { id: "1", name: "Blood Thinner", dosage: "10mg", time: "8:00 AM", taken: true, status: "taken" },
-  { id: "2", name: "Blood Pressure", dosage: "25mg", time: "8:00 AM", taken: true, status: "taken" },
-  { id: "3", name: "Cholesterol", dosage: "40mg", time: "12:00 PM", taken: false, status: "upcoming" },
-  { id: "4", name: "Antidepressant", dosage: "50mg", time: "8:00 PM", taken: false, status: "upcoming" },
-];
-
-const mockAppointments: Appointment[] = [
-  { id: "1", title: "Dr. Smith - Neurologist", type: "doctor", date: "Today", time: "2:30 PM", location: "Medical Center" },
-  { id: "2", title: "Physical Therapy", type: "pt", date: "Tomorrow", time: "10:00 AM", location: "Rehab Clinic" },
-  { id: "3", title: "Speech Therapy", type: "speech", date: "Wed, Nov 27", time: "3:00 PM", location: "Speech Center" },
-  { id: "4", title: "Occupational Therapy", type: "ot", date: "Thu, Nov 28", time: "11:00 AM", location: "Therapy Center" },
-];
-
-const mockExercises: Exercise[] = [
-  { id: "1", name: "Arm Stretches", category: "physical", duration: 15, completed: 12, target: 20 },
-  { id: "2", name: "Word Finding", category: "speech", duration: 10, completed: 8, target: 10 },
-  { id: "3", name: "Memory Games", category: "cognitive", duration: 20, completed: 15, target: 30 },
-  { id: "4", name: "Standing Balance", category: "balance", duration: 10, completed: 5, target: 10 },
-];
-
 const getAppointmentIcon = (type: string) => {
   switch (type) {
     case "doctor": return Stethoscope;
-    case "pt": return Dumbbell;
-    case "ot": return Target;
-    case "speech": return Mic2;
+    case "pt":
+    case "physical_therapy": return Dumbbell;
+    case "ot":
+    case "occupational_therapy": return Target;
+    case "speech":
+    case "speech_therapy": return Mic2;
     default: return Calendar;
   }
 };
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case "physical": return Dumbbell;
+    case "physical":
+    case "stretching":
+    case "strength": return Dumbbell;
     case "speech": return Mic2;
     case "cognitive": return Brain;
     case "balance": return Scale;
@@ -134,7 +95,9 @@ const getCategoryIcon = (category: string) => {
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case "physical": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+    case "physical":
+    case "stretching":
+    case "strength": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
     case "speech": return "bg-purple-500/20 text-purple-400 border-purple-500/30";
     case "cognitive": return "bg-green-500/20 text-green-400 border-green-500/30";
     case "balance": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
@@ -151,10 +114,151 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const formatTime = (timeOfDay: string | null) => {
+  if (!timeOfDay) return "Not scheduled";
+  try {
+    const times = JSON.parse(timeOfDay);
+    return Array.isArray(times) ? times[0] : timeOfDay;
+  } catch {
+    return timeOfDay;
+  }
+};
+
+const formatAppointmentDate = (dateStr: string | Date) => {
+  const date = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const apptDate = new Date(date);
+  apptDate.setHours(0, 0, 0, 0);
+
+  if (apptDate.getTime() === today.getTime()) return "Today";
+  if (apptDate.getTime() === tomorrow.getTime()) return "Tomorrow";
+  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+};
+
+const formatAppointmentTime = (dateStr: string | Date) => {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+};
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-black" data-testid="loading-skeleton">
+      <section className="border-b border-[#FF6600]/20 bg-gradient-to-r from-black via-[#0a0a0a] to-black">
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="w-12 h-12 rounded-lg bg-white/10" />
+              <div>
+                <Skeleton className="h-8 w-64 mb-2 bg-white/10" />
+                <Skeleton className="h-4 w-48 bg-white/10" />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Skeleton className="h-10 w-36 bg-white/10" />
+              <Skeleton className="h-10 w-44 bg-white/10" />
+              <Skeleton className="h-10 w-32 bg-white/10" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <Card className="bg-[#0a0a0a] border-[#FF6600]/30 mb-8">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-24 bg-white/10 rounded-lg" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="bg-[#0a0a0a] border-[#FF6600]/20">
+                <CardHeader>
+                  <Skeleton className="h-6 w-48 bg-white/10" />
+                  <Skeleton className="h-4 w-64 bg-white/10" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((j) => (
+                      <Skeleton key={j} className="h-20 bg-white/10 rounded-lg" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="space-y-8">
+            <Skeleton className="h-96 bg-white/10 rounded-lg" />
+            <Skeleton className="h-80 bg-white/10 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ type, onAdd }: { type: string; onAdd?: () => void }) {
+  const configs = {
+    medications: {
+      icon: Pill,
+      title: "No medications tracked yet",
+      description: "Add your first medication to start tracking your daily routine.",
+      buttonText: "Add Your First Medication"
+    },
+    appointments: {
+      icon: Calendar,
+      title: "No upcoming appointments",
+      description: "Schedule your first appointment to stay on track with your recovery.",
+      buttonText: "Schedule Your First Appointment"
+    },
+    exercises: {
+      icon: Dumbbell,
+      title: "No exercises added yet",
+      description: "Add exercises to track your rehabilitation progress.",
+      buttonText: "Add Your First Exercise"
+    }
+  };
+
+  const config = configs[type as keyof typeof configs] || configs.medications;
+  const Icon = config.icon;
+
+  return (
+    <div className="text-center py-8" data-testid={`empty-state-${type}`}>
+      <div className="p-4 rounded-full bg-[#FF6600]/10 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+        <Icon className="w-8 h-8 text-[#FF6600]" />
+      </div>
+      <p className="text-white font-medium mb-2">{config.title}</p>
+      <p className="text-white/60 text-sm mb-4">{config.description}</p>
+      {onAdd && (
+        <Button 
+          onClick={onAdd}
+          className="bg-[#FF6600] hover:bg-[#FF6600]/90"
+          data-testid={`button-add-first-${type}`}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          {config.buttonText}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function SRATracker() {
-  const [medications, setMedications] = useState<Medication[]>(mockMedications);
-  const [appointments] = useState<Appointment[]>(mockAppointments);
-  const [exercises] = useState<Exercise[]>(mockExercises);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [addMedDialogOpen, setAddMedDialogOpen] = useState(false);
+  const [addApptDialogOpen, setAddApptDialogOpen] = useState(false);
+  const [logExerciseDialogOpen, setLogExerciseDialogOpen] = useState(false);
+  const [newMed, setNewMed] = useState({ name: "", dosage: "", frequency: "daily", time: "" });
+  const [newAppt, setNewAppt] = useState({ title: "", type: "doctor", date: "", time: "", location: "" });
+  const [medicationsTaken, setMedicationsTaken] = useState<Record<string, boolean>>({});
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [checkInData, setCheckInData] = useState<CheckInData>({
     mood: 5,
     energy: 5,
@@ -162,69 +266,160 @@ export default function SRATracker() {
     journalEntry: "",
     completed: false,
   });
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [isLoading, setIsLoading] = useState(true);
-  const [addMedDialogOpen, setAddMedDialogOpen] = useState(false);
-  const [addApptDialogOpen, setAddApptDialogOpen] = useState(false);
-  const [logExerciseDialogOpen, setLogExerciseDialogOpen] = useState(false);
-  const [newMed, setNewMed] = useState({ name: "", dosage: "", time: "" });
-  const [newAppt, setNewAppt] = useState({ title: "", type: "doctor", date: "", time: "", location: "" });
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-
-    const loadTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(loadTimer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
+  const { data: medications = [], isLoading: loadingMeds } = useQuery<Medication[]>({
+    queryKey: ["/api/sra/companion/medications"],
+  });
+
+  const { data: appointments = [], isLoading: loadingAppts } = useQuery<Appointment[]>({
+    queryKey: ["/api/sra/companion/appointments"],
+  });
+
+  const { data: exercises = [], isLoading: loadingExercises } = useQuery<Exercise[]>({
+    queryKey: ["/api/sra/companion/exercises"],
+  });
+
+  const { data: todayCheckin, isLoading: loadingCheckin } = useQuery<DailyCheckin | null>({
+    queryKey: ["/api/sra/companion/checkins/today"],
+  });
+
+  const addMedicationMutation = useMutation({
+    mutationFn: async (data: { name: string; dosage: string; frequency: string; timeOfDay: string }) => {
+      return await apiRequest("POST", "/api/sra/companion/medications", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sra/companion/medications"] });
+      setNewMed({ name: "", dosage: "", frequency: "daily", time: "" });
+      setAddMedDialogOpen(false);
+    },
+  });
+
+  const logMedicationMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      return await apiRequest("POST", `/api/sra/companion/medications/${id}/log`, {
+        status,
+        scheduledTime: new Date().toISOString(),
+        takenAt: status === "taken" ? new Date().toISOString() : null,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sra/companion/medications"] });
+    },
+  });
+
+  const addAppointmentMutation = useMutation({
+    mutationFn: async (data: { title: string; type: string; appointmentDate: string; location: string }) => {
+      return await apiRequest("POST", "/api/sra/companion/appointments", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sra/companion/appointments"] });
+      setNewAppt({ title: "", type: "doctor", date: "", time: "", location: "" });
+      setAddApptDialogOpen(false);
+    },
+  });
+
+  const logExerciseMutation = useMutation({
+    mutationFn: async (exerciseId: string) => {
+      return await apiRequest("POST", `/api/sra/companion/exercises/${exerciseId}/log`, {
+        completedAt: new Date().toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sra/companion/exercises"] });
+    },
+  });
+
+  const createCheckinMutation = useMutation({
+    mutationFn: async (data: { painLevel: number; energyLevel: number; mood: string; progressToday: string }) => {
+      return await apiRequest("POST", "/api/sra/companion/checkins", {
+        ...data,
+        checkinDate: new Date().toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sra/companion/checkins/today"] });
+      setCheckInData(prev => ({ ...prev, completed: true }));
+    },
+  });
+
   const handleMedicationToggle = (id: string) => {
-    setMedications(meds =>
-      meds.map(med =>
-        med.id === id
-          ? { ...med, taken: !med.taken, status: !med.taken ? "taken" : "upcoming" }
-          : med
-      )
-    );
+    const currentStatus = medicationsTaken[id] || false;
+    const newStatus = !currentStatus;
+    setMedicationsTaken(prev => ({ ...prev, [id]: newStatus }));
+    logMedicationMutation.mutate({ id, status: newStatus ? "taken" : "missed" });
   };
 
   const handleAddMedication = () => {
     if (newMed.name && newMed.dosage && newMed.time) {
-      const medication: Medication = {
-        id: Date.now().toString(),
+      addMedicationMutation.mutate({
         name: newMed.name,
         dosage: newMed.dosage,
-        time: newMed.time,
-        taken: false,
-        status: "upcoming",
-      };
-      setMedications([...medications, medication]);
-      setNewMed({ name: "", dosage: "", time: "" });
-      setAddMedDialogOpen(false);
+        frequency: newMed.frequency,
+        timeOfDay: JSON.stringify([newMed.time]),
+      });
     }
   };
 
-  const handleCheckIn = () => {
-    setCheckInData(prev => ({ ...prev, completed: true }));
+  const handleAddAppointment = () => {
+    if (newAppt.title && newAppt.date && newAppt.time) {
+      const appointmentDate = new Date(`${newAppt.date}T${newAppt.time}`);
+      addAppointmentMutation.mutate({
+        title: newAppt.title,
+        type: newAppt.type,
+        appointmentDate: appointmentDate.toISOString(),
+        location: newAppt.location,
+      });
+    }
   };
 
-  const medicationsTaken = medications.filter(m => m.taken).length;
-  const medicationsTotal = medications.length;
-  const medicationProgress = (medicationsTaken / medicationsTotal) * 100;
+  const handleLogExercises = () => {
+    selectedExercises.forEach(exerciseId => {
+      logExerciseMutation.mutate(exerciseId);
+    });
+    setSelectedExercises([]);
+    setLogExerciseDialogOpen(false);
+  };
 
-  const exerciseProgress = exercises.reduce((acc, ex) => {
-    return acc + (ex.completed / ex.target) * 100;
-  }, 0) / exercises.length;
+  const handleExerciseSelect = (exerciseId: string) => {
+    setSelectedExercises(prev => 
+      prev.includes(exerciseId) 
+        ? prev.filter(id => id !== exerciseId)
+        : [...prev, exerciseId]
+    );
+  };
+
+  const handleCheckIn = () => {
+    const moodText = checkInData.mood >= 7 ? "great" : checkInData.mood >= 5 ? "good" : checkInData.mood >= 3 ? "okay" : "struggling";
+    createCheckinMutation.mutate({
+      painLevel: checkInData.pain,
+      energyLevel: checkInData.energy,
+      mood: moodText,
+      progressToday: checkInData.journalEntry,
+    });
+  };
+
+  const isLoading = loadingMeds || loadingAppts || loadingExercises || loadingCheckin;
+
+  const activeMedications = medications.filter(m => m.isActive);
+  const medicationsTakenCount = Object.values(medicationsTaken).filter(Boolean).length;
+  const medicationsTotal = activeMedications.length;
+  const medicationProgress = medicationsTotal > 0 ? (medicationsTakenCount / medicationsTotal) * 100 : 0;
+
+  const exerciseProgress = exercises.length > 0 
+    ? exercises.reduce((acc, ex) => acc + (ex.reps && ex.sets ? 50 : 0), 0) / exercises.length 
+    : 0;
 
   const weeklyAdherence = 87;
   const currentStreak = 12;
+
+  const isCheckinCompleted = todayCheckin !== null || checkInData.completed;
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -241,14 +436,7 @@ export default function SRATracker() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center" data-testid="loading-state">
-        <div className="text-center">
-          <img src={sosLogo} alt="Loading" className="w-24 h-24 mx-auto animate-pulse mb-4" />
-          <p className="text-white/60">Loading your recovery dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -267,7 +455,6 @@ export default function SRATracker() {
         </script>
       </Helmet>
 
-      {/* Header Section */}
       <section className="border-b border-[#FF6600]/20 bg-gradient-to-r from-black via-[#0a0a0a] to-black">
         <div className="mx-auto max-w-7xl px-6 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -343,6 +530,23 @@ export default function SRATracker() {
                       />
                     </div>
                     <div>
+                      <label className="text-sm text-white/80 mb-2 block">Frequency</label>
+                      <Select 
+                        value={newMed.frequency} 
+                        onValueChange={(value) => setNewMed({ ...newMed, frequency: value })}
+                      >
+                        <SelectTrigger className="bg-white/10 border-white/20 text-white" data-testid="select-med-frequency">
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0a0a0a] border-white/20">
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="twice_daily">Twice Daily</SelectItem>
+                          <SelectItem value="as_needed">As Needed</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <label className="text-sm text-white/80 mb-2 block">Time</label>
                       <Input 
                         type="time"
@@ -362,9 +566,10 @@ export default function SRATracker() {
                     <Button 
                       onClick={handleAddMedication}
                       className="bg-[#FF6600] hover:bg-[#FF6600]/90"
+                      disabled={addMedicationMutation.isPending}
                       data-testid="button-save-med"
                     >
-                      Add Medication
+                      {addMedicationMutation.isPending ? "Adding..." : "Add Medication"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -413,9 +618,10 @@ export default function SRATracker() {
                         </SelectTrigger>
                         <SelectContent className="bg-[#0a0a0a] border-white/20">
                           <SelectItem value="doctor">Doctor</SelectItem>
-                          <SelectItem value="pt">Physical Therapy</SelectItem>
-                          <SelectItem value="ot">Occupational Therapy</SelectItem>
-                          <SelectItem value="speech">Speech Therapy</SelectItem>
+                          <SelectItem value="physical_therapy">Physical Therapy</SelectItem>
+                          <SelectItem value="occupational_therapy">Occupational Therapy</SelectItem>
+                          <SelectItem value="speech_therapy">Speech Therapy</SelectItem>
+                          <SelectItem value="lab">Lab Work</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -460,10 +666,12 @@ export default function SRATracker() {
                       </Button>
                     </DialogClose>
                     <Button 
+                      onClick={handleAddAppointment}
                       className="bg-[#FF6600] hover:bg-[#FF6600]/90"
+                      disabled={addAppointmentMutation.isPending}
                       data-testid="button-save-appt"
                     >
-                      Schedule
+                      {addAppointmentMutation.isPending ? "Scheduling..." : "Schedule"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -491,22 +699,32 @@ export default function SRATracker() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
-                    <p className="text-white/60 text-sm">Select exercises you completed today:</p>
-                    {exercises.map(exercise => (
-                      <div key={exercise.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                        <Checkbox 
-                          id={`exercise-${exercise.id}`}
-                          className="border-[#FF6600] data-[state=checked]:bg-[#FF6600]"
-                          data-testid={`checkbox-exercise-${exercise.id}`}
-                        />
-                        <label htmlFor={`exercise-${exercise.id}`} className="flex-1 text-white">
-                          {exercise.name}
-                        </label>
-                        <Badge className={getCategoryColor(exercise.category)}>
-                          {exercise.category}
-                        </Badge>
-                      </div>
-                    ))}
+                    {exercises.length === 0 ? (
+                      <p className="text-white/60 text-sm text-center py-4">
+                        No exercises to log. Add exercises from the Exercise Library first.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-white/60 text-sm">Select exercises you completed today:</p>
+                        {exercises.map(exercise => (
+                          <div key={exercise.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                            <Checkbox 
+                              id={`exercise-${exercise.id}`}
+                              checked={selectedExercises.includes(exercise.id)}
+                              onCheckedChange={() => handleExerciseSelect(exercise.id)}
+                              className="border-[#FF6600] data-[state=checked]:bg-[#FF6600]"
+                              data-testid={`checkbox-exercise-${exercise.id}`}
+                            />
+                            <label htmlFor={`exercise-${exercise.id}`} className="flex-1 text-white">
+                              {exercise.name}
+                            </label>
+                            <Badge className={getCategoryColor(exercise.type || "physical")}>
+                              {exercise.type || "exercise"}
+                            </Badge>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                   <DialogFooter>
                     <DialogClose asChild>
@@ -515,10 +733,12 @@ export default function SRATracker() {
                       </Button>
                     </DialogClose>
                     <Button 
+                      onClick={handleLogExercises}
                       className="bg-[#FF6600] hover:bg-[#FF6600]/90"
+                      disabled={logExerciseMutation.isPending || selectedExercises.length === 0}
                       data-testid="button-save-exercise"
                     >
-                      Log Progress
+                      {logExerciseMutation.isPending ? "Logging..." : "Log Progress"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -529,7 +749,6 @@ export default function SRATracker() {
       </section>
 
       <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* Today's Overview Card */}
         <Card className="bg-gradient-to-br from-[#FF6600]/10 via-[#0a0a0a] to-black border-[#FF6600]/30 mb-8" data-testid="card-todays-overview">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -545,7 +764,7 @@ export default function SRATracker() {
                   <Pill className="w-4 h-4 text-[#FF6600]" />
                   <span className="text-white/80 text-sm">Medications</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{medicationsTaken}/{medicationsTotal}</p>
+                <p className="text-2xl font-bold text-white">{medicationsTakenCount}/{medicationsTotal}</p>
                 <Progress value={medicationProgress} className="h-2 mt-2" data-testid="progress-medications" />
               </div>
 
@@ -554,9 +773,15 @@ export default function SRATracker() {
                   <Calendar className="w-4 h-4 text-[#FF6600]" />
                   <span className="text-white/80 text-sm">Appointments Today</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{appointments.filter(a => a.date === "Today").length}</p>
+                <p className="text-2xl font-bold text-white">
+                  {appointments.filter(a => {
+                    const apptDate = new Date(a.appointmentDate);
+                    const today = new Date();
+                    return apptDate.toDateString() === today.toDateString();
+                  }).length}
+                </p>
                 <p className="text-white/60 text-sm mt-1">
-                  {appointments.find(a => a.date === "Today")?.time || "No appointments"} next
+                  {appointments.length > 0 ? `${appointments.length} total scheduled` : "No appointments"}
                 </p>
               </div>
 
@@ -565,8 +790,10 @@ export default function SRATracker() {
                   <Dumbbell className="w-4 h-4 text-[#FF6600]" />
                   <span className="text-white/80 text-sm">Exercises</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{Math.round(exerciseProgress)}%</p>
-                <Progress value={exerciseProgress} className="h-2 mt-2" data-testid="progress-exercises" />
+                <p className="text-2xl font-bold text-white">{exercises.length}</p>
+                <p className="text-white/60 text-sm mt-1">
+                  {exercises.filter(e => e.isActive).length} active
+                </p>
               </div>
 
               <div className="p-4 rounded-lg bg-white/5" data-testid="overview-checkin">
@@ -574,7 +801,7 @@ export default function SRATracker() {
                   <Heart className="w-4 h-4 text-[#FF6600]" />
                   <span className="text-white/80 text-sm">Daily Check-in</span>
                 </div>
-                {checkInData.completed ? (
+                {isCheckinCompleted ? (
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-6 h-6 text-green-400" />
                     <span className="text-green-400 font-bold">Completed</span>
@@ -591,9 +818,7 @@ export default function SRATracker() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Medication Section */}
             <Card className="bg-[#0a0a0a] border-[#FF6600]/20" data-testid="card-medications">
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <div>
@@ -604,49 +829,56 @@ export default function SRATracker() {
                   <CardDescription className="text-white/60">Track your daily medications</CardDescription>
                 </div>
                 <Badge className="bg-[#FF6600]/20 text-[#FF6600] border-[#FF6600]/30">
-                  {medicationsTaken}/{medicationsTotal} taken
+                  {medicationsTakenCount}/{medicationsTotal} taken
                 </Badge>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {medications.map((med) => (
-                    <div 
-                      key={med.id}
-                      className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
-                        med.taken 
-                          ? "bg-green-500/10 border-green-500/30" 
-                          : "bg-white/5 border-white/10 hover:border-[#FF6600]/30"
-                      }`}
-                      data-testid={`medication-item-${med.id}`}
-                    >
-                      <Checkbox 
-                        checked={med.taken}
-                        onCheckedChange={() => handleMedicationToggle(med.id)}
-                        className="border-[#FF6600] data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                        data-testid={`checkbox-med-${med.id}`}
-                      />
-                      <div className="flex-1">
-                        <p className="text-white font-medium" data-testid={`text-med-name-${med.id}`}>
-                          {med.name}
-                        </p>
-                        <p className="text-white/60 text-sm">{med.dosage}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-white/80 text-sm flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {med.time}
-                        </p>
-                        <Badge className={getStatusColor(med.status)} data-testid={`badge-med-status-${med.id}`}>
-                          {med.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {activeMedications.length === 0 ? (
+                  <EmptyState type="medications" onAdd={() => setAddMedDialogOpen(true)} />
+                ) : (
+                  <div className="space-y-3">
+                    {activeMedications.map((med) => {
+                      const isTaken = medicationsTaken[med.id] || false;
+                      return (
+                        <div 
+                          key={med.id}
+                          className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
+                            isTaken 
+                              ? "bg-green-500/10 border-green-500/30" 
+                              : "bg-white/5 border-white/10 hover:border-[#FF6600]/30"
+                          }`}
+                          data-testid={`medication-item-${med.id}`}
+                        >
+                          <Checkbox 
+                            checked={isTaken}
+                            onCheckedChange={() => handleMedicationToggle(med.id)}
+                            disabled={logMedicationMutation.isPending}
+                            className="border-[#FF6600] data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                            data-testid={`checkbox-med-${med.id}`}
+                          />
+                          <div className="flex-1">
+                            <p className="text-white font-medium" data-testid={`text-med-name-${med.id}`}>
+                              {med.name}
+                            </p>
+                            <p className="text-white/60 text-sm">{med.dosage}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-white/80 text-sm flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTime(med.timeOfDay)}
+                            </p>
+                            <Badge className={getStatusColor(isTaken ? "taken" : "upcoming")} data-testid={`badge-med-status-${med.id}`}>
+                              {isTaken ? "taken" : "upcoming"}
+                            </Badge>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Appointments Section */}
             <Card className="bg-[#0a0a0a] border-[#FF6600]/20" data-testid="card-appointments">
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <div>
@@ -668,36 +900,39 @@ export default function SRATracker() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {appointments.map((appt) => {
-                    const Icon = getAppointmentIcon(appt.type);
-                    return (
-                      <div 
-                        key={appt.id}
-                        className="flex items-center gap-4 p-4 rounded-lg bg-white/5 border border-white/10 hover:border-[#FF6600]/30 transition-colors"
-                        data-testid={`appointment-item-${appt.id}`}
-                      >
-                        <div className="p-2 rounded-lg bg-[#FF6600]/20">
-                          <Icon className="w-5 h-5 text-[#FF6600]" />
+                {appointments.length === 0 ? (
+                  <EmptyState type="appointments" onAdd={() => setAddApptDialogOpen(true)} />
+                ) : (
+                  <div className="space-y-3">
+                    {appointments.filter(a => !a.cancelled).map((appt) => {
+                      const Icon = getAppointmentIcon(appt.type);
+                      return (
+                        <div 
+                          key={appt.id}
+                          className="flex items-center gap-4 p-4 rounded-lg bg-white/5 border border-white/10 hover:border-[#FF6600]/30 transition-colors"
+                          data-testid={`appointment-item-${appt.id}`}
+                        >
+                          <div className="p-2 rounded-lg bg-[#FF6600]/20">
+                            <Icon className="w-5 h-5 text-[#FF6600]" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-medium" data-testid={`text-appt-title-${appt.id}`}>
+                              {appt.title}
+                            </p>
+                            <p className="text-white/60 text-sm">{appt.location || "Location TBD"}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[#FF6600] font-medium">{formatAppointmentDate(appt.appointmentDate)}</p>
+                            <p className="text-white/60 text-sm">{formatAppointmentTime(appt.appointmentDate)}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium" data-testid={`text-appt-title-${appt.id}`}>
-                            {appt.title}
-                          </p>
-                          <p className="text-white/60 text-sm">{appt.location}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[#FF6600] font-medium">{appt.date}</p>
-                          <p className="text-white/60 text-sm">{appt.time}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Exercise Section */}
             <Card className="bg-[#0a0a0a] border-[#FF6600]/20" data-testid="card-exercises">
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <div>
@@ -720,50 +955,58 @@ export default function SRATracker() {
                 </Link>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {exercises.map((exercise) => {
-                    const Icon = getCategoryIcon(exercise.category);
-                    const progress = (exercise.completed / exercise.target) * 100;
-                    return (
-                      <div 
-                        key={exercise.id}
-                        className="p-4 rounded-lg bg-white/5 border border-white/10"
-                        data-testid={`exercise-item-${exercise.id}`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-[#FF6600]/20">
-                              <Icon className="w-4 h-4 text-[#FF6600]" />
+                {exercises.filter(e => e.isActive).length === 0 ? (
+                  <EmptyState type="exercises" />
+                ) : (
+                  <div className="space-y-4">
+                    {exercises.filter(e => e.isActive).map((exercise) => {
+                      const Icon = getCategoryIcon(exercise.type || "physical");
+                      const reps = exercise.reps || 0;
+                      const sets = exercise.sets || 0;
+                      const duration = exercise.duration || 0;
+                      return (
+                        <div 
+                          key={exercise.id}
+                          className="p-4 rounded-lg bg-white/5 border border-white/10"
+                          data-testid={`exercise-item-${exercise.id}`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-[#FF6600]/20">
+                                <Icon className="w-4 h-4 text-[#FF6600]" />
+                              </div>
+                              <div>
+                                <p className="text-white font-medium" data-testid={`text-exercise-name-${exercise.id}`}>
+                                  {exercise.name}
+                                </p>
+                                <p className="text-white/60 text-sm">
+                                  {duration > 0 ? `${duration} minutes` : sets > 0 ? `${sets} sets x ${reps} reps` : "No target set"}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-white font-medium" data-testid={`text-exercise-name-${exercise.id}`}>
-                                {exercise.name}
-                              </p>
-                              <p className="text-white/60 text-sm">{exercise.duration} minutes</p>
+                            <Badge className={getCategoryColor(exercise.type || "physical")} data-testid={`badge-exercise-category-${exercise.id}`}>
+                              {exercise.type || "exercise"}
+                            </Badge>
+                          </div>
+                          {(sets > 0 || duration > 0) && (
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-white/60">Progress</span>
+                                <span className="text-white">Ready to log</span>
+                              </div>
+                              <Progress value={0} className="h-2" data-testid={`progress-exercise-${exercise.id}`} />
                             </div>
-                          </div>
-                          <Badge className={getCategoryColor(exercise.category)} data-testid={`badge-exercise-category-${exercise.id}`}>
-                            {exercise.category}
-                          </Badge>
+                          )}
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-white/60">Progress</span>
-                            <span className="text-white">{exercise.completed}/{exercise.target} reps</span>
-                          </div>
-                          <Progress value={progress} className="h-2" data-testid={`progress-exercise-${exercise.id}`} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-8">
-            {/* Progress Section */}
             <Card className="bg-[#0a0a0a] border-[#FF6600]/20" data-testid="card-progress">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
@@ -815,7 +1058,6 @@ export default function SRATracker() {
               </CardContent>
             </Card>
 
-            {/* Daily Check-in Widget */}
             <Card className="bg-[#0a0a0a] border-[#FF6600]/20" data-testid="card-daily-checkin">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
@@ -825,7 +1067,7 @@ export default function SRATracker() {
                 <CardDescription className="text-white/60">How are you feeling today?</CardDescription>
               </CardHeader>
               <CardContent>
-                {checkInData.completed ? (
+                {isCheckinCompleted ? (
                   <div className="text-center py-6" data-testid="checkin-completed">
                     <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
                     <p className="text-white font-bold mb-2">Check-in Complete!</p>
@@ -889,11 +1131,18 @@ export default function SRATracker() {
 
                     <Button 
                       onClick={handleCheckIn}
+                      disabled={createCheckinMutation.isPending}
                       className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90"
                       data-testid="button-submit-checkin"
                     >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Complete Check-in
+                      {createCheckinMutation.isPending ? (
+                        "Saving..."
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                          Complete Check-in
+                        </>
+                      )}
                     </Button>
 
                     <Link href="/sra/companion">
