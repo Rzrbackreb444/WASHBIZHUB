@@ -34,7 +34,7 @@ import {
   DollarSign,
   ShoppingBag,
 } from "lucide-react";
-import logoUrl from "@assets/6_1763855398994.png";
+import logoUrl from "@assets/6_1764040628012.png";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },

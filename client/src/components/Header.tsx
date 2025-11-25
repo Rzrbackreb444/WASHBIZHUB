@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/components/Advertisement";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logoUrl from "@assets/LOGO REAL_1762809085350.png";
+import logoUrl from "@assets/6_1764040628012.png";
 
 export function Header() {
   const [location] = useLocation();

@@ -4,7 +4,7 @@ import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import logoUrl from "@assets/6_1763855398994.png";
+import logoUrl from "@assets/6_1764040628012.png";
 import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
 // Contact info - Kremers Laundry Equipment Co, Inc (Dad's number for customer communications)
