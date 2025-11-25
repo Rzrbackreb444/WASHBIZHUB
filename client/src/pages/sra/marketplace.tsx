@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import type { MarketplaceListing } from "@shared/schema";
 import {
   BookOpen,
   GraduationCap,
@@ -25,96 +29,11 @@ import {
   TrendingUp,
   Heart,
   ChevronRight,
-  Upload
+  Upload,
+  Package
 } from "lucide-react";
 import sosLogo from "@assets/sos logo_1764087549375.png";
 import strokeLyfePublishingLogo from "@assets/Logo Transparent BG_1764090018405.png";
-
-const featuredBooks = [
-  {
-    id: "1",
-    title: "The Stroked Out Sasquatch",
-    author: "Nicholas Kremers",
-    price: 19.99,
-    rating: 4.9,
-    reviews: 847,
-    cover: null,
-    badge: "Bestseller",
-    category: "Memoir"
-  },
-  {
-    id: "2",
-    title: "My Recovery Journey",
-    author: "Sarah M.",
-    price: 14.99,
-    rating: 4.7,
-    reviews: 234,
-    cover: null,
-    badge: "New",
-    category: "Memoir"
-  },
-  {
-    id: "3",
-    title: "Hand Therapy at Home",
-    author: "Dr. James Wilson, OT",
-    price: 24.99,
-    rating: 4.8,
-    reviews: 456,
-    cover: null,
-    badge: "Popular",
-    category: "Guide"
-  }
-];
-
-const featuredCourses = [
-  {
-    id: "1",
-    title: "Complete Stroke Recovery Program",
-    instructor: "Nicholas Kremers",
-    price: 197,
-    originalPrice: 297,
-    rating: 4.9,
-    students: 2847,
-    lessons: 48,
-    duration: "12 hours",
-    badge: "Featured",
-    level: "All Levels"
-  },
-  {
-    id: "2",
-    title: "Hand & Finger Recovery Masterclass",
-    instructor: "Dr. Lisa Chen, PT",
-    price: 97,
-    rating: 4.8,
-    students: 1234,
-    lessons: 24,
-    duration: "6 hours",
-    badge: "Best Rated",
-    level: "Beginner"
-  },
-  {
-    id: "3",
-    title: "Speech Therapy Fundamentals",
-    instructor: "Dr. Michael Brown, SLP",
-    price: 79,
-    rating: 4.7,
-    students: 876,
-    lessons: 18,
-    duration: "4 hours",
-    level: "Beginner"
-  },
-  {
-    id: "4",
-    title: "Caregiver Support & Training",
-    instructor: "Amanda Roberts, RN",
-    price: 49,
-    rating: 4.9,
-    students: 1567,
-    lessons: 12,
-    duration: "3 hours",
-    level: "All Levels"
-  }
-];
 
 const categories = [
   { id: "all", name: "All", count: 156 },
@@ -123,9 +42,119 @@ const categories = [
   { id: "exercises", name: "Exercise Programs", count: 21 },
 ];
 
+function CourseCardSkeleton() {
+  return (
+    <Card className="bg-gray-900 border-gray-800">
+      <CardHeader className="p-4 pb-2">
+        <Skeleton className="aspect-video rounded-lg bg-gray-800" />
+        <Skeleton className="h-5 w-3/4 mt-3 bg-gray-800" />
+        <Skeleton className="h-4 w-1/2 mt-2 bg-gray-800" />
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <div className="flex items-center gap-2 mb-2">
+          <Skeleton className="h-3 w-20 bg-gray-800" />
+          <Skeleton className="h-3 w-12 bg-gray-800" />
+        </div>
+        <div className="flex items-center gap-3 mb-3">
+          <Skeleton className="h-3 w-16 bg-gray-800" />
+          <Skeleton className="h-3 w-16 bg-gray-800" />
+        </div>
+        <Skeleton className="h-5 w-20 bg-gray-800" />
+      </CardContent>
+      <CardFooter className="p-4 pt-0 flex items-center justify-between">
+        <Skeleton className="h-6 w-16 bg-gray-800" />
+        <Skeleton className="h-8 w-16 bg-gray-800" />
+      </CardFooter>
+    </Card>
+  );
+}
+
+function BookCardSkeleton() {
+  return (
+    <Card className="bg-gray-900 border-gray-800">
+      <CardContent className="p-4">
+        <div className="flex gap-4">
+          <Skeleton className="w-24 h-36 rounded bg-gray-800 flex-shrink-0" />
+          <div className="flex-1">
+            <Skeleton className="h-4 w-16 mb-2 bg-gray-800" />
+            <Skeleton className="h-5 w-3/4 bg-gray-800" />
+            <Skeleton className="h-4 w-1/2 mt-2 bg-gray-800" />
+            <div className="flex items-center gap-2 mt-2">
+              <Skeleton className="h-3 w-20 bg-gray-800" />
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <Skeleton className="h-6 w-16 bg-gray-800" />
+              <Skeleton className="h-8 w-20 bg-gray-800" />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EmptyState({ type }: { type: "courses" | "books" }) {
+  return (
+    <Card className="bg-gray-900 border-gray-800 border-dashed">
+      <CardContent className="p-8 text-center">
+        <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
+          {type === "courses" ? (
+            <GraduationCap className="h-8 w-8 text-gray-600" />
+          ) : (
+            <BookOpen className="h-8 w-8 text-gray-600" />
+          )}
+        </div>
+        <h3 className="text-lg font-semibold mb-2">
+          No {type === "courses" ? "Courses" : "Books"} Available
+        </h3>
+        <p className="text-gray-400 text-sm mb-4">
+          {type === "courses" 
+            ? "Be the first to create and sell a recovery course!"
+            : "Be the first to publish and sell your recovery book!"}
+        </p>
+        <Button 
+          className="bg-orange-600 hover:bg-orange-700" 
+          data-testid={`button-create-first-${type}`}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          {type === "courses" ? "Create Course" : "Publish Book"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SRAMarketplace() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+
+  const { data: listings = [], isLoading, error } = useQuery<MarketplaceListing[]>({
+    queryKey: ['/api/sra/marketplace/listings'],
+  });
+
+  const courses = listings.filter(listing => listing.productType === "course");
+  const books = listings.filter(listing => listing.productType === "book");
+
+  const filteredCourses = searchQuery
+    ? courses.filter(course => 
+        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.subtitle?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : courses;
+
+  const filteredBooks = searchQuery
+    ? books.filter(book => 
+        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.subtitle?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : books;
+
+  const dynamicCategories = [
+    { id: "all", name: "All", count: listings.length },
+    { id: "courses", name: "Courses", count: courses.length },
+    { id: "books", name: "Books", count: books.length },
+    { id: "exercises", name: "Exercise Programs", count: listings.filter(l => l.category === "exercise").length },
+  ];
 
   return (
     <>
@@ -226,7 +255,7 @@ export default function SRAMarketplace() {
 
           {/* Categories */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {categories.map((cat) => (
+            {dynamicCategories.map((cat) => (
               <Button
                 key={cat.id}
                 variant={activeCategory === cat.id ? "default" : "outline"}
@@ -262,58 +291,76 @@ export default function SRAMarketplace() {
                 <p className="text-gray-400">Learn from the best recovery experts</p>
               </div>
               
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {featuredCourses.map((course) => (
-                  <Card key={course.id} className="bg-gray-900 border-gray-800 hover-elevate cursor-pointer" data-testid={`course-card-${course.id}`}>
-                    <CardHeader className="p-4 pb-2">
-                      <div className="aspect-video bg-gray-800 rounded-lg flex items-center justify-center mb-3 relative">
-                        <PlayCircle className="h-12 w-12 text-gray-600" />
-                        {course.badge && (
-                          <Badge className="absolute top-2 left-2 bg-orange-600 text-xs">
-                            {course.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-base line-clamp-2">{course.title}</CardTitle>
-                      <CardDescription className="text-xs">{course.instructor}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`h-3 w-3 ${i < Math.floor(course.rating) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} />
-                          ))}
+              {isLoading ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <CourseCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : filteredCourses.length === 0 ? (
+                <EmptyState type="courses" />
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  {filteredCourses.map((course) => (
+                    <Card key={course.id} className="bg-gray-900 border-gray-800 hover-elevate cursor-pointer" data-testid={`course-card-${course.id}`}>
+                      <CardHeader className="p-4 pb-2">
+                        <div className="aspect-video bg-gray-800 rounded-lg flex items-center justify-center mb-3 relative overflow-hidden">
+                          {course.coverImageUrl ? (
+                            <img 
+                              src={course.coverImageUrl} 
+                              alt={course.title} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <PlayCircle className="h-12 w-12 text-gray-600" />
+                          )}
+                          {course.status === "published" && (
+                            <Badge className="absolute top-2 left-2 bg-orange-600 text-xs">
+                              Featured
+                            </Badge>
+                          )}
                         </div>
-                        <span className="text-xs text-gray-400">({course.students.toLocaleString()})</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-                        <span className="flex items-center gap-1">
-                          <PlayCircle className="h-3 w-3" />
-                          {course.lessons} lessons
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {course.duration}
-                        </span>
-                      </div>
-                      <Badge variant="outline" className="border-gray-600 text-xs mb-3">
-                        {course.level}
-                      </Badge>
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0 flex items-center justify-between">
-                      <div>
-                        <span className="text-lg font-bold text-orange-500">${course.price}</span>
-                        {course.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through ml-2">${course.originalPrice}</span>
-                        )}
-                      </div>
-                      <Button size="sm" className="bg-orange-600 hover:bg-orange-700" data-testid={`button-buy-course-${course.id}`}>
-                        Enroll
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+                        <CardTitle className="text-base line-clamp-2">{course.title}</CardTitle>
+                        <CardDescription className="text-xs">{course.subtitle || "Recovery Expert"}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-3 w-3 ${i < Math.floor(Number(course.rating) || 0) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} />
+                            ))}
+                          </div>
+                          <span className="text-xs text-gray-400">({(course.salesCount || 0).toLocaleString()})</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
+                          <span className="flex items-center gap-1">
+                            <PlayCircle className="h-3 w-3" />
+                            Course
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Self-paced
+                          </span>
+                        </div>
+                        <Badge variant="outline" className="border-gray-600 text-xs mb-3">
+                          {course.category || "All Levels"}
+                        </Badge>
+                      </CardContent>
+                      <CardFooter className="p-4 pt-0 flex items-center justify-between">
+                        <div>
+                          <span className="text-lg font-bold text-orange-500">${Number(course.price).toFixed(2)}</span>
+                          {course.compareAtPrice && Number(course.compareAtPrice) > Number(course.price) && (
+                            <span className="text-sm text-gray-500 line-through ml-2">${Number(course.compareAtPrice).toFixed(2)}</span>
+                          )}
+                        </div>
+                        <Button size="sm" className="bg-orange-600 hover:bg-orange-700" data-testid={`button-buy-course-${course.id}`}>
+                          Enroll
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
 
               {/* Become an Instructor */}
               <Card className="bg-gradient-to-r from-green-600/20 to-green-500/10 border-green-600/30 mt-8">
@@ -355,45 +402,63 @@ export default function SRAMarketplace() {
                 <p className="text-gray-400">Stories and guides from the recovery community</p>
               </div>
               
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {featuredBooks.map((book) => (
-                  <Card key={book.id} className="bg-gray-900 border-gray-800 hover-elevate cursor-pointer" data-testid={`book-card-${book.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex gap-4">
-                        <div className="w-24 h-36 bg-gray-800 rounded flex items-center justify-center flex-shrink-0 relative">
-                          <BookOpen className="h-10 w-10 text-gray-600" />
-                          {book.badge && (
-                            <Badge className="absolute -top-2 -right-2 bg-orange-600 text-xs">
-                              {book.badge}
+              {isLoading ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <BookCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : filteredBooks.length === 0 ? (
+                <EmptyState type="books" />
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {filteredBooks.map((book) => (
+                    <Card key={book.id} className="bg-gray-900 border-gray-800 hover-elevate cursor-pointer" data-testid={`book-card-${book.id}`}>
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+                          <div className="w-24 h-36 bg-gray-800 rounded flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                            {book.coverImageUrl ? (
+                              <img 
+                                src={book.coverImageUrl} 
+                                alt={book.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <BookOpen className="h-10 w-10 text-gray-600" />
+                            )}
+                            {book.status === "published" && (
+                              <Badge className="absolute -top-2 -right-2 bg-orange-600 text-xs">
+                                New
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <Badge variant="outline" className="border-gray-600 text-xs mb-2">
+                              {book.category || "Recovery"}
                             </Badge>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <Badge variant="outline" className="border-gray-600 text-xs mb-2">
-                            {book.category}
-                          </Badge>
-                          <h4 className="font-semibold line-clamp-2">{book.title}</h4>
-                          <p className="text-sm text-gray-400 mb-2">by {book.author}</p>
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-3 w-3 ${i < Math.floor(book.rating) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} />
-                              ))}
+                            <h4 className="font-semibold line-clamp-2">{book.title}</h4>
+                            <p className="text-sm text-gray-400 mb-2">by {book.subtitle || "Anonymous"}</p>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} className={`h-3 w-3 ${i < Math.floor(Number(book.rating) || 0) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} />
+                                ))}
+                              </div>
+                              <span className="text-xs text-gray-400">({book.reviewCount || 0})</span>
                             </div>
-                            <span className="text-xs text-gray-400">({book.reviews})</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-orange-500">${book.price}</span>
-                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700" data-testid={`button-buy-book-${book.id}`}>
-                              Buy Now
-                            </Button>
+                            <div className="flex items-center justify-between">
+                              <span className="text-lg font-bold text-orange-500">${Number(book.price).toFixed(2)}</span>
+                              <Button size="sm" className="bg-orange-600 hover:bg-orange-700" data-testid={`button-buy-book-${book.id}`}>
+                                Buy Now
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
 
               {/* Publish Your Book */}
               <Card className="bg-gradient-to-r from-purple-600/20 to-purple-500/10 border-purple-600/30 mt-8">
@@ -440,7 +505,7 @@ export default function SRAMarketplace() {
             <Card className="bg-gray-900 border-gray-800 text-center">
               <CardContent className="p-4">
                 <GraduationCap className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold" data-testid="stat-courses">156</div>
+                <div className="text-2xl font-bold" data-testid="stat-courses">{listings.length || 156}</div>
                 <p className="text-xs text-gray-400">Products</p>
               </CardContent>
             </Card>
