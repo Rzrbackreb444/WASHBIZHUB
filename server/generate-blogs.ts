@@ -289,14 +289,76 @@ async function generateAllBlogs() {
   }
 }
 
-// Run if called directly
-if (require.main === module) {
-  generateAllBlogs()
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error('Fatal error:', error);
-      process.exit(1);
+// ========================================
+// AADVANTAGE BLOG GENERATION (120 POSTS)
+// ========================================
+
+async function generateAAdvantageBlogs() {
+  console.log('\n🚀 STARTING AADVANTAGE BLOG GENERATION ENGINE (120 posts)\n');
+  console.log('=' .repeat(60));
+  
+  try {
+    const { generateAllAAdvantageBlogs } = await import("./aadvantage-blog-generator");
+    
+    const startTime = Date.now();
+    
+    const result = await generateAllAAdvantageBlogs((progress) => {
+      const elapsed = Math.round((Date.now() - startTime) / 1000 / 60);
+      console.log(`📊 Progress: ${progress.completed}/${progress.total} (${progress.failed} failed) - ${elapsed} min elapsed`);
     });
+    
+    const totalTime = Math.round((Date.now() - startTime) / 1000 / 60);
+    
+    console.log("\n" + "=".repeat(60));
+    console.log("🎉 AADVANTAGE BULK GENERATION COMPLETE!");
+    console.log("=".repeat(60));
+    console.log(`✅ Successful: ${result.completed}`);
+    console.log(`❌ Failed: ${result.failed}`);
+    console.log(`⏱️ Total time: ${totalTime} minutes`);
+    console.log("=".repeat(60));
+    
+    // Print summary of created blogs
+    const successful = result.results.filter(r => r.success);
+    console.log("\n📝 Created blogs:");
+    successful.slice(0, 10).forEach((blog: any, i: number) => {
+      console.log(`  ${i + 1}. ${blog.title}`);
+    });
+    if (successful.length > 10) {
+      console.log(`  ... and ${successful.length - 10} more`);
+    }
+    
+  } catch (error: any) {
+    console.error("❌ Fatal error:", error.message);
+    process.exit(1);
+  }
 }
 
-export { generateAllBlogs };
+// Run if called directly
+// Usage: npx tsx server/generate-blogs.ts [aadvantage|all|300]
+const args = process.argv.slice(2);
+const mode = args[0] || 'aadvantage'; // Default to aadvantage
+
+if (require.main === module) {
+  if (mode === 'aadvantage' || mode === '120') {
+    generateAAdvantageBlogs()
+      .then(() => process.exit(0))
+      .catch((error) => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+      });
+  } else if (mode === 'all' || mode === '300') {
+    generateAllBlogs()
+      .then(() => process.exit(0))
+      .catch((error) => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+      });
+  } else {
+    console.log('Usage: npx tsx server/generate-blogs.ts [aadvantage|all]');
+    console.log('  aadvantage - Generate 120 AAdvantage equipment blogs');
+    console.log('  all        - Generate 300 SEO blogs across all categories');
+    process.exit(0);
+  }
+}
+
+export { generateAllBlogs, generateAAdvantageBlogs };
