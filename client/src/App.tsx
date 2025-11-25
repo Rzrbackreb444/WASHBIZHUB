@@ -126,6 +126,7 @@ function Router() {
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
+      <Route path="/cleanbi-tool" component={CleanBI} />
       <Route path="/cleanbi-auto" component={CleanbiAuto} />
       <Route path="/calculators" component={CalculatorsHub} />
       <Route path="/calc/:slug" component={CalculatorsHub} />
