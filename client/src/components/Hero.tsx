@@ -106,7 +106,7 @@ export function Hero() {
               {/* Service Guy AI Logo - Clickable - Named after founder's father */}
               <Link href="/service-guy-ai">
                 <div
-                  className="h-20 flex items-center opacity-90 hover:opacity-100 transition-all hover:scale-105 active-elevate-2 cursor-pointer"
+                  className="h-32 md:h-40 flex items-center opacity-90 hover:opacity-100 transition-all hover:scale-105 active-elevate-2 cursor-pointer"
                   data-testid="brand-logo-service-guy-ai"
                 >
                   <img 
