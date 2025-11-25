@@ -6209,6 +6209,10 @@ ${pdfData.text.substring(0, 15000)}`;
   const { createSeoRoutes } = await import('./seo-routes');
   app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));
 
+  // ========== SRA (STROKE RECOVERY ACADEMY) ROUTES ==========
+  const { createSraRoutes } = await import('./sra-routes');
+  app.use("/api/sra", isAuthenticated, createSraRoutes(storage));
+
   const httpServer = createServer(app);
   return httpServer;
 }
