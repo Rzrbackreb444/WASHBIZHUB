@@ -1,0 +1,28 @@
+{
+  "name": "WashBizHub - The Bloomberg of Laundromats",
+  "short_name": "WashBizHub",
+  "description": "Enterprise laundromat management platform with CLEANBI scoring, marketplace, funding, and business intelligence for 72,000+ laundromat owners worldwide.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a2332",
+  "theme_color": "#1a2332",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/washbizhub-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/washbizhub-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
