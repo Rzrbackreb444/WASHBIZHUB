@@ -183,6 +183,44 @@ import {
   type InsertTenant,
   type TenantUser,
   type InsertTenantUser,
+  // SRA Companion System
+  type Medication,
+  type InsertMedication,
+  type MedicationLog,
+  type InsertMedicationLog,
+  type Appointment,
+  type InsertAppointment,
+  type Exercise,
+  type InsertExercise,
+  type ExerciseLog,
+  type InsertExerciseLog,
+  type DailyCheckin,
+  type InsertDailyCheckin,
+  type RecoveryGoal,
+  type InsertRecoveryGoal,
+  type ProgressMilestone,
+  type InsertProgressMilestone,
+  type AiCompanionSettings,
+  type InsertAiCompanionSettings,
+  type AiCompanionChat,
+  type InsertAiCompanionChat,
+  // SRA Ghostwriting/Factory
+  type GhostwritingProject,
+  type InsertGhostwritingProject,
+  type GhostwritingChapter,
+  type InsertGhostwritingChapter,
+  type VoiceProfile,
+  type InsertVoiceProfile,
+  type IndustryKnowledgeBase,
+  type InsertIndustryKnowledgeBase,
+  type ContentPipeline,
+  type InsertContentPipeline,
+  type PipelineRun,
+  type InsertPipelineRun,
+  type IndexingEvent,
+  type InsertIndexingEvent,
+  type MarketplaceListing,
+  type InsertMarketplaceListing,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -714,6 +752,120 @@ export interface IStorage {
   getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
   markEmailVerified(token: string): Promise<void>;
   cleanupExpiredTokens(): Promise<void>;
+  
+  // ==================== SRA COMPANION SYSTEM ====================
+  
+  // Medications
+  getMedications(userId: string): Promise<Medication[]>;
+  getMedication(id: string): Promise<Medication | undefined>;
+  createMedication(medication: InsertMedication): Promise<Medication>;
+  updateMedication(id: string, medication: Partial<InsertMedication>): Promise<Medication>;
+  deleteMedication(id: string): Promise<void>;
+  
+  // Medication Logs
+  getMedicationLogs(userId: string, medicationId?: string): Promise<MedicationLog[]>;
+  createMedicationLog(log: InsertMedicationLog): Promise<MedicationLog>;
+  updateMedicationLog(id: string, log: Partial<InsertMedicationLog>): Promise<MedicationLog>;
+  
+  // Appointments
+  getAppointments(userId: string): Promise<Appointment[]>;
+  getAppointment(id: string): Promise<Appointment | undefined>;
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment>;
+  deleteAppointment(id: string): Promise<void>;
+  
+  // Exercises
+  getExercises(userId: string): Promise<Exercise[]>;
+  getExercise(id: string): Promise<Exercise | undefined>;
+  createExercise(exercise: InsertExercise): Promise<Exercise>;
+  updateExercise(id: string, exercise: Partial<InsertExercise>): Promise<Exercise>;
+  deleteExercise(id: string): Promise<void>;
+  
+  // Exercise Logs
+  getExerciseLogs(userId: string, exerciseId?: string): Promise<ExerciseLog[]>;
+  createExerciseLog(log: InsertExerciseLog): Promise<ExerciseLog>;
+  
+  // Daily Check-ins
+  getDailyCheckins(userId: string, limit?: number): Promise<DailyCheckin[]>;
+  getDailyCheckin(id: string): Promise<DailyCheckin | undefined>;
+  getTodaysCheckin(userId: string): Promise<DailyCheckin | undefined>;
+  createDailyCheckin(checkin: InsertDailyCheckin): Promise<DailyCheckin>;
+  updateDailyCheckin(id: string, checkin: Partial<InsertDailyCheckin>): Promise<DailyCheckin>;
+  
+  // Recovery Goals
+  getRecoveryGoals(userId: string): Promise<RecoveryGoal[]>;
+  getRecoveryGoal(id: string): Promise<RecoveryGoal | undefined>;
+  createRecoveryGoal(goal: InsertRecoveryGoal): Promise<RecoveryGoal>;
+  updateRecoveryGoal(id: string, goal: Partial<InsertRecoveryGoal>): Promise<RecoveryGoal>;
+  deleteRecoveryGoal(id: string): Promise<void>;
+  
+  // Progress Milestones
+  getProgressMilestones(userId: string): Promise<ProgressMilestone[]>;
+  getProgressMilestone(id: string): Promise<ProgressMilestone | undefined>;
+  createProgressMilestone(milestone: InsertProgressMilestone): Promise<ProgressMilestone>;
+  
+  // AI Companion Settings
+  getAiCompanionSettings(userId: string): Promise<AiCompanionSettings | undefined>;
+  createOrUpdateAiCompanionSettings(settings: InsertAiCompanionSettings): Promise<AiCompanionSettings>;
+  
+  // AI Companion Chats
+  getAiCompanionChats(userId: string, limit?: number): Promise<AiCompanionChat[]>;
+  createAiCompanionChat(chat: InsertAiCompanionChat): Promise<AiCompanionChat>;
+  
+  // ==================== SRA FACTORY/GHOSTWRITING ====================
+  
+  // Voice Profiles
+  getVoiceProfiles(userId: string): Promise<VoiceProfile[]>;
+  getVoiceProfile(id: string): Promise<VoiceProfile | undefined>;
+  createVoiceProfile(profile: InsertVoiceProfile): Promise<VoiceProfile>;
+  updateVoiceProfile(id: string, profile: Partial<InsertVoiceProfile>): Promise<VoiceProfile>;
+  deleteVoiceProfile(id: string): Promise<void>;
+  
+  // Ghostwriting Projects
+  getGhostwritingProjects(userId: string): Promise<GhostwritingProject[]>;
+  getGhostwritingProject(id: string): Promise<GhostwritingProject | undefined>;
+  createGhostwritingProject(project: InsertGhostwritingProject): Promise<GhostwritingProject>;
+  updateGhostwritingProject(id: string, project: Partial<InsertGhostwritingProject>): Promise<GhostwritingProject>;
+  deleteGhostwritingProject(id: string): Promise<void>;
+  
+  // Ghostwriting Chapters (manuscripts)
+  getGhostwritingChapters(projectId: string): Promise<GhostwritingChapter[]>;
+  getGhostwritingChapter(id: string): Promise<GhostwritingChapter | undefined>;
+  createGhostwritingChapter(chapter: InsertGhostwritingChapter): Promise<GhostwritingChapter>;
+  updateGhostwritingChapter(id: string, chapter: Partial<InsertGhostwritingChapter>): Promise<GhostwritingChapter>;
+  
+  // Industry Knowledge Bases
+  getIndustryKnowledgeBases(): Promise<IndustryKnowledgeBase[]>;
+  getIndustryKnowledgeBase(id: string): Promise<IndustryKnowledgeBase | undefined>;
+  createIndustryKnowledgeBase(kb: InsertIndustryKnowledgeBase): Promise<IndustryKnowledgeBase>;
+  
+  // Content Pipelines
+  getContentPipelines(userId: string): Promise<ContentPipeline[]>;
+  getContentPipeline(id: string): Promise<ContentPipeline | undefined>;
+  createContentPipeline(pipeline: InsertContentPipeline): Promise<ContentPipeline>;
+  updateContentPipeline(id: string, pipeline: Partial<InsertContentPipeline>): Promise<ContentPipeline>;
+  
+  // Pipeline Runs
+  getPipelineRuns(pipelineId: string): Promise<PipelineRun[]>;
+  getPipelineRun(id: string): Promise<PipelineRun | undefined>;
+  createPipelineRun(run: InsertPipelineRun): Promise<PipelineRun>;
+  updatePipelineRun(id: string, run: Partial<InsertPipelineRun>): Promise<PipelineRun>;
+  
+  // Indexing Events
+  getIndexingEvents(userId?: string): Promise<IndexingEvent[]>;
+  getIndexingEvent(id: string): Promise<IndexingEvent | undefined>;
+  createIndexingEvent(event: InsertIndexingEvent): Promise<IndexingEvent>;
+  updateIndexingEvent(id: string, event: Partial<InsertIndexingEvent>): Promise<IndexingEvent>;
+  
+  // ==================== SRA MARKETPLACE ====================
+  
+  // Marketplace Listings
+  getMarketplaceListings(filters?: { userId?: string; category?: string; status?: string }): Promise<MarketplaceListing[]>;
+  getMarketplaceListing(id: string): Promise<MarketplaceListing | undefined>;
+  getMarketplaceListingBySlug(slug: string): Promise<MarketplaceListing | undefined>;
+  createMarketplaceListing(listing: InsertMarketplaceListing): Promise<MarketplaceListing>;
+  updateMarketplaceListing(id: string, listing: Partial<InsertMarketplaceListing>): Promise<MarketplaceListing>;
+  deleteMarketplaceListing(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {

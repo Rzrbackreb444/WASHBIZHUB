@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
   Flame, 
@@ -19,9 +23,12 @@ import {
   Calendar,
   Activity,
   Watch,
-  ArrowLeft
+  ArrowLeft,
+  AlertCircle,
+  Loader2
 } from "lucide-react";
 import sosLogo from "@assets/sos logo_1764087549375.png";
+import type { AiCompanionChat } from "@shared/schema";
 
 interface Message {
   id: string;
@@ -30,20 +37,18 @@ interface Message {
   timestamp: Date;
 }
 
-const initialMessages: Message[] = [
-  {
-    id: "1",
-    role: "assistant",
-    content: `Hey warrior! I'm here to help you stay accountable.
+const welcomeMessage: Message = {
+  id: "welcome",
+  role: "assistant",
+  content: `Hey warrior! I'm here to help you stay accountable.
 
 Nick always says: "The grind is the gospel." There's no wrong way to recover — the only wrong thing is doing nothing.
 
 **What did you do today?** Even one rep counts. Even one step counts. Let's track your daily action together.
 
-Remember: A body in motion stays in motion. 💪`,
-    timestamp: new Date(),
-  },
-];
+Remember: A body in motion stays in motion.`,
+  timestamp: new Date(),
+};
 
 const quickActions = [
   { id: "log", label: "Log Today's Action", icon: Target, color: "bg-orange-600" },
@@ -59,54 +64,62 @@ const dailyTags = [
 ];
 
 export default function SRACompanion() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [streak, setStreak] = useState(12);
   const [daysSinceStroke, setDaysSinceStroke] = useState(2183);
   const [dailyAction, setDailyAction] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sessionId] = useState(() => `session-${Date.now()}`);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const { data: chatHistory, isLoading: isLoadingChats, error: chatsError } = useQuery<AiCompanionChat[]>({
+    queryKey: ['/api/sra/companion/chats'],
+  });
+
+  const messages: Message[] = chatHistory && chatHistory.length > 0
+    ? chatHistory.map((chat) => ({
+        id: chat.id,
+        role: chat.role as "user" | "assistant",
+        content: chat.content,
+        timestamp: new Date(chat.createdAt),
+      }))
+    : [welcomeMessage];
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async (messageData: { message: string; sessionId: string; topic?: string }) => {
+      const response = await apiRequest("POST", "/api/sra/companion/chats", messageData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sra/companion/chats'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to send message",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, sendMessageMutation.isPending]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || sendMessageMutation.isPending) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    const messageToSend = input;
     setInput("");
-    setIsTyping(true);
 
-    // Simulate AI response with Nick's philosophy
-    setTimeout(() => {
-      const responses = [
-        `That's what I'm talking about, warrior! Every action counts. Nick says: "You're not done. You're just scared of what comes next." Keep pushing!`,
-        `The grind is the gospel. You showed up today, and that's what matters. Remember: there's no wrong way to recover — just keep moving.`,
-        `A body in motion stays in motion. You took action today, and that's everything. Keep building that streak!`,
-        `Nick would be proud. He went from 50 staples and a wheelchair to 90% recovery. If he can do it, you can too. One day at a time.`,
-      ];
-      
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date(),
-      };
-      
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
+    sendMessageMutation.mutate({
+      message: messageToSend,
+      sessionId,
+      topic: "general",
+    });
   };
 
   const handleQuickAction = (actionId: string) => {
@@ -216,7 +229,30 @@ export default function SRACompanion() {
               <Card className="flex-1 bg-gray-900 border-gray-800 overflow-hidden">
                 <ScrollArea className="h-full p-4" ref={scrollRef}>
                   <div className="space-y-4">
-                    {messages.map((message) => (
+                    {isLoadingChats && (
+                      <div className="space-y-4" data-testid="loading-chats">
+                        <div className="flex gap-3">
+                          <Skeleton className="h-8 w-8 rounded-full bg-gray-700" />
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-48 bg-gray-700" />
+                            <Skeleton className="h-4 w-32 bg-gray-700" />
+                          </div>
+                        </div>
+                        <div className="flex gap-3 flex-row-reverse">
+                          <Skeleton className="h-8 w-8 rounded-full bg-gray-700" />
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-40 bg-gray-700" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {chatsError && (
+                      <div className="flex items-center gap-2 text-red-400 p-4 bg-red-950/20 rounded-lg" data-testid="error-chats">
+                        <AlertCircle className="h-5 w-5" />
+                        <span className="text-sm">Failed to load chat history. Your messages will still be saved.</span>
+                      </div>
+                    )}
+                    {!isLoadingChats && messages.map((message) => (
                       <div
                         key={message.id}
                         className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
@@ -246,7 +282,7 @@ export default function SRACompanion() {
                         </div>
                       </div>
                     ))}
-                    {isTyping && (
+                    {sendMessageMutation.isPending && (
                       <div className="flex gap-3" data-testid="typing-indicator">
                         <Avatar className="h-8 w-8 border border-orange-500">
                           <AvatarImage src={sosLogo} alt="SOS" />
@@ -287,17 +323,23 @@ export default function SRACompanion() {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  onKeyDown={(e) => e.key === "Enter" && !sendMessageMutation.isPending && handleSend()}
                   placeholder="Remember: Just do something today..."
                   className="bg-gray-900 border-gray-700 focus:border-orange-500"
+                  disabled={sendMessageMutation.isPending}
                   data-testid="input-message"
                 />
                 <Button 
                   onClick={handleSend} 
                   className="bg-orange-600 hover:bg-orange-700"
+                  disabled={sendMessageMutation.isPending || !input.trim()}
                   data-testid="button-send"
                 >
-                  <Send className="h-4 w-4" />
+                  {sendMessageMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
