@@ -4432,6 +4432,53 @@ Disallow: /private/`;
     }
   });
 
+  // GET /api/ai/health - Check AI provider availability (admin only)
+  app.get("/api/ai/health", async (req, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { checkProviderHealth } = await import("./ai-router");
+      const health = await checkProviderHealth();
+
+      // Also check which providers are configured
+      const { aiProviderService } = await import("./ai-providers");
+      const availableProviders = aiProviderService.getAvailableProviders();
+
+      res.json({
+        health,
+        availableProviders,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("AI health check error:", error);
+      res.status(500).json({ error: error.message || "Health check failed" });
+    }
+  });
+
+  // GET /api/ai/usage - Get AI usage report (admin only)
+  app.get("/api/ai/usage", async (req, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { getDailyCostReport } = await import("./ai-router");
+      const dailyReport = getDailyCostReport();
+
+      res.json({
+        daily: dailyReport,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("AI usage report error:", error);
+      res.status(500).json({ error: error.message || "Usage report failed" });
+    }
+  });
+
   // ==================== GEOCODING & LOCATION SERVICES ====================
   
   // Simple rate limiter: Track requests per IP
