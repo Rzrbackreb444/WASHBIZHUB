@@ -171,7 +171,7 @@ export default function ProductionConsole() {
     {
       id: "welcome",
       role: "assistant",
-      content: `👋 **Welcome to the Style Learning Studio!**
+      content: `**Welcome to the Style Learning Studio!**
 
 I'm here to learn YOUR unique writing voice. The more we chat, the better I'll understand your style.
 
@@ -181,9 +181,9 @@ I'm here to learn YOUR unique writing voice. The more we chat, the better I'll u
 3. Your voice profile gets stored forever and used for ALL future content
 
 **Ready to start?** You can:
-• Paste a writing sample below
-• Upload a document
-• Just start chatting naturally - I'll learn from our conversation!
+- Paste a writing sample below
+- Upload a document
+- Just start chatting naturally - I'll learn from our conversation
 
 What would you like to do?`,
       timestamp: new Date(),
@@ -295,18 +295,18 @@ What would you like to do?`,
     const wordCount = text.split(/\s+/).length;
     return `**Excellent!** I'm learning your voice. Here's what I detected:
 
-📊 **Quick Analysis:**
-• **Words analyzed:** ${wordCount}
-• **Vocabulary:** ${analysis.vocabularyLevel}
-• **Tone:** ${analysis.toneDetected.join(", ")}
-• **Formality:** ${analysis.formalityLevel}% (${analysis.formalityLevel < 40 ? "casual" : analysis.formalityLevel < 60 ? "balanced" : "formal"})
-• **Emotional intensity:** ${analysis.emotionalIntensity}%
+**Quick Analysis:**
+- **Words analyzed:** ${wordCount}
+- **Vocabulary:** ${analysis.vocabularyLevel}
+- **Tone:** ${analysis.toneDetected.join(", ")}
+- **Formality:** ${analysis.formalityLevel}% (${analysis.formalityLevel < 40 ? "casual" : analysis.formalityLevel < 60 ? "balanced" : "formal"})
+- **Emotional intensity:** ${analysis.emotionalIntensity}%
 
-${analysis.favoriteWords.length > 0 ? `🔤 **Your signature words:** ${analysis.favoriteWords.join(", ")}` : ""}
+${analysis.favoriteWords.length > 0 ? `**Your signature words:** ${analysis.favoriteWords.join(", ")}` : ""}
 
 **Training Progress: ${Math.min(trainingProgress + 15, 100)}%**
 
-${trainingProgress + 15 >= 70 ? "🎉 Your voice profile is strong! Ready to generate content in YOUR style." : "Keep sharing more samples to strengthen your voice profile!"}`;
+${trainingProgress + 15 >= 70 ? "Your voice profile is strong! Ready to generate content in YOUR style." : "Keep sharing more samples to strengthen your voice profile!"}`;
   };
 
   // Handle file upload
