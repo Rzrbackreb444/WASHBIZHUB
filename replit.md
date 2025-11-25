@@ -65,6 +65,13 @@ The backend uses Node.js and Express in TypeScript, providing RESTful JSON APIs 
 -   **Google Maps Integration:** Server-side geocoding and interactive map components displaying listings and HQ.
 -   **Search Engine Indexing:** Admin panel for IndexNow (Bing, etc.) and Google Indexing API integration for dynamic sitemaps and bulk submission.
 -   **Affiliate Blogs & Consultation:** Optimized content for financing guides, featured carousels on the homepage, and a consultation landing page with comprehensive SEO.
+-   **AADVANTAGE AFFILIATE BLOG SYSTEM (Nov 2024):** Bulk generation system for 120 ultra SEO-optimized blog posts featuring AAdvantage Laundry Equipment affiliate links. Includes:
+    *   **Blog Generator** (`server/aadvantage-blog-generator.ts`): State-specific (TX, LA, OK, AR) + forum blogs with affiliate link integration
+    *   **Homepage Spotlight** (`client/src/components/AAdvantageSpotlight.tsx`): Featured section with gradient CTAs for affiliate form, Facebook group link, and state-colored blog badges
+    *   **Affiliate Link**: `https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry` for commission tracking
+    *   **Word Count Strategy**: 900-2,000 words per blog for SEO optimization
+    *   **Internal Linking**: Each blog links to CLEANBI tool and other WashBizHub resources
+    *   **State Colors**: Texas=orange, Louisiana=purple, Oklahoma=red, Arkansas=blue for visual identification
 
 ### Data Storage Solutions
 Primary data storage is PostgreSQL (Neon Serverless) via Drizzle ORM. Redis is used for pub/sub, session storage, and caching. BullMQ handles background jobs, and EMQX is the MQTT broker for IoT.
