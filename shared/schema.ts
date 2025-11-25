@@ -8127,5 +8127,603 @@ export type InsertBookProductionTemplate = z.infer<typeof insertBookProductionTe
 export type BookProductionTemplate = typeof bookProductionTemplates.$inferSelect;
 
 // ============================================================================
+// VOICE PROFILES & STYLE LEARNING - Learn user's voice, store forever
+// ============================================================================
+
+// Voice Profiles - Stores user's learned writing style
+export const voiceProfiles = pgTable("voice_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Profile Identity
+  profileName: varchar("profile_name").notNull(),
+  isDefault: boolean("is_default").default(false),
+  
+  // Voice Characteristics (learned from samples)
+  vocabularyLevel: varchar("vocabulary_level"), // "simple", "intermediate", "advanced", "technical"
+  sentenceComplexity: varchar("sentence_complexity"), // "short", "medium", "long", "varied"
+  toneProfile: jsonb("tone_profile"), // { primary: "conversational", secondary: ["inspirational", "authoritative"] }
+  emotionalRange: jsonb("emotional_range"), // { intensity: 0-100, types: ["hope", "determination", "empathy"] }
+  formalityLevel: integer("formality_level"), // 0-100 (casual to formal)
+  
+  // Writing Patterns
+  avgSentenceLength: decimal("avg_sentence_length", { precision: 5, scale: 2 }),
+  avgParagraphLength: decimal("avg_paragraph_length", { precision: 5, scale: 2 }),
+  dialogueFrequency: integer("dialogue_frequency"), // 0-100 (% of content that's dialogue)
+  metaphorUsage: integer("metaphor_usage"), // 0-100
+  humorLevel: integer("humor_level"), // 0-100
+  
+  // Signature Elements
+  favoriteWords: text("favorite_words").array(), // Words user uses frequently
+  favoritePhrases: text("favorite_phrases").array(), // Phrases user repeats
+  avoidWords: text("avoid_words").array(), // Words to never use
+  styleMarkers: jsonb("style_markers"), // Unique identifiers of their style
+  
+  // Voice Embeddings (for AI matching)
+  voiceEmbedding: jsonb("voice_embedding"), // Vector embedding of their style
+  embeddingModel: varchar("embedding_model").default("gemini"),
+  
+  // Training Data
+  sampleCount: integer("sample_count").default(0),
+  totalWordsAnalyzed: integer("total_words_analyzed").default(0),
+  lastTrainedAt: timestamp("last_trained_at"),
+  
+  // Quality Metrics
+  confidenceScore: integer("confidence_score"), // 0-100 (how well we know their style)
+  consistencyScore: integer("consistency_score"), // 0-100 (how consistent samples are)
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("voice_profile_user_idx").on(table.userId),
+  defaultIdx: index("voice_profile_default_idx").on(table.isDefault),
+}));
+
+export const insertVoiceProfileSchema = createInsertSchema(voiceProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVoiceProfile = z.infer<typeof insertVoiceProfileSchema>;
+export type VoiceProfile = typeof voiceProfiles.$inferSelect;
+
+// Style Training Sessions - Conversational learning history
+export const styleTrainingSessions = pgTable("style_training_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  voiceProfileId: varchar("voice_profile_id").references(() => voiceProfiles.id),
+  
+  // Session Info
+  sessionType: varchar("session_type").notNull(), // "conversation", "sample_upload", "guided_interview", "book_analysis"
+  status: varchar("status").default("active"), // "active", "completed", "abandoned"
+  
+  // Conversation History
+  messages: jsonb("messages"), // Array of { role, content, timestamp, analysis }
+  
+  // Samples Provided
+  writingSamples: jsonb("writing_samples"), // Array of { text, source, wordCount, analyzedAt }
+  
+  // Analysis Results
+  analysisResults: jsonb("analysis_results"), // Detailed breakdown from each sample
+  styleInsights: jsonb("style_insights"), // Key learnings from session
+  
+  // Progress
+  samplesAnalyzed: integer("samples_analyzed").default(0),
+  wordsAnalyzed: integer("words_analyzed").default(0),
+  questionsAsked: integer("questions_asked").default(0),
+  questionsAnswered: integer("questions_answered").default(0),
+  
+  // AI Provider Used
+  aiProvider: varchar("ai_provider").default("gemini"),
+  tokensUsed: integer("tokens_used").default(0),
+  
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userIdx: index("style_session_user_idx").on(table.userId),
+  profileIdx: index("style_session_profile_idx").on(table.voiceProfileId),
+}));
+
+export const insertStyleTrainingSessionSchema = createInsertSchema(styleTrainingSessions).omit({
+  id: true,
+  startedAt: true,
+});
+
+export type InsertStyleTrainingSession = z.infer<typeof insertStyleTrainingSessionSchema>;
+export type StyleTrainingSession = typeof styleTrainingSessions.$inferSelect;
+
+// ============================================================================
+// INDUSTRY KNOWLEDGE BASES - Dynamic knowledge for any industry
+// ============================================================================
+
+export const industryKnowledgeBases = pgTable("industry_knowledge_bases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Identity
+  industrySlug: varchar("industry_slug").notNull().unique(), // "stroke_recovery", "dropfoot", "laundromat", "restaurant"
+  displayName: varchar("display_name").notNull(),
+  description: text("description"),
+  
+  // Knowledge Content
+  coreKnowledge: text("core_knowledge"), // Main knowledge base text
+  terminology: jsonb("terminology"), // Industry-specific terms and definitions
+  statistics: jsonb("statistics"), // Key stats and data points
+  bestPractices: jsonb("best_practices"), // Array of best practices
+  commonMistakes: jsonb("common_mistakes"), // Mistakes to avoid
+  
+  // Content Templates
+  bookTemplates: jsonb("book_templates"), // Pre-built book structures for this industry
+  chapterTemplates: jsonb("chapter_templates"), // Chapter ideas
+  contentPrompts: jsonb("content_prompts"), // Writing prompts
+  
+  // SEO & Keywords
+  primaryKeywords: text("primary_keywords").array(),
+  longTailKeywords: text("long_tail_keywords").array(),
+  questionKeywords: text("question_keywords").array(), // "How to...", "What is..."
+  
+  // Related Industries (for auto-pivot)
+  relatedIndustries: text("related_industries").array(), // Other industries that relate
+  pivotSuggestions: jsonb("pivot_suggestions"), // How to pivot content to related industries
+  
+  // Vector Embeddings
+  knowledgeEmbedding: jsonb("knowledge_embedding"),
+  embeddingModel: varchar("embedding_model").default("gemini"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: index("industry_kb_slug_idx").on(table.industrySlug),
+}));
+
+export const insertIndustryKnowledgeBaseSchema = createInsertSchema(industryKnowledgeBases).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertIndustryKnowledgeBase = z.infer<typeof insertIndustryKnowledgeBaseSchema>;
+export type IndustryKnowledgeBase = typeof industryKnowledgeBases.$inferSelect;
+
+// ============================================================================
+// SERP & KEYWORD RESEARCH - Find what people search for
+// ============================================================================
+
+export const keywordResearchJobs = pgTable("keyword_research_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Job Configuration
+  seedKeywords: text("seed_keywords").array().notNull(),
+  industryId: varchar("industry_id").references(() => industryKnowledgeBases.id),
+  location: varchar("location").default("United States"),
+  language: varchar("language").default("en"),
+  depth: integer("depth").default(2), // How many levels to expand
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "running", "completed", "failed"
+  progress: integer("progress").default(0), // 0-100
+  
+  // Results Summary
+  keywordsFound: integer("keywords_found").default(0),
+  questionsFound: integer("questions_found").default(0),
+  relatedSearchesFound: integer("related_searches_found").default(0),
+  
+  // API Usage
+  apiProvider: varchar("api_provider").default("serpapi"),
+  apiCallsMade: integer("api_calls_made").default(0),
+  
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("keyword_job_user_idx").on(table.userId),
+  statusIdx: index("keyword_job_status_idx").on(table.status),
+}));
+
+export const insertKeywordResearchJobSchema = createInsertSchema(keywordResearchJobs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertKeywordResearchJob = z.infer<typeof insertKeywordResearchJobSchema>;
+export type KeywordResearchJob = typeof keywordResearchJobs.$inferSelect;
+
+// SERP Results Cache
+export const serpResultsCache = pgTable("serp_results_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  jobId: varchar("job_id").references(() => keywordResearchJobs.id),
+  
+  // Query Info
+  keyword: text("keyword").notNull(),
+  queryType: varchar("query_type").default("search"), // "search", "questions", "trends"
+  location: varchar("location"),
+  
+  // SERP Data
+  organicResults: jsonb("organic_results"), // Array of { position, title, url, snippet }
+  relatedSearches: jsonb("related_searches"), // Array of { query }
+  peopleAlsoAsk: jsonb("people_also_ask"), // Array of { question, snippet }
+  serpFeatures: jsonb("serp_features"), // { featuredSnippet, localPack, knowledgePanel, etc. }
+  
+  // Metrics
+  searchVolume: integer("search_volume"),
+  difficulty: integer("difficulty"), // 0-100
+  cpc: decimal("cpc", { precision: 10, scale: 2 }),
+  
+  // Content Opportunity Scoring
+  opportunityScore: integer("opportunity_score"), // 0-100 (how good for content)
+  contentSuggestions: jsonb("content_suggestions"), // AI-generated content ideas
+  
+  // Cache Management
+  expiresAt: timestamp("expires_at"),
+  fetchedAt: timestamp("fetched_at").defaultNow().notNull(),
+}, (table) => ({
+  keywordIdx: index("serp_cache_keyword_idx").on(table.keyword),
+  jobIdx: index("serp_cache_job_idx").on(table.jobId),
+}));
+
+export const insertSerpResultsCacheSchema = createInsertSchema(serpResultsCache).omit({
+  id: true,
+  fetchedAt: true,
+});
+
+export type InsertSerpResultsCache = z.infer<typeof insertSerpResultsCacheSchema>;
+export type SerpResultsCache = typeof serpResultsCache.$inferSelect;
+
+// ============================================================================
+// GSC METRICS - Google Search Console tracking
+// ============================================================================
+
+export const gscProperties = pgTable("gsc_properties", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Property Info
+  siteUrl: text("site_url").notNull(),
+  propertyType: varchar("property_type").default("domain"), // "domain", "url_prefix"
+  
+  // OAuth
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  tokenExpiresAt: timestamp("token_expires_at"),
+  
+  // Sync Status
+  lastSyncAt: timestamp("last_sync_at"),
+  syncStatus: varchar("sync_status").default("pending"), // "pending", "syncing", "synced", "error"
+  syncError: text("sync_error"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("gsc_property_user_idx").on(table.userId),
+}));
+
+export const insertGscPropertySchema = createInsertSchema(gscProperties).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertGscProperty = z.infer<typeof insertGscPropertySchema>;
+export type GscProperty = typeof gscProperties.$inferSelect;
+
+// GSC Query Metrics
+export const gscQueryMetrics = pgTable("gsc_query_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").references(() => gscProperties.id).notNull(),
+  
+  // Query Data
+  query: text("query").notNull(),
+  page: text("page"),
+  country: varchar("country"),
+  device: varchar("device"), // "desktop", "mobile", "tablet"
+  
+  // Metrics
+  clicks: integer("clicks").default(0),
+  impressions: integer("impressions").default(0),
+  ctr: decimal("ctr", { precision: 5, scale: 4 }), // 0.0000 to 1.0000
+  position: decimal("position", { precision: 5, scale: 2 }),
+  
+  // Time Period
+  date: varchar("date").notNull(), // YYYY-MM-DD
+  
+  // Trend Data
+  positionChange: decimal("position_change", { precision: 5, scale: 2 }), // vs previous period
+  clicksChange: integer("clicks_change"),
+  impressionsChange: integer("impressions_change"),
+  
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+}, (table) => ({
+  propertyIdx: index("gsc_metrics_property_idx").on(table.propertyId),
+  queryIdx: index("gsc_metrics_query_idx").on(table.query),
+  dateIdx: index("gsc_metrics_date_idx").on(table.date),
+}));
+
+export const insertGscQueryMetricsSchema = createInsertSchema(gscQueryMetrics).omit({
+  id: true,
+  recordedAt: true,
+});
+
+export type InsertGscQueryMetrics = z.infer<typeof insertGscQueryMetricsSchema>;
+export type GscQueryMetrics = typeof gscQueryMetrics.$inferSelect;
+
+// ============================================================================
+// WEB TEMPLATES - Cached templates for quick page building
+// ============================================================================
+
+export const webPageTemplates = pgTable("web_page_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template Identity
+  templateSlug: varchar("template_slug").notNull().unique(),
+  displayName: varchar("display_name").notNull(),
+  description: text("description"),
+  category: varchar("category").notNull(), // "landing", "book", "course", "blog", "sales"
+  
+  // Template Content
+  htmlStructure: text("html_structure"), // Base HTML template
+  cssStyles: text("css_styles"), // Scoped CSS
+  jsScripts: text("js_scripts"), // Optional JS
+  
+  // Dynamic Blocks
+  contentBlocks: jsonb("content_blocks"), // Array of { id, type, defaultContent, placeholder }
+  
+  // Customization Options
+  colorSchemes: jsonb("color_schemes"), // Available color palettes
+  fontOptions: jsonb("font_options"), // Font combinations
+  layoutOptions: jsonb("layout_options"), // Different layouts
+  
+  // SEO Template
+  metaTitleTemplate: varchar("meta_title_template"),
+  metaDescriptionTemplate: text("meta_description_template"),
+  schemaTemplate: jsonb("schema_template"), // Schema.org template
+  
+  // Preview
+  thumbnailUrl: text("thumbnail_url"),
+  previewUrl: text("preview_url"),
+  
+  // Usage Stats
+  usageCount: integer("usage_count").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  
+  isActive: boolean("is_active").default(true),
+  isPremium: boolean("is_premium").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: index("web_template_slug_idx").on(table.templateSlug),
+  categoryIdx: index("web_template_category_idx").on(table.category),
+}));
+
+export const insertWebPageTemplateSchema = createInsertSchema(webPageTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertWebPageTemplate = z.infer<typeof insertWebPageTemplateSchema>;
+export type WebPageTemplate = typeof webPageTemplates.$inferSelect;
+
+// ============================================================================
+// AUTO-INDEXING - IndexNow & Google Indexing API
+// ============================================================================
+
+export const indexingEvents = pgTable("indexing_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // URL Info
+  url: text("url").notNull(),
+  urlType: varchar("url_type"), // "book", "course", "blog", "page"
+  
+  // Indexing Status
+  indexNowStatus: varchar("index_now_status").default("pending"), // "pending", "submitted", "success", "failed"
+  indexNowSubmittedAt: timestamp("index_now_submitted_at"),
+  indexNowResponse: jsonb("index_now_response"),
+  
+  googleIndexStatus: varchar("google_index_status").default("pending"),
+  googleIndexSubmittedAt: timestamp("google_index_submitted_at"),
+  googleIndexResponse: jsonb("google_index_response"),
+  
+  // Search Engines Notified
+  bingNotified: boolean("bing_notified").default(false),
+  yandexNotified: boolean("yandex_notified").default(false),
+  duckDuckGoNotified: boolean("duck_duck_go_notified").default(false),
+  
+  // Verification
+  isIndexed: boolean("is_indexed").default(false),
+  indexedAt: timestamp("indexed_at"),
+  lastCheckedAt: timestamp("last_checked_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  urlIdx: index("indexing_url_idx").on(table.url),
+  statusIdx: index("indexing_status_idx").on(table.indexNowStatus),
+}));
+
+export const insertIndexingEventSchema = createInsertSchema(indexingEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertIndexingEvent = z.infer<typeof insertIndexingEventSchema>;
+export type IndexingEvent = typeof indexingEvents.$inferSelect;
+
+// ============================================================================
+// MARKETPLACE LISTINGS - Sell books & courses
+// ============================================================================
+
+export const marketplaceListings = pgTable("marketplace_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Product Info
+  productType: varchar("product_type").notNull(), // "book", "course", "bundle", "template"
+  title: varchar("title").notNull(),
+  subtitle: varchar("subtitle"),
+  description: text("description"),
+  
+  // Linked Artifacts
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id),
+  bookId: varchar("book_id"), // If a published book
+  courseId: varchar("course_id"), // If a course
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency").default("USD"),
+  compareAtPrice: decimal("compare_at_price", { precision: 10, scale: 2 }), // Original price for discounts
+  
+  // Stripe Integration
+  stripeProductId: varchar("stripe_product_id"),
+  stripePriceId: varchar("stripe_price_id"),
+  
+  // Files/Delivery
+  deliveryType: varchar("delivery_type").default("download"), // "download", "access", "email"
+  downloadFiles: jsonb("download_files"), // Array of { fileName, url, format }
+  accessUrl: text("access_url"), // For course access
+  
+  // Listing Details
+  coverImageUrl: text("cover_image_url"),
+  previewUrl: text("preview_url"),
+  sampleChapters: jsonb("sample_chapters"), // Free preview content
+  
+  // SEO
+  slug: varchar("slug").unique(),
+  metaTitle: varchar("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  // Categories & Tags
+  category: varchar("category"), // "stroke_recovery", "medical", "self_help", "business"
+  tags: text("tags").array(),
+  
+  // Sales Stats
+  salesCount: integer("sales_count").default(0),
+  totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }).default("0.00"),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count").default(0),
+  
+  // Status
+  status: varchar("status").default("draft"), // "draft", "published", "archived"
+  publishedAt: timestamp("published_at"),
+  
+  // Indexing
+  isIndexed: boolean("is_indexed").default(false),
+  indexedAt: timestamp("indexed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("marketplace_user_idx").on(table.userId),
+  slugIdx: index("marketplace_slug_idx").on(table.slug),
+  statusIdx: index("marketplace_status_idx").on(table.status),
+  categoryIdx: index("marketplace_category_idx").on(table.category),
+}));
+
+export const insertMarketplaceListingSchema = createInsertSchema(marketplaceListings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMarketplaceListing = z.infer<typeof insertMarketplaceListingSchema>;
+export type MarketplaceListing = typeof marketplaceListings.$inferSelect;
+
+// ============================================================================
+// CONTENT PIPELINES - Multi-agent production orchestration
+// ============================================================================
+
+export const contentPipelines = pgTable("content_pipelines", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Pipeline Config
+  pipelineName: varchar("pipeline_name").notNull(),
+  pipelineType: varchar("pipeline_type").notNull(), // "book", "course", "screenplay", "doctrine", "blog_series"
+  
+  // Target Output
+  targetFormat: varchar("target_format").notNull(), // "manuscript", "course_modules", "screenplay_format"
+  targetWordCount: integer("target_word_count"),
+  targetChapters: integer("target_chapters"),
+  
+  // Voice & Style
+  voiceProfileId: varchar("voice_profile_id").references(() => voiceProfiles.id),
+  industryId: varchar("industry_id").references(() => industryKnowledgeBases.id),
+  
+  // Agent Configuration
+  agentPipeline: jsonb("agent_pipeline"), // Array of { agentRole, provider, model, priority }
+  
+  // Intelligence Tier
+  intelligenceTier: varchar("intelligence_tier").default("standard"), // "economy", "standard", "premium", "ultra"
+  
+  // Settings
+  includeImages: boolean("include_images").default(true),
+  includeCitations: boolean("include_citations").default(false),
+  includeCharts: boolean("include_charts").default(false),
+  
+  // Cost Estimation
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  actualCost: decimal("actual_cost", { precision: 10, scale: 2 }),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("pipeline_user_idx").on(table.userId),
+}));
+
+export const insertContentPipelineSchema = createInsertSchema(contentPipelines).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertContentPipeline = z.infer<typeof insertContentPipelineSchema>;
+export type ContentPipeline = typeof contentPipelines.$inferSelect;
+
+// Pipeline Runs - Individual execution instances
+export const pipelineRuns = pgTable("pipeline_runs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pipelineId: varchar("pipeline_id").references(() => contentPipelines.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Run Configuration
+  inputPrompt: text("input_prompt"), // User's brief/topic
+  inputData: jsonb("input_data"), // Any additional input data
+  
+  // Status
+  status: varchar("status").default("queued"), // "queued", "running", "paused", "completed", "failed"
+  currentStage: varchar("current_stage"), // Current agent stage
+  progress: integer("progress").default(0), // 0-100
+  
+  // Agent Execution Log
+  agentLog: jsonb("agent_log"), // Array of { agent, startedAt, completedAt, tokensUsed, output }
+  
+  // Output
+  outputArtifacts: jsonb("output_artifacts"), // Array of { type, url, size }
+  generatedContent: text("generated_content"), // Full manuscript/content
+  
+  // Metrics
+  totalTokensUsed: integer("total_tokens_used").default(0),
+  totalCost: decimal("total_cost", { precision: 10, scale: 4 }).default("0.0000"),
+  generationTimeSeconds: integer("generation_time_seconds"),
+  
+  // Quality
+  qualityScore: integer("quality_score"), // 0-100
+  humanReviewStatus: varchar("human_review_status").default("pending"), // "pending", "approved", "needs_revision"
+  
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  pipelineIdx: index("run_pipeline_idx").on(table.pipelineId),
+  userIdx: index("run_user_idx").on(table.userId),
+  statusIdx: index("run_status_idx").on(table.status),
+}));
+
+export const insertPipelineRunSchema = createInsertSchema(pipelineRuns).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPipelineRun = z.infer<typeof insertPipelineRunSchema>;
+export type PipelineRun = typeof pipelineRuns.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete SRA Platform with Industrial Publishing Factory
 // ============================================================================

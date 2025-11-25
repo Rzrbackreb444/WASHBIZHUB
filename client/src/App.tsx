@@ -124,6 +124,7 @@ import SRAStore from "@/pages/sra/store";
 import SRACommunity from "@/pages/sra/community";
 import SRADashboard from "@/pages/sra/dashboard";
 import SRAMarketplace from "@/pages/sra/marketplace";
+import SRAProductionConsole from "@/pages/sra/production-console";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -244,6 +245,7 @@ function Router() {
       <Route path="/sra/community" component={SRACommunity} />
       <Route path="/sra/dashboard" component={SRADashboard} />
       <Route path="/sra/marketplace" component={SRAMarketplace} />
+      <Route path="/sra/factory" component={SRAProductionConsole} />
       <Route component={NotFound} />
     </Switch>
   );
