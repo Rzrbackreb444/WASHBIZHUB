@@ -115,6 +115,11 @@ import ConsultationLanding from "@/pages/consultation-landing";
 import BookAdPreview from "@/pages/book-ad-preview";
 import PrivacyPolicy from "@/pages/privacy";
 import TermsOfService from "@/pages/terms";
+import SRAHome from "@/pages/sra/home";
+import SRAPricing from "@/pages/sra/pricing";
+import SRATracker from "@/pages/sra/tracker";
+import SRACompanion from "@/pages/sra/companion";
+import SRAGhostwriting from "@/pages/sra/ghostwriting";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -226,6 +231,11 @@ function Router() {
       <Route path="/consultation-landing" component={ConsultationLanding} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/sra" component={SRAHome} />
+      <Route path="/sra/pricing" component={SRAPricing} />
+      <Route path="/sra/tracker" component={SRATracker} />
+      <Route path="/sra/companion" component={SRACompanion} />
+      <Route path="/sra/ghostwriting" component={SRAGhostwriting} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -25,91 +25,132 @@ import {
   PenTool,
   HandHeart,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Activity,
+  Clock,
+  Crown,
+  Shield,
+  Gift,
+  DollarSign
 } from "lucide-react";
-import sraLogo from "@assets/Untitled design (25)_1764086011344.png";
 import sosLogo from "@assets/sos logo_1764087549375.png";
 import togetherFist from "@assets/Together Fist_1764087270080.png";
 
-const courseParts = [
+const featureCards = [
   {
     id: 1,
-    title: "Understanding Your Journey",
-    chapters: "Chapters 1-4",
-    description: "Foundation concepts and the roadmap to your recovery",
-    icon: BookOpen,
+    title: "Recovery Tracker",
+    description: "Track medications, appointments, and exercises. Monitor your daily progress with comprehensive logging.",
+    icon: Activity,
+    badge: "Essential"
   },
   {
     id: 2,
-    title: "Brain Science for Recovery",
-    chapters: "Chapters 5-8",
-    description: "Neuroplasticity, rewiring pathways, and healing mechanisms",
-    icon: Brain,
+    title: "AI Recovery Companion",
+    description: "24/7 personalized coaching based on Nick's wisdom. Get guidance whenever you need it most.",
+    icon: Bot,
+    badge: "AI-Powered"
   },
   {
     id: 3,
-    title: "Physical Training",
-    chapters: "Chapters 9-14",
-    description: "Movement recovery, strength building, and coordination",
-    icon: Dumbbell,
+    title: "Recovery University",
+    description: "33 comprehensive chapters from The Ultimate Stroke Recovery Bible. Master every phase of recovery.",
+    icon: GraduationCap,
+    badge: "33 Chapters"
   },
   {
     id: 4,
-    title: "Mental Mastery",
-    chapters: "Chapters 15-19",
-    description: "Mindset, motivation, and overcoming mental barriers",
-    icon: Target,
+    title: "Ghostwriting Suite",
+    description: "Write and publish your stroke recovery story. KDP formatted for easy self-publishing.",
+    icon: PenTool,
+    badge: "Publish Ready"
   },
   {
     id: 5,
-    title: "Advanced Techniques",
-    chapters: "Chapters 20-24",
-    description: "Cutting-edge recovery methods and optimization",
-    icon: Sparkles,
+    title: "Recovery Store",
+    description: "Flint Rehab products, custom apparel, and Amazon affiliate products curated for survivors.",
+    icon: ShoppingBag,
+    badge: "Curated"
   },
   {
     id: 6,
-    title: "Living Your Recovery",
-    chapters: "Chapters 25-29",
-    description: "Daily life integration and sustainable habits",
-    icon: Heart,
-  },
-  {
-    id: 7,
-    title: "Mastery",
-    chapters: "Chapters 30-33",
-    description: "Achieving excellence and helping others",
-    icon: Trophy,
-  },
+    title: "Warrior Community",
+    description: "Peer support, forums, and shared victories. Connect with 10,000+ fellow survivors.",
+    icon: Users,
+    badge: "10K+ Members"
+  }
 ];
 
 const flintRehabProducts = [
   {
     id: 1,
     title: "MusicGlove Hand Therapy",
-    description: "Clinically proven to improve hand function in 2 weeks with just 6 hours use. Music-based rehabilitation.",
+    description: "Clinically proven to improve hand function in 2 weeks with just 6 hours use. Music-based rehabilitation that makes therapy engaging.",
     price: "$349 - $549",
-    badge: "Clinical Proven",
-    features: ["Improves finger coordination", "Gaming + music therapy", "Works with tablet or PC"],
+    badge: "Clinically Proven",
+    features: ["Improves hand function in 2 weeks", "Gaming + music therapy", "Works with tablet or PC"],
     affiliateLink: "https://www.flintrehab.com/product/musicglove-hand-therapy/"
   },
   {
     id: 2,
     title: "FitMi Full-Body Rehab",
-    description: "Award-winning FDA-listed device. Improves mobility 3x faster than traditional therapy.",
+    description: "Award-winning FDA-listed device. Improves mobility 3x faster than traditional therapy with adaptive exercises.",
     price: "$299+",
     badge: "FDA Listed",
-    features: ["Full body exercises", "Adaptive difficulty", "Track progress"],
+    features: ["3x faster than traditional therapy", "Full body exercises", "Adaptive difficulty"],
     affiliateLink: "https://www.flintrehab.com/product/fitmi/"
   },
   {
     id: 3,
     title: "FitMi + MusicGlove Bundle",
-    description: "Complete stroke recovery package. Save $50 when you bundle.",
+    description: "Complete stroke recovery package combining full-body and hand therapy. The ultimate recovery toolkit.",
     price: "Save $50",
     badge: "Best Value",
     features: ["Full body + hand therapy", "Includes tablet", "Free shipping"],
     affiliateLink: "https://www.flintrehab.com/bundle/"
+  }
+];
+
+const pricingTiers = [
+  {
+    id: 1,
+    name: "Free",
+    price: "$0",
+    period: "forever",
+    description: "Start your recovery journey",
+    features: ["Basic recovery tracking", "3 AI chats/month", "Community access (read-only)"],
+    cta: "Get Started Free",
+    highlighted: false
+  },
+  {
+    id: 2,
+    name: "Warrior",
+    price: "$29",
+    period: "/month",
+    description: "Full recovery toolkit",
+    features: ["Full recovery tracking", "Unlimited AI coaching", "Community access & posting", "Progress analytics"],
+    cta: "Become a Warrior",
+    highlighted: false
+  },
+  {
+    id: 3,
+    name: "Champion",
+    price: "$79",
+    period: "/month",
+    description: "Complete recovery education",
+    features: ["Everything in Warrior", "All 33 course chapters", "Ghostwriting tools", "Priority support"],
+    cta: "Become a Champion",
+    highlighted: true
+  },
+  {
+    id: 4,
+    name: "Legend",
+    price: "$149",
+    period: "/month",
+    description: "Premium coaching experience",
+    features: ["Everything in Champion", "1-on-1 coaching sessions", "Direct access to Nick's team", "VIP community status"],
+    cta: "Become a Legend",
+    highlighted: false
   }
 ];
 
@@ -120,35 +161,65 @@ export default function SRAHome() {
     "name": "Stroke Recovery Academy",
     "alternateName": "SRA",
     "url": typeof window !== 'undefined' ? `${window.location.origin}/sra` : "https://strokerecoveryacademy.com",
-    "description": "Your Ph.D. in Proving the Impossible Possible. Comprehensive stroke recovery education, AI coaching, and community support from Nicholas 'Stroked Out Sasquatch' Kremers.",
+    "logo": sosLogo,
+    "description": "Your Ph.D. in Proving the Impossible Possible. Comprehensive stroke recovery education, AI coaching, and community support from Nicholas 'Stroked Out Sasquatch' Kremers - a stroke survivor who achieved 90% recovery.",
     "founder": {
       "@type": "Person",
       "name": "Nicholas Kremers",
       "alternateName": "Stroked Out Sasquatch",
-      "description": "Stroke survivor who achieved 90% recovery after being told he would never walk normally again."
+      "description": "Stroke survivor who achieved 90% recovery after hemorrhagic stroke at age 36. Doctors said he would never walk normally again - he proved them wrong."
     },
     "slogan": "REBUILD. REWIRE. RISE.",
-    "offers": {
-      "@type": "Offer",
-      "category": "Stroke Recovery Education",
-      "description": "Courses, AI coaching, and community support for stroke survivors"
-    }
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Plan",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Basic recovery tracking and 3 AI chats per month"
+      },
+      {
+        "@type": "Offer",
+        "name": "Warrior Plan",
+        "price": "29",
+        "priceCurrency": "USD",
+        "description": "Full tracking, unlimited AI coaching, and community access"
+      },
+      {
+        "@type": "Offer",
+        "name": "Champion Plan",
+        "price": "79",
+        "priceCurrency": "USD",
+        "description": "All courses, ghostwriting tools, and priority support"
+      },
+      {
+        "@type": "Offer",
+        "name": "Legend Plan",
+        "price": "149",
+        "priceCurrency": "USD",
+        "description": "1-on-1 coaching with Nick's team"
+      }
+    ]
   };
 
   return (
-    <div className="sra-theme min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <Helmet>
         <title>Stroke Recovery Academy | REBUILD. REWIRE. RISE. | Your Ph.D. in Proving the Impossible Possible</title>
-        <meta name="description" content="Join Nicholas 'Stroked Out Sasquatch' Kremers at Stroke Recovery Academy. From 0% function to 90% recovery - get the complete stroke recovery education with AI coaching, courses, and community support." />
-        <meta name="keywords" content="stroke recovery, stroke rehabilitation, stroke survivor, Nicholas Kremers, Stroked Out Sasquatch, neuroplasticity, stroke exercises, stroke recovery program, brain recovery" />
+        <meta name="description" content="Join 10,000+ stroke warriors at Stroke Recovery Academy. Nicholas 'Stroked Out Sasquatch' Kremers went from hemorrhagic stroke to 90% recovery. Get AI coaching, courses, community support, and The Ultimate Stroke Recovery Bible." />
+        <meta name="keywords" content="stroke recovery, stroke rehabilitation, stroke survivor, Nicholas Kremers, Stroked Out Sasquatch, neuroplasticity, stroke exercises, stroke recovery program, brain recovery, hemorrhagic stroke, stroke survivor community, stroke recovery app" />
         <meta property="og:title" content="Stroke Recovery Academy | REBUILD. REWIRE. RISE." />
-        <meta property="og:description" content="Your Ph.D. in Proving the Impossible Possible. Comprehensive stroke recovery education from someone who beat the odds." />
+        <meta property="og:description" content="Your Ph.D. in Proving the Impossible Possible. From 0% function to 90% recovery - comprehensive stroke education from someone who beat the odds. Join 10,000+ warriors." />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={sraLogo} />
+        <meta property="og:image" content={sosLogo} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? `${window.location.origin}/sra` : "https://strokerecoveryacademy.com"} />
+        <meta property="og:site_name" content="Stroke Recovery Academy" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Stroke Recovery Academy | REBUILD. REWIRE. RISE." />
-        <meta name="twitter:description" content="Your Ph.D. in Proving the Impossible Possible. Join Nicholas Kremers and thousands of stroke survivors." />
+        <meta name="twitter:description" content="Your Ph.D. in Proving the Impossible Possible. Join Nicholas Kremers and 10,000+ stroke survivors in the ultimate recovery community." />
+        <meta name="twitter:image" content={sosLogo} />
         <meta name="author" content="Nicholas 'Stroked Out Sasquatch' Kremers" />
+        <link rel="canonical" href={typeof window !== 'undefined' ? `${window.location.origin}/sra` : "https://strokerecoveryacademy.com"} />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>
@@ -165,7 +236,7 @@ export default function SRAHome() {
               src={sosLogo} 
               alt="Stroked Out Sasquatch - Stroke Recovery Academy Logo" 
               className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain mb-8"
-              data-testid="img-sra-logo"
+              data-testid="img-sra-hero-logo"
             />
             
             <h1 
@@ -177,14 +248,14 @@ export default function SRAHome() {
             
             <p 
               className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#FF6600] uppercase tracking-widest mb-6"
-              data-testid="text-tagline"
+              data-testid="text-hero-tagline"
             >
               REBUILD. REWIRE. RISE.
             </p>
             
             <p 
               className="text-lg md:text-xl text-white/80 max-w-2xl mb-10"
-              data-testid="text-subtitle"
+              data-testid="text-hero-subtitle"
             >
               Your Ph.D. in Proving the Impossible Possible
             </p>
@@ -192,20 +263,20 @@ export default function SRAHome() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg"
-                className="bg-[#FF6600] text-white border-[#FF6600] px-8 py-6 text-lg font-bold uppercase tracking-wide"
-                data-testid="button-start-journey"
+                className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8 py-6 text-lg font-bold uppercase tracking-wide"
+                data-testid="button-start-recovery"
               >
                 <Play className="mr-2 h-5 w-5" />
-                Start Your Journey
+                Start Your Recovery
               </Button>
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-[#FF6600] text-[#FF6600] px-8 py-6 text-lg font-bold uppercase tracking-wide"
-                data-testid="button-join-community"
+                className="border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10 px-8 py-6 text-lg font-bold uppercase tracking-wide"
+                data-testid="button-join-warriors"
               >
                 <Users className="mr-2 h-5 w-5" />
-                Join Community
+                Join 10,000+ Warriors
               </Button>
             </div>
           </div>
@@ -238,7 +309,7 @@ export default function SRAHome() {
                 <div className="space-y-3 text-white/70">
                   <p className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
-                    <span>Left side paralysis, craniotomy surgery with 50 staples</span>
+                    <span>50 staples, left-side paralysis, ICU hallucinations</span>
                   </p>
                   <p className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
@@ -250,15 +321,15 @@ export default function SRAHome() {
                   </p>
                   <p className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
-                    <span>Created StrokeLyfe Inc. nonprofit for survivors</span>
+                    <span>Founded StrokeLyfe.org nonprofit for survivors</span>
                   </p>
                 </div>
                 
                 <p 
                   className="text-xl text-white/90 italic border-l-4 border-[#FF6600] pl-4 my-6"
-                  data-testid="text-quote"
+                  data-testid="text-nick-quote"
                 >
-                  "Doctors said 'never walk normally again' — I proved them wrong."
+                  "Doctors said 'never walk again' — I proved them wrong."
                 </p>
                 
                 <p>
@@ -271,7 +342,7 @@ export default function SRAHome() {
               <Button 
                 size="lg"
                 variant="outline"
-                className="mt-8 border-[#FF6600] text-[#FF6600]"
+                className="mt-8 border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10"
                 data-testid="button-read-full-story"
               >
                 Read Nicholas's Full Story
@@ -283,16 +354,16 @@ export default function SRAHome() {
               <Card className="bg-[#111] border-[#222] p-8">
                 <div className="grid grid-cols-3 gap-6 text-center">
                   <div>
-                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-recovery">90%</div>
+                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-recovery-percent">90%</div>
                     <div className="text-sm text-white/60 uppercase tracking-wide mt-1">Recovery</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-years">6+</div>
-                    <div className="text-sm text-white/60 uppercase tracking-wide mt-1">Years Journey</div>
+                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-years-fighting">6+</div>
+                    <div className="text-sm text-white/60 uppercase tracking-wide mt-1">Years Fighting</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-chapters">33</div>
-                    <div className="text-sm text-white/60 uppercase tracking-wide mt-1">Chapters</div>
+                    <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-tiktok-followers">1M+</div>
+                    <div className="text-sm text-white/60 uppercase tracking-wide mt-1">TikTok Followers</div>
                   </div>
                 </div>
                 
@@ -302,8 +373,8 @@ export default function SRAHome() {
                     <div className="text-xs text-white/60 uppercase">Staples</div>
                   </div>
                   <div className="text-center p-3 bg-[#FF6600]/10 rounded-lg">
-                    <div className="text-2xl font-bold text-[#FF6600]" data-testid="stat-followers">1M+</div>
-                    <div className="text-xs text-white/60 uppercase">Followers</div>
+                    <div className="text-2xl font-bold text-[#FF6600]" data-testid="stat-chapters">33</div>
+                    <div className="text-xs text-white/60 uppercase">Chapters</div>
                   </div>
                 </div>
               </Card>
@@ -312,56 +383,52 @@ export default function SRAHome() {
         </div>
       </section>
 
-      {/* Recovery University Section */}
+      {/* Feature Cards Section */}
       <section className="py-20 bg-black">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[#FF6600]/20 text-[#FF6600] border-[#FF6600]/30">
-              <GraduationCap className="w-3 h-3 mr-1" />
-              Recovery University
+              <Zap className="w-3 h-3 mr-1" />
+              Platform Features
             </Badge>
             
             <h2 
               className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
-              data-testid="text-courses-title"
+              data-testid="text-features-title"
             >
-              The Complete Recovery Curriculum
+              Your Complete Recovery Toolkit
             </h2>
             
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              7 comprehensive parts from The Ultimate Stroke Recovery Bible. 
-              Master each phase of your recovery journey.
+              Everything you need to rebuild your life after stroke, all in one place.
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {courseParts.map((course) => {
-              const IconComponent = course.icon;
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {featureCards.map((feature) => {
+              const IconComponent = feature.icon;
               return (
                 <Card 
-                  key={course.id}
+                  key={feature.id}
                   className="bg-[#111] border-[#222] hover-elevate transition-all group"
-                  data-testid={`card-course-${course.id}`}
+                  data-testid={`card-feature-${feature.id}`}
                 >
                   <CardHeader className="pb-3">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-[#FF6600]/20">
-                        <IconComponent className="w-5 h-5 text-[#FF6600]" />
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="p-3 rounded-lg bg-[#FF6600]/20">
+                        <IconComponent className="w-6 h-6 text-[#FF6600]" />
                       </div>
                       <Badge variant="outline" className="border-[#FF6600]/30 text-[#FF6600] text-xs">
-                        Part {course.id}
+                        {feature.badge}
                       </Badge>
                     </div>
-                    <CardTitle className="text-white text-lg">
-                      {course.title}
+                    <CardTitle className="text-white text-xl">
+                      {feature.title}
                     </CardTitle>
-                    <CardDescription className="text-white/50 text-sm">
-                      {course.chapters}
-                    </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-white/70 text-sm">
-                      {course.description}
+                    <p className="text-white/70">
+                      {feature.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -372,17 +439,17 @@ export default function SRAHome() {
           <div className="text-center mt-12">
             <Button 
               size="lg"
-              className="bg-[#FF6600] text-white border-[#FF6600] px-8"
-              data-testid="button-explore-courses"
+              className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8"
+              data-testid="button-explore-features"
             >
-              Explore All Courses
+              Explore All Features
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* AI Coach Preview Section */}
+      {/* AI Recovery Companion Section */}
       <section className="py-20 bg-gradient-to-b from-[#0a0a0a] to-black">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -394,7 +461,7 @@ export default function SRAHome() {
                       <Bot className="w-5 h-5 text-[#FF6600]" />
                     </div>
                     <div className="bg-[#1a1a1a] rounded-lg p-4 text-white/90">
-                      <p className="text-sm">Hi! I'm your Recovery Coach, trained on The Ultimate Stroke Recovery Bible. How can I help you today?</p>
+                      <p className="text-sm">Hi! I'm your Recovery Coach, trained on The Ultimate Stroke Recovery Bible and Nick's wisdom. How can I help you today?</p>
                     </div>
                   </div>
                   
@@ -412,7 +479,7 @@ export default function SRAHome() {
                       <Bot className="w-5 h-5 text-[#FF6600]" />
                     </div>
                     <div className="bg-[#1a1a1a] rounded-lg p-4 text-white/90">
-                      <p className="text-sm">Great question! Nicholas covers this in Part III. Start with supported standing near a wall, focus on 3-second holds, and gradually increase...</p>
+                      <p className="text-sm">Great question! Nick covers this in Part III of the Recovery Bible. Start with supported standing near a wall, focus on 3-second holds, and gradually increase. Remember: progress over perfection!</p>
                     </div>
                   </div>
                 </div>
@@ -429,13 +496,13 @@ export default function SRAHome() {
                 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-6"
                 data-testid="text-ai-coach-title"
               >
-                Meet Your Recovery Companion
+                AI Recovery Companion
               </h2>
               
               <div className="space-y-4 text-white/80">
                 <p className="text-lg">
-                  24/7 AI support based on The Ultimate Stroke Recovery Bible. 
-                  Get personalized guidance whenever you need it.
+                  24/7 personalized coaching based on Nick's wisdom and The Ultimate Stroke Recovery Bible. 
+                  Get answers, motivation, and guidance whenever you need it.
                 </p>
                 
                 <ul className="space-y-3">
@@ -455,85 +522,88 @@ export default function SRAHome() {
               
               <Button 
                 size="lg"
-                className="mt-8 bg-[#FF6600] text-white border-[#FF6600] px-8"
-                data-testid="button-start-free-trial"
+                className="mt-8 bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8"
+                data-testid="button-try-ai-coach"
               >
                 <MessageCircle className="mr-2 h-4 w-4" />
-                Start Free Trial
+                Try AI Coach Free
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Community Section */}
+      {/* Recovery University Section */}
       <section className="py-20 bg-[#0a0a0a]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-[#FF6600]/20 text-[#FF6600] border-[#FF6600]/30">
-              <Users className="w-3 h-3 mr-1" />
-              Community
+              <GraduationCap className="w-3 h-3 mr-1" />
+              Recovery University
             </Badge>
             
             <h2 
               className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
-              data-testid="text-community-title"
+              data-testid="text-university-title"
             >
-              Join Fellow Survivors
+              33 Chapters of Recovery Wisdom
             </h2>
             
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              You're not alone in this journey. Connect with a supportive community 
-              of stroke survivors and caregivers who understand.
+              The complete curriculum from The Ultimate Stroke Recovery Bible. 
+              Master every phase of your recovery journey with Nick's proven methods.
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-3">
-            <Card className="bg-[#111] border-[#222] p-8 text-center">
-              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Users className="w-8 h-8 text-[#FF6600]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Peer Support</h3>
-              <p className="text-white/70">
-                Share experiences, ask questions, and celebrate victories with others on the same path.
-              </p>
-            </Card>
-            
-            <Card className="bg-[#111] border-[#222] p-8 text-center">
-              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Heart className="w-8 h-8 text-[#FF6600]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Shared Experiences</h3>
-              <p className="text-white/70">
-                Learn from real stories of recovery, setbacks, and breakthroughs from fellow survivors.
-              </p>
-            </Card>
-            
-            <Card className="bg-[#111] border-[#222] p-8 text-center">
-              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Star className="w-8 h-8 text-[#FF6600]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Expert Guidance</h3>
-              <p className="text-white/70">
-                Direct access to Nicholas and trained coaches who've been where you are.
-              </p>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              { part: 1, title: "Understanding Your Journey", chapters: "1-4", icon: BookOpen },
+              { part: 2, title: "Brain Science", chapters: "5-8", icon: Brain },
+              { part: 3, title: "Physical Training", chapters: "9-14", icon: Dumbbell },
+              { part: 4, title: "Mental Mastery", chapters: "15-19", icon: Target },
+              { part: 5, title: "Advanced Techniques", chapters: "20-24", icon: Sparkles },
+              { part: 6, title: "Daily Living", chapters: "25-29", icon: Heart },
+              { part: 7, title: "Complete Mastery", chapters: "30-33", icon: Trophy },
+              { part: 8, title: "Bonus Content", chapters: "Extras", icon: Gift }
+            ].map((course) => {
+              const IconComponent = course.icon;
+              return (
+                <Card 
+                  key={course.part}
+                  className="bg-[#111] border-[#222] hover-elevate transition-all"
+                  data-testid={`card-course-part-${course.part}`}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-lg bg-[#FF6600]/20">
+                        <IconComponent className="w-5 h-5 text-[#FF6600]" />
+                      </div>
+                      <Badge variant="outline" className="border-[#FF6600]/30 text-[#FF6600] text-xs">
+                        Part {course.part}
+                      </Badge>
+                    </div>
+                    <h3 className="text-white font-bold mb-1">{course.title}</h3>
+                    <p className="text-white/50 text-sm">Chapters {course.chapters}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
           
           <div className="text-center mt-12">
             <Button 
               size="lg"
-              className="bg-[#FF6600] text-white border-[#FF6600] px-8"
-              data-testid="button-join-community-cta"
+              className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8"
+              data-testid="button-start-learning"
             >
-              <Users className="mr-2 h-4 w-4" />
-              Join the Community
+              Start Learning
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Featured Products Section */}
+      {/* Flint Rehab Products Section */}
       <section className="py-20 bg-black">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -546,46 +616,62 @@ export default function SRAHome() {
               className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
               data-testid="text-products-title"
             >
-              Featured Products
+              Flint Rehab Products
             </h2>
             
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Equipment recommendations and Nicholas's custom apparel line 
-              to support your recovery journey.
+              Clinically proven rehabilitation devices that Nick uses and recommends. 
+              These tools accelerate recovery with engaging, effective therapy.
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-3">
-            {featuredProducts.map((product) => (
+          <div className="grid gap-8 md:grid-cols-3">
+            {flintRehabProducts.map((product) => (
               <Card 
                 key={product.id}
-                className="bg-[#111] border-[#222] overflow-hidden hover-elevate transition-all"
+                className={`bg-[#111] border-[#222] hover-elevate transition-all overflow-hidden ${
+                  product.badge === "Best Value" ? "ring-2 ring-[#FF6600]" : ""
+                }`}
                 data-testid={`card-product-${product.id}`}
               >
-                <div className="h-48 bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center">
-                  <ShoppingBag className="w-16 h-16 text-[#FF6600]/30" />
-                </div>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-3">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
                     <Badge 
-                      className={`${product.badge === 'Coming Soon' ? 'bg-white/10 text-white/70' : 'bg-[#FF6600]/20 text-[#FF6600]'} border-0`}
+                      className={`${
+                        product.badge === "Best Value" 
+                          ? "bg-[#FF6600] text-white" 
+                          : "bg-[#FF6600]/20 text-[#FF6600]"
+                      }`}
                     >
                       {product.badge}
                     </Badge>
-                    <span className="text-xl font-bold text-[#FF6600]">{product.price}</span>
+                    <span className="text-xl font-black text-[#FF6600]">{product.price}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{product.title}</h3>
-                  <p className="text-white/60 text-sm mb-4">{product.description}</p>
+                  <CardTitle className="text-white text-xl">
+                    {product.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-white/70 text-sm">
+                    {product.description}
+                  </p>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-2 text-sm text-white/80">
+                        <CheckCircle2 className="w-4 h-4 text-[#FF6600] shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
                   <Button 
-                    variant={product.badge === 'Coming Soon' ? 'outline' : 'default'}
-                    className={product.badge === 'Coming Soon' 
-                      ? 'border-white/20 text-white/60 w-full' 
-                      : 'bg-[#FF6600] text-white border-[#FF6600] w-full'
-                    }
-                    disabled={product.badge === 'Coming Soon'}
-                    data-testid={`button-product-${product.id}`}
+                    className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90 text-white"
+                    data-testid={`button-view-product-${product.id}`}
+                    asChild
                   >
-                    {product.badge === 'Coming Soon' ? 'Coming Soon' : 'View Product'}
+                    <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer">
+                      View Product
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -594,51 +680,283 @@ export default function SRAHome() {
         </div>
       </section>
 
+      {/* Warrior Community Section */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-[#FF6600]/20 text-[#FF6600] border-[#FF6600]/30">
+              <Users className="w-3 h-3 mr-1" />
+              Warrior Community
+            </Badge>
+            
+            <h2 
+              className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
+              data-testid="text-community-title"
+            >
+              Join 10,000+ Stroke Warriors
+            </h2>
+            
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              You're not alone in this journey. Connect with a supportive community 
+              of stroke survivors and caregivers who truly understand.
+            </p>
+          </div>
+          
+          <div className="grid gap-8 md:grid-cols-3">
+            <Card className="bg-[#111] border-[#222] p-8 text-center hover-elevate">
+              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Users className="w-8 h-8 text-[#FF6600]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Peer Support</h3>
+              <p className="text-white/70">
+                Share experiences, ask questions, and celebrate victories with fellow survivors.
+              </p>
+            </Card>
+            
+            <Card className="bg-[#111] border-[#222] p-8 text-center hover-elevate">
+              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <MessageCircle className="w-8 h-8 text-[#FF6600]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Active Forums</h3>
+              <p className="text-white/70">
+                Dedicated forums for exercises, nutrition, mental health, and caregiver support.
+              </p>
+            </Card>
+            
+            <Card className="bg-[#111] border-[#222] p-8 text-center hover-elevate">
+              <div className="p-4 rounded-full bg-[#FF6600]/20 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Trophy className="w-8 h-8 text-[#FF6600]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Shared Victories</h3>
+              <p className="text-white/70">
+                Celebrate milestones together. Every step forward deserves recognition.
+              </p>
+            </Card>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button 
+              size="lg"
+              className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8"
+              data-testid="button-join-community-cta"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Join the Community
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* StrokeLyfe.org Nonprofit Section */}
+      <section className="py-20 bg-gradient-to-b from-black to-[#0a0a0a]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="flex justify-center lg:justify-start">
+              <img 
+                src={togetherFist} 
+                alt="Together We Recover - StrokeLyfe.org Nonprofit Logo" 
+                className="w-64 h-64 md:w-80 md:h-80 object-contain"
+                data-testid="img-strokelyfe-logo"
+              />
+            </div>
+            
+            <div>
+              <Badge className="mb-4 bg-red-500/20 text-red-400 border-red-500/30">
+                <HandHeart className="w-3 h-3 mr-1" />
+                501(c)(3) Nonprofit
+              </Badge>
+              
+              <h2 
+                className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
+                data-testid="text-nonprofit-title"
+              >
+                StrokeLyfe.org
+              </h2>
+              
+              <p 
+                className="text-2xl font-bold text-red-400 uppercase tracking-widest mb-6"
+                data-testid="text-nonprofit-tagline"
+              >
+                TOGETHER WE RECOVER
+              </p>
+              
+              <div className="space-y-4 text-white/80">
+                <p className="text-lg">
+                  Nick founded StrokeLyfe Inc. to provide real financial support for stroke survivors 
+                  who can't afford the resources they need.
+                </p>
+                
+                <ul className="space-y-3">
+                  {[
+                    "Financial aid for therapy equipment",
+                    "Vehicle modification grants",
+                    "Home accessibility improvements",
+                    "Emergency survivor assistance"
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <p className="text-white/60 text-sm italic">
+                  100% of donations go directly to helping stroke survivors in need.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button 
+                  size="lg"
+                  className="bg-red-500 hover:bg-red-600 text-white px-8"
+                  data-testid="button-donate-strokelyfe"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  Donate Now
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="border-red-400 text-red-400 hover:bg-red-500/10"
+                  data-testid="button-learn-more-strokelyfe"
+                >
+                  Learn More
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Preview Section */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-[#FF6600]/20 text-[#FF6600] border-[#FF6600]/30">
+              <Crown className="w-3 h-3 mr-1" />
+              Membership Plans
+            </Badge>
+            
+            <h2 
+              className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
+              data-testid="text-pricing-title"
+            >
+              Choose Your Recovery Path
+            </h2>
+            
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              From free basic access to premium 1-on-1 coaching. Start where you are and upgrade as you grow.
+            </p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {pricingTiers.map((tier) => (
+              <Card 
+                key={tier.id}
+                className={`bg-[#111] border-[#222] hover-elevate transition-all ${
+                  tier.highlighted ? "ring-2 ring-[#FF6600] scale-105" : ""
+                }`}
+                data-testid={`card-pricing-${tier.id}`}
+              >
+                <CardHeader className="text-center pb-2">
+                  {tier.highlighted && (
+                    <Badge className="bg-[#FF6600] text-white mx-auto mb-2">
+                      Most Popular
+                    </Badge>
+                  )}
+                  <CardTitle className="text-white text-xl">{tier.name}</CardTitle>
+                  <div className="mt-2">
+                    <span className="text-4xl font-black text-[#FF6600]">{tier.price}</span>
+                    <span className="text-white/50">{tier.period}</span>
+                  </div>
+                  <CardDescription className="text-white/60 mt-2">
+                    {tier.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ul className="space-y-3 mb-6">
+                    {tier.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-white/80">
+                        <CheckCircle2 className="w-4 h-4 text-[#FF6600] shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    className={`w-full ${
+                      tier.highlighted 
+                        ? "bg-[#FF6600] hover:bg-[#FF6600]/90 text-white" 
+                        : "bg-[#222] hover:bg-[#333] text-white"
+                    }`}
+                    data-testid={`button-pricing-${tier.id}`}
+                  >
+                    {tier.cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button 
+              size="lg"
+              variant="outline"
+              className="border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10 px-8"
+              data-testid="button-view-all-plans"
+            >
+              View All Plans & Features
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-t from-[#0a0a0a] to-black">
+      <section className="py-20 bg-gradient-to-b from-[#0a0a0a] to-black">
         <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
           <img 
-            src={sraLogo} 
-            alt="Stroke Recovery Academy Logo" 
-            className="w-32 h-32 object-contain mx-auto mb-8"
+            src={sosLogo} 
+            alt="Stroked Out Sasquatch Logo" 
+            className="w-32 h-32 mx-auto mb-8 object-contain"
+            data-testid="img-final-cta-logo"
           />
           
-          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4">
-            Ready to Start Your Recovery?
+          <h2 
+            className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-4"
+            data-testid="text-final-cta-title"
+          >
+            Ready to Prove the Impossible Possible?
           </h2>
           
-          <p className="text-xl text-[#FF6600] font-bold uppercase tracking-widest mb-4">
+          <p className="text-xl text-[#FF6600] font-bold uppercase tracking-widest mb-6">
             REBUILD. REWIRE. RISE.
           </p>
           
-          <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto">
-            Join thousands of stroke survivors who are taking control of their recovery. 
-            Your journey to proving the impossible possible starts here.
+          <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
+            Join Nicholas and 10,000+ stroke warriors who are rebuilding their lives one day at a time. 
+            Your recovery story starts now.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg"
-              className="bg-[#FF6600] text-white border-[#FF6600] px-10 py-6 text-lg font-bold uppercase"
-              data-testid="button-get-started"
+              className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white border-[#FF6600] px-8 py-6 text-lg font-bold uppercase tracking-wide"
+              data-testid="button-final-start-recovery"
             >
-              <Zap className="mr-2 h-5 w-5" />
-              Get Started Now
+              <Play className="mr-2 h-5 w-5" />
+              Start Your Recovery
             </Button>
             <Button 
               size="lg"
               variant="outline"
-              className="border-[#FF6600] text-[#FF6600] px-10 py-6 text-lg font-bold uppercase"
-              data-testid="button-learn-more"
+              className="border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10 px-8 py-6 text-lg font-bold uppercase tracking-wide"
+              data-testid="button-final-join-warriors"
             >
-              Learn More
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Users className="mr-2 h-5 w-5" />
+              Join 10,000+ Warriors
             </Button>
           </div>
-          
-          <p className="mt-10 text-white/50 text-sm">
-            Created by Nicholas "Stroked Out Sasquatch" Kremers
-          </p>
         </div>
       </section>
     </div>
