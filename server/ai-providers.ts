@@ -70,7 +70,7 @@ class AIProviderService {
 
   async generateWithOpenAI(
     messages: AIMessage[],
-    model: string = "gpt-4-turbo-preview"
+    model: string = "gpt-4o-mini"
   ): Promise<AIResponse> {
     if (!this.openai) {
       throw new Error("OpenAI API key not configured");
@@ -135,7 +135,7 @@ class AIProviderService {
 
   async generateWithGemini(
     messages: AIMessage[],
-    model: string = "gemini-1.5-pro"
+    model: string = "gemini-2.0-flash-exp"
   ): Promise<AIResponse> {
     if (!this.gemini) {
       throw new Error("Gemini API key not configured");
@@ -209,7 +209,7 @@ class AIProviderService {
 
   async generateWithGrok(
     messages: AIMessage[],
-    model: string = "grok-beta"
+    model: string = "grok-2"
   ): Promise<AIResponse> {
     if (!this.grok) {
       throw new Error("Grok API key not configured");
