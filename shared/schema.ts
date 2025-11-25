@@ -7745,5 +7745,387 @@ export type InsertVrRecoverySession = z.infer<typeof insertVrRecoverySessionSche
 export type VrRecoverySession = typeof vrRecoverySessions.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete SRA Platform with Ghostwriting & VR Recovery
+// INDUSTRIAL PUBLISHING FACTORY - Multi-AI Book Production System
+// ============================================================================
+
+// AI Agent Profiles - Define specialized agents and their capabilities
+export const aiAgentProfiles = pgTable("ai_agent_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Agent Identity
+  name: varchar("name").notNull(), // "Research Agent", "Outline Agent", etc.
+  role: varchar("role").notNull(), // "research", "outline", "write", "analyze", "image", "edit", "cite"
+  description: text("description"),
+  
+  // AI Provider & Model
+  provider: varchar("provider").notNull(), // "openai", "anthropic", "gemini", "perplexity", "grok"
+  model: varchar("model").notNull(), // "gpt-4o", "claude-sonnet-4-5", "gemini-1.5-pro", etc.
+  
+  // Intelligence Tiers (which tiers this agent serves)
+  supportedTiers: jsonb("supported_tiers").default('["economy", "standard", "premium", "ultra"]'),
+  
+  // Cost Tracking
+  inputCostPer1k: decimal("input_cost_per_1k", { precision: 10, scale: 6 }).default("0.001"),
+  outputCostPer1k: decimal("output_cost_per_1k", { precision: 10, scale: 6 }).default("0.003"),
+  
+  // Agent Configuration
+  maxTokens: integer("max_tokens").default(4096),
+  temperature: decimal("temperature", { precision: 3, scale: 2 }).default("0.7"),
+  systemPrompt: text("system_prompt"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAiAgentProfileSchema = createInsertSchema(aiAgentProfiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAiAgentProfile = z.infer<typeof insertAiAgentProfileSchema>;
+export type AiAgentProfile = typeof aiAgentProfiles.$inferSelect;
+
+// Production Jobs - Track batch book production
+export const productionJobs = pgTable("production_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id),
+  
+  // Job Configuration
+  jobName: varchar("job_name").notNull(),
+  bookType: varchar("book_type").notNull(), // "memoir", "autobiography", "manifesto", "medical_guide", "childrens_book", "recovery_guide", "course"
+  intelligenceTier: varchar("intelligence_tier").default("standard"), // "economy", "standard", "premium", "ultra"
+  targetWordCount: integer("target_word_count").default(50000),
+  
+  // Production Status
+  status: varchar("status").default("queued"), // "queued", "research", "outline", "writing", "analyzing", "imaging", "review", "export", "completed", "failed"
+  currentStage: integer("current_stage").default(0), // 0-7 for each pipeline stage
+  progress: integer("progress").default(0), // 0-100
+  
+  // Stage Completion Timestamps
+  researchCompletedAt: timestamp("research_completed_at"),
+  outlineCompletedAt: timestamp("outline_completed_at"),
+  writingCompletedAt: timestamp("writing_completed_at"),
+  analysisCompletedAt: timestamp("analysis_completed_at"),
+  imagingCompletedAt: timestamp("imaging_completed_at"),
+  reviewCompletedAt: timestamp("review_completed_at"),
+  exportCompletedAt: timestamp("export_completed_at"),
+  
+  // Cost Tracking
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  actualCost: decimal("actual_cost", { precision: 10, scale: 2 }),
+  tokensUsed: integer("tokens_used").default(0),
+  
+  // Configuration (JSON)
+  config: jsonb("config"), // { style, tone, pacing, imageStyle, citationStyle, etc. }
+  
+  // Error Handling
+  errorMessage: text("error_message"),
+  retryCount: integer("retry_count").default(0),
+  
+  // Workflow Mode
+  workflowMode: varchar("workflow_mode").default("auto"), // "auto", "manual", "hybrid"
+  requiresApproval: boolean("requires_approval").default(false),
+  
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userJobIdx: index("production_user_idx").on(table.userId),
+  statusIdx: index("production_status_idx").on(table.status),
+  queueIdx: index("production_queue_idx").on(table.createdAt),
+}));
+
+export const insertProductionJobSchema = createInsertSchema(productionJobs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertProductionJob = z.infer<typeof insertProductionJobSchema>;
+export type ProductionJob = typeof productionJobs.$inferSelect;
+
+// Chapter Artifacts - Images, charts, tables with placement metadata
+export const chapterArtifacts = pgTable("chapter_artifacts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  chapterId: varchar("chapter_id").references(() => ghostwritingChapters.id).notNull(),
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Artifact Type
+  type: varchar("type").notNull(), // "image", "chart", "table", "diagram", "graph", "infographic"
+  
+  // Content
+  title: varchar("title"),
+  description: text("description"),
+  altText: text("alt_text"), // Accessibility
+  caption: text("caption"),
+  
+  // For Images
+  imageUrl: text("image_url"),
+  imagePrompt: text("image_prompt"), // AI generation prompt
+  imageStyle: varchar("image_style"), // "realistic", "illustration", "watercolor", "cartoon", "medical"
+  
+  // For Charts/Graphs
+  chartType: varchar("chart_type"), // "bar", "line", "pie", "scatter", "area", "radar"
+  chartData: jsonb("chart_data"), // Data for rendering
+  chartConfig: jsonb("chart_config"), // Colors, labels, etc.
+  
+  // For Tables
+  tableData: jsonb("table_data"), // 2D array of cells
+  tableHeaders: jsonb("table_headers"),
+  tableStyle: varchar("table_style"), // "simple", "striped", "bordered"
+  
+  // Placement
+  placementMode: varchar("placement_mode").default("auto"), // "auto", "manual", "suggested"
+  position: jsonb("position"), // { page, x, y, width, height }
+  anchorText: text("anchor_text"), // Text near which to place
+  
+  // Generation Status
+  generationStatus: varchar("generation_status").default("pending"), // "pending", "generating", "completed", "failed"
+  generatedBy: varchar("generated_by"), // "dalle", "gemini", "manual"
+  
+  // Quality
+  qualityScore: integer("quality_score"), // 0-100
+  isApproved: boolean("is_approved").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  chapterIdx: index("artifact_chapter_idx").on(table.chapterId),
+  typeIdx: index("artifact_type_idx").on(table.type),
+}));
+
+export const insertChapterArtifactSchema = createInsertSchema(chapterArtifacts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertChapterArtifact = z.infer<typeof insertChapterArtifactSchema>;
+export type ChapterArtifact = typeof chapterArtifacts.$inferSelect;
+
+// Book Content Analyses - Tone, pacing, readability scores for book production
+export const bookContentAnalyses = pgTable("book_content_analyses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  chapterId: varchar("chapter_id").references(() => ghostwritingChapters.id),
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Scope
+  analysisScope: varchar("analysis_scope").default("chapter"), // "chapter", "section", "full_book"
+  contentSample: text("content_sample"), // The text that was analyzed
+  
+  // Tone Analysis (0-100)
+  toneScore: integer("tone_score"), // Overall tone consistency
+  emotionalIntensity: integer("emotional_intensity"), // How emotionally charged
+  formalityLevel: integer("formality_level"), // Casual to formal
+  primaryTone: varchar("primary_tone"), // "inspirational", "educational", "conversational", "authoritative"
+  secondaryTones: jsonb("secondary_tones"), // Array of detected tones
+  
+  // Pacing Analysis (0-100)
+  pacingScore: integer("pacing_score"), // Overall pacing quality
+  narrativeTension: integer("narrative_tension"), // Build-up and release
+  sceneVariety: integer("scene_variety"), // Action vs reflection balance
+  pacingIssues: jsonb("pacing_issues"), // Array of { location, issue, suggestion }
+  
+  // Readability Metrics
+  readabilityScore: integer("readability_score"), // 0-100 (higher = easier)
+  fleschKincaid: decimal("flesch_kincaid", { precision: 5, scale: 2 }),
+  averageSentenceLength: decimal("avg_sentence_length", { precision: 5, scale: 2 }),
+  averageWordLength: decimal("avg_word_length", { precision: 5, scale: 2 }),
+  gradeLevel: varchar("grade_level"), // "5th", "8th", "12th", "college"
+  
+  // Style Analysis
+  styleConsistency: integer("style_consistency"), // 0-100
+  voiceStrength: integer("voice_strength"), // Unique author voice
+  dialogueBalance: integer("dialogue_balance"), // % dialogue vs narrative
+  
+  // Quality Metrics
+  overallQuality: integer("overall_quality"), // 0-100
+  publishReadiness: integer("publish_readiness"), // 0-100
+  
+  // AI Suggestions
+  suggestions: jsonb("suggestions"), // Array of improvement suggestions
+  highlightedIssues: jsonb("highlighted_issues"), // Problem areas
+  strengthAreas: jsonb("strength_areas"), // What works well
+  
+  // Analysis Metadata
+  analyzedBy: varchar("analyzed_by"), // "claude", "gemini", "gpt4"
+  analysisVersion: varchar("analysis_version").default("1.0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("book_analysis_project_idx").on(table.projectId),
+  chapterIdx: index("book_analysis_chapter_idx").on(table.chapterId),
+}));
+
+export const insertBookContentAnalysisSchema = createInsertSchema(bookContentAnalyses).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookContentAnalysis = z.infer<typeof insertBookContentAnalysisSchema>;
+export type BookContentAnalysis = typeof bookContentAnalyses.$inferSelect;
+
+// Citations - Medical/academic references
+export const bookCitations = pgTable("book_citations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => ghostwritingProjects.id).notNull(),
+  chapterId: varchar("chapter_id").references(() => ghostwritingChapters.id),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Citation Details
+  citationType: varchar("citation_type").notNull(), // "journal", "book", "website", "study", "guideline"
+  citationStyle: varchar("citation_style").default("ama"), // "ama", "apa", "mla", "chicago", "vancouver"
+  
+  // Source Information
+  title: text("title").notNull(),
+  authors: jsonb("authors"), // Array of author names
+  publicationDate: varchar("publication_date"),
+  journal: varchar("journal"),
+  volume: varchar("volume"),
+  issue: varchar("issue"),
+  pages: varchar("pages"),
+  doi: varchar("doi"),
+  pmid: varchar("pmid"), // PubMed ID
+  url: text("url"),
+  publisher: varchar("publisher"),
+  accessDate: varchar("access_date"),
+  
+  // Formatted Citation
+  formattedCitation: text("formatted_citation"),
+  
+  // Usage in Book
+  inTextCitation: varchar("in_text_citation"), // e.g., "[1]" or "(Smith, 2024)"
+  citationNumber: integer("citation_number"), // Order in references
+  anchorText: text("anchor_text"), // The claim being cited
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verificationSource: varchar("verification_source"), // "pubmed", "crossref", "manual"
+  verifiedAt: timestamp("verified_at"),
+  
+  // Medical Accuracy (for health content)
+  medicalAccuracyScore: integer("medical_accuracy_score"), // 0-100
+  evidenceLevel: varchar("evidence_level"), // "A", "B", "C", "D" (medical evidence grades)
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("citation_project_idx").on(table.projectId),
+  pmidIdx: index("citation_pmid_idx").on(table.pmid),
+}));
+
+export const insertBookCitationSchema = createInsertSchema(bookCitations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookCitation = z.infer<typeof insertBookCitationSchema>;
+export type BookCitation = typeof bookCitations.$inferSelect;
+
+// Production Queue - Batch book production management
+export const productionQueue = pgTable("production_queue", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Queue Configuration
+  queueName: varchar("queue_name").notNull(),
+  booksPerDay: integer("books_per_day").default(10),
+  intelligenceTier: varchar("intelligence_tier").default("standard"),
+  
+  // Queue Status
+  status: varchar("status").default("active"), // "active", "paused", "completed", "cancelled"
+  totalBooks: integer("total_books").default(0),
+  completedBooks: integer("completed_books").default(0),
+  failedBooks: integer("failed_books").default(0),
+  
+  // Scheduling
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  nextRunAt: timestamp("next_run_at"),
+  
+  // Book Templates (JSON array)
+  bookTemplates: jsonb("book_templates"), // Array of { templateId, count, customConfig }
+  
+  // Cost Tracking
+  totalEstimatedCost: decimal("total_estimated_cost", { precision: 12, scale: 2 }),
+  totalActualCost: decimal("total_actual_cost", { precision: 12, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("queue_user_idx").on(table.userId),
+  statusIdx: index("queue_status_idx").on(table.status),
+}));
+
+export const insertProductionQueueSchema = createInsertSchema(productionQueue).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertProductionQueue = z.infer<typeof insertProductionQueueSchema>;
+export type ProductionQueue = typeof productionQueue.$inferSelect;
+
+// Book Production Templates - Pre-configured book types
+export const bookProductionTemplates = pgTable("book_production_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").references(() => tenants.id),
+  
+  // Template Identity
+  name: varchar("name").notNull(),
+  displayName: varchar("display_name").notNull(),
+  description: text("description"),
+  category: varchar("category").notNull(), // "memoir", "medical", "childrens", "business", "educational"
+  
+  // Book Structure
+  targetWordCount: integer("target_word_count").default(50000),
+  chapterCount: integer("chapter_count").default(10),
+  chapterStructure: jsonb("chapter_structure"), // Array of chapter templates
+  
+  // Content Guidelines
+  toneGuidelines: text("tone_guidelines"),
+  styleGuidelines: text("style_guidelines"),
+  audienceDescription: text("audience_description"),
+  
+  // Image Configuration
+  includeImages: boolean("include_images").default(true),
+  imageStyle: varchar("image_style").default("realistic"), // "realistic", "illustration", "watercolor", "medical"
+  imagesPerChapter: integer("images_per_chapter").default(2),
+  imagePlacement: varchar("image_placement").default("auto"), // "auto", "chapter_start", "contextual"
+  
+  // Data Visualization (for guides/educational)
+  includeCharts: boolean("include_charts").default(false),
+  includeGraphs: boolean("include_graphs").default(false),
+  includeTables: boolean("include_tables").default(false),
+  includeBulletPoints: boolean("include_bullet_points").default(true),
+  
+  // Citations (for medical/academic)
+  requireCitations: boolean("require_citations").default(false),
+  citationStyle: varchar("citation_style").default("ama"),
+  minCitationsPerChapter: integer("min_citations_per_chapter").default(0),
+  
+  // Agent Pipeline Configuration
+  agentPipeline: jsonb("agent_pipeline"), // Array of { agentRole, provider, model, config }
+  
+  // Pricing
+  baseCost: decimal("base_cost", { precision: 10, scale: 2 }).default("50.00"),
+  perWordCost: decimal("per_word_cost", { precision: 10, scale: 6 }).default("0.001"),
+  
+  isActive: boolean("is_active").default(true),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBookProductionTemplateSchema = createInsertSchema(bookProductionTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookProductionTemplate = z.infer<typeof insertBookProductionTemplateSchema>;
+export type BookProductionTemplate = typeof bookProductionTemplates.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete SRA Platform with Industrial Publishing Factory
 // ============================================================================
