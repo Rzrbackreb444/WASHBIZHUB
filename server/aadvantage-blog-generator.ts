@@ -736,12 +736,54 @@ export async function generateForumBlogPost(topic: string): Promise<BlogGenerati
 }
 
 // ========================================
+// CHECKPOINT/RESUME SUPPORT
+// ========================================
+
+function generateBlogIdentifier(stateCode: string, brandId: string, topicIndex: number): string {
+  return `aadvantage-${stateCode.toLowerCase()}-${brandId}-topic${topicIndex}`;
+}
+
+function generateForumBlogIdentifier(topicIndex: number): string {
+  return `aadvantage-forum-topic${topicIndex}`;
+}
+
+async function getExistingBlogSlugs(): Promise<Set<string>> {
+  try {
+    const existingBlogs = await storage.getBlogPostsBySubcategoryPrefix("state-");
+    const forumBlogs = await storage.getBlogPostsBySubcategory("forum-community");
+    
+    const slugs = new Set<string>();
+    
+    // Add equipment blog slugs
+    for (const blog of existingBlogs) {
+      if (blog.subcategory?.startsWith("state-")) {
+        slugs.add(blog.slug);
+      }
+    }
+    
+    // Add forum blog slugs  
+    for (const blog of forumBlogs) {
+      slugs.add(blog.slug);
+    }
+    
+    return slugs;
+  } catch (error) {
+    console.log("Could not fetch existing blogs, starting fresh");
+    return new Set<string>();
+  }
+}
+
+// ========================================
 // MAIN BULK GENERATION FUNCTION
 // ========================================
 
 export async function generateAllAAdvantageBlogs(
-  onProgress?: (progress: BulkGenerationProgress) => void
+  onProgress?: (progress: BulkGenerationProgress) => void,
+  options?: { resume?: boolean; batchSize?: number }
 ): Promise<BulkGenerationProgress> {
+  const resume = options?.resume ?? true;
+  const batchSize = options?.batchSize ?? 10;
+  
   const progress: BulkGenerationProgress = {
     total: 120,
     completed: 0,
@@ -751,47 +793,101 @@ export async function generateAllAAdvantageBlogs(
 
   console.log("🚀 Starting AAdvantage Laundry bulk blog generation...");
   console.log(`📝 Generating 100 equipment blogs + 20 forum blogs`);
+  console.log(`🔄 Resume mode: ${resume ? "ON" : "OFF"}, Batch size: ${batchSize}`);
+  
+  // Get existing blog count to check checkpoint
+  let existingCount = 0;
+  if (resume) {
+    try {
+      const existingBlogs = await storage.getBlogPostsBySubcategoryPrefix("state-");
+      const forumBlogs = await storage.getBlogPostsBySubcategory("forum-community");
+      existingCount = existingBlogs.length + forumBlogs.length;
+      console.log(`📊 Found ${existingCount} existing AAdvantage blogs`);
+    } catch (error) {
+      console.log("Could not check existing blogs, starting fresh");
+    }
+  }
 
-  // Generate 100 equipment blogs (4 states × 7 brands × ~4 topics each)
+  // Build the full list of blogs to generate
+  const equipmentBlogQueue: Array<{state: typeof STATES[0], brand: typeof BRANDS[0], topicTemplate: string, index: number}> = [];
   let blogIndex = 0;
+  
   for (const state of STATES) {
     for (const brand of BRANDS) {
-      // Generate ~4 blogs per state/brand combination (100 total across all)
       const topicsToUse = EQUIPMENT_TOPICS.slice(0, Math.ceil(100 / (STATES.length * BRANDS.length)));
       
       for (const topicTemplate of topicsToUse) {
         if (blogIndex >= 100) break;
-        
-        console.log(`📄 Generating: ${state.name} + ${brand.name} (${blogIndex + 1}/100)`);
-        
-        const result = await generateEquipmentBlog(state, brand, topicTemplate, blogIndex);
-        progress.results.push(result);
-        
-        if (result.success) {
-          progress.completed++;
-          console.log(`✅ Created: ${result.title}`);
-        } else {
-          progress.failed++;
-          console.log(`❌ Failed: ${result.error}`);
-        }
-        
+        equipmentBlogQueue.push({ state, brand, topicTemplate, index: blogIndex });
         blogIndex++;
-        onProgress?.(progress);
-        
-        // Rate limiting - wait between API calls
-        await new Promise(resolve => setTimeout(resolve, 2000));
       }
       if (blogIndex >= 100) break;
     }
     if (blogIndex >= 100) break;
   }
 
-  // Generate 20 forum/discussion blogs
-  console.log("\n📢 Generating 20 forum/community blogs...");
-  for (let i = 0; i < FORUM_TOPICS.length; i++) {
-    console.log(`📄 Generating forum blog ${i + 1}/20`);
+  // Skip already-generated equipment blogs if resuming
+  let equipmentSkipCount = 0;
+  if (resume && existingCount > 0) {
+    equipmentSkipCount = Math.min(existingCount, 100);
+    console.log(`⏭️  Skipping ${equipmentSkipCount} already-generated equipment blogs`);
+  }
+  
+  // Generate remaining equipment blogs
+  const remainingEquipment = equipmentBlogQueue.slice(equipmentSkipCount);
+  console.log(`📝 Need to generate ${remainingEquipment.length} equipment blogs`);
+  
+  let batchCount = 0;
+  for (const item of remainingEquipment) {
+    const { state, brand, topicTemplate, index } = item;
     
-    const result = await generateForumBlogPost(FORUM_TOPICS[i]);
+    console.log(`📄 Generating: ${state.name} + ${brand.name} (${index + 1}/100)`);
+    
+    const result = await generateEquipmentBlog(state, brand, topicTemplate, index);
+    progress.results.push(result);
+    
+    if (result.success) {
+      progress.completed++;
+      console.log(`✅ Created: ${result.title}`);
+    } else {
+      progress.failed++;
+      console.log(`❌ Failed: ${result.error}`);
+    }
+    
+    const elapsedMinutes = Math.floor((progress.completed + progress.failed + equipmentSkipCount) / 4);
+    console.log(`📊 Progress: ${progress.completed + equipmentSkipCount}/120 (${progress.failed} failed) - ${elapsedMinutes} min elapsed`);
+    
+    onProgress?.(progress);
+    
+    // Rate limiting - wait between API calls
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    batchCount++;
+    
+    // Checkpoint every batch - save progress indicator
+    if (batchCount >= batchSize) {
+      console.log(`💾 Checkpoint: ${progress.completed + equipmentSkipCount} blogs generated`);
+      batchCount = 0;
+    }
+  }
+
+  // Calculate how many forum blogs to skip
+  let forumSkipCount = 0;
+  if (resume && existingCount > 100) {
+    forumSkipCount = Math.min(existingCount - 100, 20);
+    console.log(`⏭️  Skipping ${forumSkipCount} already-generated forum blogs`);
+  }
+
+  // Generate remaining forum/discussion blogs
+  const remainingForumTopics = FORUM_TOPICS.slice(forumSkipCount);
+  console.log(`\n📢 Generating ${remainingForumTopics.length} forum/community blogs...`);
+  
+  batchCount = 0;
+  for (let i = 0; i < remainingForumTopics.length; i++) {
+    const actualIndex = i + forumSkipCount;
+    console.log(`📄 Generating forum blog ${actualIndex + 1}/20`);
+    
+    const result = await generateForumBlogPost(remainingForumTopics[i]);
     progress.results.push(result);
     
     if (result.success) {
@@ -804,10 +900,17 @@ export async function generateAllAAdvantageBlogs(
     
     onProgress?.(progress);
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    batchCount++;
+    if (batchCount >= batchSize) {
+      console.log(`💾 Checkpoint: ${100 + actualIndex + 1} blogs generated`);
+      batchCount = 0;
+    }
   }
 
+  const totalGenerated = progress.completed + equipmentSkipCount + forumSkipCount;
   console.log("\n🎉 Bulk generation complete!");
-  console.log(`📊 Results: ${progress.completed} successful, ${progress.failed} failed`);
+  console.log(`📊 Results: ${totalGenerated} total, ${progress.completed} new, ${progress.failed} failed`);
   
   return progress;
 }

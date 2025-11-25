@@ -225,6 +225,8 @@ export interface IStorage {
   // Blog Posts
   getBlogPosts(filters?: { type?: string; category?: string }): Promise<BlogPost[]>;
   getBlogPost(id: string): Promise<BlogPost | undefined>;
+  getBlogPostsBySubcategory(subcategory: string): Promise<BlogPost[]>;
+  getBlogPostsBySubcategoryPrefix(prefix: string): Promise<BlogPost[]>;
   createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
   updateBlogPost(id: string, post: Partial<InsertBlogPost>): Promise<BlogPost>;
   incrementBlogViews(id: string): Promise<void>;
@@ -1060,6 +1062,18 @@ export class MemStorage implements IStorage {
 
   async getBlogPost(id: string): Promise<BlogPost | undefined> {
     return this.blogPosts.get(id);
+  }
+
+  async getBlogPostsBySubcategory(subcategory: string): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values())
+      .filter(post => post.subcategory === subcategory)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getBlogPostsBySubcategoryPrefix(prefix: string): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values())
+      .filter(post => post.subcategory?.startsWith(prefix))
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
   }
 
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
