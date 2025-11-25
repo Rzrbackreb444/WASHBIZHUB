@@ -56,7 +56,7 @@ export function SEO({
     "logo": `${baseUrl}/washbizhub-logo.png`,
     "description": "Enterprise-grade SaaS platform for the laundromat industry - combining POS systems, IoT monitoring, AI consulting, marketplace, and business intelligence serving 72,000+ potential customers worldwide.",
     "sameAs": [
-      "https://www.facebook.com/washbizhub",
+      "https://www.facebook.com/washbizhub1",
       "https://twitter.com/washbizhub",
       "https://www.linkedin.com/company/washbizhub"
     ],

@@ -103,6 +103,7 @@ import AdminLogin from "@/pages/admin-login";
 import ValuationCalculator from "@/pages/valuation-calculator";
 import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
 import TPDCalculator from "@/pages/tpd-calculator";
+import ServiceGuyAI from "@/pages/service-guy-ai";
 import CLEANBICalculator from "@/pages/cleanbi-calculator";
 import CleanbiAuto from "@/pages/cleanbi-auto";
 import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
@@ -188,6 +189,7 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/repair-guide" component={RepairGuide} />
+      <Route path="/service-guy-ai" component={ServiceGuyAI} />
       <Route path="/about" component={AboutUs} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/ads" component={AdminAds} />

@@ -47,6 +47,7 @@ const MAIN_LINKS = [
 ];
 
 const TOOLS_LINKS = [
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Wrench },
   { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Zap },
   { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },
   { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3 },
@@ -71,7 +72,7 @@ export function NavigationMenu() {
             <img 
               src={logoUrl} 
               alt="WashBizHub - The Bloomberg of Laundromats" 
-              className="h-10 sm:h-12 md:h-14 w-auto" 
+              className="h-24 sm:h-28 md:h-32 w-auto" 
               loading="lazy"
             />
           </div>
