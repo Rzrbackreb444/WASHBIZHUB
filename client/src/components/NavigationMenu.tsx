@@ -38,12 +38,12 @@ import logoUrl from "@assets/6_1764040628012.png";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/superstore", label: "Superstore", icon: ShoppingBag },
-  { href: "/laundromat-listings", label: "Marketplace", icon: Store },
+  { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
+  { href: "/laundromat-listings", label: "Listings", icon: Store },
   { href: "/laundromat-locator", label: "Locator", icon: MapPin },
   { href: "/learning", label: "Courses", icon: BookOpen },
   { href: "/calculators", label: "Calculators", icon: Calculator },
-  { href: "/affiliate-blogs", label: "Financing Guides", icon: BookOpen },
+  { href: "/blog", label: "Blog", icon: BookOpen },
 ];
 
 const TOOLS_LINKS = [
