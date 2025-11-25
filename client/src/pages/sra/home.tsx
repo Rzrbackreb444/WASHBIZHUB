@@ -20,9 +20,16 @@ import {
   ShoppingBag,
   Calendar,
   Star,
-  Play
+  Play,
+  Pill,
+  PenTool,
+  HandHeart,
+  CheckCircle2,
+  ExternalLink
 } from "lucide-react";
 import sraLogo from "@assets/Untitled design (25)_1764086011344.png";
+import sosLogo from "@assets/sos logo_1764087549375.png";
+import togetherFist from "@assets/Together Fist_1764087270080.png";
 
 const courseParts = [
   {
@@ -76,28 +83,34 @@ const courseParts = [
   },
 ];
 
-const featuredProducts = [
+const flintRehabProducts = [
   {
     id: 1,
-    title: "Recovery Resistance Bands Set",
-    description: "Physical therapy approved bands for progressive training",
-    price: "$29.99",
-    badge: "Best Seller",
+    title: "MusicGlove Hand Therapy",
+    description: "Clinically proven to improve hand function in 2 weeks with just 6 hours use. Music-based rehabilitation.",
+    price: "$349 - $549",
+    badge: "Clinical Proven",
+    features: ["Improves finger coordination", "Gaming + music therapy", "Works with tablet or PC"],
+    affiliateLink: "https://www.flintrehab.com/product/musicglove-hand-therapy/"
   },
   {
     id: 2,
-    title: "Balance Training Board",
-    description: "Improve stability and coordination safely",
-    price: "$49.99",
-    badge: "Recommended",
+    title: "FitMi Full-Body Rehab",
+    description: "Award-winning FDA-listed device. Improves mobility 3x faster than traditional therapy.",
+    price: "$299+",
+    badge: "FDA Listed",
+    features: ["Full body exercises", "Adaptive difficulty", "Track progress"],
+    affiliateLink: "https://www.flintrehab.com/product/fitmi/"
   },
   {
     id: 3,
-    title: "SRA Warrior Apparel",
-    description: "Nicholas's custom recovery clothing line",
-    price: "Coming Soon",
-    badge: "New",
-  },
+    title: "FitMi + MusicGlove Bundle",
+    description: "Complete stroke recovery package. Save $50 when you bundle.",
+    price: "Save $50",
+    badge: "Best Value",
+    features: ["Full body + hand therapy", "Includes tablet", "Free shipping"],
+    affiliateLink: "https://www.flintrehab.com/bundle/"
+  }
 ];
 
 export default function SRAHome() {
@@ -149,8 +162,8 @@ export default function SRAHome() {
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-col items-center text-center">
             <img 
-              src={sraLogo} 
-              alt="Stroke Recovery Academy - Brain with graduation cap and lightning bolt logo" 
+              src={sosLogo} 
+              alt="Stroked Out Sasquatch - Stroke Recovery Academy Logo" 
               className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain mb-8"
               data-testid="img-sra-logo"
             />
@@ -222,6 +235,25 @@ export default function SRAHome() {
                   <span><strong className="text-white">December 3, 2018</strong> — Hemorrhagic stroke at age 36</span>
                 </p>
                 
+                <div className="space-y-3 text-white/70">
+                  <p className="flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
+                    <span>Left side paralysis, craniotomy surgery with 50 staples</span>
+                  </p>
+                  <p className="flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
+                    <span>From wheelchair to walking without AFO brace</span>
+                  </p>
+                  <p className="flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
+                    <span>TikTok recovery journey inspiring 1M+ followers</span>
+                  </p>
+                  <p className="flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#FF6600] mt-1 shrink-0" />
+                    <span>Created StrokeLyfe Inc. nonprofit for survivors</span>
+                  </p>
+                </div>
+                
                 <p 
                   className="text-xl text-white/90 italic border-l-4 border-[#FF6600] pl-4 my-6"
                   data-testid="text-quote"
@@ -261,6 +293,17 @@ export default function SRAHome() {
                   <div>
                     <div className="text-4xl font-black text-[#FF6600]" data-testid="stat-chapters">33</div>
                     <div className="text-sm text-white/60 uppercase tracking-wide mt-1">Chapters</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="text-center p-3 bg-[#FF6600]/10 rounded-lg">
+                    <div className="text-2xl font-bold text-[#FF6600]" data-testid="stat-staples">50</div>
+                    <div className="text-xs text-white/60 uppercase">Staples</div>
+                  </div>
+                  <div className="text-center p-3 bg-[#FF6600]/10 rounded-lg">
+                    <div className="text-2xl font-bold text-[#FF6600]" data-testid="stat-followers">1M+</div>
+                    <div className="text-xs text-white/60 uppercase">Followers</div>
                   </div>
                 </div>
               </Card>
