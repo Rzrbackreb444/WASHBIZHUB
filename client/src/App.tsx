@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
@@ -253,6 +253,21 @@ function Router() {
 
 function AppContent() {
   usePageTracking(); // Track page views on route changes
+  const [location] = useLocation();
+  
+  // Full-screen apps that need their own layout (no global nav/footer)
+  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro'];
+  const isFullScreenApp = fullScreenRoutes.includes(location);
+  
+  if (isFullScreenApp) {
+    return (
+      <>
+        <GoogleAnalytics />
+        <FacebookPixel />
+        <Router />
+      </>
+    );
+  }
   
   return (
     <>
