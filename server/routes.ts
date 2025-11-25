@@ -524,6 +524,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== AADVANTAGE LAUNDRY BULK BLOG GENERATION ====================
+  
+  app.get("/api/blog/aadvantage", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts({ category: "laundromat" });
+      const aadvantagePosts = posts.filter(p => 
+        p.subcategory?.includes("state-") || p.subcategory === "forum-community"
+      );
+      res.json(aadvantagePosts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/blog/aadvantage/featured", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      const posts = await storage.getBlogPosts({ category: "laundromat" });
+      const aadvantagePosts = posts
+        .filter(p => p.subcategory?.includes("state-") || p.subcategory === "forum-community")
+        .slice(0, limit);
+      res.json(aadvantagePosts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/blog/aadvantage/generate-all", isAdmin, async (req, res) => {
+    try {
+      const { generateAllAAdvantageBlogs } = await import("./aadvantage-blog-generator");
+      
+      console.log("🚀 Starting AAdvantage Laundry bulk blog generation (120 posts)...");
+      
+      res.json({ 
+        success: true, 
+        message: "Bulk generation started. This will take approximately 30-45 minutes.",
+        info: "Check server logs for progress updates."
+      });
+      
+      // Run generation in background
+      generateAllAAdvantageBlogs((progress) => {
+        console.log(`📊 Progress: ${progress.completed}/${progress.total} (${progress.failed} failed)`);
+      }).then(result => {
+        console.log(`🎉 AAdvantage bulk generation complete: ${result.completed} blogs created`);
+      }).catch(error => {
+        console.error(`❌ Bulk generation failed: ${error.message}`);
+      });
+      
+    } catch (error: any) {
+      console.error('❌ Failed to start bulk generation:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/blog/aadvantage/generate-single", isAdmin, async (req, res) => {
+    try {
+      const { state, brand, topic } = req.body;
+      const { generateEquipmentBlog, STATES, BRANDS, EQUIPMENT_TOPICS } = await import("./aadvantage-blog-generator");
+      
+      const stateData = STATES.find(s => s.code === state || s.name === state);
+      const brandData = BRANDS.find(b => b.id === brand || b.name === brand);
+      const topicTemplate = topic || EQUIPMENT_TOPICS[0];
+      
+      if (!stateData || !brandData) {
+        return res.status(400).json({ message: "Invalid state or brand" });
+      }
+      
+      const result = await generateEquipmentBlog(stateData, brandData, topicTemplate, 0);
+      
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/blog/aadvantage/generate-forum", isAdmin, async (req, res) => {
+    try {
+      const { topic } = req.body;
+      const { generateForumBlogPost, FORUM_TOPICS } = await import("./aadvantage-blog-generator");
+      
+      const forumTopic = topic || FORUM_TOPICS[0];
+      const result = await generateForumBlogPost(forumTopic);
+      
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== CALCULATOR SCENARIOS ====================
   
   app.get("/api/calculator/scenarios", async (req, res) => {
