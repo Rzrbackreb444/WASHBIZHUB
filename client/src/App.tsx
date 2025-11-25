@@ -5,6 +5,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { TenantProvider } from "@/contexts/TenantContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
@@ -255,14 +256,16 @@ function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <APIProvider apiKey={googleMapsApiKey}>
-              <AppContent />
-              <Toaster />
-            </APIProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+        <TenantProvider>
+          <ThemeProvider>
+            <TooltipProvider>
+              <APIProvider apiKey={googleMapsApiKey}>
+                <AppContent />
+                <Toaster />
+              </APIProvider>
+            </TooltipProvider>
+          </ThemeProvider>
+        </TenantProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );
