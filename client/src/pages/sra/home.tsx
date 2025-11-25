@@ -39,45 +39,51 @@ import togetherFist from "@assets/Together Fist_1764087270080.png";
 const featureCards = [
   {
     id: 1,
-    title: "Recovery Tracker",
-    description: "Track medications, appointments, and exercises. Monitor your daily progress with comprehensive logging.",
+    title: "Health Dashboard",
+    description: "Track heart rate, blood oxygen, steps, hydration. Get exercise & medication reminders with Google Fit sync.",
     icon: Activity,
-    badge: "Essential"
+    badge: "Essential",
+    href: "/sra/dashboard"
   },
   {
     id: 2,
     title: "AI Recovery Companion",
     description: "24/7 personalized coaching based on Nick's wisdom. Get guidance whenever you need it most.",
     icon: Bot,
-    badge: "AI-Powered"
+    badge: "AI-Powered",
+    href: "/sra/companion"
   },
   {
     id: 3,
-    title: "Recovery University",
-    description: "33 comprehensive chapters from The Ultimate Stroke Recovery Bible. Master every phase of recovery.",
+    title: "Creator Marketplace",
+    description: "Buy and sell courses, books, and programs. Therapists and survivors can reach global audience.",
     icon: GraduationCap,
-    badge: "33 Chapters"
+    badge: "Global",
+    href: "/sra/marketplace"
   },
   {
     id: 4,
-    title: "Ghostwriting Suite",
-    description: "Write and publish your stroke recovery story. KDP formatted for easy self-publishing.",
+    title: "Stroke Lyfe Publishing",
+    description: "Write your story with AI. One-click publish to Amazon KDP. Video studio for social media.",
     icon: PenTool,
-    badge: "Publish Ready"
+    badge: "Publish Ready",
+    href: "/sra/ghostwriting"
   },
   {
     id: 5,
     title: "Recovery Store",
     description: "Flint Rehab products, custom apparel, and Amazon affiliate products curated for survivors.",
     icon: ShoppingBag,
-    badge: "Curated"
+    badge: "Curated",
+    href: "/sra/store"
   },
   {
     id: 6,
     title: "Warrior Community",
     description: "Peer support, forums, and shared victories. Connect with 10,000+ fellow survivors.",
     icon: Users,
-    badge: "10K+ Members"
+    badge: "10K+ Members",
+    href: "/sra/community"
   }
 ];
 
@@ -408,30 +414,34 @@ export default function SRAHome() {
             {featureCards.map((feature) => {
               const IconComponent = feature.icon;
               return (
-                <Card 
-                  key={feature.id}
-                  className="bg-[#111] border-[#222] hover-elevate transition-all group"
-                  data-testid={`card-feature-${feature.id}`}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <div className="p-3 rounded-lg bg-[#FF6600]/20">
-                        <IconComponent className="w-6 h-6 text-[#FF6600]" />
+                <Link key={feature.id} href={feature.href}>
+                  <Card 
+                    className="bg-[#111] border-[#222] hover-elevate transition-all group cursor-pointer h-full"
+                    data-testid={`card-feature-${feature.id}`}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="p-3 rounded-lg bg-[#FF6600]/20">
+                          <IconComponent className="w-6 h-6 text-[#FF6600]" />
+                        </div>
+                        <Badge variant="outline" className="border-[#FF6600]/30 text-[#FF6600] text-xs">
+                          {feature.badge}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="border-[#FF6600]/30 text-[#FF6600] text-xs">
-                        {feature.badge}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-white text-xl">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/70">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                      <CardTitle className="text-white text-xl group-hover:text-[#FF6600] transition-colors">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-white/70">
+                        {feature.description}
+                      </p>
+                      <div className="mt-4 flex items-center text-[#FF6600] text-sm font-medium">
+                        Explore <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>

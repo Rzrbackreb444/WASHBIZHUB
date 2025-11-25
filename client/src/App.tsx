@@ -120,6 +120,10 @@ import SRAPricing from "@/pages/sra/pricing";
 import SRATracker from "@/pages/sra/tracker";
 import SRACompanion from "@/pages/sra/companion";
 import SRAGhostwriting from "@/pages/sra/ghostwriting";
+import SRAStore from "@/pages/sra/store";
+import SRACommunity from "@/pages/sra/community";
+import SRADashboard from "@/pages/sra/dashboard";
+import SRAMarketplace from "@/pages/sra/marketplace";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -236,6 +240,10 @@ function Router() {
       <Route path="/sra/tracker" component={SRATracker} />
       <Route path="/sra/companion" component={SRACompanion} />
       <Route path="/sra/ghostwriting" component={SRAGhostwriting} />
+      <Route path="/sra/store" component={SRAStore} />
+      <Route path="/sra/community" component={SRACommunity} />
+      <Route path="/sra/dashboard" component={SRADashboard} />
+      <Route path="/sra/marketplace" component={SRAMarketplace} />
       <Route component={NotFound} />
     </Switch>
   );
