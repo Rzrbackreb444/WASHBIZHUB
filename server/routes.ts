@@ -8,6 +8,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import Stripe from "stripe";
+import { z } from "zod";
 import { db } from "./db";
 import { listings } from "@shared/schema";
 import { eq, or, isNull } from "drizzle-orm";
@@ -5716,28 +5717,95 @@ Disallow: /private/`;
     { id: "exit-workbook", name: "Exit Strategy Workbook", price: 97 },
     { id: "broker-disclosure", name: "Broker Disclosure Form", price: 47 },
     { id: "ops-checklist", name: "Operations Checklist (D/W/M)", price: 97 },
-  ];
+  ] as const;
+
+  // Extract valid template IDs for validation
+  const validTemplateIds = vaultTemplates.map(t => t.id) as [string, ...string[]];
+
+  // ========== ZOD VALIDATION SCHEMAS ==========
   
-  // POST /api/vault/checkout - Create Stripe checkout session for Vault products
+  // Vault checkout schema - validates request body for /api/vault/checkout
+  // Supports both bundle purchases and individual template purchases
+  const vaultCheckoutSchema = z.object({
+    type: z.enum(['bundle', 'template'], {
+      errorMap: () => ({ message: "Type must be 'bundle' or 'template'" })
+    }),
+    templateId: z.enum(validTemplateIds, {
+      errorMap: () => ({ message: `Invalid template ID. Valid options: ${validTemplateIds.join(', ')}` })
+    }).optional(),
+  }).refine(
+    (data) => {
+      // If type is 'template', templateId is required
+      if (data.type === 'template' && !data.templateId) {
+        return false;
+      }
+      return true;
+    },
+    { message: "Template ID is required for individual template purchases" }
+  );
+
+  // CLEANBI checkout schema - validates request body for /api/cleanbi/checkout
+  const cleanbiCheckoutSchema = z.object({
+    address: z.string()
+      .min(5, "Address must be at least 5 characters")
+      .max(500, "Address must be less than 500 characters")
+      .trim(),
+  });
+
+  // Consistent API error response structure
+  interface ApiErrorResponse {
+    success: false;
+    error: {
+      code: string;
+      message: string;
+      details?: unknown;
+    };
+  }
+
+  // Helper to create consistent error responses
+  function createErrorResponse(code: string, message: string, details?: unknown): ApiErrorResponse {
+    return {
+      success: false,
+      error: { code, message, details }
+    };
+  }
+
+  /**
+   * POST /api/vault/checkout - Create Stripe checkout session for Vault products
+   * 
+   * SECURITY NOTE: Guest checkout is intentionally allowed for e-commerce conversion.
+   * - Authenticated users: Email pre-filled, userId tracked for post-purchase access
+   * - Guest users: Email collected at Stripe checkout, userId='guest', purchase linked via Stripe webhook
+   * 
+   * All purchases require valid Stripe payment - no authentication bypass for product access.
+   */
   app.post("/api/vault/checkout", async (req: any, res) => {
     try {
+      // Service availability check
       if (!stripe) {
-        return res.status(503).json({ message: "Payment processing is currently unavailable. Please try again later." });
+        return res.status(503).json(
+          createErrorResponse('PAYMENT_UNAVAILABLE', 'Payment processing is currently unavailable. Please try again later.')
+        );
       }
       
-      const { type, templateId } = req.body;
-      
-      // Validate request body
-      if (!type || (type !== 'bundle' && type !== 'template')) {
-        return res.status(400).json({ message: "Invalid checkout type. Must be 'bundle' or 'template'." });
+      // Validate request body with Zod schema
+      const validationResult = vaultCheckoutSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors.map(e => e.message).join('; ');
+        return res.status(400).json(
+          createErrorResponse('VALIDATION_ERROR', errorMessage, validationResult.error.flatten())
+        );
       }
-      if (type === 'template' && !templateId) {
-        return res.status(400).json({ message: "Template ID is required for individual template purchases." });
-      }
       
-      // Get user info if authenticated, allow guest checkout
+      const { type, templateId } = validationResult.data;
+      
+      // GUEST CHECKOUT PATTERN: Intentional for e-commerce
+      // - Authenticated users get email pre-filled and userId tracked
+      // - Guests provide email at Stripe checkout, marked as 'guest' userId
+      // - Post-purchase access handled via Stripe webhooks regardless of auth state
       const userEmail = req.user?.claims?.email || req.user?.email || undefined;
       const userId = req.user?.claims?.sub || req.user?.sub || 'guest';
+      const isGuest = userId === 'guest';
       
       let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
       let productName = "";
@@ -5760,11 +5828,14 @@ Disallow: /private/`;
           quantity: 1,
         }];
         successPath = "/vault?success=bundle";
-      } else if (type === "template" && templateId) {
-        // Individual template purchase
+      } else {
+        // Individual template purchase - templateId is guaranteed by validation
         const template = vaultTemplates.find(t => t.id === templateId);
         if (!template) {
-          return res.status(400).json({ message: "Template not found" });
+          // This should never happen due to schema validation, but handle defensively
+          return res.status(400).json(
+            createErrorResponse('TEMPLATE_NOT_FOUND', 'Template not found')
+          );
         }
         
         productName = template.name;
@@ -5781,8 +5852,6 @@ Disallow: /private/`;
           quantity: 1,
         }];
         successPath = `/vault?success=${templateId}`;
-      } else {
-        return res.status(400).json({ message: "Invalid checkout type" });
       }
       
       const baseUrl = process.env.REPLIT_DEV_DOMAIN 
@@ -5798,36 +5867,54 @@ Disallow: /private/`;
         customer_email: userEmail,
         metadata: { 
           userId, 
+          isGuest: isGuest ? 'true' : 'false',
           type, 
           templateId: templateId || 'bundle',
           product: productName 
         },
       });
 
-      res.json({ checkoutUrl: session.url });
+      res.json({ success: true, checkoutUrl: session.url });
     } catch (error: any) {
       console.error("Vault checkout error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json(
+        createErrorResponse('CHECKOUT_ERROR', 'An error occurred during checkout. Please try again.')
+      );
     }
   });
 
-  // POST /api/cleanbi/checkout - Create Stripe checkout for $97 CLEANBI report
+  /**
+   * POST /api/cleanbi/checkout - Create Stripe checkout for $97 CLEANBI report
+   * 
+   * SECURITY NOTE: Guest checkout is intentionally allowed for e-commerce conversion.
+   * - Address is validated and sanitized before use
+   * - Authenticated users: Email pre-filled, userId tracked
+   * - Guest users: Email collected at Stripe checkout, report delivered via email
+   */
   app.post("/api/cleanbi/checkout", async (req: any, res) => {
     try {
+      // Service availability check
       if (!stripe) {
-        return res.status(503).json({ message: "Payment processing is currently unavailable. Please try again later." });
+        return res.status(503).json(
+          createErrorResponse('PAYMENT_UNAVAILABLE', 'Payment processing is currently unavailable. Please try again later.')
+        );
       }
       
-      const { address } = req.body;
-      
-      // Validate address is provided
-      if (!address || typeof address !== 'string' || address.trim().length < 5) {
-        return res.status(400).json({ message: "A valid property address is required for CLEANBI analysis." });
+      // Validate request body with Zod schema
+      const validationResult = cleanbiCheckoutSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors.map(e => e.message).join('; ');
+        return res.status(400).json(
+          createErrorResponse('VALIDATION_ERROR', errorMessage, validationResult.error.flatten())
+        );
       }
       
-      // Get user info if authenticated, allow guest checkout
+      const { address } = validationResult.data;
+      
+      // GUEST CHECKOUT PATTERN: Intentional for e-commerce
       const userEmail = req.user?.claims?.email || req.user?.email || undefined;
       const userId = req.user?.claims?.sub || req.user?.sub || 'guest';
+      const isGuest = userId === 'guest';
       
       const baseUrl = process.env.REPLIT_DEV_DOMAIN 
         ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
@@ -5840,27 +5927,30 @@ Disallow: /private/`;
             currency: "usd",
             product_data: {
               name: "CLEANBI Professional Report",
-              description: `17-factor property intelligence analysis${address ? ` for: ${address}` : ''}`,
+              description: `17-factor property intelligence analysis for: ${address}`,
             },
             unit_amount: 9700, // $97
           },
           quantity: 1,
         }],
         mode: "payment",
-        success_url: `${baseUrl}/cleanbi?success=true&address=${encodeURIComponent(address || '')}`,
+        success_url: `${baseUrl}/cleanbi?success=true&address=${encodeURIComponent(address)}`,
         cancel_url: `${baseUrl}/cleanbi`,
         customer_email: userEmail,
         metadata: { 
-          userId, 
+          userId,
+          isGuest: isGuest ? 'true' : 'false',
           type: 'cleanbi-report',
-          address: address || ''
+          address
         },
       });
 
-      res.json({ checkoutUrl: session.url });
+      res.json({ success: true, checkoutUrl: session.url });
     } catch (error: any) {
       console.error("CLEANBI checkout error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json(
+        createErrorResponse('CHECKOUT_ERROR', 'An error occurred during checkout. Please try again.')
+      );
     }
   });
 
