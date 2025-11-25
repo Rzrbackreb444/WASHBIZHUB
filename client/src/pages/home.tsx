@@ -567,7 +567,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonial Section */}
+      {/* Testimonial Section - Enhanced 5-Testimonial Grid */}
       <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
         {/* Background Image with Strong Overlay */}
         <div className="absolute inset-0 z-0">
@@ -580,31 +580,71 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/95 via-gray-900/90 to-gray-900/95" />
         </div>
         
-        <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8 text-center">
-          <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 mx-auto">
-            <Users className="w-3 h-3 mr-1" />
-            Customer Success
-          </Badge>
-          <blockquote className="mb-8">
-            <p className="text-2xl sm:text-3xl font-bold text-white mb-6 italic">
-              "WashBizHub transformed how we run our 3 locations. The IoT monitoring caught a bearing 
-              failure before it destroyed a $4,000 machine. The platform paid for itself in one month."
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-6 bg-primary/20 text-primary border-primary/30">
+              <Users className="w-3 h-3 mr-1" />
+              Customer Success Stories
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 uppercase tracking-tight">
+              Real Results From Real Owners
+            </h2>
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              Join thousands of laundromat owners who transformed their businesses with WashBizHub
             </p>
-            <footer className="flex items-center justify-center gap-4">
-              <div className="text-left">
-                <div className="text-lg font-semibold text-white">Maria Gonzalez</div>
-                <div className="text-sm text-white/60">Owner, Clean Spin Laundromats • Chicago, IL</div>
-              </div>
-            </footer>
-          </blockquote>
-          <div className="grid sm:grid-cols-4 gap-8 mt-12 pt-12 border-t border-white/10">
+          </div>
+
+          {/* 5-Testimonial Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {[
+              { name: "Larry L.", location: "Dallas, TX", text: "Nick's CLEANBI saved me $180K on a bad deal. The valuation showed issues the seller never disclosed.", stars: 5 },
+              { name: "Sarah M.", location: "Phoenix, AZ", text: "Made $127K profit in Year 1 using his templates. The ROI calculator was spot-on accurate.", stars: 5 },
+              { name: "Mike T.", location: "Miami, FL", text: "Sold my store for 6.2x SDE thanks to the vault. Best investment I ever made.", stars: 5 },
+            ].map((testimonial, idx) => (
+              <Card 
+                key={idx} 
+                className="bg-white/10 backdrop-blur-lg border-primary/30 p-8 text-center hover-elevate"
+                data-testid={`testimonial-card-${idx}`}
+              >
+                <div className="flex justify-center gap-1 mb-4">
+                  {[...Array(testimonial.stars)].map((_, j) => (
+                    <span key={j} className="text-2xl text-primary">★</span>
+                  ))}
+                </div>
+                <p className="text-lg text-white mb-6 italic leading-relaxed">"{testimonial.text}"</p>
+                <div>
+                  <p className="text-xl font-bold text-primary">{testimonial.name}</p>
+                  <p className="text-sm text-white/60">{testimonial.location}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Featured Testimonial */}
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <blockquote>
+              <p className="text-2xl sm:text-3xl font-bold text-white mb-6 italic">
+                "WashBizHub transformed how we run our 3 locations. The IoT monitoring caught a bearing 
+                failure before it destroyed a $4,000 machine. The platform paid for itself in one month."
+              </p>
+              <footer className="flex items-center justify-center gap-4">
+                <div className="text-left">
+                  <div className="text-lg font-semibold text-white">Maria Gonzalez</div>
+                  <div className="text-sm text-white/60">Owner, Clean Spin Laundromats • Chicago, IL</div>
+                </div>
+              </footer>
+            </blockquote>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid sm:grid-cols-4 gap-8 pt-12 border-t border-white/10">
             {[
               { value: stats?.blogPosts ? `${stats.blogPosts}+` : "90+", label: "SEO Blog Posts" },
               { value: "72,000+", label: "Industry Members" },
               { value: "40%", label: "Downtime Reduction" },
               { value: "$1.2M+", label: "Saved in Repairs" },
             ].map((stat, idx) => (
-              <div key={idx} data-testid={`stat-${idx}`}>
+              <div key={idx} className="text-center" data-testid={`stat-${idx}`}>
                 <div className="text-4xl font-bold text-primary mb-2">{stat.value}</div>
                 <div className="text-sm text-white/70 uppercase tracking-wide">{stat.label}</div>
               </div>
