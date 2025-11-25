@@ -31,8 +31,12 @@ import {
   TrendingUp,
   Package,
   Users,
-  ArrowRight
+  ArrowRight,
+  Crown,
+  Lock,
+  Sparkles
 } from "lucide-react";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
 const MANUFACTURERS = [
@@ -202,6 +206,58 @@ export default function ServiceGuyAI() {
             <div className="text-sm text-muted-foreground">AI Support</div>
           </Card>
         </div>
+
+        {/* Premium Subscription Banner */}
+        <Card className="mb-12 border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 overflow-visible">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-xl">
+                  <Crown className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold">Service Guy AI Premium</h3>
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-none">
+                      PREMIUM TOOL
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground">
+                    Industrial-grade diagnostics for commercial laundry professionals
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center lg:text-left">
+                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-6">
+                  <div className="text-2xl font-bold text-primary">Free</div>
+                  <div className="text-sm text-muted-foreground">Basic Error Lookup</div>
+                  <div className="text-xs text-muted-foreground">3 lookups/day</div>
+                </div>
+                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-6">
+                  <div className="text-2xl font-bold text-amber-500">$19/mo</div>
+                  <div className="text-sm text-muted-foreground">Pro Diagnostics</div>
+                  <div className="text-xs text-muted-foreground">Unlimited + AI analysis</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-orange-500">$49/mo</div>
+                  <div className="text-sm text-muted-foreground">Enterprise</div>
+                  <div className="text-xs text-muted-foreground">Team access + API</div>
+                </div>
+              </div>
+              
+              <Link href="/pricing">
+                <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-90" data-testid="button-service-guy-upgrade">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Upgrade Now
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Educational Disclaimer */}
+        <LegalDisclaimer variant="compact" className="mb-8" />
 
         <Tabs defaultValue="error-codes" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
