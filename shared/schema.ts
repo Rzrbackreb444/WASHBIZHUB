@@ -8931,5 +8931,312 @@ export type InsertVendorLicense = z.infer<typeof insertVendorLicenseSchema>;
 export type VendorLicense = typeof vendorLicenses.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete Platform with Advertising & Sponsorship System
+// CALCULATOR MARKETPLACE SYSTEM
+// Community-driven calculator creation, sharing, and monetization
+// ============================================================================
+
+// Calculator Templates - Main table for user-created calculators
+export const calculatorTemplates = pgTable("calculator_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  creatorId: varchar("creator_id").references(() => users.id).notNull(),
+  
+  // Basic Info
+  name: varchar("name").notNull(),
+  slug: varchar("slug").unique().notNull(),
+  description: text("description"),
+  shortDescription: varchar("short_description"),
+  category: varchar("category").notNull(), // "valuation", "roi", "operations", "finance", "marketing", "custom"
+  tags: jsonb("tags").$type<string[]>().default([]),
+  
+  // Visuals
+  thumbnailUrl: varchar("thumbnail_url"),
+  iconName: varchar("icon_name"), // lucide icon name
+  primaryColor: varchar("primary_color").default("#00A699"), // teal default
+  
+  // Configuration (stored as JSON)
+  inputFields: jsonb("input_fields").$type<CalculatorFieldConfig[]>().notNull(),
+  formulas: jsonb("formulas").$type<CalculatorFormulaConfig[]>().notNull(),
+  outputCards: jsonb("output_cards").$type<CalculatorOutputConfig[]>().notNull(),
+  charts: jsonb("charts").$type<CalculatorChartConfig[]>().default([]),
+  tips: jsonb("tips").$type<string[]>().default([]),
+  
+  // Pricing
+  pricingType: varchar("pricing_type").default("free"), // "free", "paid", "subscription"
+  price: decimal("price", { precision: 10, scale: 2 }).default("0"),
+  stripePriceId: varchar("stripe_price_id"),
+  
+  // Stats
+  viewCount: integer("view_count").default(0),
+  useCount: integer("use_count").default(0),
+  purchaseCount: integer("purchase_count").default(0),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }).default("0"),
+  reviewCount: integer("review_count").default(0),
+  
+  // Status
+  status: varchar("status").default("draft"), // "draft", "pending_review", "published", "rejected", "archived"
+  featured: boolean("featured").default(false),
+  
+  // Version Control
+  version: integer("version").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  publishedAt: timestamp("published_at"),
+}, (table) => ({
+  creatorIdx: index("calc_template_creator_idx").on(table.creatorId),
+  categoryIdx: index("calc_template_category_idx").on(table.category),
+  statusIdx: index("calc_template_status_idx").on(table.status),
+  slugIdx: uniqueIndex("calc_template_slug_idx").on(table.slug),
+}));
+
+// Calculator Field Configuration Type
+export interface CalculatorFieldConfig {
+  id: string;
+  name: string;
+  label: string;
+  type: 'number' | 'currency' | 'percentage' | 'text' | 'select' | 'slider' | 'radio' | 'checkbox';
+  defaultValue?: string | number | boolean;
+  placeholder?: string;
+  tooltip?: string;
+  prefix?: string;
+  suffix?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: { label: string; value: string }[];
+  required?: boolean;
+  order: number;
+}
+
+// Calculator Formula Configuration Type
+export interface CalculatorFormulaConfig {
+  id: string;
+  name: string; // Variable name for result
+  formula: string; // Mathematical formula using field names
+  order: number; // Order of evaluation (for dependent formulas)
+}
+
+// Calculator Output Card Configuration Type
+export interface CalculatorOutputConfig {
+  id: string;
+  name: string; // Reference to formula result
+  label: string;
+  format: 'currency' | 'number' | 'percentage' | 'text' | 'years' | 'months';
+  decimals?: number;
+  color: 'teal' | 'orange' | 'salmon' | 'green' | 'blue' | 'purple' | 'yellow' | 'pink';
+  size: 'small' | 'medium' | 'large';
+  highlight?: boolean;
+  order: number;
+}
+
+// Calculator Chart Configuration Type
+export interface CalculatorChartConfig {
+  id: string;
+  type: 'pie' | 'bar' | 'line' | 'gauge';
+  title: string;
+  dataKeys: string[]; // Formula result names to include
+  colors?: string[];
+  showLegend?: boolean;
+}
+
+export const insertCalculatorTemplateSchema = createInsertSchema(calculatorTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+  viewCount: true,
+  useCount: true,
+  purchaseCount: true,
+  avgRating: true,
+  reviewCount: true,
+});
+
+export type InsertCalculatorTemplate = z.infer<typeof insertCalculatorTemplateSchema>;
+export type CalculatorTemplate = typeof calculatorTemplates.$inferSelect;
+
+// Calculator Reviews
+export const calculatorReviews = pgTable("calculator_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  calculatorId: varchar("calculator_id").references(() => calculatorTemplates.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  rating: integer("rating").notNull(), // 1-5
+  title: varchar("title"),
+  content: text("content"),
+  
+  // Helpful votes
+  helpfulCount: integer("helpful_count").default(0),
+  
+  // Moderation
+  status: varchar("status").default("published"), // "pending", "published", "hidden"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  calculatorIdx: index("calc_review_calculator_idx").on(table.calculatorId),
+  userIdx: index("calc_review_user_idx").on(table.userId),
+}));
+
+export const insertCalculatorReviewSchema = createInsertSchema(calculatorReviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  helpfulCount: true,
+});
+
+export type InsertCalculatorReview = z.infer<typeof insertCalculatorReviewSchema>;
+export type CalculatorReview = typeof calculatorReviews.$inferSelect;
+
+// Calculator Usage Events (Analytics)
+export const calculatorUsageEvents = pgTable("calculator_usage_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  calculatorId: varchar("calculator_id").references(() => calculatorTemplates.id).notNull(),
+  userId: varchar("user_id").references(() => users.id), // Nullable for anonymous
+  
+  eventType: varchar("event_type").notNull(), // "view", "calculate", "download_pdf", "share"
+  
+  // Context
+  inputValues: jsonb("input_values"), // What values were used
+  outputValues: jsonb("output_values"), // What results were generated
+  
+  // Meta
+  sessionId: varchar("session_id"),
+  userAgent: varchar("user_agent"),
+  ipCountry: varchar("ip_country"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  calculatorIdx: index("calc_usage_calculator_idx").on(table.calculatorId),
+  eventTypeIdx: index("calc_usage_event_type_idx").on(table.eventType),
+  createdIdx: index("calc_usage_created_idx").on(table.createdAt),
+}));
+
+export const insertCalculatorUsageEventSchema = createInsertSchema(calculatorUsageEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCalculatorUsageEvent = z.infer<typeof insertCalculatorUsageEventSchema>;
+export type CalculatorUsageEvent = typeof calculatorUsageEvents.$inferSelect;
+
+// Calculator Purchases (for paid calculators)
+export const calculatorPurchases = pgTable("calculator_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  calculatorId: varchar("calculator_id").references(() => calculatorTemplates.id).notNull(),
+  buyerId: varchar("buyer_id").references(() => users.id).notNull(),
+  creatorId: varchar("creator_id").references(() => users.id).notNull(),
+  
+  // Payment
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  platformFee: decimal("platform_fee", { precision: 10, scale: 2 }).notNull(), // 20%
+  creatorEarnings: decimal("creator_earnings", { precision: 10, scale: 2 }).notNull(), // 80%
+  currency: varchar("currency").default("USD"),
+  
+  // Stripe
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  stripeSessionId: varchar("stripe_session_id"),
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "completed", "refunded", "disputed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  calculatorIdx: index("calc_purchase_calculator_idx").on(table.calculatorId),
+  buyerIdx: index("calc_purchase_buyer_idx").on(table.buyerId),
+  creatorIdx: index("calc_purchase_creator_idx").on(table.creatorId),
+}));
+
+export const insertCalculatorPurchaseSchema = createInsertSchema(calculatorPurchases).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
+export type InsertCalculatorPurchase = z.infer<typeof insertCalculatorPurchaseSchema>;
+export type CalculatorPurchase = typeof calculatorPurchases.$inferSelect;
+
+// Creator Profiles (for marketplace)
+export const creatorProfiles = pgTable("creator_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).unique().notNull(),
+  
+  // Profile
+  displayName: varchar("display_name").notNull(),
+  bio: text("bio"),
+  avatarUrl: varchar("avatar_url"),
+  websiteUrl: varchar("website_url"),
+  linkedinUrl: varchar("linkedin_url"),
+  
+  // Expertise
+  expertise: jsonb("expertise").$type<string[]>().default([]), // ["valuation", "operations", "finance"]
+  yearsExperience: integer("years_experience"),
+  
+  // Stats
+  totalCalculators: integer("total_calculators").default(0),
+  totalSales: integer("total_sales").default(0),
+  totalEarnings: decimal("total_earnings", { precision: 12, scale: 2 }).default("0"),
+  pendingEarnings: decimal("pending_earnings", { precision: 12, scale: 2 }).default("0"),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }).default("0"),
+  
+  // Payout
+  stripeConnectAccountId: varchar("stripe_connect_account_id"),
+  payoutEnabled: boolean("payout_enabled").default(false),
+  
+  // Status
+  verified: boolean("verified").default(false),
+  featured: boolean("featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: uniqueIndex("creator_profile_user_idx").on(table.userId),
+}));
+
+export const insertCreatorProfileSchema = createInsertSchema(creatorProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  totalCalculators: true,
+  totalSales: true,
+  totalEarnings: true,
+  pendingEarnings: true,
+  avgRating: true,
+});
+
+export type InsertCreatorProfile = z.infer<typeof insertCreatorProfileSchema>;
+export type CreatorProfile = typeof creatorProfiles.$inferSelect;
+
+// Creator Payouts
+export const creatorPayouts = pgTable("creator_payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  creatorId: varchar("creator_id").references(() => creatorProfiles.id).notNull(),
+  
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency").default("USD"),
+  
+  // Stripe
+  stripeTransferId: varchar("stripe_transfer_id"),
+  stripePayoutId: varchar("stripe_payout_id"),
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "processing", "completed", "failed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  creatorIdx: index("creator_payout_creator_idx").on(table.creatorId),
+}));
+
+export const insertCreatorPayoutSchema = createInsertSchema(creatorPayouts).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
+export type InsertCreatorPayout = z.infer<typeof insertCreatorPayoutSchema>;
+export type CreatorPayout = typeof creatorPayouts.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with Calculator Marketplace
 // ============================================================================
