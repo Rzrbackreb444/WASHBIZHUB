@@ -83,7 +83,7 @@ const DEFAULT_BENEFITS: Record<SubscriptionTier, string[]> = {
     "IoT Machine Monitoring",
     "CLEANBI™ Scoring",
     "AI Consultant Access",
-    "Bloomberg-grade Analytics",
+    "Professional Analytics Suite",
   ],
   summit: [
     "Everything in Scale",

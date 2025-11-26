@@ -81,7 +81,7 @@ const PRICING_TIERS = [
       "3D Design Studio",
       "CLEANBI™ Scoring",
       "AI Consultant Access",
-      "Bloomberg-grade Analytics",
+      "Professional Analytics Suite",
       "Affiliate Program (20%)",
       "Priority Support",
     ],

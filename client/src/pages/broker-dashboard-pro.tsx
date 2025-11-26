@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, TrendingUp, DollarSign, Users, BarChart3, Calendar, MapPin, Target, Zap } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 
-// Bloomberg-style broker analytics dashboard
+// Professional broker analytics dashboard
 const REVENUE_DATA = [
   { month: 'Jan', revenue: 45000, listings: 12, sales: 3 },
   { month: 'Feb', revenue: 52000, listings: 15, sales: 4 },
@@ -37,7 +37,7 @@ export default function BrokerDashboardPro() {
     <>
       <SEO
         title="Broker Dashboard | Advanced Analytics | WashBizHub"
-        description="Bloomberg-grade broker dashboard with real-time analytics, revenue tracking, listing performance, and lead management."
+        description="Professional broker dashboard with real-time analytics, revenue tracking, listing performance, and lead management."
         canonicalUrl="/broker-pro"
       />
 

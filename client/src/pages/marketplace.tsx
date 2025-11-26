@@ -341,7 +341,7 @@ export default function Marketplace() {
                   </div>
                   <p className="text-white/80 mb-6 max-w-2xl mx-auto">
                     Official partner for Continental Girbau commercial laundry equipment. 
-                    Join our exclusive Facebook group for special pricing, industry insights, and direct access to equipment specialists.
+                    Join the WashBizHub Facebook group for special pricing, industry insights, and direct access to equipment specialists.
                   </p>
                   <Button 
                     asChild
@@ -351,7 +351,7 @@ export default function Marketplace() {
                   >
                     <a href={AADVANTAGE_LINK} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-5 w-5 mr-2" />
-                      Join AAdvantage Facebook Group
+                      Join WashBizHub Facebook Group
                     </a>
                   </Button>
                 </CardContent>

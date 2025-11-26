@@ -178,7 +178,7 @@ export function generateOrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The Bloomberg of Laundromats"],
+    "alternateName": ["The Laundromat Bible", "CLEANBI Universal Scoring"],
     "url": BASE_URL,
     "logo": `${BASE_URL}/washbizhub-logo.png`,
     "description": "The #1 laundromat resource and educational hub for owners, operators, brokers, investors, buyers, sellers, and vendors. Featuring CLEANBI™ universal scoring, marketplace, courses, calculators, and AI-powered business intelligence serving 72,000+ industry professionals worldwide.",

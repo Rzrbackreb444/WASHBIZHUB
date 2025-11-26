@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
-// Bloomberg Terminal Color Palette
-const BLOOMBERG_COLORS = {
+// Professional Chart Color Palette
+const CHART_COLORS = {
   primary: '#C8A661',
   gold: '#b8860b',
   navy: '#1e3a5f',
@@ -51,7 +51,7 @@ export function PremiumChart({
   const getChartJsConfig = () => {
     const labels = data.map(d => d.label);
     const values = data.map(d => d.value);
-    const colors = data.map((d, i) => d.color || Object.values(BLOOMBERG_COLORS)[i % 7]);
+    const colors = data.map((d, i) => d.color || Object.values(CHART_COLORS)[i % 7]);
 
     const chartData = {
       labels,
@@ -86,9 +86,9 @@ export function PremiumChart({
         },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          titleColor: BLOOMBERG_COLORS.primary,
+          titleColor: CHART_COLORS.primary,
           bodyColor: '#ffffff',
-          borderColor: BLOOMBERG_COLORS.primary,
+          borderColor: CHART_COLORS.primary,
           borderWidth: 1,
           padding: 12,
           callbacks: {
@@ -160,7 +160,7 @@ export function PremiumChart({
       .endAngle(-Math.PI / 2 + (value / maxValue) * Math.PI);
 
     const valuePath = g.append("path")
-      .attr("fill", BLOOMBERG_COLORS.primary);
+      .attr("fill", CHART_COLORS.primary);
 
     if (animate) {
       valuePath
@@ -187,7 +187,7 @@ export function PremiumChart({
       .attr("y", -10)
       .attr("font-size", "42px")
       .attr("font-weight", "bold")
-      .attr("fill", BLOOMBERG_COLORS.primary)
+      .attr("fill", CHART_COLORS.primary)
       .text(Math.round(value));
 
     g.append("text")
@@ -266,7 +266,7 @@ export function PremiumChart({
       .attr("width", x.bandwidth())
       .attr("y", d => y(Math.max(d.start, d.end)))
       .attr("height", 0)
-      .attr("fill", d => d.isPositive ? BLOOMBERG_COLORS.green : BLOOMBERG_COLORS.red)
+      .attr("fill", d => d.isPositive ? CHART_COLORS.green : CHART_COLORS.red)
       .attr("opacity", 0.8);
 
     if (animate) {
@@ -332,7 +332,7 @@ export function PremiumChart({
 
     const colorScale = d3.scaleOrdinal()
       .domain(data.map(d => d.label))
-      .range(Object.values(BLOOMBERG_COLORS).slice(0, data.length));
+      .range(Object.values(CHART_COLORS).slice(0, data.length));
 
     // Area generator
     const area = d3.area<any>()

@@ -184,7 +184,7 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
           <p className="text-sm text-center text-muted-foreground">
             <strong>30-day money-back guarantee.</strong> Cancel anytime, no questions asked. All plans include
-            Bloomberg Terminal-grade expertise in laundromat valuation, equipment selection, financial analysis,
+            Professional expertise in laundromat valuation, equipment selection, financial analysis,
             and market insights.
           </p>
         </div>
