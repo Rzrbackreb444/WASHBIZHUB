@@ -122,7 +122,7 @@ export default function AdvertisePage() {
   }, {} as Record<string, AdvertisingProduct[]>) || {};
 
   const categoryLabels: Record<string, string> = {
-    facebook_group: "Facebook Group (72K Members)",
+    facebook_group: "Facebook Group (Largest in Industry)",
     website: "Website Advertising",
     book_feature: "Book Case Studies",
     vendor_licensing: "Vendor Licensing"
@@ -146,10 +146,10 @@ export default function AdvertisePage() {
   return (
     <>
       <SEO
-        title="Advertise With WashBizHub | Reach 72,000+ Laundromat Owners"
-        description="Promote your business to 72,000+ laundromat owners, investors, and operators. Facebook group advertising, website placements, sponsored content, and book features."
+        title="Advertise With WashBizHub | Reach Laundromat Owners"
+        description="Promote your business to the largest community of laundromat owners, investors, and operators. Facebook group advertising, website placements, sponsored content, and book features."
         canonicalUrl="/advertise"
-        keywords={["laundromat advertising", "vendor marketing", "B2B advertising", "laundry industry", "72K members"]}
+        keywords={["laundromat advertising", "vendor marketing", "B2B advertising", "laundry industry", "laundromat community"]}
       />
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -159,7 +159,7 @@ export default function AdvertisePage() {
           <div className="text-center mb-8">
             <Badge className="mb-4 bg-white/20 text-white border-white/30">
               <Users className="w-3 h-3 mr-1" />
-              72,000+ Member Community
+              Largest Industry Community
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-page-title">
               Advertise With WashBizHub
@@ -173,8 +173,8 @@ export default function AdvertisePage() {
             <Card className="bg-white/10 border-white/20 text-white">
               <CardContent className="pt-6 text-center">
                 <Users className="w-8 h-8 mx-auto mb-2" />
-                <div className="text-3xl font-bold">72K+</div>
-                <div className="text-sm text-blue-200">FB Group Members</div>
+                <div className="text-3xl font-bold">#1</div>
+                <div className="text-sm text-blue-200">Largest FB Group</div>
               </CardContent>
             </Card>
             <Card className="bg-white/10 border-white/20 text-white">
@@ -212,7 +212,7 @@ export default function AdvertisePage() {
             <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary" className="gap-2" data-testid="link-join-group">
                 <SiFacebook className="w-5 h-5" />
-                Join the 72K FB Group
+                Join FB Group
                 <ExternalLink className="w-4 h-4" />
               </Button>
             </a>
@@ -304,7 +304,7 @@ export default function AdvertisePage() {
               <div className="mb-6">
                 <h2 className="text-2xl font-bold">{label}</h2>
                 <p className="text-muted-foreground">
-                  {category === "facebook_group" && "Get your brand in front of 72,000+ laundromat owners and aspiring entrepreneurs."}
+                  {category === "facebook_group" && "Get your brand in front of the largest community of laundromat owners and aspiring entrepreneurs."}
                   {category === "website" && "Premium placement on WashBizHub.com with SEO-optimized content."}
                   {category === "book_feature" && "Be featured as a success story in our upcoming industry books."}
                   {category === "vendor_licensing" && "License your products and services to our network."}
@@ -449,7 +449,7 @@ export default function AdvertisePage() {
               <SiFacebook className="w-12 h-12 mx-auto mb-4 text-blue-600" />
               <h2 className="text-2xl font-bold mb-2">Join Our Community</h2>
               <p className="text-muted-foreground max-w-xl mx-auto mb-6">
-                Connect with 72,000+ laundromat owners, find equipment deals, list your business, and grow your network in the largest laundry industry community online.
+                Connect with laundromat owners, find equipment deals, list your business, and grow your network in the largest laundry industry community online.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer">
