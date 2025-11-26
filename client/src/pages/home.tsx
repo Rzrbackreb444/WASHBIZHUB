@@ -12,7 +12,8 @@ import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel"
 import { AAdvantageSpotlight } from "@/components/AAdvantageSpotlight";
 import { 
   BookOpen, GraduationCap, Phone, Download, DollarSign, 
-  Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle
+  Building2, Rocket, TrendingUp, ArrowRight, Shield, Zap, Users, AlertTriangle,
+  Calculator, Bot, Palette, BarChart3, Store, Wrench, Globe, Chrome, FileText, CreditCard
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import modernMachinesImg from "@assets/AdobeStock_832897447_1763779877616.jpeg";
@@ -89,6 +90,189 @@ export default function Home() {
       
       {/* Value Props */}
       <ValuePropCards />
+
+      {/* What We Offer - Complete Services Showcase */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black" data-testid="section-what-we-offer">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
+              <Zap className="w-3 h-3 mr-1" />
+              Complete Platform
+            </Badge>
+            <h2 
+              className="text-3xl sm:text-4xl font-bold uppercase tracking-tight text-white mb-4"
+              data-testid="text-what-we-offer-heading"
+            >
+              Everything You Need To Succeed
+            </h2>
+            <p className="text-lg text-white/70 max-w-3xl mx-auto">
+              The most comprehensive laundromat business platform with AI-powered tools, 
+              professional resources, and enterprise-grade solutions
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: BarChart3,
+                title: "CLEANBI Score",
+                description: "AI-powered location analysis and business valuation with comprehensive market insights",
+                link: "/cleanbi",
+                testId: "cleanbi-score"
+              },
+              {
+                icon: Palette,
+                title: "3D Design Studio",
+                description: "Professional layout planning tool for optimizing your laundromat floor plan",
+                link: "/design-studio",
+                testId: "design-studio"
+              },
+              {
+                icon: Bot,
+                title: "WashBizHub Consultant",
+                description: "AI chatbot trained on industry expertise for instant business guidance",
+                link: "#",
+                testId: "consultant"
+              },
+              {
+                icon: Calculator,
+                title: "Calculators Suite",
+                description: "50+ professional calculators for ROI, valuations, pricing, and operations",
+                link: "/calculators",
+                testId: "calculators"
+              },
+              {
+                icon: GraduationCap,
+                title: "Premium Courses",
+                description: "Comprehensive education platform for mastering the laundromat business",
+                link: "/courses",
+                testId: "courses"
+              },
+              {
+                icon: BookOpen,
+                title: "The Laundromat Bible",
+                description: "The definitive industry guidebook with decades of expertise",
+                link: "/book",
+                testId: "book"
+              },
+              {
+                icon: FileText,
+                title: "Templates & Guides",
+                description: "Professional documents, SOPs, and business templates",
+                link: "/templates",
+                testId: "templates"
+              },
+              {
+                icon: Store,
+                title: "Equipment Marketplace",
+                description: "Buy and sell commercial laundry equipment with verified listings",
+                link: "/marketplace",
+                testId: "marketplace"
+              },
+              {
+                icon: Building2,
+                title: "Laundromat Listings",
+                description: "Browse and list laundromats for sale across the country",
+                link: "/laundromat-listings",
+                testId: "listings"
+              },
+              {
+                icon: CreditCard,
+                title: "POS System",
+                description: "Enterprise point-of-sale solution with real-time analytics",
+                link: "/pos-system",
+                testId: "pos-system"
+              },
+              {
+                icon: Globe,
+                title: "Website Hosting",
+                description: "Custom professional websites designed for laundromats",
+                link: "/website-hosting",
+                testId: "website-hosting"
+              },
+              {
+                icon: Chrome,
+                title: "Chrome Extension",
+                description: "CLEANBI browser tool for instant property analysis",
+                link: "#",
+                testId: "chrome-extension"
+              },
+              {
+                icon: Wrench,
+                title: "Service Guy AI",
+                description: "2,800+ diagnostic codes with step-by-step repair guidance",
+                link: "/service-guy-ai",
+                testId: "service-guy-ai"
+              },
+              {
+                icon: DollarSign,
+                title: "Funding Matcher",
+                description: "Connect with lenders and explore financing options",
+                link: "/funding-matcher",
+                testId: "funding-matcher"
+              }
+            ].map((service, idx) => {
+              const Icon = service.icon;
+              return (
+                <Link key={idx} href={service.link}>
+                  <Card 
+                    className="p-6 h-full bg-white/5 border-white/10 hover-elevate active-elevate-2 transition-all cursor-pointer group"
+                    data-testid={`card-offer-${service.testId}`}
+                  >
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent/20 text-accent group-hover:bg-accent/30 transition-colors">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 
+                      className="mb-2 text-sm font-bold uppercase tracking-wide text-white"
+                      data-testid={`text-offer-title-${service.testId}`}
+                    >
+                      {service.title}
+                    </h3>
+                    <p 
+                      className="text-sm text-white/60 leading-relaxed"
+                      data-testid={`text-offer-desc-${service.testId}`}
+                    >
+                      {service.description}
+                    </p>
+                    <div className="mt-4 flex items-center text-accent text-sm font-medium group-hover:translate-x-1 transition-transform">
+                      Learn More
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-white/50 text-sm mb-6">
+              Trusted by 72,000+ laundromat owners, investors, and operators worldwide
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/cleanbi">
+                <Button 
+                  size="lg"
+                  className="bg-accent text-accent-foreground hover-elevate active-elevate-2"
+                  data-testid="button-explore-cleanbi"
+                >
+                  Start with CLEANBI
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/consultation">
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10 hover-elevate active-elevate-2"
+                  data-testid="button-book-demo"
+                >
+                  Book a Demo
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Listings */}
       <FeaturedListings />

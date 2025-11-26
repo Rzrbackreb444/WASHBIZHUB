@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag, Wrench, AlertTriangle, Settings, Shield, DollarSign } from "lucide-react";
+import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Chrome, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/6_1764040628012.png";
 import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
-// Contact info - Kremers Laundry Equipment Co, Inc (Dad's number for customer communications)
 const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-629-0484";
 const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14796290484";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
@@ -58,15 +57,18 @@ export function Footer() {
           </a>
         </div>
 
-        {/* Main Footer Grid */}
+        {/* Main Footer Grid - 6 columns on large screens */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           
-          {/* Contact Column - Spans 2 columns on large screens */}
+          {/* Contact & Business Services Column - Spans 2 columns on large screens */}
           <div className="lg:col-span-2">
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Contact Us</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Mail className="h-4 w-4 text-accent" />
+              Contact Us
+            </h3>
             
-            {/* Contact Buttons - WhatsApp & SMS */}
-            <div className="space-y-3">
+            {/* Contact Buttons - WhatsApp, SMS, Email */}
+            <div className="space-y-3 mb-6">
               <a
                 href={`https://wa.me/${CONTACT_PHONE_DIGITS}?text=Hi%2C%20I%27m%20interested%20in%20learning%20more%20about%20WashBizHub`}
                 target="_blank"
@@ -96,7 +98,7 @@ export function Footer() {
             </div>
 
             {/* Social Links */}
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mb-6">
               <a
                 href="https://facebook.com/groups/thelaundromat"
                 target="_blank"
@@ -129,52 +131,99 @@ export function Footer() {
                 <Twitter className="h-5 w-5 text-accent" />
               </a>
             </div>
+
+            {/* Business Services Sub-section */}
+            <div className="border-t border-white/10 pt-4">
+              <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-accent" />
+                Business Services
+              </h4>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <Link href="/website-hosting">
+                  <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-website-hosting">
+                    <Globe className="h-3 w-3" />
+                    Website Hosting
+                  </span>
+                </Link>
+                <Link href="/pos-system">
+                  <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-pos-system">
+                    <Monitor className="h-3 w-3" />
+                    POS System
+                  </span>
+                </Link>
+                <Link href="/consultation">
+                  <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-consultation">
+                    <Phone className="h-3 w-3" />
+                    Book Consultation
+                  </span>
+                </Link>
+                <Link href="/consultation-landing">
+                  <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-expert-services">
+                    <Zap className="h-3 w-3" />
+                    Expert Services
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* Platform Features */}
+          {/* Platform Tools Column */}
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Platform</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Layout className="h-4 w-4 text-accent" />
+              Platform Tools
+            </h3>
             <div className="space-y-2">
+              <Link href="/cleanbi">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-cleanbi-analysis">
+                  CLEANBI Analysis
+                </span>
+              </Link>
               <Link href="/design-studio">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-design-studio">
                   Design Studio 2D/3D
                 </span>
               </Link>
-              <Link href="/cleanbi">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-cleanbi">
-                  CLEANBI™ Analysis
+              <button
+                onClick={() => {
+                  const chatWidget = document.querySelector('[data-testid="ai-chat-trigger"]');
+                  if (chatWidget) (chatWidget as HTMLButtonElement).click();
+                }}
+                className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm text-left w-full"
+                data-testid="link-footer-ai-consultant"
+              >
+                <span className="flex items-center gap-1">
+                  <Bot className="h-3 w-3" />
+                  WashBizHub Consultant
                 </span>
-              </Link>
-              <Link href="/marketplace">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-marketplace">
-                  Global Marketplace
-                </span>
-              </Link>
-              <Link href="/ai-blogging">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-ai-blogging">
-                  AI Blogging Suite
-                </span>
-              </Link>
-              <Link href="/seo-optimizer">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-seo-optimizer">
-                  SEO Optimizer
+              </button>
+              <a
+                href="/chrome-extension"
+                className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors text-sm"
+                data-testid="link-footer-chrome-extension"
+              >
+                <Chrome className="h-3 w-3" />
+                Chrome Extension
+              </a>
+              <Link href="/service-guy-ai">
+                <span className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-service-guy-ai">
+                  <Wrench className="h-3 w-3" />
+                  Service Guy AI
                 </span>
               </Link>
             </div>
           </div>
 
-          {/* Calculators & Tools */}
+          {/* Analytics & Calculators Column */}
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Analytics</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-accent" />
+              Analytics
+            </h3>
             <div className="space-y-2">
-              <Link href="/equipment-diagnostics">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-diagnostics">
-                  Equipment Diagnostics
-                </span>
-              </Link>
               <Link href="/valuation-calculator">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-valuation">
-                  Valuation Tool
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-valuation-calculator">
+                  Valuation Calculator
                 </span>
               </Link>
               <Link href="/roi-calculator">
@@ -182,13 +231,8 @@ export function Footer() {
                   ROI Calculator
                 </span>
               </Link>
-              <Link href="/cleanbi">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-cleanbi-footer">
-                  CLEANBI Analysis
-                </span>
-              </Link>
               <Link href="/calculator">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-calculator">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-revenue-calculator">
                   Revenue Calculator
                 </span>
               </Link>
@@ -198,16 +242,20 @@ export function Footer() {
                 </span>
               </Link>
               <Link href="/calculators">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-all-calculators">
+                <span className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm font-semibold" data-testid="link-footer-all-calculators">
+                  <Calculator className="h-3 w-3" />
                   All 50+ Tools
                 </span>
               </Link>
             </div>
           </div>
 
-          {/* Marketplace & Shopping */}
+          {/* Marketplace Column */}
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Shop</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-accent" />
+              Marketplace
+            </h3>
             <div className="space-y-2">
               <Link href="/superstore">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-superstore">
@@ -215,68 +263,57 @@ export function Footer() {
                 </span>
               </Link>
               <Link href="/parts">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-parts">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-parts-marketplace">
                   Parts Marketplace
                 </span>
               </Link>
               <Link href="/listings">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-listings">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-buy-sell-laundromats">
                   Buy/Sell Laundromats
                 </span>
               </Link>
-              <Link href="/consultation">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-consultation">
-                  Book Consultation
-                </span>
-              </Link>
-              <Link href="/consultation-landing">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-consultation-services">
-                  Expert Services
+              <Link href="/vendors">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-vendor-directory">
+                  Vendor Directory
                 </span>
               </Link>
             </div>
           </div>
 
-          {/* Learning & Resources */}
+          {/* Education Column */}
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Learn</h3>
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-accent" />
+              Education
+            </h3>
             <div className="space-y-2">
               <Link href="/courses">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-courses">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-premium-courses">
                   Premium Courses
                 </span>
               </Link>
               <Link href="/book">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-book">
+                <span className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-laundromat-bible">
+                  <BookOpen className="h-3 w-3" />
                   The Laundromat Bible
                 </span>
               </Link>
+              <Link href="/templates">
+                <span className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-templates-guides">
+                  <FileText className="h-3 w-3" />
+                  Templates & Guides
+                </span>
+              </Link>
               <Link href="/blog">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-blog">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-industry-blog">
                   Industry Blog
                 </span>
               </Link>
-              <Link href="/affiliate-blogs">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-financing-guides">
-                  Financing Guides
-                </span>
-              </Link>
               <Link href="/resources">
-                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-resources">
+                <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-resource-hub">
                   Resource Hub
                 </span>
               </Link>
-              <a
-                href="https://facebook.com/groups/thelaundromat"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => handleResourceClick('Facebook Community', 'https://facebook.com/groups/thelaundromat')}
-                className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors text-sm"
-                data-testid="link-footer-facebook-group"
-              >
-                Facebook Community
-                <ExternalLink className="h-3 w-3" />
-              </a>
             </div>
           </div>
         </div>
@@ -284,7 +321,7 @@ export function Footer() {
         {/* Recommended Partners Section */}
         <div className="border-t border-primary/20 pt-8 mb-8">
           <h3 className="text-white font-bold text-lg mb-6 text-center">
-            🌟 Recommended Industry Partners
+            Recommended Industry Partners
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Facebook Group Card */}
@@ -317,7 +354,7 @@ export function Footer() {
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 hover:border-accent/50 transition-colors">
               <div className="flex items-start gap-4">
                 <div className="bg-accent/10 p-3 rounded-lg">
-                  <ExternalLink className="h-6 w-6 text-accent" />
+                  <DollarSign className="h-6 w-6 text-accent" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-white font-bold mb-2">ATM Depot - Passive Income</h4>
@@ -438,14 +475,14 @@ export function Footer() {
                 </span>
               </Link>
               <span className="text-white/30">|</span>
-              <Link href="/about">
+              <Link href="/about-us">
                 <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-about">
                   About Us
                 </span>
               </Link>
               <span className="text-white/30">|</span>
               <Link href="/consultation">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-consultation">
+                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-free-consultation">
                   Free Consultation
                 </span>
               </Link>
