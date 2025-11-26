@@ -333,6 +333,31 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// CORS for Chrome Extension - Allow CLEANBI API calls from Google Maps, LoopNet, BizBuySell
+app.use('/api/cleanbi/auto', (req, res, next) => {
+  const allowedOrigins = [
+    'https://www.google.com',
+    'https://maps.google.com',
+    'https://www.loopnet.com',
+    'https://www.bizbuysell.com',
+    'chrome-extension://' // Chrome extension context
+  ];
+  
+  const origin = req.headers.origin || '';
+  if (allowedOrigins.some(allowed => origin.startsWith(allowed)) || origin.startsWith('chrome-extension://')) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
