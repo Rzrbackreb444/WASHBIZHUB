@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CLEANBI Anywhere - FREE Business & Property Scores",
   "version": "2.1.0",
-  "description": "100% FREE! Instant A-F scores for ANY business OR property on Google Maps, LoopNet, BizBuySell. Restaurants, retail, residential, commercial - works for everything!",
+  "description": "FREE instant A-F scores for ANY business or property on Google Maps, LoopNet, BizBuySell. Powered by Google.",
   "permissions": [
     "activeTab",
     "storage"
