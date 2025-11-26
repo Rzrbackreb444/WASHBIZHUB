@@ -30,18 +30,21 @@ export function Footer() {
         <div className="text-center mb-12 pb-12 border-b border-white/10">
           <img 
             src={logoUrl} 
-            alt="WashBizHub - The Bloomberg of Laundromats" 
+            alt="WashBizHub - The #1 Laundromat Resource" 
             className="h-40 sm:h-48 md:h-56 lg:h-60 w-auto mx-auto mb-6" 
             data-testid="img-footer-logo"
           />
           <p className="text-[hsl(45,38%,59%)] text-lg sm:text-xl font-semibold tracking-wider">
-            STRATEGY · FUNDING · GROWTH
+            LISTINGS · EQUIPMENT · EDUCATION · VALUATIONS
           </p>
           <h2 className="text-2xl sm:text-3xl font-bold text-white mt-4 mb-3">
-            The Bloomberg of Laundromats
+            The #1 Laundromat Resource & Educational Hub
           </h2>
-          <p className="text-white/70 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
-            Enterprise-grade platform combining business intelligence, marketplace, IoT POS, AI pricing, predictive maintenance, SEO powerhouse, and comprehensive education for the global laundry industry.
+          <p className="text-white/70 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed mb-3">
+            For owners, operators, brokers, investors, buyers, sellers, vendors — anyone in the industry. US & Global listings.
+          </p>
+          <p className="text-white/60 text-xs sm:text-sm max-w-2xl mx-auto">
+            CLEANBI location analyzer · Chrome extension · Valuations · Competition analysis · Courses · Calculators · Funding · Vendor directory
           </p>
         </div>
 

@@ -86,7 +86,7 @@ export function NavigationMenu() {
           <div className="flex items-center gap-2 hover:opacity-85 active:opacity-75 transition-opacity cursor-pointer">
             <img 
               src={logoUrl} 
-              alt="WashBizHub - The Bloomberg of Laundromats" 
+              alt="WashBizHub - The #1 Laundromat Resource" 
               className="h-24 sm:h-28 md:h-32 w-auto" 
               loading="lazy"
             />
