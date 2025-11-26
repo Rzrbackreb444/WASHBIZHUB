@@ -53,11 +53,14 @@ const MAIN_LINKS = [
   { href: "/blog", label: "Blog", icon: BookOpen },
 ];
 
+const PFRG_LINK = "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/";
+
 const ACTION_LINKS = [
   { href: "/listing-form", label: "List Your Laundromat", icon: Store },
   { href: "/equipment-marketplace", label: "List Equipment", icon: Wrench },
   { href: "/vendor-form", label: "Become a Vendor", icon: ShoppingBag },
   { href: "/advertise", label: "Advertise With Us", icon: Megaphone },
+  { href: "/startup-funding", label: "Get Startup Funding", icon: DollarSign, highlight: true },
 ];
 
 const TOOLS_LINKS = [

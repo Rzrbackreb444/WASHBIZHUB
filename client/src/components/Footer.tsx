@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag, Wrench, AlertTriangle, Settings, Shield } from "lucide-react";
+import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Tag, Wrench, AlertTriangle, Settings, Shield, DollarSign } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,19 @@ export function Footer() {
           <p className="text-white/70 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed mb-3">
             For owners, operators, brokers, investors, buyers, sellers, vendors — anyone in the industry. US & Global listings.
           </p>
-          <p className="text-white/60 text-xs sm:text-sm max-w-2xl mx-auto">
-            CLEANBI location analyzer · Chrome extension · Valuations · Competition analysis · Courses · Calculators · Funding · Vendor directory
+          <p className="text-white/60 text-xs sm:text-sm max-w-2xl mx-auto mb-4">
+            CLEANBI analyzer · Chrome extension · Valuations · Competition · Courses · Calculators · Funding · Vendors
           </p>
+          <a 
+            href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            data-testid="link-footer-startup-funding"
+          >
+            <DollarSign className="h-4 w-4" />
+            Startup Funding — Personal Credit $5K-$150K
+          </a>
         </div>
 
         {/* Main Footer Grid */}
