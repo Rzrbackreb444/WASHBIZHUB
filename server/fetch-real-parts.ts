@@ -107,7 +107,7 @@ async function fetchRealParts() {
   
   // Create vendor map
   const vendorMap: Record<string, any> = {};
-  const uniqueBrands = [...new Set(PARTS_SEARCH_QUERIES.map(q => q.brand))];
+  const uniqueBrands = Array.from(new Set(PARTS_SEARCH_QUERIES.map(q => q.brand)));
   
   console.log("📋 Creating vendors...");
   for (const brand of uniqueBrands) {
@@ -127,7 +127,10 @@ async function fetchRealParts() {
     
     try {
       // Search Amazon for real products
-      const results = await amazonAPI.searchProducts(searchQuery.query, searchQuery.limit);
+      const results = await amazonAPI.searchProducts({
+        keywords: searchQuery.query,
+        itemCount: searchQuery.limit
+      });
       
       if (!results || results.length === 0) {
         console.log(`  ⚠️  No results found`);
@@ -145,8 +148,8 @@ async function fetchRealParts() {
         // Extract part number from ASIN or model
         const partNumber = product.asin || `AMZN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
-        // Extract price (convert from cents to dollars)
-        const price = product.price ? (product.price / 100).toFixed(2) : "0.00";
+        // Extract price from price object (amount is in dollars already)
+        const price = product.price?.amount ? product.price.amount.toFixed(2) : "0.00";
         
         // Build compatibility array (generic for now, can be enhanced)
         const compatibility = ["UNIVERSAL"];
@@ -157,10 +160,10 @@ async function fetchRealParts() {
           partNumber: partNumber,
           price: price,
           category: searchQuery.category,
-          description: product.description || `${product.title} - Available on Amazon`,
+          description: `${product.title} - Available on Amazon`,
           compatibility: compatibility,
           inStock: true,
-          imageUrl: product.imageUrl || null,
+          imageUrl: product.image || null,
         });
         
         totalPartsInserted++;
