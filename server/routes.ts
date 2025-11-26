@@ -866,6 +866,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== PREFERRED FUNDING GROUP BLOG GENERATION ====================
+  
+  // Get PFRG blog topics info
+  app.get("/api/blog/pfrg/topics", async (req, res) => {
+    try {
+      const { getPFRGBlogTopics } = await import("./pfrg-blog-generator");
+      res.json(getPFRGBlogTopics());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Generate all PFRG blogs (50 state blogs)
+  app.post("/api/blog/pfrg/generate-all", isAdmin, async (req, res) => {
+    try {
+      const { generateAllPFRGBlogs } = await import("./pfrg-blog-generator");
+      
+      console.log("Starting Preferred Funding Group blog generation (50 states)...");
+      
+      res.json({ 
+        success: true, 
+        message: "PFRG blog generation started. This will take approximately 20-25 minutes.",
+        info: "Check server logs for progress updates."
+      });
+      
+      // Run generation in background
+      generateAllPFRGBlogs().then(result => {
+        console.log(`PFRG blog generation complete: ${result.successful}/${result.total} successful`);
+      }).catch(error => {
+        console.error(`PFRG blog generation failed: ${error.message}`);
+      });
+      
+    } catch (error: any) {
+      console.error('PFRG generation failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get PFRG blogs
+  app.get("/api/blog/pfrg", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts({ category: "startup_funding" });
+      res.json(posts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== CALCULATOR SCENARIOS ====================
   
   app.get("/api/calculator/scenarios", async (req, res) => {
