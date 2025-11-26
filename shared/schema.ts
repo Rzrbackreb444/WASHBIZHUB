@@ -8725,5 +8725,211 @@ export type InsertPipelineRun = z.infer<typeof insertPipelineRunSchema>;
 export type PipelineRun = typeof pipelineRuns.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete SRA Platform with Industrial Publishing Factory
+// ADVERTISING & SPONSORSHIP SYSTEM
+// ============================================================================
+
+// Advertising Products/Tiers
+export const advertisingProducts = pgTable("advertising_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Product Info
+  name: varchar("name").notNull(),
+  slug: varchar("slug").unique().notNull(),
+  description: text("description"),
+  category: varchar("category").notNull(), // "facebook_group", "website", "book_feature", "vendor_licensing"
+  
+  // Pricing
+  priceMonthly: decimal("price_monthly", { precision: 10, scale: 2 }),
+  priceOneTime: decimal("price_one_time", { precision: 10, scale: 2 }),
+  pricingType: varchar("pricing_type").notNull(), // "monthly", "one_time", "custom"
+  
+  // Stripe
+  stripePriceIdMonthly: varchar("stripe_price_id_monthly"),
+  stripePriceIdOneTime: varchar("stripe_price_id_one_time"),
+  stripeProductId: varchar("stripe_product_id"),
+  
+  // Features
+  features: jsonb("features"), // Array of feature strings
+  
+  // Display
+  popular: boolean("popular").default(false),
+  displayOrder: integer("display_order").default(0),
+  active: boolean("active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAdvertisingProductSchema = createInsertSchema(advertisingProducts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAdvertisingProduct = z.infer<typeof insertAdvertisingProductSchema>;
+export type AdvertisingProduct = typeof advertisingProducts.$inferSelect;
+
+// Sponsor/Advertiser Accounts
+export const sponsors = pgTable("sponsors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Company Info
+  companyName: varchar("company_name").notNull(),
+  contactName: varchar("contact_name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  website: varchar("website"),
+  
+  // Branding
+  logoUrl: varchar("logo_url"),
+  tagline: varchar("tagline"),
+  description: text("description"),
+  
+  // Stripe
+  stripeCustomerId: varchar("stripe_customer_id"),
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "active", "suspended", "cancelled"
+  verifiedAt: timestamp("verified_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSponsorSchema = createInsertSchema(sponsors).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSponsor = z.infer<typeof insertSponsorSchema>;
+export type Sponsor = typeof sponsors.$inferSelect;
+
+// Sponsorship Subscriptions
+export const sponsorships = pgTable("sponsorships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sponsorId: varchar("sponsor_id").references(() => sponsors.id).notNull(),
+  productId: varchar("product_id").references(() => advertisingProducts.id).notNull(),
+  
+  // Stripe Subscription
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  
+  // Billing
+  billingCycle: varchar("billing_cycle"), // "monthly", "annual", "one_time"
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency").default("USD"),
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "active", "paused", "cancelled", "expired"
+  
+  // Dates
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  nextBillingDate: timestamp("next_billing_date"),
+  
+  // Content
+  customContent: jsonb("custom_content"), // Featured post content, logo placement details, etc.
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  sponsorIdx: index("sponsorship_sponsor_idx").on(table.sponsorId),
+  statusIdx: index("sponsorship_status_idx").on(table.status),
+}));
+
+export const insertSponsorshipSchema = createInsertSchema(sponsorships).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSponsorship = z.infer<typeof insertSponsorshipSchema>;
+export type Sponsorship = typeof sponsorships.$inferSelect;
+
+// Book Case Study Features
+export const bookCaseStudies = pgTable("book_case_studies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sponsorId: varchar("sponsor_id").references(() => sponsors.id).notNull(),
+  
+  // Case Study Info
+  title: varchar("title").notNull(),
+  businessName: varchar("business_name").notNull(),
+  industry: varchar("industry"),
+  location: varchar("location"),
+  
+  // Story
+  challenge: text("challenge"),
+  solution: text("solution"),
+  results: text("results"),
+  testimonial: text("testimonial"),
+  
+  // Media
+  photos: jsonb("photos"), // Array of photo URLs
+  videoUrl: varchar("video_url"),
+  
+  // Book Placement
+  bookId: varchar("book_id"), // Reference to which book it will appear in
+  chapterPlacement: varchar("chapter_placement"),
+  
+  // Payment
+  sponsorshipId: varchar("sponsorship_id").references(() => sponsorships.id),
+  feePaid: decimal("fee_paid", { precision: 10, scale: 2 }),
+  
+  // Status
+  status: varchar("status").default("draft"), // "draft", "submitted", "approved", "published"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+});
+
+export const insertBookCaseStudySchema = createInsertSchema(bookCaseStudies).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookCaseStudy = z.infer<typeof insertBookCaseStudySchema>;
+export type BookCaseStudy = typeof bookCaseStudies.$inferSelect;
+
+// Vendor Licensing
+export const vendorLicenses = pgTable("vendor_licenses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sponsorId: varchar("sponsor_id").references(() => sponsors.id).notNull(),
+  
+  // License Info
+  licenseType: varchar("license_type").notNull(), // "standard", "premium", "enterprise"
+  territory: varchar("territory"), // Geographic territory
+  exclusivity: boolean("exclusivity").default(false),
+  
+  // Product/Service
+  productName: varchar("product_name").notNull(),
+  productCategory: varchar("product_category"),
+  productDescription: text("product_description"),
+  
+  // Terms
+  licenseFee: decimal("license_fee", { precision: 10, scale: 2 }),
+  royaltyPercent: decimal("royalty_percent", { precision: 5, scale: 2 }),
+  termMonths: integer("term_months"),
+  
+  // Stripe
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  
+  // Status
+  status: varchar("status").default("pending"), // "pending", "active", "suspended", "expired"
+  
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertVendorLicenseSchema = createInsertSchema(vendorLicenses).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVendorLicense = z.infer<typeof insertVendorLicenseSchema>;
+export type VendorLicense = typeof vendorLicenses.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with Advertising & Sponsorship System
 // ============================================================================
