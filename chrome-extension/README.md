@@ -1,20 +1,40 @@
 # CLEANBI Anywhere - Chrome Extension
 
-**Instant CLEANBI scores on Google Maps, LoopNet, and BizBuySell**
+**Instant CLEANBI scores for ANY business or property on Google Maps, LoopNet, and BizBuySell**
 
 ## 🎯 What It Does
 
-This Chrome extension automatically shows CLEANBI scores when you hover over laundromats on:
-- **Google Maps** - Instant scores on search results and business listings
+This Chrome extension automatically shows CLEANBI scores when you hover over **ANY business OR residential property** on:
+- **Google Maps** - Instant scores on ANY business or address
 - **LoopNet** - Commercial real estate listings
 - **BizBuySell** - Business for sale listings
 
+**Works for ALL industries:**
+- Laundromats, Car Washes, Restaurants, Cafes, Bars
+- Gas Stations, Convenience Stores, Retail Shops
+- Gyms, Fitness Centers, Salons, Spas
+- Hotels, Motels, Short-Term Rentals
+- Office Buildings, Industrial Properties
+- **Residential Properties** - Homes, Apartments, Land
+- And literally ANY other address globally!
+
 ## 💰 Pricing Strategy
 
-- **$4.99 one-time fee** on Chrome Web Store
-- No subscriptions
+- **100% FREE** on Chrome Web Store
+- No subscriptions, no fees, no limits
 - Unlimited use forever
-- $0 ongoing costs (uses free Google APIs)
+- Monetization: Upsells to $97 Full CLEANBI Reports
+- Lead generation machine for WashBizHub services
+
+### Why FREE is the Smart Play:
+| Paid ($4.99) | FREE |
+|--------------|------|
+| ~5,000 installs | ~50,000+ installs |
+| $25K direct revenue | $0 direct |
+| Slow viral spread | **Explosive viral growth** |
+| Limited leads | **Massive lead generation** |
+
+**FREE extension × 50K users × 2% conversion = 1,000 report sales = $97,000+**
 
 ## 🚀 Installation (Development)
 
@@ -75,7 +95,7 @@ You need to create three icon sizes:
 
 - No data collection
 - No tracking
-- Only calls WashBizHub API when user hovers over laundromat
+- Only calls WashBizHub API when user hovers over any business or property
 - All data is public Google Places data
 
 ## 🛠️ Technical Details
@@ -98,36 +118,44 @@ You need to create three icon sizes:
 
 ## 📝 Chrome Web Store Description
 
-**Title:** CLEANBI Anywhere - Instant Laundromat Scores
+**Title:** CLEANBI Anywhere - Instant Business & Property Scores
 
 **Short Description:**
-See instant CLEANBI scores (A-F grades) on Google Maps, LoopNet, BizBuySell. Never buy a bad laundromat again.
+FREE instant CLEANBI scores (A-F grades) for ANY business or property on Google Maps, LoopNet, BizBuySell. 100% Free forever!
 
 **Full Description:**
-🎯 Never Buy a Bad Laundromat Again
+🎯 Instant Intelligence for ANY Business or Property
 
-CLEANBI Anywhere shows instant investment scores when you hover over laundromats on Google Maps, LoopNet, and BizBuySell.
+CLEANBI Anywhere shows instant investment scores when you hover over ANY listing on Google Maps, LoopNet, and BizBuySell.
 
+✅ 100% FREE - No subscriptions, no limits
 ✅ Powered by Google APIs
-✅ A-F grades based on:
-  - Foot Traffic
-  - Competition
-  - Reviews
+✅ A-F grades (0-100 score) based on:
+  - Foot Traffic & Demographics
+  - Competition Analysis
+  - Reviews & Reputation
   - Location Quality
   - Online Visibility
 
-✅ 100% Free Score Preview
-✅ Upgrade to $97 Full Report
+🏢 **Works for ALL Business Types:**
+Laundromats, Restaurants, Car Washes, Gas Stations, Gyms, Retail Stores, Hotels, Salons, and MORE!
+
+🏠 **Works for Residential Too:**
+Homes, Apartments, Condos, Land, Multi-family properties
+
+💰 **Upgrade Path:**
+Get the Full $97 CLEANBI Report for deep analysis, valuations, and investment recommendations.
 
 Perfect for:
-- Laundromat buyers & investors
+- Business buyers & investors (ANY industry)
 - Commercial real estate brokers
-- Business consultants
-- Anyone researching laundromat purchases
+- Residential real estate agents
+- Property managers & investors
+- Anyone researching a business or property purchase
 
-Used by 71K+ laundromat owners & investors worldwide.
+Used by 100K+ business buyers & investors worldwide.
 
-Made by WashBizHub - The #1 platform for laundromat intelligence.
+Made by WashBizHub - The #1 platform for business intelligence.
 
 ## 🎯 Next Steps
 

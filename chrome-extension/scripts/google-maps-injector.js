@@ -1,8 +1,10 @@
 /**
  * CLEANBI GOOGLE MAPS INJECTOR
  * 
- * Detects laundromats on Google Maps and shows instant CLEANBI scores on hover.
- * This is the viral distribution mechanism for the 71K Facebook group.
+ * Detects ANY business or property on Google Maps and shows instant CLEANBI scores on hover.
+ * Works for: Laundromats, Restaurants, Car Washes, Gas Stations, Retail, Gyms, Hotels,
+ * Office Buildings, Industrial Properties, AND Residential (homes, apartments, land).
+ * This is the viral distribution mechanism - FREE extension with upsell to $97 reports.
  */
 
 (function() {
@@ -136,34 +138,31 @@
   }
 
   /**
-   * Check if element is a business listing (NOW WORKS FOR ANY BUSINESS!)
+   * Check if element is a business or property listing
    * 
-   * Target industries: Laundromats, Car Washes, Restaurants, Gas Stations, 
-   * Retail Stores, Gyms, and ANY other business
+   * UNIVERSAL: Works for ANY business type or residential property
+   * - Businesses: Laundromats, Restaurants, Car Washes, Gas Stations, Retail, Gyms, Hotels, etc.
+   * - Commercial: Office Buildings, Industrial, Warehouses, Shopping Centers
+   * - Residential: Homes, Apartments, Condos, Land, Multi-family
    */
   function isBusinessElement(element) {
     const text = element.textContent.toLowerCase();
     
-    // Must have BOTH business name AND address indicators (strict filtering)
+    // Must have basic structure indicators (title/name AND address/location)
     const hasTitle = element.querySelector('[class*="title"]') || 
                      element.querySelector('h1') || 
                      element.querySelector('h2') ||
-                     element.querySelector('h3');
+                     element.querySelector('h3') ||
+                     element.querySelector('[role="heading"]');
     
     const hasAddress = text.includes('directions') || 
                        text.includes('get directions') ||
                        element.querySelector('[class*="address"]') ||
-                       element.querySelector('[class*="location"]');
+                       element.querySelector('[class*="location"]') ||
+                       /\d+\s+[a-z]/i.test(text); // Street address pattern
     
-    // Priority keywords for high-value industries
-    const priorityKeywords = [
-      'laundromat', 'laundry', 'car wash', 'restaurant', 'cafe',
-      'gas station', 'gym', 'fitness', 'retail', 'store'
-    ];
-    const isPriorityBusiness = priorityKeywords.some(keyword => text.includes(keyword));
-    
-    // Must have basic structure (title + address) OR be priority industry
-    return (hasTitle && hasAddress) || isPriorityBusiness;
+    // Accept ANY listing with proper structure
+    return hasTitle && hasAddress;
   }
 
   /**
