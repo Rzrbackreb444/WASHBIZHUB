@@ -286,6 +286,7 @@ function Router() {
       <Route path="/marketplace-landing" component={MarketplaceLanding} />
       <Route path="/pos-landing" component={PosLanding} />
       <Route path="/pos" component={POSCommandCenter} />
+      <Route path="/pos-system" component={POSCommandCenter} />
       <Route path="/courses-landing" component={CoursesLanding} />
       <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
       <Route path="/design-studio-pro" component={DesignStudioPro} />

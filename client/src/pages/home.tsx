@@ -40,9 +40,9 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The Bloomberg of Laundromats", "CLEANBI"],
+    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub", "CLEANBI"],
     "url": baseUrl,
-    "description": "The #1 laundromat resource and educational hub. Enterprise-grade SaaS with CLEANBI universal scoring, AI consulting, marketplace, courses, 50+ calculators, and industry resources for 72,000+ professionals.",
+    "description": "The #1 laundromat resource and educational hub. Enterprise-grade SaaS with CLEANBI universal scoring, POS Command Center, AI consulting, marketplace, courses, 50+ calculators, and industry resources for 72,000+ professionals.",
     "potentialAction": [
       {
         "@type": "SearchAction",
@@ -61,7 +61,7 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The Bloomberg of Laundromats"],
+    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub"],
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
     "description": "The #1 laundromat resource and educational hub serving 72,000+ industry professionals worldwide with CLEANBI universal scoring, AI-powered business intelligence, marketplace, courses, and professional tools.",

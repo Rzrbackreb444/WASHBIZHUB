@@ -48,6 +48,7 @@ import {
   Sparkles,
   Newspaper,
   FolderOpen,
+  CreditCard,
 } from "lucide-react";
 import { SiFacebook } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -56,6 +57,7 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },
+  { href: "/pos-system", label: "POS System", icon: CreditCard },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/laundromat-listings", label: "Listings", icon: Store },
   { href: "/blog", label: "Blog", icon: Newspaper },
@@ -95,7 +97,7 @@ export function NavigationMenu() {
   const isActive = useMemo(() => (path: string) => location === path, [location]);
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-gradient-to-r from-background via-background/95 to-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 border-b bg-white dark:bg-gray-900 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" data-testid="link-logo">
