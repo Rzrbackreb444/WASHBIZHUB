@@ -12,18 +12,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DroppableCanvas, Block } from "@/components/website-builder/DroppableCanvas";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Globe, Plus, Layout, Palette, Bot, Image as ImageIcon, Video,
-  Settings, Save, ExternalLink, Upload, Trash2, Edit, Building2,
+  Globe, Plus, Layout, Palette, Bot, Image as ImageIcon, Video, FileText,
+  Settings, Save, ExternalLink, Upload, Trash2, Edit, Building2, Layers,
   Phone, Mail, MapPin, Clock, Facebook, Instagram, Star, Sparkles,
   MessageSquare, Zap, Shield, Link2, Eye, EyeOff, ChevronRight,
-  Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play
+  Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor
 } from "lucide-react";
 
 interface BusinessProfile {
@@ -110,12 +110,22 @@ interface Integration {
   lastSyncedAt: string | null;
 }
 
-const SERVICE_ICONS = [
-  { id: 'wash', name: 'Wash & Fold', icon: WashingMachine },
-  { id: 'dry-clean', name: 'Dry Cleaning', icon: Sparkles },
-  { id: 'pickup', name: 'Pickup & Delivery', icon: Truck },
-  { id: 'self-service', name: 'Self-Service', icon: ShoppingBag },
-  { id: 'alterations', name: 'Alterations', icon: PenTool },
+interface SiteProject {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  templateId: string | null;
+  createdAt: string;
+}
+
+const BLOCK_TYPES = [
+  { type: 'hero', name: 'Hero Section', icon: Monitor, description: 'Large header with headline and CTA' },
+  { type: 'features', name: 'Features Grid', icon: Layers, description: '3-column feature highlights' },
+  { type: 'testimonials', name: 'Testimonials', icon: Star, description: 'Customer reviews and quotes' },
+  { type: 'cta', name: 'Call to Action', icon: Zap, description: 'Conversion-focused section' },
+  { type: 'gallery', name: 'Image Gallery', icon: ImageIcon, description: 'Photo grid of your business' },
+  { type: 'text', name: 'Text Block', icon: FileText, description: 'Rich text content area' },
 ];
 
 const FONTS = [
@@ -131,10 +141,12 @@ const PERSONALITY_OPTIONS = [
 
 export default function WebsiteBuilder() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("branding");
+  const [activeTab, setActiveTab] = useState("pages");
   const [isUploading, setIsUploading] = useState(false);
   const [editingCard, setEditingCard] = useState<ServiceCard | null>(null);
   const [newCardDialogOpen, setNewCardDialogOpen] = useState(false);
+  const [addBlockDialogOpen, setAddBlockDialogOpen] = useState(false);
+  const [blocks, setBlocks] = useState<Block[]>([]);
 
   const { data: profile, isLoading: profileLoading } = useQuery<BusinessProfile | null>({
     queryKey: ['/api/whitelabel/business-profile'],
@@ -297,22 +309,19 @@ export default function WebsiteBuilder() {
     }
   };
 
-  if (profileLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Globe className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading your website builder...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleBlocksChange = (newBlocks: Block[]) => {
+    setBlocks(newBlocks);
+  };
+
+  const handleAISuggest = () => {
+    toast({ title: "AI Suggestions", description: "Generating layout suggestions based on your business..." });
+  };
 
   return (
     <>
       <SEO
-        title="White-Label Website Builder - Build Your Laundromat Website"
-        description="Create a professional laundromat website with custom branding, AI chatbot, service cards, and integrated marketing tools. No coding required."
+        title="Website Builder - Build Your Laundromat Website"
+        description="Create a professional laundromat website with drag-and-drop page building, custom branding, AI chatbot, and integrated marketing tools."
         canonicalUrl="/website-builder"
         keywords={["laundromat website builder", "white-label website", "business website creator", "AI chatbot builder"]}
       />
@@ -323,31 +332,47 @@ export default function WebsiteBuilder() {
         </div>
       </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-8">
         <div className="mx-auto max-w-7xl px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
-              <Sparkles className="w-3 h-3 mr-1" />
-              White-Label Website Builder
-            </Badge>
-            <h1 className="text-4xl font-bold text-white mb-2">Build Your Laundromat Website</h1>
-            <p className="text-lg text-white/70">
-              Custom branding, AI chatbot, service cards, and more — all in one place
-            </p>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <Badge className="mb-2 bg-primary/20 text-primary border-primary/30">
+                  <Globe className="w-3 h-3 mr-1" />
+                  Website Builder
+                </Badge>
+                <h1 className="text-3xl font-bold text-white">Build Your Website</h1>
+                <p className="text-white/70">Drag-and-drop pages, branding, AI chatbot, and more</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="border-primary/30" data-testid="button-preview-site">
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+                <Button className="bg-primary" data-testid="button-publish-site">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Publish
+                </Button>
+              </div>
+            </div>
           </motion.div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-card/50 backdrop-blur-sm border border-primary/20 p-1 flex-wrap h-auto gap-1">
+              <TabsTrigger value="pages" className="gap-2" data-testid="tab-pages">
+                <Layout className="w-4 h-4" />
+                Page Builder
+              </TabsTrigger>
               <TabsTrigger value="branding" className="gap-2" data-testid="tab-branding">
                 <Palette className="w-4 h-4" />
                 Branding
               </TabsTrigger>
               <TabsTrigger value="services" className="gap-2" data-testid="tab-services">
-                <Layout className="w-4 h-4" />
+                <Layers className="w-4 h-4" />
                 Services
               </TabsTrigger>
               <TabsTrigger value="ai-agent" className="gap-2" data-testid="tab-ai-agent">
@@ -364,6 +389,72 @@ export default function WebsiteBuilder() {
               </TabsTrigger>
             </TabsList>
 
+            {/* PAGE BUILDER TAB */}
+            <TabsContent value="pages" className="space-y-6">
+              <div className="grid lg:grid-cols-4 gap-6">
+                {/* Block Palette */}
+                <div className="space-y-4">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Plus className="w-4 h-4 text-primary" />
+                        Add Blocks
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {BLOCK_TYPES.map((blockType) => (
+                        <Button
+                          key={blockType.type}
+                          variant="outline"
+                          className="w-full justify-start h-auto py-3 border-border/50 hover-elevate"
+                          data-testid={`button-add-${blockType.type}`}
+                        >
+                          <blockType.icon className="w-4 h-4 mr-3 text-primary" />
+                          <div className="text-left">
+                            <p className="font-medium text-sm">{blockType.name}</p>
+                            <p className="text-xs text-muted-foreground">{blockType.description}</p>
+                          </div>
+                        </Button>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        AI Assist
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        variant="outline"
+                        className="w-full border-primary/30"
+                        onClick={handleAISuggest}
+                        data-testid="button-ai-generate"
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate Layout
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        AI will create a complete page based on your business
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Canvas */}
+                <div className="lg:col-span-3">
+                  <DroppableCanvas
+                    projectId="default"
+                    onBlocksChange={handleBlocksChange}
+                    onAISuggest={handleAISuggest}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* BRANDING TAB */}
             <TabsContent value="branding" className="space-y-6">
               <div className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -731,6 +822,7 @@ export default function WebsiteBuilder() {
               </div>
             </TabsContent>
 
+            {/* SERVICES TAB */}
             <TabsContent value="services" className="space-y-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -827,7 +919,7 @@ export default function WebsiteBuilder() {
               ) : serviceCards.length === 0 ? (
                 <Card className="bg-card/50 backdrop-blur-sm border-primary/20 border-dashed">
                   <CardContent className="py-12 text-center">
-                    <Layout className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <Layers className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                     <h3 className="text-lg font-semibold mb-2">No Service Cards Yet</h3>
                     <p className="text-muted-foreground mb-4">Add your first service to showcase on your website</p>
                     <Button onClick={() => setNewCardDialogOpen(true)}>
@@ -879,6 +971,7 @@ export default function WebsiteBuilder() {
               )}
             </TabsContent>
 
+            {/* AI CHATBOT TAB */}
             <TabsContent value="ai-agent" className="space-y-6">
               <div className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -1135,6 +1228,7 @@ export default function WebsiteBuilder() {
               </div>
             </TabsContent>
 
+            {/* MEDIA TAB */}
             <TabsContent value="media" className="space-y-6">
               <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
                 <CardHeader>
@@ -1182,6 +1276,7 @@ export default function WebsiteBuilder() {
               </Card>
             </TabsContent>
 
+            {/* INTEGRATIONS TAB */}
             <TabsContent value="integrations" className="space-y-6">
               <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
                 <CardHeader>
