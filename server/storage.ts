@@ -113,6 +113,17 @@ import {
   type InsertCalculatorConfig,
   type CalculatorInstance,
   type InsertCalculatorInstance,
+  // Calculator Marketplace
+  type CalculatorTemplate,
+  type InsertCalculatorTemplate,
+  type CalculatorReview,
+  type InsertCalculatorReview,
+  type CalculatorPurchase,
+  type InsertCalculatorPurchase,
+  type CalculatorUsageEvent,
+  type InsertCalculatorUsageEvent,
+  type CreatorProfile,
+  type InsertCreatorProfile,
   // Blog Suite Expansion
   type BlogSeries,
   type InsertBlogSeries,
@@ -548,6 +559,43 @@ export interface IStorage {
   getCalculatorInstance(id: string): Promise<CalculatorInstance | undefined>;
   createCalculatorInstance(instance: InsertCalculatorInstance): Promise<CalculatorInstance>;
   deleteCalculatorInstance(id: string): Promise<void>;
+  
+  // Calculator Marketplace
+  getCalculatorTemplates(filters?: { 
+    category?: string; 
+    status?: string; 
+    creatorId?: string;
+    featured?: boolean;
+    pricingType?: string;
+  }): Promise<CalculatorTemplate[]>;
+  getCalculatorTemplate(id: string): Promise<CalculatorTemplate | undefined>;
+  getCalculatorTemplateBySlug(slug: string): Promise<CalculatorTemplate | undefined>;
+  createCalculatorTemplate(template: InsertCalculatorTemplate): Promise<CalculatorTemplate>;
+  updateCalculatorTemplate(id: string, template: Partial<InsertCalculatorTemplate>): Promise<CalculatorTemplate>;
+  deleteCalculatorTemplate(id: string): Promise<void>;
+  incrementCalculatorViewCount(id: string): Promise<void>;
+  incrementCalculatorUseCount(id: string): Promise<void>;
+  
+  getCalculatorReviews(calculatorId: string): Promise<CalculatorReview[]>;
+  getCalculatorReview(id: string): Promise<CalculatorReview | undefined>;
+  createCalculatorReview(review: InsertCalculatorReview): Promise<CalculatorReview>;
+  updateCalculatorReview(id: string, review: Partial<InsertCalculatorReview>): Promise<CalculatorReview>;
+  deleteCalculatorReview(id: string): Promise<void>;
+  
+  getCalculatorPurchases(filters?: { buyerId?: string; creatorId?: string; calculatorId?: string }): Promise<CalculatorPurchase[]>;
+  getCalculatorPurchase(id: string): Promise<CalculatorPurchase | undefined>;
+  createCalculatorPurchase(purchase: InsertCalculatorPurchase): Promise<CalculatorPurchase>;
+  updateCalculatorPurchase(id: string, purchase: Partial<InsertCalculatorPurchase>): Promise<CalculatorPurchase>;
+  hasUserPurchasedCalculator(userId: string, calculatorId: string): Promise<boolean>;
+  
+  getCreatorProfiles(): Promise<CreatorProfile[]>;
+  getCreatorProfile(id: string): Promise<CreatorProfile | undefined>;
+  getCreatorProfileByUserId(userId: string): Promise<CreatorProfile | undefined>;
+  createCreatorProfile(profile: InsertCreatorProfile): Promise<CreatorProfile>;
+  updateCreatorProfile(id: string, profile: Partial<InsertCreatorProfile>): Promise<CreatorProfile>;
+  
+  logCalculatorUsageEvent(event: InsertCalculatorUsageEvent): Promise<CalculatorUsageEvent>;
+  getCalculatorUsageStats(calculatorId: string): Promise<{ views: number; calculations: number; shares: number }>;
   
   // Blog Suite Expansion
   getBlogSeries(filters?: { isPublished?: boolean }): Promise<BlogSeries[]>;

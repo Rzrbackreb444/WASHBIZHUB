@@ -176,6 +176,22 @@ import {
   type EnrichedForumTopic,
   type EnrichedForumReply,
   type ForumAuthor,
+  // Calculator Marketplace
+  calculatorTemplates,
+  calculatorReviews,
+  calculatorUsageEvents,
+  calculatorPurchases,
+  creatorProfiles,
+  type CalculatorTemplate,
+  type InsertCalculatorTemplate,
+  type CalculatorReview,
+  type InsertCalculatorReview,
+  type CalculatorUsageEvent,
+  type InsertCalculatorUsageEvent,
+  type CalculatorPurchase,
+  type InsertCalculatorPurchase,
+  type CreatorProfile,
+  type InsertCreatorProfile,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -2339,6 +2355,247 @@ export class DbStorage implements IStorage {
   async cleanupExpiredTokens(): Promise<void> {
     await db.delete(emailVerificationTokens)
       .where(sql`${emailVerificationTokens.expiresAt} < NOW()`);
+  }
+
+  // ============================================================================
+  // CALCULATOR MARKETPLACE
+  // ============================================================================
+
+  async getCalculatorTemplates(filters?: { 
+    category?: string; 
+    status?: string; 
+    creatorId?: string;
+    featured?: boolean;
+    pricingType?: string;
+  }): Promise<CalculatorTemplate[]> {
+    const conditions: SQL[] = [];
+    
+    if (filters?.category) {
+      conditions.push(eq(calculatorTemplates.category, filters.category));
+    }
+    if (filters?.status) {
+      conditions.push(eq(calculatorTemplates.status, filters.status));
+    }
+    if (filters?.creatorId) {
+      conditions.push(eq(calculatorTemplates.creatorId, filters.creatorId));
+    }
+    if (filters?.featured !== undefined) {
+      conditions.push(eq(calculatorTemplates.featured, filters.featured));
+    }
+    if (filters?.pricingType) {
+      conditions.push(eq(calculatorTemplates.pricingType, filters.pricingType));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(calculatorTemplates).where(and(...conditions))
+      : db.select().from(calculatorTemplates);
+    
+    return query.orderBy(desc(calculatorTemplates.viewCount));
+  }
+
+  async getCalculatorTemplate(id: string): Promise<CalculatorTemplate | undefined> {
+    const result = await db.select().from(calculatorTemplates).where(eq(calculatorTemplates.id, id));
+    return result[0];
+  }
+
+  async getCalculatorTemplateBySlug(slug: string): Promise<CalculatorTemplate | undefined> {
+    const result = await db.select().from(calculatorTemplates).where(eq(calculatorTemplates.slug, slug));
+    return result[0];
+  }
+
+  async createCalculatorTemplate(template: InsertCalculatorTemplate): Promise<CalculatorTemplate> {
+    const result = await db.insert(calculatorTemplates).values(template as typeof calculatorTemplates.$inferInsert).returning();
+    return result[0];
+  }
+
+  async updateCalculatorTemplate(id: string, template: Partial<InsertCalculatorTemplate>): Promise<CalculatorTemplate> {
+    const updateData = {
+      ...template,
+      updatedAt: new Date(),
+    } as Partial<typeof calculatorTemplates.$inferInsert>;
+    
+    const result = await db
+      .update(calculatorTemplates)
+      .set(updateData)
+      .where(eq(calculatorTemplates.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCalculatorTemplate(id: string): Promise<void> {
+    await db.delete(calculatorTemplates).where(eq(calculatorTemplates.id, id));
+  }
+
+  async incrementCalculatorViewCount(id: string): Promise<void> {
+    await db
+      .update(calculatorTemplates)
+      .set({ viewCount: sql`${calculatorTemplates.viewCount} + 1` })
+      .where(eq(calculatorTemplates.id, id));
+  }
+
+  async incrementCalculatorUseCount(id: string): Promise<void> {
+    await db
+      .update(calculatorTemplates)
+      .set({ useCount: sql`${calculatorTemplates.useCount} + 1` })
+      .where(eq(calculatorTemplates.id, id));
+  }
+
+  // Calculator Reviews
+  async getCalculatorReviews(calculatorId: string): Promise<CalculatorReview[]> {
+    return db.select()
+      .from(calculatorReviews)
+      .where(eq(calculatorReviews.calculatorId, calculatorId))
+      .orderBy(desc(calculatorReviews.createdAt));
+  }
+
+  async getCalculatorReview(id: string): Promise<CalculatorReview | undefined> {
+    const result = await db.select().from(calculatorReviews).where(eq(calculatorReviews.id, id));
+    return result[0];
+  }
+
+  async createCalculatorReview(review: InsertCalculatorReview): Promise<CalculatorReview> {
+    const result = await db.insert(calculatorReviews).values(review).returning();
+    
+    // Update calculator average rating
+    const reviews = await this.getCalculatorReviews(review.calculatorId);
+    const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    await db
+      .update(calculatorTemplates)
+      .set({ 
+        avgRating: avgRating.toFixed(2),
+        reviewCount: reviews.length 
+      })
+      .where(eq(calculatorTemplates.id, review.calculatorId));
+    
+    return result[0];
+  }
+
+  async updateCalculatorReview(id: string, review: Partial<InsertCalculatorReview>): Promise<CalculatorReview> {
+    const result = await db
+      .update(calculatorReviews)
+      .set({
+        ...review,
+        updatedAt: new Date(),
+      })
+      .where(eq(calculatorReviews.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCalculatorReview(id: string): Promise<void> {
+    await db.delete(calculatorReviews).where(eq(calculatorReviews.id, id));
+  }
+
+  // Calculator Purchases
+  async getCalculatorPurchases(filters?: { buyerId?: string; creatorId?: string; calculatorId?: string }): Promise<CalculatorPurchase[]> {
+    const conditions: SQL[] = [];
+    
+    if (filters?.buyerId) {
+      conditions.push(eq(calculatorPurchases.buyerId, filters.buyerId));
+    }
+    if (filters?.creatorId) {
+      conditions.push(eq(calculatorPurchases.creatorId, filters.creatorId));
+    }
+    if (filters?.calculatorId) {
+      conditions.push(eq(calculatorPurchases.calculatorId, filters.calculatorId));
+    }
+    
+    const query = conditions.length > 0
+      ? db.select().from(calculatorPurchases).where(and(...conditions))
+      : db.select().from(calculatorPurchases);
+    
+    return query.orderBy(desc(calculatorPurchases.createdAt));
+  }
+
+  async getCalculatorPurchase(id: string): Promise<CalculatorPurchase | undefined> {
+    const result = await db.select().from(calculatorPurchases).where(eq(calculatorPurchases.id, id));
+    return result[0];
+  }
+
+  async createCalculatorPurchase(purchase: InsertCalculatorPurchase): Promise<CalculatorPurchase> {
+    const result = await db.insert(calculatorPurchases).values(purchase).returning();
+    
+    // Increment purchase count on calculator
+    await db
+      .update(calculatorTemplates)
+      .set({ purchaseCount: sql`${calculatorTemplates.purchaseCount} + 1` })
+      .where(eq(calculatorTemplates.id, purchase.calculatorId));
+    
+    return result[0];
+  }
+
+  async updateCalculatorPurchase(id: string, purchase: Partial<InsertCalculatorPurchase>): Promise<CalculatorPurchase> {
+    const result = await db
+      .update(calculatorPurchases)
+      .set(purchase)
+      .where(eq(calculatorPurchases.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async hasUserPurchasedCalculator(userId: string, calculatorId: string): Promise<boolean> {
+    const result = await db.select()
+      .from(calculatorPurchases)
+      .where(
+        and(
+          eq(calculatorPurchases.buyerId, userId),
+          eq(calculatorPurchases.calculatorId, calculatorId),
+          eq(calculatorPurchases.status, 'completed')
+        )
+      );
+    return result.length > 0;
+  }
+
+  // Creator Profiles
+  async getCreatorProfiles(): Promise<CreatorProfile[]> {
+    return db.select().from(creatorProfiles).orderBy(desc(creatorProfiles.totalEarnings));
+  }
+
+  async getCreatorProfile(id: string): Promise<CreatorProfile | undefined> {
+    const result = await db.select().from(creatorProfiles).where(eq(creatorProfiles.id, id));
+    return result[0];
+  }
+
+  async getCreatorProfileByUserId(userId: string): Promise<CreatorProfile | undefined> {
+    const result = await db.select().from(creatorProfiles).where(eq(creatorProfiles.userId, userId));
+    return result[0];
+  }
+
+  async createCreatorProfile(profile: InsertCreatorProfile): Promise<CreatorProfile> {
+    const result = await db.insert(creatorProfiles).values(profile as typeof creatorProfiles.$inferInsert).returning();
+    return result[0];
+  }
+
+  async updateCreatorProfile(id: string, profile: Partial<InsertCreatorProfile>): Promise<CreatorProfile> {
+    const updateData = {
+      ...profile,
+      updatedAt: new Date(),
+    } as Partial<typeof creatorProfiles.$inferInsert>;
+    
+    const result = await db
+      .update(creatorProfiles)
+      .set(updateData)
+      .where(eq(creatorProfiles.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Calculator Usage Events
+  async logCalculatorUsageEvent(event: InsertCalculatorUsageEvent): Promise<CalculatorUsageEvent> {
+    const result = await db.insert(calculatorUsageEvents).values(event).returning();
+    return result[0];
+  }
+
+  async getCalculatorUsageStats(calculatorId: string): Promise<{ views: number; calculations: number; shares: number }> {
+    const events = await db.select()
+      .from(calculatorUsageEvents)
+      .where(eq(calculatorUsageEvents.calculatorId, calculatorId));
+    
+    const views = events.filter(e => e.eventType === 'view').length;
+    const calculations = events.filter(e => e.eventType === 'calculate').length;
+    const shares = events.filter(e => e.eventType === 'share').length;
+    
+    return { views, calculations, shares };
   }
 }
 
