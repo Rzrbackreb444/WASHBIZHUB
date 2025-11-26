@@ -146,6 +146,7 @@ import EquipmentMarketplace from "@/pages/equipment-marketplace";
 import LearningPage from "@/pages/learning";
 import MarketplaceLanding from "@/pages/landing/marketplace-landing";
 import PosLanding from "@/pages/landing/pos-landing";
+import POSCommandCenter from "@/pages/pos-command-center";
 import CoursesLanding from "@/pages/landing/courses-landing";
 import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import DesignStudioPro from "@/pages/design-studio-pro";
@@ -284,6 +285,7 @@ function Router() {
       <Route path="/learning" component={LearningPage} />
       <Route path="/marketplace-landing" component={MarketplaceLanding} />
       <Route path="/pos-landing" component={PosLanding} />
+      <Route path="/pos" component={POSCommandCenter} />
       <Route path="/courses-landing" component={CoursesLanding} />
       <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
       <Route path="/design-studio-pro" component={DesignStudioPro} />
@@ -319,7 +321,7 @@ function AppContent() {
   const [location] = useLocation();
   
   // Full-screen apps that need their own layout (no global nav/footer)
-  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro'];
+  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
   
   if (isFullScreenApp) {
