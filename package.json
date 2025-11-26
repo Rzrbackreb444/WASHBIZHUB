@@ -69,6 +69,7 @@
     "@types/react-rnd": "^7.4.4",
     "@types/redis": "^4.0.10",
     "@vis.gl/react-google-maps": "^1.7.1",
+    "archiver": "^7.0.1",
     "aws4fetch": "^1.0.20",
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
