@@ -182,21 +182,21 @@ export default function ResourcesPage() {
             <DashboardGrid cols={4}>
               <StatCard
                 title="Total Resources"
-                value={resources.length || 100}
+                value={isLoading ? "..." : resources.length}
                 subtitle="Professional tools"
                 icon={Zap}
                 variant="blue"
               />
               <StatCard
                 title="Calculators"
-                value={resources.filter(r => r.resourceType === 'calculator').length || 25}
+                value={isLoading ? "..." : resources.filter(r => r.resourceType === 'calculator').length}
                 subtitle="Financial analysis"
                 icon={Calculator}
                 variant="green"
               />
               <StatCard
                 title="Guides & Checklists"
-                value={resources.filter(r => ['guide', 'checklist'].includes(r.resourceType || '')).length || 45}
+                value={isLoading ? "..." : resources.filter(r => ['guide', 'checklist'].includes(r.resourceType || '')).length}
                 subtitle="Step-by-step"
                 icon={FileText}
                 variant="purple"
