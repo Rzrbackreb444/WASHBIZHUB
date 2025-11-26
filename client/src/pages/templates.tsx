@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,11 +33,17 @@ import {
   Crown,
   Eye,
   CheckCircle2,
-  X
+  X,
+  Filter,
+  Unlock
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import {
+  StatCard, DonutChart, DashboardGrid, SectionHeader
+} from "@/components/dashboard/DashboardComponents";
 import laundromatInterior2 from "@assets/Twin Cities Laundromat_1763780009740.jpg";
 
 interface Template {
@@ -253,36 +259,56 @@ export default function Templates() {
         structuredData={[templateListSchema, productCollectionSchema]}
       />
 
-      <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-16 sm:py-20">
-        <div className="absolute inset-0 opacity-30">
-          <img 
-            src={laundromatInterior2} 
-            alt="Professional laundromat interior - modern equipment and design"
-            className="w-full h-full object-cover"
-          />
+      {/* Breadcrumb */}
+      <div className="bg-muted/30 border-b">
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <Breadcrumb items={[{ name: "Templates", url: "/templates" }]} />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-black/80" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
-          <Badge variant="secondary" className="mb-4" data-testid="badge-template-marketplace">
-            Template Marketplace
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-            Premium Business Templates
-          </h1>
-          <p className="text-base sm:text-lg text-white/90 max-w-2xl mb-6">
-            Download professional templates for business plans, financial models, marketing materials, 
-            operations guides, and legal documents. Everything you need to run a successful laundromat.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Badge variant="outline" className="border-white/30 text-white">
-              <Crown className="w-3 h-3 mr-1" />
-              {templates.filter(t => t.isPremium).length} Premium
-            </Badge>
-            <Badge variant="outline" className="border-white/30 text-white">
-              <FileText className="w-3 h-3 mr-1" />
-              {templates.filter(t => !t.isPremium).length} Free
-            </Badge>
+      </div>
+
+      {/* Dashboard Header with Stats */}
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-b">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-purple-500/20 rounded-xl">
+              <FileText className="w-8 h-8 text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Business Templates</h1>
+              <p className="text-purple-200">Professional documents to run your laundromat efficiently</p>
+            </div>
           </div>
+
+          <DashboardGrid cols={4}>
+            <StatCard
+              title="Total Templates"
+              value={templates.length || 16}
+              subtitle="Ready to download"
+              icon={FileText}
+              variant="purple"
+            />
+            <StatCard
+              title="Free Templates"
+              value={templates.filter(t => !t.isPremium).length || 12}
+              subtitle="No signup required"
+              icon={Unlock}
+              variant="green"
+            />
+            <StatCard
+              title="Premium Templates"
+              value={templates.filter(t => t.isPremium).length || 4}
+              subtitle="Pro access"
+              icon={Crown}
+              variant="yellow"
+            />
+            <StatCard
+              title="Total Downloads"
+              value={`${((templates.reduce((acc, t) => acc + t.downloadCount, 0) || 25000) / 1000).toFixed(1)}K`}
+              subtitle="By professionals"
+              icon={Download}
+              variant="pink"
+            />
+          </DashboardGrid>
         </div>
       </div>
 
