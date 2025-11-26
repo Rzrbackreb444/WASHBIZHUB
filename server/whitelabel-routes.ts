@@ -599,5 +599,137 @@ export function createWhiteLabelRoutes() {
     }
   });
 
+  // ==================== AI CHATBOT ENDPOINT ====================
+  router.post("/chat", async (req: any, res) => {
+    try {
+      const { message, tenantId, context } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      const { 
+        businessName, 
+        services, 
+        businessHours, 
+        businessPhone, 
+        businessEmail, 
+        businessAddress,
+        commonQuestions,
+        canTakeOrders,
+        canSchedulePickups,
+        canAnswerPricing,
+      } = context || {};
+
+      // Build knowledge base context
+      let knowledgeContext = `You are a helpful store assistant for ${businessName || 'a laundromat'}. `;
+      knowledgeContext += `You should be friendly, helpful, and professional. `;
+      
+      if (businessPhone) {
+        knowledgeContext += `Store phone: ${businessPhone}. `;
+      }
+      if (businessEmail) {
+        knowledgeContext += `Store email: ${businessEmail}. `;
+      }
+      if (businessAddress) {
+        knowledgeContext += `Store location: ${businessAddress}. `;
+      }
+      if (businessHours) {
+        knowledgeContext += `Business hours: ${JSON.stringify(businessHours)}. `;
+      }
+      if (services && services.length > 0) {
+        knowledgeContext += `Services offered: ${services.map((s: any) => `${s.title}${s.price ? ` (${s.price})` : ''}`).join(', ')}. `;
+      }
+      if (commonQuestions && commonQuestions.length > 0) {
+        knowledgeContext += `Common Q&A: ${commonQuestions.map((q: any) => `Q: ${q.question} A: ${q.answer}`).join('; ')}. `;
+      }
+
+      // Detect intent
+      const lowerMessage = message.toLowerCase();
+      let quickReplies: string[] = [];
+      let captureEmail = false;
+      let responseText = "";
+
+      // Handle common intents locally for speed
+      if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('how much')) {
+        if (canAnswerPricing && services && services.length > 0) {
+          responseText = `Here are our services and pricing:\n\n${services.map((s: any) => `• **${s.title}**: ${s.price || 'Contact us for pricing'}${s.description ? ` - ${s.description}` : ''}`).join('\n')}\n\nWould you like to know more about any specific service?`;
+          quickReplies = ["Schedule Pickup", "Hours", "Location"];
+        } else {
+          responseText = `For pricing information, please call us at ${businessPhone || 'our store'} or email ${businessEmail || 'us'}. We'd be happy to provide a quote!`;
+          quickReplies = ["Hours", "Location"];
+        }
+      } else if (lowerMessage.includes('hour') || lowerMessage.includes('open') || lowerMessage.includes('close')) {
+        if (businessHours) {
+          const hoursDisplay = Object.entries(businessHours)
+            .map(([day, hours]: [string, any]) => `• ${day}: ${hours.open} - ${hours.close}`)
+            .join('\n');
+          responseText = `Our business hours are:\n\n${hoursDisplay}\n\nIs there anything else I can help you with?`;
+        } else {
+          responseText = `Please call us at ${businessPhone || 'our store'} for our current hours. We're happy to help!`;
+        }
+        quickReplies = ["Pricing", "Location", "Schedule Pickup"];
+      } else if (lowerMessage.includes('location') || lowerMessage.includes('where') || lowerMessage.includes('address') || lowerMessage.includes('find')) {
+        if (businessAddress) {
+          responseText = `We're located at:\n\n📍 ${businessAddress}\n\nNeed directions? Just search for "${businessName}" in your maps app!`;
+        } else {
+          responseText = `Please call us at ${businessPhone || 'our store'} for directions. We'd love to see you!`;
+        }
+        quickReplies = ["Pricing", "Hours", "Schedule Pickup"];
+      } else if (lowerMessage.includes('pickup') || lowerMessage.includes('delivery') || lowerMessage.includes('schedule')) {
+        if (canSchedulePickups) {
+          responseText = `Great! I'd be happy to help schedule a pickup. To get started, could you share your email address? We'll send you a confirmation and pickup details.`;
+          captureEmail = true;
+          quickReplies = [];
+        } else {
+          responseText = `For pickup and delivery service, please call us at ${businessPhone || 'our store'} or email ${businessEmail || 'us'} to schedule.`;
+          quickReplies = ["Pricing", "Hours", "Location"];
+        }
+      } else if (lowerMessage.includes('order') || lowerMessage.includes('place order')) {
+        if (canTakeOrders) {
+          responseText = `Awesome! I can help you place an order. First, could you share your email address so we can send you a confirmation?`;
+          captureEmail = true;
+          quickReplies = [];
+        } else {
+          responseText = `To place an order, please visit us in store or call ${businessPhone || 'our store'}. We look forward to serving you!`;
+          quickReplies = ["Pricing", "Hours", "Location"];
+        }
+      } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+        responseText = `Hello! Welcome to ${businessName || 'our store'}! How can I help you today? I can answer questions about our services, hours, pricing, and more.`;
+        quickReplies = ["Pricing", "Hours", "Location"];
+      } else if (lowerMessage.includes('thank')) {
+        responseText = `You're welcome! Is there anything else I can help you with?`;
+        quickReplies = ["Pricing", "Hours", "Location"];
+      } else {
+        // Check common questions first
+        if (commonQuestions && commonQuestions.length > 0) {
+          const matchedQuestion = commonQuestions.find((q: any) => 
+            lowerMessage.includes(q.question.toLowerCase().slice(0, 20)) ||
+            q.question.toLowerCase().includes(lowerMessage.slice(0, 20))
+          );
+          if (matchedQuestion) {
+            responseText = matchedQuestion.answer;
+            quickReplies = ["Pricing", "Hours", "Location"];
+          }
+        }
+        
+        // Default response if no match
+        if (!responseText) {
+          responseText = `Thanks for your message! I'm here to help with questions about our services, hours, location, and pricing. What would you like to know?`;
+          quickReplies = ["Pricing", "Hours", "Location", "Schedule Pickup"];
+        }
+      }
+
+      res.json({ 
+        response: responseText, 
+        quickReplies,
+        captureEmail,
+      });
+    } catch (error: any) {
+      console.error("Error in chat endpoint:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return router;
 }
