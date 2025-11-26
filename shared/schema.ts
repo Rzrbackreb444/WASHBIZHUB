@@ -9616,5 +9616,428 @@ export type InsertOnlineOrder = z.infer<typeof insertOnlineOrderSchema>;
 export type OnlineOrder = typeof onlineOrders.$inferSelect;
 
 // ============================================================================
+// ENTERPRISE SEO/AEO PLATFORM EXTENSIONS (Rivals SearchAtlas)
+// ============================================================================
+
+// Crawled Pages - Website audit data
+export const crawledPages = pgTable("crawled_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  
+  // Page Info
+  url: text("url").notNull(),
+  canonicalUrl: text("canonical_url"),
+  status: integer("status"), // HTTP status code (200, 301, 404, etc.)
+  redirectUrl: text("redirect_url"), // If redirected
+  
+  // Content Analysis
+  title: text("title"),
+  metaDescription: text("meta_description"),
+  h1: text("h1"),
+  wordCount: integer("word_count"),
+  
+  // Technical SEO
+  headings: jsonb("headings").$type<{
+    h1Count: number;
+    h2Count: number;
+    h3Count: number;
+    structure: string[];
+  }>(),
+  meta: jsonb("meta").$type<{
+    robots?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    twitterCard?: string;
+    viewport?: string;
+    charset?: string;
+  }>(),
+  
+  // Core Web Vitals
+  vitals: jsonb("vitals").$type<{
+    lcp?: number; // Largest Contentful Paint (ms)
+    fid?: number; // First Input Delay (ms)
+    cls?: number; // Cumulative Layout Shift
+    ttfb?: number; // Time to First Byte (ms)
+    speedScore?: number; // PageSpeed score 0-100
+  }>(),
+  
+  // Images
+  imagesWithoutAlt: integer("images_without_alt").default(0),
+  totalImages: integer("total_images").default(0),
+  
+  // Links
+  internalLinksCount: integer("internal_links_count").default(0),
+  externalLinksCount: integer("external_links_count").default(0),
+  brokenLinksCount: integer("broken_links_count").default(0),
+  
+  // Crawl Info
+  depth: integer("depth").default(0), // Distance from homepage
+  crawlTime: integer("crawl_time"), // Time to crawl in ms
+  lastCrawledAt: timestamp("last_crawled_at").defaultNow().notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("crawled_pages_project_idx").on(table.projectId),
+  urlIdx: index("crawled_pages_url_idx").on(table.url),
+}));
+
+export const insertCrawledPageSchema = createInsertSchema(crawledPages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCrawledPage = z.infer<typeof insertCrawledPageSchema>;
+export type CrawledPage = typeof crawledPages.$inferSelect;
+
+// Backlinks - Inbound link analysis
+export const seoBacklinks = pgTable("seo_backlinks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  
+  // Link Details
+  sourceUrl: text("source_url").notNull(), // Page linking TO us
+  sourceDomain: text("source_domain").notNull(), // Domain of source
+  targetUrl: text("target_url").notNull(), // Our page being linked
+  anchorText: text("anchor_text"), // Link text
+  
+  // Link Attributes
+  rel: text("rel"), // "dofollow", "nofollow", "sponsored", "ugc"
+  isNofollow: boolean("is_nofollow").default(false).notNull(),
+  linkType: text("link_type"), // "text", "image", "redirect"
+  
+  // Quality Metrics
+  domainAuthority: integer("domain_authority"), // 0-100 (Moz-style)
+  pageAuthority: integer("page_authority"), // 0-100
+  spamScore: integer("spam_score"), // 0-100 (lower is better)
+  linkQuality: text("link_quality"), // "high", "medium", "low", "toxic"
+  
+  // Discovery
+  firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+  lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  isLive: boolean("is_live").default(true).notNull(),
+  
+  // Source (how we found this backlink)
+  discoverySource: text("discovery_source"), // "commoncrawl", "crawler", "gsc", "manual"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("seo_backlinks_project_idx").on(table.projectId),
+  sourceDomainIdx: index("seo_backlinks_source_domain_idx").on(table.sourceDomain),
+}));
+
+export const insertSeoBacklinkSchema = createInsertSchema(seoBacklinks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoBacklink = z.infer<typeof insertSeoBacklinkSchema>;
+export type SeoBacklink = typeof seoBacklinks.$inferSelect;
+
+// Audit Issues - SEO problems found
+export const auditIssues = pgTable("audit_issues", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  pageId: varchar("page_id").references(() => crawledPages.id),
+  
+  // Issue Classification
+  ruleId: varchar("rule_id").notNull(), // "missing_meta_description", "slow_lcp", "broken_link"
+  severity: text("severity").notNull(), // "critical", "warning", "info"
+  category: text("category").notNull(), // "technical", "content", "performance", "accessibility"
+  
+  // Issue Details
+  title: text("title").notNull(), // "Missing meta description"
+  description: text("description").notNull(), // Full explanation
+  affectedUrl: text("affected_url"), // URL where issue was found
+  affectedElement: text("affected_element"), // Element selector or HTML snippet
+  
+  // Impact
+  estimatedImpact: text("estimated_impact"), // "high", "medium", "low"
+  impactScore: integer("impact_score"), // 0-100
+  
+  // Fix Guidance
+  howToFix: text("how_to_fix"), // Instructions to resolve
+  autoFixable: boolean("auto_fixable").default(false).notNull(), // Can we auto-fix?
+  fixCode: text("fix_code"), // Code snippet to fix
+  
+  // Status
+  status: text("status").default("open"), // "open", "fixed", "ignored", "false_positive"
+  fixedAt: timestamp("fixed_at"),
+  ignoredReason: text("ignored_reason"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("audit_issues_project_idx").on(table.projectId),
+  severityIdx: index("audit_issues_severity_idx").on(table.severity),
+  statusIdx: index("audit_issues_status_idx").on(table.status),
+}));
+
+export const insertAuditIssueSchema = createInsertSchema(auditIssues).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAuditIssue = z.infer<typeof insertAuditIssueSchema>;
+export type AuditIssue = typeof auditIssues.$inferSelect;
+
+// SEO Recommendations - AI-generated suggestions
+export const seoRecommendations = pgTable("seo_recommendations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  pageId: varchar("page_id").references(() => crawledPages.id),
+  
+  // Recommendation Type
+  type: text("type").notNull(), // "content", "technical", "backlink", "keyword", "performance"
+  priority: integer("priority").default(5), // 1-10 (10 = highest)
+  
+  // Recommendation Details
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  rationale: text("rationale"), // Why this matters
+  
+  // Impact/Effort Matrix
+  estimatedImpact: text("estimated_impact"), // "high", "medium", "low"
+  estimatedEffort: text("estimated_effort"), // "quick_win", "moderate", "significant"
+  
+  // Implementation
+  actionItems: jsonb("action_items").$type<string[]>(), // Step-by-step actions
+  resourcesNeeded: jsonb("resources_needed").$type<string[]>(), // Tools/resources needed
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "in_progress", "completed", "dismissed"
+  completedAt: timestamp("completed_at"),
+  
+  // AI Metadata
+  aiGenerated: boolean("ai_generated").default(true).notNull(),
+  aiProvider: text("ai_provider"), // "gemini", "anthropic", etc.
+  confidence: integer("confidence"), // 0-100 AI confidence score
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("seo_recommendations_project_idx").on(table.projectId),
+  typeIdx: index("seo_recommendations_type_idx").on(table.type),
+  priorityIdx: index("seo_recommendations_priority_idx").on(table.priority),
+}));
+
+export const insertSeoRecommendationSchema = createInsertSchema(seoRecommendations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoRecommendation = z.infer<typeof insertSeoRecommendationSchema>;
+export type SeoRecommendation = typeof seoRecommendations.$inferSelect;
+
+// External Connections - WordPress/Shopify/Webhook integrations
+export const externalConnections = pgTable("external_connections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  
+  // Connection Info
+  name: text("name").notNull(), // "Client ABC WordPress"
+  type: text("type").notNull(), // "wordpress", "shopify", "webhook", "ghost", "medium"
+  baseUrl: text("base_url").notNull(), // "https://clientabc.com"
+  
+  // Authentication (encrypted)
+  authType: text("auth_type"), // "api_key", "oauth", "basic"
+  auth: jsonb("auth").$type<{
+    apiKey?: string;
+    username?: string;
+    password?: string;
+    accessToken?: string;
+    refreshToken?: string;
+  }>(),
+  
+  // Connection Status
+  status: text("status").default("active"), // "active", "error", "disconnected"
+  lastConnectedAt: timestamp("last_connected_at"),
+  lastError: text("last_error"),
+  
+  // Settings
+  settings: jsonb("settings").$type<{
+    defaultCategory?: string;
+    defaultAuthor?: string;
+    autoPublish?: boolean;
+    publishStatus?: "publish" | "draft" | "pending";
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("external_connections_user_idx").on(table.userId),
+  typeIdx: index("external_connections_type_idx").on(table.type),
+}));
+
+export const insertExternalConnectionSchema = createInsertSchema(externalConnections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertExternalConnection = z.infer<typeof insertExternalConnectionSchema>;
+export type ExternalConnection = typeof externalConnections.$inferSelect;
+
+// SEO Publications - Content published to external sites
+export const seoPublications = pgTable("seo_publications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  connectionId: varchar("connection_id").references(() => externalConnections.id).notNull(),
+  blogPostId: varchar("blog_post_id").references(() => blogPosts.id),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  
+  // External Post Info
+  externalPostId: text("external_post_id"), // ID on external platform
+  externalUrl: text("external_url"), // Published URL
+  
+  // Content (snapshot at time of publish)
+  title: text("title").notNull(),
+  slug: text("slug"),
+  
+  // Publication Status
+  status: text("status").default("pending"), // "pending", "published", "failed", "deleted"
+  publishedAt: timestamp("published_at"),
+  lastSyncedAt: timestamp("last_synced_at"),
+  
+  // Errors
+  error: text("error"),
+  retryCount: integer("retry_count").default(0),
+  
+  // Performance (if tracked)
+  views: integer("views").default(0),
+  engagement: jsonb("engagement").$type<{
+    likes?: number;
+    comments?: number;
+    shares?: number;
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  connectionIdx: index("seo_publications_connection_idx").on(table.connectionId),
+  statusIdx: index("seo_publications_status_idx").on(table.status),
+}));
+
+export const insertSeoPublicationSchema = createInsertSchema(seoPublications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoPublication = z.infer<typeof insertSeoPublicationSchema>;
+export type SeoPublication = typeof seoPublications.$inferSelect;
+
+// Internal Link Graph - For site structure analysis
+export const linkGraph = pgTable("link_graph", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  
+  // Link Relationship
+  fromUrl: text("from_url").notNull(),
+  toUrl: text("to_url").notNull(),
+  anchorText: text("anchor_text"),
+  
+  // Link Attributes
+  rel: text("rel"), // "follow", "nofollow", etc.
+  isInternal: boolean("is_internal").default(true).notNull(),
+  
+  // Context
+  context: text("context"), // "navigation", "content", "footer", "sidebar"
+  surroundingText: text("surrounding_text"), // Text around the link
+  
+  discoveredAt: timestamp("discovered_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("link_graph_project_idx").on(table.projectId),
+  fromUrlIdx: index("link_graph_from_url_idx").on(table.fromUrl),
+  toUrlIdx: index("link_graph_to_url_idx").on(table.toUrl),
+}));
+
+export const insertLinkGraphSchema = createInsertSchema(linkGraph).omit({
+  id: true,
+  discoveredAt: true,
+});
+
+export type InsertLinkGraph = z.infer<typeof insertLinkGraphSchema>;
+export type LinkGraph = typeof linkGraph.$inferSelect;
+
+// SERP Snapshots - Historical ranking data for heatmaps
+export const serpSnapshots = pgTable("serp_snapshots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  keywordId: varchar("keyword_id").references(() => seoKeywords.id).notNull(),
+  
+  // Location (for geo heatmaps)
+  locationName: text("location_name"), // "New York, NY" or "Austin, TX"
+  latitude: decimal("latitude", { precision: 10, scale: 6 }),
+  longitude: decimal("longitude", { precision: 10, scale: 6 }),
+  countryCode: varchar("country_code", { length: 2 }),
+  
+  // Ranking Data
+  position: integer("position"), // 1-100 (null = not ranking)
+  url: text("url"), // Which URL is ranking
+  title: text("title"), // Title in SERP
+  snippet: text("snippet"), // Description shown
+  
+  // SERP Features
+  features: jsonb("features").$type<{
+    hasFeaturedSnippet?: boolean;
+    hasLocalPack?: boolean;
+    hasPeopleAlsoAsk?: boolean;
+    hasKnowledgePanel?: boolean;
+    hasVideoCarousel?: boolean;
+    hasImagePack?: boolean;
+  }>(),
+  
+  fetchedAt: timestamp("fetched_at").defaultNow().notNull(),
+}, (table) => ({
+  projectKeywordIdx: index("serp_snapshots_project_keyword_idx").on(table.projectId, table.keywordId),
+  fetchedAtIdx: index("serp_snapshots_fetched_at_idx").on(table.fetchedAt),
+}));
+
+export const insertSerpSnapshotSchema = createInsertSchema(serpSnapshots).omit({
+  id: true,
+  fetchedAt: true,
+}).extend({
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+});
+
+export type InsertSerpSnapshot = z.infer<typeof insertSerpSnapshotSchema>;
+export type SerpSnapshot = typeof serpSnapshots.$inferSelect;
+
+// Competitor Projects - Track competitor performance
+export const seoCompetitors = pgTable("seo_competitors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id).notNull(),
+  
+  // Competitor Info
+  domain: text("domain").notNull(),
+  name: text("name"), // Friendly name
+  
+  // Metrics
+  estimatedTraffic: integer("estimated_traffic"),
+  domainAuthority: integer("domain_authority"),
+  backlinksCount: integer("backlinks_count"),
+  keywordsRanking: integer("keywords_ranking"), // Total keywords ranking for
+  
+  // Visibility Score (0-100)
+  visibilityScore: integer("visibility_score"),
+  
+  // Last Analysis
+  lastAnalyzedAt: timestamp("last_analyzed_at"),
+  
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("seo_competitors_project_idx").on(table.projectId),
+  domainIdx: index("seo_competitors_domain_idx").on(table.domain),
+}));
+
+export const insertSeoCompetitorSchema = createInsertSchema(seoCompetitors).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSeoCompetitor = z.infer<typeof insertSeoCompetitorSchema>;
+export type SeoCompetitor = typeof seoCompetitors.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with White-Label Features
 // ============================================================================
