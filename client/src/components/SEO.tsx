@@ -39,7 +39,7 @@ export function SEO({
   fbAppId = "557248372195",
 }: SEOProps) {
   const siteName = "WashBizHub";
-  const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - The Bloomberg of Laundromats`;
+  const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - #1 Laundromat Resource`;
   // Use baseUrl from env or default to current origin (safe for SSR)
   const baseUrl = import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com');
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
@@ -51,10 +51,10 @@ export function SEO({
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "WashBizHub",
-    "alternateName": "The Bloomberg of Laundromats",
+    "alternateName": "The #1 Laundromat Resource & Educational Hub",
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "Enterprise-grade SaaS platform for the laundromat industry - combining POS systems, IoT monitoring, AI consulting, marketplace, and business intelligence serving 72,000+ potential customers worldwide.",
+    "description": "The #1 laundromat resource for owners, operators, brokers, investors, buyers, sellers, vendors. US & Global listings, CLEANBI analyzer, Chrome extension, valuations, competition analysis, courses, calculators, funding.",
     "sameAs": [
       "https://www.facebook.com/washbizhub1",
       "https://twitter.com/washbizhub",
@@ -80,9 +80,9 @@ export function SEO({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "WashBizHub",
-    "alternateName": "The Bloomberg of Laundromats",
+    "alternateName": "The #1 Laundromat Resource & Educational Hub",
     "url": baseUrl,
-    "description": "The world's first Bloomberg-grade SaaS platform for the laundromat industry",
+    "description": "The #1 laundromat resource — listings, equipment, CLEANBI, courses, calculators, funding, and vendors. US & Global.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
