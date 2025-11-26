@@ -417,6 +417,129 @@ router.post("/webhook", async (req, res) => {
 });
 
 // ============================================================================
+// STRIPE INVOICE
+// ============================================================================
+
+// Create and send a Stripe invoice (for custom deals like Benjamin/Londr)
+router.post("/invoice", async (req, res) => {
+  try {
+    const { 
+      email, 
+      companyName, 
+      contactName,
+      amount, // in dollars
+      description, 
+      items, // array of { name, amount } for line items
+      dueInDays = 7,
+      sendEmail = true
+    } = req.body;
+    
+    if (!email || !amount || !description) {
+      return res.status(400).json({ error: "Email, amount, and description are required" });
+    }
+    
+    // Find or create Stripe customer
+    let customer: Stripe.Customer;
+    const existingCustomers = await stripe.customers.list({ email, limit: 1 });
+    
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0];
+    } else {
+      customer = await stripe.customers.create({
+        email,
+        name: companyName || contactName || email,
+        metadata: { 
+          source: "advertising_invoice",
+          contactName: contactName || "",
+          companyName: companyName || ""
+        }
+      });
+    }
+    
+    // Create invoice
+    const invoice = await stripe.invoices.create({
+      customer: customer.id,
+      collection_method: "send_invoice",
+      days_until_due: dueInDays,
+      description,
+      metadata: {
+        type: "advertising",
+        companyName: companyName || "",
+        contactName: contactName || ""
+      }
+    });
+    
+    // Add line items
+    if (items && items.length > 0) {
+      for (const item of items) {
+        await stripe.invoiceItems.create({
+          customer: customer.id,
+          invoice: invoice.id,
+          amount: Math.round(item.amount * 100), // convert to cents
+          currency: "usd",
+          description: item.name
+        });
+      }
+    } else {
+      // Single line item
+      await stripe.invoiceItems.create({
+        customer: customer.id,
+        invoice: invoice.id,
+        amount: Math.round(amount * 100), // convert to cents
+        currency: "usd",
+        description
+      });
+    }
+    
+    // Finalize and optionally send the invoice
+    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
+    
+    if (sendEmail) {
+      await stripe.invoices.sendInvoice(invoice.id);
+    }
+    
+    res.json({
+      success: true,
+      invoiceId: finalizedInvoice.id,
+      invoiceNumber: finalizedInvoice.number,
+      invoiceUrl: finalizedInvoice.hosted_invoice_url,
+      invoicePdf: finalizedInvoice.invoice_pdf,
+      amount: finalizedInvoice.amount_due / 100,
+      status: finalizedInvoice.status,
+      dueDate: finalizedInvoice.due_date ? new Date(finalizedInvoice.due_date * 1000).toISOString() : null,
+      customerId: customer.id
+    });
+  } catch (error: any) {
+    console.error("Error creating invoice:", error);
+    res.status(500).json({ error: "Failed to create invoice", details: error.message });
+  }
+});
+
+// Get invoice status
+router.get("/invoice/:invoiceId", async (req, res) => {
+  try {
+    const invoice = await stripe.invoices.retrieve(req.params.invoiceId);
+    res.json({
+      id: invoice.id,
+      number: invoice.number,
+      status: invoice.status,
+      amount: invoice.amount_due / 100,
+      amountPaid: invoice.amount_paid / 100,
+      paid: invoice.status === 'paid',
+      hostedUrl: invoice.hosted_invoice_url,
+      pdfUrl: invoice.invoice_pdf,
+      dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
+      paidAt: invoice.status_transitions?.paid_at 
+        ? new Date(invoice.status_transitions.paid_at * 1000).toISOString() 
+        : null
+    });
+  } catch (error: any) {
+    console.error("Error fetching invoice:", error);
+    res.status(500).json({ error: "Failed to fetch invoice", details: error.message });
+  }
+});
+
+// ============================================================================
 // BOOK CASE STUDIES
 // ============================================================================
 

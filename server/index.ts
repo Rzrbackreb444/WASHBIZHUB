@@ -234,6 +234,7 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
       console.log(`✅ Invoice paid: ${invoice.id} for subscription ${subscriptionId || 'none'}`);
       
+      // Handle CLEANBI subscriptions
       if (subscriptionId) {
         // Mark subscription as active (payment succeeded)
         const { db } = await import("./db");
@@ -243,6 +244,33 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         await db.update(users)
           .set({ cleanbiSubscriptionStatus: 'active' })
           .where(eq(users.cleanbiSubscriptionId, subscriptionId));
+      }
+      
+      // Handle advertising invoices (custom invoices like Benjamin/Londr)
+      if (invoice.metadata?.type === "advertising") {
+        const customerEmail = invoice.customer_email || 'unknown';
+        const companyName = invoice.metadata?.companyName || 'Unknown Company';
+        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+        
+        console.log(`💰 ADVERTISING INVOICE PAID: $${amountPaid} from ${companyName} (${customerEmail})`);
+        
+        // Send SMS notification to owner
+        try {
+          const { Resend } = await import("resend");
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          
+          // Email notification
+          await resend.emails.send({
+            from: "WashBizHub <notifications@washbizhub.com>",
+            to: ["nick@washbizhub.com", "4798834314@txt.att.net"],
+            subject: `💰 Advertising Payment: $${amountPaid} from ${companyName}`,
+            text: `Invoice paid!\n\nCompany: ${companyName}\nAmount: $${amountPaid}\nEmail: ${customerEmail}\nInvoice ID: ${invoice.id}\n\nView in Stripe Dashboard: https://dashboard.stripe.com/invoices/${invoice.id}`
+          });
+          
+          console.log(`✅ Payment notification sent for ${companyName}`);
+        } catch (notifyError: any) {
+          console.error(`⚠️ Failed to send payment notification: ${notifyError.message}`);
+        }
       }
     }
 
