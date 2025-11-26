@@ -189,10 +189,24 @@
     <!-- Static content for SEO/AEO crawlers (visible before JavaScript loads) -->
     <noscript>
       <div style="font-family: system-ui, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px;">
-        <header style="text-align: center; padding: 40px 0;">
-          <h1>WashBizHub - The Bloomberg of Laundromats</h1>
-          <p style="font-size: 1.2em; color: #666;">STRATEGY • FUNDING • GROWTH</p>
+        <header style="text-align: center; padding: 40px 0; border-bottom: 2px solid #d4af37;">
+          <h1 style="color: #1a2332;">WashBizHub - The Bloomberg of Laundromats</h1>
+          <p style="font-size: 1.2em; color: #d4af37; font-weight: bold;">STRATEGY • FUNDING • GROWTH</p>
           <p>Professional laundromat business intelligence platform serving 72,000+ industry professionals worldwide.</p>
+          
+          <!-- NAVIGATION FOR CRAWLERS -->
+          <nav style="margin-top: 20px; padding: 15px; background: #1a2332; border-radius: 8px;">
+            <a href="/" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Home</a>
+            <a href="/cleanbi-auto" style="color: #d4af37; margin: 0 15px; text-decoration: none;">CLEANBI Score</a>
+            <a href="/marketplace" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Marketplace</a>
+            <a href="/superstore" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Superstore</a>
+            <a href="/courses" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Courses</a>
+            <a href="/blog" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Blog</a>
+            <a href="/calculators" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Calculators</a>
+            <a href="/resources" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Resources</a>
+            <a href="/funding-matcher" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Funding</a>
+            <a href="/design-studio" style="color: #d4af37; margin: 0 15px; text-decoration: none;">Design Studio</a>
+          </nav>
         </header>
         
         <main>
@@ -250,9 +264,77 @@
           </section>
         </main>
         
-        <footer style="text-align: center; padding: 40px 0; border-top: 1px solid #eee; margin-top: 40px;">
-          <p>&copy; 2024 WashBizHub - The Bloomberg of Laundromats. All rights reserved.</p>
+        <footer style="text-align: center; padding: 40px 0; border-top: 2px solid #d4af37; margin-top: 40px;">
+          <!-- FULL SITE MAP FOR CRAWLERS -->
+          <div style="margin-bottom: 30px; text-align: left;">
+            <h3 style="color: #1a2332;">Quick Links</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+              <div>
+                <h4>Tools</h4>
+                <ul style="list-style: none; padding: 0;">
+                  <li><a href="/cleanbi-auto">CLEANBI Score Calculator</a></li>
+                  <li><a href="/calculators">All Calculators (50+)</a></li>
+                  <li><a href="/roi-calculator">ROI Calculator</a></li>
+                  <li><a href="/valuation-calculator">Valuation Calculator</a></li>
+                  <li><a href="/tpd-calculator">TPD Calculator</a></li>
+                  <li><a href="/loan-calculator">Loan Calculator</a></li>
+                  <li><a href="/design-studio">2D/3D Design Studio</a></li>
+                  <li><a href="/service-guy-ai">Service Guy AI</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4>Marketplace</h4>
+                <ul style="list-style: none; padding: 0;">
+                  <li><a href="/marketplace">Equipment Marketplace</a></li>
+                  <li><a href="/superstore">Superstore</a></li>
+                  <li><a href="/listings">Laundromats for Sale</a></li>
+                  <li><a href="/vendors">Vendor Directory</a></li>
+                  <li><a href="/parts-store">Parts Store</a></li>
+                  <li><a href="/equipment-marketplace">Equipment Finder</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4>Learn</h4>
+                <ul style="list-style: none; padding: 0;">
+                  <li><a href="/blog">Blog (320+ Articles)</a></li>
+                  <li><a href="/courses">Courses</a></li>
+                  <li><a href="/resources">Resources</a></li>
+                  <li><a href="/book">Laundromat Bible</a></li>
+                  <li><a href="/templates">Business Templates</a></li>
+                  <li><a href="/buyers-guides">Buyer's Guides</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4>Funding</h4>
+                <ul style="list-style: none; padding: 0;">
+                  <li><a href="/funding-matcher">Funding Matcher</a></li>
+                  <li><a href="/equipment-financing">Equipment Financing</a></li>
+                  <li><a href="/real-estate-financing">Real Estate Financing</a></li>
+                  <li><a href="/startup-funding">Startup Funding</a></li>
+                  <li><a href="/working-capital-financing">Working Capital</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4>Company</h4>
+                <ul style="list-style: none; padding: 0;">
+                  <li><a href="/about-us">About Us</a></li>
+                  <li><a href="/pricing">Pricing</a></li>
+                  <li><a href="/why-washbizhub">Why WashBizHub</a></li>
+                  <li><a href="/forum">Community Forum</a></li>
+                  <li><a href="/privacy">Privacy Policy</a></li>
+                  <li><a href="/terms">Terms of Service</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <p style="color: #1a2332; font-weight: bold;">&copy; 2024 WashBizHub - The Bloomberg of Laundromats. All rights reserved.</p>
           <p>Professional laundromat business intelligence for investors and operators.</p>
+          <p style="margin-top: 10px;">
+            <a href="/sitemap.xml" style="color: #d4af37;">Sitemap</a> | 
+            <a href="mailto:support@washbizhub.com" style="color: #d4af37;">Contact</a> |
+            Phone: 479-883-4314
+          </p>
         </footer>
       </div>
     </noscript>
