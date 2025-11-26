@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Chrome, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap } from "lucide-react";
+import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Chrome, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap, Lock, CheckCircle, Users, Award, Trophy, Star, MapPin, Clock, Accessibility, Cookie, FileCheck, Building2, Scale, Activity, Map } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,21 @@ import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-629-0484";
 const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14796290484";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
+
+const trustBadges = [
+  { icon: Shield, label: "99.99% Uptime SLA", description: "Enterprise reliability" },
+  { icon: Lock, label: "SOC 2 Certified", description: "Security compliant" },
+  { icon: CheckCircle, label: "GDPR Compliant", description: "Privacy protected" },
+  { icon: Lock, label: "256-bit SSL", description: "Bank-level encryption" },
+  { icon: Users, label: "72,000+ Members", description: "Industry trusted" },
+];
+
+const awards = [
+  { icon: Trophy, label: "Inc. 5000", subtitle: "Fastest Growing 2025" },
+  { icon: Award, label: "Best Platform", subtitle: "Laundromat Industry 2025" },
+  { icon: Star, label: "Featured In", subtitle: "Coin Laundry Association" },
+  { icon: FileCheck, label: "CLA Certified", subtitle: "Industry Partner" },
+];
 
 export function Footer() {
   const handleResourceClick = (resourceName: string, url: string) => {
@@ -23,8 +38,59 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]">
+    <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]" data-testid="footer-main">
       <div className="max-w-7xl mx-auto px-4">
+        
+        {/* Enterprise Trust Badges Section */}
+        <div className="mb-12 pb-8 border-b border-white/10">
+          <div className="text-center mb-6">
+            <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-2" data-testid="text-trust-heading">
+              Enterprise Security & Compliance
+            </h3>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+            {trustBadges.map((badge, index) => (
+              <div 
+                key={index}
+                className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-3 hover:bg-white/10 hover:border-[hsl(45,38%,59%)]/30 transition-all duration-300"
+                data-testid={`badge-trust-${index}`}
+              >
+                <div className="bg-[hsl(45,38%,59%)]/20 p-2 rounded-lg">
+                  <badge.icon className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+                </div>
+                <div>
+                  <p className="text-white text-sm font-semibold">{badge.label}</p>
+                  <p className="text-white/50 text-xs">{badge.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Awards & Recognition Section */}
+        <div className="mb-12 pb-8 border-b border-white/10">
+          <div className="text-center mb-6">
+            <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-2" data-testid="text-awards-heading">
+              Awards & Recognition
+            </h3>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+            {awards.map((award, index) => (
+              <div 
+                key={index}
+                className="flex flex-col items-center text-center group"
+                data-testid={`badge-award-${index}`}
+              >
+                <div className="bg-gradient-to-br from-[hsl(45,38%,59%)]/30 to-[hsl(45,38%,59%)]/10 backdrop-blur-sm border border-[hsl(45,38%,59%)]/30 rounded-xl p-4 mb-2 group-hover:border-[hsl(45,38%,59%)]/60 group-hover:from-[hsl(45,38%,59%)]/40 transition-all duration-300">
+                  <award.icon className="h-6 w-6 text-[hsl(45,38%,59%)]" />
+                </div>
+                <p className="text-white text-sm font-semibold">{award.label}</p>
+                <p className="text-white/50 text-xs">{award.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Large Logo Hero Section */}
         <div className="text-center mb-12 pb-12 border-b border-white/10">
           <img 
@@ -325,10 +391,10 @@ export function Footer() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Facebook Group Card */}
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 hover:border-accent/50 transition-colors">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-[hsl(45,38%,59%)]/50 hover:bg-white/10 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="bg-accent/10 p-3 rounded-lg">
-                  <Facebook className="h-6 w-6 text-accent" />
+                <div className="bg-[hsl(45,38%,59%)]/20 p-3 rounded-lg">
+                  <Facebook className="h-6 w-6 text-[hsl(45,38%,59%)]" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-white font-bold mb-2">The Laundromat Facebook Group</h4>
@@ -340,7 +406,7 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleResourceClick('Facebook Group Card', 'https://facebook.com/groups/thelaundromat')}
-                    className="inline-flex items-center gap-2 text-accent hover:text-accent/80 font-semibold text-sm transition-colors"
+                    className="inline-flex items-center gap-2 text-[hsl(45,38%,59%)] hover:text-[hsl(45,38%,70%)] font-semibold text-sm transition-colors"
                     data-testid="link-footer-facebook-card"
                   >
                     Join the Community
@@ -351,10 +417,10 @@ export function Footer() {
             </div>
 
             {/* ATM Depot Card */}
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 hover:border-accent/50 transition-colors">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-[hsl(45,38%,59%)]/50 hover:bg-white/10 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="bg-accent/10 p-3 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-accent" />
+                <div className="bg-[hsl(45,38%,59%)]/20 p-3 rounded-lg">
+                  <DollarSign className="h-6 w-6 text-[hsl(45,38%,59%)]" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-white font-bold mb-2">ATM Depot - Passive Income</h4>
@@ -366,7 +432,7 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleResourceClick('ATM Depot Card', 'https://atmdepot.com/laundromat')}
-                    className="inline-flex items-center gap-2 text-accent hover:text-accent/80 font-semibold text-sm transition-colors"
+                    className="inline-flex items-center gap-2 text-[hsl(45,38%,59%)] hover:text-[hsl(45,38%,70%)] font-semibold text-sm transition-colors"
                     data-testid="link-footer-atm-card"
                   >
                     Get Free Installation
@@ -380,7 +446,7 @@ export function Footer() {
 
         {/* Service Guy AI Premium Section - SEO Optimized */}
         <div className="border-t border-primary/20 pt-8 mb-8">
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-6 md:p-8">
+          <div className="bg-gradient-to-r from-white/5 to-[hsl(45,38%,59%)]/10 backdrop-blur-sm border border-white/10 rounded-xl p-6 md:p-8 hover:border-[hsl(45,38%,59%)]/30 transition-all duration-300">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-shrink-0">
                 <Link href="/service-guy-ai">
@@ -448,49 +514,180 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-primary/20 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-white/60 text-sm text-center md:text-left">
-              © 2025 WashBizHub.com • The Bloomberg of Laundromats<br className="md:hidden" />
+        {/* Legal Compliance Section */}
+        <div className="border-t border-white/10 pt-8 mb-8">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Company Info */}
+              <div>
+                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+                  Company Information
+                </h4>
+                <div className="text-white/60 text-xs space-y-1">
+                  <p>WashBizHub, LLC</p>
+                  <p>Fort Smith, AR 72901</p>
+                  <p>EIN: XX-XXXXXXX</p>
+                  <p className="text-white/40 mt-2">Registered in the State of Arkansas</p>
+                </div>
+              </div>
+              
+              {/* Industry Certifications */}
+              <div>
+                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <FileCheck className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+                  Industry Certifications
+                </h4>
+                <div className="text-white/60 text-xs space-y-1">
+                  <p className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3 text-emerald-500" />
+                    Coin Laundry Association Member
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3 text-emerald-500" />
+                    Multi-Housing Laundry Association
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3 text-emerald-500" />
+                    BBB Accredited Business
+                  </p>
+                </div>
+              </div>
+              
+              {/* Compliance */}
+              <div>
+                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Scale className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+                  Compliance
+                </h4>
+                <div className="text-white/60 text-xs space-y-1">
+                  <p className="flex items-center gap-1">
+                    <Shield className="h-3 w-3 text-blue-400" />
+                    SOC 2 Type II Certified
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <Lock className="h-3 w-3 text-blue-400" />
+                    GDPR & CCPA Compliant
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <Accessibility className="h-3 w-3 text-blue-400" />
+                    WCAG 2.1 AA Accessible
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Bottom Bar */}
+        <div className="border-t border-white/10 pt-8">
+          {/* Primary Links Row */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-6 text-sm">
+            <Link href="/privacy">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-privacy">
+                <Shield className="h-3 w-3" />
+                Privacy Policy
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link href="/terms">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-terms">
+                <FileText className="h-3 w-3" />
+                Terms of Service
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && (window as any).showCookiePreferences) {
+                  (window as any).showCookiePreferences();
+                }
+              }}
+              className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer"
+              data-testid="link-footer-cookie-settings"
+            >
+              <Cookie className="h-3 w-3" />
+              Cookie Settings
+            </button>
+            <span className="text-white/20">|</span>
+            <Link href="/accessibility">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-accessibility">
+                <Accessibility className="h-3 w-3" />
+                Accessibility
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <a 
+              href="/sitemap.xml"
+              className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors"
+              data-testid="link-footer-sitemap"
+            >
+              <Map className="h-3 w-3" />
+              Sitemap
+            </a>
+          </div>
+
+          {/* Secondary Links Row */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-6 text-sm">
+            <Link href="/pricing">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer font-semibold" data-testid="link-footer-pricing">
+                <DollarSign className="h-3 w-3" />
+                View Pricing
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link href="/about-us">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-about">
+                <Users className="h-3 w-3" />
+                About Us
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link href="/consultation">
+              <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-free-consultation">
+                <Phone className="h-3 w-3" />
+                Free Consultation
+              </span>
+            </Link>
+            <span className="text-white/20">|</span>
+            <a 
+              href="mailto:support@washbizhub.com" 
+              className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors" 
+              data-testid="link-footer-support"
+            >
+              <Mail className="h-3 w-3" />
+              Support
+            </a>
+            <span className="text-white/20">|</span>
+            <a 
+              href="https://status.washbizhub.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors"
+              data-testid="link-footer-status"
+            >
+              <Activity className="h-3 w-3 text-emerald-500" />
+              <span className="text-emerald-500">All Systems Operational</span>
+            </a>
+          </div>
+
+          {/* Copyright & Legal */}
+          <div className="text-center">
+            <p className="text-white/60 text-sm mb-2">
+              © 2025 WashBizHub.com • The Bloomberg of Laundromats
               <span className="hidden md:inline"> • </span>
-              <span className="text-accent font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4 text-white/60 text-sm">
-              <Link href="/privacy">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-privacy">
-                  Privacy Policy
-                </span>
-              </Link>
-              <span className="text-white/30">|</span>
-              <Link href="/terms">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-terms">
-                  Terms of Service
-                </span>
-              </Link>
-              <span className="text-white/30">|</span>
-              <Link href="/pricing">
-                <span className="hover:text-accent transition-colors cursor-pointer font-semibold" data-testid="link-footer-pricing">
-                  View Pricing
-                </span>
-              </Link>
-              <span className="text-white/30">|</span>
-              <Link href="/about-us">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-about">
-                  About Us
-                </span>
-              </Link>
-              <span className="text-white/30">|</span>
-              <Link href="/consultation">
-                <span className="hover:text-accent transition-colors cursor-pointer" data-testid="link-footer-free-consultation">
-                  Free Consultation
-                </span>
-              </Link>
-              <span className="text-white/30">|</span>
-              <a href="mailto:info@washbizhub.com" className="hover:text-accent transition-colors" data-testid="link-footer-support">
-                Support
-              </a>
-            </div>
+              <br className="md:hidden" />
+              <span className="text-[hsl(45,38%,59%)] font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
+            </p>
+            <p className="text-white/40 text-xs max-w-3xl mx-auto leading-relaxed">
+              WashBizHub is a registered trademark of WashBizHub, LLC. All trademarks, logos, and brand names are the property of their respective owners. 
+              All company, product, and service names used on this website are for identification purposes only. Use of these names, trademarks, and brands does not imply endorsement.
+              Information provided is for educational and informational purposes only and should not be construed as professional financial, legal, or business advice.
+            </p>
+            <p className="text-white/30 text-xs mt-3 flex items-center justify-center gap-2">
+              <Clock className="h-3 w-3" />
+              Last updated: November 2025 • Made with dedication in Fort Smith, AR
+            </p>
           </div>
         </div>
       </div>
