@@ -24,7 +24,8 @@ import {
   Phone, Mail, MapPin, Clock, Facebook, Instagram, Star, Sparkles,
   MessageSquare, Zap, Shield, Link2, Eye, EyeOff, ChevronRight,
   Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor,
-  Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle
+  Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle,
+  Server, Lock, RefreshCw, Wifi, Activity, ShoppingCart, CreditCard
 } from "lucide-react";
 
 interface BusinessProfile {
@@ -395,6 +396,10 @@ export default function WebsiteBuilder() {
               <TabsTrigger value="email" className="gap-2" data-testid="tab-email">
                 <Send className="w-4 h-4" />
                 Email Marketing
+              </TabsTrigger>
+              <TabsTrigger value="hosting" className="gap-2" data-testid="tab-hosting">
+                <Server className="w-4 h-4" />
+                Hosting
               </TabsTrigger>
             </TabsList>
 
@@ -1734,6 +1739,224 @@ export default function WebsiteBuilder() {
                         <p className="text-xs text-muted-foreground">
                           Enterprise-grade email delivery with 99.9% uptime
                         </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* HOSTING TAB */}
+            <TabsContent value="hosting" className="space-y-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-primary" />
+                        Your Website Address
+                      </CardTitle>
+                      <CardDescription>Configure your subdomain and custom domain</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-3">
+                        <Label className="text-base font-medium">Free Subdomain</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="your-business-name"
+                            className="flex-1"
+                            data-testid="input-subdomain"
+                          />
+                          <div className="flex items-center px-4 rounded-md bg-muted/50 border text-sm font-mono">
+                            .washbizhub.com
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-sm">Your site is live at <span className="font-mono font-medium">yoursite.washbizhub.com</span></span>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-base font-medium">Custom Domain</Label>
+                          <Badge variant="secondary" className="gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            Pro Feature
+                          </Badge>
+                        </div>
+                        <Input
+                          placeholder="www.yourbusiness.com"
+                          data-testid="input-custom-domain"
+                        />
+                        <div className="p-4 rounded-lg bg-muted/30 border border-dashed">
+                          <p className="font-medium text-sm mb-2">DNS Configuration Required</p>
+                          <div className="space-y-2 text-xs font-mono">
+                            <div className="flex justify-between p-2 bg-background rounded">
+                              <span className="text-muted-foreground">Type</span>
+                              <span>CNAME</span>
+                            </div>
+                            <div className="flex justify-between p-2 bg-background rounded">
+                              <span className="text-muted-foreground">Name</span>
+                              <span>www</span>
+                            </div>
+                            <div className="flex justify-between p-2 bg-background rounded">
+                              <span className="text-muted-foreground">Value</span>
+                              <span>proxy.washbizhub.com</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button variant="outline" className="w-full" data-testid="button-verify-domain">
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Verify DNS Configuration
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <ShoppingCart className="w-5 h-5 text-primary" />
+                            Purchase a Domain
+                          </CardTitle>
+                          <CardDescription>Register a new domain through WashBizHub</CardDescription>
+                        </div>
+                        <Badge className="bg-primary/20 text-primary border-primary/30">Google Domains</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Search for available domains..."
+                          className="flex-1"
+                          data-testid="input-domain-search"
+                        />
+                        <Button data-testid="button-search-domains">
+                          <Search className="w-4 h-4 mr-2" />
+                          Search
+                        </Button>
+                      </div>
+                      <div className="p-4 rounded-lg bg-muted/30 text-center">
+                        <p className="text-sm text-muted-foreground mb-2">Popular domain extensions</p>
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Badge variant="outline">.com from $12/yr</Badge>
+                          <Badge variant="outline">.net from $12/yr</Badge>
+                          <Badge variant="outline">.co from $25/yr</Badge>
+                          <Badge variant="outline">.io from $40/yr</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Server className="w-5 h-5 text-primary" />
+                        Hosting Status
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                        <div>
+                          <p className="font-medium text-sm">All Systems Operational</p>
+                          <p className="text-xs text-muted-foreground">99.99% uptime this month</p>
+                        </div>
+                      </div>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-4 h-4 text-green-500" />
+                            <span className="text-sm">SSL Certificate</span>
+                          </div>
+                          <Badge className="bg-green-500/20 text-green-500">Active</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Wifi className="w-4 h-4 text-green-500" />
+                            <span className="text-sm">CDN</span>
+                          </div>
+                          <Badge className="bg-green-500/20 text-green-500">Global</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4 text-green-500" />
+                            <span className="text-sm">DDoS Protection</span>
+                          </div>
+                          <Badge className="bg-green-500/20 text-green-500">Enabled</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Activity className="w-4 h-4 text-green-500" />
+                            <span className="text-sm">Auto-Scaling</span>
+                          </div>
+                          <Badge className="bg-green-500/20 text-green-500">Active</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-primary" />
+                        Performance
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Response Time</span>
+                        <span className="font-medium text-green-500">&lt;100ms</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Bandwidth</span>
+                        <span className="font-medium">Unlimited</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Storage</span>
+                        <span className="font-medium">10 GB</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Monthly Visits</span>
+                        <span className="font-medium">Unlimited</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30">
+                    <CardContent className="pt-6">
+                      <div className="text-center">
+                        <Server className="w-10 h-10 mx-auto mb-3 text-primary" />
+                        <h3 className="font-bold text-lg mb-1">Enterprise Hosting</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Powered by Google Cloud Platform with global edge locations
+                        </p>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-primary" />
+                            <span>99.99% Uptime SLA</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-primary" />
+                            <span>Free SSL Certificates</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-primary" />
+                            <span>Global CDN Distribution</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-primary" />
+                            <span>Automatic Backups</span>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
