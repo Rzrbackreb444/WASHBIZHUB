@@ -9238,5 +9238,383 @@ export type InsertCreatorPayout = z.infer<typeof insertCreatorPayoutSchema>;
 export type CreatorPayout = typeof creatorPayouts.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete Platform with Calculator Marketplace
+// WHITE-LABEL LAUNDROMAT PLATFORM
+// Comprehensive business website builder with AI agents and integrations
+// ============================================================================
+
+// Business Profiles - White-label branding for each laundromat
+export const businessProfiles = pgTable("business_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Business Identity
+  businessName: varchar("business_name").notNull(),
+  tagline: varchar("tagline"), // "Your neighborhood laundromat"
+  description: text("description"),
+  
+  // Logo & Branding
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  primaryColor: varchar("primary_color").default("#C8A661"), // Gold
+  secondaryColor: varchar("secondary_color").default("#1a2332"), // Navy
+  accentColor: varchar("accent_color").default("#ffffff"),
+  fontFamily: varchar("font_family").default("Inter"),
+  
+  // Contact Information
+  phone: varchar("phone"),
+  email: varchar("email"),
+  address: text("address"),
+  city: varchar("city"),
+  state: varchar("state"),
+  zipCode: varchar("zip_code"),
+  country: varchar("country").default("USA"),
+  
+  // Business Hours
+  businessHours: jsonb("business_hours"), // { monday: { open: "06:00", close: "22:00" }, ... }
+  timezone: varchar("timezone").default("America/New_York"),
+  
+  // Social Media Links
+  facebookUrl: text("facebook_url"),
+  instagramUrl: text("instagram_url"),
+  googleMapsUrl: text("google_maps_url"),
+  yelpUrl: text("yelp_url"),
+  
+  // Services Offered
+  services: jsonb("services").$type<{
+    name: string;
+    description: string;
+    price?: string;
+    icon?: string;
+    featured?: boolean;
+  }[]>().default([]),
+  
+  // Pricing Configuration
+  pricingMode: varchar("pricing_mode").default("per_pound"), // "flat_rate" or "per_pound"
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }).default("1.75"),
+  minimumWeight: integer("minimum_weight").default(10),
+  rushSurcharge: integer("rush_surcharge").default(50), // Percentage
+  flatRatePrices: jsonb("flat_rate_prices").$type<{
+    small: string;
+    medium: string;
+    large: string;
+    extraLarge: string;
+  }>(),
+  pickupDeliveryFee: decimal("pickup_delivery_fee", { precision: 10, scale: 2 }).default("5.00"),
+  
+  // Status
+  isVerified: boolean("is_verified").default(false),
+  isPublished: boolean("is_published").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("business_profiles_user_idx").on(table.userId),
+}));
+
+export const insertBusinessProfileSchema = createInsertSchema(businessProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isVerified: true,
+});
+
+export type InsertBusinessProfile = z.infer<typeof insertBusinessProfileSchema>;
+export type BusinessProfile = typeof businessProfiles.$inferSelect;
+
+// AI Agent Configurations - Chatbot for each business
+export const aiAgentConfigs = pgTable("ai_agent_configs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  businessProfileId: varchar("business_profile_id").references(() => businessProfiles.id),
+  
+  // Agent Identity
+  name: varchar("name").default("Store Assistant"),
+  personality: varchar("personality").default("friendly"), // "friendly", "professional", "casual"
+  avatarUrl: text("avatar_url"),
+  
+  // Knowledge Base
+  knowledgeBase: text("knowledge_base"), // Custom FAQs and business info
+  businessContext: text("business_context"), // Hours, services, policies, etc.
+  
+  // Capabilities
+  canTakeOrders: boolean("can_take_orders").default(false),
+  canSchedulePickups: boolean("can_schedule_pickups").default(false),
+  canAnswerPricing: boolean("can_answer_pricing").default(true),
+  canProvideFAQ: boolean("can_provide_faq").default(true),
+  
+  // Customization
+  welcomeMessage: text("welcome_message").default("Hi! How can I help you today?"),
+  awayMessage: text("away_message").default("We're currently closed. Leave a message and we'll get back to you!"),
+  commonQuestions: jsonb("common_questions").$type<string[]>().default([]),
+  
+  // Appearance
+  primaryColor: varchar("primary_color").default("#C8A661"),
+  position: varchar("position").default("bottom-right"), // "bottom-right", "bottom-left"
+  
+  // Status
+  isEnabled: boolean("is_enabled").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("ai_agent_configs_user_idx").on(table.userId),
+  businessIdx: index("ai_agent_configs_business_idx").on(table.businessProfileId),
+}));
+
+export const insertAiAgentConfigSchema = createInsertSchema(aiAgentConfigs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAiAgentConfig = z.infer<typeof insertAiAgentConfigSchema>;
+export type AiAgentConfig = typeof aiAgentConfigs.$inferSelect;
+
+// User Integrations - Secure vault for third-party connections
+export const userIntegrations = pgTable("user_integrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  businessProfileId: varchar("business_profile_id").references(() => businessProfiles.id),
+  
+  // Integration Type
+  integrationType: varchar("integration_type").notNull(), // "facebook", "google_business", "quickbooks", "stripe", "twilio"
+  integrationName: varchar("integration_name"), // User-friendly name
+  
+  // Connection Status
+  isConnected: boolean("is_connected").default(false),
+  lastSyncedAt: timestamp("last_synced_at"),
+  connectionError: text("connection_error"),
+  
+  // Encrypted Credentials (reference IDs - actual secrets stored in Replit Secrets)
+  secretKeyRef: varchar("secret_key_ref"), // Reference to secret in vault, not the actual secret
+  accessTokenRef: varchar("access_token_ref"),
+  refreshTokenRef: varchar("refresh_token_ref"),
+  
+  // Integration-specific data
+  externalAccountId: varchar("external_account_id"), // Facebook Page ID, Google Business ID, etc.
+  externalAccountName: varchar("external_account_name"),
+  metadata: jsonb("metadata"), // Additional integration-specific data
+  
+  // Permissions
+  scopes: jsonb("scopes").$type<string[]>().default([]), // What permissions this integration has
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_integrations_user_idx").on(table.userId),
+  typeIdx: index("user_integrations_type_idx").on(table.integrationType),
+}));
+
+export const insertUserIntegrationSchema = createInsertSchema(userIntegrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isConnected: true,
+  lastSyncedAt: true,
+  connectionError: true,
+});
+
+export type InsertUserIntegration = z.infer<typeof insertUserIntegrationSchema>;
+export type UserIntegration = typeof userIntegrations.$inferSelect;
+
+// Service Cards - Website service sections
+export const serviceCards = pgTable("service_cards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  projectId: varchar("project_id").references(() => siteProjects.id),
+  businessProfileId: varchar("business_profile_id").references(() => businessProfiles.id),
+  
+  // Card Content
+  title: varchar("title").notNull(),
+  description: text("description"),
+  icon: varchar("icon"), // Lucide icon name
+  imageUrl: text("image_url"),
+  
+  // Pricing
+  price: varchar("price"), // "$1.75/lb" or "$25 per load"
+  pricingNote: varchar("pricing_note"), // "Starting at" or "From"
+  
+  // Call to Action
+  ctaText: varchar("cta_text").default("Learn More"),
+  ctaLink: varchar("cta_link"),
+  
+  // Display
+  order: integer("order").default(0),
+  isHighlighted: boolean("is_highlighted").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("service_cards_user_idx").on(table.userId),
+  projectIdx: index("service_cards_project_idx").on(table.projectId),
+}));
+
+export const insertServiceCardSchema = createInsertSchema(serviceCards).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertServiceCard = z.infer<typeof insertServiceCardSchema>;
+export type ServiceCard = typeof serviceCards.$inferSelect;
+
+// Website Videos - Video content for websites
+export const websiteVideos = pgTable("website_videos", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  projectId: varchar("project_id").references(() => siteProjects.id),
+  
+  // Video Info
+  title: varchar("title").notNull(),
+  description: text("description"),
+  
+  // Video Source
+  videoType: varchar("video_type").default("upload"), // "upload", "youtube", "vimeo", "embed"
+  videoUrl: text("video_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
+  
+  // Metadata
+  duration: integer("duration"), // In seconds
+  fileSize: integer("file_size"), // In bytes
+  
+  // Display Settings
+  autoplay: boolean("autoplay").default(false),
+  loop: boolean("loop").default(false),
+  muted: boolean("muted").default(true),
+  
+  // Status
+  isPublished: boolean("is_published").default(true),
+  order: integer("order").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("website_videos_user_idx").on(table.userId),
+  projectIdx: index("website_videos_project_idx").on(table.projectId),
+}));
+
+export const insertWebsiteVideoSchema = createInsertSchema(websiteVideos).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertWebsiteVideo = z.infer<typeof insertWebsiteVideoSchema>;
+export type WebsiteVideo = typeof websiteVideos.$inferSelect;
+
+// Calculator Themes - White-label branding for calculators
+export const calculatorThemes = pgTable("calculator_themes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  calculatorId: varchar("calculator_id").references(() => calculatorTemplates.id),
+  businessProfileId: varchar("business_profile_id").references(() => businessProfiles.id),
+  
+  // Branding
+  name: varchar("name").notNull(),
+  logoUrl: text("logo_url"),
+  primaryColor: varchar("primary_color").default("#C8A661"),
+  secondaryColor: varchar("secondary_color").default("#1a2332"),
+  backgroundColor: varchar("background_color").default("#ffffff"),
+  textColor: varchar("text_color").default("#1a2332"),
+  
+  // Typography
+  fontFamily: varchar("font_family").default("Inter"),
+  headingFont: varchar("heading_font").default("Inter"),
+  
+  // Custom CSS
+  customCss: text("custom_css"),
+  
+  // Embed Settings
+  showPoweredBy: boolean("show_powered_by").default(true), // "Powered by WashBizHub"
+  embedToken: varchar("embed_token").unique(), // JWT token for embedding
+  allowedDomains: jsonb("allowed_domains").$type<string[]>().default([]), // Domains where embed is allowed
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("calculator_themes_user_idx").on(table.userId),
+  calculatorIdx: index("calculator_themes_calculator_idx").on(table.calculatorId),
+}));
+
+export const insertCalculatorThemeSchema = createInsertSchema(calculatorThemes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  embedToken: true,
+});
+
+export type InsertCalculatorTheme = z.infer<typeof insertCalculatorThemeSchema>;
+export type CalculatorTheme = typeof calculatorThemes.$inferSelect;
+
+// Online Orders - Orders placed through website/chatbot
+export const onlineOrders = pgTable("online_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  businessProfileId: varchar("business_profile_id").references(() => businessProfiles.id).notNull(),
+  
+  // Order Info
+  orderNumber: varchar("order_number").notNull(),
+  orderType: varchar("order_type").notNull(), // "pickup", "dropoff", "delivery"
+  status: varchar("status").default("pending"), // "pending", "confirmed", "in_progress", "ready", "completed", "cancelled"
+  
+  // Customer Info
+  customerName: varchar("customer_name").notNull(),
+  customerEmail: varchar("customer_email"),
+  customerPhone: varchar("customer_phone"),
+  
+  // Service Details
+  serviceType: varchar("service_type"), // "wash_fold", "dry_clean", "alterations", "ironing"
+  items: jsonb("items").$type<{
+    name: string;
+    quantity: number;
+    price: number;
+    notes?: string;
+  }[]>().default([]),
+  
+  // Pricing
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }),
+  tax: decimal("tax", { precision: 10, scale: 2 }),
+  deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }),
+  discount: decimal("discount", { precision: 10, scale: 2 }),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  
+  // Scheduling
+  pickupDate: timestamp("pickup_date"),
+  pickupTimeSlot: varchar("pickup_time_slot"),
+  deliveryDate: timestamp("delivery_date"),
+  deliveryTimeSlot: varchar("delivery_time_slot"),
+  
+  // Address
+  pickupAddress: text("pickup_address"),
+  deliveryAddress: text("delivery_address"),
+  
+  // Notes
+  specialInstructions: text("special_instructions"),
+  internalNotes: text("internal_notes"),
+  
+  // Source
+  orderSource: varchar("order_source").default("website"), // "website", "chatbot", "phone", "walk_in"
+  
+  // Payment
+  paymentStatus: varchar("payment_status").default("unpaid"), // "unpaid", "paid", "refunded"
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  businessIdx: index("online_orders_business_idx").on(table.businessProfileId),
+  statusIdx: index("online_orders_status_idx").on(table.status),
+  orderNumberIdx: uniqueIndex("online_orders_number_idx").on(table.orderNumber),
+}));
+
+export const insertOnlineOrderSchema = createInsertSchema(onlineOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertOnlineOrder = z.infer<typeof insertOnlineOrderSchema>;
+export type OnlineOrder = typeof onlineOrders.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with White-Label Features
 // ============================================================================
