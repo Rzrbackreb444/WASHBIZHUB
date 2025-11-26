@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CLEANBI Anywhere - Business Intelligence Scores",
-  "version": "2.0.0",
-  "description": "Get instant market intelligence scores for ANY business on Google Maps, LoopNet, BizBuySell. For educational purposes only. Works for all industries!",
+  "name": "CLEANBI Anywhere - FREE Business & Property Scores",
+  "version": "2.1.0",
+  "description": "100% FREE! Instant A-F scores for ANY business OR property on Google Maps, LoopNet, BizBuySell. Restaurants, retail, residential, commercial - works for everything!",
   "permissions": [
     "activeTab",
     "storage"

@@ -138,22 +138,31 @@ const CLEANBI_SHARED = {
   },
 
   /**
-   * Check if element is a laundromat listing
+   * Check if element is ANY business or property listing
+   * UNIVERSAL: Works for all business types AND residential properties
    */
-  isLaundromatElement(element) {
+  isBusinessOrPropertyElement(element) {
     const text = element.textContent.toLowerCase();
-    const laundromatKeywords = [
-      'laundromat',
-      'laundry',
-      'wash & fold',
-      'coin laundry',
-      'launderette',
-      'washeria',
-      'coin-op',
-      'self-service laundry'
-    ];
     
-    return laundromatKeywords.some(keyword => text.includes(keyword));
+    // Check for basic listing structure (has address-like content)
+    const hasAddressIndicators = 
+      /\d+\s+[a-z]/i.test(text) || // Street number + name
+      text.includes('address') ||
+      text.includes('location') ||
+      text.includes('directions');
+    
+    // Check for price/business indicators
+    const hasListingIndicators =
+      text.includes('for sale') ||
+      text.includes('for lease') ||
+      text.includes('asking price') ||
+      text.includes('revenue') ||
+      text.includes('sqft') ||
+      text.includes('sq ft') ||
+      text.includes('beds') ||
+      text.includes('baths');
+    
+    return hasAddressIndicators || hasListingIndicators;
   },
 
   /**
