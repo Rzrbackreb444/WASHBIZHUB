@@ -117,6 +117,8 @@ import CalculatorBuilder from "@/pages/calculator-builder";
 import CalculatorMarketplace from "@/pages/calculator-marketplace";
 import OwnerDashboard from "@/pages/owner-dashboard";
 import BusinessBuilder from "@/pages/business-builder";
+import LaundryOrderPortal from "@/pages/laundry-order-portal";
+import LondrDemo from "@/pages/londr-demo";
 import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
@@ -197,6 +199,10 @@ function Router() {
       <Route path="/my-business" component={OwnerDashboard} />
       <Route path="/business-builder" component={BusinessBuilder} />
       <Route path="/build-my-business" component={BusinessBuilder} />
+      <Route path="/order" component={LaundryOrderPortal} />
+      <Route path="/laundry-order" component={LaundryOrderPortal} />
+      <Route path="/demo/londr" component={LondrDemo} />
+      <Route path="/londr-demo" component={LondrDemo} />
       <Route path="/calc/:slug" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />

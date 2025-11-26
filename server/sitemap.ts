@@ -120,6 +120,14 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/roi-calculator', lastmod: today, changefreq: 'monthly', priority: 0.8 },
       { loc: '/calculators', lastmod: today, changefreq: 'monthly', priority: 0.8 },
       { loc: '/funding-matcher', lastmod: today, changefreq: 'weekly', priority: 0.8 },
+      { loc: '/calculator-marketplace', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/calculator-builder', lastmod: today, changefreq: 'monthly', priority: 0.75 },
+      
+      // Business Operating System
+      { loc: '/business-builder', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/owner-dashboard', lastmod: today, changefreq: 'daily', priority: 0.85 },
+      { loc: '/londr-demo', lastmod: today, changefreq: 'weekly', priority: 0.8 },
+      { loc: '/order', lastmod: today, changefreq: 'daily', priority: 0.85 },
       
       // Resources
       { loc: '/resources', lastmod: today, changefreq: 'weekly', priority: 0.8 },
