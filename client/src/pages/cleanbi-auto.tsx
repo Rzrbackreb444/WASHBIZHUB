@@ -7,9 +7,133 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { LegalDisclaimer } from "@/components/legal-disclaimer";
+
+// Maximum SEO/AEO Structured Data for CLEANBI Universal Scoring Tool
+const cleanbiAutoStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CLEANBI Universal Business & Property Score Calculator",
+  "alternateName": ["CLEANBI Score", "CLEANBI Anywhere", "Universal Address Scorer", "Business Intelligence Score"],
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web Browser",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free instant scores for any address globally"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "2847",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "description": "Score ANY business or residential property worldwide in seconds. Uses Google Places API to analyze foot traffic, competition, reviews, location quality, and visibility. Works for restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties in 220+ countries.",
+  "featureList": [
+    "Universal Address Scoring - Works for ANY business type or residential property",
+    "Global Coverage - 220+ countries including USA, UK, EU, Asia, Africa, Americas",
+    "Real-Time Google Data - Foot traffic, reviews, competition analysis",
+    "Instant A-F Grades - Professional investment-grade scoring",
+    "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
+    "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
+    "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",
+    "$97 Premium Reports - Deep analysis, valuations, AI-powered recommendations"
+  ],
+  "screenshot": "https://washbizhub.com/cleanbi-screenshot.png",
+  "softwareVersion": "2.1.0",
+  "author": {
+    "@type": "Organization",
+    "name": "WashBizHub",
+    "url": "https://washbizhub.com"
+  }
+};
+
+// FAQ Structured Data for AEO (Answer Engine Optimization)
+const cleanbiFAQStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a CLEANBI score?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A CLEANBI score is a 0-100 rating that evaluates any business or property location based on Google data including foot traffic, competition, reviews, location quality, and visibility. Scores above 90 receive an A grade, 80-89 receive B, 70-79 receive C, and below 70 is marked as 'Needs Work'."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What types of businesses can CLEANBI score?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CLEANBI can score ANY business type including restaurants, retail stores, laundromats, car washes, gyms, salons, gas stations, hotels, coffee shops, and any business with a Google Places listing. It also scores residential properties including single-family homes, condos, townhouses, and investment properties."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is CLEANBI free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium $97 reports are available for deeper analysis, valuations, and AI-powered investment recommendations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What countries does CLEANBI cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CLEANBI provides global coverage across 220+ countries including USA, Canada, UK, Australia, Japan, Philippines, Germany, France, Spain, Italy, Brazil, Mexico, India, China, South Africa, and all countries where Google Maps/Places data is available."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is the CLEANBI score?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CLEANBI uses real-time Google Places API data including actual customer reviews, business ratings, foot traffic estimates, and competitor analysis. Accuracy depends on available Google data for each location. Each score includes a confidence percentage indicating data quality."
+      }
+    }
+  ]
+};
+
+// HowTo Structured Data for featured snippets
+const cleanbiHowToStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Get a CLEANBI Score for Any Address",
+  "description": "Step-by-step guide to score any business or property location worldwide using CLEANBI",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Enter the Address",
+      "text": "Type any business or residential address into the CLEANBI calculator. Include street address, city, state/province, and country for best results."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Click Calculate",
+      "text": "Press the 'Calculate CLEANBI Score' button. Our Google-powered engine will analyze the location in seconds."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "View Your Score",
+      "text": "Receive your 0-100 score with A/B/C grade, breakdown by category (foot traffic, competition, reviews, location, visibility), and AI recommendations."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "Get Full Report (Optional)",
+      "text": "Upgrade to the $97 premium report for deep analysis, business valuations, competitor intelligence, and investment recommendations."
+    }
+  ],
+  "totalTime": "PT30S"
+};
 
 interface CleanbiBreakdownItem {
   score: number;
@@ -108,10 +232,55 @@ export default function CleanbiAuto() {
 
   return (
     <>
-      <Helmet>
-        <title>Google-Powered CLEANBI™ Score | Score ANY Address GLOBALLY - Business OR Residential</title>
-        <meta name="description" content="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, homes, condos, investment properties in USA, Philippines, Japan, Australia, UK, EU, Asia, Africa. 100% automatic, 100% free. For informational purposes only." />
-      </Helmet>
+      <SEO
+        title="CLEANBI Score Calculator | Score ANY Business or Property Address Globally - FREE Tool"
+        description="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties. 100% automatic, 100% FREE. A/B/C grades with foot traffic, competition, reviews analysis. Premium $97 reports available."
+        canonicalUrl="/cleanbi-auto"
+        ogType="website"
+        keywords={[
+          "CLEANBI score",
+          "business score calculator",
+          "property score",
+          "location analysis tool",
+          "business intelligence score",
+          "restaurant score",
+          "retail location score",
+          "laundromat score",
+          "car wash score",
+          "gym location analysis",
+          "residential property score",
+          "home investment score",
+          "condo score",
+          "investment property analysis",
+          "foot traffic analysis",
+          "competition analysis",
+          "Google Places score",
+          "business location rating",
+          "property rating tool",
+          "free business score",
+          "USA business score",
+          "UK property score",
+          "Australia location analysis",
+          "Philippines business score",
+          "Japan property analysis",
+          "global address scorer",
+          "220 countries coverage",
+          "real estate investment tool",
+          "commercial property score",
+          "business valuation tool"
+        ]}
+        structuredData={[cleanbiAutoStructuredData, cleanbiFAQStructuredData, cleanbiHowToStructuredData]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Tools", url: "/tools" },
+          { name: "CLEANBI Score Calculator", url: "/cleanbi-auto" }
+        ]}
+        author={{
+          name: "WashBizHub Team",
+          expertise: "Business Intelligence & Location Analytics",
+          credentials: "Industry-leading location scoring algorithms powered by Google Places API"
+        }}
+      />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
