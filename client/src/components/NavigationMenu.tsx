@@ -34,8 +34,14 @@ import {
   DollarSign,
   ShoppingBag,
   Workflow,
+  Megaphone,
+  PlusCircle,
 } from "lucide-react";
+import { SiFacebook } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
+
+const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
+const FB_PAGE_URL = "https://facebook.com/washbizhub1";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home", icon: Home },
@@ -45,6 +51,13 @@ const MAIN_LINKS = [
   { href: "/learning", label: "Courses", icon: BookOpen },
   { href: "/calculators", label: "Calculators", icon: Calculator },
   { href: "/blog", label: "Blog", icon: BookOpen },
+];
+
+const ACTION_LINKS = [
+  { href: "/listing-form", label: "List Your Laundromat", icon: Store },
+  { href: "/equipment-marketplace", label: "List Equipment", icon: Wrench },
+  { href: "/vendor-form", label: "Become a Vendor", icon: ShoppingBag },
+  { href: "/advertise", label: "Advertise With Us", icon: Megaphone },
 ];
 
 const TOOLS_LINKS = [
@@ -113,8 +126,47 @@ export function NavigationMenu() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 sm:w-96">
-              <div className="space-y-6 mt-8">
+            <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
+              <div className="space-y-6 mt-8 pb-8">
+                {/* FB Group CTA */}
+                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4">
+                  <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-blue-600 dark:text-blue-400 font-semibold">
+                    <SiFacebook className="w-6 h-6" />
+                    <div>
+                      <div>Join 72K+ Members</div>
+                      <div className="text-xs font-normal text-muted-foreground">FB Group: The Laundromat</div>
+                    </div>
+                  </a>
+                </div>
+
+                {/* Get Started Actions */}
+                <div>
+                  <h3 className="font-bold text-lg mb-4 text-primary flex items-center gap-2">
+                    <PlusCircle className="w-5 h-5" />
+                    Get Started
+                  </h3>
+                  <div className="space-y-1">
+                    {ACTION_LINKS.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link key={link.href} href={link.href}>
+                          <div
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                              isActive(link.href)
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "hover:bg-muted"
+                            }`}
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span>{link.label}</span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div>
                   <h3 className="font-bold text-lg mb-4 text-primary">Navigation</h3>
                   <div className="space-y-1">
