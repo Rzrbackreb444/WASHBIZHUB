@@ -3,80 +3,107 @@
 ## Group Name
 **WashBizHub: Listings & Equipment**
 
-Alternative options:
-- WashBizHub: Laundromats & Equipment
-- WashBizHub Marketplace
+---
+
+## Description (SEO-PACKED)
+
+**THE #1 LAUNDROMAT MARKETPLACE — US & GLOBAL LISTINGS**
+
+WashBizHub.com is OPEN with exclusive Launch Specials for vendors, equipment dealers, and service providers.
+
+**BUY • SELL • LIST • ADVERTISE**
+
+**LAUNDROMATS FOR SALE**
+Verified listings with photos, financials, lease terms — US & Global
+
+**COMMERCIAL LAUNDRY EQUIPMENT**
+New, used, refurbished — washers, dryers, folders, ironers, parts, accessories
+
+**PARTS & SUPPLIES**
+OEM parts, aftermarket, belts, bearings, valves, coin mechs, card systems
+
+**VENDOR ADVERTISING**
+Feature your brand to the largest laundromat owner community online. Premium placements, sponsored posts, SEO blogs, badge licensing.
+
+**FUNDING & FINANCING**
+SBA loans, equipment financing, startup capital, acquisition funding
 
 ---
 
-## Group Description (Optimized)
-
-**The largest laundromat industry community online.**
-
-Buy and sell laundromats, source equipment, find funding, connect with vendors, and grow your portfolio.
-
-**What you'll find here:**
-- Laundromats for sale (verified listings with photos, financials, lease terms)
-- Equipment deals (new, used, and refurbished commercial laundry equipment)
-- Funding resources (SBA loans, equipment financing, startup capital)
-- Vetted vendors (distributors, service pros, suppliers)
-- Diagnostics & repair help (troubleshooting with model + symptom)
-
-**How to participate:**
-- Post listings with location, price, and photos
-- Share equipment with brand, model, condition, and price
-- Ask questions — the community is here to help
-
-**Transactions are in USD. International members welcome.**
-
-**Platform:** WashBizHub.com | **Page:** facebook.com/washbizhub1
+**VENDORS: ADVERTISE WITH US**
+WashBizHub.com/advertise — Launch Special: $500 (limited time)
+Featured placement + SEO blog + homepage logo + FB group promotion
 
 ---
 
-## Welcome Post (Optimized)
+**POST YOUR LISTINGS:**
+- Laundromats: Location, price, revenue, lease terms, photos
+- Equipment: Brand, model, condition, price, shipping
+- Parts: Make, model, condition, quantity
 
-### Welcome to WashBizHub: Listings & Equipment
+**US & GLOBAL MARKETPLACE** — Listings welcome from all countries
 
-Welcome to the largest and most active community for laundromat owners, buyers, sellers, and industry professionals.
-
-This group is built around one thing: **helping each other succeed.**
-
-Whether you're buying your first store, selling one, finding equipment, or just learning the business — you're in the right place.
-
----
-
-**How to Make the Most of This Group:**
-
-**1. Be Helpful First**
-Answer questions when you can, share your experience, and support fellow operators.
-
-**2. Post with Purpose**
-When listing a laundromat or equipment:
-- Include location, asking price, and photos
-- Add key details (revenue, lease terms, equipment age)
-- Be transparent — it builds trust
-
-**3. Use Clear Formatting**
-For diagnostics and repair questions:
-- Include machine brand + model
-- Describe the symptom clearly
-
-**4. Connect with Vetted Vendors**
-We have verified equipment distributors, service professionals, lenders, and suppliers. Look for the Vendor Partner badges.
-
-**5. Respect the Space**
-No spam, no drama. Keep it professional and productive.
+**WashBizHub.com** — The Bloomberg of Laundromats
+**facebook.com/washbizhub1** — Follow for news
 
 ---
 
-**Resources:**
+## Welcome Post (HIGH-IMPACT)
 
-- **WashBizHub.com** — Listings, equipment, calculators, and courses
-- **facebook.com/washbizhub1** — Follow for industry news
+### WELCOME TO WASHBIZHUB: LISTINGS & EQUIPMENT
+
+**The largest laundromat industry marketplace — US & Global.**
+
+WashBizHub.com is NOW LIVE with exclusive Launch Specials for vendors and advertisers.
 
 ---
 
-**This isn't just a feed — it's infrastructure for operators.**
+**WHAT'S HERE:**
+
+**LAUNDROMATS FOR SALE** — Verified listings, US & worldwide
+**EQUIPMENT** — Commercial washers, dryers, folders, ironers
+**PARTS & SUPPLIES** — OEM and aftermarket
+**FUNDING** — SBA loans, equipment financing, acquisition capital
+**VENDORS** — Distributors, service pros, suppliers
+
+---
+
+**FOR VENDORS & ADVERTISERS:**
+
+WashBizHub.com/advertise
+
+**Launch Special: $500** (Limited Time)
+- Featured placement in this group
+- Homepage logo on WashBizHub.com
+- Custom SEO blog post
+- Priority vendor badge
+
+Premium Sponsor: $1,400/mo | Vendor Badge: $499/mo | Featured Post: $500
+
+---
+
+**HOW TO POST:**
+
+**Laundromats:** Location • Price • Revenue • Lease • Photos
+**Equipment:** Brand • Model • Condition • Price • Shipping
+**Parts:** Make • Model • Condition • Qty
+
+---
+
+**US & GLOBAL:**
+All countries welcome. Transactions in USD.
+
+---
+
+**RESOURCES:**
+
+**WashBizHub.com** — Listings, equipment, calculators, courses, CLEANBI location analyzer
+**WashBizHub.com/advertise** — Vendor advertising & sponsorships
+**facebook.com/washbizhub1** — Follow for industry news
+
+---
+
+**This isn't a feed. It's infrastructure.**
 
 Welcome aboard. Let's build it right.
 
@@ -85,26 +112,30 @@ WashBizHub.com
 
 ---
 
-## Pinned Post (Short Version)
+## Pinned Post (SHORT PUNCH)
 
-**Welcome to WashBizHub!**
+**WASHBIZHUB IS LIVE**
 
-The largest laundromat community online.
+The #1 laundromat marketplace — US & Global listings.
 
-**What's here:**
+**BUY • SELL • LIST • ADVERTISE**
+
 - Laundromats for sale
-- Equipment deals
+- Commercial equipment
+- Parts & supplies
+- Vendor advertising
 - Funding resources
-- Vetted vendors
-- Diagnostics help
 
-**Rules:**
-- Be helpful
-- Post with details (location, price, photos)
-- No spam
+**VENDORS:** WashBizHub.com/advertise
+Launch Special: $500 — Featured placement + SEO blog + homepage logo
 
-**Links:**
-- WashBizHub.com
-- facebook.com/washbizhub1
+**POST FORMAT:**
+Location • Price • Photos • Details
 
-Questions? Drop them below.
+**WashBizHub.com** — The Bloomberg of Laundromats
+
+---
+
+## SEO Keywords
+
+laundromat for sale, laundry business for sale, commercial laundry equipment, used washers dryers, laundromat equipment, coin laundry for sale, washer parts, dryer parts, laundromat financing, SBA loan laundromat, laundry business funding, buy laundromat, sell laundromat, laundromat listings, commercial washer, commercial dryer, laundromat broker, laundry equipment dealer, coin op laundry, card laundry system, laundromat valuation, laundry business broker, equipment financing, laundromat marketplace, US laundromat, global laundry listings, international laundromat
