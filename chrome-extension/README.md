@@ -45,23 +45,124 @@ This Chrome extension automatically shows CLEANBI scores when you hover over **A
 
 ## 📦 Publishing to Chrome Web Store
 
-1. **Package the extension:**
-   ```bash
-   cd chrome-extension
-   zip -r cleanbi-anywhere-v1.0.0.zip . -x "*.git*" -x "README.md"
-   ```
+### Step 1: Create Developer Account
+- Go to https://chrome.google.com/webstore/devconsole
+- Pay $5 one-time developer registration fee
+- This gives you lifetime access to publish extensions
 
-2. **Create Chrome Web Store listing:**
-   - Go to https://chrome.google.com/webstore/devconsole
-   - Pay $5 one-time developer fee
-   - Upload ZIP file
-   - Set price: $4.99
-   - Fill in description, screenshots, etc.
+### Step 2: Upload Extension
+- Click "Add new item"
+- Upload the `cleanbi-anywhere-v2.1.0.zip` file (already packaged for you!)
+- The ZIP is located in the project root directory
 
-3. **Required Assets:**
-   - Screenshots (1280x800 or 640x400)
-   - Store icon (128x128)
-   - Promotional images (440x280)
+### Step 3: Store Listing Details
+
+**Item Category:** Shopping / Business Tools
+
+**Language:** English
+
+**Title:** CLEANBI Anywhere - Instant Business & Property Scores
+
+**Summary (132 chars max):**
+FREE instant A-F scores for ANY business or property on Google Maps. Powered by Google APIs. No signup required.
+
+**Detailed Description (copy/paste):**
+```
+🎯 INSTANT INTELLIGENCE FOR ANY BUSINESS OR PROPERTY
+
+CLEANBI Anywhere shows instant investment scores (A-F grade, 0-100) when you hover over ANY listing on Google Maps, LoopNet, and BizBuySell.
+
+✅ 100% FREE - No subscriptions, no limits, no signup
+✅ Powered by Google APIs
+✅ Works globally - 220+ countries
+
+📊 SCORING FACTORS:
+• Foot Traffic & Demographics
+• Competition Analysis
+• Reviews & Reputation
+• Location Quality
+• Online Visibility
+
+🏢 WORKS FOR ALL BUSINESS TYPES:
+Laundromats, Restaurants, Car Washes, Gas Stations, Gyms, Retail Stores, Hotels, Salons, Coffee Shops, Bars, Convenience Stores, Auto Shops, and MORE!
+
+🏠 WORKS FOR RESIDENTIAL TOO:
+Homes, Apartments, Condos, Land, Multi-family properties
+
+💼 PERFECT FOR:
+• Business buyers & investors (ANY industry)
+• Commercial real estate brokers
+• Residential real estate agents
+• Property managers & investors
+• Due diligence research
+• Market analysis
+
+💰 UPGRADE AVAILABLE:
+Get the Full $97 CLEANBI Report for comprehensive analysis including:
+• Detailed market demographics
+• Competitor mapping
+• Revenue projections
+• Investment recommendations
+• PDF export for presentations
+
+🔒 PRIVACY:
+• No account required
+• No data collection
+• No tracking cookies
+• Only calls our API when you hover over a listing
+
+Used by 100,000+ business buyers, investors, and brokers worldwide.
+
+Made by WashBizHub - The #1 platform for business intelligence.
+
+Questions? support@washbizhub.com
+```
+
+### Step 4: Required Assets
+
+**Store Icon (128x128):** Already included in `icons/icon128.png`
+
+**Screenshots (1280x800 or 640x400):** You need 1-5 screenshots showing:
+1. Extension popup on WashBizHub.com
+2. Google Maps with CLEANBI score overlay appearing on hover
+3. Score breakdown showing A-F grade with metrics
+4. LoopNet integration (optional)
+5. BizBuySell integration (optional)
+
+**Promotional Images (optional but recommended):**
+- Small tile: 440x280 px
+- Marquee: 1400x560 px
+
+### Step 5: Privacy Settings
+
+**Single Purpose:** Displays investment scores for businesses and properties on supported websites.
+
+**Permission Justification:**
+| Permission | Justification |
+|------------|--------------|
+| `activeTab` | To detect business listings on the current tab |
+| `https://www.google.com/maps/*` | To inject score overlays on Google Maps |
+| `https://www.loopnet.com/*` | To inject score overlays on LoopNet |
+| `https://www.bizbuysell.com/*` | To inject score overlays on BizBuySell |
+| `https://washbizhub.com/api/*` | To fetch CLEANBI scores from our API |
+
+**Privacy Policy URL:** https://washbizhub.com/privacy
+
+### Step 6: Distribution Settings
+
+**Visibility:** Public
+**Regions:** All regions (worldwide distribution)
+**Price:** FREE (no payment required)
+
+### Step 7: Submit for Review
+
+Click "Submit for Review" - Google typically reviews within 1-3 business days.
+
+**Tips for Faster Approval:**
+- Extension is straightforward (content scripts only)
+- No controversial permissions
+- Clear single purpose
+- Privacy policy in place
 
 ## 🎨 Icon Requirements
 
