@@ -6357,6 +6357,10 @@ ${pdfData.text.substring(0, 15000)}`;
   const { createSraRoutes } = await import('./sra-routes');
   app.use("/api/sra", isAuthenticated, createSraRoutes(storage));
 
+  // ========== ADVERTISING & SPONSORSHIP ROUTES ==========
+  const advertisingRoutes = await import('./advertising-routes');
+  app.use("/api/advertising", advertisingRoutes.default);
+
   const httpServer = createServer(app);
   return httpServer;
 }
