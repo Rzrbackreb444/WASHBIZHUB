@@ -15,7 +15,7 @@ export default function AdminSettings() {
 
   const [generalSettings, setGeneralSettings] = useState({
     siteName: "WashBizHub",
-    siteDescription: "The Bloomberg of Laundromats",
+    siteDescription: "The #1 Laundromat Resource Hub",
     contactEmail: "info@washbizhub.com",
   });
 

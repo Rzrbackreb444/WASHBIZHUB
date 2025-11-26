@@ -150,7 +150,7 @@ export default function Blog() {
             Blog Suite
           </h1>
           <p className="text-xl text-white/70" data-testid="text-blog-subtitle">
-            Manual, AI-Generated, and User Expert Content
+            Expert Content for Laundromat Professionals
           </p>
         </div>
 
@@ -244,7 +244,6 @@ export default function Blog() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="manual">Manual</SelectItem>
-                        <SelectItem value="ai">AI-Generated</SelectItem>
                         <SelectItem value="ugb">User Blog</SelectItem>
                         <SelectItem value="uge">User Expert</SelectItem>
                       </SelectContent>
