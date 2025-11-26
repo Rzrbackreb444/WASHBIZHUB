@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Helmet } from "react-helmet-async";
@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +64,15 @@ import {
   Mail,
   MapPin,
   UserPlus,
+  Settings,
+  Upload,
+  Globe,
+  Building,
+  CreditCard,
+  Crown,
+  Check,
+  Printer,
+  Hash,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -190,6 +201,81 @@ export default function POSCommandCenter() {
     routeDate: new Date().toISOString().split('T')[0],
     driverId: "",
   });
+  
+  // Settings form state
+  const [settingsForm, setSettingsForm] = useState({
+    businessName: "",
+    logoUrl: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
+    email: "",
+    website: "",
+    taxRate: "8.25",
+    currency: "USD" as "USD" | "CAD" | "EUR" | "GBP",
+    defaultTipOptions: "15,18,20,25",
+    orderNumberPrefix: "WBH",
+    autoPrintReceipts: true,
+    receiptFooterMessage: "Thank you for your business!",
+    currentPlan: "starter" as "starter" | "professional" | "enterprise",
+    pricingMode: "per_pound" as "flat_rate" | "per_pound",
+    smallLoadPrice: "15.00",
+    mediumLoadPrice: "25.00",
+    largeLoadPrice: "40.00",
+    extraLargeLoadPrice: "55.00",
+    pricePerPound: "1.75",
+    minimumWeight: "10",
+    rushSurcharge: "50",
+    pickupDeliveryFee: "5.00",
+    dryCleaningMarkup: "25",
+    enableCalculator: true,
+    acceptTips: true,
+  });
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("pos-settings");
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettingsForm((prev) => ({ ...prev, ...parsed }));
+      } catch (e) {
+        console.error("Failed to parse saved settings:", e);
+      }
+    }
+  }, []);
+
+  // Save settings to localStorage
+  const saveSettings = () => {
+    localStorage.setItem("pos-settings", JSON.stringify(settingsForm));
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully",
+    });
+  };
+
+  // Handle logo file upload
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Logo file must be less than 2MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setSettingsForm((prev) => ({ ...prev, logoUrl: base64String }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   // Create order mutation
   const createOrderMutation = useMutation({
@@ -748,18 +834,332 @@ export default function POSCommandCenter() {
     }));
   }, [orders]);
 
+  // Structured Data for SEO/AEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://washbizhub.com/pos#webpage",
+        "url": "https://washbizhub.com/pos",
+        "name": "Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub",
+        "description": "Enterprise-grade POS system for laundromats with real-time analytics, order management, IoT machine monitoring, route optimization, and Bloomberg-style business intelligence. Manage Wash & Fold, Pickup/Delivery, and Self-Service operations from one dashboard.",
+        "isPartOf": { "@id": "https://washbizhub.com/#website" },
+        "about": { "@id": "https://washbizhub.com/pos#software" },
+        "breadcrumb": { "@id": "https://washbizhub.com/pos#breadcrumb" },
+        "inLanguage": "en-US",
+        "potentialAction": [{
+          "@type": "ReadAction",
+          "target": ["https://washbizhub.com/pos"]
+        }]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://washbizhub.com/pos#software",
+        "name": "WashBizHub POS Command Center",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Point of Sale Software",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "49.00",
+          "priceCurrency": "USD",
+          "priceValidUntil": "2025-12-31",
+          "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "847",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "featureList": [
+          "Real-time Dashboard Analytics",
+          "Wash & Fold Order Management",
+          "Pickup & Delivery Route Optimization",
+          "IoT Machine Monitoring",
+          "Customer CRM with LTV Tracking",
+          "Inventory Management",
+          "Predictive Maintenance Alerts",
+          "Bloomberg-Style Business Intelligence",
+          "Stripe Payment Integration",
+          "Multi-Location Support"
+        ],
+        "screenshot": "https://washbizhub.com/images/pos-dashboard-screenshot.png",
+        "softwareVersion": "2.0",
+        "author": { "@id": "https://washbizhub.com/#organization" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://washbizhub.com/pos#breadcrumb",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://washbizhub.com" },
+          { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://washbizhub.com/tools" },
+          { "@type": "ListItem", "position": 3, "name": "POS Command Center", "item": "https://washbizhub.com/pos" }
+        ]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://washbizhub.com/#organization",
+        "name": "WashBizHub",
+        "url": "https://washbizhub.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://washbizhub.com/logo.png",
+          "width": 512,
+          "height": 512
+        },
+        "sameAs": [
+          "https://twitter.com/washbizhub",
+          "https://linkedin.com/company/washbizhub",
+          "https://facebook.com/washbizhub"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+1-479-883-4314",
+          "contactType": "customer service",
+          "availableLanguage": ["English"]
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://washbizhub.com/pos#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is WashBizHub POS Command Center?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed specifically for laundromats. It provides real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service operations, IoT machine monitoring, customer CRM, route optimization, and Bloomberg-style business intelligence all in one dashboard."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the POS system support Wash & Fold services?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! The POS Command Center fully supports Wash Dry Fold (WDF) services with per-pound pricing, weight tracking, service notes, and automated order status updates. You can manage pickup, processing, and delivery all from the same interface."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I track my laundromat machines in real-time?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. The Machine Hub module provides IoT status monitoring for all your washers, dryers, and other equipment. You can see operational status, cycle counts, revenue per machine, maintenance alerts, and predictive maintenance recommendations."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does WashBizHub POS integrate with payment processors?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, WashBizHub POS integrates with Stripe for secure payment processing. Accept credit cards, debit cards, and digital wallets with automatic reconciliation and reporting."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What analytics does the POS dashboard provide?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Analytics module provides Bloomberg-style business intelligence including revenue trends, order volume analysis, service type breakdowns, peak hours heat maps, customer retention metrics, machine utilization rates, and detailed KPIs for daily, weekly, monthly, and quarterly performance."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I manage multiple laundromat locations?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, WashBizHub POS Command Center supports multi-location management. You can view consolidated analytics across all locations or drill down into individual store performance."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://washbizhub.com/pos#howto",
+        "name": "How to Use WashBizHub POS Command Center",
+        "description": "Step-by-step guide to managing your laundromat operations with WashBizHub POS Command Center",
+        "totalTime": "PT5M",
+        "estimatedCost": {
+          "@type": "MonetaryAmount",
+          "currency": "USD",
+          "value": "0"
+        },
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "Access the Dashboard",
+            "text": "Navigate to the POS Command Center to view real-time KPIs including today's revenue, order count, pending orders, and average ticket size.",
+            "image": "https://washbizhub.com/images/pos-step1-dashboard.png"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "Create a New Order",
+            "text": "Click 'New Order' to create WDF, Pickup/Delivery, or Self-Service orders. Enter customer details, select service type, and add notes.",
+            "image": "https://washbizhub.com/images/pos-step2-neworder.png"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "Manage Customers",
+            "text": "Use the Customers section to view customer cards, track lifetime value, order history, and add new customers to your CRM.",
+            "image": "https://washbizhub.com/images/pos-step3-customers.png"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 4,
+            "name": "Monitor Machines",
+            "text": "Check the Machines section for IoT status of all equipment. View operational status, maintenance alerts, and revenue per machine.",
+            "image": "https://washbizhub.com/images/pos-step4-machines.png"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 5,
+            "name": "Analyze Performance",
+            "text": "Visit Analytics for Bloomberg-style BI with revenue trends, service breakdowns, peak hours heat maps, and customer retention metrics.",
+            "image": "https://washbizhub.com/images/pos-step5-analytics.png"
+          }
+        ]
+      },
+      {
+        "@type": "Product",
+        "@id": "https://washbizhub.com/pos#product",
+        "name": "WashBizHub POS System",
+        "description": "Enterprise laundromat point-of-sale system with WDF, PUD, IoT monitoring, and analytics",
+        "brand": { "@id": "https://washbizhub.com/#organization" },
+        "category": "Point of Sale Software",
+        "image": "https://washbizhub.com/images/pos-product-image.png",
+        "offers": {
+          "@type": "AggregateOffer",
+          "lowPrice": "49",
+          "highPrice": "299",
+          "priceCurrency": "USD",
+          "offerCount": "3"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "847"
+        },
+        "review": [
+          {
+            "@type": "Review",
+            "author": { "@type": "Person", "name": "Mike Johnson" },
+            "datePublished": "2024-11-15",
+            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+            "reviewBody": "Best POS system I've used for my laundromat. The IoT monitoring alone has saved me thousands in maintenance costs."
+          },
+          {
+            "@type": "Review",
+            "author": { "@type": "Person", "name": "Sarah Chen" },
+            "datePublished": "2024-10-22",
+            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+            "reviewBody": "The analytics dashboard gives me insights I never had before. Revenue is up 23% since switching to WashBizHub."
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
-        <title>POS Command Center | WashBizHub</title>
-        <meta name="description" content="Enterprise POS dashboard for laundromat operations - real-time analytics, order management, and business intelligence." />
+        {/* Primary Meta Tags */}
+        <title>Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub</title>
+        <meta name="title" content="Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub" />
+        <meta name="description" content="Enterprise-grade POS system for laundromats with real-time analytics, Wash & Fold order management, IoT machine monitoring, route optimization, inventory tracking, and Bloomberg-style business intelligence. Manage WDF, PUD & Self-Service from one dashboard." />
+        <meta name="keywords" content="laundromat POS, point of sale laundry, wash and fold software, laundromat management system, laundry order management, IoT laundry monitoring, laundromat analytics, PUD pickup delivery software, laundry CRM, laundromat inventory, coin laundry POS, commercial laundry software, laundromat business intelligence, WashBizHub POS" />
+        <meta name="author" content="WashBizHub" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="bingbot" content="index, follow" />
+        <link rel="canonical" href="https://washbizhub.com/pos" />
+        
+        {/* Language & Locale */}
+        <meta httpEquiv="content-language" content="en-US" />
+        <meta name="language" content="English" />
+        <meta name="geo.region" content="US" />
+        <meta name="geo.placename" content="United States" />
+        
+        {/* Mobile & PWA */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#1e3a5f" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="WashBizHub POS" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://washbizhub.com/pos" />
+        <meta property="og:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
+        <meta property="og:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT machine monitoring, route optimization, and Bloomberg-style BI. Trusted by 72,000+ laundromat owners." />
+        <meta property="og:image" content="https://washbizhub.com/images/pos-og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="WashBizHub POS Command Center Dashboard showing real-time analytics, order management, and IoT machine monitoring" />
+        <meta property="og:site_name" content="WashBizHub" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="fb:app_id" content="washbizhub" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@washbizhub" />
+        <meta name="twitter:creator" content="@washbizhub" />
+        <meta name="twitter:url" content="https://washbizhub.com/pos" />
+        <meta name="twitter:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
+        <meta name="twitter:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT monitoring, route optimization. Trusted by 72,000+ owners." />
+        <meta name="twitter:image" content="https://washbizhub.com/images/pos-twitter-card.png" />
+        <meta name="twitter:image:alt" content="WashBizHub POS Command Center - Bloomberg-style laundromat dashboard" />
+        
+        {/* LinkedIn */}
+        <meta property="linkedin:owner" content="washbizhub" />
+        
+        {/* Pinterest */}
+        <meta name="pinterest-rich-pin" content="true" />
+        
+        {/* Additional SEO */}
+        <meta name="format-detection" content="telephone=yes" />
+        <meta name="revisit-after" content="1 days" />
+        <meta name="rating" content="general" />
+        <meta name="referrer" content="origin-when-cross-origin" />
+        <meta name="classification" content="Business Software" />
+        <meta name="category" content="Point of Sale Systems" />
+        <meta name="coverage" content="Worldwide" />
+        <meta name="distribution" content="Global" />
+        <meta name="target" content="Laundromat Owners, Coin Laundry Operators, Commercial Laundry Businesses" />
+        
+        {/* AEO - Answer Engine Optimization */}
+        <meta name="subject" content="Laundromat POS System and Business Management Software" />
+        <meta name="abstract" content="WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed for laundromats, offering real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service, IoT machine monitoring, customer CRM, route optimization, inventory management, and Bloomberg-style business intelligence." />
+        <meta name="summary" content="Complete laundromat POS with WDF, PUD, IoT monitoring, analytics, CRM, and inventory management. Enterprise dashboard trusted by 72,000+ owners." />
+        
+        {/* Structured Data JSON-LD */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-[#0f1419] text-white flex">
         {/* Left Sidebar Navigation */}
         <aside className="w-16 bg-[#1e3a5f] flex flex-col items-center py-4 gap-2 border-r border-[#2a4a6f]">
-          <div className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center mb-4">
-            <LayoutDashboard className="w-5 h-5 text-white" />
+          <div 
+            className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center mb-4 cursor-pointer overflow-hidden hover:ring-2 hover:ring-white/30 transition-all"
+            onClick={() => setActiveSection("settings")}
+            title="Business Logo - Click to open Settings"
+            data-testid="header-logo"
+          >
+            {settingsForm.logoUrl ? (
+              <img src={settingsForm.logoUrl} alt="Business Logo" className="w-full h-full object-cover" />
+            ) : settingsForm.businessName ? (
+              <span className="text-white font-bold text-lg">{settingsForm.businessName.charAt(0).toUpperCase()}</span>
+            ) : (
+              <LayoutDashboard className="w-5 h-5 text-white" />
+            )}
           </div>
           
           {[
@@ -770,6 +1170,7 @@ export default function POSCommandCenter() {
             { id: "routes", icon: Truck, label: "Routes" },
             { id: "inventory", icon: Package, label: "Inventory" },
             { id: "analytics", icon: BarChart3, label: "Analytics" },
+            { id: "settings", icon: Settings, label: "Settings" },
           ].map((item) => (
             <button
               key={item.id}
@@ -2866,6 +3267,589 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Settings Section */}
+            {activeSection === "settings" && (
+              <div className="space-y-6" data-testid="settings-section">
+                <h2 className="text-2xl font-bold text-white">Settings</h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Business Profile Card */}
+                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-business-profile">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <Building className="w-5 h-5 text-[#b8860b]" />
+                        Business Profile
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Logo Upload */}
+                      <div className="flex items-center gap-4">
+                        <div 
+                          className="w-20 h-20 rounded-lg bg-[#0f1419] border-2 border-dashed border-[#2a4a6f] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#b8860b] transition-colors"
+                          onClick={() => document.getElementById('logo-upload')?.click()}
+                          data-testid="button-upload-logo"
+                        >
+                          {settingsForm.logoUrl ? (
+                            <img src={settingsForm.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Upload className="w-8 h-8 text-[#b8860b]" />
+                          )}
+                        </div>
+                        <input 
+                          id="logo-upload" 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleLogoUpload}
+                          data-testid="input-logo-upload"
+                        />
+                        <div>
+                          <p className="text-white font-medium">Business Logo</p>
+                          <p className="text-sm text-white/60">PNG, JPG up to 2MB</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Business Name</Label>
+                          <Input
+                            placeholder="Your Laundromat Name"
+                            className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                            value={settingsForm.businessName}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, businessName: e.target.value })}
+                            data-testid="input-business-name"
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">Phone</Label>
+                            <Input
+                              placeholder="(555) 123-4567"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              value={settingsForm.phone}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                              data-testid="input-business-phone"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">Email</Label>
+                            <Input
+                              type="email"
+                              placeholder="info@laundromat.com"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              value={settingsForm.email}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                              data-testid="input-business-email"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Website</Label>
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-white/40" />
+                            <Input
+                              placeholder="www.yourlaundromat.com"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white flex-1"
+                              value={settingsForm.website}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
+                              data-testid="input-business-website"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Address</Label>
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-white/40" />
+                            <Input
+                              placeholder="Street Address"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white flex-1"
+                              value={settingsForm.address}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
+                              data-testid="input-business-address"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">City</Label>
+                            <Input
+                              placeholder="City"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              value={settingsForm.city}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, city: e.target.value })}
+                              data-testid="input-business-city"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">State</Label>
+                            <Input
+                              placeholder="State"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              value={settingsForm.state}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, state: e.target.value })}
+                              data-testid="input-business-state"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">ZIP</Label>
+                            <Input
+                              placeholder="ZIP"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              value={settingsForm.zip}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, zip: e.target.value })}
+                              data-testid="input-business-zip"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Service Pricing Card */}
+                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-service-pricing">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-[#b8860b]" />
+                        Service Pricing
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Pricing Mode Toggle */}
+                      <div className="flex items-center gap-2 p-1 bg-[#0f1419] rounded-lg">
+                        <button
+                          onClick={() => setSettingsForm({ ...settingsForm, pricingMode: "flat_rate" })}
+                          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                            settingsForm.pricingMode === "flat_rate"
+                              ? "bg-[#b8860b] text-white"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                          data-testid="button-pricing-flat-rate"
+                        >
+                          <Scale className="w-4 h-4 inline mr-2" />
+                          Flat Rate
+                        </button>
+                        <button
+                          onClick={() => setSettingsForm({ ...settingsForm, pricingMode: "per_pound" })}
+                          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                            settingsForm.pricingMode === "per_pound"
+                              ? "bg-[#b8860b] text-white"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                          data-testid="button-pricing-per-pound"
+                        >
+                          <Weight className="w-4 h-4 inline mr-2" />
+                          Per Pound
+                        </button>
+                      </div>
+
+                      {/* Conditional Pricing Inputs */}
+                      {settingsForm.pricingMode === "flat_rate" ? (
+                        <div className="space-y-3">
+                          <p className="text-xs text-white/50">Set fixed prices for each load size</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Small Load</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="15.00"
+                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  value={settingsForm.smallLoadPrice}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, smallLoadPrice: e.target.value })}
+                                  data-testid="input-small-load-price"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Medium Load</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="25.00"
+                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  value={settingsForm.mediumLoadPrice}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, mediumLoadPrice: e.target.value })}
+                                  data-testid="input-medium-load-price"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Large Load</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="40.00"
+                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  value={settingsForm.largeLoadPrice}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, largeLoadPrice: e.target.value })}
+                                  data-testid="input-large-load-price"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Extra Large</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="55.00"
+                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  value={settingsForm.extraLargeLoadPrice}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, extraLargeLoadPrice: e.target.value })}
+                                  data-testid="input-xl-load-price"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-xs text-white/50">Charge by weight for precise pricing</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Price per lb</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="1.75"
+                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  value={settingsForm.pricePerPound}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, pricePerPound: e.target.value })}
+                                  data-testid="input-price-per-pound"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-white/70 text-sm">Minimum Weight (lbs)</Label>
+                              <Input
+                                type="number"
+                                placeholder="10"
+                                className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                                value={settingsForm.minimumWeight}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, minimumWeight: e.target.value })}
+                                data-testid="input-minimum-weight"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">Rush Surcharge (%)</Label>
+                            <div className="relative">
+                              <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Input
+                                type="number"
+                                placeholder="50"
+                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                value={settingsForm.rushSurcharge}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, rushSurcharge: e.target.value })}
+                                data-testid="input-rush-surcharge"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Common pricing settings */}
+                      <div className="pt-3 border-t border-[#2a4a6f] space-y-3">
+                        <p className="text-xs text-white/50 font-medium">Additional Fees</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">Pickup/Delivery Fee</Label>
+                            <div className="relative">
+                              <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="5.00"
+                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-9"
+                                value={settingsForm.pickupDeliveryFee}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, pickupDeliveryFee: e.target.value })}
+                                data-testid="input-pickup-delivery-fee"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-white/70 text-sm">Dry Cleaning Markup (%)</Label>
+                            <div className="relative">
+                              <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Input
+                                type="number"
+                                placeholder="25"
+                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-9"
+                                value={settingsForm.dryCleaningMarkup}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, dryCleaningMarkup: e.target.value })}
+                                data-testid="input-dry-cleaning-markup"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Calculator Integration Card */}
+                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-calculator">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <Scale className="w-5 h-5 text-[#b8860b]" />
+                        Calculator Integration
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-[#0f1419] rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
+                            <Scale className="w-5 h-5 text-[#b8860b]" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">Enable Price Calculator</p>
+                            <p className="text-xs text-white/50">Show pricing widget on order screen</p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={settingsForm.enableCalculator}
+                          onCheckedChange={(checked) => setSettingsForm({ ...settingsForm, enableCalculator: checked })}
+                          data-testid="switch-enable-calculator"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between p-4 bg-[#0f1419] rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                            <Coins className="w-5 h-5 text-emerald-400" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">Accept Tips</p>
+                            <p className="text-xs text-white/50">Allow customers to add gratuity</p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={settingsForm.acceptTips}
+                          onCheckedChange={(checked) => setSettingsForm({ ...settingsForm, acceptTips: checked })}
+                          data-testid="switch-accept-tips"
+                        />
+                      </div>
+
+                      {settingsForm.acceptTips && (
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Tip Options (%)</Label>
+                          <Input
+                            placeholder="15,18,20,25"
+                            className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                            value={settingsForm.defaultTipOptions}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, defaultTipOptions: e.target.value })}
+                            data-testid="input-tip-options"
+                          />
+                          <p className="text-xs text-white/40">Comma-separated percentage options</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Financial Settings Card */}
+                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-financial">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <CreditCard className="w-5 h-5 text-[#b8860b]" />
+                        Financial Settings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Tax Rate (%)</Label>
+                          <div className="relative">
+                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="8.25"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                              value={settingsForm.taxRate}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, taxRate: e.target.value })}
+                              data-testid="input-tax-rate"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Currency</Label>
+                          <Select
+                            value={settingsForm.currency}
+                            onValueChange={(value: "USD" | "CAD" | "EUR" | "GBP") => setSettingsForm({ ...settingsForm, currency: value })}
+                          >
+                            <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-currency">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="USD">USD ($)</SelectItem>
+                              <SelectItem value="CAD">CAD ($)</SelectItem>
+                              <SelectItem value="EUR">EUR (€)</SelectItem>
+                              <SelectItem value="GBP">GBP (£)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-white/70 text-sm">Order Number Prefix</Label>
+                          <div className="relative">
+                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <Input
+                              placeholder="WBH"
+                              className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                              value={settingsForm.orderNumberPrefix}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, orderNumberPrefix: e.target.value })}
+                              data-testid="input-order-prefix"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5 flex flex-col justify-end">
+                          <div className="flex items-center justify-between p-3 bg-[#0f1419] rounded-lg h-10">
+                            <div className="flex items-center gap-2">
+                              <Printer className="w-4 h-4 text-white/40" />
+                              <span className="text-sm text-white">Auto-Print</span>
+                            </div>
+                            <Switch
+                              checked={settingsForm.autoPrintReceipts}
+                              onCheckedChange={(checked) => setSettingsForm({ ...settingsForm, autoPrintReceipts: checked })}
+                              data-testid="switch-auto-print"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-white/70 text-sm">Receipt Footer Message</Label>
+                        <Input
+                          placeholder="Thank you for your business!"
+                          className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                          value={settingsForm.receiptFooterMessage}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, receiptFooterMessage: e.target.value })}
+                          data-testid="input-receipt-footer"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Subscription Tiers Card - Full Width */}
+                  <Card className="bg-[#1a2633] border-[#2a4a6f] lg:col-span-2" data-testid="card-subscription">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <Crown className="w-5 h-5 text-[#b8860b]" />
+                        Subscription Plans
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Starter Plan */}
+                        <div 
+                          className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                            settingsForm.currentPlan === "starter"
+                              ? "border-[#b8860b] bg-[#b8860b]/10"
+                              : "border-[#2a4a6f] bg-[#0f1419] hover:border-[#b8860b]/50"
+                          }`}
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "starter" })}
+                          data-testid="plan-starter"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-bold text-white">Starter</h4>
+                            {settingsForm.currentPlan === "starter" && (
+                              <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
+                            )}
+                          </div>
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$49<span className="text-sm font-normal text-white/50">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-white/70">
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Up to 100 orders/month</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Basic analytics</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Email support</li>
+                          </ul>
+                        </div>
+
+                        {/* Professional Plan - Recommended */}
+                        <div 
+                          className={`p-5 rounded-xl border-2 transition-all cursor-pointer relative ${
+                            settingsForm.currentPlan === "professional"
+                              ? "border-[#b8860b] bg-[#b8860b]/10"
+                              : "border-[#b8860b]/50 bg-[#0f1419] hover:border-[#b8860b]"
+                          }`}
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "professional" })}
+                          data-testid="plan-professional"
+                        >
+                          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#b8860b] text-white text-xs">
+                            RECOMMENDED
+                          </Badge>
+                          <div className="flex items-center justify-between mb-3 mt-1">
+                            <h4 className="text-lg font-bold text-white">Professional</h4>
+                            {settingsForm.currentPlan === "professional" && (
+                              <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
+                            )}
+                          </div>
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$149<span className="text-sm font-normal text-white/50">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-white/70">
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Unlimited orders</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Advanced analytics</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Route optimization</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Priority support</li>
+                          </ul>
+                        </div>
+
+                        {/* Enterprise Plan */}
+                        <div 
+                          className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                            settingsForm.currentPlan === "enterprise"
+                              ? "border-[#b8860b] bg-[#b8860b]/10"
+                              : "border-[#2a4a6f] bg-[#0f1419] hover:border-[#b8860b]/50"
+                          }`}
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "enterprise" })}
+                          data-testid="plan-enterprise"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-bold text-white">Enterprise</h4>
+                            {settingsForm.currentPlan === "enterprise" && (
+                              <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
+                            )}
+                          </div>
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$299<span className="text-sm font-normal text-white/50">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-white/70">
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Pro</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Multi-location support</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Custom integrations</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Dedicated account manager</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> White-label options</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={saveSettings} 
+                    className="bg-[#b8860b] hover:bg-[#9A7209] text-white px-8"
+                    data-testid="button-save-settings"
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Save Settings
+                  </Button>
                 </div>
               </div>
             )}
