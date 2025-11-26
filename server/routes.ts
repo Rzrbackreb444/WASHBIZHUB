@@ -6785,6 +6785,10 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ========== WHITE-LABEL WEBSITE BUILDER ROUTES ==========
+  const { createWhiteLabelRoutes } = await import('./whitelabel-routes');
+  app.use("/api/whitelabel", isAuthenticated, createWhiteLabelRoutes());
+
   // ========== SEO SUITE ROUTES ==========
   const { createSeoRoutes } = await import('./seo-routes');
   app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));

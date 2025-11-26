@@ -1,0 +1,603 @@
+import { Router } from "express";
+import { z } from "zod";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
+import { ObjectStorageService, objectStorageClient } from "./objectStorage";
+import multer from "multer";
+import { randomUUID } from "crypto";
+
+const multerUpload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('File type not supported'));
+    }
+  }
+});
+
+const businessProfileSchema = z.object({
+  businessName: z.string().min(1),
+  tagline: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  logoUrl: z.string().optional().nullable(),
+  faviconUrl: z.string().optional().nullable(),
+  primaryColor: z.string().default('#C8A661'),
+  secondaryColor: z.string().default('#1a2332'),
+  accentColor: z.string().default('#ffffff'),
+  fontFamily: z.string().default('Inter'),
+  phone: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  zipCode: z.string().optional().nullable(),
+  country: z.string().default('USA'),
+  businessHours: z.any().optional().nullable(),
+  timezone: z.string().default('America/New_York'),
+  facebookUrl: z.string().optional().nullable(),
+  instagramUrl: z.string().optional().nullable(),
+  googleMapsUrl: z.string().optional().nullable(),
+  yelpUrl: z.string().optional().nullable(),
+  services: z.array(z.any()).optional().nullable(),
+  pricingMode: z.string().default('per_pound'),
+  pricePerPound: z.string().optional().nullable(),
+  minimumWeight: z.number().optional().nullable(),
+  rushSurcharge: z.number().optional().nullable(),
+  flatRatePrices: z.any().optional().nullable(),
+  pickupDeliveryFee: z.string().optional().nullable(),
+});
+
+const aiAgentSchema = z.object({
+  name: z.string().default('Store Assistant'),
+  personality: z.string().default('friendly'),
+  avatarUrl: z.string().optional().nullable(),
+  knowledgeBase: z.string().optional().nullable(),
+  businessContext: z.string().optional().nullable(),
+  canTakeOrders: z.boolean().default(false),
+  canSchedulePickups: z.boolean().default(false),
+  canAnswerPricing: z.boolean().default(true),
+  canProvideFaq: z.boolean().default(true),
+  welcomeMessage: z.string().default('Hi! How can I help you today?'),
+  awayMessage: z.string().default("We're currently closed. Leave a message and we'll get back to you!"),
+  commonQuestions: z.array(z.any()).optional().nullable(),
+  primaryColor: z.string().default('#C8A661'),
+  position: z.string().default('bottom-right'),
+  isEnabled: z.boolean().default(true),
+  businessProfileId: z.string().optional().nullable(),
+});
+
+const serviceCardSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional().nullable(),
+  icon: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  price: z.string().optional().nullable(),
+  pricingNote: z.string().optional().nullable(),
+  ctaText: z.string().default('Learn More'),
+  ctaLink: z.string().optional().nullable(),
+  order: z.number().default(0),
+  isHighlighted: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
+  projectId: z.string().optional().nullable(),
+  businessProfileId: z.string().optional().nullable(),
+});
+
+const videoSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional().nullable(),
+  videoType: z.enum(['upload', 'youtube', 'vimeo']).default('upload'),
+  videoUrl: z.string().min(1),
+  thumbnailUrl: z.string().optional().nullable(),
+  duration: z.number().optional().nullable(),
+  fileSize: z.number().optional().nullable(),
+  autoplay: z.boolean().default(false),
+  loop: z.boolean().default(false),
+  muted: z.boolean().default(true),
+  isPublished: z.boolean().default(true),
+  order: z.number().default(0),
+  projectId: z.string().optional().nullable(),
+});
+
+const calculatorThemeSchema = z.object({
+  name: z.string().min(1),
+  calculatorId: z.string().optional().nullable(),
+  logoUrl: z.string().optional().nullable(),
+  primaryColor: z.string().default('#C8A661'),
+  secondaryColor: z.string().default('#1a2332'),
+  backgroundColor: z.string().default('#ffffff'),
+  textColor: z.string().default('#1a2332'),
+  fontFamily: z.string().default('Inter'),
+  headingFont: z.string().default('Inter'),
+  customCss: z.string().optional().nullable(),
+  showPoweredBy: z.boolean().default(true),
+  allowedDomains: z.array(z.string()).optional().nullable(),
+  businessProfileId: z.string().optional().nullable(),
+});
+
+const integrationSchema = z.object({
+  integrationType: z.string().min(1),
+  integrationName: z.string().optional().nullable(),
+  isConnected: z.boolean().default(false),
+  externalAccountId: z.string().optional().nullable(),
+  externalAccountName: z.string().optional().nullable(),
+  metadata: z.any().optional().nullable(),
+  scopes: z.array(z.string()).optional().nullable(),
+  businessProfileId: z.string().optional().nullable(),
+});
+
+export function createWhiteLabelRoutes() {
+  const router = Router();
+
+  router.get("/business-profile", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(
+        sql`SELECT * FROM business_profiles WHERE user_id = ${userId} LIMIT 1`
+      );
+      
+      if (result.rows.length === 0) {
+        return res.json(null);
+      }
+      
+      res.json(result.rows[0]);
+    } catch (error: any) {
+      console.error("Error fetching business profile:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/business-profile", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = businessProfileSchema.parse(req.body);
+      
+      const existingResult = await db.execute(
+        sql`SELECT id FROM business_profiles WHERE user_id = ${userId} LIMIT 1`
+      );
+      
+      const businessHoursJson = JSON.stringify(data.businessHours || {});
+      const servicesJson = JSON.stringify(data.services || []);
+      const flatRatePricesJson = JSON.stringify(data.flatRatePrices || null);
+      
+      if (existingResult.rows.length > 0) {
+        const existingId = existingResult.rows[0].id;
+        await db.execute(sql`
+          UPDATE business_profiles SET
+            business_name = ${data.businessName}, tagline = ${data.tagline}, description = ${data.description},
+            logo_url = ${data.logoUrl}, favicon_url = ${data.faviconUrl}, primary_color = ${data.primaryColor},
+            secondary_color = ${data.secondaryColor}, accent_color = ${data.accentColor}, font_family = ${data.fontFamily},
+            phone = ${data.phone}, email = ${data.email}, address = ${data.address}, city = ${data.city},
+            state = ${data.state}, zip_code = ${data.zipCode}, country = ${data.country},
+            business_hours = ${businessHoursJson}::jsonb, timezone = ${data.timezone},
+            facebook_url = ${data.facebookUrl}, instagram_url = ${data.instagramUrl},
+            google_maps_url = ${data.googleMapsUrl}, yelp_url = ${data.yelpUrl},
+            services = ${servicesJson}::jsonb, pricing_mode = ${data.pricingMode},
+            price_per_pound = ${data.pricePerPound || '1.75'}, minimum_weight = ${data.minimumWeight || 10},
+            rush_surcharge = ${data.rushSurcharge || 50}, flat_rate_prices = ${flatRatePricesJson}::jsonb,
+            pickup_delivery_fee = ${data.pickupDeliveryFee || '5.00'}, updated_at = NOW()
+          WHERE id = ${existingId}
+        `);
+        
+        const updated = await db.execute(
+          sql`SELECT * FROM business_profiles WHERE id = ${existingId}`
+        );
+        return res.json(updated.rows[0]);
+      }
+      
+      const id = randomUUID();
+      await db.execute(sql`
+        INSERT INTO business_profiles (id, user_id, business_name, tagline, description, logo_url, favicon_url,
+          primary_color, secondary_color, accent_color, font_family, phone, email, address, city, state, zip_code,
+          country, business_hours, timezone, facebook_url, instagram_url, google_maps_url, yelp_url, services,
+          pricing_mode, price_per_pound, minimum_weight, rush_surcharge, flat_rate_prices, pickup_delivery_fee)
+        VALUES (${id}, ${userId}, ${data.businessName}, ${data.tagline}, ${data.description},
+          ${data.logoUrl}, ${data.faviconUrl}, ${data.primaryColor}, ${data.secondaryColor},
+          ${data.accentColor}, ${data.fontFamily}, ${data.phone}, ${data.email},
+          ${data.address}, ${data.city}, ${data.state}, ${data.zipCode},
+          ${data.country}, ${businessHoursJson}::jsonb, ${data.timezone},
+          ${data.facebookUrl}, ${data.instagramUrl}, ${data.googleMapsUrl},
+          ${data.yelpUrl}, ${servicesJson}::jsonb, ${data.pricingMode},
+          ${data.pricePerPound || '1.75'}, ${data.minimumWeight || 10}, ${data.rushSurcharge || 50},
+          ${flatRatePricesJson}::jsonb, ${data.pickupDeliveryFee || '5.00'})
+      `);
+      
+      const newProfile = await db.execute(
+        sql`SELECT * FROM business_profiles WHERE id = ${id}`
+      );
+      res.json(newProfile.rows[0]);
+    } catch (error: any) {
+      console.error("Error saving business profile:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.post("/upload-asset", multerUpload.single("file"), async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const category = req.body.category || 'general';
+      const ext = req.file.originalname.split('.').pop();
+      const filename = `${category}/${userId}/${Date.now()}-${randomUUID()}.${ext}`;
+      
+      const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+      if (!bucketId) {
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+
+      const bucket = objectStorageClient.bucket(bucketId);
+      const file = bucket.file(filename);
+      
+      await file.save(req.file.buffer, {
+        contentType: req.file.mimetype,
+        metadata: {
+          originalName: req.file.originalname,
+          uploadedBy: userId,
+        }
+      });
+      
+      await file.makePublic();
+      const publicUrl = `https://storage.googleapis.com/${bucketId}/${filename}`;
+      
+      res.json({ url: publicUrl, filename: req.file.originalname, size: req.file.size });
+    } catch (error: any) {
+      console.error("Error uploading asset:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.get("/ai-agent", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(
+        sql`SELECT * FROM ai_agent_configs WHERE user_id = ${userId} LIMIT 1`
+      );
+      
+      if (result.rows.length === 0) {
+        return res.json(null);
+      }
+      
+      res.json(result.rows[0]);
+    } catch (error: any) {
+      console.error("Error fetching AI agent config:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/ai-agent", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = aiAgentSchema.parse(req.body);
+      
+      const existingResult = await db.execute(
+        sql`SELECT id FROM ai_agent_configs WHERE user_id = ${userId} LIMIT 1`
+      );
+      
+      const commonQuestionsJson = JSON.stringify(data.commonQuestions || []);
+      
+      if (existingResult.rows.length > 0) {
+        const existingId = existingResult.rows[0].id;
+        await db.execute(sql`
+          UPDATE ai_agent_configs SET
+            name = ${data.name}, personality = ${data.personality}, avatar_url = ${data.avatarUrl},
+            knowledge_base = ${data.knowledgeBase}, business_context = ${data.businessContext},
+            can_take_orders = ${data.canTakeOrders}, can_schedule_pickups = ${data.canSchedulePickups},
+            can_answer_pricing = ${data.canAnswerPricing}, can_provide_faq = ${data.canProvideFaq},
+            welcome_message = ${data.welcomeMessage}, away_message = ${data.awayMessage},
+            common_questions = ${commonQuestionsJson}::jsonb, primary_color = ${data.primaryColor},
+            position = ${data.position}, is_enabled = ${data.isEnabled},
+            business_profile_id = ${data.businessProfileId}, updated_at = NOW()
+          WHERE id = ${existingId}
+        `);
+        
+        const updated = await db.execute(
+          sql`SELECT * FROM ai_agent_configs WHERE id = ${existingId}`
+        );
+        return res.json(updated.rows[0]);
+      }
+      
+      const id = randomUUID();
+      await db.execute(sql`
+        INSERT INTO ai_agent_configs (id, user_id, business_profile_id, name, personality, avatar_url,
+          knowledge_base, business_context, can_take_orders, can_schedule_pickups, can_answer_pricing, can_provide_faq,
+          welcome_message, away_message, common_questions, primary_color, position, is_enabled)
+        VALUES (${id}, ${userId}, ${data.businessProfileId}, ${data.name}, ${data.personality}, ${data.avatarUrl},
+          ${data.knowledgeBase}, ${data.businessContext}, ${data.canTakeOrders}, ${data.canSchedulePickups},
+          ${data.canAnswerPricing}, ${data.canProvideFaq}, ${data.welcomeMessage}, ${data.awayMessage},
+          ${commonQuestionsJson}::jsonb, ${data.primaryColor}, ${data.position}, ${data.isEnabled})
+      `);
+      
+      const newConfig = await db.execute(
+        sql`SELECT * FROM ai_agent_configs WHERE id = ${id}`
+      );
+      res.json(newConfig.rows[0]);
+    } catch (error: any) {
+      console.error("Error saving AI agent config:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.get("/service-cards", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(
+        sql`SELECT * FROM service_cards WHERE user_id = ${userId} ORDER BY "order" ASC`
+      );
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching service cards:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/service-cards", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = serviceCardSchema.parse(req.body);
+      
+      const id = randomUUID();
+      await db.execute(sql`
+        INSERT INTO service_cards (id, user_id, project_id, business_profile_id, title, description, icon,
+          image_url, price, pricing_note, cta_text, cta_link, "order", is_highlighted, is_featured)
+        VALUES (${id}, ${userId}, ${data.projectId}, ${data.businessProfileId}, ${data.title}, ${data.description},
+          ${data.icon}, ${data.imageUrl}, ${data.price}, ${data.pricingNote},
+          ${data.ctaText}, ${data.ctaLink}, ${data.order}, ${data.isHighlighted}, ${data.isFeatured})
+      `);
+      
+      const newCard = await db.execute(
+        sql`SELECT * FROM service_cards WHERE id = ${id}`
+      );
+      res.json(newCard.rows[0]);
+    } catch (error: any) {
+      console.error("Error creating service card:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.put("/service-cards/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      const data = serviceCardSchema.parse(req.body);
+      
+      await db.execute(sql`
+        UPDATE service_cards SET
+          title = ${data.title}, description = ${data.description}, icon = ${data.icon},
+          image_url = ${data.imageUrl}, price = ${data.price}, pricing_note = ${data.pricingNote},
+          cta_text = ${data.ctaText}, cta_link = ${data.ctaLink}, "order" = ${data.order},
+          is_highlighted = ${data.isHighlighted}, is_featured = ${data.isFeatured}, updated_at = NOW()
+        WHERE id = ${id} AND user_id = ${userId}
+      `);
+      
+      const updated = await db.execute(
+        sql`SELECT * FROM service_cards WHERE id = ${id}`
+      );
+      res.json(updated.rows[0]);
+    } catch (error: any) {
+      console.error("Error updating service card:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.delete("/service-cards/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      
+      await db.execute(
+        sql`DELETE FROM service_cards WHERE id = ${id} AND user_id = ${userId}`
+      );
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting service card:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.get("/videos", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(
+        sql`SELECT * FROM website_videos WHERE user_id = ${userId} ORDER BY "order" ASC`
+      );
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching videos:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/videos", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = videoSchema.parse(req.body);
+      
+      const id = randomUUID();
+      await db.execute(sql`
+        INSERT INTO website_videos (id, user_id, project_id, title, description, video_type,
+          video_url, thumbnail_url, duration, file_size, autoplay, loop, muted, is_published, "order")
+        VALUES (${id}, ${userId}, ${data.projectId}, ${data.title}, ${data.description}, ${data.videoType},
+          ${data.videoUrl}, ${data.thumbnailUrl}, ${data.duration}, ${data.fileSize},
+          ${data.autoplay}, ${data.loop}, ${data.muted}, ${data.isPublished}, ${data.order})
+      `);
+      
+      const newVideo = await db.execute(
+        sql`SELECT * FROM website_videos WHERE id = ${id}`
+      );
+      res.json(newVideo.rows[0]);
+    } catch (error: any) {
+      console.error("Error creating video:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.delete("/videos/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      
+      await db.execute(
+        sql`DELETE FROM website_videos WHERE id = ${id} AND user_id = ${userId}`
+      );
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting video:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.get("/calculator-themes", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(
+        sql`SELECT * FROM calculator_themes WHERE user_id = ${userId}`
+      );
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching calculator themes:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/calculator-themes", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = calculatorThemeSchema.parse(req.body);
+      
+      const id = randomUUID();
+      const embedToken = randomUUID();
+      const allowedDomainsJson = JSON.stringify(data.allowedDomains || []);
+      
+      await db.execute(sql`
+        INSERT INTO calculator_themes (id, user_id, calculator_id, business_profile_id, name, logo_url,
+          primary_color, secondary_color, background_color, text_color, font_family, heading_font,
+          custom_css, show_powered_by, embed_token, allowed_domains)
+        VALUES (${id}, ${userId}, ${data.calculatorId}, ${data.businessProfileId}, ${data.name}, ${data.logoUrl},
+          ${data.primaryColor}, ${data.secondaryColor}, ${data.backgroundColor}, ${data.textColor},
+          ${data.fontFamily}, ${data.headingFont}, ${data.customCss}, ${data.showPoweredBy}, ${embedToken},
+          ${allowedDomainsJson}::jsonb)
+      `);
+      
+      const newTheme = await db.execute(
+        sql`SELECT * FROM calculator_themes WHERE id = ${id}`
+      );
+      res.json(newTheme.rows[0]);
+    } catch (error: any) {
+      console.error("Error creating calculator theme:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.get("/integrations", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const result = await db.execute(sql`
+        SELECT id, user_id, business_profile_id, integration_type, integration_name, is_connected,
+          last_synced_at, connection_error, external_account_id, external_account_name, metadata, scopes, created_at
+        FROM user_integrations WHERE user_id = ${userId}
+      `);
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching integrations:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post("/integrations", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const data = integrationSchema.parse(req.body);
+      
+      const id = randomUUID();
+      const metadataJson = JSON.stringify(data.metadata || {});
+      const scopesJson = JSON.stringify(data.scopes || []);
+      
+      await db.execute(sql`
+        INSERT INTO user_integrations (id, user_id, business_profile_id, integration_type, integration_name,
+          is_connected, external_account_id, external_account_name, metadata, scopes)
+        VALUES (${id}, ${userId}, ${data.businessProfileId}, ${data.integrationType}, ${data.integrationName},
+          ${data.isConnected}, ${data.externalAccountId}, ${data.externalAccountName},
+          ${metadataJson}::jsonb, ${scopesJson}::jsonb)
+      `);
+      
+      const newIntegration = await db.execute(
+        sql`SELECT * FROM user_integrations WHERE id = ${id}`
+      );
+      res.json(newIntegration.rows[0]);
+    } catch (error: any) {
+      console.error("Error creating integration:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  router.delete("/integrations/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      
+      await db.execute(
+        sql`DELETE FROM user_integrations WHERE id = ${id} AND user_id = ${userId}`
+      );
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting integration:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.get("/online-orders", async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      
+      const profileResult = await db.execute(
+        sql`SELECT id FROM business_profiles WHERE user_id = ${userId} LIMIT 1`
+      );
+      
+      if (profileResult.rows.length === 0) {
+        return res.json([]);
+      }
+      
+      const businessProfileId = profileResult.rows[0].id;
+      const result = await db.execute(
+        sql`SELECT * FROM online_orders WHERE business_profile_id = ${businessProfileId} ORDER BY created_at DESC LIMIT 100`
+      );
+      
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching online orders:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.put("/online-orders/:id/status", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      await db.execute(
+        sql`UPDATE online_orders SET status = ${status}, updated_at = NOW() WHERE id = ${id}`
+      );
+      
+      const updated = await db.execute(
+        sql`SELECT * FROM online_orders WHERE id = ${id}`
+      );
+      
+      res.json(updated.rows[0]);
+    } catch (error: any) {
+      console.error("Error updating order status:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  return router;
+}
