@@ -145,7 +145,7 @@ export function Footer() {
                     Website Hosting
                   </span>
                 </Link>
-                <Link href="/pos-system">
+                <Link href="/pos">
                   <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-pos-system">
                     <Monitor className="h-3 w-3" />
                     POS System

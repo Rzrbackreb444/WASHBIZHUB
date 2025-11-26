@@ -244,7 +244,7 @@ export default function Home() {
                 icon: CreditCard,
                 title: "POS System",
                 description: "Enterprise point-of-sale solution with real-time analytics",
-                link: "/pos-system",
+                link: "/pos",
                 testId: "pos-system"
               },
               {
