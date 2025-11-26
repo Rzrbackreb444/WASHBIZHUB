@@ -116,6 +116,7 @@ import CalculatorsHub from "@/pages/calculators";
 import CalculatorBuilder from "@/pages/calculator-builder";
 import CalculatorMarketplace from "@/pages/calculator-marketplace";
 import OwnerDashboard from "@/pages/owner-dashboard";
+import BusinessBuilder from "@/pages/business-builder";
 import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
@@ -194,6 +195,8 @@ function Router() {
       <Route path="/tools" component={CalculatorMarketplace} />
       <Route path="/owner-dashboard" component={OwnerDashboard} />
       <Route path="/my-business" component={OwnerDashboard} />
+      <Route path="/business-builder" component={BusinessBuilder} />
+      <Route path="/build-my-business" component={BusinessBuilder} />
       <Route path="/calc/:slug" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />

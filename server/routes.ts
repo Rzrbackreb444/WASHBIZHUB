@@ -1281,6 +1281,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/calculator-marketplace/:id/checkout - Create Stripe checkout for paid calculator
+  app.post("/api/calculator-marketplace/:id/checkout", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      // Check if free
+      if (template.pricingType === 'free') {
+        return res.status(400).json({ message: "This calculator is free" });
+      }
+      
+      // Check if already purchased
+      const hasPurchased = await storage.hasUserPurchasedCalculator(currentUser.userId, template.id);
+      if (hasPurchased) {
+        return res.status(400).json({ message: "Already purchased" });
+      }
+      
+      // Import Stripe
+      const Stripe = await import('stripe').then(m => m.default);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-10-29.clover' as any });
+      
+      // Get or create customer
+      const { users } = await import('@shared/schema');
+      const { db } = await import('./db');
+      const [user] = await db.select().from(users).where(eq(users.id, currentUser.userId)).limit(1);
+      
+      let customerId = user?.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user?.email || undefined,
+          name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || undefined,
+          metadata: { userId: currentUser.userId }
+        });
+        customerId = customer.id;
+        
+        // Save customer ID
+        await db.update(users).set({ stripeCustomerId: customer.id }).where(eq(users.id, currentUser.userId));
+      }
+      
+      // Calculate platform fee (20% commission)
+      const priceInCents = Math.round(parseFloat(template.price || '0') * 100);
+      const platformFee = Math.round(priceInCents * 0.20);
+      
+      // Create checkout session
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: template.name,
+              description: template.shortDescription || template.description || undefined,
+            },
+            unit_amount: priceInCents,
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${process.env.REPLIT_DEV_DOMAIN || 'https://washbizhub.com'}/calculator-marketplace/${template.slug}?purchased=true`,
+        cancel_url: `${process.env.REPLIT_DEV_DOMAIN || 'https://washbizhub.com'}/calculator-marketplace/${template.slug}`,
+        metadata: {
+          type: 'calculator_purchase',
+          calculatorId: template.id,
+          buyerId: currentUser.userId,
+          creatorId: template.creatorId,
+          platformFee: platformFee.toString(),
+        },
+      });
+      
+      res.json({ sessionId: session.id, url: session.url });
+    } catch (error: any) {
+      console.error('Calculator checkout error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // GET /api/calculator-marketplace/:id/access - Check if user has access to calculator
+  app.get("/api/calculator-marketplace/:id/access", async (req: any, res) => {
+    try {
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      // Free calculators are always accessible
+      if (template.pricingType === 'free') {
+        return res.json({ hasAccess: true, reason: 'free' });
+      }
+      
+      // Check if authenticated
+      const currentUser = await getCurrentUser(req).catch(() => null);
+      if (!currentUser) {
+        return res.json({ hasAccess: false, reason: 'unauthenticated' });
+      }
+      
+      // Check if creator
+      if (template.creatorId === currentUser.userId) {
+        return res.json({ hasAccess: true, reason: 'creator' });
+      }
+      
+      // Check if purchased
+      const hasPurchased = await storage.hasUserPurchasedCalculator(currentUser.userId, template.id);
+      if (hasPurchased) {
+        return res.json({ hasAccess: true, reason: 'purchased' });
+      }
+      
+      return res.json({ hasAccess: false, reason: 'not_purchased' });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // GET /api/my-purchases - Get user's purchased calculators
+  app.get("/api/my-purchases", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const purchases = await storage.getUserPurchases(currentUser.userId);
+      res.json(purchases);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== GOOGLE-POWERED CLEANBI ====================
   
   // POST /api/cleanbi/auto - Calculate CLEANBI score for ANY address (business OR residential)
