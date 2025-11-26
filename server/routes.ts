@@ -980,6 +980,307 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== CALCULATOR MARKETPLACE ====================
+  
+  // GET /api/calculator-marketplace - Browse calculator templates
+  app.get("/api/calculator-marketplace", async (req, res) => {
+    try {
+      const { category, pricingType, featured } = req.query;
+      const templates = await storage.getCalculatorTemplates({
+        status: 'published',
+        category: category as string | undefined,
+        pricingType: pricingType as string | undefined,
+        featured: featured === 'true' ? true : undefined,
+      });
+      res.json(templates);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // GET /api/calculator-marketplace/:idOrSlug - Get single calculator template
+  app.get("/api/calculator-marketplace/:idOrSlug", async (req, res) => {
+    try {
+      const { idOrSlug } = req.params;
+      
+      // Try to find by ID first, then by slug
+      let template = await storage.getCalculatorTemplate(idOrSlug);
+      if (!template) {
+        template = await storage.getCalculatorTemplateBySlug(idOrSlug);
+      }
+      
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementCalculatorViewCount(template.id);
+      
+      res.json(template);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // GET /api/my-calculators - Get user's created calculators
+  app.get("/api/my-calculators", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const templates = await storage.getCalculatorTemplates({
+        creatorId: currentUser.userId,
+      });
+      res.json(templates);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // POST /api/calculator-marketplace - Create new calculator template
+  app.post("/api/calculator-marketplace", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { name, description, shortDescription, category, tags, inputFields, formulas, outputCards, charts, tips, pricingType, price, iconName, primaryColor } = req.body;
+      
+      // Generate slug from name
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36);
+      
+      const template = await storage.createCalculatorTemplate({
+        creatorId: currentUser.userId,
+        name,
+        slug,
+        description,
+        shortDescription,
+        category,
+        tags: tags || [],
+        inputFields,
+        formulas,
+        outputCards,
+        charts: charts || [],
+        tips: tips || [],
+        pricingType: pricingType || 'free',
+        price: price || '0',
+        iconName,
+        primaryColor: primaryColor || '#00A699',
+        status: 'draft',
+      });
+      
+      res.json(template);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // PUT /api/calculator-marketplace/:id - Update calculator template
+  app.put("/api/calculator-marketplace/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      // Only creator or admin can update
+      if (template.creatorId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateCalculatorTemplate(req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // POST /api/calculator-marketplace/:id/publish - Publish calculator
+  app.post("/api/calculator-marketplace/:id/publish", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      if (template.creatorId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateCalculatorTemplate(req.params.id, {
+        status: 'published',
+      });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // DELETE /api/calculator-marketplace/:id - Delete calculator template
+  app.delete("/api/calculator-marketplace/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      if (template.creatorId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteCalculatorTemplate(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // POST /api/calculator-marketplace/:id/use - Log calculator usage
+  app.post("/api/calculator-marketplace/:id/use", async (req: any, res) => {
+    try {
+      const template = await storage.getCalculatorTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Calculator not found" });
+      }
+      
+      // Increment use count
+      await storage.incrementCalculatorUseCount(template.id);
+      
+      // Log usage event
+      const currentUser = await getCurrentUser(req).catch(() => null);
+      await storage.logCalculatorUsageEvent({
+        calculatorId: template.id,
+        userId: currentUser?.userId,
+        eventType: 'calculate',
+        inputValues: req.body.inputValues,
+        outputValues: req.body.outputValues,
+      });
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // GET /api/calculator-marketplace/:id/reviews - Get reviews for calculator
+  app.get("/api/calculator-marketplace/:id/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getCalculatorReviews(req.params.id);
+      res.json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // POST /api/calculator-marketplace/:id/reviews - Add review
+  app.post("/api/calculator-marketplace/:id/reviews", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { rating, title, content } = req.body;
+      
+      const review = await storage.createCalculatorReview({
+        calculatorId: req.params.id,
+        userId: currentUser.userId,
+        rating,
+        title,
+        content,
+        status: 'published',
+      });
+      
+      res.json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // GET /api/creator-profile - Get current user's creator profile
+  app.get("/api/creator-profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const profile = await storage.getCreatorProfileByUserId(currentUser.userId);
+      res.json(profile || null);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // POST /api/creator-profile - Create or update creator profile
+  app.post("/api/creator-profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { displayName, bio, avatarUrl, websiteUrl, linkedinUrl, expertise, yearsExperience } = req.body;
+      
+      let profile = await storage.getCreatorProfileByUserId(currentUser.userId);
+      
+      if (profile) {
+        profile = await storage.updateCreatorProfile(profile.id, {
+          displayName,
+          bio,
+          avatarUrl,
+          websiteUrl,
+          linkedinUrl,
+          expertise,
+          yearsExperience,
+        });
+      } else {
+        profile = await storage.createCreatorProfile({
+          userId: currentUser.userId,
+          displayName,
+          bio,
+          avatarUrl,
+          websiteUrl,
+          linkedinUrl,
+          expertise,
+          yearsExperience,
+        });
+      }
+      
+      res.json(profile);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // GET /api/creators - Get all creators
+  app.get("/api/creators", async (req, res) => {
+    try {
+      const creators = await storage.getCreatorProfiles();
+      res.json(creators);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== GOOGLE-POWERED CLEANBI ====================
   
   // POST /api/cleanbi/auto - Calculate CLEANBI score for ANY address (business OR residential)
