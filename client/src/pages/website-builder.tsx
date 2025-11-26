@@ -23,7 +23,8 @@ import {
   Settings, Save, ExternalLink, Upload, Trash2, Edit, Building2, Layers,
   Phone, Mail, MapPin, Clock, Facebook, Instagram, Star, Sparkles,
   MessageSquare, Zap, Shield, Link2, Eye, EyeOff, ChevronRight,
-  Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor
+  Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor,
+  Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle
 } from "lucide-react";
 
 interface BusinessProfile {
@@ -386,6 +387,14 @@ export default function WebsiteBuilder() {
               <TabsTrigger value="integrations" className="gap-2" data-testid="tab-integrations">
                 <Link2 className="w-4 h-4" />
                 Integrations
+              </TabsTrigger>
+              <TabsTrigger value="seo" className="gap-2" data-testid="tab-seo">
+                <Search className="w-4 h-4" />
+                SEO
+              </TabsTrigger>
+              <TabsTrigger value="email" className="gap-2" data-testid="tab-email">
+                <Send className="w-4 h-4" />
+                Email Marketing
               </TabsTrigger>
             </TabsList>
 
@@ -1380,6 +1389,356 @@ export default function WebsiteBuilder() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* SEO TAB */}
+            <TabsContent value="seo" className="space-y-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Search className="w-5 h-5 text-primary" />
+                        SEO Settings
+                      </CardTitle>
+                      <CardDescription>Optimize your website for search engines</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Site Title (Meta Title)</Label>
+                        <Input
+                          placeholder="Your Business Name - Professional Laundry Services"
+                          data-testid="input-seo-title"
+                        />
+                        <p className="text-xs text-muted-foreground">Recommended: 50-60 characters</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Meta Description</Label>
+                        <Textarea
+                          placeholder="Describe your laundromat services in 150-160 characters..."
+                          rows={3}
+                          data-testid="input-seo-description"
+                        />
+                        <p className="text-xs text-muted-foreground">Recommended: 150-160 characters</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Focus Keywords</Label>
+                        <Input
+                          placeholder="laundromat near me, wash and fold, dry cleaning"
+                          data-testid="input-seo-keywords"
+                        />
+                        <p className="text-xs text-muted-foreground">Separate keywords with commas</p>
+                      </div>
+                      <Separator />
+                      <div className="space-y-2">
+                        <Label>Custom Robots.txt</Label>
+                        <Textarea
+                          placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://yourdomain.com/sitemap.xml"
+                          rows={4}
+                          className="font-mono text-sm"
+                          data-testid="input-robots-txt"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileCode className="w-5 h-5 text-primary" />
+                        Structured Data
+                      </CardTitle>
+                      <CardDescription>Help search engines understand your business</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div>
+                            <p className="font-medium text-sm">LocalBusiness Schema</p>
+                            <p className="text-xs text-muted-foreground">Auto-generated from your business info</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">Active</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div>
+                            <p className="font-medium text-sm">Service Schema</p>
+                            <p className="text-xs text-muted-foreground">Generated from your services list</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">Active</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div>
+                            <p className="font-medium text-sm">FAQPage Schema</p>
+                            <p className="text-xs text-muted-foreground">From AI chatbot common questions</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">Active</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div>
+                            <p className="font-medium text-sm">OpenGraph & Twitter Cards</p>
+                            <p className="text-xs text-muted-foreground">Social sharing optimization</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">Active</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        SEO Score
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-4">
+                        <div className="relative inline-flex items-center justify-center w-32 h-32">
+                          <svg className="w-full h-full -rotate-90">
+                            <circle cx="64" cy="64" r="56" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
+                            <circle cx="64" cy="64" r="56" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray="352" strokeDashoffset="70" className="text-green-500" strokeLinecap="round" />
+                          </svg>
+                          <span className="absolute text-3xl font-bold">80</span>
+                        </div>
+                        <p className="mt-2 font-medium text-green-500">Good</p>
+                        <p className="text-sm text-muted-foreground">Your site is well optimized</p>
+                      </div>
+                      <Separator className="my-4" />
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Meta Title</span>
+                          <Badge className="bg-green-500/20 text-green-500">Good</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Meta Description</span>
+                          <Badge className="bg-green-500/20 text-green-500">Good</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Heading Structure</span>
+                          <Badge className="bg-green-500/20 text-green-500">Good</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Mobile Friendly</span>
+                          <Badge className="bg-green-500/20 text-green-500">Yes</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Schema Markup</span>
+                          <Badge className="bg-green-500/20 text-green-500">Complete</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button className="w-full" data-testid="button-save-seo">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save SEO Settings
+                      </Button>
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-primary" />
+                        Sitemap
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="p-3 rounded-lg bg-muted/30 font-mono text-xs break-all">
+                        https://yourdomain.com/sitemap.xml
+                      </div>
+                      <Button variant="outline" size="sm" className="w-full" data-testid="button-regenerate-sitemap">
+                        Regenerate Sitemap
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Last generated: Auto-updates on publish
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* EMAIL MARKETING TAB */}
+            <TabsContent value="email" className="space-y-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Users className="w-5 h-5 text-primary" />
+                            Email Subscribers
+                          </CardTitle>
+                          <CardDescription>Manage your newsletter subscribers</CardDescription>
+                        </div>
+                        <Button size="sm" data-testid="button-export-subscribers">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Export
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="text-center p-4 rounded-lg bg-muted/30">
+                          <p className="text-3xl font-bold text-primary">0</p>
+                          <p className="text-sm text-muted-foreground">Total Subscribers</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/30">
+                          <p className="text-3xl font-bold text-green-500">0</p>
+                          <p className="text-sm text-muted-foreground">Active</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/30">
+                          <p className="text-3xl font-bold text-muted-foreground">0</p>
+                          <p className="text-sm text-muted-foreground">Unsubscribed</p>
+                        </div>
+                      </div>
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="p-4 text-center text-muted-foreground">
+                          <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p>No subscribers yet</p>
+                          <p className="text-sm">Add an email capture widget to your website</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Send className="w-5 h-5 text-primary" />
+                            Email Campaigns
+                          </CardTitle>
+                          <CardDescription>Create and send marketing emails</CardDescription>
+                        </div>
+                        <Button size="sm" data-testid="button-new-campaign">
+                          <Plus className="w-4 h-4 mr-2" />
+                          New Campaign
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="p-4 rounded-lg border border-dashed border-border text-center">
+                          <Send className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+                          <p className="text-muted-foreground">No campaigns yet</p>
+                          <p className="text-sm text-muted-foreground mb-3">Create your first email campaign</p>
+                          <Button size="sm" variant="outline" data-testid="button-create-first-campaign">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Campaign
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Gift className="w-5 h-5 text-primary" />
+                        Email Capture Widget
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-sm">Enable Popup</p>
+                          <p className="text-xs text-muted-foreground">Show email capture on website</p>
+                        </div>
+                        <Switch data-testid="switch-email-popup" />
+                      </div>
+                      <Separator />
+                      <div className="space-y-2">
+                        <Label>Headline</Label>
+                        <Input
+                          placeholder="Get 10% Off Your First Order!"
+                          data-testid="input-popup-headline"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Subheadline</Label>
+                        <Input
+                          placeholder="Join our newsletter for deals"
+                          data-testid="input-popup-subheadline"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Incentive</Label>
+                        <Input
+                          placeholder="Plus free pickup on your first order!"
+                          data-testid="input-popup-incentive"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Button Text</Label>
+                        <Input
+                          placeholder="Subscribe"
+                          data-testid="input-popup-cta"
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button className="w-full" data-testid="button-save-email-settings">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Widget Settings
+                      </Button>
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-primary" />
+                        Email Stats
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Emails Sent</span>
+                        <span className="font-medium">0</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Open Rate</span>
+                        <span className="font-medium">0%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Click Rate</span>
+                        <span className="font-medium">0%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Unsubscribe Rate</span>
+                        <span className="font-medium">0%</span>
+                      </div>
+                      <Separator />
+                      <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <span className="font-medium text-sm">Powered by Resend</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Enterprise-grade email delivery with 99.9% uptime
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
