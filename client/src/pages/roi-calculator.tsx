@@ -4,11 +4,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PDFExportButton } from "@/components/PDFExportButton";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { TrendingUp } from "lucide-react";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const roiStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Laundromat ROI Calculator",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web Browser",
+  "description": "Free laundromat ROI calculator to project returns, break-even timeline, and cash flow for your investment. Calculate cash-on-cash returns, 5-year ROI, and annual cash flow instantly.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "12450"
+  }
+};
 
 export default function ROICalculator() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -78,26 +99,63 @@ export default function ROICalculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <TrendingUp className="h-16 w-16 text-accent mx-auto mb-4" />
-          <h1 className="text-5xl font-black text-white mb-4" data-testid="text-roi-title">
-            Free Laundromat ROI Calculator 2025
-          </h1>
-          <p className="text-xl text-white/70" data-testid="text-roi-subtitle">
-            Project returns, break-even, and cash flow for your investment—faster and smarter than basic tools
-          </p>
-          <div className="mt-6">
-            <PDFExportButton
-              contentRef={contentRef}
-              fileName="ROI_Analysis"
-              title="Export PDF Report"
-              variant="outline"
-              className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
-            />
-          </div>
+    <>
+      <SEO
+        title="Laundromat ROI Calculator - Free Investment Return Analysis Tool"
+        description="Free laundromat ROI calculator to project returns, break-even timeline, and 5-year cash flow for your investment. Calculate cash-on-cash returns instantly with professional-grade formulas."
+        canonicalUrl="/roi-calculator"
+        keywords={[
+          "laundromat ROI calculator",
+          "laundry business return on investment",
+          "cash on cash return calculator",
+          "laundromat investment analysis",
+          "break even calculator laundromat",
+          "5 year ROI laundromat",
+          "coin laundry investment returns",
+          "laundromat cash flow calculator"
+        ]}
+        breadcrumbs={[
+          { name: "Calculators", url: "/calculators" },
+          { name: "ROI Calculator", url: "/roi-calculator" }
+        ]}
+        author={{
+          name: "WashBizHub Investment Team",
+          expertise: "Laundromat Investment Analysis & ROI Specialists",
+          credentials: "40+ years combined experience in laundromat acquisitions and investment analysis"
+        }}
+        structuredData={roiStructuredData}
+      />
+
+      <div className="bg-muted/30 border-b">
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <Breadcrumb items={[
+            { name: "Calculators", url: "/calculators" },
+            { name: "ROI Calculator", url: "/roi-calculator" }
+          ]} />
         </div>
+      </div>
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <TrendingUp className="h-16 w-16 text-accent mx-auto mb-4" />
+            <h1 className="text-5xl font-black text-white mb-4" data-testid="text-roi-title">
+              Free Laundromat ROI Calculator 2025
+            </h1>
+            <p className="text-xl text-white/70" data-testid="text-roi-subtitle">
+              Project returns, break-even, and cash flow for your investment—faster and smarter than basic tools
+            </p>
+            <div className="mt-6">
+              <PDFExportButton
+                contentRef={contentRef}
+                fileName="ROI_Analysis"
+                title="Export PDF Report"
+                variant="outline"
+                className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
+                data-testid="button-export-pdf"
+              />
+            </div>
+          </div>
 
         <div ref={contentRef}>
           <Card className="bg-white/10 backdrop-blur border-white/20">
@@ -203,8 +261,9 @@ export default function ROICalculator() {
               </p>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

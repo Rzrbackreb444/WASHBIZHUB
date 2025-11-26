@@ -146,6 +146,50 @@ export default function CalculatorsHub() {
           expertise: "Laundromat Financial Analysis & Operations",
           credentials: "Production-grade calculators with industry-standard formulas"
         }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Laundromat Calculator Suite",
+          "description": "Comprehensive suite of 47 professional calculators for laundromat business analysis",
+          "numberOfItems": 47,
+          "itemListElement": [
+            {
+              "@type": "SoftwareApplication",
+              "position": 1,
+              "name": "Business Valuation Calculator",
+              "applicationCategory": "BusinessApplication",
+              "url": "/valuation-calculator"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "position": 2,
+              "name": "ROI Calculator",
+              "applicationCategory": "BusinessApplication",
+              "url": "/roi-calculator"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "position": 3,
+              "name": "CLEANBI Scorecard",
+              "applicationCategory": "BusinessApplication",
+              "url": "/cleanbi-calculator"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "position": 4,
+              "name": "Loan Calculator",
+              "applicationCategory": "BusinessApplication",
+              "url": "/loan-calculator"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "position": 5,
+              "name": "Turns Per Day Calculator",
+              "applicationCategory": "BusinessApplication",
+              "url": "/tpd-calculator"
+            }
+          ]
+        }}
       />
 
       <div className="min-h-screen bg-background">

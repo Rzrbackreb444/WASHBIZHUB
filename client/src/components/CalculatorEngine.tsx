@@ -40,7 +40,7 @@ interface ChartConfig {
   labels?: string[];
 }
 
-interface CalculatorConfig {
+export interface CalculatorConfig {
   id: string;
   name: string;
   description: string;
