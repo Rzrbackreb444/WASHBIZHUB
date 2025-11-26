@@ -414,7 +414,7 @@ export const CLEANBI_SOFTWARE_SCHEMA = generateSoftwareSchema({
     "Universal Address Scoring - Works for ANY business type or residential property",
     "Global Coverage - 220+ countries including USA, UK, EU, Asia, Africa, Americas",
     "Real-Time Google Data - Foot traffic, reviews, competition analysis",
-    "Instant A-F Grades - Professional investment-grade scoring in seconds",
+    "Instant A-C Grades - Professional investment-grade scoring in seconds",
     "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
     "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
     "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",
@@ -425,6 +425,109 @@ export const CLEANBI_SOFTWARE_SCHEMA = generateSoftwareSchema({
   ratingCount: 2847,
   url: "/cleanbi-auto"
 });
+
+// ============================================
+// CLEANBI CHROME EXTENSION SCHEMA
+// ============================================
+
+export const CLEANBI_EXTENSION_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CLEANBI Anywhere Chrome Extension",
+  "alternateName": ["CLEANBI Chrome Extension", "CLEANBI Anywhere", "Business Score Chrome Extension", "Property Score Extension"],
+  "applicationCategory": "BusinessApplication",
+  "applicationSubCategory": "BrowserExtension",
+  "operatingSystem": "Windows, macOS, Linux (Chrome)",
+  "browserRequirements": "Google Chrome browser",
+  "softwareVersion": "2.1.0",
+  "description": "FREE Chrome extension that displays instant A, B, C investment grades for ANY business or property when browsing Google Maps, LoopNet, and BizBuySell. Score addresses in seconds without leaving your browser. Works globally in 220+ countries.",
+  "url": `${BASE_URL}/cleanbi-anywhere`,
+  "downloadUrl": `${BASE_URL}/cleanbi-anywhere`,
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "100% FREE - No subscription, no limits, no signup required"
+  },
+  "featureList": [
+    "Instant A, B, C investment grades for any address",
+    "Works on Google Maps, LoopNet, BizBuySell",
+    "Scores businesses AND residential properties",
+    "220+ countries supported globally",
+    "No signup required - works immediately after install",
+    "Upgrade to $97 Full Report for deep analysis and valuations"
+  ],
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "47",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "WashBizHub",
+    "url": BASE_URL
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "WashBizHub",
+    "url": BASE_URL
+  },
+  "sameAs": `${BASE_URL}/cleanbi-anywhere`
+};
+
+export const CLEANBI_EXTENSION_FAQ_SCHEMA = generateFAQSchema([
+  {
+    question: "What is the CLEANBI Anywhere Chrome Extension?",
+    answer: "CLEANBI Anywhere is a FREE Chrome extension that gives you instant A, B, C investment grades for any business or property while browsing Google Maps, LoopNet, or BizBuySell. Just hover over any listing and see the score instantly - no signup required."
+  },
+  {
+    question: "Is the CLEANBI Chrome Extension free?",
+    answer: "Yes! The CLEANBI Anywhere extension is 100% FREE forever. There are no subscriptions, no limits, and no signup required. You can upgrade to the $97 Full CLEANBI Report for deep analysis, but the extension itself costs nothing."
+  },
+  {
+    question: "What websites does CLEANBI Anywhere work on?",
+    answer: "CLEANBI Anywhere works on Google Maps (google.com/maps), LoopNet (loopnet.com), and BizBuySell (bizbuysell.com). Simply browse these sites and hover over any business or property listing to see instant investment grades."
+  },
+  {
+    question: "What do the A, B, C grades mean?",
+    answer: "A, B, and C grades indicate strong investment opportunities. A (80-100) is excellent, B (60-79) is good, and C (40-59) is solid. Anything below C is marked as 'Needs Work' and requires caution. Higher grades = better investment potential."
+  },
+  {
+    question: "Does CLEANBI work for residential properties?",
+    answer: "Yes! CLEANBI Anywhere scores both commercial businesses AND residential properties including single-family homes, condos, townhouses, and investment properties. It works for any address globally in 220+ countries."
+  }
+]);
+
+export const CLEANBI_EXTENSION_HOWTO_SCHEMA = generateHowToSchema(
+  "How to Use the CLEANBI Anywhere Chrome Extension",
+  "Step-by-step guide to install and use the free CLEANBI Chrome extension for instant business and property investment scores",
+  [
+    {
+      name: "Install the Extension",
+      text: "Visit the Chrome Web Store and search for 'CLEANBI Anywhere' or go directly to the extension page. Click 'Add to Chrome' to install - it's completely free."
+    },
+    {
+      name: "Visit a Supported Website",
+      text: "Navigate to Google Maps (google.com/maps), LoopNet (loopnet.com), or BizBuySell (bizbuysell.com) in your Chrome browser."
+    },
+    {
+      name: "Hover Over Any Listing",
+      text: "Move your mouse over any business listing, property, or address on the page. The CLEANBI score overlay will appear automatically."
+    },
+    {
+      name: "View the Investment Grade",
+      text: "See the instant A, B, or C grade along with the 0-100 score and breakdown by category (foot traffic, competition, reviews, location, visibility)."
+    },
+    {
+      name: "Get Full Report (Optional)",
+      text: "Click 'Get Full $97 Report' in the overlay for comprehensive analysis including valuations, competitor intelligence, and AI-powered investment recommendations."
+    }
+  ],
+  "PT60S"
+);
 
 // ============================================
 // HOMEPAGE COMPREHENSIVE SCHEMAS
@@ -458,6 +561,9 @@ export const AEO_SCHEMAS = {
   CLEANBI_FAQ_SCHEMA,
   CLEANBI_HOWTO_SCHEMA,
   CLEANBI_SOFTWARE_SCHEMA,
+  CLEANBI_EXTENSION_SCHEMA,
+  CLEANBI_EXTENSION_FAQ_SCHEMA,
+  CLEANBI_EXTENSION_HOWTO_SCHEMA,
   HOMEPAGE_FAQ_SCHEMA,
   generateFAQSchema,
   generateHowToSchema,
