@@ -11,6 +11,11 @@ interface AuthorInfo {
   credentials?: string;
 }
 
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 interface SEOProps {
   title: string;
   description: string;
@@ -23,6 +28,12 @@ interface SEOProps {
   author?: AuthorInfo;
   twitterHandle?: string;
   fbAppId?: string;
+  faqs?: FAQItem[];
+  speakableSelectors?: string[];
+  datePublished?: string;
+  dateModified?: string;
+  articleSection?: string;
+  noIndex?: boolean;
 }
 
 export function SEO({
@@ -37,14 +48,20 @@ export function SEO({
   author,
   twitterHandle = "@washbizhub",
   fbAppId = "557248372195",
+  faqs = [],
+  speakableSelectors = ["h1", "h2", ".speakable"],
+  datePublished,
+  dateModified,
+  articleSection,
+  noIndex = false,
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - #1 Laundromat Resource`;
-  // Use baseUrl from env or default to current origin (safe for SSR)
   const baseUrl = import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com');
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const canonical = canonicalUrl ? `${baseUrl}${canonicalUrl}` : `${baseUrl}${currentPath}`;
   const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
+  const currentDate = new Date().toISOString();
 
   // Organization structured data for E-E-A-T
   const organizationData = {
