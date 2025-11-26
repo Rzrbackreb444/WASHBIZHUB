@@ -11,6 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { 
   Star, 
   Download, 
@@ -23,9 +30,13 @@ import {
   Scale,
   FileText,
   ShoppingCart,
-  Crown
+  Crown,
+  Eye,
+  CheckCircle2,
+  X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
 import laundromatInterior2 from "@assets/Twin Cities Laundromat_1763780009740.jpg";
 
@@ -53,15 +64,112 @@ const categories = [
   { value: "legal", label: "Legal", icon: Scale },
 ];
 
+const templateSampleContent: Record<string, { sections: string[]; features: string[] }> = {
+  "business-plans": {
+    sections: [
+      "Executive Summary",
+      "Company Description",
+      "Market Analysis",
+      "Organization & Management",
+      "Service Line",
+      "Marketing & Sales Strategy",
+      "Funding Request",
+      "Financial Projections",
+      "Appendix"
+    ],
+    features: [
+      "5-year revenue projections",
+      "Break-even analysis",
+      "Competitive landscape matrix",
+      "SWOT analysis template",
+      "Investor pitch deck slides"
+    ]
+  },
+  "financial": {
+    sections: [
+      "Income Statement",
+      "Balance Sheet",
+      "Cash Flow Statement",
+      "Revenue Projections",
+      "Expense Categories",
+      "KPI Dashboard"
+    ],
+    features: [
+      "Auto-calculating formulas",
+      "Monthly/quarterly/annual views",
+      "Variance analysis",
+      "Profit margin tracking",
+      "Equipment depreciation schedules"
+    ]
+  },
+  "marketing": {
+    sections: [
+      "Brand Guidelines",
+      "Social Media Calendar",
+      "Ad Copy Templates",
+      "Email Campaigns",
+      "Customer Personas",
+      "Competitive Analysis"
+    ],
+    features: [
+      "Ready-to-post social content",
+      "Grand opening promotions",
+      "Loyalty program templates",
+      "Customer testimonial forms",
+      "Referral program materials"
+    ]
+  },
+  "operations": {
+    sections: [
+      "Daily Checklists",
+      "Equipment Maintenance Log",
+      "Staff Training Manual",
+      "Safety Procedures",
+      "Inventory Management",
+      "Customer Service Scripts"
+    ],
+    features: [
+      "Opening/closing procedures",
+      "Machine maintenance schedules",
+      "Employee onboarding docs",
+      "Health & safety compliance",
+      "Quality control checklists"
+    ]
+  },
+  "legal": {
+    sections: [
+      "Lease Agreement Template",
+      "Employee Contract",
+      "Customer Waiver",
+      "Privacy Policy",
+      "Terms of Service",
+      "Vendor Agreements"
+    ],
+    features: [
+      "State-compliant templates",
+      "Customizable clauses",
+      "Insurance requirements",
+      "Liability protection",
+      "ADA compliance guidance"
+    ]
+  }
+};
+
 export default function Templates() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
   const { data: templates = [], isLoading } = useQuery<Template[]>({
-    queryKey: ["/api/templates", selectedCategory],
+    queryKey: ["/api/templates"],
     enabled: true,
   });
+
+  const getSampleContent = (category: string) => {
+    return templateSampleContent[category] || templateSampleContent["business-plans"];
+  };
 
   const filtered = useMemo(() => {
     return templates.filter((t) => {
@@ -373,10 +481,20 @@ export default function Templates() {
                       </div>
                     </div>
 
-                    <div className="mt-auto border-t pt-3">
+                    <div className="mt-auto border-t pt-3 space-y-2">
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2"
+                        size="sm"
+                        onClick={() => setPreviewTemplate(template)}
+                        data-testid={`button-preview-template-${template.id}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                        Preview Sample
+                      </Button>
                       {template.isPremium ? (
                         <div>
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-1">
                               <Lock className="w-3 h-3 text-amber-500" />
                               <span className="font-semibold text-lg" data-testid={`text-price-${template.id}`}>
@@ -409,7 +527,6 @@ export default function Templates() {
                         </div>
                       ) : (
                         <Button
-                          variant="outline"
                           className="w-full gap-2"
                           size="sm"
                           data-testid={`button-download-free-${template.id}`}
@@ -433,12 +550,156 @@ export default function Templates() {
             Unlock access to all premium templates, plus exclusive features like CLEANBI analysis, 
             advanced calculators, and priority support.
           </p>
-          <Button size="lg" className="gap-2" data-testid="button-upgrade-pro">
+          <Button size="lg" className="gap-2" onClick={() => setLocation("/pricing")} data-testid="button-upgrade-pro">
             <Crown className="w-4 h-4" />
             Upgrade to Pro
           </Button>
         </div>
       </div>
+
+      <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="dialog-template-preview">
+          {previewTemplate && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  {previewTemplate.isPremium ? (
+                    <Badge className="bg-amber-500/90 text-white border-0">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Premium Template
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="bg-green-500/90 text-white border-0">
+                      Free Template
+                    </Badge>
+                  )}
+                  <Badge variant="outline">
+                    {categories.find(c => c.value === previewTemplate.category)?.label}
+                  </Badge>
+                </div>
+                <DialogTitle className="text-2xl" data-testid="text-preview-title">
+                  {previewTemplate.name}
+                </DialogTitle>
+                <DialogDescription data-testid="text-preview-description">
+                  {previewTemplate.description}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="relative mt-6">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/95 z-10" />
+                <div className="relative bg-muted/50 rounded-lg p-6 border" style={{ filter: previewTemplate.isPremium && !user?.isPro ? 'blur(2px)' : 'none' }}>
+                  <div className="space-y-4" data-testid="preview-sample-content">
+                    <div className="flex items-center gap-2 text-lg font-semibold text-primary">
+                      <FileText className="w-5 h-5" />
+                      Template Contents
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+                          Sections Included
+                        </h4>
+                        <ul className="space-y-2">
+                          {getSampleContent(previewTemplate.category).sections.map((section, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm">
+                              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                              {section}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+                          Key Features
+                        </h4>
+                        <ul className="space-y-2">
+                          {getSampleContent(previewTemplate.category).features.map((feature, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm">
+                              <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-background/50 rounded border border-dashed">
+                      <p className="text-sm text-muted-foreground text-center italic">
+                        Sample content preview - Full template includes editable spreadsheets, 
+                        Word documents, and step-by-step instructions
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {previewTemplate.isPremium && !user?.isPro && (
+                  <div className="absolute inset-0 flex items-center justify-center z-20">
+                    <div className="bg-background/95 backdrop-blur-sm border rounded-xl p-6 text-center max-w-sm mx-4 shadow-xl">
+                      <Lock className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-lg mb-2">Premium Content</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Unlock this template and 50+ more with a one-time purchase or Pro subscription
+                      </p>
+                      <div className="space-y-2">
+                        <Button className="w-full gap-2" onClick={() => setPreviewTemplate(null)} data-testid="button-purchase-single">
+                          <ShoppingCart className="w-4 h-4" />
+                          Buy for ${previewTemplate.price || "9.99"}
+                        </Button>
+                        <Button variant="outline" className="w-full gap-2" onClick={() => {
+                          setPreviewTemplate(null);
+                          setLocation("/pricing");
+                        }} data-testid="button-unlock-pro">
+                          <Crown className="w-4 h-4" />
+                          Get Pro - All Templates Included
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {(!previewTemplate.isPremium || user?.isPro) && (
+                <div className="mt-6 flex gap-3">
+                  <Button className="flex-1 gap-2" data-testid="button-download-full">
+                    <Download className="w-4 h-4" />
+                    Download Full Template
+                  </Button>
+                  <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
+                    Close
+                  </Button>
+                </div>
+              )}
+
+              <div className="mt-6 pt-4 border-t">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    {previewTemplate.rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <span>{previewTemplate.rating.toFixed(1)} rating</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Download className="w-4 h-4" />
+                      <span>{previewTemplate.downloadCount} downloads</span>
+                    </div>
+                  </div>
+                  {previewTemplate.tags && (
+                    <div className="flex gap-1">
+                      {previewTemplate.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
