@@ -74,7 +74,7 @@ export default function Pricing() {
         "CLEANBI™ Scoring (17 factors)",
         "AI Consultant (Multi-Model)",
         "Advanced Analytics & BI",
-        "Bloomberg-grade Visualizations (D3.js)",
+        "Professional Visualizations (D3.js)",
         "Affiliate Program (20% commission)",
         "Priority Support"
       ],
@@ -164,7 +164,7 @@ export default function Pricing() {
         "Multi-model AI (OpenAI, Anthropic, Gemini, Perplexity, Grok)",
         "RAG pipeline with pgvector",
         "Trained on full Laundromat Bible",
-        "Bloomberg Terminal-grade D3.js visualizations",
+        "Professional D3.js visualizations",
         "50+ interactive calculators",
         "Real-time dashboards (Chart.js)",
         "Business intelligence suite"
@@ -280,7 +280,7 @@ export default function Pricing() {
             Transparent Pricing
           </Badge>
           <h1 className="text-5xl font-black text-white mb-4" data-testid="text-pricing-title">
-            The Bloomberg of Laundromats
+            Professional Laundromat Software
           </h1>
           <p className="text-xl text-white/70 max-w-3xl mx-auto" data-testid="text-pricing-subtitle">
             World-class enterprise platform combining marketplace, POS, IoT monitoring, AI consultant, 

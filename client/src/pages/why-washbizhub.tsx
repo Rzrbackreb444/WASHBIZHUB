@@ -28,7 +28,7 @@ export default function WhyWashBizHub() {
     <>
       <SEO
         title="Why Choose WashBizHub - Enterprise Laundromat Management Platform Features"
-        description="Discover why 72,000+ laundromat owners trust WashBizHub for enterprise-grade POS systems, IoT machine monitoring, AI-powered consulting, CLEANBI™ business scoring, and comprehensive coin laundry industry resources. The Bloomberg of commercial laundry business management."
+        description="Discover why 72,000+ laundromat owners trust WashBizHub for enterprise-grade POS systems, IoT machine monitoring, AI-powered consulting, CLEANBI™ business scoring, and comprehensive coin laundry industry resources. The #1 commercial laundry business resource."
         canonicalUrl="/why-washbizhub"
         keywords={[
           "laundromat management platform benefits",
@@ -81,7 +81,7 @@ export default function WhyWashBizHub() {
             </h1>
             <p className="text-xl text-white/70 mb-10 leading-relaxed">
               From corner laundromats to multi-location enterprises, we're modernizing the industry 
-              through IoT, AI, and Bloomberg-grade business intelligence.
+              through IoT, AI, and professional business intelligence.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/cleanbi">
@@ -305,7 +305,7 @@ export default function WhyWashBizHub() {
                   Business Intelligence
                 </Badge>
                 <h2 className="text-4xl font-bold text-foreground mb-6 uppercase tracking-tight">
-                  Bloomberg-Grade Analytics
+                  Professional Analytics
                 </h2>
                 <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                   CLEANBI™ 17-factor scoring system analyzes customer experience, location quality, 
@@ -425,7 +425,7 @@ export default function WhyWashBizHub() {
             </h2>
             <p className="text-xl text-white/70 mb-10 leading-relaxed max-w-2xl mx-auto">
               Stop managing with spreadsheets. Start operating like an enterprise. 
-              WashBizHub brings Bloomberg-grade intelligence to the laundromat industry.
+              WashBizHub brings professional intelligence to the laundromat industry.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/cleanbi">

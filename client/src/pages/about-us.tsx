@@ -10,7 +10,7 @@ export default function AboutUs() {
     <>
       <SEO
         title="About WashBizHub | Modernizing the Laundromat Industry"
-        description="WashBizHub is the Bloomberg Terminal for laundromats. Complete SaaS platform for POS, IoT, analytics, and business intelligence."
+        description="WashBizHub is the #1 laundromat resource hub. Complete SaaS platform for POS, IoT, analytics, and business intelligence."
         canonicalUrl="/about-us"
         keywords={['laundromat software', 'business intelligence', 'POS system', 'IoT monitoring', 'industry platform']}
       />
@@ -21,7 +21,7 @@ export default function AboutUs() {
           <div className="max-w-4xl mx-auto px-6">
             <h1 className="text-5xl font-bold mb-4">About WashBizHub</h1>
             <p className="text-xl text-slate-300">
-              The Bloomberg Terminal for Laundromats. We're modernizing the $40B laundromat industry through enterprise software, IoT integration, and business intelligence.
+              The #1 Laundromat Resource Hub. We're modernizing the $40B laundromat industry through enterprise software, IoT integration, and business intelligence.
             </p>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function AboutUs() {
                   <CardTitle className="text-lg">Analytics Dashboard</CardTitle>
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
-                  Bloomberg-grade D3.js visualizations, materialized views, revenue analytics, performance tracking.
+                  Professional D3.js visualizations, materialized views, revenue analytics, performance tracking.
                 </CardContent>
               </Card>
 

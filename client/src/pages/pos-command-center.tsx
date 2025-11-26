@@ -843,7 +843,7 @@ export default function POSCommandCenter() {
         "@id": "https://washbizhub.com/pos#webpage",
         "url": "https://washbizhub.com/pos",
         "name": "Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub",
-        "description": "Enterprise-grade POS system for laundromats with real-time analytics, order management, IoT machine monitoring, route optimization, and Bloomberg-style business intelligence. Manage Wash & Fold, Pickup/Delivery, and Self-Service operations from one dashboard.",
+        "description": "Enterprise-grade POS system for laundromats with real-time analytics, order management, IoT machine monitoring, route optimization, and professional business intelligence. Manage Wash & Fold, Pickup/Delivery, and Self-Service operations from one dashboard.",
         "isPartOf": { "@id": "https://washbizhub.com/#website" },
         "about": { "@id": "https://washbizhub.com/pos#software" },
         "breadcrumb": { "@id": "https://washbizhub.com/pos#breadcrumb" },
@@ -882,7 +882,7 @@ export default function POSCommandCenter() {
           "Customer CRM with LTV Tracking",
           "Inventory Management",
           "Predictive Maintenance Alerts",
-          "Bloomberg-Style Business Intelligence",
+          "Professional Business Intelligence",
           "Stripe Payment Integration",
           "Multi-Location Support"
         ],
@@ -931,7 +931,7 @@ export default function POSCommandCenter() {
             "name": "What is WashBizHub POS Command Center?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed specifically for laundromats. It provides real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service operations, IoT machine monitoring, customer CRM, route optimization, and Bloomberg-style business intelligence all in one dashboard."
+              "text": "WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed specifically for laundromats. It provides real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service operations, IoT machine monitoring, customer CRM, route optimization, and professional business intelligence all in one dashboard."
             }
           },
           {
@@ -963,7 +963,7 @@ export default function POSCommandCenter() {
             "name": "What analytics does the POS dashboard provide?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The Analytics module provides Bloomberg-style business intelligence including revenue trends, order volume analysis, service type breakdowns, peak hours heat maps, customer retention metrics, machine utilization rates, and detailed KPIs for daily, weekly, monthly, and quarterly performance."
+              "text": "The Analytics module provides professional business intelligence including revenue trends, order volume analysis, service type breakdowns, peak hours heat maps, customer retention metrics, machine utilization rates, and detailed KPIs for daily, weekly, monthly, and quarterly performance."
             }
           },
           {
@@ -1020,7 +1020,7 @@ export default function POSCommandCenter() {
             "@type": "HowToStep",
             "position": 5,
             "name": "Analyze Performance",
-            "text": "Visit Analytics for Bloomberg-style BI with revenue trends, service breakdowns, peak hours heat maps, and customer retention metrics.",
+            "text": "Visit Analytics for professional BI with revenue trends, service breakdowns, peak hours heat maps, and customer retention metrics.",
             "image": "https://washbizhub.com/images/pos-step5-analytics.png"
           }
         ]
@@ -1071,7 +1071,7 @@ export default function POSCommandCenter() {
         {/* Primary Meta Tags */}
         <title>Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub</title>
         <meta name="title" content="Laundromat POS Command Center - Enterprise Point of Sale System | WashBizHub" />
-        <meta name="description" content="Enterprise-grade POS system for laundromats with real-time analytics, Wash & Fold order management, IoT machine monitoring, route optimization, inventory tracking, and Bloomberg-style business intelligence. Manage WDF, PUD & Self-Service from one dashboard." />
+        <meta name="description" content="Enterprise-grade POS system for laundromats with real-time analytics, Wash & Fold order management, IoT machine monitoring, route optimization, inventory tracking, and professional business intelligence. Manage WDF, PUD & Self-Service from one dashboard." />
         <meta name="keywords" content="laundromat POS, point of sale laundry, wash and fold software, laundromat management system, laundry order management, IoT laundry monitoring, laundromat analytics, PUD pickup delivery software, laundry CRM, laundromat inventory, coin laundry POS, commercial laundry software, laundromat business intelligence, WashBizHub POS" />
         <meta name="author" content="WashBizHub" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -1097,7 +1097,7 @@ export default function POSCommandCenter() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://washbizhub.com/pos" />
         <meta property="og:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
-        <meta property="og:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT machine monitoring, route optimization, and Bloomberg-style BI. Trusted by 72,000+ laundromat owners." />
+        <meta property="og:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT machine monitoring, route optimization, and professional BI. Trusted by 72,000+ laundromat owners." />
         <meta property="og:image" content="https://washbizhub.com/images/pos-og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -1114,7 +1114,7 @@ export default function POSCommandCenter() {
         <meta name="twitter:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
         <meta name="twitter:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT monitoring, route optimization. Trusted by 72,000+ owners." />
         <meta name="twitter:image" content="https://washbizhub.com/images/pos-twitter-card.png" />
-        <meta name="twitter:image:alt" content="WashBizHub POS Command Center - Bloomberg-style laundromat dashboard" />
+        <meta name="twitter:image:alt" content="WashBizHub POS Command Center - Professional laundromat dashboard" />
         
         {/* LinkedIn */}
         <meta property="linkedin:owner" content="washbizhub" />
@@ -1135,7 +1135,7 @@ export default function POSCommandCenter() {
         
         {/* AEO - Answer Engine Optimization */}
         <meta name="subject" content="Laundromat POS System and Business Management Software" />
-        <meta name="abstract" content="WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed for laundromats, offering real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service, IoT machine monitoring, customer CRM, route optimization, inventory management, and Bloomberg-style business intelligence." />
+        <meta name="abstract" content="WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed for laundromats, offering real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service, IoT machine monitoring, customer CRM, route optimization, inventory management, and professional business intelligence." />
         <meta name="summary" content="Complete laundromat POS with WDF, PUD, IoT monitoring, analytics, CRM, and inventory management. Enterprise dashboard trusted by 72,000+ owners." />
         
         {/* Structured Data JSON-LD */}
@@ -2752,14 +2752,14 @@ export default function POSCommandCenter() {
               </div>
             )}
 
-            {/* Analytics Section - Bloomberg Style Business Intelligence */}
+            {/* Analytics Section - Professional Business Intelligence */}
             {activeSection === "analytics" && (
               <div className="space-y-6" data-testid="analytics-section">
                 {/* Header with Date Range Selector */}
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-white">Business Analytics</h2>
-                    <p className="text-white/50 text-sm">Bloomberg-style intelligence for your laundromat</p>
+                    <p className="text-white/50 text-sm">Professional analytics for your laundromat</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {(["today", "week", "month", "quarter"] as const).map((period) => (

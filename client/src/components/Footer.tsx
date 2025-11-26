@@ -674,7 +674,7 @@ export function Footer() {
           {/* Copyright & Legal */}
           <div className="text-center">
             <p className="text-white/60 text-sm mb-2">
-              © 2025 WashBizHub.com • The Bloomberg of Laundromats
+              © 2025 WashBizHub.com • The #1 Laundromat Resource Hub
               <span className="hidden md:inline"> • </span>
               <br className="md:hidden" />
               <span className="text-[hsl(45,38%,59%)] font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
