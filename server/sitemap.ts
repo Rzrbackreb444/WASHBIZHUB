@@ -126,6 +126,7 @@ export function registerSitemapRoutes(app: Express) {
       // Business Operating System
       { loc: '/business-builder', lastmod: today, changefreq: 'weekly', priority: 0.9 },
       { loc: '/owner-dashboard', lastmod: today, changefreq: 'daily', priority: 0.85 },
+      { loc: '/pos', lastmod: today, changefreq: 'daily', priority: 0.9 },
       { loc: '/londr-demo', lastmod: today, changefreq: 'weekly', priority: 0.8 },
       { loc: '/order', lastmod: today, changefreq: 'daily', priority: 0.85 },
       
