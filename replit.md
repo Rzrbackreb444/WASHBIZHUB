@@ -27,7 +27,15 @@ The frontend uses React 18, TypeScript, Wouter for routing, and TanStack Query f
 The backend is built with Node.js and Express in TypeScript, offering RESTful JSON APIs and WebSockets. It uses Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Core services include POS, IoT & Diagnostics, Route Optimization, AI Consultant, Analytics, Website Hosting, and Google Integrations. It supports role-based access control and a multi-tenant design.
 
 **Core Services & Features:**
--   **POS System:** Manages orders, payments (Stripe), and multi-location support.
+-   **POS Command Center:** Bloomberg-style enterprise dashboard at `/pos` with 7 integrated modules:
+    *   **Dashboard:** Real-time KPIs (revenue, orders, customers, machines) with glassmorphism design
+    *   **Orders:** WDF/PUD/Self-Service order management with Stripe integration
+    *   **Customers:** CRM with LTV tracking, order history, and customer cards
+    *   **Machines:** IoT status indicators, maintenance alerts, and equipment tracking
+    *   **Routes:** Pickup/Delivery route planning with stop tracking
+    *   **Analytics:** Bloomberg-style BI with revenue trends, order charts, service breakdowns, and heat maps
+    *   **Inventory:** Parts tracking, stock alerts, and vendor management
+    *   API routes at `/api/pos/*` with full CRUD operations
 -   **IoT & Diagnostics:** Ingests sensor data for machine telemetry and predictive maintenance.
 -   **Route Optimization:** Uses Google Maps and OR-Tools for logistics, GPS tracking, and Twilio.
 -   **AI Consultant:** Orchestrates multiple AI models (Anthropic, Gemini, Perplexity, Grok) with a RAG pipeline and pgvector for contextual responses.
