@@ -33,6 +33,7 @@ import {
   Zap,
   DollarSign,
   ShoppingBag,
+  Workflow,
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
@@ -47,6 +48,7 @@ const MAIN_LINKS = [
 ];
 
 const TOOLS_LINKS = [
+  { href: "/equipment-matcher", label: "Equipment Matcher", icon: Workflow },
   { href: "/service-guy-ai", label: "Service Guy AI", icon: Wrench },
   { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Zap },
   { href: "/design-studio-pro", label: "Design Studio", icon: Wrench },

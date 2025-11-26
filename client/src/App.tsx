@@ -123,6 +123,7 @@ import SRAGhostwriting from "@/pages/sra/ghostwriting";
 import SRAStore from "@/pages/sra/store";
 import SRACommunity from "@/pages/sra/community";
 import SRADashboard from "@/pages/sra/dashboard";
+import EquipmentMatcher from "@/pages/equipment-matcher";
 import SRAMarketplace from "@/pages/sra/marketplace";
 import SRAProductionConsole from "@/pages/sra/production-console";
 import NotFound from "@/pages/not-found";
@@ -218,6 +219,7 @@ function Router() {
       <Route path="/admin/indexing" component={AdminIndexing} />
       <Route path="/laundromat-listings" component={LaundromatListings} />
       <Route path="/equipment" component={EquipmentMarketplace} />
+      <Route path="/equipment-matcher" component={EquipmentMatcher} />
       <Route path="/learning" component={LearningPage} />
       <Route path="/marketplace-landing" component={MarketplaceLanding} />
       <Route path="/pos-landing" component={PosLanding} />
