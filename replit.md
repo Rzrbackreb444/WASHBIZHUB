@@ -12,6 +12,11 @@ The platform aims for market leadership by leveraging multi-AI orchestration (Op
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+Branding Guidelines:
+- Do NOT use "Bloomberg of Laundromats" terminology - this branding has been retired
+- WashBizHub is the #1 laundromat resource and educational hub
+- CLEANBI is the universal property intelligence scoring system
+
 Owner Contact & Notifications:
 - Owner phone: 479-883-4314 (AT&T)
 - SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
@@ -27,13 +32,13 @@ The frontend uses React 18, TypeScript, Wouter for routing, and TanStack Query f
 The backend is built with Node.js and Express in TypeScript, offering RESTful JSON APIs and WebSockets. It uses Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Core services include POS, IoT & Diagnostics, Route Optimization, AI Consultant, Analytics, Website Hosting, and Google Integrations. It supports role-based access control and a multi-tenant design.
 
 **Core Services & Features:**
--   **POS Command Center:** Bloomberg-style enterprise dashboard at `/pos` with 7 integrated modules:
+-   **POS Command Center:** Professional enterprise dashboard at `/pos` with 7 integrated modules:
     *   **Dashboard:** Real-time KPIs (revenue, orders, customers, machines) with glassmorphism design
     *   **Orders:** WDF/PUD/Self-Service order management with Stripe integration
     *   **Customers:** CRM with LTV tracking, order history, and customer cards
     *   **Machines:** IoT status indicators, maintenance alerts, and equipment tracking
     *   **Routes:** Pickup/Delivery route planning with stop tracking
-    *   **Analytics:** Bloomberg-style BI with revenue trends, order charts, service breakdowns, and heat maps
+    *   **Analytics:** Professional BI with revenue trends, order charts, service breakdowns, and heat maps
     *   **Inventory:** Parts tracking, stock alerts, and vendor management
     *   API routes at `/api/pos/*` with full CRUD operations
 -   **IoT & Diagnostics:** Ingests sensor data for machine telemetry and predictive maintenance.
