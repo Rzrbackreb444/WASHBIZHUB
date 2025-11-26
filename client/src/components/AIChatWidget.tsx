@@ -119,7 +119,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat would you like to know?",
+      content: "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat can I help you with today?",
       provider: "system",
       timestamp: new Date(),
     },
@@ -259,7 +259,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
     setMessages([
       {
         role: "assistant",
-        content: "**Hi! I'm Nick AI, your laundromat business assistant.**\n\nI can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat would you like to know?",
+        content: "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat can I help you with today?",
         provider: "system",
         timestamp: new Date(),
       },
@@ -293,8 +293,8 @@ export const AIChatWidget = memo(function AIChatWidget() {
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-base font-bold text-white">Nick AI</span>
-            <span className="text-xs font-medium text-white/90">Available Now</span>
+            <span className="text-base font-bold text-white">AI Consultant</span>
+            <span className="text-xs font-medium text-white/90">Online Now</span>
           </div>
         </div>
       </button>
@@ -321,10 +321,10 @@ export const AIChatWidget = memo(function AIChatWidget() {
           </div>
           <div>
             <h3 className="font-bold text-base text-white flex items-center gap-2">
-              Nick AI
+              WashBizHub Consultant
               {quotaInfo && getTierBadge(quotaInfo.tier)}
             </h3>
-            <p className="text-xs text-white/80 font-medium">Laundromat Expert • Online</p>
+            <p className="text-xs text-white/80 font-medium">AI Expert • Online</p>
           </div>
         </div>
         <div className="flex items-center gap-1">

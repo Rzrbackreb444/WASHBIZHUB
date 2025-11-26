@@ -243,7 +243,7 @@ Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
 }
 
 /**
- * Notify admin when someone uses AI Chat (Nick AI)
+ * Notify admin when someone uses AI Chat (WashBizHub Consultant)
  */
 export async function notifyAIChatMessage(data: {
   userEmail: string;
@@ -256,7 +256,7 @@ export async function notifyAIChatMessage(data: {
       '4798834314@txt.att.net', // AT&T SMS gateway for immediate SMS
       'nick@washbizhub.com',     // Email backup
     ],
-    subject: '💬 Nick AI Chat',
+    subject: '💬 WashBizHub Consultant Chat',
     message: `New chat from ${data.userEmail}:\n\n"${data.message.substring(0, 100)}${data.message.length > 100 ? '...' : ''}"\n\nTime: ${data.timestamp}`,
     priority: 'high',
   });
