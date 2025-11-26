@@ -163,14 +163,14 @@ export default function Courses() {
             <DashboardGrid cols={4}>
               <StatCard
                 title="Total Courses"
-                value={publishedCourses.length || 12}
+                value={coursesLoading ? "..." : publishedCourses.length}
                 subtitle="Expert-led programs"
                 icon={BookOpen}
                 variant="blue"
               />
               <StatCard
                 title="Learning Hours"
-                value={totalHours || 48}
+                value={coursesLoading ? "..." : totalHours}
                 subtitle="Of video content"
                 icon={Clock}
                 variant="purple"
@@ -325,21 +325,21 @@ export default function Courses() {
                   <CardContent>
                     <DonutChart
                       data={levelData.length > 0 ? levelData : [
-                        { label: 'Beginner', value: 5, color: '#10b981' },
-                        { label: 'Intermediate', value: 4, color: '#f59e0b' },
-                        { label: 'Advanced', value: 3, color: '#ef4444' },
+                        { label: 'Beginner', value: 0, color: '#10b981' },
+                        { label: 'Intermediate', value: 0, color: '#f59e0b' },
+                        { label: 'Advanced', value: 0, color: '#ef4444' },
                       ]}
                       size={120}
                       thickness={16}
-                      centerValue={publishedCourses.length || 12}
+                      centerValue={publishedCourses.length}
                       centerLabel="Courses"
                       showLegend={false}
                     />
                     <div className="mt-4 space-y-2">
                       {(levelData.length > 0 ? levelData : [
-                        { label: 'Beginner', value: 5, color: '#10b981' },
-                        { label: 'Intermediate', value: 4, color: '#f59e0b' },
-                        { label: 'Advanced', value: 3, color: '#ef4444' },
+                        { label: 'Beginner', value: 0, color: '#10b981' },
+                        { label: 'Intermediate', value: 0, color: '#f59e0b' },
+                        { label: 'Advanced', value: 0, color: '#ef4444' },
                       ]).map((item, i) => (
                         <div key={i} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
@@ -411,7 +411,7 @@ export default function Courses() {
                 {/* Results Count */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold">{sortedCourses.length || 12}</span>
+                    <span className="text-2xl font-bold">{sortedCourses.length}</span>
                     <span className="text-muted-foreground">course{sortedCourses.length !== 1 ? 's' : ''} available</span>
                   </div>
                 </div>

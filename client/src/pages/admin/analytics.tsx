@@ -118,35 +118,35 @@ export default function AdminAnalytics() {
           <DashboardGrid cols={4}>
             <StatCard
               title="Total Revenue"
-              value={`$${(stats?.revenue || 142890).toLocaleString()}`}
-              subtitle="+20.1% from last month"
+              value={isFetching ? "..." : stats?.revenue ? `$${stats.revenue.toLocaleString()}` : "$0"}
+              subtitle={stats?.revenueChange ? `${stats.revenueChange > 0 ? '+' : ''}${stats.revenueChange}% from last month` : "This month"}
               icon={DollarSign}
               variant="green"
-              trend={{ value: 20.1, isPositive: true }}
+              trend={stats?.revenueChange ? { value: stats.revenueChange, isPositive: stats.revenueChange > 0 } : undefined}
             />
             <StatCard
               title="Active Users"
-              value={(stats?.activeUsers || 3845).toLocaleString()}
-              subtitle="+180 this week"
+              value={isFetching ? "..." : stats?.activeUsers?.toLocaleString() ?? "0"}
+              subtitle={stats?.newUsersThisWeek ? `+${stats.newUsersThisWeek} this week` : "Total registered"}
               icon={Users}
               variant="blue"
-              trend={{ value: 12.4, isPositive: true }}
+              trend={stats?.userGrowth ? { value: stats.userGrowth, isPositive: stats.userGrowth > 0 } : undefined}
             />
             <StatCard
               title="Page Views"
-              value={`${((stats?.pageViews || 124500) / 1000).toFixed(1)}K`}
+              value={isFetching ? "..." : stats?.pageViews ? `${(stats.pageViews / 1000).toFixed(1)}K` : "0"}
               subtitle="This month"
               icon={Eye}
               variant="purple"
-              trend={{ value: 8.2, isPositive: true }}
+              trend={stats?.pageViewsChange ? { value: stats.pageViewsChange, isPositive: stats.pageViewsChange > 0 } : undefined}
             />
             <StatCard
               title="Conversion Rate"
-              value={`${stats?.conversionRate || 4.8}%`}
+              value={isFetching ? "..." : stats?.conversionRate ? `${stats.conversionRate}%` : "0%"}
               subtitle="Free to Pro"
               icon={TrendingUp}
               variant="pink"
-              trend={{ value: 1.2, isPositive: true }}
+              trend={stats?.conversionChange ? { value: stats.conversionChange, isPositive: stats.conversionChange > 0 } : undefined}
             />
           </DashboardGrid>
         </div>

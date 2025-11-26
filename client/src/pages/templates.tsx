@@ -282,28 +282,28 @@ export default function Templates() {
           <DashboardGrid cols={4}>
             <StatCard
               title="Total Templates"
-              value={templates.length || 16}
+              value={isLoading ? "..." : templates.length}
               subtitle="Ready to download"
               icon={FileText}
               variant="purple"
             />
             <StatCard
               title="Free Templates"
-              value={templates.filter(t => !t.isPremium).length || 12}
+              value={isLoading ? "..." : templates.filter(t => !t.isPremium).length}
               subtitle="No signup required"
               icon={Unlock}
               variant="green"
             />
             <StatCard
               title="Premium Templates"
-              value={templates.filter(t => t.isPremium).length || 4}
+              value={isLoading ? "..." : templates.filter(t => t.isPremium).length}
               subtitle="Pro access"
               icon={Crown}
               variant="yellow"
             />
             <StatCard
               title="Total Downloads"
-              value={`${((templates.reduce((acc, t) => acc + t.downloadCount, 0) || 25000) / 1000).toFixed(1)}K`}
+              value={isLoading ? "..." : `${(templates.reduce((acc, t) => acc + t.downloadCount, 0) / 1000).toFixed(1)}K`}
               subtitle="By professionals"
               icon={Download}
               variant="pink"
