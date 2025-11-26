@@ -18,7 +18,7 @@ interface SEOProps {
   ogType?: "website" | "article" | "product" | "course";
   ogImage?: string;
   keywords?: string[];
-  structuredData?: object;
+  structuredData?: object | object[];
   breadcrumbs?: BreadcrumbItem[];
   author?: AuthorInfo;
   twitterHandle?: string;
@@ -167,9 +167,17 @@ export function SEO({
         </script>
       )}
       {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        Array.isArray(structuredData) 
+          ? structuredData.map((data, index) => (
+              <script key={`structured-data-${index}`} type="application/ld+json">
+                {JSON.stringify(data)}
+              </script>
+            ))
+          : (
+              <script type="application/ld+json">
+                {JSON.stringify(structuredData)}
+              </script>
+            )
       )}
     </Helmet>
   );

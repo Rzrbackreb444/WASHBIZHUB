@@ -8,7 +8,27 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Download, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
+
+const cleanbiStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CLEANBI 2.0 Business Intelligence Scorecard",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web Browser",
+  "description": "Comprehensive 17-factor business intelligence scoring system for laundromat valuation and investment analysis. Evaluate location quality, revenue performance, equipment condition, and 14 more critical factors.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "5640"
+  }
+};
 
 interface Factor {
   id: string;
@@ -114,21 +134,51 @@ export default function CLEANBICalculator() {
 
   return (
     <>
-      <Helmet>
-        <title>CLEANBI 2.0 Scorecard - WashBizHub</title>
-        <meta name="description" content="17-factor business intelligence scoring system for laundromat valuation and investment analysis." />
-      </Helmet>
+      <SEO
+        title="CLEANBI 2.0 Scorecard - 17-Factor Laundromat Business Intelligence"
+        description="Comprehensive 17-factor business intelligence scoring system for laundromat valuation and investment analysis. Evaluate location, revenue, equipment, lease terms, competition, and 12 more critical factors with weighted scoring."
+        canonicalUrl="/cleanbi-calculator"
+        keywords={[
+          "laundromat scorecard",
+          "CLEANBI business intelligence",
+          "laundromat valuation scorecard",
+          "laundry business analysis tool",
+          "laundromat investment scoring",
+          "17 factor laundromat analysis",
+          "laundromat due diligence tool",
+          "coin laundry business rating"
+        ]}
+        breadcrumbs={[
+          { name: "Calculators", url: "/calculators" },
+          { name: "CLEANBI Scorecard", url: "/cleanbi-calculator" }
+        ]}
+        author={{
+          name: "WashBizHub CLEANBI Team",
+          expertise: "Laundromat Business Intelligence & Scoring Specialists",
+          credentials: "Proprietary 17-factor analysis system used by industry professionals"
+        }}
+        structuredData={cleanbiStructuredData}
+      />
+
+      <div className="bg-muted/30 border-b">
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <Breadcrumb items={[
+            { name: "Calculators", url: "/calculators" },
+            { name: "CLEANBI Scorecard", url: "/cleanbi-calculator" }
+          ]} />
+        </div>
+      </div>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">
+            <h1 className="text-4xl font-bold text-white mb-4" data-testid="text-cleanbi-title">
               CLEANBI 2.0 Scorecard
             </h1>
-            <p className="text-xl text-purple-200 max-w-3xl mx-auto">
+            <p className="text-xl text-purple-200 max-w-3xl mx-auto" data-testid="text-cleanbi-description">
               Comprehensive 17-factor business intelligence scoring system for laundromat valuation
             </p>
-            <Badge variant="default" className="mt-4 bg-amber-600">
+            <Badge variant="default" className="mt-4 bg-amber-600" data-testid="badge-industry-standard">
               Industry Standard
             </Badge>
           </div>

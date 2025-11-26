@@ -1,7 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
+import { HelmetProvider, Helmet } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -12,6 +12,49 @@ import { AIChatWidget } from "@/components/AIChatWidget";
 import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { APIProvider } from "@vis.gl/react-google-maps";
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "WashBizHub",
+  "alternateName": "The Laundromat Bible",
+  "url": "https://washbizhub.com",
+  "logo": "https://washbizhub.com/logo.png",
+  "description": "The #1 laundromat resource and educational hub. AI-powered tools, professional calculators, courses, equipment marketplace, and expert consulting for laundromat owners, investors, and operators.",
+  "foundingDate": "2024",
+  "sameAs": [
+    "https://facebook.com/groups/thelaundromat",
+    "https://twitter.com/washbizhub",
+    "https://linkedin.com/company/washbizhub"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+1-479-883-4314",
+    "contactType": "customer service",
+    "email": "nick@washbizhub.com",
+    "availableLanguage": ["English"]
+  },
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "USD",
+    "lowPrice": "0",
+    "highPrice": "499",
+    "offerCount": "50+"
+  }
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "WashBizHub",
+  "url": "https://washbizhub.com",
+  "description": "The #1 laundromat resource hub with AI-powered tools, 50+ calculators, courses, marketplace, and expert consulting.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://washbizhub.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+};
 import Home from "@/pages/home";
 import WhyWashBizHub from "@/pages/why-washbizhub";
 import DesignStudio from "@/pages/design-studio";
@@ -273,6 +316,14 @@ function AppContent() {
   
   return (
     <>
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(organizationSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(websiteSchema)}
+        </script>
+      </Helmet>
       <div className="min-h-screen flex flex-col">
         <GoogleAnalytics />
         <FacebookPixel />
