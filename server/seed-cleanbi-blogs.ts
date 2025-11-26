@@ -785,15 +785,13 @@ export async function seedCleanbiBlogs() {
   return { total: inserted, blogs: allBlogs };
 }
 
-// Run if called directly
-if (require.main === module) {
-  seedCleanbiBlogs()
-    .then((result) => {
-      console.log(`\n✅ Successfully seeded ${result.total} CLEANBI blogs!`);
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error("❌ Seeding failed:", error);
-      process.exit(1);
-    });
-}
+// Run the seeding
+seedCleanbiBlogs()
+  .then((result) => {
+    console.log(`\n✅ Successfully seeded ${result.total} CLEANBI blogs!`);
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("❌ Seeding failed:", error);
+    process.exit(1);
+  });
