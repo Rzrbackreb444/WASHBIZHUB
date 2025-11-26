@@ -146,7 +146,7 @@ const DASHBOARD_MODULES = [
     description: 'Point-of-sale & payments',
     icon: CreditCard,
     color: '#10B981',
-    href: '/pos-system',
+    href: '/pos',
     count: 1,
   },
   {

@@ -179,7 +179,7 @@ const FEATURED_SYSTEM_TOOLS = [
     stats: { users: '678', rating: 4.6 },
     featured: true,
     pricingType: 'subscription',
-    slug: '/pos-system',
+    slug: '/pos',
   },
 ];
 
