@@ -8,6 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   MessageSquare,
   Eye,
   ThumbsUp,
@@ -18,12 +23,17 @@ import {
   Lock,
   CheckCircle2,
   MoreVertical,
+  Image,
+  Video,
+  Play,
+  ZoomIn,
 } from "lucide-react";
 import type { EnrichedForumTopic, EnrichedForumReply } from "@shared/schema";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { SEO } from "@/components/SEO";
 
 export default function ForumTopicPage() {
   const params = useParams();
@@ -102,9 +112,109 @@ export default function ForumTopicPage() {
 
   const authorDisplayName = topic.author.username || `${topic.author.firstName || ''} ${topic.author.lastName || ''}`.trim() || 'Anonymous';
   const authorInitials = authorDisplayName.substring(0, 2).toUpperCase();
+  
+  // Extract any SEO fields from topic (if available)
+  const topicMeta = topic as any;
+  const seoTitle = topicMeta.metaTitle || topic.title;
+  const seoDescription = topicMeta.metaDescription || topic.content.substring(0, 160).replace(/\n/g, ' ');
+  const seoKeywords = topicMeta.keywords || (topic.tags as string[]) || [];
+  const topicImages = (topicMeta.images as string[]) || [];
+  const topicVideos = (topicMeta.videos as string[]) || [];
+  const datePublished = topic.createdAt ? format(new Date(topic.createdAt), "yyyy-MM-dd'T'HH:mm:ssXXX") : undefined;
+  const dateModified = topic.lastActivityAt ? format(new Date(topic.lastActivityAt), "yyyy-MM-dd'T'HH:mm:ssXXX") : undefined;
+
+  // Build structured data for SEO/AEO
+  const discussionForumPosting = {
+    "@context": "https://schema.org",
+    "@type": "DiscussionForumPosting",
+    "headline": topic.title,
+    "text": topic.content,
+    "datePublished": datePublished,
+    "dateModified": dateModified,
+    "author": {
+      "@type": "Person",
+      "name": authorDisplayName,
+      "image": topic.author.profileImageUrl || undefined,
+    },
+    "interactionStatistic": [
+      {
+        "@type": "InteractionCounter",
+        "interactionType": "https://schema.org/LikeAction",
+        "userInteractionCount": topic.upvotes
+      },
+      {
+        "@type": "InteractionCounter", 
+        "interactionType": "https://schema.org/CommentAction",
+        "userInteractionCount": topic.replyCount
+      },
+      {
+        "@type": "InteractionCounter",
+        "interactionType": "https://schema.org/ViewAction",
+        "userInteractionCount": topic.views
+      }
+    ],
+    "url": typeof window !== 'undefined' ? window.location.href : undefined,
+    "image": topicImages.length > 0 ? topicImages[0] : undefined,
+  };
+
+  // QAPage structured data for answer engine optimization
+  const bestAnswer = replies?.find(r => r.isBestAnswer);
+  const qaPageData = bestAnswer ? {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    "mainEntity": {
+      "@type": "Question",
+      "name": topic.title,
+      "text": topic.content,
+      "dateCreated": datePublished,
+      "author": {
+        "@type": "Person",
+        "name": authorDisplayName,
+      },
+      "answerCount": topic.replyCount,
+      "upvoteCount": topic.upvotes,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": bestAnswer.content,
+        "dateCreated": bestAnswer.createdAt ? format(new Date(bestAnswer.createdAt), "yyyy-MM-dd'T'HH:mm:ssXXX") : undefined,
+        "upvoteCount": bestAnswer.upvotes,
+        "author": {
+          "@type": "Person",
+          "name": bestAnswer.author.username || `${bestAnswer.author.firstName || ''} ${bestAnswer.author.lastName || ''}`.trim() || 'Anonymous',
+        }
+      }
+    }
+  } : null;
+
+  const structuredDataArray: object[] = [discussionForumPosting];
+  if (qaPageData) {
+    structuredDataArray.push(qaPageData);
+  }
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={`/forum/topic/${topic.slug}`}
+        ogType="article"
+        ogImage={topicImages[0]}
+        datePublished={datePublished}
+        dateModified={dateModified}
+        author={{
+          name: authorDisplayName,
+          expertise: "Laundromat Industry Professional",
+          credentials: topic.author.tagline || undefined,
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Forum", url: "/forum" },
+          { name: topic.title, url: `/forum/topic/${topic.slug}` },
+        ]}
+        structuredData={structuredDataArray}
+      />
+
       {/* Header */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-4">
@@ -164,6 +274,80 @@ export default function ForumTopicPage() {
                   <p key={i} className="mb-4">{paragraph}</p>
                 ))}
               </div>
+
+              {/* Image Gallery */}
+              {topicImages.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Image className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Images</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {topicImages.map((img, idx) => (
+                      <Dialog key={idx}>
+                        <DialogTrigger asChild>
+                          <div className="relative group cursor-pointer overflow-hidden rounded-lg border">
+                            <img 
+                              src={img} 
+                              alt={`Image ${idx + 1}`}
+                              className="w-full h-32 object-cover transition-transform group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                              <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl">
+                          <img 
+                            src={img} 
+                            alt={`Image ${idx + 1}`}
+                            className="w-full h-auto rounded-lg"
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Video Gallery */}
+              {topicVideos.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Video className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Videos</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {topicVideos.map((video, idx) => {
+                      // Convert YouTube URLs to embed format
+                      let embedUrl = video;
+                      if (video.includes('youtube.com/watch')) {
+                        const videoId = new URL(video).searchParams.get('v');
+                        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                      } else if (video.includes('youtu.be/')) {
+                        const videoId = video.split('youtu.be/')[1]?.split('?')[0];
+                        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                      } else if (video.includes('vimeo.com/')) {
+                        const videoId = video.split('vimeo.com/')[1]?.split('?')[0];
+                        embedUrl = `https://player.vimeo.com/video/${videoId}`;
+                      }
+                      
+                      return (
+                        <div key={idx} className="aspect-video rounded-lg overflow-hidden border">
+                          <iframe
+                            src={embedUrl}
+                            title={`Video ${idx + 1}`}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <Separator className="my-6" />
               <div className="flex items-center justify-between">
                 <VoteButtons
