@@ -152,6 +152,7 @@ import LaundromatLocatorPage from "@/pages/laundromat-locator";
 import DesignStudioPro from "@/pages/design-studio-pro";
 import Login from "@/pages/login";
 import AdminLogin from "@/pages/admin-login";
+import AdminCommandCenter from "@/pages/admin-dashboard";
 import ValuationCalculator from "@/pages/valuation-calculator";
 import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
 import TPDCalculator from "@/pages/tpd-calculator";
@@ -298,6 +299,8 @@ function Router() {
       <Route path="/design-studio-pro" component={DesignStudioPro} />
       <Route path="/login" component={Login} />
       <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminCommandCenter} />
       <Route path="/valuation-calculator" component={ValuationCalculator} />
       <Route path="/equipment-diagnostics" component={EquipmentDiagnostics} />
       <Route path="/tpd-calculator" component={TPDCalculator} />
@@ -329,7 +332,7 @@ function AppContent() {
   const [location] = useLocation();
   
   // Full-screen apps that need their own layout (no global nav/footer)
-  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos'];
+  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
   
   if (isFullScreenApp) {
