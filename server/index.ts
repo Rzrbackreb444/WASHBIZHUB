@@ -451,6 +451,10 @@ app.use((req, res, next) => {
     
     await initializeCacheLayer(); // Cache layer (uses Redis if available)
     
+    // Seed tenants (WashBizHub, StrokeRecoveryAcademy, HawgWash)
+    const { seedTenants } = await import('./seed-tenants');
+    await seedTenants();
+    
     await seedTemplatesIfNeeded();
   });
 })();
