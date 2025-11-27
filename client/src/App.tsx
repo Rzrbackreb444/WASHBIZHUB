@@ -175,6 +175,7 @@ import SRADashboard from "@/pages/sra/dashboard";
 import EquipmentMatcher from "@/pages/equipment-matcher";
 import SRAMarketplace from "@/pages/sra/marketplace";
 import SRAProductionConsole from "@/pages/sra/production-console";
+import AIContentStudio from "@/pages/ai-content-studio";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -311,6 +312,7 @@ function Router() {
       <Route path="/sra/dashboard" component={SRADashboard} />
       <Route path="/sra/marketplace" component={SRAMarketplace} />
       <Route path="/sra/factory" component={SRAProductionConsole} />
+      <Route path="/ai-content-studio" component={AIContentStudio} />
       <Route component={NotFound} />
     </Switch>
   );

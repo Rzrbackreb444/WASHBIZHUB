@@ -85,7 +85,23 @@ import {
   insertForumVoteSchema,
   insertPlatformSettingSchema,
   insertNewsletterCampaignSchema,
+  insertAiConversationSchema,
+  insertContentProjectSchema,
+  insertEmailContactSchema,
+  aiConversations,
+  contentProjects,
+  emailContacts,
 } from "@shared/schema";
+import {
+  generateChatResponse,
+  generateBlogTopics,
+  generateBlogPost,
+  generateBookChapter,
+  generateNewsletter,
+  generateCode,
+  getQuotaStatus,
+  type ChatMessage,
+} from "./services/gemini-content-studio";
 
 // Stripe optional - payments disabled if key not set
 let stripe: Stripe | null = null;
@@ -6800,6 +6816,705 @@ ${pdfData.text.substring(0, 15000)}`;
   // ========== ADVERTISING & SPONSORSHIP ROUTES ==========
   const advertisingRoutes = await import('./advertising-routes');
   app.use("/api/advertising", advertisingRoutes.default);
+
+  // ========== AI CONTENT STUDIO ROUTES ==========
+  
+  // ==================== CONVERSATIONS ====================
+  
+  // Create a new conversation
+  app.post("/api/ai-studio/conversations", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const validated = insertAiConversationSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+
+      const [conversation] = await db.insert(aiConversations).values(validated).returning();
+      res.status(201).json(conversation);
+    } catch (error: any) {
+      console.error("Error creating conversation:", error);
+      res.status(400).json({ message: error.message || "Failed to create conversation" });
+    }
+  });
+
+  // List all conversations for user
+  app.get("/api/ai-studio/conversations", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const conversations = await db
+        .select()
+        .from(aiConversations)
+        .where(eq(aiConversations.userId, currentUser.userId))
+        .orderBy(sql`${aiConversations.updatedAt} DESC`);
+
+      res.json(conversations);
+    } catch (error: any) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch conversations" });
+    }
+  });
+
+  // Get a conversation by ID
+  app.get("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [conversation] = await db
+        .select()
+        .from(aiConversations)
+        .where(eq(aiConversations.id, req.params.id));
+
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      if (conversation.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      res.json(conversation);
+    } catch (error: any) {
+      console.error("Error fetching conversation:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch conversation" });
+    }
+  });
+
+  // Update a conversation
+  app.patch("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(aiConversations)
+        .where(eq(aiConversations.id, req.params.id));
+
+      if (!existing) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const updateData: Record<string, any> = { updatedAt: new Date() };
+      if (req.body.title !== undefined) updateData.title = req.body.title;
+      if (req.body.isPinned !== undefined) updateData.isPinned = req.body.isPinned;
+      if (req.body.isActive !== undefined) updateData.isActive = req.body.isActive;
+      if (req.body.type !== undefined) updateData.type = req.body.type;
+      if (req.body.systemPrompt !== undefined) updateData.systemPrompt = req.body.systemPrompt;
+      if (req.body.messages !== undefined) updateData.messages = req.body.messages;
+      if (req.body.memoryContext !== undefined) updateData.memoryContext = req.body.memoryContext;
+
+      const [updated] = await db
+        .update(aiConversations)
+        .set(updateData)
+        .where(eq(aiConversations.id, req.params.id))
+        .returning();
+
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating conversation:", error);
+      res.status(500).json({ message: error.message || "Failed to update conversation" });
+    }
+  });
+
+  // Delete a conversation
+  app.delete("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(aiConversations)
+        .where(eq(aiConversations.id, req.params.id));
+
+      if (!existing) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      await db.delete(aiConversations).where(eq(aiConversations.id, req.params.id));
+      res.json({ success: true, message: "Conversation deleted" });
+    } catch (error: any) {
+      console.error("Error deleting conversation:", error);
+      res.status(500).json({ message: error.message || "Failed to delete conversation" });
+    }
+  });
+
+  // ==================== CHAT ====================
+  
+  // Send message and get AI response
+  app.post("/api/ai-studio/chat", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { conversationId, message, type = "general", customSystemPrompt } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      let messages: ChatMessage[] = [];
+      let conversation: any = null;
+
+      if (conversationId) {
+        const [existing] = await db
+          .select()
+          .from(aiConversations)
+          .where(eq(aiConversations.id, conversationId));
+
+        if (!existing) {
+          return res.status(404).json({ message: "Conversation not found" });
+        }
+
+        if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+          return res.status(403).json({ message: "Forbidden" });
+        }
+
+        conversation = existing;
+        messages = (existing.messages as ChatMessage[]) || [];
+      }
+
+      const userMessage: ChatMessage = {
+        role: "user",
+        content: message,
+        timestamp: new Date().toISOString(),
+      };
+      messages.push(userMessage);
+
+      const result = await generateChatResponse(messages, type as any, customSystemPrompt);
+
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: result.content,
+        timestamp: new Date().toISOString(),
+      };
+      messages.push(assistantMessage);
+
+      if (conversation) {
+        await db
+          .update(aiConversations)
+          .set({
+            messages,
+            totalTokensUsed: (conversation.totalTokensUsed || 0) + (result.tokensUsed || 0),
+            updatedAt: new Date(),
+          })
+          .where(eq(aiConversations.id, conversationId));
+      }
+
+      res.json({
+        response: result.content,
+        tokensUsed: result.tokensUsed,
+        model: result.model,
+        processingTimeMs: result.processingTimeMs,
+        conversationId: conversation?.id,
+      });
+    } catch (error: any) {
+      console.error("Error in chat:", error);
+      res.status(500).json({ message: error.message || "Failed to generate response" });
+    }
+  });
+
+  // Stream response from Gemini (SSE)
+  app.post("/api/ai-studio/chat/stream", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { conversationId, message, type = "general", customSystemPrompt } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      let messages: ChatMessage[] = [];
+      let conversation: any = null;
+
+      if (conversationId) {
+        const [existing] = await db
+          .select()
+          .from(aiConversations)
+          .where(eq(aiConversations.id, conversationId));
+
+        if (existing && existing.userId === currentUser.userId) {
+          conversation = existing;
+          messages = (existing.messages as ChatMessage[]) || [];
+        }
+      }
+
+      const userMessage: ChatMessage = {
+        role: "user",
+        content: message,
+        timestamp: new Date().toISOString(),
+      };
+      messages.push(userMessage);
+
+      const result = await generateChatResponse(messages, type as any, customSystemPrompt);
+
+      const chunks = result.content.split(/(?<=[.!?])\s+/);
+      let fullContent = "";
+
+      for (const chunk of chunks) {
+        fullContent += chunk + " ";
+        res.write(`data: ${JSON.stringify({ chunk, fullContent: fullContent.trim() })}\n\n`);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: result.content,
+        timestamp: new Date().toISOString(),
+      };
+      messages.push(assistantMessage);
+
+      if (conversation) {
+        await db
+          .update(aiConversations)
+          .set({
+            messages,
+            totalTokensUsed: (conversation.totalTokensUsed || 0) + (result.tokensUsed || 0),
+            updatedAt: new Date(),
+          })
+          .where(eq(aiConversations.id, conversationId));
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true, tokensUsed: result.tokensUsed, model: result.model })}\n\n`);
+      res.end();
+    } catch (error: any) {
+      console.error("Error in stream chat:", error);
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+    }
+  });
+
+  // ==================== CONTENT GENERATION ====================
+  
+  // Generate blog topic suggestions
+  app.post("/api/ai-studio/blog-topics", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { niche = "laundromat", count = 5 } = req.body;
+      const topics = await generateBlogTopics(niche, count);
+      res.json({ topics });
+    } catch (error: any) {
+      console.error("Error generating blog topics:", error);
+      res.status(500).json({ message: error.message || "Failed to generate blog topics" });
+    }
+  });
+
+  // Generate a full blog post
+  app.post("/api/ai-studio/blog", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { title, keyword, outline, targetWordCount = 2000 } = req.body;
+
+      if (!title || !keyword || !outline) {
+        return res.status(400).json({ message: "Title, keyword, and outline are required" });
+      }
+
+      const result = await generateBlogPost(title, keyword, outline, targetWordCount);
+      res.json({
+        content: result.content,
+        tokensUsed: result.tokensUsed,
+        model: result.model,
+        processingTimeMs: result.processingTimeMs,
+      });
+    } catch (error: any) {
+      console.error("Error generating blog post:", error);
+      res.status(500).json({ message: error.message || "Failed to generate blog post" });
+    }
+  });
+
+  // Generate a book chapter
+  app.post("/api/ai-studio/book-chapter", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { bookTitle, chapterTitle, chapterNumber, outline, targetWordCount = 4000, previousChapterSummary } = req.body;
+
+      if (!bookTitle || !chapterTitle || !chapterNumber || !outline) {
+        return res.status(400).json({ message: "Book title, chapter title, chapter number, and outline are required" });
+      }
+
+      const result = await generateBookChapter(
+        bookTitle,
+        chapterTitle,
+        chapterNumber,
+        outline,
+        targetWordCount,
+        previousChapterSummary
+      );
+
+      res.json({
+        content: result.content,
+        tokensUsed: result.tokensUsed,
+        model: result.model,
+        processingTimeMs: result.processingTimeMs,
+      });
+    } catch (error: any) {
+      console.error("Error generating book chapter:", error);
+      res.status(500).json({ message: error.message || "Failed to generate book chapter" });
+    }
+  });
+
+  // Generate newsletter content
+  app.post("/api/ai-studio/newsletter", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { topic, style = "educational", previousNewsletters } = req.body;
+
+      if (!topic) {
+        return res.status(400).json({ message: "Topic is required" });
+      }
+
+      const result = await generateNewsletter(topic, style, previousNewsletters);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error generating newsletter:", error);
+      res.status(500).json({ message: error.message || "Failed to generate newsletter" });
+    }
+  });
+
+  // Generate or modify code
+  app.post("/api/ai-studio/code", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { request, existingCode, language = "typescript" } = req.body;
+
+      if (!request) {
+        return res.status(400).json({ message: "Request is required" });
+      }
+
+      const result = await generateCode(request, existingCode, language);
+      res.json({
+        content: result.content,
+        tokensUsed: result.tokensUsed,
+        model: result.model,
+        processingTimeMs: result.processingTimeMs,
+      });
+    } catch (error: any) {
+      console.error("Error generating code:", error);
+      res.status(500).json({ message: error.message || "Failed to generate code" });
+    }
+  });
+
+  // ==================== PROJECTS ====================
+  
+  // Create content project
+  app.post("/api/ai-studio/projects", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const validated = insertContentProjectSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+
+      const [project] = await db.insert(contentProjects).values(validated).returning();
+      res.status(201).json(project);
+    } catch (error: any) {
+      console.error("Error creating project:", error);
+      res.status(400).json({ message: error.message || "Failed to create project" });
+    }
+  });
+
+  // List all projects for user
+  app.get("/api/ai-studio/projects", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const projects = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.userId, currentUser.userId))
+        .orderBy(sql`${contentProjects.updatedAt} DESC`);
+
+      res.json(projects);
+    } catch (error: any) {
+      console.error("Error fetching projects:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch projects" });
+    }
+  });
+
+  // Get project by ID
+  app.get("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [project] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, req.params.id));
+
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      res.json(project);
+    } catch (error: any) {
+      console.error("Error fetching project:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch project" });
+    }
+  });
+
+  // Update project
+  app.patch("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, req.params.id));
+
+      if (!existing) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const updateData: Record<string, any> = { updatedAt: new Date() };
+      if (req.body.title !== undefined) updateData.title = req.body.title;
+      if (req.body.description !== undefined) updateData.description = req.body.description;
+      if (req.body.type !== undefined) updateData.type = req.body.type;
+      if (req.body.status !== undefined) updateData.status = req.body.status;
+      if (req.body.content !== undefined) updateData.content = req.body.content;
+      if (req.body.kdpSettings !== undefined) updateData.kdpSettings = req.body.kdpSettings;
+      if (req.body.coverImageUrl !== undefined) updateData.coverImageUrl = req.body.coverImageUrl;
+      if (req.body.wordCount !== undefined) updateData.wordCount = req.body.wordCount;
+      if (req.body.chapterCount !== undefined) updateData.chapterCount = req.body.chapterCount;
+      if (req.body.lastEditedAt !== undefined) updateData.lastEditedAt = req.body.lastEditedAt;
+
+      const [updated] = await db
+        .update(contentProjects)
+        .set(updateData)
+        .where(eq(contentProjects.id, req.params.id))
+        .returning();
+
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating project:", error);
+      res.status(500).json({ message: error.message || "Failed to update project" });
+    }
+  });
+
+  // Delete project
+  app.delete("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, req.params.id));
+
+      if (!existing) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      await db.delete(contentProjects).where(eq(contentProjects.id, req.params.id));
+      res.json({ success: true, message: "Project deleted" });
+    } catch (error: any) {
+      console.error("Error deleting project:", error);
+      res.status(500).json({ message: error.message || "Failed to delete project" });
+    }
+  });
+
+  // ==================== EMAIL CONTACTS ====================
+  
+  // Add email contact
+  app.post("/api/ai-studio/email-contacts", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const validated = insertEmailContactSchema.parse({
+        ...req.body,
+        userId: currentUser.userId,
+      });
+
+      const [contact] = await db.insert(emailContacts).values(validated).returning();
+      res.status(201).json(contact);
+    } catch (error: any) {
+      console.error("Error creating email contact:", error);
+      if (error.message?.includes("unique constraint") || error.code === "23505") {
+        return res.status(409).json({ message: "Email contact already exists" });
+      }
+      res.status(400).json({ message: error.message || "Failed to create email contact" });
+    }
+  });
+
+  // List all contacts for user
+  app.get("/api/ai-studio/email-contacts", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { status, segment } = req.query;
+      let query = db
+        .select()
+        .from(emailContacts)
+        .where(eq(emailContacts.userId, currentUser.userId));
+
+      const contacts = await query.orderBy(sql`${emailContacts.createdAt} DESC`);
+
+      let filteredContacts = contacts;
+      if (status) {
+        filteredContacts = filteredContacts.filter((c: any) => c.status === status);
+      }
+      if (segment) {
+        filteredContacts = filteredContacts.filter((c: any) => c.segment === segment);
+      }
+
+      res.json(filteredContacts);
+    } catch (error: any) {
+      console.error("Error fetching email contacts:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch email contacts" });
+    }
+  });
+
+  // Remove email contact
+  app.delete("/api/ai-studio/email-contacts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(emailContacts)
+        .where(eq(emailContacts.id, req.params.id));
+
+      if (!existing) {
+        return res.status(404).json({ message: "Email contact not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      await db.delete(emailContacts).where(eq(emailContacts.id, req.params.id));
+      res.json({ success: true, message: "Email contact deleted" });
+    } catch (error: any) {
+      console.error("Error deleting email contact:", error);
+      res.status(500).json({ message: error.message || "Failed to delete email contact" });
+    }
+  });
+
+  // ==================== QUOTA ====================
+  
+  // Get Gemini API quota status
+  app.get("/api/ai-studio/quota", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const quotaStatus = getQuotaStatus();
+      
+      const conversationCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(aiConversations)
+        .where(eq(aiConversations.userId, currentUser.userId));
+
+      const projectCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(contentProjects)
+        .where(eq(contentProjects.userId, currentUser.userId));
+
+      res.json({
+        ...quotaStatus,
+        usage: {
+          conversations: Number(conversationCount[0]?.count || 0),
+          projects: Number(projectCount[0]?.count || 0),
+        },
+      });
+    } catch (error: any) {
+      console.error("Error fetching quota:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch quota status" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
