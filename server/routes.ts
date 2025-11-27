@@ -7,6 +7,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
+import adminRoutes from "./admin-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -154,6 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply tenant resolution to ALL requests
   // This attaches req.tenant based on domain (washbizhub.com, strokerecoveryacademy.com, strokelyfe.app)
   app.use(resolveTenant);
+  
+  // ==================== ADMIN DASHBOARD ====================
+  app.use("/api/admin", adminRoutes);
   
   // ==================== AUTH ====================
   

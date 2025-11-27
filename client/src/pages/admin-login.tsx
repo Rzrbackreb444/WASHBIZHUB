@@ -45,7 +45,7 @@ export default function AdminLogin() {
         description: "Welcome to Admin Dashboard",
       });
 
-      setLocation("/admin");
+      setLocation("/admin/dashboard");
     } catch (err) {
       setError("Login failed. Please try again.");
       console.error(err);

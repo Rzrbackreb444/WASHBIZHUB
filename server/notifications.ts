@@ -261,3 +261,100 @@ export async function notifyAIChatMessage(data: {
     priority: 'high',
   });
 }
+
+/**
+ * Universal purchase notification - called for ANY purchase type
+ * Sends SMS + Email instantly when money comes in
+ */
+export async function notifyPurchase(params: {
+  type: 'subscription' | 'course' | 'book' | 'cleanbi' | 'report' | 'advertising' | 'other';
+  productName: string;
+  amount: number;
+  currency?: string;
+  customerEmail?: string;
+  customerName?: string;
+  interval?: string; // 'month', 'year', 'one-time'
+  metadata?: Record<string, any>;
+}): Promise<void> {
+  const currencySymbol = params.currency === 'USD' || !params.currency ? '$' : params.currency;
+  const intervalText = params.interval === 'month' ? '/mo' : 
+                       params.interval === 'year' ? '/yr' : 
+                       '';
+  
+  const typeEmoji: Record<string, string> = {
+    subscription: '🔄',
+    course: '📚',
+    book: '📖',
+    cleanbi: '🏠',
+    report: '📊',
+    advertising: '📢',
+    other: '💳',
+  };
+  
+  const emoji = typeEmoji[params.type] || '💰';
+  
+  const message = `
+${emoji} CHA-CHING! PAYMENT RECEIVED!
+
+Type: ${params.type.toUpperCase()}
+Product: ${params.productName}
+Amount: ${currencySymbol}${(params.amount / 100).toFixed(2)}${intervalText}
+Customer: ${params.customerEmail || 'Guest'}
+${params.customerName ? `Name: ${params.customerName}` : ''}
+Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
+
+💸💸💸 MONEY IN THE BANK! 💸💸💸
+`.trim();
+
+  await sendAdminNotification({
+    to: [
+      '4798834314@txt.att.net',
+      'nick@washbizhub.com',
+    ],
+    subject: `${emoji} ${currencySymbol}${(params.amount / 100).toFixed(2)} - ${params.productName}`,
+    message,
+    priority: 'high',
+  });
+  
+  console.log(`💰 Purchase notification sent: ${params.productName} - $${(params.amount / 100).toFixed(2)}`);
+}
+
+/**
+ * Notify when a subscription is created or renewed
+ */
+export async function notifySubscriptionEvent(params: {
+  event: 'created' | 'renewed' | 'cancelled' | 'failed';
+  planName: string;
+  amount: number;
+  customerEmail?: string;
+  subscriptionId?: string;
+}): Promise<void> {
+  const eventEmojis: Record<string, string> = {
+    created: '🆕',
+    renewed: '🔄',
+    cancelled: '❌',
+    failed: '⚠️',
+  };
+  
+  const emoji = eventEmojis[params.event] || '📋';
+  
+  const message = `
+${emoji} SUBSCRIPTION ${params.event.toUpperCase()}!
+
+Plan: ${params.planName}
+Amount: $${(params.amount / 100).toFixed(2)}
+Customer: ${params.customerEmail || 'Unknown'}
+Subscription ID: ${params.subscriptionId || 'N/A'}
+Time: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
+`.trim();
+
+  await sendAdminNotification({
+    to: [
+      '4798834314@txt.att.net',
+      'nick@washbizhub.com',
+    ],
+    subject: `${emoji} Subscription ${params.event}: ${params.planName}`,
+    message,
+    priority: params.event === 'failed' ? 'high' : 'normal',
+  });
+}

@@ -6,6 +6,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
+import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
 
 const app = express();
 
@@ -127,6 +128,14 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
             lastAccessedAt: null,
           });
           console.log(`✅ Enrollment created for user ${metadata.userId} in course ${metadata.courseId}`);
+          
+          // Send purchase notification
+          await notifyPurchase({
+            type: 'course',
+            productName: metadata.courseName || 'Course',
+            amount: amountTotal,
+            customerEmail: session.customer_email || metadata.userEmail,
+          });
         } catch (error: any) {
           console.error(`❌ Failed to create enrollment: ${error.message}`);
         }
@@ -146,6 +155,14 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
             stripePaymentId: paymentIntentId,
           });
           console.log(`✅ Book access granted to user ${metadata.userId}`);
+          
+          // Send purchase notification
+          await notifyPurchase({
+            type: 'book',
+            productName: metadata.bookTitle || 'Laundromat Bible',
+            amount: amountTotal,
+            customerEmail: session.customer_email || metadata.userEmail,
+          });
         } catch (error: any) {
           console.error(`❌ Failed to grant book access: ${error.message}`);
         }
@@ -193,6 +210,22 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       
       // Sync CLEANBI subscription to database
       await syncCLEANBISubscription(subscription);
+      
+      // Get subscription amount and product name
+      const amount = subscription.items.data[0]?.price?.unit_amount || 0;
+      const productName = subscription.metadata?.productName || 
+                         subscription.items.data[0]?.price?.nickname || 
+                         'Subscription';
+      const interval = subscription.items.data[0]?.price?.recurring?.interval || 'month';
+      
+      // Send notification
+      await notifyPurchase({
+        type: 'subscription',
+        productName,
+        amount,
+        interval,
+        customerEmail: subscription.metadata?.customerEmail,
+      });
     }
 
     // Handle subscription updates - CLEANBI tier sync
