@@ -122,11 +122,11 @@ export default function LaundromatLocator() {
         structuredData={structuredData}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center space-y-3 mb-8">
-            <h1 className="text-4xl font-bold flex items-center justify-center gap-2">
+            <h1 className="text-4xl font-bold flex items-center justify-center gap-2 text-foreground">
               <MapPin className="w-10 h-10 text-primary" />
               Laundromat Locator
             </h1>

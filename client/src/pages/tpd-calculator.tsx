@@ -144,16 +144,16 @@ export default function TPDCalculator() {
         <meta name="description" content="Calculate Turns Per Day (TPD) with Monte Carlo simulation. 10,000 iterations for probabilistic financial modeling." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Calculator className="w-10 h-10 text-blue-400" />
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-4xl font-bold text-foreground">
                 Turns Per Day (TPD) Calculator
               </h1>
             </div>
-            <p className="text-xl text-blue-200 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Advanced Monte Carlo simulation with 10,000 iterations for probabilistic TPD analysis
             </p>
             <Badge variant="default" className="mt-4 bg-amber-600">

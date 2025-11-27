@@ -102,7 +102,7 @@ export default function Consultation() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <Card className="max-w-2xl w-full">
           <CardContent className="text-center py-12">
             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
@@ -143,13 +143,13 @@ export default function Consultation() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2" data-testid="text-page-title">
+          <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="text-page-title">
             Expert Laundromat Consultation
           </h1>
-          <p className="text-xl text-green-200 mb-4">
+          <p className="text-xl text-muted-foreground mb-4">
             Get personalized guidance from industry experts
           </p>
           <div className="flex items-center justify-center gap-2 text-accent font-semibold">

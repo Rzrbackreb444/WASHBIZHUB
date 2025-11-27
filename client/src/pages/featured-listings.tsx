@@ -102,13 +102,13 @@ export default function FeaturedListings() {
 
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-white py-12 border-b border-emerald-700">
+        <div className="bg-primary text-primary-foreground py-12 border-b">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center gap-3 mb-2">
               <Star className="w-8 h-8" />
               <h1 className="text-4xl font-bold">Featured Listings</h1>
             </div>
-            <p className="text-emerald-200">Premium laundromat businesses • Verified metrics • Ready to operate</p>
+            <p className="text-primary-foreground/80">Premium laundromat businesses • Verified metrics • Ready to operate</p>
           </div>
         </div>
 
@@ -233,9 +233,9 @@ export default function FeaturedListings() {
           </Tabs>
 
           {/* CTA */}
-          <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-lg p-8 text-center">
+          <div className="bg-muted text-foreground rounded-lg p-8 text-center">
             <h2 className="text-2xl font-bold mb-2">Looking for something specific?</h2>
-            <p className="mb-6">Browse 1,000+ listings or post your own business for sale</p>
+            <p className="text-muted-foreground mb-6">Browse 1,000+ listings or post your own business for sale</p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link href="/listings">
                 <Button variant="secondary" data-testid="button-browse-all">
@@ -244,7 +244,7 @@ export default function FeaturedListings() {
                 </Button>
               </Link>
               <Link href="/listing-form">
-                <Button variant="outline" className="bg-white/10" data-testid="button-create-listing">
+                <Button variant="outline" data-testid="button-create-listing">
                   <Zap className="w-4 h-4 mr-2" />
                   Sell Your Business
                 </Button>

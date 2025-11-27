@@ -282,24 +282,24 @@ export default function CleanbiAuto() {
         }}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <Badge className="mb-4 bg-accent">
               Powered by Google APIs
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Score ANY Address GLOBALLY: Business OR Residential
             </h1>
-            <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-              Get comprehensive intelligence in seconds for <span className="font-bold text-purple-100">ANY address worldwide</span> - commercial businesses AND residential properties in <span className="font-bold text-purple-100">220+ countries</span>. Just enter an address - our Google-powered engine does the rest.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Get comprehensive intelligence in seconds for <span className="font-bold text-foreground">ANY address worldwide</span> - commercial businesses AND residential properties in <span className="font-bold text-foreground">220+ countries</span>. Just enter an address - our Google-powered engine does the rest.
             </p>
-            <p className="text-sm text-purple-300 max-w-2xl mx-auto mt-2">
-              <span className="font-semibold text-purple-100">Businesses:</span> Restaurants • Retail • Gyms • Salons • Car Washes • Laundromats • Gas Stations • Hotels • Any Business Type<br/>
-              <span className="font-semibold text-purple-100">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties<br/>
-              <span className="font-semibold text-purple-100">Global Coverage:</span> USA • Philippines • Japan • Australia • UK • EU • Asia • Africa • Americas • 220+ Countries
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto mt-2">
+              <span className="font-semibold text-foreground">Businesses:</span> Restaurants • Retail • Gyms • Salons • Car Washes • Laundromats • Gas Stations • Hotels • Any Business Type<br/>
+              <span className="font-semibold text-foreground">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties<br/>
+              <span className="font-semibold text-foreground">Global Coverage:</span> USA • Philippines • Japan • Australia • UK • EU • Asia • Africa • Americas • 220+ Countries
             </p>
-            <div className="mt-6 flex items-center justify-center gap-6 text-white/80 text-sm">
+            <div className="mt-6 flex items-center justify-center gap-6 text-muted-foreground text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-400" />
                 <span>100% Free</span>

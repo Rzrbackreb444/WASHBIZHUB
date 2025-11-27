@@ -100,13 +100,13 @@ export default function PartsCatalogue() {
 
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-12 border-b border-slate-700">
+        <div className="bg-background text-foreground py-12 border-b">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center gap-3 mb-4">
               <Package className="w-8 h-8" />
               <h1 className="text-4xl font-bold">Parts Catalogue</h1>
             </div>
-            <p className="text-slate-300">Complete inventory of equipment, supplies, and accessories for laundromats</p>
+            <p className="text-muted-foreground">Complete inventory of equipment, supplies, and accessories for laundromats</p>
             <Badge className="mt-4 bg-amber-500/20 text-amber-300 border-amber-500/30">
               <Zap className="w-3 h-3 mr-1" />
               Amazon Affiliate Integrated • Free Shipping on Bulk Orders

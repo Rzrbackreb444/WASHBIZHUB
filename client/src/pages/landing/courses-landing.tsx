@@ -36,7 +36,7 @@ export default function CoursesLanding() {
         structuredData={structuredData}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-6xl mx-auto space-y-16">
           {/* Hero */}
           <div className="text-center space-y-6 py-20">
@@ -157,13 +157,13 @@ export default function CoursesLanding() {
 
           {/* Premium Bundle */}
           <div className="bg-gradient-to-r from-primary to-accent p-8 rounded-lg text-center space-y-6">
-            <h2 className="text-3xl font-bold text-white">Premium Bundle</h2>
-            <p className="text-white/80 text-lg">
+            <h2 className="text-3xl font-bold text-primary-foreground">Premium Bundle</h2>
+            <p className="text-primary-foreground/80 text-lg">
               All Courses + The Laundromat Bible + Lifetime Updates
             </p>
             <div className="space-y-2">
-              <p className="text-white text-4xl font-bold">$297</p>
-              <p className="text-white/70">Save $300+ (50% off)</p>
+              <p className="text-primary-foreground text-4xl font-bold">$297</p>
+              <p className="text-primary-foreground/70">Save $300+ (50% off)</p>
             </div>
             <Button size="lg" variant="secondary">
               Get Unlimited Access

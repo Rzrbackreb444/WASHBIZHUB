@@ -149,14 +149,14 @@ export default function AIBlogging() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2" data-testid="text-page-title">
+            <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="text-page-title">
               AI Blogging Agent
             </h1>
-            <p className="text-xl text-purple-200">
+            <p className="text-xl text-muted-foreground">
               Generate professional blog content with multi-AI orchestration
             </p>
           </div>

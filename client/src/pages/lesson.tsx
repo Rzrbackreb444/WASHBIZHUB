@@ -95,7 +95,7 @@ export default function LessonPage() {
 
   if (!currentLesson || !course) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="text-center py-12">
             <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
@@ -111,7 +111,7 @@ export default function LessonPage() {
   const isCompleted = enrollment?.completedLessons?.includes(currentLesson.id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Course Progress Header */}
         <Card className="mb-6">
@@ -151,9 +151,9 @@ export default function LessonPage() {
             <CardContent className="p-0">
               <div className="aspect-video bg-slate-800 rounded-lg flex items-center justify-center">
                 <div className="text-center">
-                  <PlayCircle className="w-16 h-16 mx-auto mb-4 text-white/50" />
-                  <p className="text-white/70">Video Player Coming Soon</p>
-                  <p className="text-sm text-white/50 mt-2">{currentLesson.duration} minutes</p>
+                  <PlayCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">Video Player Coming Soon</p>
+                  <p className="text-sm text-muted-foreground mt-2">{currentLesson.duration} minutes</p>
                 </div>
               </div>
             </CardContent>
@@ -179,8 +179,8 @@ export default function LessonPage() {
         {lessonContent.quiz && (
           <div className="mb-6">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Knowledge Check</h2>
-              <p className="text-blue-200">Test your understanding with this interactive quiz</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Knowledge Check</h2>
+              <p className="text-muted-foreground">Test your understanding with this interactive quiz</p>
             </div>
             <InteractiveQuiz
               title={currentLesson.title}

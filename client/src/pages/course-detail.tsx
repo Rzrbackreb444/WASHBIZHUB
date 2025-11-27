@@ -47,15 +47,15 @@ export default function CourseDetail() {
 
   if (courseLoading || lessonsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading course...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-xl">Loading course...</div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="text-center py-12">
             <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
@@ -89,7 +89,7 @@ export default function CourseDetail() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="bg-primary py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -172,7 +172,7 @@ export default function CourseDetail() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* What You'll Build */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">
+          <h2 className="text-3xl font-bold text-foreground text-center mb-8">
             What You'll Build
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
@@ -203,10 +203,10 @@ export default function CourseDetail() {
 
         {/* Bonuses */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-4">
+          <h2 className="text-3xl font-bold text-foreground text-center mb-4">
             Exclusive Bonuses
           </h2>
-          <p className="text-center text-blue-200 mb-8 text-lg">
+          <p className="text-center text-muted-foreground mb-8 text-lg">
             $2,997 Value Included Free
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -246,10 +246,10 @@ export default function CourseDetail() {
         {/* Final CTA */}
         <section className="text-center">
           <div className="bg-primary/50 backdrop-blur-sm rounded-xl p-8">
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
               Ready to Build Your $10K/Month Laundromat Empire?
             </h2>
-            <p className="text-xl text-blue-200 mb-6">
+            <p className="text-xl text-muted-foreground mb-6">
               Only 50 spots available. Doors close in 3 days.
             </p>
             <Link href={`/courses/${courseId}/lessons/${firstLesson?.id}`}>
@@ -261,7 +261,7 @@ export default function CourseDetail() {
                 YES! I WANT IN – SECURE MY SPOT
               </Button>
             </Link>
-            <p className="text-sm text-blue-200/70 mt-4">
+            <p className="text-sm text-muted-foreground mt-4">
               🔒 Secure checkout • Lifetime access • 30-day guarantee
             </p>
           </div>

@@ -117,16 +117,16 @@ export default function ROICalculatorAdvanced() {
         <meta name="description" content="Multi-year ROI projections with DSCR, cash-on-cash return, and exit valuation modeling for laundromat investments." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
               <TrendingUp className="w-10 h-10 text-green-400" />
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-4xl font-bold text-foreground">
                 Advanced ROI Calculator
               </h1>
             </div>
-            <p className="text-xl text-green-200 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               {projectionYears}-year projections with DSCR, cash-on-cash return, and exit valuation modeling
             </p>
             <Badge variant="default" className="mt-4 bg-amber-600">

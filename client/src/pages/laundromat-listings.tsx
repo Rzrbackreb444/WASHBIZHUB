@@ -131,11 +131,11 @@ export default function LaundromatListings() {
           <meta property="og:type" content="website" />
           <meta name="robots" content="index, follow" />
         </Helmet>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="min-h-screen bg-background p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold flex items-center gap-3">
+              <h1 className="text-4xl font-bold flex items-center gap-3 text-foreground">
                 <Store className="w-10 h-10 text-primary" />
                 Find Your Next Laundromat
               </h1>
@@ -250,10 +250,10 @@ export default function LaundromatListings() {
   // SELLER DASHBOARD
   if (userRole === "seller") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-bold">Seller Dashboard</h1>
+            <h1 className="text-4xl font-bold text-foreground">Seller Dashboard</h1>
             <Button className="gap-2" data-testid="button-list-new">
               <Plus className="w-4 h-4" />
               List New Business
@@ -321,9 +321,9 @@ export default function LaundromatListings() {
 
   // BROKER DASHBOARD
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <h1 className="text-4xl font-bold">Broker Portal</h1>
+        <h1 className="text-4xl font-bold text-foreground">Broker Portal</h1>
 
         <Tabs defaultValue="portfolio" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
