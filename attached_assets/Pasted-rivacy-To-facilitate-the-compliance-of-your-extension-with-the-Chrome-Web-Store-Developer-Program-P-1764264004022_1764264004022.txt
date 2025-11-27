@@ -1,0 +1,76 @@
+rivacy
+To facilitate the compliance of your extension with the Chrome Web Store Developer Program Policies, you are required to provide the information listed below. The information provided in this form will be shared with the Chrome Web Store team. Please ensure that the information provided is accurate, as it will improve the review time of your extension and decrease the risk of this version being rejected.
+
+Single purpose
+An extension must have a single purpose that is narrow and easy-to-understand. Learn more
+
+Single purpose description
+Displays instant investment scores (A-C grades) for businesses and properties when users hover over listings on Google Maps, LoopNet, and BizBuySell websites.
+158/1,000158 of 1000 characters entered
+Permission justification
+A permission is either one of a list of known strings, such as "activeTab", or a match pattern giving access to one or more hosts.
+Remove any permission that is not needed to fulfill the single purpose of your extension. Requesting an unnecessary permission will result in this version being rejected.
+
+Due to the Host Permission, your extension may require an in-depth review which will delay publishing.
+
+activeTab justification
+Required to detect when the user is on a supported website (Google Maps, LoopNet, BizBuySell) and inject the CLEANBI score overlay when they hover over business or property listings.
+182/1,000182 of 1000 characters entered
+storage justification
+Used to cache CLEANBI scores locally so the extension doesn't need to re-fetch scores for addresses the user has already viewed. This improves performance and reduces API calls.
+177/1,000177 of 1000 characters entered
+Host permission justification
+The extension needs access to Google Maps (google.com/maps), LoopNet (loopnet.com), and BizBuySell (bizbuysell.com) to inject content scripts that detect business/property listings and display CLEANBI score overlays when users hover over them. Access to washbizhub.com/api is required to fetch the CLEANBI scores from our server.
+329/1,000329 of 1000 characters entered
+A host permission is any match pattern specified in the "permissions" and "content_scripts" fields of the extension manifest
+Are you using remote code?
+No, I am not using Remote code
+Yes, I am using Remote code
+Justification
+0/1,0000 of 1000 characters entered
+Remote code is any JS or Wasm that is not included in the extension's package. This includes references to external files in <script> tags, modules pointing to external files, and strings evaluated through eval()
+Data usage
+The content of this form will be displayed publicly on the item detail page. By publishing your item, you are certifying that these disclosures reflect the most up-to-date content of your privacy policy.
+
+What user data do you plan to collect from users now or in the future? (See FAQ for more information)
+
+Personally identifiable information
+For example: name, address, email address, age, or identification number
+
+Health information
+For example: heart rate data, medical history, symptoms, diagnoses, or procedures
+
+Financial and payment information
+For example: transactions, credit card numbers, credit ratings, financial statements, or payment history
+
+Authentication information
+For example: passwords, credentials, security question, or personal identification number (PIN)
+
+Personal communications
+For example: emails, texts, or chat messages
+
+Location
+For example: region, IP address, GPS coordinates, or information about things near the user’s device
+
+Web history
+The list of web pages a user has visited, as well as associated data such as page title and time of visit
+
+User activity
+For example: network monitoring, clicks, mouse position, scroll, or keystroke logging
+
+Website content
+For example: text, images, sounds, videos, or hyperlinks
+I certify that the following disclosures are true:
+
+I do not sell or transfer user data to third parties, outside of the approved use cases
+
+I do not use or transfer user data for purposes that are unrelated to my item's single purpose
+
+I do not use or transfer user data to determine creditworthiness or for lending purposes
+You must certify all three disclosures to comply with our Developer Program Policies
+Privacy policy
+An extension must have a privacy policy if it collects user data. Learn more
+
+Privacy policy URL*
+https://washbizhub.com/privacy
+30/2,04830 of 2048 characters entered
