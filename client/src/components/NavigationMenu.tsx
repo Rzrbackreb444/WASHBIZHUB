@@ -55,8 +55,6 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 
 const MAIN_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/pos-system", label: "POS System" },
-  { href: "/forum", label: "Forum" },
   { href: "/blog", label: "Blog" },
   { href: "/resources", label: "Resources" },
 ];
@@ -76,18 +74,12 @@ const BUY_BROWSE_LINKS = [
 
 const TOOLS_LINKS = [
   { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3, description: "AI-powered location analysis" },
-  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "3D laundromat designer" },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Wrench, description: "Equipment troubleshooting" },
-  { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Cpu, description: "Machine health analysis" },
   { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Business valuation tool" },
-  { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, description: "Investment returns analysis" },
-  { href: "/calculators", label: "All 50+ Calculators", icon: Calculator, description: "Complete calculator suite" },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Wrench, description: "Equipment troubleshooting" },
 ];
 
 const EDUCATION_LINKS = [
-  { href: "/learning", label: "Premium Courses", icon: GraduationCap, description: "Expert-led training programs" },
   { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide" },
-  { href: "/templates", label: "Templates & Guides", icon: FileText, description: "Ready-to-use business documents" },
   { href: "/resources", label: "Resource Hub", icon: Library, description: "Articles, guides & downloads" },
 ];
 

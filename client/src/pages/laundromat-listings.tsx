@@ -189,23 +189,6 @@ export default function LaundromatListings() {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  {/* CLEANBI Score */}
-                  <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs text-muted-foreground">CLEANBI Score</p>
-                      <Zap className="w-3 h-3 text-yellow-500" />
-                    </div>
-                    <div className="text-2xl font-bold">{listing.cleanbiScore}/100</div>
-                    {listing.cleanbiFactors && (
-                      <div className="mt-3 grid grid-cols-2 gap-1 text-xs">
-                        <div>Market: {listing.cleanbiFactors.market}</div>
-                        <div>Financial: {listing.cleanbiFactors.financial}</div>
-                        <div>Lease: {listing.cleanbiFactors.lease}</div>
-                        <div>Equipment: {listing.cleanbiFactors.equipment}</div>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Financial Stats */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-2 bg-muted rounded">
