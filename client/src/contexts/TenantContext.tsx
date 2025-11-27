@@ -30,6 +30,7 @@ interface TenantContextType {
   isLoading: boolean;
   isStrokeRecoveryAcademy: boolean;
   isWashBizHub: boolean;
+  isHawgWash: boolean;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
@@ -43,6 +44,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
   const isStrokeRecoveryAcademy = tenant?.slug === "strokerecoveryacademy";
   const isWashBizHub = tenant?.slug === "washbizhub";
+  const isHawgWash = tenant?.slug === "hawgwash";
 
   useEffect(() => {
     const root = document.documentElement;
@@ -67,6 +69,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         isLoading,
         isStrokeRecoveryAcademy,
         isWashBizHub,
+        isHawgWash,
       }}
     >
       {children}
