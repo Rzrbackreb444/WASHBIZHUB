@@ -161,7 +161,7 @@ export default function CalculatorsHub() {
         </div>
 
         {/* Dashboard Header with Stats */}
-        <section className="bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-b">
+        <section className="bg-background border-b">
           <div className="mx-auto max-w-7xl px-6 py-8">
             {/* Top Stats Row */}
             <DashboardGrid cols={4}>
@@ -204,7 +204,7 @@ export default function CalculatorsHub() {
                   placeholder="Search calculators by name or function..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-lg bg-card/50 backdrop-blur border-white/10"
+                  className="pl-12 h-14 text-lg bg-card border"
                   data-testid="input-search-calculators"
                 />
               </div>
@@ -423,23 +423,23 @@ export default function CalculatorsHub() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="bg-gradient-to-r from-purple-900/50 via-pink-900/30 to-purple-900/50 py-16 border-t">
+        <section className="bg-muted/30 py-16 border-t">
           <div className="mx-auto max-w-4xl px-6 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
               Need Custom Analysis?
             </h2>
-            <p className="text-lg text-white/70 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Our AI consultant can provide personalized recommendations for your specific laundromat situation.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/consultation">
-                <Button size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                <Button size="lg">
                   <Zap className="w-4 h-4 mr-2" />
                   Talk to AI Consultant
                 </Button>
               </Link>
               <Link href="/cleanbi-auto">
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                <Button size="lg" variant="outline">
                   <Target className="w-4 h-4 mr-2" />
                   Try CLEANBI Score
                 </Button>

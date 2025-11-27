@@ -267,15 +267,15 @@ export default function Templates() {
       </div>
 
       {/* Dashboard Header with Stats */}
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-b">
+      <div className="bg-background border-b">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-purple-500/20 rounded-xl">
-              <FileText className="w-8 h-8 text-purple-400" />
+            <div className="p-3 bg-primary/10 rounded-xl">
+              <FileText className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Business Templates</h1>
-              <p className="text-purple-200">Professional documents to run your laundromat efficiently</p>
+              <h1 className="text-3xl font-bold text-foreground">Business Templates</h1>
+              <p className="text-muted-foreground">Professional documents to run your laundromat efficiently</p>
             </div>
           </div>
 

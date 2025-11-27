@@ -148,15 +148,15 @@ export default function Courses() {
         </div>
 
         {/* Dashboard Header */}
-        <section className="bg-gradient-to-br from-slate-900 via-blue-900/30 to-slate-900 border-b">
+        <section className="bg-primary/5 border-b">
           <div className="mx-auto max-w-7xl px-6 py-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-blue-500/20 rounded-xl">
-                <GraduationCap className="w-8 h-8 text-blue-400" />
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <GraduationCap className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">WashBizHub Academy</h1>
-                <p className="text-blue-200">Master laundromat operations with expert-led courses</p>
+                <h1 className="text-3xl font-bold text-foreground">WashBizHub Academy</h1>
+                <p className="text-muted-foreground">Master laundromat operations with expert-led courses</p>
               </div>
             </div>
 
@@ -551,13 +551,13 @@ export default function Courses() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="bg-gradient-to-r from-blue-900/50 via-purple-900/30 to-blue-900/50 py-16 border-t">
+        <section className="bg-muted/50 py-16 border-t">
           <div className="mx-auto max-w-4xl px-6 text-center">
-            <Award className="w-16 h-16 mx-auto mb-4 text-amber-400" />
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <Award className="w-16 h-16 mx-auto mb-4 text-amber-500" />
+            <h2 className="text-3xl font-bold text-foreground mb-4">
               Become a Certified Laundromat Professional
             </h2>
-            <p className="text-lg text-white/70 mb-8">
+            <p className="text-lg text-muted-foreground mb-8">
               Complete our flagship program and earn your industry certification.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -565,7 +565,7 @@ export default function Courses() {
                 <GraduationCap className="w-4 h-4 mr-2" />
                 View Certification Program
               </Button>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Button size="lg" variant="outline">
                 <FileText className="w-4 h-4 mr-2" />
                 Download Catalog
               </Button>
