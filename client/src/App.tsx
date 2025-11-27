@@ -125,6 +125,7 @@ import BrokerDashboard from "@/pages/broker-dashboard";
 import Forum from "@/pages/forum";
 import ForumCategory from "@/pages/forum-category";
 import ForumTopic from "@/pages/forum-topic";
+import ForumNewTopic from "@/pages/forum-new-topic";
 import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
 import RepairGuide from "@/pages/repair-guide";
@@ -263,6 +264,7 @@ function Router() {
       <Route path="/affiliate" component={AffiliateDashboard} />
       <Route path="/broker" component={BrokerDashboard} />
       <Route path="/forum" component={Forum} />
+      <Route path="/forum/new" component={ForumNewTopic} />
       <Route path="/forum/category/:slug" component={ForumCategory} />
       <Route path="/forum/topic/:slug" component={ForumTopic} />
       <Route path="/settings" component={Settings} />
