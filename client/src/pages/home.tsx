@@ -9,7 +9,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { FeaturedListings } from "@/components/FeaturedListings";
 import { 
   BookOpen, Phone, DollarSign, Building2, ArrowRight, 
-  Calculator, Bot, Store, Wrench, Globe, Chrome
+  Calculator, Bot, Store, Wrench, Globe, Chrome, Zap, BarChart3
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import dexterLaundromat from "@assets/Dexter Laundromat_1763779877618.jpg";
