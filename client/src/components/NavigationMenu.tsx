@@ -42,6 +42,11 @@ import {
   Library,
   Building2,
   Phone,
+  Package,
+  Search,
+  Plus,
+  Tag,
+  MessageSquare,
 } from "lucide-react";
 import { SiFacebook } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -51,10 +56,22 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const MAIN_LINKS = [
   { href: "/", label: "Home" },
   { href: "/pos-system", label: "POS System" },
-  { href: "/marketplace", label: "Marketplace" },
-  { href: "/laundromat-listings", label: "Listings" },
+  { href: "/forum", label: "Forum" },
   { href: "/blog", label: "Blog" },
   { href: "/resources", label: "Resources" },
+];
+
+const SELL_LIST_LINKS = [
+  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true },
+  { href: "/list-equipment", label: "List Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
+  { href: "/list-supplies", label: "List Supplies", icon: Package, description: "Sell detergents, chemicals & products" },
+  { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us as a supplier" },
+];
+
+const BUY_BROWSE_LINKS = [
+  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses to buy" },
+  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Wrench, description: "Shop washers, dryers & parts" },
+  { href: "/marketplace", label: "Supplies & Products", icon: ShoppingBag, description: "Shop detergents & accessories" },
 ];
 
 const TOOLS_LINKS = [
@@ -75,11 +92,8 @@ const EDUCATION_LINKS = [
 ];
 
 const ACTION_LINKS = [
-  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your business" },
-  { href: "/equipment-marketplace", label: "Sell Equipment", icon: ShoppingBag, description: "List equipment for sale" },
-  { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us" },
-  { href: "/startup-funding", label: "Get Funding", icon: DollarSign, highlight: true, description: "Access capital" },
-  { href: "/consultation", label: "Book Consultation", icon: Phone, description: "Expert guidance" },
+  { href: "/startup-funding", label: "Get Funding", icon: DollarSign, highlight: true, description: "Access capital for your business" },
+  { href: "/consultation", label: "Book Consultation", icon: Phone, description: "Expert guidance & advice" },
 ];
 
 export function NavigationMenu() {
@@ -125,6 +139,85 @@ export function NavigationMenu() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
+
+              {/* Sell/List Dropdown */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger 
+                  className="h-9"
+                  data-testid="dropdown-sell-list"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Sell/List
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[350px] gap-2 p-4">
+                    {SELL_LIST_LINKS.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <li key={link.href}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href={link.href}
+                              className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
+                                link.highlight ? "bg-primary/5 border border-primary/20" : ""
+                              }`}
+                              data-testid={`link-sell-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                            >
+                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                <Icon className="w-4 h-4 text-primary" />
+                                {link.label}
+                                {link.highlight && (
+                                  <Badge variant="secondary" className="ml-1 text-xs">FREE</Badge>
+                                )}
+                              </div>
+                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                                {link.description}
+                              </p>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {/* Buy/Browse Dropdown */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger 
+                  className="h-9"
+                  data-testid="dropdown-buy-browse"
+                >
+                  <Search className="w-4 h-4 mr-1" />
+                  Buy/Browse
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[350px] gap-2 p-4">
+                    {BUY_BROWSE_LINKS.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <li key={link.href}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href={link.href}
+                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              data-testid={`link-buy-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                            >
+                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                <Icon className="w-4 h-4 text-primary" />
+                                {link.label}
+                              </div>
+                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                                {link.description}
+                              </p>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
 
               {/* Tools Dropdown */}
               <NavigationMenuItem>
@@ -304,7 +397,92 @@ export function NavigationMenu() {
                   </div>
                 </a>
 
-                <Accordion type="multiple" className="w-full" defaultValue={["navigation", "get-started"]}>
+                <Accordion type="multiple" className="w-full" defaultValue={["sell-list", "buy-browse"]}>
+                  {/* Sell/List Section */}
+                  <AccordionItem value="sell-list" className="border-none">
+                    <AccordionTrigger 
+                      className="font-bold text-lg text-primary hover:no-underline py-3"
+                      data-testid="accordion-sell-list"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Plus className="w-5 h-5" />
+                        Sell / List
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-1 pl-2">
+                        {SELL_LIST_LINKS.map((link) => {
+                          const Icon = link.icon;
+                          return (
+                            <Link key={link.href} href={link.href}>
+                              <div
+                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                                  link.highlight
+                                    ? "bg-primary/10 border border-primary/20"
+                                    : isActive(link.href)
+                                    ? "bg-accent text-accent-foreground font-semibold"
+                                    : "hover:bg-muted"
+                                }`}
+                                onClick={() => setMobileOpen(false)}
+                                data-testid={`link-mobile-sell-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <Icon className="w-5 h-5 text-primary" />
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{link.label}</span>
+                                    {link.highlight && (
+                                      <Badge variant="secondary" className="text-xs">FREE</Badge>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">{link.description}</span>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Buy/Browse Section */}
+                  <AccordionItem value="buy-browse" className="border-none">
+                    <AccordionTrigger 
+                      className="font-bold text-lg text-primary hover:no-underline py-3"
+                      data-testid="accordion-buy-browse"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Search className="w-5 h-5" />
+                        Buy / Browse
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-1 pl-2">
+                        {BUY_BROWSE_LINKS.map((link) => {
+                          const Icon = link.icon;
+                          return (
+                            <Link key={link.href} href={link.href}>
+                              <div
+                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                                  isActive(link.href)
+                                    ? "bg-accent text-accent-foreground font-semibold"
+                                    : "hover:bg-muted"
+                                }`}
+                                onClick={() => setMobileOpen(false)}
+                                data-testid={`link-mobile-buy-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <Icon className="w-5 h-5 text-primary" />
+                                <div>
+                                  <span className="block font-medium">{link.label}</span>
+                                  <span className="text-xs text-muted-foreground">{link.description}</span>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
                   {/* Navigation Section */}
                   <AccordionItem value="navigation" className="border-none">
                     <AccordionTrigger 
