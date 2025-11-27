@@ -310,7 +310,9 @@ function Router() {
       <Route path="/affiliate-blogs" component={AffiliateBlogsPage} />
       <Route path="/consultation-landing" component={ConsultationLanding} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/terms" component={TermsOfService} />
       <Route path="/sra" component={SRAHome} />
       <Route path="/sra/pricing" component={SRAPricing} />
       <Route path="/sra/tracker" component={SRATracker} />
