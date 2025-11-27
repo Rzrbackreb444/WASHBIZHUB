@@ -628,12 +628,8 @@ export default function ServiceGuyAI() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button size="lg" className="gap-2">
-                <Phone className="w-5 h-5" />
-                Call: 479-883-4314
-              </Button>
-              <Button size="lg" variant="outline" className="gap-2">
                 <Mail className="w-5 h-5" />
-                nick@washbizhub.com
+                consult@washbizhub.com
               </Button>
             </div>
           </CardContent>

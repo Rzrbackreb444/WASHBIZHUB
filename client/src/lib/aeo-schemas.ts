@@ -192,7 +192,6 @@ export function generateOrganizationSchema() {
       "@type": "ContactPoint",
       "contactType": "Customer Service",
       "email": "support@washbizhub.com",
-      "telephone": "+1-479-883-4314",
       "areaServed": "Worldwide",
       "availableLanguage": ["English"]
     },

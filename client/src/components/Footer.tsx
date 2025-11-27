@@ -7,8 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/6_1764040628012.png";
 import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
-const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "479-883-4314";
-const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14798834314";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 const trustBadges = [
@@ -41,47 +39,6 @@ export function Footer() {
     <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]" data-testid="footer-main">
       <div className="max-w-7xl mx-auto px-4">
         
-        {/* Prominent Contact Section for SEO/AEO */}
-        <div className="mb-12 pb-8 border-b border-white/10 text-center">
-          <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-4" data-testid="text-contact-heading">
-            Contact WashBizHub
-          </h3>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <a
-              href={`tel:+${CONTACT_PHONE_DIGITS}`}
-              className="flex items-center gap-3 bg-accent/20 hover:bg-accent/30 text-white px-6 py-3 rounded-xl transition-colors border border-accent/40"
-              data-testid="link-footer-phone-main"
-              aria-label="Call WashBizHub"
-            >
-              <Phone className="h-5 w-5 text-accent" />
-              <span className="text-xl font-bold text-white">{CONTACT_PHONE}</span>
-            </a>
-            <a
-              href={`https://wa.me/${CONTACT_PHONE_DIGITS}?text=Hi%2C%20I%27m%20interested%20in%20WashBizHub`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl transition-colors font-semibold"
-              data-testid="link-footer-whatsapp-main"
-              aria-label="WhatsApp WashBizHub"
-            >
-              <MessageCircle className="h-5 w-5" />
-              WhatsApp
-            </a>
-            <a
-              href={`sms:+${CONTACT_PHONE_DIGITS}`}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-colors font-semibold"
-              data-testid="link-footer-sms-main"
-              aria-label="Text WashBizHub"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Text Us
-            </a>
-          </div>
-          <p className="text-white/50 text-sm">
-            Available Mon-Sat 9AM-6PM CT | Quick response via WhatsApp or SMS
-          </p>
-        </div>
-
         {/* Enterprise Trust Badges Section */}
         <div className="mb-12 pb-8 border-b border-white/10">
           <div className="text-center mb-6">
@@ -174,26 +131,8 @@ export function Footer() {
               Contact Us
             </h3>
             
-            {/* Contact Buttons - WhatsApp, SMS, Email */}
+            {/* Contact - Email Only */}
             <div className="space-y-3 mb-6">
-              <a
-                href={`https://wa.me/${CONTACT_PHONE_DIGITS}?text=Hi%2C%20I%27m%20interested%20in%20learning%20more%20about%20WashBizHub`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center"
-                data-testid="link-footer-whatsapp"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span className="font-semibold">WhatsApp</span>
-              </a>
-              <a
-                href={`sms:+${CONTACT_PHONE_DIGITS}`}
-                className="flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center border border-primary/30"
-                data-testid="link-footer-sms"
-              >
-                <Phone className="h-4 w-4" />
-                <span className="font-semibold">SMS</span>
-              </a>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
                 className="flex items-center gap-2 bg-accent/20 hover:bg-accent/30 text-white px-4 py-2 rounded-lg transition-colors w-full justify-center border border-accent/30"
