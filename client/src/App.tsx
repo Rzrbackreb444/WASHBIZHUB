@@ -29,9 +29,8 @@ const organizationSchema = {
   ],
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+1-479-883-4314",
     "contactType": "customer service",
-    "email": "nick@washbizhub.com",
+    "email": "consult@washbizhub.com",
     "availableLanguage": ["English"]
   },
   "offers": {

@@ -67,7 +67,7 @@ export default function Home() {
     "description": "The #1 laundromat resource and educational hub serving 72,000+ industry professionals worldwide with CLEANBI universal scoring, AI-powered business intelligence, marketplace, courses, and professional tools.",
     "foundingDate": "2024",
     "sameAs": ["https://www.facebook.com/washbizhub1", "https://twitter.com/washbizhub", "https://www.linkedin.com/company/washbizhub"],
-    "contactPoint": { "@type": "ContactPoint", "contactType": "Customer Service", "email": "support@washbizhub.com", "telephone": "+1-479-883-4314", "areaServed": "Worldwide" }
+    "contactPoint": { "@type": "ContactPoint", "contactType": "Customer Service", "email": "support@washbizhub.com", "areaServed": "Worldwide" }
   };
 
   const faqSchema = {

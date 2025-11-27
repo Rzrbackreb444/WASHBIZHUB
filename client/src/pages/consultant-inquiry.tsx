@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Send, Phone, Mail } from 'lucide-react';
+import { MessageSquare, Send, Mail } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -104,10 +104,6 @@ export default function ConsultantInquiry() {
             </div>
             <p className="text-blue-200 mb-4">Connect with laundromat consultants for personalized guidance</p>
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span>1-479-883-4314</span>
-              </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 <span>consult@washbizhub.com</span>
@@ -346,7 +342,7 @@ export default function ConsultantInquiry() {
 
           {/* Info */}
           <div className="mt-12 text-center text-muted-foreground">
-            <p>Prefer to call? Reach us at <strong>1-479-883-4314</strong></p>
+            <p>Email us at <strong>consult@washbizhub.com</strong></p>
             <p className="mt-2">Response time: Usually within 24 hours</p>
           </div>
         </div>

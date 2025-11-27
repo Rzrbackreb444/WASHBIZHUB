@@ -917,7 +917,7 @@ export default function POSCommandCenter() {
         ],
         "contactPoint": {
           "@type": "ContactPoint",
-          "telephone": "+1-479-883-4314",
+          "email": "support@washbizhub.com",
           "contactType": "customer service",
           "availableLanguage": ["English"]
         }
@@ -1144,11 +1144,11 @@ export default function POSCommandCenter() {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-[#0f1419] text-white flex">
+      <div className="min-h-screen bg-background text-foreground flex">
         {/* Left Sidebar Navigation */}
-        <aside className="w-16 bg-[#1e3a5f] flex flex-col items-center py-4 gap-2 border-r border-[#2a4a6f]">
+        <aside className="w-16 bg-[#1e3a5f] flex flex-col items-center py-4 gap-2 border-r border">
           <div 
-            className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center mb-4 cursor-pointer overflow-hidden hover:ring-2 hover:ring-white/30 transition-all"
+            className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center mb-4 cursor-pointer overflow-hidden hover:ring-2 hover:ring-border transition-all"
             onClick={() => setActiveSection("settings")}
             title="Business Logo - Click to open Settings"
             data-testid="header-logo"
@@ -1178,7 +1178,7 @@ export default function POSCommandCenter() {
               className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
                 activeSection === item.id 
                   ? "bg-[#b8860b] text-white" 
-                  : "text-white/60 hover:bg-white/10 hover:text-white"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
               }`}
               title={item.label}
               data-testid={`nav-${item.id}`}
@@ -1191,9 +1191,9 @@ export default function POSCommandCenter() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Header Bar */}
-          <header className="h-14 bg-[#1a2633] border-b border-[#2a4a6f] flex items-center justify-between px-4">
+          <header className="h-14 bg-card border-b border flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-lg font-bold text-white">POS Command Center</h1>
+              <h1 className="text-lg font-bold text-foreground">POS Command Center</h1>
               <Badge className="bg-[#b8860b] text-white border-0">
                 <Activity className="w-3 h-3 mr-1" />
                 LIVE
@@ -1202,12 +1202,12 @@ export default function POSCommandCenter() {
             
             <div className="flex items-center gap-3">
               <div className="text-right mr-4">
-                <p className="text-xs text-white/60">Last Update</p>
+                <p className="text-xs text-muted-foreground">Last Update</p>
                 <p className="text-sm font-medium text-[#b8860b]">{new Date().toLocaleTimeString()}</p>
               </div>
               
               <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="w-32 bg-[#0f1419] border-[#2a4a6f] text-white text-sm h-9" data-testid="select-timeframe">
+                <SelectTrigger className="w-32 bg-background border text-foreground text-sm h-9" data-testid="select-timeframe">
                   <Calendar className="w-4 h-4 mr-2 text-[#b8860b]" />
                   <SelectValue />
                 </SelectTrigger>
@@ -1219,7 +1219,7 @@ export default function POSCommandCenter() {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm" className="border-[#2a4a6f] text-white h-9" data-testid="button-refresh">
+              <Button variant="outline" size="sm" className="border text-foreground h-9" data-testid="button-refresh">
                 <RefreshCw className="w-4 h-4" />
               </Button>
               
@@ -1231,18 +1231,18 @@ export default function POSCommandCenter() {
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-auto p-4 bg-[#0f1419]">
+          <main className="flex-1 overflow-auto p-4 bg-background">
             {activeSection === "dashboard" && (
               <div className="space-y-4">
                 {/* Top KPI Row - Large Numbers Like Reference Images */}
                 <div className="grid grid-cols-6 gap-3">
                   {/* Total Revenue */}
-                  <div className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-primary to-primary/90 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
                         <DollarSign className="w-4 h-4 text-[#b8860b]" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Revenue</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Revenue</span>
                     </div>
                     <p className="text-3xl font-black text-[#b8860b]" data-testid="kpi-revenue">${dashboardStats.today?.revenue}</p>
                     <div className="flex items-center gap-1 mt-1">
@@ -1252,28 +1252,28 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Total Orders */}
-                  <div className="bg-gradient-to-br from-[#1a2633] to-[#0f1419] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
                         <ShoppingCart className="w-4 h-4 text-blue-400" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Orders</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Orders</span>
                     </div>
-                    <p className="text-3xl font-black text-white" data-testid="kpi-orders">{dashboardStats.today?.orders}</p>
+                    <p className="text-3xl font-black text-foreground" data-testid="kpi-orders">{dashboardStats.today?.orders}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge className="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0">{dashboardStats.today?.pending} pending</Badge>
                     </div>
                   </div>
 
                   {/* Avg Ticket */}
-                  <div className="bg-gradient-to-br from-[#1a2633] to-[#0f1419] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                         <Receipt className="w-4 h-4 text-purple-400" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Avg Ticket</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Avg Ticket</span>
                     </div>
-                    <p className="text-3xl font-black text-white">${dashboardStats.today?.avgTicket}</p>
+                    <p className="text-3xl font-black text-foreground">${dashboardStats.today?.avgTicket}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <ArrowUp className="w-3 h-3 text-green-400" />
                       <span className="text-xs text-green-400">+3.2%</span>
@@ -1281,28 +1281,28 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Customers */}
-                  <div className="bg-gradient-to-br from-[#1a2633] to-[#0f1419] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                         <Users className="w-4 h-4 text-emerald-400" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Customers</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Customers</span>
                     </div>
-                    <p className="text-3xl font-black text-white" data-testid="kpi-customers">{dashboardStats.customers?.active}</p>
+                    <p className="text-3xl font-black text-foreground" data-testid="kpi-customers">{dashboardStats.customers?.active}</p>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs text-white/40">+{dashboardStats.customers?.new} new</span>
+                      <span className="text-xs text-muted-foreground/70">+{dashboardStats.customers?.new} new</span>
                     </div>
                   </div>
 
                   {/* Machine Uptime */}
-                  <div className="bg-gradient-to-br from-[#1a2633] to-[#0f1419] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
                         <Wrench className="w-4 h-4 text-cyan-400" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Machines</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Machines</span>
                     </div>
-                    <p className="text-3xl font-black text-white">{dashboardStats.machines?.operational}/{dashboardStats.machines?.total}</p>
+                    <p className="text-3xl font-black text-foreground">{dashboardStats.machines?.operational}/{dashboardStats.machines?.total}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {dashboardStats.machines?.needsAttention > 0 && (
                         <Badge className="bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0">
@@ -1313,14 +1313,14 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Retention Rate */}
-                  <div className="bg-gradient-to-br from-[#1a2633] to-[#0f1419] rounded-lg p-4 border border-[#2a4a6f]">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
                         <Target className="w-4 h-4 text-pink-400" />
                       </div>
-                      <span className="text-xs text-white/60 uppercase tracking-wide">Retention</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Retention</span>
                     </div>
-                    <p className="text-3xl font-black text-white">{dashboardStats.customers?.retention}%</p>
+                    <p className="text-3xl font-black text-foreground">{dashboardStats.customers?.retention}%</p>
                     <div className="flex items-center gap-1 mt-1">
                       <ArrowDown className="w-3 h-3 text-red-400" />
                       <span className="text-xs text-red-400">-1.2%</span>
@@ -1331,40 +1331,41 @@ export default function POSCommandCenter() {
                 {/* Main Charts Row */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Revenue Chart - Spans 8 columns */}
-                  <div className="col-span-8 bg-[#1a2633] rounded-lg border border-[#2a4a6f] p-4">
+                  <div className="col-span-8 bg-card rounded-lg border p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-sm font-bold text-white">Revenue vs Target</h3>
-                        <p className="text-xs text-white/50">Daily performance comparison</p>
+                        <h3 className="text-sm font-bold text-foreground">Revenue vs Target</h3>
+                        <p className="text-xs text-muted-foreground">Daily performance comparison</p>
                       </div>
                       <div className="flex items-center gap-4 text-xs">
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-3 rounded bg-[#b8860b]"></div>
-                          <span className="text-white/60">Revenue</span>
+                          <span className="text-muted-foreground">Revenue</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-3 rounded bg-[#1e3a5f]"></div>
-                          <span className="text-white/60">Target</span>
+                          <span className="text-muted-foreground">Target</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-1 bg-emerald-400"></div>
-                          <span className="text-white/60">Orders</span>
+                          <span className="text-muted-foreground">Orders</span>
                         </div>
                       </div>
                     </div>
                     <div className="h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={revenueChartData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                          <XAxis dataKey="day" stroke="rgba(255,255,255,0.3)" fontSize={11} />
-                          <YAxis yAxisId="left" stroke="rgba(255,255,255,0.3)" fontSize={11} />
-                          <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.3)" fontSize={11} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                          <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                          <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                          <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                           <Tooltip
                             contentStyle={{
-                              backgroundColor: "#1a2633",
-                              border: "1px solid #2a4a6f",
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
                               borderRadius: "8px",
                               fontSize: "12px",
+                              color: "hsl(var(--foreground))",
                             }}
                           />
                           <Bar yAxisId="left" dataKey="revenue" fill="#b8860b" radius={[4, 4, 0, 0]} />
@@ -1376,8 +1377,8 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Order Types Donut + Stats - Spans 4 columns */}
-                  <div className="col-span-4 bg-[#1a2633] rounded-lg border border-[#2a4a6f] p-4">
-                    <h3 className="text-sm font-bold text-white mb-3">Order Distribution</h3>
+                  <div className="col-span-4 bg-card rounded-lg border p-4">
+                    <h3 className="text-sm font-bold text-foreground mb-3">Order Distribution</h3>
                     <div className="flex">
                       <div className="w-1/2 h-[180px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -1404,9 +1405,9 @@ export default function POSCommandCenter() {
                           <div key={type.name} className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: type.fill }}></div>
-                              <span className="text-xs text-white/70">{type.name}</span>
+                              <span className="text-xs text-muted-foreground">{type.name}</span>
                             </div>
-                            <span className="text-xs font-bold text-white">{type.value}%</span>
+                            <span className="text-xs font-bold text-foreground">{type.value}%</span>
                           </div>
                         ))}
                       </div>
@@ -1417,9 +1418,9 @@ export default function POSCommandCenter() {
                 {/* Second Row - Orders Table + Machine Status + Top Customers */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Live Orders Table */}
-                  <div className="col-span-5 bg-[#1a2633] rounded-lg border border-[#2a4a6f]">
-                    <div className="flex items-center justify-between p-3 border-b border-[#2a4a6f]">
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="col-span-5 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-3 border-b border">
+                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                         <ShoppingCart className="w-4 h-4 text-[#b8860b]" />
                         Live Orders
                       </h3>
@@ -1429,26 +1430,26 @@ export default function POSCommandCenter() {
                     </div>
                     <ScrollArea className="h-[240px]">
                       <table className="w-full text-xs">
-                        <thead className="bg-[#0f1419] sticky top-0">
+                        <thead className="bg-background sticky top-0">
                           <tr>
-                            <th className="text-left p-2 text-white/50 font-medium">Order</th>
-                            <th className="text-left p-2 text-white/50 font-medium">Customer</th>
-                            <th className="text-left p-2 text-white/50 font-medium">Type</th>
-                            <th className="text-right p-2 text-white/50 font-medium">Amount</th>
-                            <th className="text-center p-2 text-white/50 font-medium">Status</th>
+                            <th className="text-left p-2 text-muted-foreground font-medium">Order</th>
+                            <th className="text-left p-2 text-muted-foreground font-medium">Customer</th>
+                            <th className="text-left p-2 text-muted-foreground font-medium">Type</th>
+                            <th className="text-right p-2 text-muted-foreground font-medium">Amount</th>
+                            <th className="text-center p-2 text-muted-foreground font-medium">Status</th>
                           </tr>
                         </thead>
                         <tbody>
                           {orders.map((order, idx) => (
                             <tr 
                               key={order.id} 
-                              className={`border-b border-[#2a4a6f]/50 hover:bg-white/5 cursor-pointer ${idx % 2 === 0 ? 'bg-[#1a2633]' : 'bg-[#151f29]'}`}
+                              className={`border-b border-border/50 hover:bg-muted/30 cursor-pointer ${idx % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
                               data-testid={`order-row-${order.id}`}
                             >
-                              <td className="p-2 font-mono text-white/80">{order.transactionNumber}</td>
-                              <td className="p-2 text-white">{order.customerName}</td>
+                              <td className="p-2 font-mono text-foreground/80">{order.transactionNumber}</td>
+                              <td className="p-2 text-foreground">{order.customerName}</td>
                               <td className="p-2">
-                                <div className="flex items-center gap-1 text-white/60">
+                                <div className="flex items-center gap-1 text-muted-foreground">
                                   {getOrderTypeIcon(order.orderType)}
                                 </div>
                               </td>
@@ -1466,24 +1467,24 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Machine Status Grid */}
-                  <div className="col-span-4 bg-[#1a2633] rounded-lg border border-[#2a4a6f]">
-                    <div className="flex items-center justify-between p-3 border-b border-[#2a4a6f]">
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="col-span-4 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-3 border-b border">
+                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-[#b8860b]" />
                         Machine Status
                       </h3>
                       <div className="flex items-center gap-2 text-[10px]">
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                          <span className="text-white/50">OK</span>
+                          <span className="text-muted-foreground">OK</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                          <span className="text-white/50">Maint</span>
+                          <span className="text-muted-foreground">Maint</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          <span className="text-white/50">Down</span>
+                          <span className="text-muted-foreground">Down</span>
                         </div>
                       </div>
                     </div>
@@ -1500,7 +1501,7 @@ export default function POSCommandCenter() {
                             data-testid={`machine-card-${machine.id}`}
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-white">{machine.name}</span>
+                              <span className="text-xs font-medium text-foreground">{machine.name}</span>
                               <div className={`w-2 h-2 rounded-full ${
                                 machine.status === 'operational' ? 'bg-green-500' :
                                 machine.status === 'needs_maintenance' ? 'bg-amber-500' :
@@ -1508,10 +1509,10 @@ export default function POSCommandCenter() {
                               }`}></div>
                             </div>
                             <div className="flex items-center justify-between text-[10px]">
-                              <span className="text-white/50">{machine.cycles} cycles</span>
+                              <span className="text-muted-foreground">{machine.cycles} cycles</span>
                               <span className="text-[#b8860b] font-medium">{machine.revenue}</span>
                             </div>
-                            <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div className="mt-1 h-1 bg-muted/50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${
                                   machine.uptime >= 95 ? 'bg-green-500' :
@@ -1528,9 +1529,9 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Top Customers */}
-                  <div className="col-span-3 bg-[#1a2633] rounded-lg border border-[#2a4a6f]">
-                    <div className="flex items-center justify-between p-3 border-b border-[#2a4a6f]">
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="col-span-3 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-3 border-b border">
+                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                         <Users className="w-4 h-4 text-[#b8860b]" />
                         Top Customers
                       </h3>
@@ -1540,19 +1541,19 @@ export default function POSCommandCenter() {
                         {topCustomers.map((customer, idx) => (
                           <div 
                             key={customer.name}
-                            className="flex items-center gap-2 p-2 rounded hover:bg-white/5 cursor-pointer"
+                            className="flex items-center gap-2 p-2 rounded hover:bg-muted/30 cursor-pointer"
                             data-testid={`customer-row-${idx}`}
                           >
                             <div className="w-6 h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center text-[10px] font-bold text-white">
                               {idx + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-white truncate">{customer.name}</p>
-                              <p className="text-[10px] text-white/40">{customer.orders} orders</p>
+                              <p className="text-xs font-medium text-foreground truncate">{customer.name}</p>
+                              <p className="text-[10px] text-muted-foreground/70">{customer.orders} orders</p>
                             </div>
                             <div className="text-right">
                               <p className="text-xs font-bold text-[#b8860b]">{customer.revenue}</p>
-                              <p className="text-[10px] text-white/40">{customer.lastVisit}</p>
+                              <p className="text-[10px] text-muted-foreground/70">{customer.lastVisit}</p>
                             </div>
                           </div>
                         ))}
@@ -1564,11 +1565,11 @@ export default function POSCommandCenter() {
                 {/* Third Row - Hourly Trend + Service Breakdown */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Hourly Orders Trend */}
-                  <div className="col-span-8 bg-[#1a2633] rounded-lg border border-[#2a4a6f] p-4">
+                  <div className="col-span-8 bg-card rounded-lg border p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-sm font-bold text-white">Hourly Orders Trend</h3>
-                        <p className="text-xs text-white/50">Orders and revenue by hour today</p>
+                        <h3 className="text-sm font-bold text-foreground">Hourly Orders Trend</h3>
+                        <p className="text-xs text-muted-foreground">Orders and revenue by hour today</p>
                       </div>
                     </div>
                     <div className="h-[160px]">
@@ -1581,22 +1582,23 @@ export default function POSCommandCenter() {
                                 <stop offset="95%" stopColor="#b8860b" stopOpacity={0} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                            <XAxis dataKey="day" stroke="rgba(255,255,255,0.3)" fontSize={10} />
-                            <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                            <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
                             <Tooltip
                               contentStyle={{
-                                backgroundColor: "#1a2633",
-                                border: "1px solid #2a4a6f",
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
                                 fontSize: "11px",
+                                color: "hsl(var(--foreground))",
                               }}
                             />
                             <Area type="monotone" dataKey="orders" stroke="#b8860b" strokeWidth={2} fill="url(#ordersGradient)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       ) : (
-                        <div className="flex items-center justify-center h-full text-white/30 text-sm">
+                        <div className="flex items-center justify-center h-full text-muted-foreground/50 text-sm">
                           No trend data available
                         </div>
                       )}
@@ -1604,20 +1606,20 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Service Breakdown */}
-                  <div className="col-span-4 bg-[#1a2633] rounded-lg border border-[#2a4a6f] p-4">
-                    <h3 className="text-sm font-bold text-white mb-3">Service Breakdown</h3>
+                  <div className="col-span-4 bg-card rounded-lg border p-4">
+                    <h3 className="text-sm font-bold text-foreground mb-3">Service Breakdown</h3>
                     <div className="space-y-3">
                       {serviceBreakdown.length > 0 ? (
                         serviceBreakdown.map((service) => (
                           <div key={service.service}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-white/70">{service.service}</span>
+                              <span className="text-xs text-muted-foreground">{service.service}</span>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-white/50">{service.count} orders</span>
+                                <span className="text-xs text-muted-foreground">{service.count} orders</span>
                                 <span className="text-xs font-bold text-[#b8860b]">${service.revenue}</span>
                               </div>
                             </div>
-                            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                               <div 
                                 className="h-full rounded-full bg-gradient-to-r from-[#b8860b] to-[#d4a017]"
                                 style={{ width: `${service.pct}%` }}
@@ -1626,7 +1628,7 @@ export default function POSCommandCenter() {
                           </div>
                         ))
                       ) : (
-                        <div className="text-center text-white/30 text-sm py-4">
+                        <div className="text-center text-muted-foreground/50 text-sm py-4">
                           No service data available
                         </div>
                       )}
@@ -1640,18 +1642,18 @@ export default function POSCommandCenter() {
             {activeSection === "orders" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">Order Management</h2>
+                  <h2 className="text-xl font-bold text-foreground">Order Management</h2>
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                       <Input
                         placeholder="Search orders..."
-                        className="pl-9 bg-[#1a2633] border-[#2a4a6f] text-white placeholder:text-white/40 w-64 h-9"
+                        className="pl-9 bg-card border text-foreground placeholder:text-muted-foreground/70 w-64 h-9"
                         data-testid="input-search-orders"
                       />
                     </div>
                     <Select defaultValue="all">
-                      <SelectTrigger className="w-32 bg-[#1a2633] border-[#2a4a6f] text-white h-9" data-testid="select-order-status">
+                      <SelectTrigger className="w-32 bg-card border text-foreground h-9" data-testid="select-order-status">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1669,27 +1671,27 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
-                <div className="bg-[#1a2633] rounded-lg border border-[#2a4a6f] overflow-hidden">
+                <div className="bg-card rounded-lg border overflow-hidden">
                   <table className="w-full text-sm">
-                    <thead className="bg-[#0f1419]">
+                    <thead className="bg-background">
                       <tr>
-                        <th className="text-left p-3 text-white/50 font-medium">Order #</th>
-                        <th className="text-left p-3 text-white/50 font-medium">Customer</th>
-                        <th className="text-left p-3 text-white/50 font-medium">Type</th>
-                        <th className="text-right p-3 text-white/50 font-medium">Weight</th>
-                        <th className="text-right p-3 text-white/50 font-medium">Total</th>
-                        <th className="text-center p-3 text-white/50 font-medium">Status</th>
-                        <th className="text-center p-3 text-white/50 font-medium">Time</th>
-                        <th className="text-right p-3 text-white/50 font-medium">Actions</th>
+                        <th className="text-left p-3 text-muted-foreground font-medium">Order #</th>
+                        <th className="text-left p-3 text-muted-foreground font-medium">Customer</th>
+                        <th className="text-left p-3 text-muted-foreground font-medium">Type</th>
+                        <th className="text-right p-3 text-muted-foreground font-medium">Weight</th>
+                        <th className="text-right p-3 text-muted-foreground font-medium">Total</th>
+                        <th className="text-center p-3 text-muted-foreground font-medium">Status</th>
+                        <th className="text-center p-3 text-muted-foreground font-medium">Time</th>
+                        <th className="text-right p-3 text-muted-foreground font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {orders.map((order, idx) => (
                         <tr 
                           key={order.id} 
-                          className={`border-b border-[#2a4a6f]/50 hover:bg-white/5 ${idx % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
+                          className={`border-b border-border/50 hover:bg-muted/30 ${idx % 2 === 0 ? '' : 'bg-muted/10'}`}
                         >
-                          <td className="p-3 font-mono text-white">{order.transactionNumber}</td>
+                          <td className="p-3 font-mono text-foreground">{order.transactionNumber}</td>
                           <td className="p-3">
                             <div className="flex items-center gap-2">
                               <Avatar className="w-7 h-7">
@@ -1697,32 +1699,32 @@ export default function POSCommandCenter() {
                                   {order.customerName.split(" ").map(n => n[0]).join("")}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="text-white">{order.customerName}</span>
+                              <span className="text-foreground">{order.customerName}</span>
                             </div>
                           </td>
                           <td className="p-3">
-                            <div className="flex items-center gap-2 text-white/70">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               {getOrderTypeIcon(order.orderType)}
                               <span className="capitalize">{order.orderType.replace(/_/g, " ")}</span>
                             </div>
                           </td>
-                          <td className="p-3 text-right text-white">{order.weight !== "-" ? `${order.weight} lbs` : "-"}</td>
+                          <td className="p-3 text-right text-foreground">{order.weight !== "-" ? `${order.weight} lbs` : "-"}</td>
                           <td className="p-3 text-right font-bold text-[#b8860b]">${order.total}</td>
                           <td className="p-3 text-center">
                             <Badge className={getStatusColor(order.status)}>
                               {order.status}
                             </Badge>
                           </td>
-                          <td className="p-3 text-center text-white/60">{order.time}</td>
+                          <td className="p-3 text-center text-muted-foreground">{order.time}</td>
                           <td className="p-3 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]">
                                 <Scale className="w-4 h-4" />
                               </Button>
                             </div>
@@ -1740,13 +1742,13 @@ export default function POSCommandCenter() {
               <div className="space-y-4">
                 {/* Header with search and action */}
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold text-white">Customer Management</h2>
+                  <h2 className="text-xl font-bold text-foreground">Customer Management</h2>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                       <Input 
                         placeholder="Search customers..." 
-                        className="w-64 bg-[#0f1419] border-[#2a4a6f] text-white pl-10 h-9"
+                        className="w-64 bg-background border text-foreground pl-10 h-9"
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
                         data-testid="input-customer-search"
@@ -1765,21 +1767,21 @@ export default function POSCommandCenter() {
 
                 {/* Stats Summary Cards */}
                 <div className="grid grid-cols-4 gap-4">
-                  <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] border-[#2a4a6f]">
+                  <Card className="bg-gradient-to-br from-primary to-primary/90 border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Total Customers</p>
-                        <p className="text-3xl font-black text-white" data-testid="stat-total-customers">{customers.length}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Customers</p>
+                        <p className="text-3xl font-black text-foreground" data-testid="stat-total-customers">{customers.length}</p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
                         <Users className="w-5 h-5 text-[#b8860b]" />
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Active</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Active</p>
                         <p className="text-3xl font-black text-green-400" data-testid="stat-active-customers">
                           {customers.filter((c: any) => c.status === "active").length}
                         </p>
@@ -1789,10 +1791,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Inactive</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Inactive</p>
                         <p className="text-3xl font-black text-amber-400" data-testid="stat-inactive-customers">
                           {customers.filter((c: any) => c.status === "inactive").length}
                         </p>
@@ -1802,10 +1804,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Total Revenue</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Revenue</p>
                         <p className="text-2xl font-black text-[#b8860b]" data-testid="stat-total-revenue">
                           ${customers.reduce((sum: number, c: any) => sum + c.lifetimeValue, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
@@ -1822,7 +1824,7 @@ export default function POSCommandCenter() {
                   <div className="flex items-center justify-center h-48">
                     <div className="flex flex-col items-center gap-3">
                       <RefreshCw className="w-8 h-8 text-[#b8860b] animate-spin" />
-                      <p className="text-white/60 text-sm">Loading customers...</p>
+                      <p className="text-muted-foreground text-sm">Loading customers...</p>
                     </div>
                   </div>
                 ) : filteredCustomers.length === 0 ? (
@@ -1831,10 +1833,10 @@ export default function POSCommandCenter() {
                       <div className="w-16 h-16 rounded-full bg-[#1e3a5f]/50 flex items-center justify-center mx-auto mb-4">
                         <Users className="w-8 h-8 text-[#b8860b]" />
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
+                      <h3 className="text-lg font-bold text-foreground mb-2">
                         {customerSearchQuery ? "No customers found" : "No customers yet"}
                       </h3>
-                      <p className="text-white/50 text-sm mb-4">
+                      <p className="text-muted-foreground text-sm mb-4">
                         {customerSearchQuery 
                           ? "Try adjusting your search query" 
                           : "Add your first customer to get started"}
@@ -1855,7 +1857,7 @@ export default function POSCommandCenter() {
                     {filteredCustomers.map((customer: any) => (
                       <Card 
                         key={customer.id} 
-                        className="bg-[#1a2633] border-[#2a4a6f] hover:border-[#b8860b]/50 transition-colors"
+                        className="bg-card border hover:border-[#b8860b]/50 transition-colors"
                         data-testid={`card-customer-${customer.id}`}
                       >
                         <CardContent className="p-4">
@@ -1868,10 +1870,10 @@ export default function POSCommandCenter() {
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <p className="font-bold text-white" data-testid={`text-customer-name-${customer.id}`}>
+                                <p className="font-bold text-foreground" data-testid={`text-customer-name-${customer.id}`}>
                                   {customer.contactName}
                                 </p>
-                                <p className="text-xs text-white/50">{customer.accountName}</p>
+                                <p className="text-xs text-muted-foreground">{customer.accountName}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -1884,7 +1886,7 @@ export default function POSCommandCenter() {
                               >
                                 {customer.status === "active" ? "Active" : "Inactive"}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -1892,19 +1894,19 @@ export default function POSCommandCenter() {
 
                           {/* Customer Stats */}
                           <div className="grid grid-cols-2 gap-3 mb-4">
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
-                                <ShoppingCart className="w-3 h-3 text-white/40" />
-                                <p className="text-xs text-white/50">Orders</p>
+                                <ShoppingCart className="w-3 h-3 text-muted-foreground/70" />
+                                <p className="text-xs text-muted-foreground">Orders</p>
                               </div>
-                              <p className="text-xl font-bold text-white" data-testid={`text-customer-orders-${customer.id}`}>
+                              <p className="text-xl font-bold text-foreground" data-testid={`text-customer-orders-${customer.id}`}>
                                 {customer.orderCount}
                               </p>
                             </div>
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
                                 <DollarSign className="w-3 h-3 text-[#b8860b]" />
-                                <p className="text-xs text-white/50">Lifetime Value</p>
+                                <p className="text-xs text-muted-foreground">Lifetime Value</p>
                               </div>
                               <p className="text-xl font-bold text-[#b8860b]" data-testid={`text-customer-revenue-${customer.id}`}>
                                 ${customer.lifetimeValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1915,19 +1917,19 @@ export default function POSCommandCenter() {
                           {/* Contact Info */}
                           <div className="space-y-2 text-sm">
                             {customer.phone && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Phone className="w-3.5 h-3.5" />
                                 <span>{customer.phone}</span>
                               </div>
                             )}
                             {customer.email && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Mail className="w-3.5 h-3.5" />
                                 <span className="truncate">{customer.email}</span>
                               </div>
                             )}
                             {customer.address && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <MapPin className="w-3.5 h-3.5" />
                                 <span className="truncate">{customer.address}</span>
                               </div>
@@ -1935,16 +1937,16 @@ export default function POSCommandCenter() {
                           </div>
 
                           {/* Footer with Last Visit */}
-                          <div className="mt-4 pt-3 border-t border-[#2a4a6f] flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs text-white/40">
+                          <div className="mt-4 pt-3 border-t border flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
                               <Clock className="w-3 h-3" />
                               <span>Last visit: {customer.lastVisit}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -1962,13 +1964,13 @@ export default function POSCommandCenter() {
               <div className="space-y-4">
                 {/* Header with search and action */}
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold text-white">Machine Hub</h2>
+                  <h2 className="text-xl font-bold text-foreground">Machine Hub</h2>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                       <Input 
                         placeholder="Search machines..." 
-                        className="w-64 bg-[#0f1419] border-[#2a4a6f] text-white pl-10 h-9"
+                        className="w-64 bg-background border text-foreground pl-10 h-9"
                         value={machineSearchQuery}
                         onChange={(e) => setMachineSearchQuery(e.target.value)}
                         data-testid="input-machine-search"
@@ -1987,21 +1989,21 @@ export default function POSCommandCenter() {
 
                 {/* Status Summary Cards */}
                 <div className="grid grid-cols-4 gap-4">
-                  <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] border-[#2a4a6f]">
+                  <Card className="bg-gradient-to-br from-primary to-primary/90 border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Total Machines</p>
-                        <p className="text-3xl font-black text-white" data-testid="stat-total-machines">{machineStatusCounts.total}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Machines</p>
+                        <p className="text-3xl font-black text-foreground" data-testid="stat-total-machines">{machineStatusCounts.total}</p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
                         <Wrench className="w-5 h-5 text-[#b8860b]" />
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Operational</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Operational</p>
                         <p className="text-3xl font-black text-green-400" data-testid="stat-operational-machines">
                           {machineStatusCounts.operational}
                         </p>
@@ -2011,10 +2013,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Needs Maintenance</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Needs Maintenance</p>
                         <p className="text-3xl font-black text-amber-400" data-testid="stat-maintenance-machines">
                           {machineStatusCounts.needsMaintenance}
                         </p>
@@ -2024,10 +2026,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Out of Order</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Out of Order</p>
                         <p className="text-3xl font-black text-red-400" data-testid="stat-outoforder-machines">
                           {machineStatusCounts.outOfOrder}
                         </p>
@@ -2044,7 +2046,7 @@ export default function POSCommandCenter() {
                   <div className="flex items-center justify-center h-48">
                     <div className="flex flex-col items-center gap-3">
                       <RefreshCw className="w-8 h-8 text-[#b8860b] animate-spin" />
-                      <p className="text-white/60 text-sm">Loading machines...</p>
+                      <p className="text-muted-foreground text-sm">Loading machines...</p>
                     </div>
                   </div>
                 ) : filteredMachines.length === 0 ? (
@@ -2053,10 +2055,10 @@ export default function POSCommandCenter() {
                       <div className="w-16 h-16 rounded-full bg-[#1e3a5f]/50 flex items-center justify-center mx-auto mb-4">
                         <Wrench className="w-8 h-8 text-[#b8860b]" />
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
+                      <h3 className="text-lg font-bold text-foreground mb-2">
                         {machineSearchQuery ? "No machines found" : "No machines yet"}
                       </h3>
-                      <p className="text-white/50 text-sm mb-4">
+                      <p className="text-muted-foreground text-sm mb-4">
                         {machineSearchQuery 
                           ? "Try adjusting your search query" 
                           : "Add your first machine to get started"}
@@ -2078,7 +2080,7 @@ export default function POSCommandCenter() {
                       <Card 
                         key={machine.id} 
                         className={`border transition-colors ${
-                          machine.status === 'operational' ? 'bg-[#1a2633] border-[#2a4a6f] hover:border-[#b8860b]/50' :
+                          machine.status === 'operational' ? 'bg-card border hover:border-[#b8860b]/50' :
                           machine.status === 'needs_maintenance' ? 'bg-amber-500/5 border-amber-500/30 hover:border-amber-500/50' :
                           'bg-red-500/5 border-red-500/30 hover:border-red-500/50'
                         }`}
@@ -2104,10 +2106,10 @@ export default function POSCommandCenter() {
                                 }`} />
                               </div>
                               <div>
-                                <p className="font-bold text-white" data-testid={`text-machine-name-${machine.id}`}>
+                                <p className="font-bold text-foreground" data-testid={`text-machine-name-${machine.id}`}>
                                   {machine.name}
                                 </p>
-                                <p className="text-xs text-white/50 capitalize">{machine.type.replace('_', ' ')}</p>
+                                <p className="text-xs text-muted-foreground capitalize">{machine.type.replace('_', ' ')}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -2128,7 +2130,7 @@ export default function POSCommandCenter() {
                                  machine.status === 'needs_maintenance' ? 'Maintenance' :
                                  'Out of Order'}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -2136,19 +2138,19 @@ export default function POSCommandCenter() {
 
                           {/* Machine Stats */}
                           <div className="grid grid-cols-2 gap-3 mb-3">
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
-                                <Activity className="w-3 h-3 text-white/40" />
-                                <p className="text-xs text-white/50">Cycle Count</p>
+                                <Activity className="w-3 h-3 text-muted-foreground/70" />
+                                <p className="text-xs text-muted-foreground">Cycle Count</p>
                               </div>
-                              <p className="text-xl font-bold text-white" data-testid={`text-machine-cycles-${machine.id}`}>
+                              <p className="text-xl font-bold text-foreground" data-testid={`text-machine-cycles-${machine.id}`}>
                                 {machine.cycles.toLocaleString()}
                               </p>
                             </div>
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
                                 <DollarSign className="w-3 h-3 text-[#b8860b]" />
-                                <p className="text-xs text-white/50">Revenue</p>
+                                <p className="text-xs text-muted-foreground">Revenue</p>
                               </div>
                               <p className="text-xl font-bold text-[#b8860b]" data-testid={`text-machine-revenue-${machine.id}`}>
                                 ${machine.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2159,14 +2161,14 @@ export default function POSCommandCenter() {
                           {/* Uptime Bar */}
                           <div className="mb-3">
                             <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-white/50">Uptime</span>
+                              <span className="text-muted-foreground">Uptime</span>
                               <span className={`font-medium ${
                                 machine.uptime >= 95 ? 'text-green-400' :
                                 machine.uptime >= 85 ? 'text-amber-400' :
                                 'text-red-400'
                               }`}>{machine.uptime}%</span>
                             </div>
-                            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full transition-all ${
                                   machine.uptime >= 95 ? 'bg-green-500' :
@@ -2179,9 +2181,9 @@ export default function POSCommandCenter() {
                           </div>
 
                           {/* Machine Details */}
-                          <div className="space-y-2 text-sm border-t border-[#2a4a6f] pt-3">
+                          <div className="space-y-2 text-sm border-t border pt-3">
                             {(machine.manufacturer || machine.model) && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Package className="w-3.5 h-3.5" />
                                 <span className="truncate">
                                   {machine.manufacturer}{machine.manufacturer && machine.model ? ' - ' : ''}{machine.model}
@@ -2189,19 +2191,19 @@ export default function POSCommandCenter() {
                               </div>
                             )}
                             {machine.installDate && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Calendar className="w-3.5 h-3.5" />
                                 <span>Installed: {machine.installDate}</span>
                               </div>
                             )}
                             {machine.lastMaintenanceDate && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Wrench className="w-3.5 h-3.5" />
                                 <span>Last Service: {machine.lastMaintenanceDate}</span>
                               </div>
                             )}
                             {machine.iotDeviceId && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Activity className="w-3.5 h-3.5" />
                                 <span className="truncate">IoT: {machine.iotDeviceId}</span>
                               </div>
@@ -2209,15 +2211,15 @@ export default function POSCommandCenter() {
                           </div>
 
                           {/* Footer Actions */}
-                          <div className="mt-3 pt-3 border-t border-[#2a4a6f] flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs text-white/40">
+                          <div className="mt-3 pt-3 border-t border flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
                               <span>ID: {machine.machineNumber}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -2235,13 +2237,13 @@ export default function POSCommandCenter() {
               <div className="space-y-4">
                 {/* Header with search and action */}
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold text-white">Route Management</h2>
+                  <h2 className="text-xl font-bold text-foreground">Route Management</h2>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                       <Input 
                         placeholder="Search routes..." 
-                        className="w-64 bg-[#0f1419] border-[#2a4a6f] text-white pl-10 h-9"
+                        className="w-64 bg-background border text-foreground pl-10 h-9"
                         value={routeSearchQuery}
                         onChange={(e) => setRouteSearchQuery(e.target.value)}
                         data-testid="input-route-search"
@@ -2260,21 +2262,21 @@ export default function POSCommandCenter() {
 
                 {/* Status Summary Cards */}
                 <div className="grid grid-cols-4 gap-4">
-                  <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#152a45] border-[#2a4a6f]">
+                  <Card className="bg-gradient-to-br from-primary to-primary/90 border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Total Routes</p>
-                        <p className="text-3xl font-black text-white" data-testid="stat-total-routes">{routeStatusCounts.total}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Routes</p>
+                        <p className="text-3xl font-black text-foreground" data-testid="stat-total-routes">{routeStatusCounts.total}</p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
                         <Truck className="w-5 h-5 text-[#b8860b]" />
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Active Routes</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Active Routes</p>
                         <p className="text-3xl font-black text-blue-400" data-testid="stat-active-routes">
                           {routeStatusCounts.active}
                         </p>
@@ -2284,10 +2286,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Completed</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Completed</p>
                         <p className="text-3xl font-black text-green-400" data-testid="stat-completed-routes">
                           {routeStatusCounts.completed}
                         </p>
@@ -2297,10 +2299,10 @@ export default function POSCommandCenter() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]">
+                  <Card className="bg-card border">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-white/60 uppercase tracking-wide">Total Stops</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Stops</p>
                         <p className="text-3xl font-black text-[#b8860b]" data-testid="stat-total-stops">
                           {routeStatusCounts.totalStops}
                         </p>
@@ -2317,7 +2319,7 @@ export default function POSCommandCenter() {
                   <div className="flex items-center justify-center h-48">
                     <div className="flex flex-col items-center gap-3">
                       <RefreshCw className="w-8 h-8 text-[#b8860b] animate-spin" />
-                      <p className="text-white/60 text-sm">Loading routes...</p>
+                      <p className="text-muted-foreground text-sm">Loading routes...</p>
                     </div>
                   </div>
                 ) : filteredRoutes.length === 0 ? (
@@ -2326,10 +2328,10 @@ export default function POSCommandCenter() {
                       <div className="w-16 h-16 rounded-full bg-[#1e3a5f]/50 flex items-center justify-center mx-auto mb-4">
                         <Truck className="w-8 h-8 text-[#b8860b]" />
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
+                      <h3 className="text-lg font-bold text-foreground mb-2">
                         {routeSearchQuery ? "No routes found" : "No routes yet"}
                       </h3>
-                      <p className="text-white/50 text-sm mb-4">
+                      <p className="text-muted-foreground text-sm mb-4">
                         {routeSearchQuery 
                           ? "Try adjusting your search query" 
                           : "Create your first route to get started with pickups and deliveries"}
@@ -2353,7 +2355,7 @@ export default function POSCommandCenter() {
                         className={`border transition-colors ${
                           route.status === 'completed' ? 'bg-green-500/5 border-green-500/30 hover:border-green-500/50' :
                           route.status === 'in_progress' ? 'bg-blue-500/5 border-blue-500/30 hover:border-blue-500/50' :
-                          'bg-[#1a2633] border-[#2a4a6f] hover:border-[#b8860b]/50'
+                          'bg-card border hover:border-[#b8860b]/50'
                         }`}
                         data-testid={`card-route-${route.id}`}
                       >
@@ -2373,10 +2375,10 @@ export default function POSCommandCenter() {
                                 }`} />
                               </div>
                               <div>
-                                <p className="font-bold text-white" data-testid={`text-route-name-${route.id}`}>
+                                <p className="font-bold text-foreground" data-testid={`text-route-name-${route.id}`}>
                                   {route.routeName}
                                 </p>
-                                <p className="text-xs text-white/50 font-mono">{route.routeNumber}</p>
+                                <p className="text-xs text-muted-foreground font-mono">{route.routeNumber}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -2392,7 +2394,7 @@ export default function POSCommandCenter() {
                                  route.routeType === 'delivery' ? 'Delivery' :
                                  'Both'}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -2400,19 +2402,19 @@ export default function POSCommandCenter() {
 
                           {/* Route Stats */}
                           <div className="grid grid-cols-2 gap-3 mb-3">
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
-                                <MapPin className="w-3 h-3 text-white/40" />
-                                <p className="text-xs text-white/50">Stops</p>
+                                <MapPin className="w-3 h-3 text-muted-foreground/70" />
+                                <p className="text-xs text-muted-foreground">Stops</p>
                               </div>
-                              <p className="text-xl font-bold text-white" data-testid={`text-route-stops-${route.id}`}>
+                              <p className="text-xl font-bold text-foreground" data-testid={`text-route-stops-${route.id}`}>
                                 {route.completedStops}/{route.totalStops}
                               </p>
                             </div>
-                            <div className="bg-[#0f1419] rounded-lg p-3">
+                            <div className="bg-background rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-1">
                                 <DollarSign className="w-3 h-3 text-[#b8860b]" />
-                                <p className="text-xs text-white/50">Est. Revenue</p>
+                                <p className="text-xs text-muted-foreground">Est. Revenue</p>
                               </div>
                               <p className="text-xl font-bold text-[#b8860b]" data-testid={`text-route-revenue-${route.id}`}>
                                 ${route.estimatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2424,14 +2426,14 @@ export default function POSCommandCenter() {
                           {route.totalStops > 0 && (
                             <div className="mb-3">
                               <div className="flex items-center justify-between text-xs mb-1">
-                                <span className="text-white/50">Progress</span>
+                                <span className="text-muted-foreground">Progress</span>
                                 <span className={`font-medium ${
                                   route.status === 'completed' ? 'text-green-400' :
                                   route.status === 'in_progress' ? 'text-blue-400' :
-                                  'text-white/60'
+                                  'text-muted-foreground'
                                 }`}>{Math.round((route.completedStops / route.totalStops) * 100)}%</span>
                               </div>
-                              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                              <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full rounded-full transition-all ${
                                     route.status === 'completed' ? 'bg-green-500' :
@@ -2445,17 +2447,17 @@ export default function POSCommandCenter() {
                           )}
 
                           {/* Route Details */}
-                          <div className="space-y-2 text-sm border-t border-[#2a4a6f] pt-3">
-                            <div className="flex items-center gap-2 text-white/60">
+                          <div className="space-y-2 text-sm border-t border pt-3">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               <Calendar className="w-3.5 h-3.5" />
                               <span>{route.routeDate} at {route.routeTime}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-white/60">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               <Users className="w-3.5 h-3.5" />
                               <span>Driver: {route.driverName}</span>
                             </div>
                             {route.startTime && (
-                              <div className="flex items-center gap-2 text-white/60">
+                              <div className="flex items-center gap-2 text-muted-foreground">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>Started: {route.startTime}{route.endTime ? ` - Ended: ${route.endTime}` : ''}</span>
                               </div>
@@ -2463,7 +2465,7 @@ export default function POSCommandCenter() {
                           </div>
 
                           {/* Footer with Status */}
-                          <div className="mt-3 pt-3 border-t border-[#2a4a6f] flex items-center justify-between">
+                          <div className="mt-3 pt-3 border-t border flex items-center justify-between">
                             <Badge 
                               className={
                                 route.status === 'completed' ? 'bg-green-500/20 text-green-400' :
@@ -2482,10 +2484,10 @@ export default function POSCommandCenter() {
                                'Planned'}
                             </Badge>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -2504,22 +2506,22 @@ export default function POSCommandCenter() {
                 {/* Header with Search and Actions */}
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-white">Parts Inventory</h2>
-                    <p className="text-white/50 text-sm">Manage parts, supplies, and equipment inventory</p>
+                    <h2 className="text-2xl font-bold text-foreground">Parts Inventory</h2>
+                    <p className="text-muted-foreground text-sm">Manage parts, supplies, and equipment inventory</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                       <Input
                         placeholder="Search parts, SKU, vendor..."
-                        className="w-72 bg-[#0f1419] border-[#2a4a6f] text-white pl-10 h-9"
+                        className="w-72 bg-background border text-foreground pl-10 h-9"
                         value={inventorySearchQuery}
                         onChange={(e) => setInventorySearchQuery(e.target.value)}
                         data-testid="input-inventory-search"
                       />
                     </div>
                     <Select value={inventoryCategoryFilter} onValueChange={setInventoryCategoryFilter}>
-                      <SelectTrigger className="w-40 bg-[#0f1419] border-[#2a4a6f] text-white h-9" data-testid="select-inventory-category">
+                      <SelectTrigger className="w-40 bg-background border text-foreground h-9" data-testid="select-inventory-category">
                         <SelectValue placeholder="All Categories" />
                       </SelectTrigger>
                       <SelectContent>
@@ -2544,12 +2546,12 @@ export default function POSCommandCenter() {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-4 gap-4">
                   {/* Total Items */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-total-items">
+                  <Card className="bg-card border" data-testid="card-total-items">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Total Items</p>
-                          <p className="text-3xl font-bold text-white" data-testid="text-total-inventory-items">
+                          <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Total Items</p>
+                          <p className="text-3xl font-bold text-foreground" data-testid="text-total-inventory-items">
                             {inventoryStats.totalItems}
                           </p>
                         </div>
@@ -2561,11 +2563,11 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Total Value */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-total-value">
+                  <Card className="bg-card border" data-testid="card-total-value">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Total Value</p>
+                          <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Total Value</p>
                           <p className="text-3xl font-bold text-[#b8860b]" data-testid="text-total-inventory-value">
                             ${inventoryStats.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
@@ -2578,11 +2580,11 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Low Stock Alerts */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-low-stock">
+                  <Card className="bg-card border" data-testid="card-low-stock">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Low Stock Alerts</p>
+                          <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Low Stock Alerts</p>
                           <p className="text-3xl font-bold text-amber-400" data-testid="text-low-stock-count">
                             {inventoryStats.lowStockCount}
                           </p>
@@ -2595,11 +2597,11 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Out of Stock */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-out-of-stock">
+                  <Card className="bg-card border" data-testid="card-out-of-stock">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Out of Stock</p>
+                          <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Out of Stock</p>
                           <p className="text-3xl font-bold text-red-400" data-testid="text-out-of-stock-count">
                             {inventoryStats.outOfStockCount}
                           </p>
@@ -2613,24 +2615,24 @@ export default function POSCommandCenter() {
                 </div>
 
                 {/* Inventory Table */}
-                <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-inventory-table">
+                <Card className="bg-card border" data-testid="card-inventory-table">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
+                    <CardTitle className="text-foreground text-lg flex items-center gap-2">
                       <Package className="w-5 h-5 text-[#b8860b]" />
                       Inventory Items
-                      <Badge className="bg-white/10 text-white/70 ml-2">{filteredInventory.length} items</Badge>
+                      <Badge className="bg-muted/50 text-muted-foreground ml-2">{filteredInventory.length} items</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {inventoryLoading ? (
                       <div className="flex items-center justify-center py-12">
                         <RefreshCw className="w-6 h-6 animate-spin text-[#b8860b]" />
-                        <span className="ml-2 text-white/60">Loading inventory...</span>
+                        <span className="ml-2 text-muted-foreground">Loading inventory...</span>
                       </div>
                     ) : filteredInventory.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12">
-                        <Package className="w-12 h-12 text-white/20 mb-3" />
-                        <p className="text-white/50 text-sm">
+                        <Package className="w-12 h-12 text-muted-foreground/20 mb-3" />
+                        <p className="text-muted-foreground text-sm">
                           {inventorySearchQuery || inventoryCategoryFilter !== "all" 
                             ? "No items match your search criteria" 
                             : "No inventory items yet"}
@@ -2638,7 +2640,7 @@ export default function POSCommandCenter() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="mt-3 border-[#b8860b] text-[#b8860b] hover:bg-[#b8860b] hover:text-white"
+                          className="mt-3 border-[#b8860b] text-[#b8860b] hover:bg-[#b8860b] hover:text-foreground"
                           onClick={() => setNewPartOpen(true)}
                           data-testid="button-add-first-part"
                         >
@@ -2650,15 +2652,15 @@ export default function POSCommandCenter() {
                       <div className="overflow-x-auto">
                         <table className="w-full" data-testid="table-inventory">
                           <thead>
-                            <tr className="border-b border-[#2a4a6f]">
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Part Name / SKU</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Category</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Qty / Reorder</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Unit Price</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Total Value</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Vendor / Location</th>
-                              <th className="text-left py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Status</th>
-                              <th className="text-right py-3 px-4 text-xs font-medium text-white/50 uppercase tracking-wide">Actions</th>
+                            <tr className="border-b border">
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Part Name / SKU</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Category</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Qty / Reorder</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Unit Price</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Value</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Vendor / Location</th>
+                              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</th>
+                              <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wide">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -2668,13 +2670,13 @@ export default function POSCommandCenter() {
                               return (
                                 <tr 
                                   key={item.id} 
-                                  className="border-b border-[#2a4a6f]/50 hover:bg-white/5 transition-colors"
+                                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
                                   data-testid={`row-inventory-${item.id}`}
                                 >
                                   <td className="py-3 px-4">
                                     <div>
                                       <p className="text-white font-medium" data-testid={`text-part-name-${item.id}`}>{item.partName}</p>
-                                      <p className="text-white/40 text-xs" data-testid={`text-part-sku-${item.id}`}>{item.partNumber}</p>
+                                      <p className="text-muted-foreground/70 text-xs" data-testid={`text-part-sku-${item.id}`}>{item.partNumber}</p>
                                     </div>
                                   </td>
                                   <td className="py-3 px-4">
@@ -2695,8 +2697,8 @@ export default function POSCommandCenter() {
                                       <span className={`font-bold ${item.quantityOnHand === 0 ? 'text-red-400' : item.quantityOnHand <= item.reorderPoint ? 'text-amber-400' : 'text-white'}`} data-testid={`text-quantity-${item.id}`}>
                                         {item.quantityOnHand}
                                       </span>
-                                      <span className="text-white/30">/</span>
-                                      <span className="text-white/50 text-sm" data-testid={`text-reorder-${item.id}`}>{item.reorderPoint}</span>
+                                      <span className="text-muted-foreground/50">/</span>
+                                      <span className="text-muted-foreground text-sm" data-testid={`text-reorder-${item.id}`}>{item.reorderPoint}</span>
                                     </div>
                                   </td>
                                   <td className="py-3 px-4">
@@ -2711,11 +2713,11 @@ export default function POSCommandCenter() {
                                   </td>
                                   <td className="py-3 px-4">
                                     <div>
-                                      <p className="text-white/70 text-sm" data-testid={`text-vendor-${item.id}`}>
+                                      <p className="text-muted-foreground text-sm" data-testid={`text-vendor-${item.id}`}>
                                         {item.manufacturer || item.preferredVendorId || "-"}
                                       </p>
                                       {item.binLocation && (
-                                        <p className="text-white/40 text-xs flex items-center gap-1">
+                                        <p className="text-muted-foreground/70 text-xs flex items-center gap-1">
                                           <MapPin className="w-3 h-3" />
                                           {item.binLocation}
                                         </p>
@@ -2732,10 +2734,10 @@ export default function POSCommandCenter() {
                                   </td>
                                   <td className="py-3 px-4 text-right">
                                     <div className="flex items-center justify-end gap-1">
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
                                         <Eye className="w-3.5 h-3.5" />
                                       </Button>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-[#b8860b]">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
                                         <Edit className="w-3.5 h-3.5" />
                                       </Button>
                                     </div>
@@ -2758,8 +2760,8 @@ export default function POSCommandCenter() {
                 {/* Header with Date Range Selector */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-white">Business Analytics</h2>
-                    <p className="text-white/50 text-sm">Professional analytics for your laundromat</p>
+                    <h2 className="text-2xl font-bold text-foreground">Business Analytics</h2>
+                    <p className="text-muted-foreground text-sm">Professional analytics for your laundromat</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {(["today", "week", "month", "quarter"] as const).map((period) => (
@@ -2769,7 +2771,7 @@ export default function POSCommandCenter() {
                         size="sm"
                         className={analyticsPeriod === period 
                           ? "bg-[#b8860b] hover:bg-[#9A7209] text-white" 
-                          : "border-[#2a4a6f] text-white/70 hover:text-white hover:border-[#b8860b]"
+                          : "border text-muted-foreground hover:text-foreground hover:border-[#b8860b]"
                         }
                         onClick={() => setAnalyticsPeriod(period)}
                         data-testid={`button-period-${period}`}
@@ -2783,7 +2785,7 @@ export default function POSCommandCenter() {
                 {/* KPI Cards Grid */}
                 <div className="grid grid-cols-6 gap-4">
                   {/* Total Revenue */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-revenue">
+                  <Card className="bg-card border" data-testid="kpi-revenue">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
@@ -2794,8 +2796,8 @@ export default function POSCommandCenter() {
                           {((rawStats?.week?.revenue || 0) > 0 ? 12.5 : 0).toFixed(1)}%
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Total Revenue</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-total-revenue">
+                      <p className="text-muted-foreground text-xs mb-1">Total Revenue</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-total-revenue">
                         ${analyticsPeriod === "today" 
                           ? (rawStats?.today?.revenue || "0.00")
                           : analyticsPeriod === "week"
@@ -2809,7 +2811,7 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Total Orders */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-orders">
+                  <Card className="bg-card border" data-testid="kpi-orders">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -2820,8 +2822,8 @@ export default function POSCommandCenter() {
                           +8.2%
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Total Orders</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-total-orders">
+                      <p className="text-muted-foreground text-xs mb-1">Total Orders</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-total-orders">
                         {analyticsPeriod === "today" 
                           ? (rawStats?.today?.orders || 0)
                           : analyticsPeriod === "week"
@@ -2835,7 +2837,7 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Average Order Value */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-aov">
+                  <Card className="bg-card border" data-testid="kpi-aov">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -2846,15 +2848,15 @@ export default function POSCommandCenter() {
                           +3.4%
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Avg Order Value</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-aov">
+                      <p className="text-muted-foreground text-xs mb-1">Avg Order Value</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-aov">
                         ${rawStats?.week?.avgOrderValue || dashboardStats.week.avgOrderValue || "0.00"}
                       </p>
                     </CardContent>
                   </Card>
 
                   {/* Customer Retention */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-retention">
+                  <Card className="bg-card border" data-testid="kpi-retention">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
@@ -2865,15 +2867,15 @@ export default function POSCommandCenter() {
                           +2.1%
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Retention Rate</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-retention">
+                      <p className="text-muted-foreground text-xs mb-1">Retention Rate</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-retention">
                         {dashboardStats.customers.retention}%
                       </p>
                     </CardContent>
                   </Card>
 
                   {/* Machine Utilization */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-utilization">
+                  <Card className="bg-card border" data-testid="kpi-utilization">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
@@ -2885,27 +2887,27 @@ export default function POSCommandCenter() {
                           {Math.round((machineStatusCounts.operational / Math.max(machineStatusCounts.total, 1)) * 100)}%
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Machine Utilization</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-utilization">
+                      <p className="text-muted-foreground text-xs mb-1">Machine Utilization</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-utilization">
                         {machineStatusCounts.operational}/{machineStatusCounts.total}
                       </p>
                     </CardContent>
                   </Card>
 
                   {/* Peak Hours */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="kpi-peak">
+                  <Card className="bg-card border" data-testid="kpi-peak">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
                           <Clock className="w-5 h-5 text-pink-400" />
                         </div>
-                        <Badge className="bg-[#1e3a5f] text-white/70">
+                        <Badge className="bg-[#1e3a5f] text-muted-foreground">
                           <Activity className="w-3 h-3 mr-1" />
                           Live
                         </Badge>
                       </div>
-                      <p className="text-white/50 text-xs mb-1">Peak Hours</p>
-                      <p className="text-2xl font-bold text-white" data-testid="text-peak">
+                      <p className="text-muted-foreground text-xs mb-1">Peak Hours</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-peak">
                         9-11 AM
                       </p>
                     </CardContent>
@@ -2915,21 +2917,21 @@ export default function POSCommandCenter() {
                 {/* Charts Row 1: Revenue Trend & Order Volume */}
                 <div className="grid grid-cols-2 gap-6">
                   {/* Revenue Trend Area Chart */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="chart-revenue">
+                  <Card className="bg-card border" data-testid="chart-revenue">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-white text-lg">Revenue Trend</CardTitle>
-                          <p className="text-white/50 text-xs">Daily revenue over selected period</p>
+                          <CardTitle className="text-foreground text-lg">Revenue Trend</CardTitle>
+                          <p className="text-muted-foreground text-xs">Daily revenue over selected period</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded bg-[#b8860b]"></div>
-                            <span className="text-white/50 text-xs">Revenue</span>
+                            <span className="text-muted-foreground text-xs">Revenue</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <div className="w-3 h-3 rounded bg-[#1e3a5f]"></div>
-                            <span className="text-white/50 text-xs">Target</span>
+                            <span className="text-muted-foreground text-xs">Target</span>
                           </div>
                         </div>
                       </div>
@@ -2952,12 +2954,12 @@ export default function POSCommandCenter() {
                                 <stop offset="95%" stopColor="#b8860b" stopOpacity={0}/>
                               </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#2a4a6f" />
-                            <XAxis dataKey="date" stroke="#ffffff50" tick={{ fill: '#ffffff80', fontSize: 10 }} />
-                            <YAxis stroke="#ffffff50" tick={{ fill: '#ffffff80', fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
                             <Tooltip 
-                              contentStyle={{ backgroundColor: '#1a2633', border: '1px solid #2a4a6f', borderRadius: '8px' }}
-                              labelStyle={{ color: '#ffffff' }}
+                              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
+                              labelStyle={{ color: 'hsl(var(--foreground))' }}
                               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
                             />
                             <Area type="monotone" dataKey="target" stroke="#1e3a5f" strokeDasharray="5 5" fill="none" />
@@ -2969,14 +2971,14 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Order Volume Bar Chart */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="chart-orders">
+                  <Card className="bg-card border" data-testid="chart-orders">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-white text-lg">Order Volume</CardTitle>
-                          <p className="text-white/50 text-xs">Number of orders over selected period</p>
+                          <CardTitle className="text-foreground text-lg">Order Volume</CardTitle>
+                          <p className="text-muted-foreground text-xs">Number of orders over selected period</p>
                         </div>
-                        <Badge className="bg-[#1e3a5f]/50 text-white/70">
+                        <Badge className="bg-[#1e3a5f]/50 text-muted-foreground">
                           {((analyticsChartData as any)?.chartData || []).reduce((sum: number, d: any) => sum + (d.orders || 0), 0)} total
                         </Badge>
                       </div>
@@ -2992,12 +2994,12 @@ export default function POSCommandCenter() {
                             date: d.date ? new Date(d.date).toLocaleDateString([], { weekday: 'short' }) : "-",
                             orders: d.orders || 0,
                           }))}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#2a4a6f" />
-                            <XAxis dataKey="date" stroke="#ffffff50" tick={{ fill: '#ffffff80', fontSize: 10 }} />
-                            <YAxis stroke="#ffffff50" tick={{ fill: '#ffffff80', fontSize: 10 }} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                             <Tooltip 
-                              contentStyle={{ backgroundColor: '#1a2633', border: '1px solid #2a4a6f', borderRadius: '8px' }}
-                              labelStyle={{ color: '#ffffff' }}
+                              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
+                              labelStyle={{ color: 'hsl(var(--foreground))' }}
                             />
                             <Bar dataKey="orders" fill="#1e3a5f" radius={[4, 4, 0, 0]} />
                           </BarChart>
@@ -3010,10 +3012,10 @@ export default function POSCommandCenter() {
                 {/* Charts Row 2: Service Breakdown & Peak Hours Heat Map */}
                 <div className="grid grid-cols-3 gap-6">
                   {/* Service Type Breakdown Pie Chart */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="chart-services">
+                  <Card className="bg-card border" data-testid="chart-services">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-white text-lg">Service Breakdown</CardTitle>
-                      <p className="text-white/50 text-xs">Distribution by service type</p>
+                      <CardTitle className="text-foreground text-lg">Service Breakdown</CardTitle>
+                      <p className="text-muted-foreground text-xs">Distribution by service type</p>
                     </CardHeader>
                     <CardContent>
                       <div className="h-[200px]">
@@ -3028,14 +3030,14 @@ export default function POSCommandCenter() {
                               paddingAngle={2}
                               dataKey="value"
                               label={({ name, value }) => `${name}: ${value}%`}
-                              labelLine={{ stroke: '#ffffff50' }}
+                              labelLine={{ stroke: 'hsl(var(--muted-foreground))' }}
                             >
                               {orderTypeDistribution.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                               ))}
                             </Pie>
                             <Tooltip 
-                              contentStyle={{ backgroundColor: '#1a2633', border: '1px solid #2a4a6f', borderRadius: '8px' }}
+                              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
                               formatter={(value: number) => [`${value}%`, 'Share']}
                             />
                           </RechartsPie>
@@ -3043,14 +3045,14 @@ export default function POSCommandCenter() {
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-4">
                         {serviceBreakdown.map((service, i) => (
-                          <div key={i} className="flex items-center gap-2 p-2 rounded bg-[#0f1419]">
+                          <div key={i} className="flex items-center gap-2 p-2 rounded bg-background">
                             <div 
                               className="w-3 h-3 rounded" 
                               style={{ backgroundColor: Object.values(ORDER_TYPE_COLORS)[i] || '#888' }}
                             ></div>
                             <div className="flex-1">
-                              <p className="text-xs text-white/70 truncate">{service.service}</p>
-                              <p className="text-sm font-bold text-white">${service.revenue}</p>
+                              <p className="text-xs text-muted-foreground truncate">{service.service}</p>
+                              <p className="text-sm font-bold text-foreground">${service.revenue}</p>
                             </div>
                           </div>
                         ))}
@@ -3059,15 +3061,15 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Peak Hours Heat Map Style Grid */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f] col-span-2" data-testid="chart-heatmap">
+                  <Card className="bg-card border col-span-2" data-testid="chart-heatmap">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-white text-lg">Peak Performance Hours</CardTitle>
-                          <p className="text-white/50 text-xs">Order density by day and hour</p>
+                          <CardTitle className="text-foreground text-lg">Peak Performance Hours</CardTitle>
+                          <p className="text-muted-foreground text-xs">Order density by day and hour</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-white/40 text-xs">Low</span>
+                          <span className="text-muted-foreground/70 text-xs">Low</span>
                           <div className="flex gap-0.5">
                             <div className="w-4 h-4 rounded bg-[#1e3a5f]/30"></div>
                             <div className="w-4 h-4 rounded bg-[#1e3a5f]/50"></div>
@@ -3075,7 +3077,7 @@ export default function POSCommandCenter() {
                             <div className="w-4 h-4 rounded bg-[#b8860b]/70"></div>
                             <div className="w-4 h-4 rounded bg-[#b8860b]"></div>
                           </div>
-                          <span className="text-white/40 text-xs">High</span>
+                          <span className="text-muted-foreground/70 text-xs">High</span>
                         </div>
                       </div>
                     </CardHeader>
@@ -3084,13 +3086,13 @@ export default function POSCommandCenter() {
                         {/* Hours header */}
                         <div className="flex gap-1 ml-12">
                           {['6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm'].map((hour, i) => (
-                            <div key={i} className="flex-1 text-center text-xs text-white/40">{hour}</div>
+                            <div key={i} className="flex-1 text-center text-xs text-muted-foreground/70">{hour}</div>
                           ))}
                         </div>
                         {/* Days rows */}
                         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dayIdx) => (
                           <div key={day} className="flex gap-1 items-center">
-                            <div className="w-12 text-xs text-white/50">{day}</div>
+                            <div className="w-12 text-xs text-muted-foreground">{day}</div>
                             {[0.2, 0.4, 0.9, 0.7, 0.5, 0.6, 0.8, 0.3].map((intensity, hourIdx) => {
                               const weekendBoost = dayIdx >= 5 ? 0.2 : 0;
                               const morningBoost = hourIdx >= 2 && hourIdx <= 4 ? 0.2 : 0;
@@ -3111,18 +3113,18 @@ export default function POSCommandCenter() {
                         ))}
                       </div>
                       {/* Peak times summary */}
-                      <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-[#2a4a6f]">
+                      <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border">
                         <div className="text-center">
-                          <p className="text-white/50 text-xs">Busiest Day</p>
+                          <p className="text-muted-foreground text-xs">Busiest Day</p>
                           <p className="text-lg font-bold text-[#b8860b]">Saturday</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-white/50 text-xs">Peak Hours</p>
+                          <p className="text-muted-foreground text-xs">Peak Hours</p>
                           <p className="text-lg font-bold text-[#b8860b]">9AM - 12PM</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-white/50 text-xs">Slowest Day</p>
-                          <p className="text-lg font-bold text-white/70">Monday</p>
+                          <p className="text-muted-foreground text-xs">Slowest Day</p>
+                          <p className="text-lg font-bold text-muted-foreground">Monday</p>
                         </div>
                       </div>
                     </CardContent>
@@ -3132,29 +3134,29 @@ export default function POSCommandCenter() {
                 {/* Bottom Row: Customer Metrics & Machine Stats */}
                 <div className="grid grid-cols-2 gap-6">
                   {/* Customer Acquisition & Retention */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="chart-customers">
+                  <Card className="bg-card border" data-testid="chart-customers">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-white text-lg">Customer Metrics</CardTitle>
-                      <p className="text-white/50 text-xs">Acquisition & retention analysis</p>
+                      <CardTitle className="text-foreground text-lg">Customer Metrics</CardTitle>
+                      <p className="text-muted-foreground text-xs">Acquisition & retention analysis</p>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-[#0f1419] rounded-lg p-4">
+                        <div className="bg-background rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <UserPlus className="w-4 h-4 text-emerald-400" />
-                            <span className="text-white/50 text-xs">New Customers</span>
+                            <span className="text-muted-foreground text-xs">New Customers</span>
                           </div>
-                          <p className="text-3xl font-bold text-white">{dashboardStats.customers.new}</p>
+                          <p className="text-3xl font-bold text-foreground">{dashboardStats.customers.new}</p>
                           <p className="text-xs text-emerald-400 mt-1">
                             <ArrowUp className="w-3 h-3 inline" /> +5.2% from last period
                           </p>
                         </div>
-                        <div className="bg-[#0f1419] rounded-lg p-4">
+                        <div className="bg-background rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Users className="w-4 h-4 text-blue-400" />
-                            <span className="text-white/50 text-xs">Active Customers</span>
+                            <span className="text-muted-foreground text-xs">Active Customers</span>
                           </div>
-                          <p className="text-3xl font-bold text-white">{dashboardStats.customers.active}</p>
+                          <p className="text-3xl font-bold text-foreground">{dashboardStats.customers.active}</p>
                           <p className="text-xs text-blue-400 mt-1">
                             <Target className="w-3 h-3 inline" /> {dashboardStats.customers.retention}% retention
                           </p>
@@ -3162,18 +3164,18 @@ export default function POSCommandCenter() {
                       </div>
                       {/* Customer Value Distribution */}
                       <div className="space-y-3">
-                        <p className="text-white/50 text-xs">Customer Value Distribution</p>
+                        <p className="text-muted-foreground text-xs">Customer Value Distribution</p>
                         {[
                           { label: "High Value ($200+/mo)", pct: 15, color: "bg-[#b8860b]" },
                           { label: "Medium Value ($50-200)", pct: 45, color: "bg-[#1e3a5f]" },
-                          { label: "Low Value (<$50)", pct: 40, color: "bg-white/20" },
+                          { label: "Low Value (<$50)", pct: 40, color: "bg-muted/60" },
                         ].map((tier, i) => (
                           <div key={i}>
                             <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-white/70">{tier.label}</span>
-                              <span className="text-white">{tier.pct}%</span>
+                              <span className="text-muted-foreground">{tier.label}</span>
+                              <span className="text-foreground">{tier.pct}%</span>
                             </div>
-                            <div className="h-2 bg-[#0f1419] rounded-full overflow-hidden">
+                            <div className="h-2 bg-background rounded-full overflow-hidden">
                               <div className={`h-full ${tier.color} rounded-full`} style={{ width: `${tier.pct}%` }}></div>
                             </div>
                           </div>
@@ -3183,48 +3185,48 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Machine Utilization Stats */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="chart-machines">
+                  <Card className="bg-card border" data-testid="chart-machines">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-white text-lg">Machine Performance</CardTitle>
-                      <p className="text-white/50 text-xs">Utilization & maintenance status</p>
+                      <CardTitle className="text-foreground text-lg">Machine Performance</CardTitle>
+                      <p className="text-muted-foreground text-xs">Utilization & maintenance status</p>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="bg-[#0f1419] rounded-lg p-4 text-center">
+                        <div className="bg-background rounded-lg p-4 text-center">
                           <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-2">
                             <CheckCircle2 className="w-6 h-6 text-emerald-400" />
                           </div>
-                          <p className="text-2xl font-bold text-white">{machineStatusCounts.operational}</p>
-                          <p className="text-xs text-white/50">Operational</p>
+                          <p className="text-2xl font-bold text-foreground">{machineStatusCounts.operational}</p>
+                          <p className="text-xs text-muted-foreground">Operational</p>
                         </div>
-                        <div className="bg-[#0f1419] rounded-lg p-4 text-center">
+                        <div className="bg-background rounded-lg p-4 text-center">
                           <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-2">
                             <AlertCircle className="w-6 h-6 text-amber-400" />
                           </div>
-                          <p className="text-2xl font-bold text-white">{machineStatusCounts.needsMaintenance}</p>
-                          <p className="text-xs text-white/50">Needs Attention</p>
+                          <p className="text-2xl font-bold text-foreground">{machineStatusCounts.needsMaintenance}</p>
+                          <p className="text-xs text-muted-foreground">Needs Attention</p>
                         </div>
-                        <div className="bg-[#0f1419] rounded-lg p-4 text-center">
+                        <div className="bg-background rounded-lg p-4 text-center">
                           <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-2">
                             <Wrench className="w-6 h-6 text-red-400" />
                           </div>
-                          <p className="text-2xl font-bold text-white">{machineStatusCounts.outOfOrder}</p>
-                          <p className="text-xs text-white/50">Out of Order</p>
+                          <p className="text-2xl font-bold text-foreground">{machineStatusCounts.outOfOrder}</p>
+                          <p className="text-xs text-muted-foreground">Out of Order</p>
                         </div>
                       </div>
                       {/* Utilization Gauge */}
-                      <div className="bg-[#0f1419] rounded-lg p-4">
+                      <div className="bg-background rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/50 text-xs">Overall Utilization Rate</span>
+                          <span className="text-muted-foreground text-xs">Overall Utilization Rate</span>
                           <span className="text-[#b8860b] font-bold">
                             {machineStatusCounts.total > 0 
                               ? Math.round((machineStatusCounts.operational / machineStatusCounts.total) * 100) 
                               : 0}%
                           </span>
                         </div>
-                        <div className="h-4 bg-[#1a2633] rounded-full overflow-hidden">
+                        <div className="h-4 bg-card rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-[#1e3a5f] to-[#b8860b] rounded-full transition-all"
+                            className="h-full bg-gradient-to-r from-primary to-[#b8860b] rounded-full transition-all"
                             style={{ 
                               width: `${machineStatusCounts.total > 0 
                                 ? (machineStatusCounts.operational / machineStatusCounts.total) * 100 
@@ -3232,18 +3234,18 @@ export default function POSCommandCenter() {
                             }}
                           ></div>
                         </div>
-                        <div className="flex items-center justify-between mt-2 text-xs text-white/40">
+                        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground/70">
                           <span>0%</span>
                           <span>Target: 95%</span>
                           <span>100%</span>
                         </div>
                       </div>
                       {/* Top Performing Machines */}
-                      <div className="mt-4 pt-4 border-t border-[#2a4a6f]">
-                        <p className="text-white/50 text-xs mb-2">Top Performing Machines</p>
+                      <div className="mt-4 pt-4 border-t border">
+                        <p className="text-muted-foreground text-xs mb-2">Top Performing Machines</p>
                         <div className="space-y-2">
                           {machines.slice(0, 3).map((machine: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between p-2 rounded bg-[#0f1419]">
+                            <div key={i} className="flex items-center justify-between p-2 rounded bg-background">
                               <div className="flex items-center gap-2">
                                 <div className={`w-8 h-8 rounded flex items-center justify-center ${
                                   machine.type === 'washer' ? 'bg-blue-500/20' : 'bg-amber-500/20'
@@ -3253,13 +3255,13 @@ export default function POSCommandCenter() {
                                   }`} />
                                 </div>
                                 <div>
-                                  <p className="text-sm text-white font-medium">{machine.name}</p>
-                                  <p className="text-xs text-white/40">{machine.cycles} cycles</p>
+                                  <p className="text-sm text-foreground font-medium">{machine.name}</p>
+                                  <p className="text-xs text-muted-foreground/70">{machine.cycles} cycles</p>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <p className="text-sm font-bold text-[#b8860b]">${machine.revenue.toFixed(2)}</p>
-                                <p className="text-xs text-white/40">{machine.uptime}% uptime</p>
+                                <p className="text-xs text-muted-foreground/70">{machine.uptime}% uptime</p>
                               </div>
                             </div>
                           ))}
@@ -3274,13 +3276,13 @@ export default function POSCommandCenter() {
             {/* Settings Section */}
             {activeSection === "settings" && (
               <div className="space-y-6" data-testid="settings-section">
-                <h2 className="text-2xl font-bold text-white">Settings</h2>
+                <h2 className="text-2xl font-bold text-foreground">Settings</h2>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Business Profile Card */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-business-profile">
+                  <Card className="bg-card border" data-testid="card-business-profile">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <Building className="w-5 h-5 text-[#b8860b]" />
                         Business Profile
                       </CardTitle>
@@ -3289,7 +3291,7 @@ export default function POSCommandCenter() {
                       {/* Logo Upload */}
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-20 h-20 rounded-lg bg-[#0f1419] border-2 border-dashed border-[#2a4a6f] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#b8860b] transition-colors"
+                          className="w-20 h-20 rounded-lg bg-background border-2 border-dashed border flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#b8860b] transition-colors"
                           onClick={() => document.getElementById('logo-upload')?.click()}
                           data-testid="button-upload-logo"
                         >
@@ -3309,16 +3311,16 @@ export default function POSCommandCenter() {
                         />
                         <div>
                           <p className="text-white font-medium">Business Logo</p>
-                          <p className="text-sm text-white/60">PNG, JPG up to 2MB</p>
+                          <p className="text-sm text-muted-foreground">PNG, JPG up to 2MB</p>
                         </div>
                       </div>
                       
                       <div className="space-y-3">
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Business Name</Label>
+                          <Label className="text-muted-foreground text-sm">Business Name</Label>
                           <Input
                             placeholder="Your Laundromat Name"
-                            className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                            className="bg-background border text-foreground"
                             value={settingsForm.businessName}
                             onChange={(e) => setSettingsForm({ ...settingsForm, businessName: e.target.value })}
                             data-testid="input-business-name"
@@ -3327,21 +3329,21 @@ export default function POSCommandCenter() {
                         
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">Phone</Label>
+                            <Label className="text-muted-foreground text-sm">Phone</Label>
                             <Input
                               placeholder="(555) 123-4567"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              className="bg-background border text-foreground"
                               value={settingsForm.phone}
                               onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
                               data-testid="input-business-phone"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">Email</Label>
+                            <Label className="text-muted-foreground text-sm">Email</Label>
                             <Input
                               type="email"
                               placeholder="info@laundromat.com"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              className="bg-background border text-foreground"
                               value={settingsForm.email}
                               onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
                               data-testid="input-business-email"
@@ -3350,12 +3352,12 @@ export default function POSCommandCenter() {
                         </div>
                         
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Website</Label>
+                          <Label className="text-muted-foreground text-sm">Website</Label>
                           <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-white/40" />
+                            <Globe className="w-4 h-4 text-muted-foreground/70" />
                             <Input
                               placeholder="www.yourlaundromat.com"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white flex-1"
+                              className="bg-background border text-foreground flex-1"
                               value={settingsForm.website}
                               onChange={(e) => setSettingsForm({ ...settingsForm, website: e.target.value })}
                               data-testid="input-business-website"
@@ -3364,12 +3366,12 @@ export default function POSCommandCenter() {
                         </div>
                         
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Address</Label>
+                          <Label className="text-muted-foreground text-sm">Address</Label>
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-white/40" />
+                            <MapPin className="w-4 h-4 text-muted-foreground/70" />
                             <Input
                               placeholder="Street Address"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white flex-1"
+                              className="bg-background border text-foreground flex-1"
                               value={settingsForm.address}
                               onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
                               data-testid="input-business-address"
@@ -3379,30 +3381,30 @@ export default function POSCommandCenter() {
                         
                         <div className="grid grid-cols-3 gap-2">
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">City</Label>
+                            <Label className="text-muted-foreground text-sm">City</Label>
                             <Input
                               placeholder="City"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              className="bg-background border text-foreground"
                               value={settingsForm.city}
                               onChange={(e) => setSettingsForm({ ...settingsForm, city: e.target.value })}
                               data-testid="input-business-city"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">State</Label>
+                            <Label className="text-muted-foreground text-sm">State</Label>
                             <Input
                               placeholder="State"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              className="bg-background border text-foreground"
                               value={settingsForm.state}
                               onChange={(e) => setSettingsForm({ ...settingsForm, state: e.target.value })}
                               data-testid="input-business-state"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">ZIP</Label>
+                            <Label className="text-muted-foreground text-sm">ZIP</Label>
                             <Input
                               placeholder="ZIP"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                              className="bg-background border text-foreground"
                               value={settingsForm.zip}
                               onChange={(e) => setSettingsForm({ ...settingsForm, zip: e.target.value })}
                               data-testid="input-business-zip"
@@ -3414,22 +3416,22 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Service Pricing Card */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-service-pricing">
+                  <Card className="bg-card border" data-testid="card-service-pricing">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <DollarSign className="w-5 h-5 text-[#b8860b]" />
                         Service Pricing
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {/* Pricing Mode Toggle */}
-                      <div className="flex items-center gap-2 p-1 bg-[#0f1419] rounded-lg">
+                      <div className="flex items-center gap-2 p-1 bg-background rounded-lg">
                         <button
                           onClick={() => setSettingsForm({ ...settingsForm, pricingMode: "flat_rate" })}
                           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                             settingsForm.pricingMode === "flat_rate"
                               ? "bg-[#b8860b] text-white"
-                              : "text-white/60 hover:text-white"
+                              : "text-muted-foreground hover:text-foreground"
                           }`}
                           data-testid="button-pricing-flat-rate"
                         >
@@ -3441,7 +3443,7 @@ export default function POSCommandCenter() {
                           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                             settingsForm.pricingMode === "per_pound"
                               ? "bg-[#b8860b] text-white"
-                              : "text-white/60 hover:text-white"
+                              : "text-muted-foreground hover:text-foreground"
                           }`}
                           data-testid="button-pricing-per-pound"
                         >
@@ -3453,17 +3455,17 @@ export default function POSCommandCenter() {
                       {/* Conditional Pricing Inputs */}
                       {settingsForm.pricingMode === "flat_rate" ? (
                         <div className="space-y-3">
-                          <p className="text-xs text-white/50">Set fixed prices for each load size</p>
+                          <p className="text-xs text-muted-foreground">Set fixed prices for each load size</p>
                           <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Small Load</Label>
+                              <Label className="text-muted-foreground text-sm">Small Load</Label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                                 <Input
                                   type="number"
                                   step="0.01"
                                   placeholder="15.00"
-                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  className="bg-background border text-foreground pl-8"
                                   value={settingsForm.smallLoadPrice}
                                   onChange={(e) => setSettingsForm({ ...settingsForm, smallLoadPrice: e.target.value })}
                                   data-testid="input-small-load-price"
@@ -3471,14 +3473,14 @@ export default function POSCommandCenter() {
                               </div>
                             </div>
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Medium Load</Label>
+                              <Label className="text-muted-foreground text-sm">Medium Load</Label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                                 <Input
                                   type="number"
                                   step="0.01"
                                   placeholder="25.00"
-                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  className="bg-background border text-foreground pl-8"
                                   value={settingsForm.mediumLoadPrice}
                                   onChange={(e) => setSettingsForm({ ...settingsForm, mediumLoadPrice: e.target.value })}
                                   data-testid="input-medium-load-price"
@@ -3486,14 +3488,14 @@ export default function POSCommandCenter() {
                               </div>
                             </div>
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Large Load</Label>
+                              <Label className="text-muted-foreground text-sm">Large Load</Label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                                 <Input
                                   type="number"
                                   step="0.01"
                                   placeholder="40.00"
-                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  className="bg-background border text-foreground pl-8"
                                   value={settingsForm.largeLoadPrice}
                                   onChange={(e) => setSettingsForm({ ...settingsForm, largeLoadPrice: e.target.value })}
                                   data-testid="input-large-load-price"
@@ -3501,14 +3503,14 @@ export default function POSCommandCenter() {
                               </div>
                             </div>
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Extra Large</Label>
+                              <Label className="text-muted-foreground text-sm">Extra Large</Label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                                 <Input
                                   type="number"
                                   step="0.01"
                                   placeholder="55.00"
-                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  className="bg-background border text-foreground pl-8"
                                   value={settingsForm.extraLargeLoadPrice}
                                   onChange={(e) => setSettingsForm({ ...settingsForm, extraLargeLoadPrice: e.target.value })}
                                   data-testid="input-xl-load-price"
@@ -3519,17 +3521,17 @@ export default function POSCommandCenter() {
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          <p className="text-xs text-white/50">Charge by weight for precise pricing</p>
+                          <p className="text-xs text-muted-foreground">Charge by weight for precise pricing</p>
                           <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Price per lb</Label>
+                              <Label className="text-muted-foreground text-sm">Price per lb</Label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                                 <Input
                                   type="number"
                                   step="0.01"
                                   placeholder="1.75"
-                                  className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                  className="bg-background border text-foreground pl-8"
                                   value={settingsForm.pricePerPound}
                                   onChange={(e) => setSettingsForm({ ...settingsForm, pricePerPound: e.target.value })}
                                   data-testid="input-price-per-pound"
@@ -3537,11 +3539,11 @@ export default function POSCommandCenter() {
                               </div>
                             </div>
                             <div className="space-y-1.5">
-                              <Label className="text-white/70 text-sm">Minimum Weight (lbs)</Label>
+                              <Label className="text-muted-foreground text-sm">Minimum Weight (lbs)</Label>
                               <Input
                                 type="number"
                                 placeholder="10"
-                                className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                                className="bg-background border text-foreground"
                                 value={settingsForm.minimumWeight}
                                 onChange={(e) => setSettingsForm({ ...settingsForm, minimumWeight: e.target.value })}
                                 data-testid="input-minimum-weight"
@@ -3549,13 +3551,13 @@ export default function POSCommandCenter() {
                             </div>
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">Rush Surcharge (%)</Label>
+                            <Label className="text-muted-foreground text-sm">Rush Surcharge (%)</Label>
                             <div className="relative">
-                              <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                               <Input
                                 type="number"
                                 placeholder="50"
-                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                                className="bg-background border text-foreground pl-8"
                                 value={settingsForm.rushSurcharge}
                                 onChange={(e) => setSettingsForm({ ...settingsForm, rushSurcharge: e.target.value })}
                                 data-testid="input-rush-surcharge"
@@ -3566,18 +3568,18 @@ export default function POSCommandCenter() {
                       )}
 
                       {/* Common pricing settings */}
-                      <div className="pt-3 border-t border-[#2a4a6f] space-y-3">
-                        <p className="text-xs text-white/50 font-medium">Additional Fees</p>
+                      <div className="pt-3 border-t border space-y-3">
+                        <p className="text-xs text-muted-foreground font-medium">Additional Fees</p>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">Pickup/Delivery Fee</Label>
+                            <Label className="text-muted-foreground text-sm">Pickup/Delivery Fee</Label>
                             <div className="relative">
-                              <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                               <Input
                                 type="number"
                                 step="0.01"
                                 placeholder="5.00"
-                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-9"
+                                className="bg-background border text-foreground pl-9"
                                 value={settingsForm.pickupDeliveryFee}
                                 onChange={(e) => setSettingsForm({ ...settingsForm, pickupDeliveryFee: e.target.value })}
                                 data-testid="input-pickup-delivery-fee"
@@ -3585,13 +3587,13 @@ export default function POSCommandCenter() {
                             </div>
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-white/70 text-sm">Dry Cleaning Markup (%)</Label>
+                            <Label className="text-muted-foreground text-sm">Dry Cleaning Markup (%)</Label>
                             <div className="relative">
-                              <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                              <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                               <Input
                                 type="number"
                                 placeholder="25"
-                                className="bg-[#0f1419] border-[#2a4a6f] text-white pl-9"
+                                className="bg-background border text-foreground pl-9"
                                 value={settingsForm.dryCleaningMarkup}
                                 onChange={(e) => setSettingsForm({ ...settingsForm, dryCleaningMarkup: e.target.value })}
                                 data-testid="input-dry-cleaning-markup"
@@ -3604,22 +3606,22 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Calculator Integration Card */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-calculator">
+                  <Card className="bg-card border" data-testid="card-calculator">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <Scale className="w-5 h-5 text-[#b8860b]" />
                         Calculator Integration
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-[#0f1419] rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
                             <Scale className="w-5 h-5 text-[#b8860b]" />
                           </div>
                           <div>
                             <p className="text-white font-medium">Enable Price Calculator</p>
-                            <p className="text-xs text-white/50">Show pricing widget on order screen</p>
+                            <p className="text-xs text-muted-foreground">Show pricing widget on order screen</p>
                           </div>
                         </div>
                         <Switch
@@ -3629,14 +3631,14 @@ export default function POSCommandCenter() {
                         />
                       </div>
 
-                      <div className="flex items-center justify-between p-4 bg-[#0f1419] rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                             <Coins className="w-5 h-5 text-emerald-400" />
                           </div>
                           <div>
                             <p className="text-white font-medium">Accept Tips</p>
-                            <p className="text-xs text-white/50">Allow customers to add gratuity</p>
+                            <p className="text-xs text-muted-foreground">Allow customers to add gratuity</p>
                           </div>
                         </div>
                         <Switch
@@ -3648,24 +3650,24 @@ export default function POSCommandCenter() {
 
                       {settingsForm.acceptTips && (
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Tip Options (%)</Label>
+                          <Label className="text-muted-foreground text-sm">Tip Options (%)</Label>
                           <Input
                             placeholder="15,18,20,25"
-                            className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                            className="bg-background border text-foreground"
                             value={settingsForm.defaultTipOptions}
                             onChange={(e) => setSettingsForm({ ...settingsForm, defaultTipOptions: e.target.value })}
                             data-testid="input-tip-options"
                           />
-                          <p className="text-xs text-white/40">Comma-separated percentage options</p>
+                          <p className="text-xs text-muted-foreground/70">Comma-separated percentage options</p>
                         </div>
                       )}
                     </CardContent>
                   </Card>
 
                   {/* Financial Settings Card */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f]" data-testid="card-financial">
+                  <Card className="bg-card border" data-testid="card-financial">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <CreditCard className="w-5 h-5 text-[#b8860b]" />
                         Financial Settings
                       </CardTitle>
@@ -3673,14 +3675,14 @@ export default function POSCommandCenter() {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Tax Rate (%)</Label>
+                          <Label className="text-muted-foreground text-sm">Tax Rate (%)</Label>
                           <div className="relative">
-                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                             <Input
                               type="number"
                               step="0.01"
                               placeholder="8.25"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                              className="bg-background border text-foreground pl-8"
                               value={settingsForm.taxRate}
                               onChange={(e) => setSettingsForm({ ...settingsForm, taxRate: e.target.value })}
                               data-testid="input-tax-rate"
@@ -3688,12 +3690,12 @@ export default function POSCommandCenter() {
                           </div>
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Currency</Label>
+                          <Label className="text-muted-foreground text-sm">Currency</Label>
                           <Select
                             value={settingsForm.currency}
                             onValueChange={(value: "USD" | "CAD" | "EUR" | "GBP") => setSettingsForm({ ...settingsForm, currency: value })}
                           >
-                            <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-currency">
+                            <SelectTrigger className="bg-background border text-foreground" data-testid="select-currency">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -3708,12 +3710,12 @@ export default function POSCommandCenter() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label className="text-white/70 text-sm">Order Number Prefix</Label>
+                          <Label className="text-muted-foreground text-sm">Order Number Prefix</Label>
                           <div className="relative">
-                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
                             <Input
                               placeholder="WBH"
-                              className="bg-[#0f1419] border-[#2a4a6f] text-white pl-8"
+                              className="bg-background border text-foreground pl-8"
                               value={settingsForm.orderNumberPrefix}
                               onChange={(e) => setSettingsForm({ ...settingsForm, orderNumberPrefix: e.target.value })}
                               data-testid="input-order-prefix"
@@ -3721,10 +3723,10 @@ export default function POSCommandCenter() {
                           </div>
                         </div>
                         <div className="space-y-1.5 flex flex-col justify-end">
-                          <div className="flex items-center justify-between p-3 bg-[#0f1419] rounded-lg h-10">
+                          <div className="flex items-center justify-between p-3 bg-background rounded-lg h-10">
                             <div className="flex items-center gap-2">
-                              <Printer className="w-4 h-4 text-white/40" />
-                              <span className="text-sm text-white">Auto-Print</span>
+                              <Printer className="w-4 h-4 text-muted-foreground/70" />
+                              <span className="text-sm text-foreground">Auto-Print</span>
                             </div>
                             <Switch
                               checked={settingsForm.autoPrintReceipts}
@@ -3736,10 +3738,10 @@ export default function POSCommandCenter() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-white/70 text-sm">Receipt Footer Message</Label>
+                        <Label className="text-muted-foreground text-sm">Receipt Footer Message</Label>
                         <Input
                           placeholder="Thank you for your business!"
-                          className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                          className="bg-background border text-foreground"
                           value={settingsForm.receiptFooterMessage}
                           onChange={(e) => setSettingsForm({ ...settingsForm, receiptFooterMessage: e.target.value })}
                           data-testid="input-receipt-footer"
@@ -3749,9 +3751,9 @@ export default function POSCommandCenter() {
                   </Card>
 
                   {/* Subscription Tiers Card - Full Width */}
-                  <Card className="bg-[#1a2633] border-[#2a4a6f] lg:col-span-2" data-testid="card-subscription">
+                  <Card className="bg-card border lg:col-span-2" data-testid="card-subscription">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <Crown className="w-5 h-5 text-[#b8860b]" />
                         Subscription Plans
                       </CardTitle>
@@ -3763,19 +3765,19 @@ export default function POSCommandCenter() {
                           className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
                             settingsForm.currentPlan === "starter"
                               ? "border-[#b8860b] bg-[#b8860b]/10"
-                              : "border-[#2a4a6f] bg-[#0f1419] hover:border-[#b8860b]/50"
+                              : "border bg-background hover:border-[#b8860b]/50"
                           }`}
                           onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "starter" })}
                           data-testid="plan-starter"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-bold text-white">Starter</h4>
+                            <h4 className="text-lg font-bold text-foreground">Starter</h4>
                             {settingsForm.currentPlan === "starter" && (
                               <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
                             )}
                           </div>
-                          <p className="text-3xl font-black text-[#b8860b] mb-2">$49<span className="text-sm font-normal text-white/50">/mo</span></p>
-                          <ul className="space-y-2 text-sm text-white/70">
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$49<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Up to 100 orders/month</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Basic analytics</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Email support</li>
@@ -3787,7 +3789,7 @@ export default function POSCommandCenter() {
                           className={`p-5 rounded-xl border-2 transition-all cursor-pointer relative ${
                             settingsForm.currentPlan === "professional"
                               ? "border-[#b8860b] bg-[#b8860b]/10"
-                              : "border-[#b8860b]/50 bg-[#0f1419] hover:border-[#b8860b]"
+                              : "border-[#b8860b]/50 bg-background hover:border-[#b8860b]"
                           }`}
                           onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "professional" })}
                           data-testid="plan-professional"
@@ -3796,13 +3798,13 @@ export default function POSCommandCenter() {
                             RECOMMENDED
                           </Badge>
                           <div className="flex items-center justify-between mb-3 mt-1">
-                            <h4 className="text-lg font-bold text-white">Professional</h4>
+                            <h4 className="text-lg font-bold text-foreground">Professional</h4>
                             {settingsForm.currentPlan === "professional" && (
                               <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
                             )}
                           </div>
-                          <p className="text-3xl font-black text-[#b8860b] mb-2">$149<span className="text-sm font-normal text-white/50">/mo</span></p>
-                          <ul className="space-y-2 text-sm text-white/70">
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$149<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Unlimited orders</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Advanced analytics</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Route optimization</li>
@@ -3815,19 +3817,19 @@ export default function POSCommandCenter() {
                           className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
                             settingsForm.currentPlan === "enterprise"
                               ? "border-[#b8860b] bg-[#b8860b]/10"
-                              : "border-[#2a4a6f] bg-[#0f1419] hover:border-[#b8860b]/50"
+                              : "border bg-background hover:border-[#b8860b]/50"
                           }`}
                           onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "enterprise" })}
                           data-testid="plan-enterprise"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-bold text-white">Enterprise</h4>
+                            <h4 className="text-lg font-bold text-foreground">Enterprise</h4>
                             {settingsForm.currentPlan === "enterprise" && (
                               <Badge className="bg-[#b8860b] text-white text-xs">Current</Badge>
                             )}
                           </div>
-                          <p className="text-3xl font-black text-[#b8860b] mb-2">$299<span className="text-sm font-normal text-white/50">/mo</span></p>
-                          <ul className="space-y-2 text-sm text-white/70">
+                          <p className="text-3xl font-black text-[#b8860b] mb-2">$299<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Pro</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Multi-location support</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Custom integrations</li>
@@ -3858,43 +3860,43 @@ export default function POSCommandCenter() {
 
         {/* New Order Dialog */}
         <Dialog open={newOrderOpen} onOpenChange={setNewOrderOpen}>
-          <DialogContent className="bg-[#1a2633] border-[#2a4a6f] text-white max-w-md">
+          <DialogContent className="bg-card border text-foreground max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Order</DialogTitle>
-              <DialogDescription className="text-white/60">
+              <DialogDescription className="text-muted-foreground">
                 Start a new WDF, PUD, or self-service order
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Customer Name *</label>
+                <label className="text-sm text-muted-foreground">Customer Name *</label>
                 <Input
                   placeholder="Enter customer name"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newOrderForm.customerName}
                   onChange={(e) => setNewOrderForm({ ...newOrderForm, customerName: e.target.value })}
                   data-testid="input-new-order-customer"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Phone Number *</label>
+                <label className="text-sm text-muted-foreground">Phone Number *</label>
                 <Input
                   placeholder="(555) 123-4567"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newOrderForm.customerPhone}
                   onChange={(e) => setNewOrderForm({ ...newOrderForm, customerPhone: e.target.value })}
                   data-testid="input-new-order-phone"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Order Type</label>
+                <label className="text-sm text-muted-foreground">Order Type</label>
                 <Select 
                   value={newOrderForm.orderType} 
                   onValueChange={(value: "wash_dry_fold" | "pickup_delivery" | "dry_cleaning" | "self_service") => 
                     setNewOrderForm({ ...newOrderForm, orderType: value })
                   }
                 >
-                  <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-new-order-type">
+                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-new-order-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -3906,10 +3908,10 @@ export default function POSCommandCenter() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Special Instructions</label>
+                <label className="text-sm text-muted-foreground">Special Instructions</label>
                 <Input
                   placeholder="Any special requests..."
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newOrderForm.specialInstructions}
                   onChange={(e) => setNewOrderForm({ ...newOrderForm, specialInstructions: e.target.value })}
                   data-testid="input-new-order-instructions"
@@ -3919,7 +3921,7 @@ export default function POSCommandCenter() {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 border-[#2a4a6f] text-white" 
+                className="flex-1 border text-foreground" 
                 onClick={() => setNewOrderOpen(false)}
                 disabled={createOrderMutation.isPending}
               >
@@ -3949,63 +3951,63 @@ export default function POSCommandCenter() {
 
         {/* New Customer Dialog */}
         <Dialog open={newCustomerOpen} onOpenChange={setNewCustomerOpen}>
-          <DialogContent className="bg-[#1a2633] border-[#2a4a6f] text-white max-w-md">
+          <DialogContent className="bg-card border text-foreground max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-[#b8860b]" />
                 Add New Customer
               </DialogTitle>
-              <DialogDescription className="text-white/60">
+              <DialogDescription className="text-muted-foreground">
                 Create a new customer account for your laundromat
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Account Name *</label>
+                <label className="text-sm text-muted-foreground">Account Name *</label>
                 <Input
                   placeholder="Business or household name"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newCustomerForm.accountName}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, accountName: e.target.value })}
                   data-testid="input-new-customer-account"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Contact Name *</label>
+                <label className="text-sm text-muted-foreground">Contact Name *</label>
                 <Input
                   placeholder="Primary contact person"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newCustomerForm.contactName}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, contactName: e.target.value })}
                   data-testid="input-new-customer-contact"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Phone Number *</label>
+                <label className="text-sm text-muted-foreground">Phone Number *</label>
                 <Input
                   placeholder="(555) 123-4567"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newCustomerForm.phone}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
                   data-testid="input-new-customer-phone"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Email (optional)</label>
+                <label className="text-sm text-muted-foreground">Email (optional)</label>
                 <Input
                   type="email"
                   placeholder="customer@email.com"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newCustomerForm.email}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
                   data-testid="input-new-customer-email"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Address (optional)</label>
+                <label className="text-sm text-muted-foreground">Address (optional)</label>
                 <Input
                   placeholder="Street address, city, state"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newCustomerForm.address}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, address: e.target.value })}
                   data-testid="input-new-customer-address"
@@ -4015,7 +4017,7 @@ export default function POSCommandCenter() {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 border-[#2a4a6f] text-white" 
+                className="flex-1 border text-foreground" 
                 onClick={() => setNewCustomerOpen(false)}
                 disabled={createCustomerMutation.isPending}
               >
@@ -4045,36 +4047,36 @@ export default function POSCommandCenter() {
 
         {/* New Machine Dialog */}
         <Dialog open={newMachineOpen} onOpenChange={setNewMachineOpen}>
-          <DialogContent className="bg-[#1a2633] border-[#2a4a6f] text-white max-w-md">
+          <DialogContent className="bg-card border text-foreground max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Wrench className="w-5 h-5 text-[#b8860b]" />
                 Add New Machine
               </DialogTitle>
-              <DialogDescription className="text-white/60">
+              <DialogDescription className="text-muted-foreground">
                 Register a new machine in your laundromat
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Machine Name *</label>
+                <label className="text-sm text-muted-foreground">Machine Name *</label>
                 <Input
                   placeholder="e.g., Washer 1, Front Loader A"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newMachineForm.machineName}
                   onChange={(e) => setNewMachineForm({ ...newMachineForm, machineName: e.target.value })}
                   data-testid="input-new-machine-name"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Machine Type *</label>
+                <label className="text-sm text-muted-foreground">Machine Type *</label>
                 <Select 
                   value={newMachineForm.machineType} 
                   onValueChange={(value: "washer" | "dryer" | "combo" | "ironer" | "folder") => 
                     setNewMachineForm({ ...newMachineForm, machineType: value })
                   }
                 >
-                  <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-new-machine-type">
+                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-new-machine-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -4088,20 +4090,20 @@ export default function POSCommandCenter() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Manufacturer</label>
+                  <label className="text-sm text-muted-foreground">Manufacturer</label>
                   <Input
                     placeholder="e.g., Dexter, Speed Queen"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newMachineForm.manufacturer}
                     onChange={(e) => setNewMachineForm({ ...newMachineForm, manufacturer: e.target.value })}
                     data-testid="input-new-machine-manufacturer"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Model</label>
+                  <label className="text-sm text-muted-foreground">Model</label>
                   <Input
                     placeholder="e.g., T-900, SC80"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newMachineForm.model}
                     onChange={(e) => setNewMachineForm({ ...newMachineForm, model: e.target.value })}
                     data-testid="input-new-machine-model"
@@ -4109,20 +4111,20 @@ export default function POSCommandCenter() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Serial Number</label>
+                <label className="text-sm text-muted-foreground">Serial Number</label>
                 <Input
                   placeholder="Machine serial number"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newMachineForm.serialNumber}
                   onChange={(e) => setNewMachineForm({ ...newMachineForm, serialNumber: e.target.value })}
                   data-testid="input-new-machine-serial"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Install Date</label>
+                <label className="text-sm text-muted-foreground">Install Date</label>
                 <Input
                   type="date"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newMachineForm.installDate}
                   onChange={(e) => setNewMachineForm({ ...newMachineForm, installDate: e.target.value })}
                   data-testid="input-new-machine-install-date"
@@ -4132,7 +4134,7 @@ export default function POSCommandCenter() {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 border-[#2a4a6f] text-white" 
+                className="flex-1 border text-foreground" 
                 onClick={() => setNewMachineOpen(false)}
                 disabled={createMachineMutation.isPending}
               >
@@ -4162,36 +4164,36 @@ export default function POSCommandCenter() {
 
         {/* New Route Dialog */}
         <Dialog open={newRouteOpen} onOpenChange={setNewRouteOpen}>
-          <DialogContent className="bg-[#1a2633] border-[#2a4a6f] text-white max-w-md">
+          <DialogContent className="bg-card border text-foreground max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Truck className="w-5 h-5 text-[#b8860b]" />
                 Create New Route
               </DialogTitle>
-              <DialogDescription className="text-white/60">
+              <DialogDescription className="text-muted-foreground">
                 Plan a new pickup or delivery route
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Route Name *</label>
+                <label className="text-sm text-muted-foreground">Route Name *</label>
                 <Input
                   placeholder="e.g., North Zone Morning, Downtown PM"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newRouteForm.routeName}
                   onChange={(e) => setNewRouteForm({ ...newRouteForm, routeName: e.target.value })}
                   data-testid="input-new-route-name"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Route Type *</label>
+                <label className="text-sm text-muted-foreground">Route Type *</label>
                 <Select 
                   value={newRouteForm.routeType} 
                   onValueChange={(value: "pickup" | "delivery" | "pickup_delivery") => 
                     setNewRouteForm({ ...newRouteForm, routeType: value })
                   }
                 >
-                  <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-new-route-type">
+                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-new-route-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -4202,20 +4204,20 @@ export default function POSCommandCenter() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Route Date *</label>
+                <label className="text-sm text-muted-foreground">Route Date *</label>
                 <Input
                   type="date"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newRouteForm.routeDate}
                   onChange={(e) => setNewRouteForm({ ...newRouteForm, routeDate: e.target.value })}
                   data-testid="input-new-route-date"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Driver ID (Optional)</label>
+                <label className="text-sm text-muted-foreground">Driver ID (Optional)</label>
                 <Input
                   placeholder="Assign a driver (optional)"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newRouteForm.driverId}
                   onChange={(e) => setNewRouteForm({ ...newRouteForm, driverId: e.target.value })}
                   data-testid="input-new-route-driver"
@@ -4225,7 +4227,7 @@ export default function POSCommandCenter() {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 border-[#2a4a6f] text-white" 
+                className="flex-1 border text-foreground" 
                 onClick={() => setNewRouteOpen(false)}
                 disabled={createRouteMutation.isPending}
               >
@@ -4255,33 +4257,33 @@ export default function POSCommandCenter() {
 
         {/* New Part Dialog */}
         <Dialog open={newPartOpen} onOpenChange={setNewPartOpen}>
-          <DialogContent className="bg-[#1a2633] border-[#2a4a6f] text-white max-w-lg">
+          <DialogContent className="bg-card border text-foreground max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Package className="w-5 h-5 text-[#b8860b]" />
                 Add New Part
               </DialogTitle>
-              <DialogDescription className="text-white/60">
+              <DialogDescription className="text-muted-foreground">
                 Add a new part or supply to your inventory
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Part Name *</label>
+                  <label className="text-sm text-muted-foreground">Part Name *</label>
                   <Input
                     placeholder="e.g., Drive Belt, Lint Filter"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.partName}
                     onChange={(e) => setNewPartForm({ ...newPartForm, partName: e.target.value })}
                     data-testid="input-new-part-name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Part Number / SKU *</label>
+                  <label className="text-sm text-muted-foreground">Part Number / SKU *</label>
                   <Input
                     placeholder="e.g., DXT-BELT-001"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.partNumber}
                     onChange={(e) => setNewPartForm({ ...newPartForm, partNumber: e.target.value })}
                     data-testid="input-new-part-number"
@@ -4289,14 +4291,14 @@ export default function POSCommandCenter() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Category *</label>
+                <label className="text-sm text-muted-foreground">Category *</label>
                 <Select 
                   value={newPartForm.category} 
                   onValueChange={(value: "Parts" | "Supplies" | "Chemicals" | "Equipment") => 
                     setNewPartForm({ ...newPartForm, category: value })
                   }
                 >
-                  <SelectTrigger className="bg-[#0f1419] border-[#2a4a6f] text-white" data-testid="select-new-part-category">
+                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-new-part-category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -4308,10 +4310,10 @@ export default function POSCommandCenter() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Description</label>
+                <label className="text-sm text-muted-foreground">Description</label>
                 <Input
                   placeholder="Brief description of the part"
-                  className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                  className="bg-background border text-foreground"
                   value={newPartForm.description}
                   onChange={(e) => setNewPartForm({ ...newPartForm, description: e.target.value })}
                   data-testid="input-new-part-description"
@@ -4319,20 +4321,20 @@ export default function POSCommandCenter() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Manufacturer / Vendor</label>
+                  <label className="text-sm text-muted-foreground">Manufacturer / Vendor</label>
                   <Input
                     placeholder="e.g., Dexter, Speed Queen"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.manufacturer}
                     onChange={(e) => setNewPartForm({ ...newPartForm, manufacturer: e.target.value })}
                     data-testid="input-new-part-manufacturer"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Bin Location</label>
+                  <label className="text-sm text-muted-foreground">Bin Location</label>
                   <Input
                     placeholder="e.g., Shelf A-1"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.binLocation}
                     onChange={(e) => setNewPartForm({ ...newPartForm, binLocation: e.target.value })}
                     data-testid="input-new-part-bin"
@@ -4341,36 +4343,36 @@ export default function POSCommandCenter() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Quantity *</label>
+                  <label className="text-sm text-muted-foreground">Quantity *</label>
                   <Input
                     type="number"
                     min="0"
                     placeholder="0"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.quantityOnHand}
                     onChange={(e) => setNewPartForm({ ...newPartForm, quantityOnHand: parseInt(e.target.value) || 0 })}
                     data-testid="input-new-part-quantity"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Reorder Point</label>
+                  <label className="text-sm text-muted-foreground">Reorder Point</label>
                   <Input
                     type="number"
                     min="0"
                     placeholder="5"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.reorderPoint}
                     onChange={(e) => setNewPartForm({ ...newPartForm, reorderPoint: parseInt(e.target.value) || 5 })}
                     data-testid="input-new-part-reorder-point"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Reorder Qty</label>
+                  <label className="text-sm text-muted-foreground">Reorder Qty</label>
                   <Input
                     type="number"
                     min="0"
                     placeholder="10"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.reorderQuantity}
                     onChange={(e) => setNewPartForm({ ...newPartForm, reorderQuantity: parseInt(e.target.value) || 10 })}
                     data-testid="input-new-part-reorder-quantity"
@@ -4379,26 +4381,26 @@ export default function POSCommandCenter() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Unit Cost ($)</label>
+                  <label className="text-sm text-muted-foreground">Unit Cost ($)</label>
                   <Input
                     type="number"
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.unitCost}
                     onChange={(e) => setNewPartForm({ ...newPartForm, unitCost: e.target.value })}
                     data-testid="input-new-part-unit-cost"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70">Retail Price ($)</label>
+                  <label className="text-sm text-muted-foreground">Retail Price ($)</label>
                   <Input
                     type="number"
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    className="bg-[#0f1419] border-[#2a4a6f] text-white"
+                    className="bg-background border text-foreground"
                     value={newPartForm.retailPrice}
                     onChange={(e) => setNewPartForm({ ...newPartForm, retailPrice: e.target.value })}
                     data-testid="input-new-part-retail-price"
@@ -4409,7 +4411,7 @@ export default function POSCommandCenter() {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 border-[#2a4a6f] text-white" 
+                className="flex-1 border text-foreground" 
                 onClick={() => setNewPartOpen(false)}
                 disabled={createPartMutation.isPending}
               >
