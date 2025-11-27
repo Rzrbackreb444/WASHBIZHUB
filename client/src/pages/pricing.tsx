@@ -32,8 +32,8 @@ export default function Pricing() {
       name: "Accelerate",
       price: billingCycle === "monthly" ? 249 : 2490,
       icon: Zap,
-      color: "from-blue-500/20 to-cyan-500/20",
-      borderColor: "border-blue-500/30",
+      iconBg: "bg-blue-100 dark:bg-blue-900/30",
+      iconColor: "text-blue-600 dark:text-blue-400",
       popular: false,
       description: "Perfect for single-location owners getting started",
       features: [
@@ -59,8 +59,8 @@ export default function Pricing() {
       name: "Scale",
       price: billingCycle === "monthly" ? 499 : 4990,
       icon: TrendingUp,
-      color: "from-accent/30 to-yellow-500/30",
-      borderColor: "border-accent/50",
+      iconBg: "bg-accent/10",
+      iconColor: "text-accent",
       popular: true,
       description: "For multi-location operators and growing businesses",
       features: [
@@ -89,8 +89,8 @@ export default function Pricing() {
       name: "Summit",
       price: billingCycle === "monthly" ? 899 : 8990,
       icon: Crown,
-      color: "from-purple-500/20 to-pink-500/20",
-      borderColor: "border-purple-500/30",
+      iconBg: "bg-purple-100 dark:bg-purple-900/30",
+      iconColor: "text-purple-600 dark:text-purple-400",
       popular: false,
       description: "Enterprise solution for large operations and franchises",
       features: [
@@ -271,18 +271,18 @@ export default function Pricing() {
     : "Switch to annual and save 16%!";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#0f1419] py-12">
+    <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-accent/20 text-accent border-accent/30" data-testid="badge-pricing-header">
+          <Badge variant="secondary" className="mb-4" data-testid="badge-pricing-header">
             <DollarSign className="h-3 w-3 mr-1" />
             Transparent Pricing
           </Badge>
-          <h1 className="text-5xl font-black text-white mb-4" data-testid="text-pricing-title">
+          <h1 className="text-5xl font-black text-foreground mb-4" data-testid="text-pricing-title">
             Professional Laundromat Software
           </h1>
-          <p className="text-xl text-white/70 max-w-3xl mx-auto" data-testid="text-pricing-subtitle">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="text-pricing-subtitle">
             World-class enterprise platform combining marketplace, POS, IoT monitoring, AI consultant, 
             comprehensive SEO suite, website hosting with WYSIWYG builder, 50+ calculators, and viral UGC affiliate marketing
           </p>
@@ -290,11 +290,11 @@ export default function Pricing() {
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as "monthly" | "annual")} className="w-full max-w-md">
-              <TabsList className="grid w-full grid-cols-2 bg-white/10">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="monthly" data-testid="tab-monthly">Monthly</TabsTrigger>
                 <TabsTrigger value="annual" data-testid="tab-annual">
                   Annual
-                  <Badge className="ml-2 bg-accent text-black text-xs">Save 16%</Badge>
+                  <Badge className="ml-2 bg-accent text-accent-foreground text-xs">Save 16%</Badge>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -311,41 +311,42 @@ export default function Pricing() {
             return (
               <Card 
                 key={tier.name}
-                className={`relative bg-gradient-to-br ${tier.color} backdrop-blur border-2 ${tier.borderColor} ${tier.popular ? 'scale-105 shadow-2xl' : ''}`}
+                className={`relative ${tier.popular ? 'scale-105 shadow-2xl ring-2 ring-accent' : ''}`}
                 data-testid={`card-tier-${tier.name.toLowerCase()}`}
               >
                 {tier.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-black border-accent" data-testid="badge-popular">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground" data-testid="badge-popular">
                     <Star className="h-3 w-3 mr-1" />
                     Most Popular
                   </Badge>
                 )}
                 <CardHeader className="text-center pb-8">
-                  <div className="mx-auto mb-4 p-3 rounded-full bg-white/10 w-fit">
-                    <Icon className="h-8 w-8 text-accent" />
+                  <div className={`mx-auto mb-4 p-3 rounded-full ${tier.iconBg} w-fit`}>
+                    <Icon className={`h-8 w-8 ${tier.iconColor}`} />
                   </div>
-                  <CardTitle className="text-3xl font-black text-white mb-2" data-testid={`text-tier-name-${tier.name.toLowerCase()}`}>
+                  <CardTitle className="text-3xl font-black text-foreground mb-2" data-testid={`text-tier-name-${tier.name.toLowerCase()}`}>
                     {tier.name}
                   </CardTitle>
-                  <CardDescription className="text-white/70 mb-4" data-testid={`text-tier-description-${tier.name.toLowerCase()}`}>
+                  <CardDescription className="mb-4" data-testid={`text-tier-description-${tier.name.toLowerCase()}`}>
                     {tier.description}
                   </CardDescription>
                   <div className="mb-4">
-                    <span className="text-5xl font-black text-white" data-testid={`text-price-${tier.name.toLowerCase()}`}>
+                    <span className="text-5xl font-black text-foreground" data-testid={`text-price-${tier.name.toLowerCase()}`}>
                       ${billingCycle === "monthly" ? tier.price : Math.floor(tier.price / 12)}
                     </span>
-                    <span className="text-white/70 text-lg">
+                    <span className="text-muted-foreground text-lg">
                       /{billingCycle === "monthly" ? "mo" : "mo"}
                     </span>
                     {billingCycle === "annual" && (
-                      <div className="text-sm text-white/50 mt-1">
+                      <div className="text-sm text-muted-foreground mt-1">
                         ${tier.price}/year (billed annually)
                       </div>
                     )}
                   </div>
                   <Link href="/subscribe">
                     <Button 
-                      className={`w-full ${tier.popular ? 'bg-accent text-black hover:bg-accent/90' : 'bg-white/20 text-white hover:bg-white/30'}`}
+                      className="w-full"
+                      variant={tier.popular ? "default" : "outline"}
                       size="lg"
                       data-testid={`button-subscribe-${tier.name.toLowerCase()}`}
                     >
@@ -359,27 +360,27 @@ export default function Pricing() {
                   </Link>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="border-t border-white/20 pt-4">
-                    <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <div className="border-t pt-4">
+                    <h4 className="text-foreground font-semibold mb-3 flex items-center gap-2">
                       <Users className="h-4 w-4 text-accent" />
                       Plan Limits
                     </h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-white/70 mb-4">
+                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mb-4">
                       <div>
-                        <span className="text-white/50">Locations:</span>
-                        <span className="ml-2 text-white font-medium">{tier.limits.locations}</span>
+                        <span className="text-muted-foreground">Locations:</span>
+                        <span className="ml-2 text-foreground font-medium">{tier.limits.locations}</span>
                       </div>
                       <div>
-                        <span className="text-white/50">Users:</span>
-                        <span className="ml-2 text-white font-medium">{tier.limits.users}</span>
+                        <span className="text-muted-foreground">Users:</span>
+                        <span className="ml-2 text-foreground font-medium">{tier.limits.users}</span>
                       </div>
                       <div>
-                        <span className="text-white/50">Transactions:</span>
-                        <span className="ml-2 text-white font-medium">{tier.limits.transactions}</span>
+                        <span className="text-muted-foreground">Transactions:</span>
+                        <span className="ml-2 text-foreground font-medium">{tier.limits.transactions}</span>
                       </div>
                       <div>
-                        <span className="text-white/50">Storage:</span>
-                        <span className="ml-2 text-white font-medium">{tier.limits.storage}</span>
+                        <span className="text-muted-foreground">Storage:</span>
+                        <span className="ml-2 text-foreground font-medium">{tier.limits.storage}</span>
                       </div>
                     </div>
                   </div>
@@ -388,10 +389,10 @@ export default function Pricing() {
                     {tier.features.map((feature, idx) => (
                       <div 
                         key={idx} 
-                        className={`flex items-start gap-2 ${feature.startsWith('Everything') ? 'text-accent font-semibold mt-4' : 'text-white/80'}`}
+                        className={`flex items-start gap-2 ${feature.startsWith('Everything') ? 'text-accent font-semibold mt-4' : 'text-muted-foreground'}`}
                         data-testid={`feature-${tier.name.toLowerCase()}-${idx}`}
                       >
-                        <Check className={`h-5 w-5 flex-shrink-0 mt-0.5 ${feature.startsWith('Everything') ? 'text-accent' : 'text-accent/70'}`} />
+                        <Check className={`h-5 w-5 flex-shrink-0 mt-0.5 ${feature.startsWith('Everything') ? 'text-accent' : 'text-primary'}`} />
                         <span className="text-sm">{feature}</span>
                       </div>
                     ))}
@@ -405,10 +406,10 @@ export default function Pricing() {
         {/* Platform Features */}
         <div className="mb-16">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-black text-white mb-4" data-testid="text-platform-features-title">
+            <h2 className="text-4xl font-black text-foreground mb-4" data-testid="text-platform-features-title">
               Complete Platform Features
             </h2>
-            <p className="text-white/70 text-lg" data-testid="text-platform-features-subtitle">
+            <p className="text-muted-foreground text-lg" data-testid="text-platform-features-subtitle">
               Everything you need to modernize and scale your laundromat business
             </p>
           </div>
@@ -419,15 +420,14 @@ export default function Pricing() {
               return (
                 <Card 
                   key={category.category}
-                  className="bg-white/10 backdrop-blur border-white/20"
                   data-testid={`card-feature-${category.category.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-accent/20">
+                      <div className="p-2 rounded-lg bg-accent/10">
                         <Icon className="h-5 w-5 text-accent" />
                       </div>
-                      <CardTitle className="text-white text-lg" data-testid={`text-category-${category.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <CardTitle className="text-foreground text-lg" data-testid={`text-category-${category.category.toLowerCase().replace(/\s+/g, '-')}`}>
                         {category.category}
                       </CardTitle>
                     </div>
@@ -437,10 +437,10 @@ export default function Pricing() {
                       {category.features.map((feature, idx) => (
                         <li 
                           key={idx} 
-                          className="flex items-start gap-2 text-white/80 text-sm"
+                          className="flex items-start gap-2 text-muted-foreground text-sm"
                           data-testid={`feature-item-${category.category.toLowerCase().replace(/\s+/g, '-')}-${idx}`}
                         >
-                          <Check className="h-4 w-4 text-accent/70 flex-shrink-0 mt-0.5" />
+                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -455,10 +455,10 @@ export default function Pricing() {
         {/* Add-Ons */}
         <div className="mb-16">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-black text-white mb-4" data-testid="text-addons-title">
+            <h2 className="text-4xl font-black text-foreground mb-4" data-testid="text-addons-title">
               Add-Ons & Extras
             </h2>
-            <p className="text-white/70 text-lg" data-testid="text-addons-subtitle">
+            <p className="text-muted-foreground text-lg" data-testid="text-addons-subtitle">
               Customize your plan with additional features
             </p>
           </div>
@@ -467,14 +467,13 @@ export default function Pricing() {
             {addOns.map((addon) => (
               <Card 
                 key={addon.name}
-                className="bg-white/10 backdrop-blur border-white/20"
                 data-testid={`card-addon-${addon.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <CardHeader>
-                  <CardTitle className="text-white text-lg mb-2" data-testid={`text-addon-name-${addon.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <CardTitle className="text-foreground text-lg mb-2" data-testid={`text-addon-name-${addon.name.toLowerCase().replace(/\s+/g, '-')}`}>
                     {addon.name}
                   </CardTitle>
-                  <CardDescription className="text-white/70" data-testid={`text-addon-description-${addon.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <CardDescription data-testid={`text-addon-description-${addon.name.toLowerCase().replace(/\s+/g, '-')}`}>
                     {addon.description}
                   </CardDescription>
                 </CardHeader>
@@ -489,28 +488,28 @@ export default function Pricing() {
         </div>
 
         {/* CTA Section */}
-        <Card className="bg-gradient-to-br from-accent/20 to-yellow-500/20 backdrop-blur border-2 border-accent/30">
+        <Card className="bg-primary/5 border-primary/20">
           <CardContent className="p-12 text-center">
-            <h2 className="text-4xl font-black text-white mb-4" data-testid="text-cta-title">
+            <h2 className="text-4xl font-black text-foreground mb-4" data-testid="text-cta-title">
               Ready to Transform Your Business?
             </h2>
-            <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto" data-testid="text-cta-subtitle">
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto" data-testid="text-cta-subtitle">
               Join 72,000+ laundromat professionals modernizing their operations with WashBizHub
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/subscribe">
-                <Button size="lg" className="bg-accent text-black hover:bg-accent/90" data-testid="button-cta-subscribe">
+                <Button size="lg" data-testid="button-cta-subscribe">
                   <Rocket className="h-5 w-5 mr-2" />
                   Start Free Trial
                 </Button>
               </Link>
               <Link href="/consultation">
-                <Button size="lg" variant="outline" className="bg-white/20 text-white hover:bg-white/30 border-white/30" data-testid="button-cta-consultation">
+                <Button size="lg" variant="outline" data-testid="button-cta-consultation">
                   Schedule Demo
                 </Button>
               </Link>
             </div>
-            <p className="text-white/60 text-sm mt-6" data-testid="text-cta-guarantee">
+            <p className="text-muted-foreground text-sm mt-6" data-testid="text-cta-guarantee">
               No credit card required • 14-day free trial • Cancel anytime
             </p>
           </CardContent>
@@ -518,12 +517,12 @@ export default function Pricing() {
 
         {/* Facebook Group CTA */}
         <div className="mt-12 text-center">
-          <Card className="bg-white/10 backdrop-blur border-white/20 max-w-3xl mx-auto">
+          <Card className="max-w-3xl mx-auto">
             <CardContent className="p-8">
-              <h3 className="text-2xl font-bold text-white mb-3" data-testid="text-facebook-cta-title">
+              <h3 className="text-2xl font-bold text-foreground mb-3" data-testid="text-facebook-cta-title">
                 Part of the Largest Laundromat Community
               </h3>
-              <p className="text-white/70 mb-6" data-testid="text-facebook-cta-description">
+              <p className="text-muted-foreground mb-6" data-testid="text-facebook-cta-description">
                 WashBizHub is built for and by the 72,000+ member "Advantage Laundry" Facebook community
               </p>
               <Link href="/facebook-group">

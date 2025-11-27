@@ -17,10 +17,10 @@ export default function AboutUs() {
 
       <div className="min-h-screen bg-background">
         {/* Hero */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-16 border-b border-slate-700">
+        <div className="bg-primary/5 py-16 border-b border-border">
           <div className="max-w-4xl mx-auto px-6">
-            <h1 className="text-5xl font-bold mb-4">About WashBizHub</h1>
-            <p className="text-xl text-slate-300">
+            <h1 className="text-5xl font-bold mb-4 text-foreground">About WashBizHub</h1>
+            <p className="text-xl text-muted-foreground">
               The #1 Laundromat Resource Hub. We're modernizing the $40B laundromat industry through enterprise software, IoT integration, and business intelligence.
             </p>
           </div>
@@ -30,7 +30,7 @@ export default function AboutUs() {
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Our Mission</h2>
               <p className="text-lg text-muted-foreground mb-4">
                 To empower laundromat operators with enterprise-grade tools that drive profitability, optimize operations, and transform the industry.
               </p>
@@ -40,19 +40,19 @@ export default function AboutUs() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-primary" />
-                  <span>Enterprise-grade SaaS platform</span>
+                  <span className="text-foreground">Enterprise-grade SaaS platform</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
-                  <span>72,000+ laundromat owners served</span>
+                  <span className="text-foreground">72,000+ laundromat owners served</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-primary" />
-                  <span>Global reach, local expertise</span>
+                  <span className="text-foreground">Global reach, local expertise</span>
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-lg p-12 aspect-square flex items-center justify-center">
+            <div className="bg-muted/50 rounded-lg p-12 aspect-square flex items-center justify-center border border-border">
               <div className="text-center">
                 <Zap className="w-24 h-24 mx-auto text-primary mb-4" />
                 <p className="text-sm text-muted-foreground">Transforming the laundromat industry</p>
@@ -62,12 +62,12 @@ export default function AboutUs() {
 
           {/* Core Values */}
           <div>
-            <h2 className="text-3xl font-bold mb-8">Core Values</h2>
+            <h2 className="text-3xl font-bold mb-8 text-foreground">Core Values</h2>
             <div className="grid md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
+                    <Target className="w-5 h-5 text-primary" />
                     Excellence
                   </CardTitle>
                 </CardHeader>
@@ -81,7 +81,7 @@ export default function AboutUs() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
+                    <Users className="w-5 h-5 text-primary" />
                     Community
                   </CardTitle>
                 </CardHeader>
@@ -95,7 +95,7 @@ export default function AboutUs() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Zap className="w-5 h-5" />
+                    <Zap className="w-5 h-5 text-primary" />
                     Innovation
                   </CardTitle>
                 </CardHeader>
@@ -110,7 +110,7 @@ export default function AboutUs() {
 
           {/* Platform Features */}
           <div>
-            <h2 className="text-3xl font-bold mb-8">Platform Overview</h2>
+            <h2 className="text-3xl font-bold mb-8 text-foreground">Platform Overview</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -169,7 +169,7 @@ export default function AboutUs() {
           </div>
 
           {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-6 py-12 border-t border-b">
+          <div className="grid md:grid-cols-4 gap-6 py-12 border-t border-b border-border">
             <div className="text-center">
               <div className="text-4xl font-bold text-primary mb-2">72K+</div>
               <p className="text-muted-foreground">Laundromat Owners</p>
@@ -189,17 +189,17 @@ export default function AboutUs() {
           </div>
 
           {/* Contact */}
-          <div className="bg-slate-900 text-white rounded-lg p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">Get In Touch</h2>
-            <p className="mb-6 text-lg">Have questions? We'd love to hear from you.</p>
+          <div className="bg-muted/30 rounded-lg p-12 text-center border border-border">
+            <h2 className="text-3xl font-bold mb-4 text-foreground">Get In Touch</h2>
+            <p className="mb-6 text-lg text-muted-foreground">Have questions? We'd love to hear from you.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/consultant-inquiry">
-                <Button className="bg-white text-slate-900 hover:bg-blue-50">
+                <Button data-testid="button-contact">
                   Contact Us
                 </Button>
               </Link>
               <a href="mailto:info@washbizhub.com">
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button variant="outline" data-testid="button-email">
                   Send Email
                 </Button>
               </a>
