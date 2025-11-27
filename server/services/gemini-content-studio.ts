@@ -16,6 +16,7 @@ const MODELS = {
   flash: "gemini-2.0-flash-exp", // Fast, high-volume (1,500/day free)
   pro: "gemini-1.5-pro", // Complex reasoning
   flashThinking: "gemini-2.0-flash-thinking-exp", // Advanced reasoning
+  flashImage: "gemini-2.5-flash-preview-05-20", // Native image generation model
 };
 
 // Safety settings for content generation
@@ -443,6 +444,231 @@ Provide complete, working code with proper error handling.`;
   };
 }
 
+// ==================== IMAGE GENERATION ====================
+
+export type ImageType = "cover" | "header" | "banner" | "custom";
+export type CoverStyle = "professional" | "creative" | "minimalist";
+
+export interface ImageGenerationResult {
+  url: string;
+  base64: string;
+  filename: string;
+  contentType: string;
+  processingTimeMs: number;
+  model: string;
+}
+
+export interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
+const IMAGE_DIMENSIONS: Record<ImageType, ImageDimensions> = {
+  cover: { width: 1600, height: 2560 }, // Book cover (1:1.6 ratio for KDP)
+  header: { width: 1200, height: 630 }, // Blog header (OG image standard)
+  banner: { width: 1200, height: 400 }, // Newsletter banner (3:1 ratio)
+  custom: { width: 1024, height: 1024 }, // Default square
+};
+
+/**
+ * Upload image buffer to object storage
+ */
+async function uploadImageToStorage(
+  imageBuffer: Buffer,
+  filename: string,
+  contentType: string = "image/png"
+): Promise<string> {
+  const { Storage } = await import("@google-cloud/storage");
+  
+  const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+  
+  const objectStorageClient = new Storage({
+    credentials: {
+      audience: "replit",
+      subject_token_type: "access_token",
+      token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+      type: "external_account",
+      credential_source: {
+        url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+        format: {
+          type: "json",
+          subject_token_field_name: "access_token",
+        },
+      },
+      universe_domain: "googleapis.com",
+    },
+    projectId: "",
+  });
+
+  const publicPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS || "";
+  const paths = publicPaths.split(",").map((p) => p.trim()).filter((p) => p.length > 0);
+  
+  if (paths.length === 0) {
+    throw new Error("PUBLIC_OBJECT_SEARCH_PATHS not configured. Cannot upload images.");
+  }
+
+  const basePath = paths[0];
+  const pathParts = basePath.split("/").filter((p) => p.length > 0);
+  const bucketName = pathParts[0];
+  const objectDir = pathParts.slice(1).join("/");
+  
+  const objectName = objectDir ? `${objectDir}/ai-generated/${filename}` : `ai-generated/${filename}`;
+  
+  const bucket = objectStorageClient.bucket(bucketName);
+  const file = bucket.file(objectName);
+  
+  await file.save(imageBuffer, {
+    contentType,
+    metadata: {
+      cacheControl: "public, max-age=31536000",
+    },
+  });
+
+  return `https://storage.googleapis.com/${bucketName}/${objectName}`;
+}
+
+/**
+ * Generate an image using Gemini Flash Image model
+ */
+export async function generateImage(
+  prompt: string,
+  type: ImageType = "custom",
+  customDimensions?: ImageDimensions
+): Promise<ImageGenerationResult> {
+  const startTime = Date.now();
+  const dimensions = customDimensions || IMAGE_DIMENSIONS[type];
+  
+  const model = genAI.getGenerativeModel({
+    model: MODELS.flashImage,
+    generationConfig: {
+      responseModalities: ["Text", "Image"],
+    } as any,
+  });
+
+  const aspectRatio = dimensions.width / dimensions.height;
+  let sizeHint = "square image";
+  if (aspectRatio > 1.2) {
+    sizeHint = "wide landscape image";
+  } else if (aspectRatio < 0.8) {
+    sizeHint = "tall portrait image";
+  }
+
+  const enhancedPrompt = `${prompt}. Generate a high-quality, professional ${sizeHint} at ${dimensions.width}x${dimensions.height} resolution. The image should be visually stunning and suitable for commercial use.`;
+
+  try {
+    const result = await model.generateContent(enhancedPrompt);
+    const response = result.response;
+    
+    let imageBase64 = "";
+    let contentType = "image/png";
+    
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if ((part as any).inlineData) {
+        imageBase64 = (part as any).inlineData.data;
+        contentType = (part as any).inlineData.mimeType || "image/png";
+        break;
+      }
+    }
+
+    if (!imageBase64) {
+      throw new Error("No image generated in response");
+    }
+
+    const imageBuffer = Buffer.from(imageBase64, "base64");
+    const timestamp = Date.now();
+    const safePrompt = prompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+    const extension = contentType.split("/")[1] || "png";
+    const filename = `${type}_${safePrompt}_${timestamp}.${extension}`;
+    
+    const url = await uploadImageToStorage(imageBuffer, filename, contentType);
+
+    return {
+      url,
+      base64: `data:${contentType};base64,${imageBase64}`,
+      filename,
+      contentType,
+      processingTimeMs: Date.now() - startTime,
+      model: MODELS.flashImage,
+    };
+  } catch (error: any) {
+    if (error.message?.includes("429") || error.message?.includes("rate limit")) {
+      throw new Error("Rate limit exceeded. Please wait a moment and try again.");
+    }
+    throw error;
+  }
+}
+
+/**
+ * Generate a professional book cover
+ */
+export async function generateBookCover(
+  bookTitle: string,
+  subtitle: string = "",
+  author: string = "",
+  style: CoverStyle = "professional"
+): Promise<ImageGenerationResult> {
+  const styleDescriptions: Record<CoverStyle, string> = {
+    professional: "clean, corporate design with bold typography, navy blue and gold color scheme, minimal imagery, authoritative and trustworthy aesthetic",
+    creative: "artistic, vibrant design with unique visual elements, creative typography, eye-catching colors, imaginative and engaging composition",
+    minimalist: "ultra-clean design with lots of whitespace, simple elegant typography, limited color palette, sophisticated and modern aesthetic",
+  };
+
+  const prompt = `Create a stunning book cover design for "${bookTitle}"${subtitle ? ` with subtitle "${subtitle}"` : ""}${author ? ` by ${author}` : ""}. 
+Style: ${styleDescriptions[style]}. 
+The cover should look like a professionally designed bestseller book cover suitable for Kindle Direct Publishing and physical print. 
+Include elegant title typography that is clearly readable. 
+The design should evoke professionalism and expertise in the subject matter.
+Vertical portrait orientation optimized for book format.`;
+
+  return generateImage(prompt, "cover");
+}
+
+/**
+ * Generate a blog post header image
+ */
+export async function generateBlogHeaderImage(
+  blogTitle: string,
+  keywords: string[] = [],
+  industry: string = "laundromat business"
+): Promise<ImageGenerationResult> {
+  const keywordContext = keywords.length > 0 
+    ? `Key themes: ${keywords.join(", ")}.` 
+    : "";
+
+  const prompt = `Create a professional, engaging header image for a blog post titled "${blogTitle}" in the ${industry} industry. 
+${keywordContext}
+The image should be modern, visually appealing, and work well as an Open Graph social media preview image. 
+Use a clean, professional color palette with navy blue and gold accents. 
+The composition should have visual interest but leave room for text overlay if needed. 
+Wide landscape format optimized for web and social sharing.`;
+
+  return generateImage(prompt, "header");
+}
+
+/**
+ * Generate a newsletter banner image
+ */
+export async function generateNewsletterBanner(
+  topic: string,
+  brandName: string = "WashBizHub",
+  style: "promotional" | "informational" | "announcement" = "informational"
+): Promise<ImageGenerationResult> {
+  const styleGuide: Record<string, string> = {
+    promotional: "vibrant, exciting colors with call-to-action energy, sale or promotion aesthetic",
+    informational: "clean, professional design with subtle imagery, trustworthy and informative feel",
+    announcement: "bold, attention-grabbing design with celebratory elements, important news aesthetic",
+  };
+
+  const prompt = `Create a professional email newsletter banner for ${brandName} about "${topic}". 
+Style: ${styleGuide[style]}. 
+The banner should be eye-catching but not overwhelming, with a clean professional aesthetic. 
+Use a color scheme with navy blue, gold accents, and clean white elements. 
+Wide panoramic format optimized for email headers. 
+The design should look great on both desktop and mobile email clients.`;
+
+  return generateImage(prompt, "banner");
+}
+
 /**
  * Get AI quota status
  */
@@ -451,11 +677,13 @@ export function getQuotaStatus(): {
   model: string;
   dailyLimit: number;
   note: string;
+  imageModel: string;
 } {
   return {
     apiKeyConfigured: !!process.env.GEMINI_API_KEY,
     model: MODELS.flash,
     dailyLimit: 1500,
     note: "Using Gemini 2.0 Flash with 1,500 free requests/day",
+    imageModel: MODELS.flashImage,
   };
 }

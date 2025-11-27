@@ -100,8 +100,19 @@ import {
   generateNewsletter,
   generateCode,
   getQuotaStatus,
+  generateImage,
+  generateBookCover,
+  generateBlogHeaderImage,
+  generateNewsletterBanner,
   type ChatMessage,
+  type ImageType,
+  type CoverStyle,
 } from "./services/gemini-content-studio";
+import {
+  exportToPdf,
+  exportToDocx,
+  getExportMetadata,
+} from "./services/kdp-export";
 
 // Stripe optional - payments disabled if key not set
 let stripe: Stripe | null = null;
@@ -7221,6 +7232,160 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ==================== IMAGE GENERATION ====================
+
+  // Generate an image from a prompt
+  app.post("/api/ai-studio/generate-image", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { prompt, type = "custom", dimensions } = req.body;
+
+      if (!prompt) {
+        return res.status(400).json({ message: "Prompt is required" });
+      }
+
+      const validTypes: ImageType[] = ["cover", "header", "banner", "custom"];
+      if (!validTypes.includes(type)) {
+        return res.status(400).json({ message: "Invalid type. Must be one of: cover, header, banner, custom" });
+      }
+
+      const customDimensions = dimensions ? {
+        width: parseInt(dimensions.width) || 1024,
+        height: parseInt(dimensions.height) || 1024,
+      } : undefined;
+
+      const result = await generateImage(prompt, type as ImageType, customDimensions);
+      
+      res.json({
+        url: result.url,
+        base64: result.base64,
+        filename: result.filename,
+        contentType: result.contentType,
+        processingTimeMs: result.processingTimeMs,
+        model: result.model,
+      });
+    } catch (error: any) {
+      console.error("Error generating image:", error);
+      if (error.message?.includes("Rate limit")) {
+        return res.status(429).json({ message: error.message });
+      }
+      res.status(500).json({ message: error.message || "Failed to generate image" });
+    }
+  });
+
+  // Generate a book cover
+  app.post("/api/ai-studio/generate-cover", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { bookTitle, subtitle = "", author = "", style = "professional" } = req.body;
+
+      if (!bookTitle) {
+        return res.status(400).json({ message: "Book title is required" });
+      }
+
+      const validStyles: CoverStyle[] = ["professional", "creative", "minimalist"];
+      if (!validStyles.includes(style)) {
+        return res.status(400).json({ message: "Invalid style. Must be one of: professional, creative, minimalist" });
+      }
+
+      const result = await generateBookCover(bookTitle, subtitle, author, style as CoverStyle);
+      
+      res.json({
+        url: result.url,
+        base64: result.base64,
+        filename: result.filename,
+        contentType: result.contentType,
+        processingTimeMs: result.processingTimeMs,
+        model: result.model,
+      });
+    } catch (error: any) {
+      console.error("Error generating book cover:", error);
+      if (error.message?.includes("Rate limit")) {
+        return res.status(429).json({ message: error.message });
+      }
+      res.status(500).json({ message: error.message || "Failed to generate book cover" });
+    }
+  });
+
+  // Generate a blog header image
+  app.post("/api/ai-studio/generate-blog-header", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { blogTitle, keywords = [], industry = "laundromat business" } = req.body;
+
+      if (!blogTitle) {
+        return res.status(400).json({ message: "Blog title is required" });
+      }
+
+      const result = await generateBlogHeaderImage(blogTitle, keywords, industry);
+      
+      res.json({
+        url: result.url,
+        base64: result.base64,
+        filename: result.filename,
+        contentType: result.contentType,
+        processingTimeMs: result.processingTimeMs,
+        model: result.model,
+      });
+    } catch (error: any) {
+      console.error("Error generating blog header image:", error);
+      if (error.message?.includes("Rate limit")) {
+        return res.status(429).json({ message: error.message });
+      }
+      res.status(500).json({ message: error.message || "Failed to generate blog header image" });
+    }
+  });
+
+  // Generate a newsletter banner
+  app.post("/api/ai-studio/generate-newsletter-banner", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { topic, brandName = "WashBizHub", style = "informational" } = req.body;
+
+      if (!topic) {
+        return res.status(400).json({ message: "Topic is required" });
+      }
+
+      const validStyles = ["promotional", "informational", "announcement"];
+      if (!validStyles.includes(style)) {
+        return res.status(400).json({ message: "Invalid style. Must be one of: promotional, informational, announcement" });
+      }
+
+      const result = await generateNewsletterBanner(topic, brandName, style as "promotional" | "informational" | "announcement");
+      
+      res.json({
+        url: result.url,
+        base64: result.base64,
+        filename: result.filename,
+        contentType: result.contentType,
+        processingTimeMs: result.processingTimeMs,
+        model: result.model,
+      });
+    } catch (error: any) {
+      console.error("Error generating newsletter banner:", error);
+      if (error.message?.includes("Rate limit")) {
+        return res.status(429).json({ message: error.message });
+      }
+      res.status(500).json({ message: error.message || "Failed to generate newsletter banner" });
+    }
+  });
+
   // Generate or modify code
   app.post("/api/ai-studio/code", isAuthenticated, async (req: any, res) => {
     try {
@@ -7513,6 +7678,117 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error fetching quota:", error);
       res.status(500).json({ message: error.message || "Failed to fetch quota status" });
+    }
+  });
+
+  // ==================== KDP BOOK EXPORT ====================
+  
+  // Get export metadata for a project (preview before export)
+  app.get("/api/ai-studio/export/:projectId/metadata", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [project] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, req.params.projectId));
+
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only export your own projects" });
+      }
+
+      const metadata = getExportMetadata(project);
+      res.json(metadata);
+    } catch (error: any) {
+      console.error("Error getting export metadata:", error);
+      res.status(500).json({ message: error.message || "Failed to get export metadata" });
+    }
+  });
+
+  // Export project as PDF
+  app.post("/api/ai-studio/export/pdf", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { projectId, options } = req.body;
+      
+      if (!projectId) {
+        return res.status(400).json({ message: "Project ID is required" });
+      }
+
+      const [project] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, projectId));
+
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only export your own projects" });
+      }
+
+      const result = await exportToPdf(project, options || {});
+
+      res.setHeader("Content-Type", result.mimeType);
+      res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+      res.setHeader("X-Word-Count", result.wordCount.toString());
+      res.setHeader("X-Page-Count", result.pageCount.toString());
+      res.send(result.buffer);
+    } catch (error: any) {
+      console.error("Error exporting to PDF:", error);
+      res.status(500).json({ message: error.message || "Failed to export PDF" });
+    }
+  });
+
+  // Export project as DOCX
+  app.post("/api/ai-studio/export/docx", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { projectId, options } = req.body;
+      
+      if (!projectId) {
+        return res.status(400).json({ message: "Project ID is required" });
+      }
+
+      const [project] = await db
+        .select()
+        .from(contentProjects)
+        .where(eq(contentProjects.id, projectId));
+
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only export your own projects" });
+      }
+
+      const result = await exportToDocx(project, options || {});
+
+      res.setHeader("Content-Type", result.mimeType);
+      res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+      res.setHeader("X-Word-Count", result.wordCount.toString());
+      res.setHeader("X-Page-Count", result.pageCount.toString());
+      res.send(result.buffer);
+    } catch (error: any) {
+      console.error("Error exporting to DOCX:", error);
+      res.status(500).json({ message: error.message || "Failed to export DOCX" });
     }
   });
 
