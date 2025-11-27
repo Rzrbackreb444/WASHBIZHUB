@@ -17,17 +17,18 @@ import {
 import {
   ArrowLeft,
   Send,
-  Image,
   Video,
   X,
   Plus,
   Sparkles,
   Search,
+  Upload,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { SEO } from "@/components/SEO";
+import { FileUpload } from "@/components/FileUpload";
 import type { ForumCategory } from "@shared/schema";
 
 export default function ForumNewTopicPage() {
@@ -40,9 +41,8 @@ export default function ForumNewTopicPage() {
   const [categoryId, setCategoryId] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<{url: string; filename: string; contentType: string; size: number}[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
-  const [imageInput, setImageInput] = useState("");
   const [videoInput, setVideoInput] = useState("");
   
   // SEO fields

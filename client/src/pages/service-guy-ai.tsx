@@ -190,15 +190,15 @@ export default function ServiceGuyAI() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">2,800+</div>
+            <div className="text-3xl font-bold text-primary">33+</div>
             <div className="text-sm text-muted-foreground">Error Codes</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">10+</div>
+            <div className="text-3xl font-bold text-primary">4</div>
             <div className="text-sm text-muted-foreground">Manufacturers</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">5,000+</div>
+            <div className="text-3xl font-bold text-primary">100+</div>
             <div className="text-sm text-muted-foreground">Part Numbers</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
