@@ -176,6 +176,8 @@ import EquipmentMatcher from "@/pages/equipment-matcher";
 import SRAMarketplace from "@/pages/sra/marketplace";
 import SRAProductionConsole from "@/pages/sra/production-console";
 import AIContentStudio from "@/pages/ai-content-studio";
+import ListEquipment from "@/pages/list-equipment";
+import ListSupplies from "@/pages/list-supplies";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -282,6 +284,8 @@ function Router() {
       <Route path="/laundromat-listings" component={LaundromatListings} />
       <Route path="/equipment" component={EquipmentMarketplace} />
       <Route path="/equipment-matcher" component={EquipmentMatcher} />
+      <Route path="/list-equipment" component={ListEquipment} />
+      <Route path="/list-supplies" component={ListSupplies} />
       <Route path="/learning" component={LearningPage} />
       <Route path="/marketplace-landing" component={MarketplaceLanding} />
       <Route path="/pos-landing" component={PosLanding} />
