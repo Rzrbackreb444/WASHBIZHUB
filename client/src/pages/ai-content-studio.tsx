@@ -37,7 +37,14 @@ import {
   Edit,
   Clock,
   FileDown,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Upload,
+  Filter,
+  Eye,
+  X,
+  UserPlus,
+  Tag
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +98,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
-import type { AiConversation, ContentProject } from "@shared/schema";
+import type { AiConversation, ContentProject, EmailContact } from "@shared/schema";
 
 type ConversationType = "general" | "blog" | "book" | "newsletter" | "code";
 
@@ -157,6 +164,30 @@ export default function AIContentStudio() {
   const [isBookDirty, setIsBookDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const bookEditorRef = useRef<HTMLDivElement>(null);
+  
+  const [newsletterTab, setNewsletterTab] = useState<"contacts" | "generator">("contacts");
+  const [contactSearch, setContactSearch] = useState("");
+  const [contactStatusFilter, setContactStatusFilter] = useState<string>("all");
+  const [contactSegmentFilter, setContactSegmentFilter] = useState<string>("all");
+  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
+  const [newContactEmail, setNewContactEmail] = useState("");
+  const [newContactFirstName, setNewContactFirstName] = useState("");
+  const [newContactLastName, setNewContactLastName] = useState("");
+  const [newContactSource, setNewContactSource] = useState("manual");
+  const [newContactTags, setNewContactTags] = useState("");
+  const [newContactSegment, setNewContactSegment] = useState<string>("subscribers");
+  const [isCsvImportOpen, setIsCsvImportOpen] = useState(false);
+  const [csvImportData, setCsvImportData] = useState("");
+  const [selectedContact, setSelectedContact] = useState<EmailContact | null>(null);
+  const [isViewContactOpen, setIsViewContactOpen] = useState(false);
+  const [deletingContact, setDeletingContact] = useState<EmailContact | null>(null);
+  const [isDeleteContactOpen, setIsDeleteContactOpen] = useState(false);
+  
+  const [newsletterTopic, setNewsletterTopic] = useState("");
+  const [newsletterStyle, setNewsletterStyle] = useState<string>("educational");
+  const [newsletterBrandName, setNewsletterBrandName] = useState("WashBizHub");
+  const [generatedNewsletter, setGeneratedNewsletter] = useState<{ subject: string; html: string; text: string } | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { data: conversations = [], isLoading: isLoadingConversations, error: conversationsError } = useQuery<Conversation[]>({
     queryKey: ["/api/ai-studio/conversations"],
@@ -164,6 +195,118 @@ export default function AIContentStudio() {
 
   const { data: projects = [], isLoading: isLoadingProjects, error: projectsError } = useQuery<ContentProject[]>({
     queryKey: ["/api/ai-studio/projects"],
+  });
+
+  const { data: emailContacts = [], isLoading: isLoadingContacts, error: contactsError } = useQuery<EmailContact[]>({
+    queryKey: ["/api/ai-studio/email-contacts"],
+  });
+
+  const addContactMutation = useMutation({
+    mutationFn: async (data: { email: string; firstName?: string; lastName?: string; source?: string; tags?: string[]; segment?: string }) => {
+      const response = await apiRequest("POST", "/api/ai-studio/email-contacts", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/email-contacts"] });
+      setIsAddContactOpen(false);
+      setNewContactEmail("");
+      setNewContactFirstName("");
+      setNewContactLastName("");
+      setNewContactSource("manual");
+      setNewContactTags("");
+      setNewContactSegment("subscribers");
+      toast({
+        title: "Contact added",
+        description: "Email contact has been added successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error adding contact",
+        description: error.message || "Failed to add contact",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteContactMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/ai-studio/email-contacts/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/email-contacts"] });
+      setIsDeleteContactOpen(false);
+      setDeletingContact(null);
+      toast({
+        title: "Contact deleted",
+        description: "Email contact has been removed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting contact",
+        description: error.message || "Failed to delete contact",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const bulkImportContactsMutation = useMutation({
+    mutationFn: async (contacts: Array<{ email: string; firstName?: string; lastName?: string; source?: string; segment?: string }>) => {
+      const results = [];
+      for (const contact of contacts) {
+        try {
+          const response = await apiRequest("POST", "/api/ai-studio/email-contacts", contact);
+          results.push({ success: true, email: contact.email });
+        } catch (error: any) {
+          results.push({ success: false, email: contact.email, error: error.message });
+        }
+      }
+      return results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/email-contacts"] });
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+      setIsCsvImportOpen(false);
+      setCsvImportData("");
+      toast({
+        title: "Import complete",
+        description: `Successfully imported ${successCount} contacts${failCount > 0 ? `, ${failCount} failed` : ""}`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Import failed",
+        description: error.message || "Failed to import contacts",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateNewsletterMutation = useMutation({
+    mutationFn: async (data: { topic: string; style: string; brandName?: string }) => {
+      const response = await apiRequest("POST", "/api/ai-studio/newsletter", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedNewsletter({
+        subject: data.subject || `Newsletter: ${newsletterTopic}`,
+        html: data.content || data.html || "",
+        text: data.text || data.content || "",
+      });
+      toast({
+        title: "Newsletter generated",
+        description: "Your newsletter content is ready for review",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error generating newsletter",
+        description: error.message || "Failed to generate newsletter",
+        variant: "destructive",
+      });
+    },
   });
 
   const sendMessageMutation = useMutation({
@@ -527,6 +670,92 @@ export default function AIContentStudio() {
     if (!deletingProject) return;
     deleteProjectMutation.mutate(deletingProject.id);
   }, [deletingProject, deleteProjectMutation]);
+
+  const handleAddContact = useCallback(() => {
+    if (!newContactEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    const tagsArray = newContactTags.trim() ? newContactTags.split(",").map(t => t.trim()).filter(Boolean) : undefined;
+    addContactMutation.mutate({
+      email: newContactEmail.trim(),
+      firstName: newContactFirstName.trim() || undefined,
+      lastName: newContactLastName.trim() || undefined,
+      source: newContactSource,
+      tags: tagsArray,
+      segment: newContactSegment,
+    });
+  }, [newContactEmail, newContactFirstName, newContactLastName, newContactSource, newContactTags, newContactSegment, addContactMutation, toast]);
+
+  const handleDeleteContact = useCallback(() => {
+    if (!deletingContact) return;
+    deleteContactMutation.mutate(deletingContact.id);
+  }, [deletingContact, deleteContactMutation]);
+
+  const handleCsvImport = useCallback(() => {
+    if (!csvImportData.trim()) {
+      toast({
+        title: "No data provided",
+        description: "Please enter comma-separated email data",
+        variant: "destructive",
+      });
+      return;
+    }
+    const lines = csvImportData.trim().split("\n");
+    const contacts: Array<{ email: string; firstName?: string; lastName?: string; source: string; segment: string }> = [];
+    for (const line of lines) {
+      const parts = line.split(",").map(p => p.trim());
+      if (parts[0] && parts[0].includes("@")) {
+        contacts.push({
+          email: parts[0],
+          firstName: parts[1] || undefined,
+          lastName: parts[2] || undefined,
+          source: "import",
+          segment: "subscribers",
+        });
+      }
+    }
+    if (contacts.length === 0) {
+      toast({
+        title: "No valid emails",
+        description: "Please check your data format",
+        variant: "destructive",
+      });
+      return;
+    }
+    bulkImportContactsMutation.mutate(contacts);
+  }, [csvImportData, bulkImportContactsMutation, toast]);
+
+  const handleGenerateNewsletter = useCallback(() => {
+    if (!newsletterTopic.trim()) {
+      toast({
+        title: "Topic required",
+        description: "Please enter a newsletter topic",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateNewsletterMutation.mutate({
+      topic: newsletterTopic.trim(),
+      style: newsletterStyle,
+      brandName: newsletterBrandName.trim() || undefined,
+    });
+  }, [newsletterTopic, newsletterStyle, newsletterBrandName, generateNewsletterMutation, toast]);
+
+  const filteredEmailContacts = emailContacts.filter((contact) => {
+    const matchesSearch = contactSearch
+      ? contact.email.toLowerCase().includes(contactSearch.toLowerCase()) ||
+        (contact.firstName?.toLowerCase() || "").includes(contactSearch.toLowerCase()) ||
+        (contact.lastName?.toLowerCase() || "").includes(contactSearch.toLowerCase())
+      : true;
+    const matchesStatus = contactStatusFilter === "all" || contact.status === contactStatusFilter;
+    const matchesSegment = contactSegmentFilter === "all" || contact.segment === contactSegmentFilter;
+    return matchesSearch && matchesStatus && matchesSegment;
+  });
 
   const handleSaveBook = useCallback(() => {
     if (!selectedProject) return;
@@ -1182,50 +1411,607 @@ export default function AIContentStudio() {
   );
 
   const renderNewsletterMode = () => (
-    <div className="p-6 space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Newsletter Generator</h2>
-        <p className="text-muted-foreground mb-6">
-          Create engaging email newsletters for your audience.
-        </p>
+    <div className="p-6 space-y-6" data-testid="newsletter-mode">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Newsletter Campaign Manager</h2>
+          <p className="text-muted-foreground">
+            Manage your email contacts and create engaging newsletters.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="gap-1" data-testid="badge-contact-count">
+            <Users className="h-3 w-3" />
+            {filteredEmailContacts.length} contacts
+          </Badge>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Newsletter Templates</CardTitle>
-          <CardDescription>Choose a template to get started</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            {[
-              { title: "Weekly Update", desc: "Regular updates for subscribers" },
-              { title: "Product Announcement", desc: "New feature or product launch" },
-              { title: "Educational Content", desc: "Tips and industry insights" },
-              { title: "Promotional", desc: "Special offers and deals" },
-            ].map((template, index) => (
-              <Card
-                key={index}
-                className="cursor-pointer hover-elevate"
-                onClick={() => {
-                  createConversationMutation.mutate({
-                    title: `Newsletter: ${template.title}`,
-                    type: "newsletter",
-                  });
-                  setActiveMode("chat");
-                }}
-                data-testid={`newsletter-template-${index}`}
-              >
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{template.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{template.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+      <Tabs value={newsletterTab} onValueChange={(v) => setNewsletterTab(v as "contacts" | "generator")} data-testid="newsletter-tabs">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="contacts" data-testid="tab-contacts">
+            <Users className="h-4 w-4 mr-2" />
+            Contacts
+          </TabsTrigger>
+          <TabsTrigger value="generator" data-testid="tab-generator">
+            <Mail className="h-4 w-4 mr-2" />
+            Generate Newsletter
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="contacts" className="space-y-4 mt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search contacts..."
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
+                className="pl-9"
+                data-testid="input-contact-search"
+              />
+            </div>
+            <Select value={contactStatusFilter} onValueChange={setContactStatusFilter}>
+              <SelectTrigger className="w-[140px]" data-testid="select-status-filter">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="subscribed">Subscribed</SelectItem>
+                <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                <SelectItem value="bounced">Bounced</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={contactSegmentFilter} onValueChange={setContactSegmentFilter}>
+              <SelectTrigger className="w-[140px]" data-testid="select-segment-filter">
+                <SelectValue placeholder="Segment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Segments</SelectItem>
+                <SelectItem value="subscribers">Subscribers</SelectItem>
+                <SelectItem value="leads">Leads</SelectItem>
+                <SelectItem value="customers">Customers</SelectItem>
+                <SelectItem value="investor">Investors</SelectItem>
+                <SelectItem value="owner">Owners</SelectItem>
+                <SelectItem value="operator">Operators</SelectItem>
+                <SelectItem value="vendor">Vendors</SelectItem>
+              </SelectContent>
+            </Select>
+            <Dialog open={isCsvImportOpen} onOpenChange={setIsCsvImportOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" data-testid="button-csv-import">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Import Contacts from CSV</DialogTitle>
+                  <DialogDescription>
+                    Paste comma-separated data. Format: email, first_name, last_name (one contact per line)
+                  </DialogDescription>
+                </DialogHeader>
+                <Textarea
+                  placeholder="john@example.com, John, Doe&#10;jane@example.com, Jane, Smith"
+                  value={csvImportData}
+                  onChange={(e) => setCsvImportData(e.target.value)}
+                  rows={8}
+                  data-testid="textarea-csv-import"
+                />
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCsvImportOpen(false)} data-testid="button-cancel-import">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCsvImport} disabled={bulkImportContactsMutation.isPending} data-testid="button-confirm-import">
+                    {bulkImportContactsMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-2" />
+                    )}
+                    Import Contacts
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={isAddContactOpen} onOpenChange={setIsAddContactOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-contact">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Contact
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Contact</DialogTitle>
+                  <DialogDescription>
+                    Add a new email contact to your list.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-email">Email *</Label>
+                    <Input
+                      id="contact-email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={newContactEmail}
+                      onChange={(e) => setNewContactEmail(e.target.value)}
+                      data-testid="input-contact-email"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-first-name">First Name</Label>
+                      <Input
+                        id="contact-first-name"
+                        placeholder="John"
+                        value={newContactFirstName}
+                        onChange={(e) => setNewContactFirstName(e.target.value)}
+                        data-testid="input-contact-first-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-last-name">Last Name</Label>
+                      <Input
+                        id="contact-last-name"
+                        placeholder="Doe"
+                        value={newContactLastName}
+                        onChange={(e) => setNewContactLastName(e.target.value)}
+                        data-testid="input-contact-last-name"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-source">Source</Label>
+                    <Select value={newContactSource} onValueChange={setNewContactSource}>
+                      <SelectTrigger data-testid="select-contact-source">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Manual Entry</SelectItem>
+                        <SelectItem value="website">Website</SelectItem>
+                        <SelectItem value="lead_magnet">Lead Magnet</SelectItem>
+                        <SelectItem value="import">Import</SelectItem>
+                        <SelectItem value="referral">Referral</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-segment">Segment</Label>
+                    <Select value={newContactSegment} onValueChange={setNewContactSegment}>
+                      <SelectTrigger data-testid="select-contact-segment">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="subscribers">Subscribers</SelectItem>
+                        <SelectItem value="leads">Leads</SelectItem>
+                        <SelectItem value="customers">Customers</SelectItem>
+                        <SelectItem value="investor">Investors</SelectItem>
+                        <SelectItem value="owner">Owners</SelectItem>
+                        <SelectItem value="operator">Operators</SelectItem>
+                        <SelectItem value="vendor">Vendors</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-tags">Tags (comma-separated)</Label>
+                    <Input
+                      id="contact-tags"
+                      placeholder="newsletter, premium, active"
+                      value={newContactTags}
+                      onChange={(e) => setNewContactTags(e.target.value)}
+                      data-testid="input-contact-tags"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddContactOpen(false)} data-testid="button-cancel-add-contact">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddContact} disabled={addContactMutation.isPending} data-testid="button-confirm-add-contact">
+                    {addContactMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <UserPlus className="h-4 w-4 mr-2" />
+                    )}
+                    Add Contact
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-        </CardContent>
-      </Card>
+
+          {isLoadingContacts ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : contactsError ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+                <h3 className="text-lg font-medium mb-2">Error loading contacts</h3>
+                <p className="text-muted-foreground text-center mb-4">
+                  {(contactsError as Error).message || "Failed to load contacts"}
+                </p>
+                <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/email-contacts"] })} data-testid="button-retry-contacts">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          ) : filteredEmailContacts.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  {emailContacts.length === 0 ? "No contacts yet" : "No matching contacts"}
+                </h3>
+                <p className="text-muted-foreground text-center mb-4">
+                  {emailContacts.length === 0 
+                    ? "Add your first email contact to get started" 
+                    : "Try adjusting your search or filters"}
+                </p>
+                {emailContacts.length === 0 && (
+                  <Button onClick={() => setIsAddContactOpen(true)} data-testid="button-add-first-contact">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add First Contact
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {filteredEmailContacts.map((contact) => (
+                <Card key={contact.id} className="hover-elevate" data-testid={`contact-card-${contact.id}`}>
+                  <CardContent className="flex items-center justify-between p-4 gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-10 w-10 flex-shrink-0">
+                        <AvatarFallback className="bg-muted text-muted-foreground">
+                          {(contact.firstName?.[0] || contact.email[0]).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium truncate" data-testid={`contact-email-${contact.id}`}>
+                            {contact.email}
+                          </p>
+                          <Badge 
+                            variant={contact.status === "subscribed" ? "default" : "secondary"}
+                            className="text-xs"
+                            data-testid={`contact-status-${contact.id}`}
+                          >
+                            {contact.status || "subscribed"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                          {(contact.firstName || contact.lastName) && (
+                            <span data-testid={`contact-name-${contact.id}`}>
+                              {[contact.firstName, contact.lastName].filter(Boolean).join(" ")}
+                            </span>
+                          )}
+                          {contact.segment && (
+                            <>
+                              <span className="text-muted-foreground/50">|</span>
+                              <Badge variant="outline" className="text-xs" data-testid={`contact-segment-${contact.id}`}>
+                                {contact.segment}
+                              </Badge>
+                            </>
+                          )}
+                          {contact.tags && contact.tags.length > 0 && (
+                            <>
+                              <span className="text-muted-foreground/50">|</span>
+                              <div className="flex items-center gap-1">
+                                <Tag className="h-3 w-3" />
+                                <span className="text-xs" data-testid={`contact-tags-${contact.id}`}>
+                                  {contact.tags.slice(0, 2).join(", ")}{contact.tags.length > 2 ? ` +${contact.tags.length - 2}` : ""}
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedContact(contact);
+                          setIsViewContactOpen(true);
+                        }}
+                        data-testid={`button-view-contact-${contact.id}`}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setDeletingContact(contact);
+                          setIsDeleteContactOpen(true);
+                        }}
+                        data-testid={`button-delete-contact-${contact.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="generator" className="space-y-6 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Newsletter Generator</CardTitle>
+              <CardDescription>
+                Create engaging email newsletters with AI assistance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newsletter-topic">Topic *</Label>
+                <Input
+                  id="newsletter-topic"
+                  placeholder="e.g., Monthly Industry Updates, New Feature Announcement"
+                  value={newsletterTopic}
+                  onChange={(e) => setNewsletterTopic(e.target.value)}
+                  data-testid="input-newsletter-topic"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newsletter-style">Style</Label>
+                  <Select value={newsletterStyle} onValueChange={setNewsletterStyle}>
+                    <SelectTrigger data-testid="select-newsletter-style">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="educational">Educational</SelectItem>
+                      <SelectItem value="promotional">Promotional</SelectItem>
+                      <SelectItem value="announcement">Announcement</SelectItem>
+                      <SelectItem value="update">Update</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newsletter-brand">Brand Name</Label>
+                  <Input
+                    id="newsletter-brand"
+                    placeholder="Your Brand"
+                    value={newsletterBrandName}
+                    onChange={(e) => setNewsletterBrandName(e.target.value)}
+                    data-testid="input-newsletter-brand"
+                  />
+                </div>
+              </div>
+              <Button 
+                onClick={handleGenerateNewsletter} 
+                disabled={generateNewsletterMutation.isPending || !newsletterTopic.trim()}
+                className="w-full"
+                data-testid="button-generate-newsletter"
+              >
+                {generateNewsletterMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Newsletter
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {generatedNewsletter && (
+            <Card data-testid="newsletter-preview-card">
+              <CardHeader className="flex flex-row items-center justify-between gap-2">
+                <div>
+                  <CardTitle className="text-lg">Generated Newsletter</CardTitle>
+                  <CardDescription data-testid="newsletter-subject">
+                    Subject: {generatedNewsletter.subject}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" data-testid="button-preview-newsletter">
+                        <Eye className="h-4 w-4 mr-2" />
+                        Full Preview
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+                      <DialogHeader>
+                        <DialogTitle>Newsletter Preview</DialogTitle>
+                        <DialogDescription>
+                          Subject: {generatedNewsletter.subject}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div 
+                        className="prose prose-sm dark:prose-invert max-w-none mt-4 p-4 border rounded-lg bg-background"
+                        dangerouslySetInnerHTML={{ __html: generatedNewsletter.html }}
+                        data-testid="newsletter-html-preview"
+                      />
+                    </DialogContent>
+                  </Dialog>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    navigator.clipboard.writeText(generatedNewsletter.html);
+                    toast({ title: "Copied", description: "HTML copied to clipboard" });
+                  }} data-testid="button-copy-newsletter">
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy HTML
+                  </Button>
+                  <Button size="sm" disabled data-testid="button-send-newsletter">
+                    <Send className="h-4 w-4 mr-2" />
+                    Send (Coming Soon)
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div 
+                  className="prose prose-sm dark:prose-invert max-w-none p-4 border rounded-lg bg-muted/30 max-h-[400px] overflow-auto"
+                  dangerouslySetInnerHTML={{ __html: generatedNewsletter.html }}
+                  data-testid="newsletter-content-preview"
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Quick Templates</CardTitle>
+              <CardDescription>Start with a pre-built template</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { title: "Weekly Update", desc: "Regular updates for subscribers", style: "update" },
+                  { title: "Product Announcement", desc: "New feature or product launch", style: "announcement" },
+                  { title: "Educational Content", desc: "Tips and industry insights", style: "educational" },
+                  { title: "Promotional", desc: "Special offers and deals", style: "promotional" },
+                ].map((template, index) => (
+                  <Card
+                    key={index}
+                    className="cursor-pointer hover-elevate"
+                    onClick={() => {
+                      setNewsletterTopic(template.title);
+                      setNewsletterStyle(template.style);
+                    }}
+                    data-testid={`newsletter-template-${index}`}
+                  >
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-orange-500" />
+                        {template.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">{template.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={isViewContactOpen} onOpenChange={setIsViewContactOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contact Details</DialogTitle>
+          </DialogHeader>
+          {selectedContact && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="bg-muted text-muted-foreground text-lg">
+                    {(selectedContact.firstName?.[0] || selectedContact.email[0]).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold" data-testid="view-contact-name">
+                    {[selectedContact.firstName, selectedContact.lastName].filter(Boolean).join(" ") || "No name"}
+                  </h3>
+                  <p className="text-muted-foreground" data-testid="view-contact-email">{selectedContact.email}</p>
+                </div>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Status</p>
+                  <Badge variant={selectedContact.status === "subscribed" ? "default" : "secondary"} data-testid="view-contact-status">
+                    {selectedContact.status || "subscribed"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Segment</p>
+                  <Badge variant="outline" data-testid="view-contact-segment">{selectedContact.segment || "None"}</Badge>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Source</p>
+                  <p data-testid="view-contact-source">{selectedContact.source || "Unknown"}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Lead Score</p>
+                  <p data-testid="view-contact-score">{selectedContact.leadScore || 0}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Opens</p>
+                  <p data-testid="view-contact-opens">{selectedContact.openCount || 0}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Clicks</p>
+                  <p data-testid="view-contact-clicks">{selectedContact.clickCount || 0}</p>
+                </div>
+              </div>
+              {selectedContact.tags && selectedContact.tags.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-2">Tags</p>
+                    <div className="flex flex-wrap gap-1" data-testid="view-contact-tags">
+                      {selectedContact.tags.map((tag, i) => (
+                        <Badge key={i} variant="secondary">{tag}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              <Separator />
+              <div className="text-sm text-muted-foreground">
+                <p data-testid="view-contact-created">
+                  Added: {selectedContact.createdAt ? format(new Date(selectedContact.createdAt), "MMM d, yyyy h:mm a") : "Unknown"}
+                </p>
+                {selectedContact.subscribedAt && (
+                  <p data-testid="view-contact-subscribed">
+                    Subscribed: {format(new Date(selectedContact.subscribedAt), "MMM d, yyyy h:mm a")}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewContactOpen(false)} data-testid="button-close-view-contact">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteContactOpen} onOpenChange={setIsDeleteContactOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Contact</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {deletingContact?.email}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete-contact">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteContact}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete-contact"
+            >
+              {deleteContactMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 
