@@ -180,6 +180,10 @@ import SRAProductionConsole from "@/pages/sra/production-console";
 import AIContentStudio from "@/pages/ai-content-studio";
 import ListEquipment from "@/pages/list-equipment";
 import ListSupplies from "@/pages/list-supplies";
+import PlanPage from "@/pages/plan";
+import EvaluatePage from "@/pages/evaluate";
+import OperatePage from "@/pages/operate";
+import PartnerPage from "@/pages/partner";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -190,6 +194,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/plan" component={PlanPage} />
+      <Route path="/evaluate" component={EvaluatePage} />
+      <Route path="/operate" component={OperatePage} />
+      <Route path="/partner" component={PartnerPage} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
       <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
