@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/6_1764040628012.png";
 import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 
-const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "1-479-883-4314";
+const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "479-883-4314";
 const CONTACT_PHONE_DIGITS = import.meta.env.VITE_CONTACT_PHONE_DIGITS || "14798834314";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
