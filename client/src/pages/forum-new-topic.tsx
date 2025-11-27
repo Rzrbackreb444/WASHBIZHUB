@@ -87,17 +87,6 @@ export default function ForumNewTopicPage() {
     setTags(tags.filter(t => t !== tag));
   };
 
-  const handleAddImage = () => {
-    if (imageInput.trim() && !images.includes(imageInput.trim())) {
-      setImages([...images, imageInput.trim()]);
-      setImageInput("");
-    }
-  };
-
-  const handleRemoveImage = (url: string) => {
-    setImages(images.filter(i => i !== url));
-  };
-
   const handleAddVideo = () => {
     if (videoInput.trim() && !videos.includes(videoInput.trim())) {
       setVideos([...videos, videoInput.trim()]);
@@ -131,6 +120,10 @@ export default function ForumNewTopicPage() {
       });
       return;
     }
+
+    const images = uploadedFiles
+      .filter(f => f.contentType.startsWith('image/'))
+      .map(f => f.url);
 
     createTopicMutation.mutate({
       title: title.trim(),
@@ -289,49 +282,18 @@ export default function ForumNewTopicPage() {
                   )}
                 </div>
 
-                {/* Images */}
+                {/* File Uploads (Images, PDFs, etc.) */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    <Image className="w-4 h-4" />
-                    Images (URLs)
+                    <Upload className="w-4 h-4" />
+                    Attachments (Images, PDFs, Documents)
                   </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={imageInput}
-                      onChange={(e) => setImageInput(e.target.value)}
-                      placeholder="Paste image URL"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddImage();
-                        }
-                      }}
-                      data-testid="input-image"
-                    />
-                    <Button type="button" variant="outline" onClick={handleAddImage}>
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {images.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-                      {images.map((url, idx) => (
-                        <div key={idx} className="relative group">
-                          <img 
-                            src={url} 
-                            alt={`Upload ${idx + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(url)}
-                            className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <FileUpload
+                    onFilesUploaded={setUploadedFiles}
+                    existingFiles={uploadedFiles}
+                    maxFiles={10}
+                    maxSizeMB={10}
+                  />
                 </div>
 
                 {/* Videos */}
