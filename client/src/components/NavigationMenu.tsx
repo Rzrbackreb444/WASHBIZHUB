@@ -27,65 +27,69 @@ import {
 import {
   Menu,
   LogOut,
-  BookOpen,
+  Lightbulb,
+  Target,
+  Settings,
+  Users,
   Calculator,
-  Store,
-  Wrench,
-  BarChart3,
+  Receipt,
   DollarSign,
-  ShoppingBag,
-  Palette,
-  Cpu,
-  TrendingUp,
+  BookOpen,
   GraduationCap,
-  FileText,
-  Library,
-  Building2,
   Phone,
+  BarChart3,
+  Store,
+  ClipboardCheck,
+  ShoppingCart,
+  Monitor,
+  Bot,
+  Activity,
+  Palette,
+  Wrench,
+  Library,
   Package,
-  Search,
-  Plus,
-  Tag,
-  MessageSquare,
+  Building2,
+  TrendingUp,
+  Download,
 } from "lucide-react";
 import { SiFacebook } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
+const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
-const MAIN_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/blog", label: "Blog" },
-  { href: "/resources", label: "Resources" },
+const PLAN_LINKS = [
+  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
+  { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
+  { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
+  { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide from experts" },
+  { href: "/blog", label: "Blog & Education", icon: GraduationCap, description: "Articles, guides, and industry insights" },
+  { href: "/consultation", label: "Book Consultation", icon: Phone, description: "1-on-1 expert guidance for your journey" },
 ];
 
-const SELL_LIST_LINKS = [
-  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true },
+const EVALUATE_LINKS = [
+  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis" },
+  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
+  { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },
+  { href: "/resources", label: "Due Diligence Guide", icon: ClipboardCheck, description: "What to check before buying" },
+  { href: "/equipment", label: "Equipment Marketplace", icon: ShoppingCart, description: "Browse new & used equipment" },
+];
+
+const OPERATE_LINKS = [
+  { href: "/pos", label: "POS Command Center", icon: Monitor, description: "Manage payments, loyalty & operations" },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, description: "AI-powered equipment troubleshooting" },
+  { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Activity, description: "Diagnose machine issues instantly" },
+  { href: "/design-studio-pro", label: "Design Studio Pro", icon: Palette, description: "Plan your floor layout in 3D" },
+  { href: "/equipment", label: "Equipment Marketplace", icon: Wrench, description: "Shop equipment, parts & supplies" },
+  { href: "/resources", label: "Resources Hub", icon: Library, description: "Guides, templates & downloads" },
+];
+
+const PARTNER_LINKS = [
+  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true, badge: "FREE" },
   { href: "/list-equipment", label: "List Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
   { href: "/list-supplies", label: "List Supplies", icon: Package, description: "Sell detergents, chemicals & products" },
   { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us as a supplier" },
-];
-
-const BUY_BROWSE_LINKS = [
-  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses to buy" },
-  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Wrench, description: "Shop washers, dryers & parts" },
-  { href: "/marketplace", label: "Supplies & Products", icon: ShoppingBag, description: "Shop detergents & accessories" },
-];
-
-const TOOLS_LINKS = [
-  { href: "/cleanbi", label: "CLEANBI Score", icon: BarChart3, description: "AI-powered location analysis" },
-  { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Business valuation tool" },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Wrench, description: "Equipment troubleshooting" },
-];
-
-const EDUCATION_LINKS = [
-  { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide" },
-  { href: "/resources", label: "Resource Hub", icon: Library, description: "Articles, guides & downloads" },
-];
-
-const ACTION_LINKS = [
-  { href: "/startup-funding", label: "Get Funding", icon: DollarSign, highlight: true, description: "Access capital for your business" },
-  { href: "/consultation", label: "Book Consultation", icon: Phone, description: "Expert guidance & advice" },
+  { href: "/resources", label: "Affiliate Program", icon: TrendingUp, description: "Earn commissions on referrals" },
 ];
 
 export function NavigationMenu() {
@@ -104,7 +108,7 @@ export function NavigationMenu() {
             <img 
               src={logoUrl} 
               alt="WashBizHub - The #1 Laundromat Resource" 
-              className="h-20 sm:h-24 md:h-28 w-auto" 
+              className="h-16 sm:h-20 md:h-24 w-auto" 
               loading="lazy"
               data-testid="img-logo"
             />
@@ -115,212 +119,185 @@ export function NavigationMenu() {
         <nav className="hidden lg:flex items-center gap-1">
           <NavMenu>
             <NavigationMenuList className="gap-1">
-              {/* Main Links */}
-              {MAIN_LINKS.map((link) => (
-                  <NavigationMenuItem key={link.href}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href={link.href}
-                        className={`group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                          isActive(link.href) ? "bg-accent/50 text-accent-foreground" : ""
-                        }`}
-                        data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                      >
-                        {link.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-
-              {/* Sell/List Dropdown */}
+              {/* PLAN Megamenu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger 
                   className="h-9"
-                  data-testid="dropdown-sell-list"
+                  data-testid="dropdown-plan"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Sell/List
+                  <Lightbulb className="w-4 h-4 mr-1" />
+                  PLAN
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[350px] gap-2 p-4">
-                    {SELL_LIST_LINKS.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <li key={link.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={link.href}
-                              className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
-                                link.highlight ? "bg-primary/5 border border-primary/20" : ""
-                              }`}
-                              data-testid={`link-sell-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                <Icon className="w-4 h-4 text-primary" />
-                                {link.label}
-                                {link.highlight && (
-                                  <Badge variant="secondary" className="ml-1 text-xs">FREE</Badge>
-                                )}
-                              </div>
-                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                {link.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="p-4 w-[480px]">
+                    <div className="mb-3 pb-2 border-b">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Dreamers</span>
+                      <p className="text-sm text-muted-foreground">Thinking about buying a laundromat?</p>
+                    </div>
+                    <ul className="grid gap-2">
+                      {PLAN_LINKS.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <li key={link.href + link.label}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={link.href}
+                                className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
+                                  link.highlight ? "bg-primary/5 border border-primary/20" : ""
+                                }`}
+                                data-testid={`link-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                  <Icon className="w-4 h-4 text-primary" />
+                                  {link.label}
+                                  {link.highlight && (
+                                    <Badge variant="default" className="ml-1 text-xs">Popular</Badge>
+                                  )}
+                                </div>
+                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
+                                  {link.description}
+                                </p>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Buy/Browse Dropdown */}
+              {/* EVALUATE Megamenu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger 
                   className="h-9"
-                  data-testid="dropdown-buy-browse"
+                  data-testid="dropdown-evaluate"
                 >
-                  <Search className="w-4 h-4 mr-1" />
-                  Buy/Browse
+                  <Target className="w-4 h-4 mr-1" />
+                  EVALUATE
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[350px] gap-2 p-4">
-                    {BUY_BROWSE_LINKS.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <li key={link.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={link.href}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                              data-testid={`link-buy-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                <Icon className="w-4 h-4 text-primary" />
-                                {link.label}
-                              </div>
-                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                {link.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="p-4 w-[480px]">
+                    <div className="mb-3 pb-2 border-b">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Buyers</span>
+                      <p className="text-sm text-muted-foreground">Actively searching for a laundromat?</p>
+                    </div>
+                    <ul className="grid gap-2">
+                      {EVALUATE_LINKS.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <li key={link.href + link.label}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={link.href}
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                data-testid={`link-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                  <Icon className="w-4 h-4 text-primary" />
+                                  {link.label}
+                                </div>
+                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
+                                  {link.description}
+                                </p>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Tools Dropdown */}
+              {/* OPERATE Megamenu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger 
                   className="h-9"
-                  data-testid="dropdown-tools"
+                  data-testid="dropdown-operate"
                 >
-                  Tools
+                  <Settings className="w-4 h-4 mr-1" />
+                  OPERATE
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    {TOOLS_LINKS.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <li key={link.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={link.href}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                              data-testid={`link-tool-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                <Icon className="w-4 h-4 text-primary" />
-                                {link.label}
-                              </div>
-                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                {link.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="p-4 w-[480px]">
+                    <div className="mb-3 pb-2 border-b">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Owners</span>
+                      <p className="text-sm text-muted-foreground">Running your laundromat business?</p>
+                    </div>
+                    <ul className="grid gap-2">
+                      {OPERATE_LINKS.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <li key={link.href + link.label}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={link.href}
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                data-testid={`link-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                  <Icon className="w-4 h-4 text-primary" />
+                                  {link.label}
+                                </div>
+                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
+                                  {link.description}
+                                </p>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Learn Dropdown */}
+              {/* PARTNER Megamenu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger 
                   className="h-9"
-                  data-testid="dropdown-learn"
+                  data-testid="dropdown-partner"
                 >
-                  Learn
+                  <Users className="w-4 h-4 mr-1" />
+                  PARTNER
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2">
-                    {EDUCATION_LINKS.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <li key={link.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={link.href}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                              data-testid={`link-learn-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                <Icon className="w-4 h-4 text-primary" />
-                                {link.label}
-                              </div>
-                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                {link.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Get Started Dropdown */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger 
-                  className="h-9 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                  data-testid="dropdown-get-started"
-                >
-                  Get Started
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-2 p-4">
-                    {ACTION_LINKS.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <li key={link.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={link.href}
-                              className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
-                                link.highlight ? "bg-primary/5 border border-primary/20" : ""
-                              }`}
-                              data-testid={`link-action-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                <Icon className={`w-4 h-4 ${link.highlight ? "text-primary" : "text-muted-foreground"}`} />
-                                {link.label}
-                                {link.highlight && (
-                                  <Badge variant="default" className="ml-1 text-xs">Popular</Badge>
-                                )}
-                              </div>
-                              <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                {link.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="p-4 w-[480px]">
+                    <div className="mb-3 pb-2 border-b">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Vendors & Brokers</span>
+                      <p className="text-sm text-muted-foreground">Service providers & sellers welcome</p>
+                    </div>
+                    <ul className="grid gap-2">
+                      {PARTNER_LINKS.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <li key={link.href + link.label}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={link.href}
+                                className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
+                                  link.highlight ? "bg-primary/5 border border-primary/20" : ""
+                                }`}
+                                data-testid={`link-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                                  <Icon className="w-4 h-4 text-primary" />
+                                  {link.label}
+                                  {link.badge && (
+                                    <Badge variant="secondary" className="ml-1 text-xs">{link.badge}</Badge>
+                                  )}
+                                </div>
+                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
+                                  {link.description}
+                                </p>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -329,6 +306,18 @@ export function NavigationMenu() {
 
         {/* Right Section */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Install CLEANBI Extension CTA - Desktop */}
+          <a
+            href={CHROME_EXTENSION_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden xl:flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors"
+            data-testid="link-extension-desktop"
+          >
+            <Download className="w-4 h-4" />
+            <span className="text-sm font-semibold">Install CLEANBI</span>
+          </a>
+
           {/* FB Group CTA - Desktop */}
           <a
             href={FB_GROUP_URL}
@@ -338,7 +327,7 @@ export function NavigationMenu() {
             data-testid="link-fb-group-desktop"
           >
             <SiFacebook className="w-4 h-4" />
-            <span className="text-sm font-semibold">72K+ Members</span>
+            <span className="text-sm font-semibold">72K+</span>
           </a>
 
           {/* Theme Toggle */}
@@ -374,6 +363,21 @@ export function NavigationMenu() {
             </SheetTrigger>
             <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
               <div className="space-y-6 mt-6 pb-8">
+                {/* Install CLEANBI Extension CTA */}
+                <a
+                  href={CHROME_EXTENSION_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-colors"
+                  data-testid="link-extension-mobile"
+                >
+                  <Download className="w-7 h-7" />
+                  <div>
+                    <div className="font-bold text-lg">Install CLEANBI</div>
+                    <div className="text-xs opacity-90">Chrome Extension - Analyze Any Location</div>
+                  </div>
+                </a>
+
                 {/* FB Group CTA */}
                 <a
                   href={FB_GROUP_URL}
@@ -389,24 +393,27 @@ export function NavigationMenu() {
                   </div>
                 </a>
 
-                <Accordion type="multiple" className="w-full" defaultValue={["sell-list", "buy-browse"]}>
-                  {/* Sell/List Section */}
-                  <AccordionItem value="sell-list" className="border-none">
+                <Accordion type="multiple" className="w-full" defaultValue={["plan", "evaluate"]}>
+                  {/* PLAN Section */}
+                  <AccordionItem value="plan" className="border-none">
                     <AccordionTrigger 
                       className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-sell-list"
+                      data-testid="accordion-plan"
                     >
                       <div className="flex items-center gap-2">
-                        <Plus className="w-5 h-5" />
-                        Sell / List
+                        <Lightbulb className="w-5 h-5" />
+                        PLAN
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      <div className="px-2 pb-2">
+                        <span className="text-xs text-muted-foreground">For Dreamers - Thinking about buying</span>
+                      </div>
                       <div className="space-y-1 pl-2">
-                        {SELL_LIST_LINKS.map((link) => {
+                        {PLAN_LINKS.map((link) => {
                           const Icon = link.icon;
                           return (
-                            <Link key={link.href} href={link.href}>
+                            <Link key={link.href + link.label} href={link.href}>
                               <div
                                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                   link.highlight
@@ -416,14 +423,14 @@ export function NavigationMenu() {
                                     : "hover:bg-muted"
                                 }`}
                                 onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-sell-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                data-testid={`link-mobile-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                               >
                                 <Icon className="w-5 h-5 text-primary" />
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
                                     <span className="font-medium">{link.label}</span>
                                     {link.highlight && (
-                                      <Badge variant="secondary" className="text-xs">FREE</Badge>
+                                      <Badge variant="default" className="text-xs">Popular</Badge>
                                     )}
                                   </div>
                                   <span className="text-xs text-muted-foreground">{link.description}</span>
@@ -436,23 +443,26 @@ export function NavigationMenu() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  {/* Buy/Browse Section */}
-                  <AccordionItem value="buy-browse" className="border-none">
+                  {/* EVALUATE Section */}
+                  <AccordionItem value="evaluate" className="border-none">
                     <AccordionTrigger 
                       className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-buy-browse"
+                      data-testid="accordion-evaluate"
                     >
                       <div className="flex items-center gap-2">
-                        <Search className="w-5 h-5" />
-                        Buy / Browse
+                        <Target className="w-5 h-5" />
+                        EVALUATE
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      <div className="px-2 pb-2">
+                        <span className="text-xs text-muted-foreground">For Buyers - Actively searching</span>
+                      </div>
                       <div className="space-y-1 pl-2">
-                        {BUY_BROWSE_LINKS.map((link) => {
+                        {EVALUATE_LINKS.map((link) => {
                           const Icon = link.icon;
                           return (
-                            <Link key={link.href} href={link.href}>
+                            <Link key={link.href + link.label} href={link.href}>
                               <div
                                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                   isActive(link.href)
@@ -460,7 +470,7 @@ export function NavigationMenu() {
                                     : "hover:bg-muted"
                                 }`}
                                 onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-buy-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                data-testid={`link-mobile-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                               >
                                 <Icon className="w-5 h-5 text-primary" />
                                 <div>
@@ -475,49 +485,26 @@ export function NavigationMenu() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  {/* Navigation Section */}
-                  <AccordionItem value="navigation" className="border-none">
+                  {/* OPERATE Section */}
+                  <AccordionItem value="operate" className="border-none">
                     <AccordionTrigger 
                       className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-navigation"
+                      data-testid="accordion-operate"
                     >
-                      Navigation
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-1 pl-2">
-                        {MAIN_LINKS.map((link) => (
-                            <Link key={link.href} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <span>{link.label}</span>
-                              </div>
-                            </Link>
-                          ))}
+                      <div className="flex items-center gap-2">
+                        <Settings className="w-5 h-5" />
+                        OPERATE
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Tools Section */}
-                  <AccordionItem value="tools" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-tools"
-                    >
-                      Tools
                     </AccordionTrigger>
                     <AccordionContent>
+                      <div className="px-2 pb-2">
+                        <span className="text-xs text-muted-foreground">For Owners - Running your business</span>
+                      </div>
                       <div className="space-y-1 pl-2">
-                        {TOOLS_LINKS.map((link) => {
+                        {OPERATE_LINKS.map((link) => {
                           const Icon = link.icon;
                           return (
-                            <Link key={link.href} href={link.href}>
+                            <Link key={link.href + link.label} href={link.href}>
                               <div
                                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                   isActive(link.href)
@@ -525,7 +512,7 @@ export function NavigationMenu() {
                                     : "hover:bg-muted"
                                 }`}
                                 onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-tool-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                data-testid={`link-mobile-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                               >
                                 <Icon className="w-5 h-5 text-primary" />
                                 <div>
@@ -540,56 +527,26 @@ export function NavigationMenu() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  {/* Learn Section */}
-                  <AccordionItem value="learn" className="border-none">
+                  {/* PARTNER Section */}
+                  <AccordionItem value="partner" className="border-none">
                     <AccordionTrigger 
                       className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-learn"
+                      data-testid="accordion-partner"
                     >
-                      Learn
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-1 pl-2">
-                        {EDUCATION_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
-                            <Link key={link.href} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-learn-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <div>
-                                  <span className="block font-medium">{link.label}</span>
-                                  <span className="text-xs text-muted-foreground">{link.description}</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
+                      <div className="flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        PARTNER
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Get Started Section */}
-                  <AccordionItem value="get-started" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-get-started"
-                    >
-                      Get Started
                     </AccordionTrigger>
                     <AccordionContent>
+                      <div className="px-2 pb-2">
+                        <span className="text-xs text-muted-foreground">For Vendors & Brokers</span>
+                      </div>
                       <div className="space-y-1 pl-2">
-                        {ACTION_LINKS.map((link) => {
+                        {PARTNER_LINKS.map((link) => {
                           const Icon = link.icon;
                           return (
-                            <Link key={link.href} href={link.href}>
+                            <Link key={link.href + link.label} href={link.href}>
                               <div
                                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                   link.highlight
@@ -599,14 +556,14 @@ export function NavigationMenu() {
                                     : "hover:bg-muted"
                                 }`}
                                 onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-action-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                data-testid={`link-mobile-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                               >
-                                <Icon className={`w-5 h-5 ${link.highlight ? "text-primary" : ""}`} />
+                                <Icon className="w-5 h-5 text-primary" />
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
                                     <span className="font-medium">{link.label}</span>
-                                    {link.highlight && (
-                                      <Badge variant="default" className="text-xs">Popular</Badge>
+                                    {link.badge && (
+                                      <Badge variant="secondary" className="text-xs">{link.badge}</Badge>
                                     )}
                                   </div>
                                   <span className="text-xs text-muted-foreground">{link.description}</span>
