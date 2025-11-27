@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { 
   MessageSquare, 
   Plus, 
@@ -21,9 +22,24 @@ import {
   MoreVertical,
   Search,
   Settings,
-  Zap
+  Zap,
+  Copy,
+  Check,
+  RefreshCw,
+  Download,
+  Bold,
+  Italic,
+  Heading1,
+  Heading2,
+  List,
+  ListOrdered,
+  Save,
+  Edit,
+  Clock,
+  FileDown,
+  AlertCircle
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +48,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +59,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,36 +83,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
+import type { AiConversation, ContentProject } from "@shared/schema";
 
 type ConversationType = "general" | "blog" | "book" | "newsletter" | "code";
 
 interface Message {
-  id: string;
   role: "user" | "assistant" | "system";
   content: string;
-  timestamp: Date;
+  timestamp: string;
+  metadata?: Record<string, any>;
+  error?: boolean;
 }
 
-interface Conversation {
-  id: string;
-  title: string;
-  type: ConversationType;
-  isPinned: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+interface Conversation extends AiConversation {
   messages: Message[];
-}
-
-interface Project {
-  id: string;
-  title: string;
-  type: ConversationType;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const conversationTypeConfig: Record<ConversationType, { icon: typeof MessageSquare; label: string; color: string }> = {
@@ -104,15 +124,6 @@ const blogTopicSuggestions = [
   "Location Analysis Guide",
 ];
 
-const bookChapters = [
-  { id: 1, title: "Introduction", status: "completed" },
-  { id: 2, title: "Market Research", status: "in-progress" },
-  { id: 3, title: "Business Planning", status: "pending" },
-  { id: 4, title: "Location Selection", status: "pending" },
-  { id: 5, title: "Equipment Selection", status: "pending" },
-  { id: 6, title: "Operations", status: "pending" },
-];
-
 export default function AIContentStudio() {
   const { toast } = useToast();
   const [activeMode, setActiveMode] = useState<"chat" | "blog" | "book" | "newsletter" | "projects">("chat");
@@ -123,71 +134,58 @@ export default function AIContentStudio() {
   const [isNewConversationOpen, setIsNewConversationOpen] = useState(false);
   const [newConversationTitle, setNewConversationTitle] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [failedMessageContent, setFailedMessageContent] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [newProjectType, setNewProjectType] = useState<string>("book");
+  
+  const [editingProject, setEditingProject] = useState<ContentProject | null>(null);
+  const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
+  const [editProjectTitle, setEditProjectTitle] = useState("");
+  const [editProjectDescription, setEditProjectDescription] = useState("");
+  
+  const [deletingProject, setDeletingProject] = useState<ContentProject | null>(null);
+  const [isDeleteProjectOpen, setIsDeleteProjectOpen] = useState(false);
+  
+  const [selectedProject, setSelectedProject] = useState<ContentProject | null>(null);
+  const [bookContent, setBookContent] = useState("");
+  const [isBookDirty, setIsBookDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const bookEditorRef = useRef<HTMLDivElement>(null);
 
-  const [localConversations, setLocalConversations] = useState<Conversation[]>([
-    {
-      id: "1",
-      title: "Business Strategy Discussion",
-      type: "general",
-      isPinned: true,
-      createdAt: new Date(Date.now() - 86400000),
-      updatedAt: new Date(),
-      messages: [
-        {
-          id: "m1",
-          role: "system",
-          content: "Welcome to AI Content Studio! How can I help you today?",
-          timestamp: new Date(Date.now() - 86400000),
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "Blog Post: Marketing Tips",
-      type: "blog",
-      isPinned: false,
-      createdAt: new Date(Date.now() - 172800000),
-      updatedAt: new Date(Date.now() - 86400000),
-      messages: [],
-    },
-  ]);
-
-  const [localProjects] = useState<Project[]>([
-    {
-      id: "p1",
-      title: "Laundromat Marketing Guide",
-      type: "blog",
-      content: "Draft content for marketing guide...",
-      createdAt: new Date(Date.now() - 259200000),
-      updatedAt: new Date(Date.now() - 86400000),
-    },
-  ]);
-
-  const { data: conversations = localConversations, isLoading: isLoadingConversations } = useQuery<Conversation[]>({
+  const { data: conversations = [], isLoading: isLoadingConversations, error: conversationsError } = useQuery<Conversation[]>({
     queryKey: ["/api/ai-studio/conversations"],
-    enabled: false,
   });
 
-  const { data: projects = localProjects, isLoading: isLoadingProjects } = useQuery<Project[]>({
+  const { data: projects = [], isLoading: isLoadingProjects, error: projectsError } = useQuery<ContentProject[]>({
     queryKey: ["/api/ai-studio/projects"],
-    enabled: false,
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
-      const response = await apiRequest("POST", `/api/ai-studio/conversations/${conversationId}/messages`, {
-        content: message,
+    mutationFn: async ({ conversationId, message, type }: { conversationId: string; message: string; type: ConversationType }) => {
+      const currentConv = conversations.find(c => c.id === conversationId);
+      const messages = currentConv?.messages || [];
+      
+      const response = await apiRequest("POST", `/api/ai-studio/chat`, {
+        conversationId,
+        messages: [...messages, { role: "user", content: message, timestamp: new Date().toISOString() }],
+        type,
       });
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/conversations"] });
+      setFailedMessageContent(null);
     },
     onError: (error: any) => {
       toast({
         title: "Error sending message",
-        description: error.message || "Failed to send message",
+        description: error.message || "Failed to send message. Click retry to try again.",
         variant: "destructive",
       });
     },
@@ -198,10 +196,11 @@ export default function AIContentStudio() {
       const response = await apiRequest("POST", "/api/ai-studio/conversations", { title, type });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/conversations"] });
       setIsNewConversationOpen(false);
       setNewConversationTitle("");
+      setSelectedConversation(data.id);
       toast({
         title: "Conversation created",
         description: "Your new conversation is ready",
@@ -216,13 +215,20 @@ export default function AIContentStudio() {
     },
   });
 
-  const togglePinMutation = useMutation({
-    mutationFn: async ({ id, isPinned }: { id: string; isPinned: boolean }) => {
-      const response = await apiRequest("PATCH", `/api/ai-studio/conversations/${id}`, { isPinned });
+  const updateConversationMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; isPinned?: boolean; title?: string }) => {
+      const response = await apiRequest("PATCH", `/api/ai-studio/conversations/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/conversations"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error updating conversation",
+        description: error.message || "Failed to update conversation",
+        variant: "destructive",
+      });
     },
   });
 
@@ -249,113 +255,323 @@ export default function AIContentStudio() {
     },
   });
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const createProjectMutation = useMutation({
+    mutationFn: async (data: { title: string; description?: string; type: string }) => {
+      const response = await apiRequest("POST", "/api/ai-studio/projects", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/projects"] });
+      setIsNewProjectOpen(false);
+      setNewProjectTitle("");
+      setNewProjectDescription("");
+      toast({
+        title: "Project created",
+        description: "Your new project is ready",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error creating project",
+        description: error.message || "Failed to create project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateProjectMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; content?: any }) => {
+      const response = await apiRequest("PATCH", `/api/ai-studio/projects/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/projects"] });
+      setIsEditProjectOpen(false);
+      setEditingProject(null);
+      setLastSaved(new Date());
+      setIsBookDirty(false);
+      toast({
+        title: "Project updated",
+        description: "Your changes have been saved",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error updating project",
+        description: error.message || "Failed to update project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/ai-studio/projects/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/projects"] });
+      setIsDeleteProjectOpen(false);
+      setDeletingProject(null);
+      if (selectedProject?.id === deletingProject?.id) {
+        setSelectedProject(null);
+      }
+      toast({
+        title: "Project deleted",
+        description: "The project has been removed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting project",
+        description: error.message || "Failed to delete project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportPdfMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      const response = await fetch("/api/ai-studio/export/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId }),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to export PDF");
+      }
+      const blob = await response.blob();
+      const filename = response.headers.get("Content-Disposition")?.split("filename=")[1]?.replace(/"/g, "") || "export.pdf";
+      return { blob, filename };
+    },
+    onSuccess: ({ blob, filename }) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "PDF exported",
+        description: "Your PDF has been downloaded",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Export failed",
+        description: error.message || "Failed to export PDF",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportDocxMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      const response = await fetch("/api/ai-studio/export/docx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId }),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to export DOCX");
+      }
+      const blob = await response.blob();
+      const filename = response.headers.get("Content-Disposition")?.split("filename=")[1]?.replace(/"/g, "") || "export.docx";
+      return { blob, filename };
+    },
+    onSuccess: ({ blob, filename }) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "DOCX exported",
+        description: "Your document has been downloaded",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Export failed",
+        description: error.message || "Failed to export DOCX",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [selectedConversation, localConversations]);
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
+  }, [selectedConversation, conversations, scrollToBottom]);
 
-  const handleSendMessage = () => {
+  useEffect(() => {
+    if (sendMessageMutation.isPending) {
+      scrollToBottom();
+    }
+  }, [sendMessageMutation.isPending, scrollToBottom]);
+
+  useEffect(() => {
+    if (!isBookDirty || !selectedProject) return;
+    
+    const timer = setTimeout(() => {
+      updateProjectMutation.mutate({
+        id: selectedProject.id,
+        content: { text: bookContent },
+      });
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [bookContent, isBookDirty, selectedProject]);
+
+  const handleSendMessage = useCallback(() => {
     if (!messageInput.trim() || !selectedConversation) return;
 
-    const newUserMessage: Message = {
-      id: `m${Date.now()}`,
-      role: "user",
-      content: messageInput,
-      timestamp: new Date(),
-    };
+    const currentConv = conversations.find(c => c.id === selectedConversation);
+    if (!currentConv) return;
 
-    setLocalConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === selectedConversation
-          ? { ...conv, messages: [...conv.messages, newUserMessage], updatedAt: new Date() }
-          : conv
-      )
-    );
-
+    setFailedMessageContent(messageInput);
+    sendMessageMutation.mutate({
+      conversationId: selectedConversation,
+      message: messageInput.trim(),
+      type: (currentConv.type as ConversationType) || "general",
+    });
     setMessageInput("");
+  }, [messageInput, selectedConversation, conversations, sendMessageMutation]);
 
-    setTimeout(() => {
-      const assistantResponse: Message = {
-        id: `m${Date.now() + 1}`,
-        role: "assistant",
-        content: "Thank you for your message! I'm here to help you with content creation. Based on your input, I can help you draft blog posts, develop book chapters, create newsletter content, or assist with code documentation. What would you like to work on?",
-        timestamp: new Date(),
-      };
+  const handleRetryMessage = useCallback(() => {
+    if (!failedMessageContent || !selectedConversation) return;
+    
+    const currentConv = conversations.find(c => c.id === selectedConversation);
+    if (!currentConv) return;
 
-      setLocalConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === selectedConversation
-            ? { ...conv, messages: [...conv.messages, assistantResponse], updatedAt: new Date() }
-            : conv
-        )
-      );
-    }, 1500);
-  };
+    sendMessageMutation.mutate({
+      conversationId: selectedConversation,
+      message: failedMessageContent,
+      type: (currentConv.type as ConversationType) || "general",
+    });
+  }, [failedMessageContent, selectedConversation, conversations, sendMessageMutation]);
 
-  const handleCreateConversation = () => {
-    const newConv: Conversation = {
-      id: `conv${Date.now()}`,
+  const handleCopyMessage = useCallback(async (content: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+      toast({
+        title: "Copied to clipboard",
+        description: "Message content has been copied",
+      });
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const handleCreateConversation = useCallback(() => {
+    createConversationMutation.mutate({
       title: newConversationTitle || `New ${conversationTypeConfig[newConversationType].label} Conversation`,
       type: newConversationType,
-      isPinned: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      messages: [
-        {
-          id: `m${Date.now()}`,
-          role: "system",
-          content: `Welcome to your new ${conversationTypeConfig[newConversationType].label} conversation! How can I assist you today?`,
-          timestamp: new Date(),
-        },
-      ],
-    };
-
-    setLocalConversations((prev) => [newConv, ...prev]);
-    setSelectedConversation(newConv.id);
-    setIsNewConversationOpen(false);
-    setNewConversationTitle("");
-    toast({
-      title: "Conversation created",
-      description: "Your new conversation is ready",
     });
-  };
+  }, [newConversationTitle, newConversationType, createConversationMutation]);
 
-  const handleTogglePin = (id: string) => {
-    setLocalConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === id ? { ...conv, isPinned: !conv.isPinned } : conv
-      )
-    );
-  };
+  const handleTogglePin = useCallback((id: string, currentPinned: boolean) => {
+    updateConversationMutation.mutate({ id, isPinned: !currentPinned });
+  }, [updateConversationMutation]);
 
-  const handleDeleteConversation = (id: string) => {
-    setLocalConversations((prev) => prev.filter((conv) => conv.id !== id));
-    if (selectedConversation === id) {
-      setSelectedConversation(null);
+  const handleDeleteConversation = useCallback((id: string) => {
+    deleteConversationMutation.mutate(id);
+  }, [deleteConversationMutation]);
+
+  const handleCreateProject = useCallback(() => {
+    if (!newProjectTitle.trim()) {
+      toast({
+        title: "Title required",
+        description: "Please enter a project title",
+        variant: "destructive",
+      });
+      return;
     }
-    toast({
-      title: "Conversation deleted",
-      description: "The conversation has been removed",
+    createProjectMutation.mutate({
+      title: newProjectTitle.trim(),
+      description: newProjectDescription.trim() || undefined,
+      type: newProjectType,
     });
-  };
+  }, [newProjectTitle, newProjectDescription, newProjectType, createProjectMutation, toast]);
 
-  const filteredConversations = localConversations.filter(
+  const handleUpdateProject = useCallback(() => {
+    if (!editingProject || !editProjectTitle.trim()) return;
+    updateProjectMutation.mutate({
+      id: editingProject.id,
+      title: editProjectTitle.trim(),
+      description: editProjectDescription.trim() || undefined,
+    });
+  }, [editingProject, editProjectTitle, editProjectDescription, updateProjectMutation]);
+
+  const handleDeleteProject = useCallback(() => {
+    if (!deletingProject) return;
+    deleteProjectMutation.mutate(deletingProject.id);
+  }, [deletingProject, deleteProjectMutation]);
+
+  const handleSaveBook = useCallback(() => {
+    if (!selectedProject) return;
+    updateProjectMutation.mutate({
+      id: selectedProject.id,
+      content: { text: bookContent },
+    });
+  }, [selectedProject, bookContent, updateProjectMutation]);
+
+  const execCommand = useCallback((command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    bookEditorRef.current?.focus();
+    setIsBookDirty(true);
+  }, []);
+
+  const handleBookContentChange = useCallback((evt: ContentEditableEvent) => {
+    setBookContent(evt.target.value);
+    setIsBookDirty(true);
+  }, []);
+
+  const getWordCount = useCallback((text: string) => {
+    const plainText = text.replace(/<[^>]*>/g, " ").trim();
+    if (!plainText) return 0;
+    return plainText.split(/\s+/).filter(Boolean).length;
+  }, []);
+
+  const getCharacterCount = useCallback((text: string) => {
+    return text.replace(/<[^>]*>/g, "").length;
+  }, []);
+
+  const filteredConversations = conversations.filter(
     (conv) =>
-      conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.type.toLowerCase().includes(searchQuery.toLowerCase())
+      conv.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conv.type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const pinnedConversations = filteredConversations.filter((conv) => conv.isPinned);
   const unpinnedConversations = filteredConversations.filter((conv) => !conv.isPinned);
 
-  const currentConversation = localConversations.find((conv) => conv.id === selectedConversation);
+  const currentConversation = conversations.find((conv) => conv.id === selectedConversation);
 
   const renderConversationItem = (conv: Conversation) => {
-    const TypeIcon = conversationTypeConfig[conv.type].icon;
+    const TypeIcon = conversationTypeConfig[(conv.type as ConversationType) || "general"]?.icon || MessageSquare;
     const isSelected = selectedConversation === conv.id;
+    const typeColor = conversationTypeConfig[(conv.type as ConversationType) || "general"]?.color || "text-blue-500";
 
     return (
       <div
@@ -366,15 +582,15 @@ export default function AIContentStudio() {
         onClick={() => setSelectedConversation(conv.id)}
         data-testid={`conversation-item-${conv.id}`}
       >
-        <div className={`p-2 rounded-md bg-muted ${conversationTypeConfig[conv.type].color}`}>
+        <div className={`p-2 rounded-md bg-muted ${typeColor}`}>
           <TypeIcon className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate" data-testid={`conversation-title-${conv.id}`}>
-            {conv.title}
+            {conv.title || "Untitled"}
           </p>
           <p className="text-xs text-muted-foreground">
-            {format(conv.updatedAt, "MMM d, h:mm a")}
+            {conv.updatedAt ? format(new Date(conv.updatedAt), "MMM d, h:mm a") : "Just now"}
           </p>
         </div>
         <div className="flex items-center gap-1 invisible group-hover:visible">
@@ -384,7 +600,7 @@ export default function AIContentStudio() {
             className="h-7 w-7"
             onClick={(e) => {
               e.stopPropagation();
-              handleTogglePin(conv.id);
+              handleTogglePin(conv.id, conv.isPinned || false);
             }}
             data-testid={`button-pin-${conv.id}`}
           >
@@ -406,7 +622,7 @@ export default function AIContentStudio() {
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleTogglePin(conv.id);
+                  handleTogglePin(conv.id, conv.isPinned || false);
                 }}
                 data-testid={`menu-pin-${conv.id}`}
               >
@@ -432,15 +648,17 @@ export default function AIContentStudio() {
     );
   };
 
-  const renderMessage = (message: Message) => {
+  const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === "user";
     const isSystem = message.role === "system";
+    const messageId = `${message.timestamp}-${index}`;
+    const isCopied = copiedMessageId === messageId;
 
     return (
       <div
-        key={message.id}
+        key={messageId}
         className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
-        data-testid={`message-${message.id}`}
+        data-testid={`message-${messageId}`}
       >
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarFallback className={isUser ? "bg-primary text-primary-foreground" : isSystem ? "bg-muted" : "bg-accent"}>
@@ -449,23 +667,61 @@ export default function AIContentStudio() {
         </Avatar>
         <div className={`flex flex-col max-w-[75%] ${isUser ? "items-end" : "items-start"}`}>
           <div
-            className={`rounded-2xl px-4 py-2 ${
+            className={`rounded-2xl px-4 py-2 group relative ${
               isUser
                 ? "bg-primary text-primary-foreground"
                 : isSystem
                 ? "bg-muted text-muted-foreground italic"
+                : message.error
+                ? "bg-destructive/10 border border-destructive"
                 : "bg-card border"
             }`}
           >
             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            {!isUser && !isSystem && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleCopyMessage(message.content, messageId)}
+                    data-testid={`button-copy-${messageId}`}
+                  >
+                    {isCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isCopied ? "Copied!" : "Copy message"}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
-          <span className="text-xs text-muted-foreground mt-1" data-testid={`message-time-${message.id}`}>
-            {format(message.timestamp, "h:mm a")}
+          <span className="text-xs text-muted-foreground mt-1" data-testid={`message-time-${messageId}`}>
+            {message.timestamp ? format(new Date(message.timestamp), "h:mm a") : "Just now"}
           </span>
         </div>
       </div>
     );
   };
+
+  const renderTypingIndicator = () => (
+    <div className="flex gap-3" data-testid="typing-indicator">
+      <Avatar className="h-8 w-8">
+        <AvatarFallback className="bg-accent">
+          <Bot className="h-4 w-4" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex items-center gap-2 bg-card border rounded-2xl px-4 py-3">
+        <div className="flex gap-1">
+          <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+        </div>
+        <span className="text-sm text-muted-foreground ml-2">AI is thinking...</span>
+      </div>
+    </div>
+  );
 
   const renderChatInterface = () => (
     <div className="flex flex-col h-full">
@@ -474,41 +730,54 @@ export default function AIContentStudio() {
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">
               {(() => {
-                const TypeIcon = conversationTypeConfig[currentConversation.type].icon;
+                const TypeIcon = conversationTypeConfig[(currentConversation.type as ConversationType) || "general"]?.icon || MessageSquare;
+                const typeColor = conversationTypeConfig[(currentConversation.type as ConversationType) || "general"]?.color || "text-blue-500";
                 return (
-                  <div className={`p-2 rounded-md bg-muted ${conversationTypeConfig[currentConversation.type].color}`}>
+                  <div className={`p-2 rounded-md bg-muted ${typeColor}`}>
                     <TypeIcon className="h-5 w-5" />
                   </div>
                 );
               })()}
               <div>
                 <h2 className="font-semibold" data-testid="current-conversation-title">
-                  {currentConversation.title}
+                  {currentConversation.title || "Untitled"}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {conversationTypeConfig[currentConversation.type].label} Conversation
+                  {conversationTypeConfig[(currentConversation.type as ConversationType) || "general"]?.label || "General"} Conversation
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" data-testid="button-conversation-settings">
-              <Settings className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {currentConversation.updatedAt && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1" data-testid="last-edited-time">
+                  <Clock className="h-3 w-3" />
+                  {formatDistanceToNow(new Date(currentConversation.updatedAt), { addSuffix: true })}
+                </span>
+              )}
+              <Button variant="ghost" size="icon" data-testid="button-conversation-settings">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4">
-              {currentConversation.messages.map(renderMessage)}
-              {sendMessageMutation.isPending && (
-                <div className="flex gap-3" data-testid="loading-indicator">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-accent">
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex items-center gap-2 bg-card border rounded-2xl px-4 py-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm text-muted-foreground">Thinking...</span>
-                  </div>
+              {currentConversation.messages?.map((msg, idx) => renderMessage(msg, idx))}
+              {sendMessageMutation.isPending && renderTypingIndicator()}
+              {sendMessageMutation.isError && failedMessageContent && (
+                <div className="flex items-center justify-center gap-2 py-2" data-testid="retry-section">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <span className="text-sm text-destructive">Failed to send message</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetryMessage}
+                    disabled={sendMessageMutation.isPending}
+                    data-testid="button-retry-message"
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Retry
+                  </Button>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -584,30 +853,13 @@ export default function AIContentStudio() {
                 variant="outline"
                 className="justify-start h-auto py-3 px-4 text-left"
                 onClick={() => {
-                  const newConv: Conversation = {
-                    id: `conv${Date.now()}`,
+                  createConversationMutation.mutate({
                     title: topic,
                     type: "blog",
-                    isPinned: false,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    messages: [
-                      {
-                        id: `m${Date.now()}`,
-                        role: "system",
-                        content: `Let's create a blog post about: "${topic}"`,
-                        timestamp: new Date(),
-                      },
-                    ],
-                  };
-                  setLocalConversations((prev) => [newConv, ...prev]);
-                  setSelectedConversation(newConv.id);
-                  setActiveMode("chat");
-                  toast({
-                    title: "Blog topic selected",
-                    description: "Starting your blog post creation",
                   });
+                  setActiveMode("chat");
                 }}
+                disabled={createConversationMutation.isPending}
                 data-testid={`button-topic-${index}`}
               >
                 <FileText className="h-4 w-4 mr-3 text-green-500 flex-shrink-0" />
@@ -628,10 +880,29 @@ export default function AIContentStudio() {
           <div className="flex gap-2">
             <Input
               placeholder="Enter your blog topic..."
+              value={newConversationTitle}
+              onChange={(e) => setNewConversationTitle(e.target.value)}
               data-testid="input-custom-topic"
             />
-            <Button data-testid="button-generate-blog">
-              <Zap className="h-4 w-4 mr-2" />
+            <Button 
+              onClick={() => {
+                if (newConversationTitle.trim()) {
+                  createConversationMutation.mutate({
+                    title: newConversationTitle.trim(),
+                    type: "blog",
+                  });
+                  setNewConversationTitle("");
+                  setActiveMode("chat");
+                }
+              }}
+              disabled={!newConversationTitle.trim() || createConversationMutation.isPending}
+              data-testid="button-generate-blog"
+            >
+              {createConversationMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4 mr-2" />
+              )}
               Generate
             </Button>
           </div>
@@ -642,74 +913,271 @@ export default function AIContentStudio() {
 
   const renderBookMode = () => (
     <div className="p-6 space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Book Writing Assistant</h2>
-        <p className="text-muted-foreground mb-6">
-          Write your book chapter by chapter with AI guidance and structure.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Book Writing Assistant</h2>
+          <p className="text-muted-foreground">
+            Write your book with AI guidance and rich text editing.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setIsNewProjectOpen(true)} data-testid="button-new-book-project">
+            <Plus className="h-4 w-4 mr-2" />
+            New Book
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Chapter Outline</CardTitle>
-          <CardDescription>Track your progress and edit chapters</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {bookChapters.map((chapter) => (
-              <div
-                key={chapter.id}
-                className="flex items-center justify-between p-3 rounded-lg border hover-elevate cursor-pointer"
-                onClick={() => {
-                  const newConv: Conversation = {
-                    id: `conv${Date.now()}`,
-                    title: `Chapter ${chapter.id}: ${chapter.title}`,
-                    type: "book",
-                    isPinned: false,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    messages: [
-                      {
-                        id: `m${Date.now()}`,
-                        role: "system",
-                        content: `Let's work on Chapter ${chapter.id}: ${chapter.title}. What would you like to focus on?`,
-                        timestamp: new Date(),
-                      },
-                    ],
-                  };
-                  setLocalConversations((prev) => [newConv, ...prev]);
-                  setSelectedConversation(newConv.id);
-                  setActiveMode("chat");
-                }}
-                data-testid={`chapter-${chapter.id}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
-                    {chapter.id}
-                  </div>
-                  <span className="font-medium">{chapter.title}</span>
-                </div>
-                <Badge
-                  variant={
-                    chapter.status === "completed"
-                      ? "default"
-                      : chapter.status === "in-progress"
-                      ? "secondary"
-                      : "outline"
-                  }
-                  data-testid={`chapter-status-${chapter.id}`}
-                >
-                  {chapter.status === "completed"
-                    ? "Completed"
-                    : chapter.status === "in-progress"
-                    ? "In Progress"
-                    : "Pending"}
-                </Badge>
+      {isLoadingProjects ? (
+        <div className="space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      ) : selectedProject ? (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1">
+                <CardTitle className="text-lg" data-testid="book-project-title">{selectedProject.title}</CardTitle>
+                {selectedProject.description && (
+                  <CardDescription>{selectedProject.description}</CardDescription>
+                )}
               </div>
+              <div className="flex items-center gap-2">
+                {lastSaved && (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1" data-testid="book-last-saved">
+                    <Clock className="h-3 w-3" />
+                    Saved {formatDistanceToNow(lastSaved, { addSuffix: true })}
+                  </span>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSaveBook}
+                  disabled={!isBookDirty || updateProjectMutation.isPending}
+                  data-testid="button-save-book"
+                >
+                  {updateProjectMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-1" />
+                  )}
+                  Save
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" data-testid="button-export-book">
+                      <Download className="h-4 w-4 mr-1" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => exportPdfMutation.mutate(selectedProject.id)}
+                      disabled={exportPdfMutation.isPending}
+                      data-testid="button-export-pdf"
+                    >
+                      {exportPdfMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileDown className="h-4 w-4 mr-2" />
+                      )}
+                      Export as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => exportDocxMutation.mutate(selectedProject.id)}
+                      disabled={exportDocxMutation.isPending}
+                      data-testid="button-export-docx"
+                    >
+                      {exportDocxMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileDown className="h-4 w-4 mr-2" />
+                      )}
+                      Export as DOCX
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedProject(null)}
+                  data-testid="button-close-book"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-1 p-2 border rounded-lg bg-muted/50">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("bold")} data-testid="button-bold">
+                    <Bold className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Bold (Ctrl+B)</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("italic")} data-testid="button-italic">
+                    <Italic className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Italic (Ctrl+I)</TooltipContent>
+              </Tooltip>
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("formatBlock", "h1")} data-testid="button-h1">
+                    <Heading1 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Heading 1</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("formatBlock", "h2")} data-testid="button-h2">
+                    <Heading2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Heading 2</TooltipContent>
+              </Tooltip>
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("insertUnorderedList")} data-testid="button-ul">
+                    <List className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Bullet List</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => execCommand("insertOrderedList")} data-testid="button-ol">
+                    <ListOrdered className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Numbered List</TooltipContent>
+              </Tooltip>
+            </div>
+
+            <div 
+              className="min-h-[400px] p-4 border rounded-lg bg-background focus-within:ring-2 focus-within:ring-ring"
+              ref={bookEditorRef}
+            >
+              <ContentEditable
+                html={bookContent}
+                onChange={handleBookContentChange}
+                className="prose prose-sm dark:prose-invert max-w-none min-h-[350px] focus:outline-none"
+                data-testid="book-editor"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center gap-4">
+                <span data-testid="word-count">Words: {getWordCount(bookContent)}</span>
+                <span data-testid="char-count">Characters: {getCharacterCount(bookContent)}</span>
+              </div>
+              {isBookDirty && (
+                <span className="text-amber-500 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  Unsaved changes
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {projects
+            .filter((p) => p.type === "book" || p.type === "ebook")
+            .map((project) => (
+              <Card 
+                key={project.id} 
+                className="hover-elevate cursor-pointer" 
+                onClick={() => {
+                  setSelectedProject(project);
+                  setBookContent((project.content as any)?.text || "");
+                  setIsBookDirty(false);
+                  setLastSaved(project.updatedAt ? new Date(project.updatedAt) : null);
+                }}
+                data-testid={`book-project-${project.id}`}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="p-2 rounded-md bg-muted text-purple-500">
+                      <BookOpen className="h-4 w-4" />
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()} data-testid={`button-project-menu-${project.id}`}>
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingProject(project);
+                            setEditProjectTitle(project.title);
+                            setEditProjectDescription(project.description || "");
+                            setIsEditProjectOpen(true);
+                          }}
+                          data-testid={`menu-edit-project-${project.id}`}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeletingProject(project);
+                            setIsDeleteProjectOpen(true);
+                          }}
+                          data-testid={`menu-delete-project-${project.id}`}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <CardTitle className="text-base mt-2">{project.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{project.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span data-testid={`project-updated-${project.id}`}>
+                      {project.updatedAt ? formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true }) : "Recently"}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          {projects.filter((p) => p.type === "book" || p.type === "ebook").length === 0 && (
+            <Card className="col-span-full">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No book projects yet</h3>
+                <p className="text-muted-foreground text-center mb-4">
+                  Create your first book project to start writing
+                </p>
+                <Button onClick={() => setIsNewProjectOpen(true)} data-testid="button-create-first-book">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Book Project
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -739,24 +1207,10 @@ export default function AIContentStudio() {
                 key={index}
                 className="cursor-pointer hover-elevate"
                 onClick={() => {
-                  const newConv: Conversation = {
-                    id: `conv${Date.now()}`,
+                  createConversationMutation.mutate({
                     title: `Newsletter: ${template.title}`,
                     type: "newsletter",
-                    isPinned: false,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    messages: [
-                      {
-                        id: `m${Date.now()}`,
-                        role: "system",
-                        content: `Let's create a ${template.title.toLowerCase()} newsletter. What's the main topic you'd like to cover?`,
-                        timestamp: new Date(),
-                      },
-                    ],
-                  };
-                  setLocalConversations((prev) => [newConv, ...prev]);
-                  setSelectedConversation(newConv.id);
+                  });
                   setActiveMode("chat");
                 }}
                 data-testid={`newsletter-template-${index}`}
@@ -777,24 +1231,49 @@ export default function AIContentStudio() {
 
   const renderProjectsMode = () => (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div>
           <h2 className="text-xl font-semibold mb-2">Your Projects</h2>
           <p className="text-muted-foreground">
             View and manage your saved content projects.
           </p>
         </div>
-        <Button data-testid="button-new-project">
+        <Button onClick={() => setIsNewProjectOpen(true)} data-testid="button-new-project">
           <Plus className="h-4 w-4 mr-2" />
           New Project
         </Button>
       </div>
 
       {isLoadingProjects ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-10 w-10 rounded-md" />
+                <Skeleton className="h-5 w-3/4 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3 mt-2" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      ) : localProjects.length === 0 ? (
+      ) : projectsError ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+            <h3 className="text-lg font-medium mb-2">Error loading projects</h3>
+            <p className="text-muted-foreground text-center mb-4">
+              {(projectsError as Error).message || "Failed to load projects"}
+            </p>
+            <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/projects"] })} data-testid="button-retry-projects">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      ) : projects.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
@@ -802,31 +1281,89 @@ export default function AIContentStudio() {
             <p className="text-muted-foreground text-center mb-4">
               Start creating content and save it as a project for later.
             </p>
-            <Button onClick={() => setIsNewConversationOpen(true)} data-testid="button-start-project">
+            <Button onClick={() => setIsNewProjectOpen(true)} data-testid="button-start-project">
               Get Started
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {localProjects.map((project) => {
-            const TypeIcon = conversationTypeConfig[project.type].icon;
+          {projects.map((project) => {
+            const TypeIcon = conversationTypeConfig[(project.type as ConversationType)]?.icon || FolderOpen;
+            const typeColor = conversationTypeConfig[(project.type as ConversationType)]?.color || "text-gray-500";
             return (
-              <Card key={project.id} className="hover-elevate cursor-pointer" data-testid={`project-${project.id}`}>
+              <Card key={project.id} className="hover-elevate" data-testid={`project-${project.id}`}>
                 <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <div className={`p-2 rounded-md bg-muted ${conversationTypeConfig[project.type].color}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className={`p-2 rounded-md bg-muted ${typeColor}`}>
                       <TypeIcon className="h-4 w-4" />
                     </div>
-                    <Badge variant="outline">{conversationTypeConfig[project.type].label}</Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge variant="outline">{conversationTypeConfig[(project.type as ConversationType)]?.label || project.type}</Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" data-testid={`button-project-actions-${project.id}`}>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setEditingProject(project);
+                              setEditProjectTitle(project.title);
+                              setEditProjectDescription(project.description || "");
+                              setIsEditProjectOpen(true);
+                            }}
+                            data-testid={`menu-edit-${project.id}`}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => exportPdfMutation.mutate(project.id)}
+                            disabled={exportPdfMutation.isPending}
+                            data-testid={`menu-export-pdf-${project.id}`}
+                          >
+                            <FileDown className="h-4 w-4 mr-2" />
+                            Export PDF
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => exportDocxMutation.mutate(project.id)}
+                            disabled={exportDocxMutation.isPending}
+                            data-testid={`menu-export-docx-${project.id}`}
+                          >
+                            <FileDown className="h-4 w-4 mr-2" />
+                            Export DOCX
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => {
+                              setDeletingProject(project);
+                              setIsDeleteProjectOpen(true);
+                            }}
+                            data-testid={`menu-delete-${project.id}`}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <CardTitle className="text-base mt-2">{project.title}</CardTitle>
+                  <CardTitle className="text-base mt-2" data-testid={`project-title-${project.id}`}>{project.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{project.content}</p>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Updated {format(project.updatedAt, "MMM d, yyyy")}
-                  </p>
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`project-description-${project.id}`}>{project.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
+                    <Clock className="h-3 w-3" />
+                    <span data-testid={`project-timestamp-${project.id}`}>
+                      Updated {project.updatedAt ? formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true }) : "recently"}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -853,7 +1390,7 @@ export default function AIContentStudio() {
             data-testid="sidebar"
           >
             <div className="p-4 border-b">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 gap-2">
                 {!isSidebarCollapsed && (
                   <h1 className="font-bold text-lg">Content Studio</h1>
                 )}
@@ -898,7 +1435,7 @@ export default function AIContentStudio() {
                       </DialogHeader>
                       <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Title (optional)</label>
+                          <Label>Title (optional)</Label>
                           <Input
                             placeholder="Enter conversation title..."
                             value={newConversationTitle}
@@ -907,7 +1444,7 @@ export default function AIContentStudio() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Type</label>
+                          <Label>Type</Label>
                           <Select
                             value={newConversationType}
                             onValueChange={(value) => setNewConversationType(value as ConversationType)}
@@ -932,7 +1469,14 @@ export default function AIContentStudio() {
                         <Button variant="outline" onClick={() => setIsNewConversationOpen(false)} data-testid="button-cancel-new">
                           Cancel
                         </Button>
-                        <Button onClick={handleCreateConversation} data-testid="button-create-conversation">
+                        <Button 
+                          onClick={handleCreateConversation} 
+                          disabled={createConversationMutation.isPending}
+                          data-testid="button-create-conversation"
+                        >
+                          {createConversationMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : null}
                           Create
                         </Button>
                       </DialogFooter>
@@ -945,40 +1489,71 @@ export default function AIContentStudio() {
             {!isSidebarCollapsed && (
               <ScrollArea className="flex-1">
                 <div className="p-3 space-y-4">
-                  {pinnedConversations.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 px-2 mb-2">
-                        <Pin className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Pinned
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        {pinnedConversations.map(renderConversationItem)}
-                      </div>
+                  {isLoadingConversations ? (
+                    <div className="space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-center gap-3 p-3">
+                          <Skeleton className="h-10 w-10 rounded-md" />
+                          <div className="flex-1">
+                            <Skeleton className="h-4 w-3/4 mb-2" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  )}
-
-                  {unpinnedConversations.length > 0 && (
-                    <div>
-                      {pinnedConversations.length > 0 && <Separator className="my-3" />}
-                      <div className="flex items-center gap-2 px-2 mb-2">
-                        <MessageSquare className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Recent
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        {unpinnedConversations.map(renderConversationItem)}
-                      </div>
-                    </div>
-                  )}
-
-                  {filteredConversations.length === 0 && (
+                  ) : conversationsError ? (
                     <div className="text-center py-8">
-                      <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No conversations found</p>
+                      <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
+                      <p className="text-sm text-destructive">Failed to load conversations</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-2"
+                        onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/ai-studio/conversations"] })}
+                        data-testid="button-retry-conversations"
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Retry
+                      </Button>
                     </div>
+                  ) : (
+                    <>
+                      {pinnedConversations.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 px-2 mb-2">
+                            <Pin className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Pinned
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {pinnedConversations.map(renderConversationItem)}
+                          </div>
+                        </div>
+                      )}
+
+                      {unpinnedConversations.length > 0 && (
+                        <div>
+                          {pinnedConversations.length > 0 && <Separator className="my-3" />}
+                          <div className="flex items-center gap-2 px-2 mb-2">
+                            <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Recent
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {unpinnedConversations.map(renderConversationItem)}
+                          </div>
+                        </div>
+                      )}
+
+                      {filteredConversations.length === 0 && (
+                        <div className="text-center py-8">
+                          <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">No conversations found</p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </ScrollArea>
@@ -1046,6 +1621,138 @@ export default function AIContentStudio() {
           </main>
         </div>
       </div>
+
+      <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription>
+              Start a new content project to organize your writing.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Title *</Label>
+              <Input
+                placeholder="Enter project title..."
+                value={newProjectTitle}
+                onChange={(e) => setNewProjectTitle(e.target.value)}
+                data-testid="input-project-title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description (optional)</Label>
+              <Textarea
+                placeholder="Enter project description..."
+                value={newProjectDescription}
+                onChange={(e) => setNewProjectDescription(e.target.value)}
+                data-testid="input-project-description"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select value={newProjectType} onValueChange={setNewProjectType}>
+                <SelectTrigger data-testid="select-project-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="book">Book</SelectItem>
+                  <SelectItem value="ebook">eBook</SelectItem>
+                  <SelectItem value="blog_series">Blog Series</SelectItem>
+                  <SelectItem value="newsletter">Newsletter</SelectItem>
+                  <SelectItem value="course">Course</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewProjectOpen(false)} data-testid="button-cancel-project">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateProject} 
+              disabled={!newProjectTitle.trim() || createProjectMutation.isPending}
+              data-testid="button-create-project"
+            >
+              {createProjectMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : null}
+              Create Project
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditProjectOpen} onOpenChange={setIsEditProjectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+            <DialogDescription>
+              Update your project details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Title *</Label>
+              <Input
+                placeholder="Enter project title..."
+                value={editProjectTitle}
+                onChange={(e) => setEditProjectTitle(e.target.value)}
+                data-testid="input-edit-project-title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description (optional)</Label>
+              <Textarea
+                placeholder="Enter project description..."
+                value={editProjectDescription}
+                onChange={(e) => setEditProjectDescription(e.target.value)}
+                data-testid="input-edit-project-description"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditProjectOpen(false)} data-testid="button-cancel-edit-project">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleUpdateProject} 
+              disabled={!editProjectTitle.trim() || updateProjectMutation.isPending}
+              data-testid="button-save-project"
+            >
+              {updateProjectMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : null}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteProjectOpen} onOpenChange={setIsDeleteProjectOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingProject?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete-project">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteProject}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteProjectMutation.isPending}
+              data-testid="button-confirm-delete-project"
+            >
+              {deleteProjectMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : null}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
