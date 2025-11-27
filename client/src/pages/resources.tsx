@@ -104,15 +104,15 @@ export default function ResourcesPage() {
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case "calculator":
-        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+        return "bg-blue-100 text-blue-700 border-blue-200";
       case "guide":
-        return "bg-green-500/10 text-green-400 border-green-500/20";
+        return "bg-green-100 text-green-700 border-green-200";
       case "checklist":
-        return "bg-purple-500/10 text-purple-400 border-purple-500/20";
+        return "bg-purple-100 text-purple-700 border-purple-200";
       case "template":
-        return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+        return "bg-orange-100 text-orange-700 border-orange-200";
       case "tool":
-        return "bg-pink-500/10 text-pink-400 border-pink-500/20";
+        return "bg-pink-100 text-pink-700 border-pink-200";
       default:
         return "";
     }
@@ -121,11 +121,11 @@ export default function ResourcesPage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "beginner":
-        return "text-green-400";
+        return "text-green-600";
       case "intermediate":
-        return "text-yellow-400";
+        return "text-amber-600";
       case "advanced":
-        return "text-red-400";
+        return "text-red-600";
       default:
         return "text-muted-foreground";
     }
@@ -167,15 +167,15 @@ export default function ResourcesPage() {
         </div>
 
         {/* Dashboard Header with Stats */}
-        <section className="bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 border-b">
+        <section className="bg-background border-b">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-blue-500/20 rounded-xl">
-                <BookOpen className="w-8 h-8 text-blue-400" />
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <BookOpen className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white" data-testid="text-resources-title">Industry Resources Library</h1>
-                <p className="text-blue-200" data-testid="text-resources-subtitle">100+ calculators, guides, templates, and tools for every role</p>
+                <h1 className="text-3xl font-bold text-foreground" data-testid="text-resources-title">Industry Resources Library</h1>
+                <p className="text-muted-foreground" data-testid="text-resources-subtitle">100+ calculators, guides, templates, and tools for every role</p>
               </div>
             </div>
 
@@ -219,7 +219,7 @@ export default function ResourcesPage() {
                   placeholder="Search resources..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-lg bg-card/50 backdrop-blur border-white/10"
+                  className="pl-12 h-14 text-lg bg-background border-border"
                   data-testid="input-search-resources"
                 />
               </div>

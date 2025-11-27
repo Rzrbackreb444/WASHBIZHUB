@@ -41,6 +41,47 @@ export function Footer() {
     <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]" data-testid="footer-main">
       <div className="max-w-7xl mx-auto px-4">
         
+        {/* Prominent Contact Section for SEO/AEO */}
+        <div className="mb-12 pb-8 border-b border-white/10 text-center">
+          <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-4" data-testid="text-contact-heading">
+            Contact WashBizHub
+          </h3>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <a
+              href={`tel:+${CONTACT_PHONE_DIGITS}`}
+              className="flex items-center gap-3 bg-accent/20 hover:bg-accent/30 text-white px-6 py-3 rounded-xl transition-colors border border-accent/40"
+              data-testid="link-footer-phone-main"
+              aria-label="Call WashBizHub"
+            >
+              <Phone className="h-5 w-5 text-accent" />
+              <span className="text-xl font-bold text-white">{CONTACT_PHONE}</span>
+            </a>
+            <a
+              href={`https://wa.me/${CONTACT_PHONE_DIGITS}?text=Hi%2C%20I%27m%20interested%20in%20WashBizHub`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl transition-colors font-semibold"
+              data-testid="link-footer-whatsapp-main"
+              aria-label="WhatsApp WashBizHub"
+            >
+              <MessageCircle className="h-5 w-5" />
+              WhatsApp
+            </a>
+            <a
+              href={`sms:+${CONTACT_PHONE_DIGITS}`}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-colors font-semibold"
+              data-testid="link-footer-sms-main"
+              aria-label="Text WashBizHub"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Text Us
+            </a>
+          </div>
+          <p className="text-white/50 text-sm">
+            Available Mon-Sat 9AM-6PM CT | Quick response via WhatsApp or SMS
+          </p>
+        </div>
+
         {/* Enterprise Trust Badges Section */}
         <div className="mb-12 pb-8 border-b border-white/10">
           <div className="text-center mb-6">
