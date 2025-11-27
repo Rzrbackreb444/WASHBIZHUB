@@ -25,11 +25,22 @@ import {
   Info,
   Crown,
   Zap,
-  ArrowUpCircle
+  ArrowUpCircle,
+  Target,
+  Search,
+  Settings,
+  Handshake,
+  AlertTriangle,
+  Building,
+  FileText,
+  Users,
+  Megaphone
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
+
+type JourneyType = 'plan' | 'evaluate' | 'operate' | 'partner' | null;
 
 interface Message {
   role: "user" | "assistant";
@@ -59,7 +70,7 @@ interface QuotaInfo {
   resetDate?: string;
 }
 
-const SUGGESTED_PROMPTS = [
+const DEFAULT_PROMPTS = [
   {
     icon: DollarSign,
     label: "Valuation",
@@ -86,6 +97,111 @@ const SUGGESTED_PROMPTS = [
     prompt: "What vend prices should I use to hit 25-35% EBITDA targets?",
   },
 ];
+
+const getJourneyPrompts = (journey: JourneyType) => {
+  switch (journey) {
+    case 'plan':
+      return [
+        { icon: TrendingUp, label: "ROI Reality", prompt: "What's a realistic ROI for a laundromat investment?" },
+        { icon: DollarSign, label: "Capital Needed", prompt: "How much capital do I need to buy a laundromat?" },
+        { icon: Calculator, label: "Passive Income?", prompt: "Is owning a laundromat really passive income?" },
+        { icon: AlertTriangle, label: "Risks", prompt: "What are the biggest risks of buying a laundromat?" },
+        { icon: MapPin, label: "Location", prompt: "How do I evaluate if a location is good?" },
+      ];
+    case 'evaluate':
+      return [
+        { icon: Search, label: "CLEANBI Score", prompt: "How do I use CLEANBI to score a location?" },
+        { icon: FileText, label: "Due Diligence", prompt: "Walk me through due diligence for a laundromat" },
+        { icon: Calculator, label: "Valuation", prompt: "How do I calculate what a laundromat is worth?" },
+        { icon: AlertTriangle, label: "Red Flags", prompt: "What red flags should I look for when buying?" },
+        { icon: DollarSign, label: "Negotiate", prompt: "How do I negotiate the purchase price?" },
+      ];
+    case 'operate':
+      return [
+        { icon: TrendingUp, label: "Revenue", prompt: "How do I increase my laundromat's revenue?" },
+        { icon: DollarSign, label: "Pricing", prompt: "What vend prices maximize profit?" },
+        { icon: Wrench, label: "Equipment", prompt: "When should I replace vs. repair equipment?" },
+        { icon: Building, label: "Utilities", prompt: "How do I reduce utility costs?" },
+        { icon: Users, label: "WDF Service", prompt: "How do I add wash-dry-fold service?" },
+      ];
+    case 'partner':
+      return [
+        { icon: FileText, label: "Sell", prompt: "How do I list my laundromat for sale?" },
+        { icon: Wrench, label: "Equipment", prompt: "What makes a good equipment listing?" },
+        { icon: Handshake, label: "Vendor", prompt: "How do I become a WashBizHub vendor?" },
+        { icon: Users, label: "Affiliate", prompt: "What affiliate programs are available?" },
+        { icon: Megaphone, label: "Advertise", prompt: "How do I advertise on WashBizHub?" },
+      ];
+    default:
+      return DEFAULT_PROMPTS;
+  }
+};
+
+const getWelcomeMessage = (journey: JourneyType): string => {
+  switch (journey) {
+    case 'plan':
+      return "**Welcome! I'm your laundromat investment guide.**\n\nI can help you understand the industry, evaluate opportunities, and plan your first purchase.\n\nBacked by 60+ years of Kremers family expertise, I'm here to help you:\n• Understand realistic ROI expectations\n• Calculate capital requirements\n• Identify the best locations\n• Avoid common pitfalls\n\nWhat would you like to explore first?";
+    case 'evaluate':
+      return "**Ready to analyze opportunities? I'm here to help.**\n\nI can help you evaluate locations with CLEANBI, understand valuations, and navigate due diligence.\n\nBacked by 60+ years of Kremers family expertise, let me assist with:\n• CLEANBI location scoring\n• Business valuation methods\n• Due diligence checklists\n• Red flag identification\n\nWhat deal are you looking at?";
+    case 'operate':
+      return "**Let's optimize your laundromat!**\n\nI can help with pricing strategies, equipment decisions, marketing, and operational efficiency.\n\nBacked by 60+ years of Kremers family expertise, I'm here to help you:\n• Maximize revenue & profit margins\n• Optimize vend pricing\n• Make smart equipment decisions\n• Reduce operating costs\n\nWhat's your biggest challenge right now?";
+    case 'partner':
+      return "**Looking to connect with laundromat owners?**\n\nI can help you list equipment, advertise your services, and grow your business on WashBizHub.\n\nLet me assist with:\n• Listing laundromats for sale\n• Equipment marketplace strategies\n• Vendor partnership opportunities\n• Advertising best practices\n\nHow can I help you today?";
+    default:
+      return "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat can I help you with today?";
+  }
+};
+
+const getJourneyBadge = (journey: JourneyType) => {
+  switch (journey) {
+    case 'plan':
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-blue-500/20 text-blue-300 border-blue-400/50 gap-1"
+          data-testid="badge-journey-context"
+        >
+          <Target className="h-3 w-3" />
+          Planning Mode
+        </Badge>
+      );
+    case 'evaluate':
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-green-500/20 text-green-300 border-green-400/50 gap-1"
+          data-testid="badge-journey-context"
+        >
+          <Search className="h-3 w-3" />
+          Buyer Mode
+        </Badge>
+      );
+    case 'operate':
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-orange-500/20 text-orange-300 border-orange-400/50 gap-1"
+          data-testid="badge-journey-context"
+        >
+          <Settings className="h-3 w-3" />
+          Owner Mode
+        </Badge>
+      );
+    case 'partner':
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-purple-500/20 text-purple-300 border-purple-400/50 gap-1"
+          data-testid="badge-journey-context"
+        >
+          <Handshake className="h-3 w-3" />
+          Partner Mode
+        </Badge>
+      );
+    default:
+      return null;
+  }
+};
 
 const getTierBadge = (tier: string) => {
   switch (tier) {
@@ -116,19 +232,29 @@ const getTierBadge = (tier: string) => {
 export const AIChatWidget = memo(function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat can I help you with today?",
-      provider: "system",
-      timestamp: new Date(),
-    },
-  ]);
+  const [userJourney, setUserJourney] = useState<JourneyType>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Read journey from localStorage on mount
+  useEffect(() => {
+    const storedJourney = localStorage.getItem('washbizhub_user_journey_type') as JourneyType;
+    setUserJourney(storedJourney);
+    
+    // Set initial welcome message based on journey
+    setMessages([
+      {
+        role: "assistant",
+        content: getWelcomeMessage(storedJourney),
+        provider: "system",
+        timestamp: new Date(),
+      },
+    ]);
+  }, []);
 
   // Fetch user quota on open
   const { data: user } = useQuery<any>({
@@ -259,7 +385,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
     setMessages([
       {
         role: "assistant",
-        content: "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n\nWhat can I help you with today?",
+        content: getWelcomeMessage(userJourney),
         provider: "system",
         timestamp: new Date(),
       },
@@ -324,7 +450,10 @@ export const AIChatWidget = memo(function AIChatWidget() {
               WashBizHub Consultant
               {quotaInfo && getTierBadge(quotaInfo.tier)}
             </h3>
-            <p className="text-xs text-white/80 font-medium">AI Expert • Online</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-white/80 font-medium">AI Expert • Online</p>
+              {userJourney && getJourneyBadge(userJourney)}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -524,7 +653,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
                 <p className="text-xs text-muted-foreground font-medium">Try asking about:</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {SUGGESTED_PROMPTS.map((suggestion, idx) => (
+                {getJourneyPrompts(userJourney).map((suggestion, idx) => (
                   <Button
                     key={idx}
                     variant="outline"
