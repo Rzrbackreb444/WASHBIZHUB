@@ -27,7 +27,6 @@ import {
 import {
   Menu,
   LogOut,
-  Home,
   BookOpen,
   Calculator,
   Store,
@@ -35,7 +34,6 @@ import {
   BarChart3,
   DollarSign,
   ShoppingBag,
-  PlusCircle,
   Palette,
   Cpu,
   TrendingUp,
@@ -44,11 +42,6 @@ import {
   Library,
   Building2,
   Phone,
-  ChevronDown,
-  Sparkles,
-  Newspaper,
-  FolderOpen,
-  CreditCard,
 } from "lucide-react";
 import { SiFacebook } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -56,12 +49,12 @@ import logoUrl from "@assets/6_1764040628012.png";
 const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 
 const MAIN_LINKS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/pos-system", label: "POS System", icon: CreditCard },
-  { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-  { href: "/laundromat-listings", label: "Listings", icon: Store },
-  { href: "/blog", label: "Blog", icon: Newspaper },
-  { href: "/resources", label: "Resources", icon: FolderOpen },
+  { href: "/", label: "Home" },
+  { href: "/pos-system", label: "POS System" },
+  { href: "/marketplace", label: "Marketplace" },
+  { href: "/laundromat-listings", label: "Listings" },
+  { href: "/blog", label: "Blog" },
+  { href: "/resources", label: "Resources" },
 ];
 
 const TOOLS_LINKS = [
@@ -117,9 +110,7 @@ export function NavigationMenu() {
           <NavMenu>
             <NavigationMenuList className="gap-1">
               {/* Main Links */}
-              {MAIN_LINKS.map((link) => {
-                const Icon = link.icon;
-                return (
+              {MAIN_LINKS.map((link) => (
                   <NavigationMenuItem key={link.href}>
                     <NavigationMenuLink asChild>
                       <Link
@@ -129,13 +120,11 @@ export function NavigationMenu() {
                         }`}
                         data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                       >
-                        <Icon className="w-4 h-4 mr-2" />
                         {link.label}
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                );
-              })}
+                ))}
 
               {/* Tools Dropdown */}
               <NavigationMenuItem>
@@ -143,7 +132,6 @@ export function NavigationMenu() {
                   className="h-9"
                   data-testid="dropdown-tools"
                 >
-                  <Wrench className="w-4 h-4 mr-2" />
                   Tools
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -180,7 +168,6 @@ export function NavigationMenu() {
                   className="h-9"
                   data-testid="dropdown-learn"
                 >
-                  <GraduationCap className="w-4 h-4 mr-2" />
                   Learn
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -217,7 +204,6 @@ export function NavigationMenu() {
                   className="h-9 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                   data-testid="dropdown-get-started"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
                   Get Started
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -325,16 +311,11 @@ export function NavigationMenu() {
                       className="font-bold text-lg text-primary hover:no-underline py-3"
                       data-testid="accordion-navigation"
                     >
-                      <div className="flex items-center gap-2">
-                        <Home className="w-5 h-5" />
-                        Navigation
-                      </div>
+                      Navigation
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-1 pl-2">
-                        {MAIN_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
+                        {MAIN_LINKS.map((link) => (
                             <Link key={link.href} href={link.href}>
                               <div
                                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
@@ -345,12 +326,10 @@ export function NavigationMenu() {
                                 onClick={() => setMobileOpen(false)}
                                 data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                               >
-                                <Icon className="w-5 h-5" />
                                 <span>{link.label}</span>
                               </div>
                             </Link>
-                          );
-                        })}
+                          ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -361,10 +340,7 @@ export function NavigationMenu() {
                       className="font-bold text-lg text-primary hover:no-underline py-3"
                       data-testid="accordion-tools"
                     >
-                      <div className="flex items-center gap-2">
-                        <Wrench className="w-5 h-5" />
-                        Tools
-                      </div>
+                      Tools
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-1 pl-2">
@@ -400,10 +376,7 @@ export function NavigationMenu() {
                       className="font-bold text-lg text-primary hover:no-underline py-3"
                       data-testid="accordion-learn"
                     >
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-5 h-5" />
-                        Learn
-                      </div>
+                      Learn
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-1 pl-2">
@@ -439,10 +412,7 @@ export function NavigationMenu() {
                       className="font-bold text-lg text-primary hover:no-underline py-3"
                       data-testid="accordion-get-started"
                     >
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5" />
-                        Get Started
-                      </div>
+                      Get Started
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-1 pl-2">

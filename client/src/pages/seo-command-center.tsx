@@ -2,7 +2,7 @@
  * SEO COMMAND CENTER
  * 
  * Complete 300-point SEO dashboard for seo.washbizhub.com
- * Bloomberg Terminal-inspired design with real-time scoring
+ * Professional design with real-time scoring
  * 
  * Features:
  * - 300-point master score display

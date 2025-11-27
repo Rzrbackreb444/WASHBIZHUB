@@ -154,23 +154,23 @@ export default function WhyWashBizHub() {
         </section>
 
         {/* Section 2: Heritage Meets Innovation */}
-        <section className="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <section className="py-20 bg-background">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1">
-                <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                   <Award className="w-3 h-3 mr-1" />
                   Industry Heritage
                 </Badge>
-                <h2 className="text-4xl font-bold text-white mb-6 uppercase tracking-tight">
+                <h2 className="text-4xl font-bold text-foreground mb-6 uppercase tracking-tight">
                   Decades Of Expertise, Cutting-Edge Technology
                 </h2>
-                <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                   We didn't just build software—we digitized an entire industry's collective wisdom. 
                   From vintage coin-op machines to AI-powered diagnostics, we honor the craft while 
                   embracing the future.
                 </p>
-                <ul className="space-y-3 text-white/90">
+                <ul className="space-y-3 text-foreground/90">
                   <li className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
                     <span>The Laundromat Bible: 400+ pages of industry knowledge</span>
@@ -243,18 +243,18 @@ export default function WhyWashBizHub() {
         </section>
 
         {/* Section 4: IoT & Predictive Maintenance */}
-        <section className="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <section className="py-20 bg-background">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1">
-                <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                   <Zap className="w-3 h-3 mr-1" />
                   Smart Operations
                 </Badge>
-                <h2 className="text-4xl font-bold text-white mb-6 uppercase tracking-tight">
+                <h2 className="text-4xl font-bold text-foreground mb-6 uppercase tracking-tight">
                   Stop Breakdowns Before They Happen
                 </h2>
-                <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                   IoT sensors monitor temperature, vibration, water flow, and energy consumption across 
                   all machines. Machine learning algorithms predict failures weeks in advance, reducing 
                   downtime by 40% and extending equipment life by years.
@@ -266,9 +266,9 @@ export default function WhyWashBizHub() {
                     { value: "2,800+", label: "Diagnostic Codes" },
                     { value: "24/7", label: "Monitoring" },
                   ].map((stat, idx) => (
-                    <div key={idx} className="bg-white/5 backdrop-blur rounded-lg p-4 border border-white/10">
+                    <div key={idx} className="bg-muted/50 rounded-lg p-4 border border-border">
                       <div className="text-2xl font-bold text-primary mb-1">{stat.value}</div>
-                      <div className="text-sm text-white/60 uppercase tracking-wide">{stat.label}</div>
+                      <div className="text-sm text-muted-foreground uppercase tracking-wide">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -332,23 +332,23 @@ export default function WhyWashBizHub() {
         </section>
 
         {/* Section 6: Scale & Precision */}
-        <section className="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <section className="py-20 bg-background">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1">
-                <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                   <Shield className="w-3 h-3 mr-1" />
                   Operational Excellence
                 </Badge>
-                <h2 className="text-4xl font-bold text-white mb-6 uppercase tracking-tight">
+                <h2 className="text-4xl font-bold text-foreground mb-6 uppercase tracking-tight">
                   From Single Store To Multi-Location Empire
                 </h2>
-                <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                   Whether you're running one laundromat or managing a portfolio, WashBizHub scales with 
                   your ambitions. Multi-tenant architecture, role-based access control, and location-based 
                   data partitioning ensure security and performance at any scale.
                 </p>
-                <ul className="space-y-3 text-white/90">
+                <ul className="space-y-3 text-foreground/90">
                   <li className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
                     <span>Unlimited locations, users, and transactions</span>
@@ -418,12 +418,12 @@ export default function WhyWashBizHub() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <section className="py-24 bg-muted/30">
           <div className="mx-auto max-w-4xl px-6 text-center">
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 uppercase tracking-tight">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 uppercase tracking-tight">
               Join 72,000+ Industry Leaders
             </h2>
-            <p className="text-xl text-white/70 mb-10 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
               Stop managing with spreadsheets. Start operating like an enterprise. 
               WashBizHub brings professional intelligence to the laundromat industry.
             </p>
@@ -442,14 +442,14 @@ export default function WhyWashBizHub() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover-elevate active-elevate-2"
+                  className="hover-elevate active-elevate-2"
                   data-testid="button-cta-consultation"
                 >
                   Book Expert Consultation
                 </Button>
               </Link>
             </div>
-            <p className="text-sm text-white/50 mt-8">
+            <p className="text-sm text-muted-foreground mt-8">
               No credit card required • 14-day free trial • Cancel anytime
             </p>
           </div>
