@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  MapPin, DollarSign, TrendingUp, Building, Eye, MessageCircle, 
-  Star, Filter, Search, Droplets, Car, Shirt, Sparkles
+  MapPin, DollarSign, TrendingUp, Building,
+  Filter, Search, Droplets, Car, Shirt, Sparkles
 } from "lucide-react";
 
 interface Listing {
@@ -323,34 +323,13 @@ function ListingCard({ listing }: { listing: Listing }) {
             </div>
           )}
 
-          {listing.cleanbiScore && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">CLEANBI Score</span>
-              <Badge variant={listing.cleanbiScore >= 500 ? "default" : "secondary"}>
-                {listing.cleanbiScore}/700
-              </Badge>
-            </div>
-          )}
-
           {listing.washers && listing.dryers && (
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>{listing.washers}W</span>
-              <span>{listing.dryers}D</span>
-              {listing.squareFootage && <span>{listing.squareFootage.toLocaleString()} sq ft</span>}
+              <span>{listing.washers} Washers</span>
+              <span>{listing.dryers} Dryers</span>
             </div>
           )}
         </CardContent>
-
-        <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Eye className="w-3 h-3" />
-            {listing.views}
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageCircle className="w-3 h-3" />
-            {listing.inquiries} inquiries
-          </div>
-        </CardFooter>
       </Card>
     </Link>
   );
