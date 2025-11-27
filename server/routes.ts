@@ -11,7 +11,7 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
 import { listings } from "@shared/schema";
-import { eq, or, isNull } from "drizzle-orm";
+import { eq, or, isNull, sql, desc } from "drizzle-orm";
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
