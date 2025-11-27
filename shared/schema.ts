@@ -2857,6 +2857,17 @@ export const forumTopics = pgTable("forum_topics", {
   // Tags
   tags: jsonb("tags").default([]).notNull(), // Array of tag strings
   
+  // Media (images and videos)
+  images: text("images").array(), // Array of image URLs
+  videos: text("videos").array(), // Array of video URLs (YouTube, Vimeo, or direct)
+  featuredImage: text("featured_image"), // Main image for SEO/previews
+  
+  // SEO Fields
+  seoTitle: text("seo_title"), // Custom title for search engines
+  seoDescription: text("seo_description"), // Meta description
+  seoKeywords: text("seo_keywords").array(), // Target keywords
+  canonicalUrl: text("canonical_url"), // Canonical URL if needed
+  
   // Stats
   views: integer("views").default(0).notNull(),
   replyCount: integer("reply_count").default(0).notNull(),
@@ -2904,6 +2915,10 @@ export const forumReplies = pgTable("forum_replies", {
   parentId: varchar("parent_id"), // For nested replies
   
   content: text("content").notNull(), // Markdown content
+  
+  // Media (images and videos)
+  images: text("images").array(), // Array of image URLs
+  videos: text("videos").array(), // Array of video URLs
   
   // Stats
   upvotes: integer("upvotes").default(0).notNull(),
@@ -10299,6 +10314,143 @@ export const insertAiContentRequestSchema = createInsertSchema(aiContentRequests
 
 export type InsertAiContentRequest = z.infer<typeof insertAiContentRequestSchema>;
 export type AiContentRequest = typeof aiContentRequests.$inferSelect;
+
+// ============================================================================
+// EQUIPMENT LISTINGS - Buy/Sell laundromat equipment
+// ============================================================================
+
+export const equipmentListings = pgTable("equipment_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Equipment Info
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "washer", "dryer", "changer", "folding_table", "cart", "vending", "other"
+  brand: text("brand"),
+  model: text("model"),
+  serialNumber: text("serial_number"),
+  yearManufactured: integer("year_manufactured"),
+  condition: text("condition").notNull(), // "new", "like_new", "good", "fair", "parts"
+  
+  // Specs
+  capacity: text("capacity"), // "20lb", "30lb", etc.
+  fuelType: text("fuel_type"), // "electric", "gas", "steam"
+  voltage: text("voltage"), // "120V", "208V", "240V"
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("USD"),
+  negotiable: boolean("negotiable").default(true),
+  
+  // Location
+  city: text("city"),
+  state: text("state"),
+  country: text("country").default("US"),
+  zipCode: text("zip_code"),
+  
+  // Media (images and videos)
+  images: text("images").array(), // Array of image URLs
+  videos: text("videos").array(), // Array of video URLs
+  featuredImage: text("featured_image"),
+  
+  // Contact
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  preferredContact: text("preferred_contact").default("email"), // "email", "phone", "both"
+  
+  // Status
+  status: text("status").default("active"), // "draft", "active", "sold", "expired"
+  views: integer("views").default(0),
+  inquiries: integer("inquiries").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("equipment_listings_user_idx").on(table.userId),
+  categoryIdx: index("equipment_listings_category_idx").on(table.category),
+  statusIdx: index("equipment_listings_status_idx").on(table.status),
+}));
+
+export const insertEquipmentListingSchema = createInsertSchema(equipmentListings).omit({
+  id: true,
+  views: true,
+  inquiries: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEquipmentListing = z.infer<typeof insertEquipmentListingSchema>;
+export type EquipmentListing = typeof equipmentListings.$inferSelect;
+
+// ============================================================================
+// SUPPLY LISTINGS - Buy/Sell laundromat supplies and products
+// ============================================================================
+
+export const supplyListings = pgTable("supply_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Product Info
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "detergent", "fabric_softener", "chemicals", "bags", "hangers", "signage", "other"
+  brand: text("brand"),
+  sku: text("sku"),
+  
+  // Quantity & Pricing
+  quantity: integer("quantity").default(1),
+  unit: text("unit").default("each"), // "each", "case", "gallon", "box", "pallet"
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  priceType: text("price_type").default("each"), // "each", "per_case", "wholesale"
+  currency: text("currency").default("USD"),
+  minimumOrder: integer("minimum_order").default(1),
+  
+  // Condition
+  condition: text("condition").default("new"), // "new", "open_box"
+  expirationDate: timestamp("expiration_date"),
+  
+  // Location
+  city: text("city"),
+  state: text("state"),
+  country: text("country").default("US"),
+  shipsNationally: boolean("ships_nationally").default(true),
+  localPickupOnly: boolean("local_pickup_only").default(false),
+  
+  // Media (images and videos)
+  images: text("images").array(), // Array of image URLs
+  videos: text("videos").array(), // Array of video URLs
+  featuredImage: text("featured_image"),
+  
+  // Contact
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  
+  // Status
+  status: text("status").default("active"), // "draft", "active", "sold", "expired"
+  views: integer("views").default(0),
+  inquiries: integer("inquiries").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("supply_listings_user_idx").on(table.userId),
+  categoryIdx: index("supply_listings_category_idx").on(table.category),
+  statusIdx: index("supply_listings_status_idx").on(table.status),
+}));
+
+export const insertSupplyListingSchema = createInsertSchema(supplyListings).omit({
+  id: true,
+  views: true,
+  inquiries: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSupplyListing = z.infer<typeof insertSupplyListingSchema>;
+export type SupplyListing = typeof supplyListings.$inferSelect;
 
 // ============================================================================
 // END OF SCHEMA - Complete Platform with AI Content Studio
