@@ -91,6 +91,8 @@ import {
   aiConversations,
   contentProjects,
   emailContacts,
+  equipmentListings,
+  supplyListings,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -4716,6 +4718,133 @@ Disallow: /private/`;
       });
     } catch (error: any) {
       console.error("Cancel error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== EQUIPMENT LISTINGS ====================
+
+  // GET /api/equipment-listings - List all equipment
+  app.get("/api/equipment-listings", async (req, res) => {
+    try {
+      const { category, condition, status = "active" } = req.query;
+      const result = await db.select().from(equipmentListings)
+        .where(eq(equipmentListings.status, status as string))
+        .orderBy(desc(equipmentListings.createdAt));
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/equipment-listings - Create listing
+  app.post("/api/equipment-listings", async (req, res) => {
+    try {
+      const data = req.body;
+      const result = await db.insert(equipmentListings).values({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        brand: data.brand || null,
+        model: data.model || null,
+        condition: data.condition,
+        yearManufactured: data.yearManufactured || null,
+        price: data.price?.toString() || null,
+        priceNegotiable: data.priceNegotiable !== false,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode || null,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone || null,
+        images: data.images || [],
+        videos: data.videos || [],
+        status: "active",
+      }).returning();
+      res.json(result[0]);
+    } catch (error: any) {
+      console.error("Equipment listing error:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // GET /api/equipment-listings/:id - Get single listing
+  app.get("/api/equipment-listings/:id", async (req, res) => {
+    try {
+      const result = await db.select().from(equipmentListings)
+        .where(eq(equipmentListings.id, req.params.id));
+      if (!result[0]) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      // Increment views
+      await db.update(equipmentListings)
+        .set({ views: sql`${equipmentListings.views} + 1` })
+        .where(eq(equipmentListings.id, req.params.id));
+      res.json(result[0]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== SUPPLY LISTINGS ====================
+
+  // GET /api/supply-listings - List all supplies
+  app.get("/api/supply-listings", async (req, res) => {
+    try {
+      const { category, status = "active" } = req.query;
+      const result = await db.select().from(supplyListings)
+        .where(eq(supplyListings.status, status as string))
+        .orderBy(desc(supplyListings.createdAt));
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/supply-listings - Create listing
+  app.post("/api/supply-listings", async (req, res) => {
+    try {
+      const data = req.body;
+      const result = await db.insert(supplyListings).values({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        brand: data.brand || null,
+        sku: data.sku || null,
+        price: data.price?.toString() || null,
+        minimumOrder: data.minimumOrder || null,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode || null,
+        shipsNationwide: data.shipsNationwide !== false,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone || null,
+        images: data.images || [],
+        videos: data.videos || [],
+        status: "active",
+      }).returning();
+      res.json(result[0]);
+    } catch (error: any) {
+      console.error("Supply listing error:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // GET /api/supply-listings/:id - Get single listing
+  app.get("/api/supply-listings/:id", async (req, res) => {
+    try {
+      const result = await db.select().from(supplyListings)
+        .where(eq(supplyListings.id, req.params.id));
+      if (!result[0]) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      // Increment views
+      await db.update(supplyListings)
+        .set({ views: sql`${supplyListings.views} + 1` })
+        .where(eq(supplyListings.id, req.params.id));
+      res.json(result[0]);
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
