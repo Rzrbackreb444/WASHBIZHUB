@@ -169,13 +169,13 @@ export default function CLEANBICalculator() {
         </div>
       </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4" data-testid="text-cleanbi-title">
+            <h1 className="text-4xl font-bold text-foreground mb-4" data-testid="text-cleanbi-title">
               CLEANBI 2.0 Scorecard
             </h1>
-            <p className="text-xl text-purple-200 max-w-3xl mx-auto" data-testid="text-cleanbi-description">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="text-cleanbi-description">
               Comprehensive 17-factor business intelligence scoring system for laundromat valuation
             </p>
             <Badge variant="default" className="mt-4 bg-amber-600" data-testid="badge-industry-standard">

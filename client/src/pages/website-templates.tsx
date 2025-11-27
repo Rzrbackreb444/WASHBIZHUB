@@ -83,14 +83,14 @@ export default function WebsiteTemplatesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Professional Website Templates
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Launch your laundromat website in minutes. Choose a template, customize it, and deploy to your own subdomain instantly.
           </p>
         </div>
@@ -109,11 +109,11 @@ export default function WebsiteTemplatesPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="bg-slate-900/50 border-slate-700 animate-pulse">
-                <div className="h-48 bg-slate-800 rounded-t-lg" />
+              <Card key={i} className="animate-pulse">
+                <div className="h-48 bg-muted rounded-t-lg" />
                 <CardHeader>
-                  <div className="h-6 bg-slate-800 rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-slate-800 rounded w-full" />
+                  <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-muted rounded w-full" />
                 </CardHeader>
               </Card>
             ))}
@@ -121,9 +121,9 @@ export default function WebsiteTemplatesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates?.map((template) => (
-              <Card key={template.id} className="bg-slate-900/50 border-slate-700 hover-elevate" data-testid={`card-template-${template.id}`}>
+              <Card key={template.id} className="hover-elevate" data-testid={`card-template-${template.id}`}>
                 {/* Preview Image */}
-                <div className="relative h-48 bg-gradient-to-br from-blue-900 to-slate-900 rounded-t-lg overflow-hidden">
+                <div className="relative h-48 bg-gradient-to-br from-blue-100 to-slate-100 dark:from-blue-900 dark:to-slate-900 rounded-t-lg overflow-hidden">
                   <img 
                     src={template.previewImage} 
                     alt={template.name}
@@ -135,7 +135,7 @@ export default function WebsiteTemplatesPage() {
                         PRO
                       </Badge>
                     )}
-                    <Badge variant="secondary" className="bg-slate-800/90" data-testid={`badge-usecount-${template.id}`}>
+                    <Badge variant="secondary" data-testid={`badge-usecount-${template.id}`}>
                       <Users className="w-3 h-3 mr-1" />
                       {template.useCount}
                     </Badge>
@@ -143,10 +143,10 @@ export default function WebsiteTemplatesPage() {
                 </div>
 
                 <CardHeader>
-                  <CardTitle className="text-white text-xl" data-testid={`text-template-name-${template.id}`}>
+                  <CardTitle className="text-foreground text-xl" data-testid={`text-template-name-${template.id}`}>
                     {template.name}
                   </CardTitle>
-                  <CardDescription className="text-slate-400" data-testid={`text-template-description-${template.id}`}>
+                  <CardDescription className="text-muted-foreground" data-testid={`text-template-description-${template.id}`}>
                     {template.description}
                   </CardDescription>
                 </CardHeader>
@@ -155,7 +155,7 @@ export default function WebsiteTemplatesPage() {
                   {/* Features */}
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {(template.features as string[]).slice(0, 4).map((feature, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs border-slate-600 text-slate-300" data-testid={`badge-feature-${idx}`}>
+                      <Badge key={idx} variant="outline" className="text-xs" data-testid={`badge-feature-${idx}`}>
                         <Check className="w-3 h-3 mr-1" />
                         {feature}
                       </Badge>
@@ -163,7 +163,7 @@ export default function WebsiteTemplatesPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-4 text-sm text-slate-400">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                       <span>{template.rating || "5.0"}</span>
@@ -179,7 +179,7 @@ export default function WebsiteTemplatesPage() {
                   {template.demoUrl && (
                     <Button 
                       variant="outline" 
-                      className="flex-1 border-slate-600 hover:border-slate-500"
+                      className="flex-1"
                       onClick={() => template.demoUrl && window.open(template.demoUrl, "_blank")}
                       data-testid={`button-preview-${template.id}`}
                     >
@@ -188,7 +188,7 @@ export default function WebsiteTemplatesPage() {
                     </Button>
                   )}
                   <Button 
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1"
                     onClick={() => handleDeploy(template)}
                     disabled={template.isPro || false}
                     data-testid={`button-deploy-${template.id}`}
@@ -205,48 +205,46 @@ export default function WebsiteTemplatesPage() {
         {/* No templates found */}
         {!isLoading && filteredTemplates?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-slate-400 text-lg">No templates found for this category.</p>
+            <p className="text-muted-foreground text-lg">No templates found for this category.</p>
           </div>
         )}
       </div>
 
       {/* Deploy Dialog */}
       <Dialog open={deployDialogOpen} onOpenChange={setDeployDialogOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle data-testid="text-deploy-dialog-title">Deploy {selectedTemplate?.name}</DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogDescription className="text-muted-foreground">
               Customize your website and deploy it to a custom subdomain.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="businessName" className="text-slate-300">Business Name</Label>
+              <Label htmlFor="businessName">Business Name</Label>
               <Input
                 id="businessName"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
                 placeholder="Clean & Fresh Laundry"
-                className="bg-slate-800 border-slate-700 text-white"
                 data-testid="input-business-name"
               />
             </div>
 
             <div>
-              <Label htmlFor="subdomain" className="text-slate-300">Subdomain</Label>
+              <Label htmlFor="subdomain">Subdomain</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="subdomain"
                   value={subdomain}
                   onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                   placeholder="clean-fresh"
-                  className="bg-slate-800 border-slate-700 text-white"
                   data-testid="input-subdomain"
                 />
-                <span className="text-slate-400 whitespace-nowrap">.washbizhub.com</span>
+                <span className="text-muted-foreground whitespace-nowrap">.washbizhub.com</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Your website will be available at: {subdomain || "your-domain"}.washbizhub.com
               </p>
             </div>
@@ -256,7 +254,6 @@ export default function WebsiteTemplatesPage() {
             <Button 
               variant="outline" 
               onClick={() => setDeployDialogOpen(false)}
-              className="border-slate-600"
               data-testid="button-cancel-deploy"
             >
               Cancel
@@ -264,7 +261,6 @@ export default function WebsiteTemplatesPage() {
             <Button 
               onClick={handleSubmitDeploy}
               disabled={deployMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700"
               data-testid="button-confirm-deploy"
             >
               {deployMutation.isPending ? "Deploying..." : "Deploy Website"}

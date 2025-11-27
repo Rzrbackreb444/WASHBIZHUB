@@ -154,19 +154,19 @@ export default function AffiliateBlogsPage() {
         keywords={["laundromat financing", "SBA loans", "business financing guides", "equipment financing"]}
         ogType="website"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
             <BookOpen className="h-16 w-16 text-accent mx-auto mb-4" />
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Financing Guides & Resources</h1>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">Financing Guides & Resources</h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               20+ expert guides on laundromat, car wash, and dry cleaning financing. Learn SBA loans, equipment financing, and expansion strategies.
             </p>
             
             {/* CTA Banner */}
             <div className="bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 border border-accent/30 rounded-lg p-6 max-w-3xl mx-auto">
-              <p className="text-white text-lg mb-4 font-semibold">Ready to move forward with financing? Our experts are here to help.</p>
+              <p className="text-foreground text-lg mb-4 font-semibold">Ready to move forward with financing? Our experts are here to help.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Link 
                   href="/consultation"
@@ -188,15 +188,15 @@ export default function AffiliateBlogsPage() {
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-6 mb-8">
+          <div className="bg-card border rounded-lg p-6 mb-8">
             <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-white/50" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                 <Input 
                   placeholder="Search financing guides..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/20 border-white/30 text-white placeholder-white/50"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function AffiliateBlogsPage() {
             {/* Filter Tags */}
             <div className="space-y-4">
               <div>
-                <label className="text-white text-sm font-semibold mb-2 block">Category</label>
+                <label className="text-foreground text-sm font-semibold mb-2 block">Category</label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map(cat => (
                     <Badge 
@@ -220,7 +220,7 @@ export default function AffiliateBlogsPage() {
               </div>
 
               <div>
-                <label className="text-white text-sm font-semibold mb-2 block">Industry</label>
+                <label className="text-foreground text-sm font-semibold mb-2 block">Industry</label>
                 <div className="flex flex-wrap gap-2">
                   {INDUSTRIES.map(ind => (
                     <Badge 
@@ -236,7 +236,7 @@ export default function AffiliateBlogsPage() {
               </div>
 
               <div>
-                <label className="text-white text-sm font-semibold mb-2 block">Length</label>
+                <label className="text-foreground text-sm font-semibold mb-2 block">Length</label>
                 <div className="flex flex-wrap gap-2">
                   {LENGTHS.map(len => (
                     <Badge 
@@ -254,23 +254,23 @@ export default function AffiliateBlogsPage() {
           </div>
 
           {/* Results Count */}
-          <p className="text-white/70 mb-6">Showing {filteredBlogs.length} of {BLOGS.length} guides</p>
+          <p className="text-muted-foreground mb-6">Showing {filteredBlogs.length} of {BLOGS.length} guides</p>
 
           {/* Blog Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBlogs.map(blog => (
-              <Card key={blog.id} className="bg-white/10 backdrop-blur border-white/20 hover-elevate transition-all">
+              <Card key={blog.id} className="hover-elevate transition-all">
                 <CardHeader>
                   <div className="flex gap-2 mb-3 flex-wrap">
                     <Badge variant="secondary" className="text-xs">{blog.category}</Badge>
                     <Badge variant="outline" className="text-xs">{blog.industry}</Badge>
                     <Badge variant="outline" className="text-xs">{blog.length}</Badge>
                   </div>
-                  <CardTitle className="text-white text-lg">{blog.title}</CardTitle>
+                  <CardTitle className="text-foreground text-lg">{blog.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <CardDescription className="text-white/70">{blog.excerpt}</CardDescription>
-                  <div className="flex items-center justify-between text-xs text-white/60">
+                  <CardDescription className="text-muted-foreground">{blog.excerpt}</CardDescription>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{blog.readTime} read</span>
                     {blog.location && <span className="text-accent">{blog.location}</span>}
                   </div>
@@ -284,7 +284,7 @@ export default function AffiliateBlogsPage() {
 
           {filteredBlogs.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-white/70 text-lg">No guides found matching your filters.</p>
+              <p className="text-muted-foreground text-lg">No guides found matching your filters.</p>
             </div>
           )}
         </div>

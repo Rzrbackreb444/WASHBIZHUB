@@ -111,15 +111,15 @@ export default function CoursesHub() {
         </div>
 
         {/* Dashboard Header */}
-        <section className="bg-gradient-to-br from-slate-900 via-blue-900/30 to-slate-900 border-b">
+        <section className="bg-background border-b">
           <div className="mx-auto max-w-7xl px-6 py-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-blue-500/20 rounded-xl">
                 <GraduationCap className="w-8 h-8 text-blue-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white" data-testid="text-courses-title">WashBizHub Academy</h1>
-                <p className="text-blue-200" data-testid="text-courses-subtitle">Master laundromat operations with expert-led courses</p>
+                <h1 className="text-3xl font-bold text-foreground" data-testid="text-courses-title">WashBizHub Academy</h1>
+                <p className="text-muted-foreground" data-testid="text-courses-subtitle">Master laundromat operations with expert-led courses</p>
               </div>
             </div>
 

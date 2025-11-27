@@ -53,12 +53,12 @@ export default function ConsultationLanding() {
         keywords={["laundromat consultation", "financing guidance", "business strategy", "equipment consulting"]}
         ogType="website"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Expert Consultation Services</h1>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">Expert Consultation Services</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6">
               Get personalized guidance on SBA financing, equipment upgrades, and strategic growth from industry experts.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -83,15 +83,15 @@ export default function ConsultationLanding() {
           {/* Consultation Options */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {CONSULTATION_GUIDES.map(guide => (
-              <Card key={guide.id} className="bg-white/10 backdrop-blur border-white/20 hover-elevate transition-all flex flex-col">
+              <Card key={guide.id} className="hover-elevate transition-all flex flex-col">
                 <CardHeader>
-                  <CardTitle className="text-white">{guide.title}</CardTitle>
-                  <CardDescription className="text-white/70">{guide.description}</CardDescription>
+                  <CardTitle className="text-foreground">{guide.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground">{guide.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 space-y-4">
                   <ul className="space-y-2">
                     {guide.benefits.map(benefit => (
-                      <li key={benefit} className="flex items-center gap-2 text-sm text-white/80">
+                      <li key={benefit} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
                         {benefit}
                       </li>
@@ -99,8 +99,8 @@ export default function ConsultationLanding() {
                   </ul>
                   
                   {/* Internal Links */}
-                  <div className="border-t border-white/20 pt-4">
-                    <p className="text-xs text-white/60 mb-2">Resources:</p>
+                  <div className="border-t border-border pt-4">
+                    <p className="text-xs text-muted-foreground mb-2">Resources:</p>
                     <div className="flex flex-wrap gap-2">
                       {guide.internalLinks.map(link => (
                         <Link key={link} href={link}>
@@ -114,8 +114,8 @@ export default function ConsultationLanding() {
 
                   {/* External Links */}
                   {guide.externalLinks.length > 0 && (
-                    <div className="border-t border-white/20 pt-4">
-                      <p className="text-xs text-white/60 mb-2">Partners:</p>
+                    <div className="border-t border-border pt-4">
+                      <p className="text-xs text-muted-foreground mb-2">Partners:</p>
                       <div className="space-y-2">
                         {guide.externalLinks.map(link => (
                           <a 
@@ -141,28 +141,28 @@ export default function ConsultationLanding() {
           </div>
 
           {/* Benefits Section */}
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-8 mb-12">
-            <h2 className="text-2xl font-bold text-white mb-8">Why Work With WashBizHub?</h2>
+          <div className="bg-muted/50 border border-border rounded-lg p-8 mb-12">
+            <h2 className="text-2xl font-bold text-foreground mb-8">Why Work With WashBizHub?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex gap-4">
                 <Zap className="w-8 h-8 text-accent flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-white mb-2">Industry Expertise</h3>
-                  <p className="text-sm text-white/70">Years of experience in laundromat, car wash, and dry cleaning industries.</p>
+                  <h3 className="font-semibold text-foreground mb-2">Industry Expertise</h3>
+                  <p className="text-sm text-muted-foreground">Years of experience in laundromat, car wash, and dry cleaning industries.</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <Users className="w-8 h-8 text-accent flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-white mb-2">Proven Network</h3>
-                  <p className="text-sm text-white/70">Access to lenders, equipment providers, and strategic partners.</p>
+                  <h3 className="font-semibold text-foreground mb-2">Proven Network</h3>
+                  <p className="text-sm text-muted-foreground">Access to lenders, equipment providers, and strategic partners.</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <TrendingUp className="w-8 h-8 text-accent flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-white mb-2">Data-Driven Results</h3>
-                  <p className="text-sm text-white/70">Leverage CLEANBI™ scores and competition intelligence for better decisions.</p>
+                  <h3 className="font-semibold text-foreground mb-2">Data-Driven Results</h3>
+                  <p className="text-sm text-muted-foreground">Leverage CLEANBI™ scores and competition intelligence for better decisions.</p>
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function ConsultationLanding() {
 
           {/* CTA */}
           <div className="text-center">
-            <p className="text-white/70 mb-4">Ready to grow your business?</p>
+            <p className="text-muted-foreground mb-4">Ready to grow your business?</p>
             <Link href="/consultation">
               <Button size="lg" className="gap-2">
                 Schedule Your Consultation <ArrowRight className="w-4 h-4" />
