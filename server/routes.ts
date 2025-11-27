@@ -5102,6 +5102,81 @@ Disallow: /private/`;
     }
   });
 
+  // ==================== FORUM FILE UPLOADS ====================
+
+  // POST /api/forum/upload-url - Get signed URL for file upload (authenticated)
+  app.post("/api/forum/upload-url", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { filename, contentType } = req.body;
+      if (!filename || !contentType) {
+        return res.status(400).json({ error: "filename and contentType required" });
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'video/mp4', 'video/webm', 'video/quicktime',
+        'application/pdf',
+        'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      
+      if (!allowedTypes.includes(contentType)) {
+        return res.status(400).json({ error: "File type not allowed" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      
+      res.json({ 
+        uploadURL,
+        message: "Use PUT request to upload file to this URL"
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/forum/upload-complete - Register uploaded file (authenticated)
+  app.post("/api/forum/upload-complete", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { rawUrl, filename, contentType, size } = req.body;
+      if (!rawUrl || !filename) {
+        return res.status(400).json({ error: "rawUrl and filename required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      
+      // Normalize URL and set public ACL for forum attachments
+      const normalizedPath = objectStorageService.normalizeObjectEntityPath(rawUrl);
+      
+      await objectStorageService.trySetObjectEntityAclPolicy(rawUrl, {
+        owner: currentUser.userId,
+        visibility: "public",
+      });
+
+      res.json({ 
+        url: normalizedPath,
+        filename,
+        contentType,
+        size,
+        message: "File registered successfully"
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== AI CHAT ====================
 
   // POST /api/ai/chat - Tiered chat access with optimal conversion funnel
