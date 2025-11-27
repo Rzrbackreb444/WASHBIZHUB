@@ -358,11 +358,11 @@ export function NavigationMenu() {
               <span className="hidden sm:inline ml-2">Logout</span>
             </Button>
           ) : (
-            <Link href="/login">
+            <a href="/api/login">
               <Button size="sm" data-testid="button-login">
                 Sign In
               </Button>
-            </Link>
+            </a>
           )}
 
           {/* Hamburger Drawer */}
