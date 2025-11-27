@@ -10039,5 +10039,267 @@ export type InsertSeoCompetitor = z.infer<typeof insertSeoCompetitorSchema>;
 export type SeoCompetitor = typeof seoCompetitors.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete Platform with White-Label Features
+// AI CONTENT STUDIO - Conversational AI Content Creation Platform
+// ============================================================================
+
+// AI Conversations - Chat history with persistent memory
+export const aiConversations = pgTable("ai_conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Conversation Context
+  title: text("title").default("New Conversation"),
+  type: text("type").default("general"), // "general", "blog", "book", "newsletter", "code"
+  projectId: varchar("project_id"), // Link to content project if applicable
+  
+  // Conversation State
+  messages: jsonb("messages").$type<Array<{
+    role: "user" | "assistant" | "system";
+    content: string;
+    timestamp: string;
+    metadata?: Record<string, any>;
+  }>>().default([]),
+  
+  // Memory & Context
+  systemPrompt: text("system_prompt"),
+  memoryContext: jsonb("memory_context").$type<{
+    topics: string[];
+    preferences: Record<string, any>;
+    recentActions: string[];
+    userProfile?: Record<string, any>;
+  }>(),
+  
+  // Token Usage
+  totalTokensUsed: integer("total_tokens_used").default(0),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  isPinned: boolean("is_pinned").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("ai_conversations_user_idx").on(table.userId),
+  typeIdx: index("ai_conversations_type_idx").on(table.type),
+}));
+
+export const insertAiConversationSchema = createInsertSchema(aiConversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAiConversation = z.infer<typeof insertAiConversationSchema>;
+export type AiConversation = typeof aiConversations.$inferSelect;
+
+// Content Projects - Books, blogs, newsletters, etc.
+export const contentProjects = pgTable("content_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Project Info
+  title: text("title").notNull(),
+  description: text("description"),
+  type: text("type").notNull(), // "book", "blog_series", "newsletter", "course", "ebook"
+  status: text("status").default("draft"), // "draft", "in_progress", "review", "published"
+  
+  // Content Structure
+  content: jsonb("content").$type<{
+    chapters?: Array<{
+      id: string;
+      title: string;
+      content: string;
+      order: number;
+      wordCount: number;
+    }>;
+    metadata?: Record<string, any>;
+    outline?: string[];
+    notes?: string;
+  }>(),
+  
+  // KDP/Publishing Settings
+  kdpSettings: jsonb("kdp_settings").$type<{
+    subtitle?: string;
+    author?: string;
+    isbn?: string;
+    language?: string;
+    keywords?: string[];
+    categories?: string[];
+    trimSize?: string;
+    paperColor?: string;
+    coverType?: string;
+    pricing?: Record<string, number>;
+    royaltyPlan?: "35" | "70";
+    enrollInKdpSelect?: boolean;
+  }>(),
+  
+  // Cover Image
+  coverImageUrl: text("cover_image_url"),
+  
+  // Stats
+  wordCount: integer("word_count").default(0),
+  chapterCount: integer("chapter_count").default(0),
+  lastEditedAt: timestamp("last_edited_at"),
+  
+  // Version Control
+  version: integer("version").default(1),
+  previousVersions: jsonb("previous_versions").$type<Array<{
+    version: number;
+    savedAt: string;
+    changes: string;
+  }>>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("content_projects_user_idx").on(table.userId),
+  typeIdx: index("content_projects_type_idx").on(table.type),
+  statusIdx: index("content_projects_status_idx").on(table.status),
+}));
+
+export const insertContentProjectSchema = createInsertSchema(contentProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertContentProject = z.infer<typeof insertContentProjectSchema>;
+export type ContentProject = typeof contentProjects.$inferSelect;
+
+// Generated Assets - Images, documents, exports
+export const generatedAssets = pgTable("generated_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  projectId: varchar("project_id").references(() => contentProjects.id),
+  conversationId: varchar("conversation_id").references(() => aiConversations.id),
+  
+  // Asset Info
+  name: text("name").notNull(),
+  type: text("type").notNull(), // "image", "pdf", "docx", "epub", "cover", "thumbnail"
+  mimeType: text("mime_type"),
+  
+  // Storage
+  url: text("url"), // Object storage URL
+  base64Data: text("base64_data"), // For small inline assets
+  fileSize: integer("file_size"),
+  
+  // Generation Details
+  prompt: text("prompt"), // AI prompt used to generate
+  model: text("model"), // AI model used
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<{
+    width?: number;
+    height?: number;
+    format?: string;
+    pageCount?: number;
+    wordCount?: number;
+    exportSettings?: Record<string, any>;
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("generated_assets_user_idx").on(table.userId),
+  projectIdx: index("generated_assets_project_idx").on(table.projectId),
+  typeIdx: index("generated_assets_type_idx").on(table.type),
+}));
+
+export const insertGeneratedAssetSchema = createInsertSchema(generatedAssets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertGeneratedAsset = z.infer<typeof insertGeneratedAssetSchema>;
+export type GeneratedAsset = typeof generatedAssets.$inferSelect;
+
+// Newsletter Email Contacts
+export const emailContacts = pgTable("email_contacts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // Owner of this contact list
+  
+  // Contact Info
+  email: text("email").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  
+  // Segmentation
+  source: text("source"), // "website", "lead_magnet", "import", "manual"
+  tags: text("tags").array(),
+  segment: text("segment"), // "investor", "owner", "operator", "vendor"
+  
+  // Subscription Status
+  status: text("status").default("subscribed"), // "subscribed", "unsubscribed", "bounced", "complained"
+  subscribedAt: timestamp("subscribed_at").defaultNow(),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  
+  // Engagement
+  lastOpenedAt: timestamp("last_opened_at"),
+  lastClickedAt: timestamp("last_clicked_at"),
+  openCount: integer("open_count").default(0),
+  clickCount: integer("click_count").default(0),
+  
+  // Lead Scoring
+  leadScore: integer("lead_score").default(0),
+  
+  // Custom Fields
+  customFields: jsonb("custom_fields").$type<Record<string, any>>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("email_contacts_user_idx").on(table.userId),
+  emailIdx: uniqueIndex("email_contacts_email_user_idx").on(table.email, table.userId),
+  statusIdx: index("email_contacts_status_idx").on(table.status),
+}));
+
+export const insertEmailContactSchema = createInsertSchema(emailContacts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertEmailContact = z.infer<typeof insertEmailContactSchema>;
+export type EmailContact = typeof emailContacts.$inferSelect;
+
+// AI Content Requests - Track AI usage and generations
+export const aiContentRequests = pgTable("ai_content_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  conversationId: varchar("conversation_id").references(() => aiConversations.id),
+  
+  // Request Info
+  type: text("type").notNull(), // "chat", "blog", "book_chapter", "image", "newsletter", "seo"
+  prompt: text("prompt").notNull(),
+  
+  // AI Response
+  response: text("response"),
+  model: text("model").default("gemini-2.0-flash"),
+  
+  // Token Usage
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
+  totalTokens: integer("total_tokens"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "processing", "completed", "failed"
+  error: text("error"),
+  
+  // Timing
+  processingTimeMs: integer("processing_time_ms"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("ai_content_requests_user_idx").on(table.userId),
+  typeIdx: index("ai_content_requests_type_idx").on(table.type),
+  statusIdx: index("ai_content_requests_status_idx").on(table.status),
+}));
+
+export const insertAiContentRequestSchema = createInsertSchema(aiContentRequests).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAiContentRequest = z.infer<typeof insertAiContentRequestSchema>;
+export type AiContentRequest = typeof aiContentRequests.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with AI Content Studio
 // ============================================================================
