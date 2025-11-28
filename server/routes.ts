@@ -5284,6 +5284,60 @@ Disallow: /private/`;
 
       console.log(`🤖 AI Mode: ${aiMode} | Tenant: ${tenant.name} | Knowledge: ${tenant.aiKnowledgeBasePath}`);
 
+      // For WashBizHub: Detect error codes in user message and query database
+      let errorCodeContext = "";
+      if (tenant.slug === 'washbizhub') {
+        const errorCodePatterns = [
+          /\b[A-Z]{1,2}\d{1,3}\b/gi,
+          /\bF\d{1,2}[A-Z]?\d?\b/gi,
+          /\bE[:\-_]?\w{2,4}\b/gi,
+          /\bAL\d{1,2}\b/gi,
+          /\bErr?\d{1,3}\b/gi,
+          /\bd[rLu]\b/gi,
+          /\bnFL|ndr|ndL|ndu|oFL|ubL|thE|HEt|Sud|dor|dET\b/gi,
+        ];
+        
+        const foundCodes: string[] = [];
+        for (const pattern of errorCodePatterns) {
+          const matches = message.match(pattern);
+          if (matches) foundCodes.push(...matches);
+        }
+        
+        if (foundCodes.length > 0) {
+          try {
+            const uniqueCodes = [...new Set(foundCodes.map(c => c.toUpperCase().replace(/[:\-_]/g, '')))];
+            const codeResults = await db
+              .select()
+              .from(diagnosticCodes)
+              .where(sql`UPPER(REPLACE(REPLACE(REPLACE(${diagnosticCodes.code}, ':', ''), '-', ''), '_', '')) = ANY(ARRAY[${sql.raw(uniqueCodes.map(c => `'${c}'`).join(','))}]::text[])`)
+              .limit(5);
+            
+            if (codeResults.length > 0) {
+              errorCodeContext = `\n\n[DATABASE MATCH - USE THIS EXACT DATA IN YOUR RESPONSE]
+The following error codes were found in our proprietary database of 2,200+ commercial laundry codes:
+
+${codeResults.map(code => `
+**${code.manufacturer} Code ${code.code}**: ${code.title}
+- Description: ${code.description}
+- Severity: ${code.severity}
+- Skill Level: ${code.skillLevel}
+- Estimated Repair Time: ${code.estimatedRepairTime || 30} minutes
+- Possible Causes: ${(code.possibleCauses || []).join(', ')}
+- Troubleshooting Steps: ${(code.troubleshootingSteps || []).slice(0, 3).join(' → ')}
+${code.partsWithPricing ? `- Recommended Parts: ${JSON.stringify(code.partsWithPricing).replace(/[\[\]{}]/g, '').replace(/"/g, '')}` : ''}
+`).join('\n')}
+
+IMPORTANT DISCLAIMER TO INCLUDE:
+"⚠️ PROFESSIONAL DISCLAIMER: This diagnostic information is for educational purposes only. Always disconnect power before servicing equipment. Complex repairs should be performed by a qualified commercial laundry technician. WashBizHub recommends consulting a local service professional for critical repairs. Typical service call: $150-$350."
+`;
+              console.log(`🔧 Found ${codeResults.length} matching error codes in database`);
+            }
+          } catch (dbError) {
+            console.error("Error querying diagnostic codes:", dbError);
+          }
+        }
+      }
+
       const messages = [
         systemPrompt,
         ...(conversationHistory || []).map((msg: any) => ({
@@ -5292,7 +5346,7 @@ Disallow: /private/`;
         })),
         {
           role: "user" as const,
-          content: message,
+          content: message + errorCodeContext,
         },
       ];
 
