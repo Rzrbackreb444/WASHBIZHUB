@@ -16,28 +16,28 @@ export function Header() {
 
   return (
     <>
-      {/* Enterprise Trust Bar */}
-      <div className="bg-gradient-to-r from-[#1a2332] via-[#0f1419] to-[#1a2332] border-b border-primary/20">
+      {/* Enterprise Trust Bar - Navy/Teal Theme */}
+      <div className="bg-navy-900 border-b border-teal-400/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-center py-1.5 gap-4 sm:gap-8 text-xs sm:text-sm flex-wrap">
             <div className="flex items-center gap-1.5 text-white/80">
-              <Shield className="w-3.5 h-3.5 text-green-400" />
+              <Shield className="w-3.5 h-3.5 text-teal-400" />
               <span>Enterprise-Grade Security</span>
             </div>
             <div className="hidden sm:flex items-center gap-1.5 text-white/80">
-              <Globe className="w-3.5 h-3.5 text-primary" />
+              <Globe className="w-3.5 h-3.5 text-teal-400" />
               <span>220+ Countries</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/80">
-              <Users className="w-3.5 h-3.5 text-blue-400" />
+              <Users className="w-3.5 h-3.5 text-teal-400" />
               <span className="font-semibold text-white">72,000+ Members</span>
             </div>
             <div className="hidden md:flex items-center gap-1.5 text-white/80">
-              <Zap className="w-3.5 h-3.5 text-yellow-400" />
+              <Zap className="w-3.5 h-3.5 text-teal-400" />
               <span>99.99% Uptime</span>
             </div>
             <div className="hidden lg:flex items-center gap-1.5">
-              <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs py-0 h-5 gap-1">
+              <Badge variant="outline" className="border-teal-400/50 text-teal-400 text-xs py-0 h-5 gap-1">
                 <CheckCircle className="w-3 h-3" />
                 SEO/AEO Optimized
               </Badge>
