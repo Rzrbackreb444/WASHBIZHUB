@@ -302,7 +302,7 @@ export default function RepairGuide() {
                   <Card className="mb-4">
                     <CardHeader>
                       <CardTitle>Required Parts</CardTitle>
-                      <CardDescription>Order genuine replacement parts from Amazon</CardDescription>
+                      <CardDescription>Order genuine OEM replacement parts from authorized suppliers</CardDescription>
                     </CardHeader>
                     <CardContent>
                       {selectedCode.requiredParts && selectedCode.requiredParts.length > 0 ? (
