@@ -12,8 +12,8 @@ import calculatorRoutes from "./calculator-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings } from "@shared/schema";
-import { eq, or, isNull, sql, desc } from "drizzle-orm";
+import { listings, diagnosticCodes } from "@shared/schema";
+import { eq, or, isNull, sql, desc, and } from "drizzle-orm";
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
@@ -7999,6 +7999,186 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error exporting to DOCX:", error);
       res.status(500).json({ message: error.message || "Failed to export DOCX" });
+    }
+  });
+
+  // ============================================================================
+  // ERROR CODE DIAGNOSTIC TOOL - 939 Codes Across 49 Brands
+  // ============================================================================
+
+  // Get all error codes with filtering
+  app.get("/api/error-codes", async (req, res) => {
+    try {
+      const { manufacturer, machineType, severity, search, limit = "50", offset = "0" } = req.query;
+      
+      let query = db.select().from(diagnosticCodes);
+      const conditions: any[] = [];
+
+      if (manufacturer && manufacturer !== "all") {
+        conditions.push(eq(diagnosticCodes.manufacturer, manufacturer as string));
+      }
+      if (machineType && machineType !== "all") {
+        conditions.push(eq(diagnosticCodes.machineType, machineType as string));
+      }
+      if (severity && severity !== "all") {
+        conditions.push(eq(diagnosticCodes.severity, severity as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            sql`${diagnosticCodes.code} ILIKE ${'%' + search + '%'}`,
+            sql`${diagnosticCodes.title} ILIKE ${'%' + search + '%'}`,
+            sql`${diagnosticCodes.description} ILIKE ${'%' + search + '%'}`
+          )
+        );
+      }
+
+      const codes = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(conditions.length > 0 ? sql`${conditions.reduce((acc, cond, i) => i === 0 ? cond : sql`${acc} AND ${cond}`)}` : undefined)
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string))
+        .orderBy(diagnosticCodes.manufacturer, diagnosticCodes.code);
+
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(diagnosticCodes)
+        .where(conditions.length > 0 ? sql`${conditions.reduce((acc, cond, i) => i === 0 ? cond : sql`${acc} AND ${cond}`)}` : undefined);
+
+      res.json({
+        codes,
+        total: countResult?.count || 0,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
+    } catch (error: any) {
+      console.error("Error fetching error codes:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch error codes" });
+    }
+  });
+
+  // Get unique manufacturers list
+  app.get("/api/error-codes/manufacturers", async (req, res) => {
+    try {
+      const manufacturers = await db
+        .selectDistinct({ manufacturer: diagnosticCodes.manufacturer })
+        .from(diagnosticCodes)
+        .orderBy(diagnosticCodes.manufacturer);
+
+      const counts = await db
+        .select({
+          manufacturer: diagnosticCodes.manufacturer,
+          count: sql<number>`count(*)`
+        })
+        .from(diagnosticCodes)
+        .groupBy(diagnosticCodes.manufacturer)
+        .orderBy(diagnosticCodes.manufacturer);
+
+      res.json(counts);
+    } catch (error: any) {
+      console.error("Error fetching manufacturers:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch manufacturers" });
+    }
+  });
+
+  // Get error code by slug (for SEO-friendly URLs)
+  app.get("/api/error-codes/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      const [code] = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(eq(diagnosticCodes.slug, slug));
+
+      if (!code) {
+        return res.status(404).json({ message: "Error code not found" });
+      }
+
+      // Get related codes from same manufacturer
+      const relatedCodes = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(sql`${diagnosticCodes.manufacturer} = ${code.manufacturer} AND ${diagnosticCodes.id} != ${code.id}`)
+        .limit(6);
+
+      res.json({ code, relatedCodes });
+    } catch (error: any) {
+      console.error("Error fetching error code:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch error code" });
+    }
+  });
+
+  // Get error code by manufacturer and code
+  app.get("/api/error-codes/:manufacturer/:code", async (req, res) => {
+    try {
+      const { manufacturer, code } = req.params;
+      
+      const [result] = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(sql`${diagnosticCodes.manufacturer} = ${manufacturer} AND ${diagnosticCodes.code} = ${code}`);
+
+      if (!result) {
+        return res.status(404).json({ message: "Error code not found" });
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error fetching error code:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch error code" });
+    }
+  });
+
+  // Seed error codes (admin only)
+  app.post("/api/error-codes/seed", isAdmin, async (req, res) => {
+    try {
+      const { seedErrorCodes } = await import("./seed-error-codes");
+      const result = await seedErrorCodes();
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error seeding error codes:", error);
+      res.status(500).json({ message: error.message || "Failed to seed error codes" });
+    }
+  });
+
+  // Get statistics for error codes
+  app.get("/api/error-codes/stats", async (req, res) => {
+    try {
+      const [totalCodes] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(diagnosticCodes);
+
+      const [totalBrands] = await db
+        .select({ count: sql<number>`count(DISTINCT manufacturer)` })
+        .from(diagnosticCodes);
+
+      const bySeverity = await db
+        .select({
+          severity: diagnosticCodes.severity,
+          count: sql<number>`count(*)`
+        })
+        .from(diagnosticCodes)
+        .groupBy(diagnosticCodes.severity);
+
+      const byMachineType = await db
+        .select({
+          machineType: diagnosticCodes.machineType,
+          count: sql<number>`count(*)`
+        })
+        .from(diagnosticCodes)
+        .groupBy(diagnosticCodes.machineType);
+
+      res.json({
+        totalCodes: totalCodes?.count || 0,
+        totalBrands: totalBrands?.count || 0,
+        bySeverity,
+        byMachineType
+      });
+    } catch (error: any) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch statistics" });
     }
   });
 
