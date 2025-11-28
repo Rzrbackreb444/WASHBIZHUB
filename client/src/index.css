@@ -1,51 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - WashBizHub Clean Design */
+/* WashBizHub Navy/Teal Theme Colors */
 :root {
+  --navy-900: 210 100% 12%;
+  --navy-800: 210 100% 13%;
+  --teal-400: 180 60% 51%;
+
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
   --background: 0 0% 98%;
-  --foreground: 215 25% 27%;
+  --foreground: 210 100% 12%;
   --border: 210 20% 88%;
   --card: 0 0% 100%;
-  --card-foreground: 215 25% 27%;
+  --card-foreground: 210 100% 12%;
   --card-border: 210 18% 92%;
-  --sidebar: 215 25% 16%;
+  --sidebar: 210 100% 12%;
   --sidebar-foreground: 0 0% 95%;
-  --sidebar-border: 215 25% 14%;
-  --sidebar-primary: 43 40% 58%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 215 25% 20%;
+  --sidebar-border: 210 100% 10%;
+  --sidebar-primary: 180 60% 51%;
+  --sidebar-primary-foreground: 210 100% 12%;
+  --sidebar-accent: 210 100% 16%;
   --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 43 40% 58%;
+  --sidebar-ring: 180 60% 51%;
   --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 27%;
+  --popover-foreground: 210 100% 12%;
   --popover-border: 210 18% 90%;
-  --primary: 43 40% 58%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 180 60% 51%;
+  --primary-foreground: 210 100% 12%;
   --secondary: 210 15% 92%;
-  --secondary-foreground: 215 25% 27%;
+  --secondary-foreground: 210 100% 12%;
   --muted: 210 12% 95%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 43 40% 58%;
-  --accent-foreground: 0 0% 100%;
+  --muted-foreground: 210 16% 47%;
+  --accent: 180 60% 51%;
+  --accent-foreground: 210 100% 12%;
   --destructive: 0 72% 42%;
   --destructive-foreground: 0 0% 98%;
   --input: 210 20% 90%;
-  --ring: 43 40% 58%;
-  --chart-1: 215 25% 16%;
-  --chart-2: 43 40% 58%;
+  --ring: 180 60% 51%;
+  --chart-1: 210 100% 12%;
+  --chart-2: 180 60% 51%;
   --chart-3: 200 70% 40%;
   --chart-4: 280 65% 45%;
   --chart-5: 160 60% 38%;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
+  --font-bebas: 'Bebas Neue', sans-serif;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(210 20% 50% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(210 20% 50% / 0.00);
@@ -93,36 +100,36 @@
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 215 25% 12%;
+  --background: 210 100% 12%;
   --foreground: 0 0% 95%;
-  --border: 215 20% 22%;
-  --card: 215 25% 16%;
+  --border: 210 20% 22%;
+  --card: 210 100% 16%;
   --card-foreground: 0 0% 95%;
-  --card-border: 215 20% 20%;
-  --sidebar: 215 25% 16%;
+  --card-border: 210 20% 20%;
+  --sidebar: 210 100% 12%;
   --sidebar-foreground: 0 0% 95%;
-  --sidebar-border: 215 25% 14%;
-  --sidebar-primary: 43 40% 58%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 215 25% 20%;
+  --sidebar-border: 210 100% 10%;
+  --sidebar-primary: 180 60% 51%;
+  --sidebar-primary-foreground: 210 100% 12%;
+  --sidebar-accent: 210 100% 20%;
   --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 43 40% 58%;
-  --popover: 215 25% 16%;
+  --sidebar-ring: 180 60% 51%;
+  --popover: 210 100% 16%;
   --popover-foreground: 0 0% 95%;
-  --popover-border: 215 20% 20%;
-  --primary: 43 40% 58%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 215 18% 22%;
+  --popover-border: 210 20% 20%;
+  --primary: 180 60% 51%;
+  --primary-foreground: 210 100% 12%;
+  --secondary: 210 18% 22%;
   --secondary-foreground: 0 0% 95%;
-  --muted: 215 15% 20%;
+  --muted: 210 15% 20%;
   --muted-foreground: 210 12% 68%;
-  --accent: 43 40% 58%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 180 60% 51%;
+  --accent-foreground: 210 100% 12%;
   --destructive: 0 70% 40%;
   --destructive-foreground: 0 0% 98%;
-  --input: 215 20% 22%;
-  --ring: 43 40% 58%;
-  --chart-1: 215 25% 16%;
+  --input: 210 20% 22%;
+  --ring: 180 60% 51%;
+  --chart-1: 210 100% 12%;
   --chart-2: 43 40% 58%;
   --chart-3: 200 70% 55%;
   --chart-4: 280 65% 60%;
@@ -252,6 +259,50 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+}
+
+/* Bebas Neue font utility */
+.font-bebas {
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+/* WashBizHub Animations */
+.animate-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Navy/Teal color utilities */
+.bg-navy-900 {
+  background-color: hsl(210 100% 12%);
+}
+.bg-navy-800 {
+  background-color: hsl(210 100% 13%);
+}
+.text-teal-400 {
+  color: hsl(180 60% 51%);
+}
+.bg-teal-400 {
+  background-color: hsl(180 60% 51%);
+}
+.border-teal-400 {
+  border-color: hsl(180 60% 51%);
+}
+.hover\:bg-teal-300:hover {
+  background-color: hsl(180 55% 60%);
+}
+.hover\:text-teal-400:hover {
+  color: hsl(180 60% 51%);
 }
 
 /**
