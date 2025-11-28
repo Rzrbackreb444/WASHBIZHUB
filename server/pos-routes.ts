@@ -23,6 +23,7 @@ import {
   routeStops,
   laundromats,
   users,
+  maintenancePlans,
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
@@ -2217,6 +2218,79 @@ export function registerPosRoutes(app: Express) {
     }
   });
 
+  // GET /api/pos/maintenance-schedule - Get scheduled maintenance tasks
+  app.get("/api/pos/maintenance-schedule", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId, machineId } = req.query;
+      
+      const conditions: any[] = [];
+      
+      if (machineId) {
+        conditions.push(eq(maintenancePlans.machineId, machineId as string));
+      }
+      
+      // Get all maintenance plans with machine info
+      const plans = await db
+        .select({
+          plan: maintenancePlans,
+          machine: machineAssets,
+        })
+        .from(maintenancePlans)
+        .leftJoin(machineAssets, eq(maintenancePlans.machineId, machineAssets.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(asc(maintenancePlans.nextDueDate));
+      
+      const now = new Date();
+      
+      const formattedPlans = plans.map(p => {
+        const nextDue = p.plan.nextDueDate ? new Date(p.plan.nextDueDate) : null;
+        const isOverdue = nextDue ? nextDue < now : false;
+        const daysUntilDue = nextDue ? Math.ceil((nextDue.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)) : null;
+        
+        return {
+          id: p.plan.id,
+          planName: p.plan.planName,
+          description: p.plan.description,
+          taskType: p.plan.taskType,
+          frequency: p.plan.frequency,
+          frequencyUnit: p.plan.frequencyUnit,
+          nextDueDate: p.plan.nextDueDate,
+          lastCompletedDate: p.plan.lastCompletedDate,
+          checklistItems: p.plan.checklistItems,
+          requiredParts: p.plan.requiredParts,
+          estimatedDuration: p.plan.estimatedDuration,
+          isActive: p.plan.isActive,
+          isOverdue,
+          daysUntilDue,
+          urgency: isOverdue ? "overdue" : daysUntilDue !== null && daysUntilDue <= 7 ? "urgent" : daysUntilDue !== null && daysUntilDue <= 30 ? "upcoming" : "scheduled",
+          machineId: p.plan.machineId,
+          machineName: p.machine?.machineName || p.machine?.machineNumber || "Unknown Machine",
+          machineType: p.machine?.machineType || "unknown",
+        };
+      });
+      
+      const overdue = formattedPlans.filter(p => p.isOverdue);
+      const upcoming = formattedPlans.filter(p => !p.isOverdue && p.daysUntilDue !== null && p.daysUntilDue <= 30);
+      const scheduled = formattedPlans.filter(p => !p.isOverdue && (p.daysUntilDue === null || p.daysUntilDue > 30));
+      
+      res.json({
+        schedule: formattedPlans,
+        overdue,
+        upcoming,
+        scheduled,
+        summary: {
+          total: formattedPlans.length,
+          overdueCount: overdue.length,
+          upcomingCount: upcoming.length,
+          scheduledCount: scheduled.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching maintenance schedule:", error);
+      res.status(500).json({ error: "Failed to fetch maintenance schedule" });
+    }
+  });
+
   // GET /api/pos/predictive-maintenance - Get machines predicted to need maintenance
   app.get("/api/pos/predictive-maintenance", async (req: Request, res: Response) => {
     try {
@@ -2372,6 +2446,489 @@ ${symptomsContext ? `\n${symptomsContext}` : ""}`;
     } catch (error) {
       console.error("Error with Service Guy AI:", error);
       res.status(500).json({ error: "Failed to get AI diagnosis. Please try again." });
+    }
+  });
+
+  // ========================================
+  // REAL-TIME UPDATES (SSE)
+  // ========================================
+
+  // Store active SSE connections
+  const sseClients: Set<Response> = new Set();
+
+  // GET /api/pos/live-updates - SSE endpoint for real-time dashboard updates
+  app.get("/api/pos/live-updates", async (req: Request, res: Response) => {
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.flushHeaders();
+
+    // Add client to set
+    sseClients.add(res);
+
+    // Send initial connection confirmation
+    res.write(`data: ${JSON.stringify({ type: "connected", timestamp: new Date().toISOString() })}\n\n`);
+
+    // Send KPI updates every 5 seconds
+    const sendKPIUpdate = async () => {
+      try {
+        // Get real-time stats
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const ordersToday = await db
+          .select({ count: count() })
+          .from(posTransactions)
+          .where(gte(posTransactions.createdAt, today));
+
+        const revenueResult = await db
+          .select({ total: sql<string>`COALESCE(SUM(CAST(${posTransactions.total} AS DECIMAL)), 0)` })
+          .from(posTransactions)
+          .where(gte(posTransactions.createdAt, today));
+
+        const pendingOrders = await db
+          .select({ count: count() })
+          .from(posTransactions)
+          .where(and(
+            gte(posTransactions.createdAt, today),
+            or(
+              eq(posTransactions.status, "pending"),
+              eq(posTransactions.status, "processing"),
+              eq(posTransactions.status, "weighing")
+            )
+          ));
+
+        const machinesOnline = await db
+          .select({ count: count() })
+          .from(machineAssets)
+          .where(eq(machineAssets.status, "operational"));
+
+        const machinesNeedingAttention = await db
+          .select({ count: count() })
+          .from(machineAssets)
+          .where(or(
+            eq(machineAssets.status, "needs_maintenance"),
+            eq(machineAssets.status, "out_of_order")
+          ));
+
+        const kpiData = {
+          type: "kpi_update",
+          timestamp: new Date().toISOString(),
+          data: {
+            revenue: parseFloat(revenueResult[0]?.total || "0"),
+            ordersToday: ordersToday[0]?.count || 0,
+            pendingOrders: pendingOrders[0]?.count || 0,
+            machinesOnline: machinesOnline[0]?.count || 0,
+            machinesNeedingAttention: machinesNeedingAttention[0]?.count || 0,
+            avgTicket: ordersToday[0]?.count ? parseFloat(revenueResult[0]?.total || "0") / ordersToday[0].count : 0,
+          }
+        };
+
+        res.write(`data: ${JSON.stringify(kpiData)}\n\n`);
+      } catch (error) {
+        console.error("Error sending KPI update:", error);
+      }
+    };
+
+    // Send initial KPI update
+    await sendKPIUpdate();
+
+    // Set up interval for updates
+    const intervalId = setInterval(sendKPIUpdate, 5000);
+
+    // Simulate occasional events for demo purposes
+    const eventTypes = ["new_order", "order_status_change", "machine_alert"];
+    const simulatedEventInterval = setInterval(() => {
+      const shouldSend = Math.random() > 0.7; // 30% chance every interval
+      if (shouldSend && sseClients.has(res)) {
+        const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+        let eventData: any = { type: eventType, timestamp: new Date().toISOString() };
+
+        if (eventType === "new_order") {
+          eventData.data = {
+            orderId: `ORD-${Date.now()}`,
+            customerName: "New Customer",
+            total: (Math.random() * 100 + 20).toFixed(2),
+            orderType: ["wash_dry_fold", "pickup_delivery", "dry_cleaning"][Math.floor(Math.random() * 3)]
+          };
+        } else if (eventType === "order_status_change") {
+          eventData.data = {
+            orderId: `ORD-${Date.now() - 100000}`,
+            oldStatus: "processing",
+            newStatus: "ready",
+            customerName: "John Doe"
+          };
+        } else if (eventType === "machine_alert") {
+          eventData.data = {
+            machineId: `MCH-${Math.floor(Math.random() * 20) + 1}`,
+            machineName: `Washer #${Math.floor(Math.random() * 10) + 1}`,
+            alertType: ["maintenance_due", "cycle_complete", "error"][Math.floor(Math.random() * 3)],
+            severity: ["info", "warning", "critical"][Math.floor(Math.random() * 3)]
+          };
+        }
+
+        res.write(`data: ${JSON.stringify(eventData)}\n\n`);
+      }
+    }, 15000);
+
+    // Clean up on client disconnect
+    req.on('close', () => {
+      clearInterval(intervalId);
+      clearInterval(simulatedEventInterval);
+      sseClients.delete(res);
+    });
+  });
+
+  // ========================================
+  // UPGRADE PROMPTS & FEATURE RECOMMENDATIONS
+  // ========================================
+
+  // GET /api/pos/upgrade-prompts - Get contextual upgrade suggestions
+  app.get("/api/pos/upgrade-prompts", async (req: Request, res: Response) => {
+    try {
+      // Get current usage stats
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const monthlyOrders = await db
+        .select({ count: count() })
+        .from(posTransactions)
+        .where(gte(posTransactions.createdAt, thirtyDaysAgo));
+
+      const monthlyRevenue = await db
+        .select({ total: sql<string>`COALESCE(SUM(CAST(${posTransactions.total} AS DECIMAL)), 0)` })
+        .from(posTransactions)
+        .where(gte(posTransactions.createdAt, thirtyDaysAgo));
+
+      const totalMachines = await db
+        .select({ count: count() })
+        .from(machineAssets);
+
+      const machinesNeedingMaintenance = await db
+        .select({ count: count() })
+        .from(machineAssets)
+        .where(or(
+          eq(machineAssets.status, "needs_maintenance"),
+          eq(machineAssets.status, "out_of_order")
+        ));
+
+      const totalRoutes = await db
+        .select({ count: count() })
+        .from(routes)
+        .where(gte(routes.createdAt, thirtyDaysAgo));
+
+      const orderCount = monthlyOrders[0]?.count || 0;
+      const revenue = parseFloat(monthlyRevenue[0]?.total || "0");
+      const machineCount = totalMachines[0]?.count || 0;
+      const maintenanceRatio = machineCount > 0 ? (machinesNeedingMaintenance[0]?.count || 0) / machineCount : 0;
+      const routeCount = totalRoutes[0]?.count || 0;
+
+      const prompts: Array<{
+        id: string;
+        title: string;
+        message: string;
+        benefit: string;
+        targetPlan: "pro" | "enterprise";
+        priority: number;
+        icon: string;
+        ctaText: string;
+      }> = [];
+
+      // Order volume prompt
+      if (orderCount >= 100) {
+        prompts.push({
+          id: "high-volume-orders",
+          title: "High Order Volume Detected",
+          message: `You've processed ${orderCount}+ orders this month. Upgrade to Pro for unlimited orders and route optimization.`,
+          benefit: "Save 8+ hours/week with automated route optimization",
+          targetPlan: "pro",
+          priority: 1,
+          icon: "trending-up",
+          ctaText: "Unlock Pro Features"
+        });
+      } else if (orderCount >= 50) {
+        prompts.push({
+          id: "growing-volume",
+          title: "Your Business is Growing",
+          message: `You're on track for ${Math.floor(orderCount * 1.5)} orders this month. Pro plan includes advanced analytics and customer insights.`,
+          benefit: "Increase customer retention by 25% with loyalty features",
+          targetPlan: "pro",
+          priority: 2,
+          icon: "chart-line",
+          ctaText: "See Pro Benefits"
+        });
+      }
+
+      // Machine utilization prompt
+      if (maintenanceRatio > 0.1) {
+        prompts.push({
+          id: "machine-maintenance",
+          title: "Optimize Machine Uptime",
+          message: `${Math.round(maintenanceRatio * 100)}% of your machines need attention. Enterprise includes predictive maintenance AI.`,
+          benefit: "Reduce downtime by 40% with AI-powered predictions",
+          targetPlan: "enterprise",
+          priority: 1,
+          icon: "wrench",
+          ctaText: "Explore Enterprise"
+        });
+      }
+
+      // Route optimization prompt
+      if (routeCount >= 20) {
+        prompts.push({
+          id: "route-optimization",
+          title: "Streamline Your Deliveries",
+          message: `With ${routeCount} routes this month, route optimization could save you significant time and fuel.`,
+          benefit: "Reduce fuel costs by 20% and delivery time by 35%",
+          targetPlan: "pro",
+          priority: 2,
+          icon: "truck",
+          ctaText: "Optimize Routes"
+        });
+      }
+
+      // Revenue milestone prompt
+      if (revenue >= 10000) {
+        prompts.push({
+          id: "revenue-milestone",
+          title: "Unlock Premium Analytics",
+          message: `Congratulations on $${revenue.toLocaleString()} this month! Unlock AI-powered demand forecasting.`,
+          benefit: "Increase revenue by 15% with predictive demand insights",
+          targetPlan: "pro",
+          priority: 2,
+          icon: "bar-chart",
+          ctaText: "See AI Features"
+        });
+      }
+
+      // Multi-location hint (for larger operations)
+      if (machineCount >= 10) {
+        prompts.push({
+          id: "multi-location",
+          title: "Ready for Expansion?",
+          message: "Enterprise plan includes multi-location management with centralized reporting and staff management.",
+          benefit: "Manage unlimited locations from one dashboard",
+          targetPlan: "enterprise",
+          priority: 3,
+          icon: "building",
+          ctaText: "Scale Your Business"
+        });
+      }
+
+      // Default prompt if no conditions met
+      if (prompts.length === 0) {
+        prompts.push({
+          id: "general-upgrade",
+          title: "Boost Your Laundromat",
+          message: "Upgrade to Pro to unlock advanced analytics, route optimization, and customer loyalty features.",
+          benefit: "Join 5,000+ laundromat owners growing with WashBizHub Pro",
+          targetPlan: "pro",
+          priority: 3,
+          icon: "rocket",
+          ctaText: "Explore Pro Plan"
+        });
+      }
+
+      // Sort by priority
+      prompts.sort((a, b) => a.priority - b.priority);
+
+      res.json({
+        currentPlan: "starter",
+        prompts,
+        usageStats: {
+          monthlyOrders: orderCount,
+          monthlyRevenue: revenue,
+          totalMachines: machineCount,
+          totalRoutes: routeCount,
+          maintenanceRate: Math.round(maintenanceRatio * 100)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching upgrade prompts:", error);
+      res.status(500).json({ error: "Failed to fetch upgrade prompts" });
+    }
+  });
+
+  // GET /api/pos/feature-recommendations - Get AI-powered feature recommendations with ROI
+  app.get("/api/pos/feature-recommendations", async (req: Request, res: Response) => {
+    try {
+      // Get current usage stats for ROI calculations
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const monthlyRevenue = await db
+        .select({ total: sql<string>`COALESCE(SUM(CAST(${posTransactions.total} AS DECIMAL)), 0)` })
+        .from(posTransactions)
+        .where(gte(posTransactions.createdAt, thirtyDaysAgo));
+
+      const totalRoutes = await db
+        .select({ count: count() })
+        .from(routes)
+        .where(gte(routes.createdAt, thirtyDaysAgo));
+
+      const totalMachines = await db
+        .select({ count: count() })
+        .from(machineAssets);
+
+      const totalCustomers = await db
+        .select({ count: count() })
+        .from(householdAccounts);
+
+      const revenue = parseFloat(monthlyRevenue[0]?.total || "0");
+      const routeCount = totalRoutes[0]?.count || 0;
+      const machineCount = totalMachines[0]?.count || 0;
+      const customerCount = totalCustomers[0]?.count || 0;
+
+      const recommendations = [
+        {
+          id: "route-optimization",
+          name: "Route Optimization AI",
+          description: "Automatically optimize pickup/delivery routes using AI to reduce fuel costs and delivery times.",
+          icon: "map-pin",
+          plan: "pro",
+          benefits: [
+            "20% reduction in fuel costs",
+            "35% faster delivery times",
+            "Real-time traffic integration"
+          ],
+          roi: {
+            monthlySavings: Math.round(routeCount * 15), // $15 saved per route
+            yearlyReturn: Math.round(routeCount * 15 * 12),
+            paybackMonths: 2
+          },
+          metrics: {
+            current: `${routeCount} routes/month`,
+            potential: `Save $${(routeCount * 15).toLocaleString()}/month`
+          }
+        },
+        {
+          id: "predictive-maintenance",
+          name: "Predictive Maintenance AI",
+          description: "AI-powered predictions to prevent machine failures before they happen. Reduce downtime by 40%.",
+          icon: "cpu",
+          plan: "enterprise",
+          benefits: [
+            "40% reduction in downtime",
+            "25% lower repair costs",
+            "IoT sensor integration"
+          ],
+          roi: {
+            monthlySavings: Math.round(machineCount * 50), // $50 per machine/month
+            yearlyReturn: Math.round(machineCount * 50 * 12),
+            paybackMonths: 4
+          },
+          metrics: {
+            current: `${machineCount} machines`,
+            potential: `Save $${(machineCount * 50).toLocaleString()}/month`
+          }
+        },
+        {
+          id: "loyalty-program",
+          name: "Customer Loyalty Program",
+          description: "Automated loyalty rewards, referral tracking, and personalized promotions to boost retention.",
+          icon: "heart",
+          plan: "pro",
+          benefits: [
+            "25% increase in retention",
+            "15% higher order frequency",
+            "Automated email campaigns"
+          ],
+          roi: {
+            monthlySavings: Math.round(revenue * 0.08), // 8% revenue increase
+            yearlyReturn: Math.round(revenue * 0.08 * 12),
+            paybackMonths: 1
+          },
+          metrics: {
+            current: `${customerCount} customers`,
+            potential: `+$${Math.round(revenue * 0.08).toLocaleString()}/month revenue`
+          }
+        },
+        {
+          id: "multi-location",
+          name: "Multi-Location Management",
+          description: "Centralized dashboard for managing multiple laundromat locations with consolidated reporting.",
+          icon: "building-2",
+          plan: "enterprise",
+          benefits: [
+            "Unified reporting dashboard",
+            "Staff management across sites",
+            "Inventory synchronization"
+          ],
+          roi: {
+            monthlySavings: 500, // Base savings for multi-location
+            yearlyReturn: 6000,
+            paybackMonths: 5
+          },
+          metrics: {
+            current: "Single location",
+            potential: "Unlimited locations"
+          }
+        },
+        {
+          id: "demand-forecasting",
+          name: "AI Demand Forecasting",
+          description: "Predict peak hours and staffing needs using machine learning on historical data.",
+          icon: "brain",
+          plan: "pro",
+          benefits: [
+            "Optimize staffing levels",
+            "Reduce wait times by 30%",
+            "Smart pricing recommendations"
+          ],
+          roi: {
+            monthlySavings: Math.round(revenue * 0.05), // 5% efficiency gain
+            yearlyReturn: Math.round(revenue * 0.05 * 12),
+            paybackMonths: 2
+          },
+          metrics: {
+            current: "Manual scheduling",
+            potential: "AI-optimized operations"
+          }
+        },
+        {
+          id: "advanced-reporting",
+          name: "Advanced Analytics Suite",
+          description: "Deep insights with custom reports, export capabilities, and trend analysis.",
+          icon: "bar-chart-3",
+          plan: "pro",
+          benefits: [
+            "Custom report builder",
+            "Export to Excel/PDF",
+            "Competitor benchmarking"
+          ],
+          roi: {
+            monthlySavings: Math.round(revenue * 0.03), // 3% decision improvements
+            yearlyReturn: Math.round(revenue * 0.03 * 12),
+            paybackMonths: 1
+          },
+          metrics: {
+            current: "Basic metrics",
+            potential: "50+ custom KPIs"
+          }
+        }
+      ];
+
+      // Sort by ROI potential
+      recommendations.sort((a, b) => b.roi.monthlySavings - a.roi.monthlySavings);
+
+      res.json({
+        recommendations,
+        totalPotentialSavings: {
+          monthly: recommendations.reduce((sum, r) => sum + r.roi.monthlySavings, 0),
+          yearly: recommendations.reduce((sum, r) => sum + r.roi.yearlyReturn, 0)
+        },
+        currentUsage: {
+          monthlyRevenue: revenue,
+          routeCount,
+          machineCount,
+          customerCount
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching feature recommendations:", error);
+      res.status(500).json({ error: "Failed to fetch feature recommendations" });
     }
   });
 
