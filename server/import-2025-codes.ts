@@ -238,6 +238,18 @@ function parseTableFile(filePath: string): RawCodeData[] {
       currentMachineType = "washer";
     } else if (line.includes("IPSO")) {
       currentManufacturer = "IPSO";
+      currentMachineType = "washer";
+    } else if (line.includes("DOMUS")) {
+      currentManufacturer = "Domus";
+      currentMachineType = "washer";
+    } else if (line.includes("FAGOR")) {
+      currentManufacturer = "Fagor";
+    } else if (line.includes("SCHULTHESS")) {
+      currentManufacturer = "Schulthess";
+    } else if (line.includes("JENSEN")) {
+      currentManufacturer = "Jensen";
+    } else if (line.includes("TOLONUKI") || line.includes("TOLON")) {
+      currentManufacturer = "Tolonuki";
     }
     
     if (line.includes("**WASHERS**") || line.includes("WASHERS (")) {
@@ -288,6 +300,8 @@ async function importCodes() {
     "attached_assets/Pasted---1764312882893_1764312882894.txt",
     "attached_assets/Pasted---1764312918194_1764312918195.txt",
     "attached_assets/Pasted---1764312949563_1764312949563.txt",
+    "attached_assets/Pasted---1764312978928_1764312978929.txt",
+    "attached_assets/Pasted---1764313002176_1764313002177.txt",
   ];
 
   let totalImported = 0;
