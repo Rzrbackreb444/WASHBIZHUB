@@ -181,7 +181,7 @@ export default function WhyWashBizHub() {
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
-                    <span>AI trained on 500+ equipment diagnostic codes</span>
+                    <span>AI trained on 2,100+ equipment diagnostic codes</span>
                   </li>
                 </ul>
               </div>
@@ -263,7 +263,7 @@ export default function WhyWashBizHub() {
                   {[
                     { value: "40%", label: "Downtime Reduced" },
                     { value: "$1.2M+", label: "Repairs Saved" },
-                    { value: "500+", label: "Diagnostic Codes" },
+                    { value: "2,100+", label: "Diagnostic Codes" },
                     { value: "24/7", label: "Monitoring" },
                   ].map((stat, idx) => (
                     <div key={idx} className="bg-muted/50 rounded-lg p-4 border border-border">

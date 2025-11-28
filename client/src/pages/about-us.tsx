@@ -126,7 +126,7 @@ export default function AboutUs() {
                   <CardTitle className="text-lg">IoT & Diagnostics</CardTitle>
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
-                  Real-time machine monitoring, predictive maintenance, sensor alerts, and 500+ diagnostic codes.
+                  Real-time machine monitoring, predictive maintenance, sensor alerts, and 2,100+ diagnostic codes.
                 </CardContent>
               </Card>
 
