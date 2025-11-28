@@ -103,7 +103,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Legend,
   ComposedChart,
@@ -1415,7 +1415,7 @@ export default function POSCommandCenter() {
                           <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                           <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                           <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                          <Tooltip
+                          <RechartsTooltip
                             contentStyle={{
                               backgroundColor: "hsl(var(--card))",
                               border: "1px solid hsl(var(--border))",
@@ -1452,7 +1452,7 @@ export default function POSCommandCenter() {
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                               ))}
                             </Pie>
-                            <Tooltip />
+                            <RechartsTooltip />
                           </RechartsPie>
                         </ResponsiveContainer>
                       </div>
@@ -1641,7 +1641,7 @@ export default function POSCommandCenter() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                             <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} />
                             <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
-                            <Tooltip
+                            <RechartsTooltip
                               contentStyle={{
                                 backgroundColor: "hsl(var(--card))",
                                 border: "1px solid hsl(var(--border))",
@@ -3070,7 +3070,7 @@ export default function POSCommandCenter() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                             <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                             <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
-                            <Tooltip 
+                            <RechartsTooltip 
                               contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
                               labelStyle={{ color: 'hsl(var(--foreground))' }}
                               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
@@ -3110,7 +3110,7 @@ export default function POSCommandCenter() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                             <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                             <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                            <Tooltip 
+                            <RechartsTooltip 
                               contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
                               labelStyle={{ color: 'hsl(var(--foreground))' }}
                             />
@@ -3149,7 +3149,7 @@ export default function POSCommandCenter() {
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                               ))}
                             </Pie>
-                            <Tooltip 
+                            <RechartsTooltip 
                               contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }}
                               formatter={(value: number) => [`${value}%`, 'Share']}
                             />
