@@ -1,59 +1,85 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Helmet } from "react-helmet-async";
+
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
 
 // Google Analytics 4
 export function GoogleAnalytics() {
-  const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+  const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
   
-  return (
-    <Helmet>
-      {/* Google Analytics 4 */}
-      <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
-      <script>
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}', {
-            page_path: window.location.pathname,
-            send_page_view: true
-          });
-        `}
-      </script>
-    </Helmet>
-  );
+  useEffect(() => {
+    if (!GA_MEASUREMENT_ID) {
+      console.warn('Google Analytics: VITE_GA_MEASUREMENT_ID not configured');
+      return;
+    }
+
+    // Check if already loaded
+    if (typeof window.gtag === 'function') {
+      return;
+    }
+
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      page_path: window.location.pathname,
+      send_page_view: true
+    });
+
+    // Load gtag.js script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+    document.head.appendChild(script);
+
+    console.log('Google Analytics initialized:', GA_MEASUREMENT_ID);
+  }, [GA_MEASUREMENT_ID]);
+
+  return null;
 }
 
 // Facebook Pixel
 export function FacebookPixel() {
   const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID;
   
-  // Don't render if no valid Pixel ID is configured
-  if (!FB_PIXEL_ID) {
-    return null;
-  }
-  
-  return (
-    <Helmet>
-      {/* Facebook Pixel */}
-      <script>
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${FB_PIXEL_ID}');
-          fbq('track', 'PageView');
-        `}
-      </script>
-      <noscript>{`<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1" />`}</noscript>
-    </Helmet>
-  );
+  useEffect(() => {
+    if (!FB_PIXEL_ID) {
+      return;
+    }
+
+    // Check if already loaded
+    if ((window as any).fbq) {
+      return;
+    }
+
+    // Facebook Pixel initialization script
+    const script = document.createElement('script');
+    script.innerHTML = `
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '${FB_PIXEL_ID}');
+      fbq('track', 'PageView');
+    `;
+    document.head.appendChild(script);
+
+    console.log('Facebook Pixel initialized:', FB_PIXEL_ID);
+  }, [FB_PIXEL_ID]);
+
+  return null;
 }
 
 // Track page views
