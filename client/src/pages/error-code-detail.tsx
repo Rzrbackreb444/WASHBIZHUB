@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
 import { 
   ChevronRight, 
   ArrowLeft,
@@ -26,7 +27,9 @@ import {
   ShieldAlert,
   Lightbulb,
   Cpu,
-  Calendar
+  Calendar,
+  ShoppingCart,
+  ExternalLink
 } from "lucide-react";
 
 interface PartWithPricing {
@@ -481,58 +484,119 @@ export default function ErrorCodeDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Parts with Pricing */}
+            {/* Parts with Pricing - Service Guy AI Integration */}
             {code.partsWithPricing && code.partsWithPricing.length > 0 && (
-              <Card>
+              <Card className="border-slate-700 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    Parts & Pricing
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <img 
+                        src={serviceGuyAILogo} 
+                        alt="Service Guy AI" 
+                        className="h-8 w-8 rounded-full"
+                      />
+                      <span className="text-white">Recommended Parts</span>
+                    </CardTitle>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+                      <Zap className="h-3 w-3 mr-1" />
+                      10% Affiliate Rebate
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3" data-testid="list-parts-pricing">
                     {code.partsWithPricing.map((part, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div>
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-elevate">
+                        <div className="flex-1">
                           <p className="font-medium">{part.name}</p>
                           <p className="text-sm text-muted-foreground font-mono">{part.partNumber}</p>
                           <p className="text-xs text-muted-foreground">{part.supplier}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                            ${part.price}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              ${part.price}
+                            </p>
+                          </div>
+                          <Button 
+                            size="sm"
+                            className="bg-amber-600 hover:bg-amber-700"
+                            onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + part.name)}&tag=nicholaskreme-20`, '_blank')}
+                            data-testid={`button-order-part-${index}`}
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-1" />
+                            Order
+                          </Button>
                         </div>
                       </div>
                     ))}
                   </div>
                   {totalPartsCost > 0 && (
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                      <span className="font-medium">Estimated Parts Total:</span>
-                      <span className="text-xl font-bold text-primary">${totalPartsCost}</span>
+                    <div className="mt-4 pt-4 border-t flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                      <div>
+                        <span className="font-medium">Estimated Parts Total:</span>
+                        <span className="text-xl font-bold text-primary ml-2">${totalPartsCost}</span>
+                      </div>
+                      <Button 
+                        className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+                        onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + code.machineType + ' parts')}&tag=nicholaskreme-20`, '_blank')}
+                        data-testid="button-order-all-parts"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Order All Parts on Amazon
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
                     </div>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Legacy requiredParts support */}
+            {/* Legacy requiredParts support - Service Guy AI Integration */}
             {!code.partsWithPricing && code.requiredParts && code.requiredParts.length > 0 && (
-              <Card>
+              <Card className="border-slate-700 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    Parts That May Need Replacement
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <img 
+                        src={serviceGuyAILogo} 
+                        alt="Service Guy AI" 
+                        className="h-8 w-8 rounded-full"
+                      />
+                      <span className="text-white">Parts That May Need Replacement</span>
+                    </CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-3">
                     {code.requiredParts.map((part, index) => (
-                      <Badge key={index} variant="outline">
-                        {part}
-                      </Badge>
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-elevate">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                          <span>{part}</span>
+                        </div>
+                        <Button 
+                          size="sm"
+                          className="bg-amber-600 hover:bg-amber-700"
+                          onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + part)}&tag=nicholaskreme-20`, '_blank')}
+                          data-testid={`button-order-legacy-part-${index}`}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-1" />
+                          Find on Amazon
+                        </Button>
+                      </div>
                     ))}
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <Button 
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
+                      onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + code.machineType + ' parts')}&tag=nicholaskreme-20`, '_blank')}
+                      data-testid="button-browse-all-parts"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Browse All {code.manufacturer} Parts on Amazon
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
