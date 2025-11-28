@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Sparkles, Users, Award, Plus, Loader2 } from "lucide-react";
+import { FileText, Sparkles, Plus, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
@@ -27,51 +27,6 @@ export default function Blog() {
   const generateContent = useGenerateBlogContent();
 
   const seoKeywords = ["laundromat business tips", "laundromat industry blog", "laundromat profitability", "laundromat operations guide", "coin laundry management", "self-service laundry advice"];
-
-  const samplePosts = [
-    {
-      id: "1",
-      title: "Maximizing Revenue During Peak Hours",
-      type: "ai",
-      category: "Operations",
-      excerpt: "Learn how to optimize your pricing strategy during high-demand periods...",
-      views: 1245,
-    },
-    {
-      id: "2",
-      title: "Equipment Maintenance Best Practices",
-      type: "manual",
-      category: "Maintenance",
-      excerpt: "Preventive maintenance schedules that save thousands in repairs...",
-      views: 892,
-    },
-    {
-      id: "3",
-      title: "How I Grew to 5 Locations in 3 Years",
-      type: "uge",
-      category: "Growth",
-      excerpt: "My journey from a single store to a multi-location empire...",
-      views: 2341,
-    },
-  ];
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "ai": return <Sparkles className="h-4 w-4" />;
-      case "uge": return <Award className="h-4 w-4" />;
-      case "ugb": return <Users className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
-    }
-  };
-
-  const getTypeBadgeVariant = (type: string) => {
-    switch (type) {
-      case "ai": return "default";
-      case "uge": return "default";
-      case "ugb": return "secondary";
-      default: return "outline";
-    }
-  };
 
   const handleGenerateContent = async () => {
     if (!newPost.title.trim()) {
@@ -183,13 +138,6 @@ export default function Blog() {
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <Badge 
-                            variant={getTypeBadgeVariant(post.type)}
-                            className="flex items-center gap-1"
-                          >
-                            {getTypeIcon(post.type)}
-                            {post.type.toUpperCase()}
-                          </Badge>
                           <Badge variant="outline" className="text-white/70 border-white/30">
                             {post.category}
                           </Badge>
@@ -228,50 +176,28 @@ export default function Blog() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="post-type" className="text-white/90 font-medium">Post Type</Label>
-                    <Select 
-                      value={newPost.type} 
-                      onValueChange={(value) => setNewPost({ ...newPost, type: value })}
+                <div>
+                  <Label htmlFor="category" className="text-white/90 font-medium">Category</Label>
+                  <Select 
+                    value={newPost.category} 
+                    onValueChange={(value) => setNewPost({ ...newPost, category: value })}
+                  >
+                    <SelectTrigger 
+                      id="category" 
+                      className="bg-white/20 border-white/30 text-white mt-2"
+                      data-testid="select-category"
                     >
-                      <SelectTrigger 
-                        id="post-type" 
-                        className="bg-white/20 border-white/30 text-white mt-2"
-                        data-testid="select-post-type"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manual">Manual</SelectItem>
-                        <SelectItem value="ugb">User Blog</SelectItem>
-                        <SelectItem value="uge">User Expert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="category" className="text-white/90 font-medium">Category</Label>
-                    <Select 
-                      value={newPost.category} 
-                      onValueChange={(value) => setNewPost({ ...newPost, category: value })}
-                    >
-                      <SelectTrigger 
-                        id="category" 
-                        className="bg-white/20 border-white/30 text-white mt-2"
-                        data-testid="select-category"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Operations">Operations</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                        <SelectItem value="Maintenance">Maintenance</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Growth">Growth</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Operations">Operations</SelectItem>
+                      <SelectItem value="Marketing">Marketing</SelectItem>
+                      <SelectItem value="Maintenance">Maintenance</SelectItem>
+                      <SelectItem value="Finance">Finance</SelectItem>
+                      <SelectItem value="Growth">Growth</SelectItem>
+                      <SelectItem value="Partners">Partners</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
@@ -300,26 +226,25 @@ export default function Blog() {
                 </div>
 
                 <div className="flex gap-4">
-                  {newPost.type === "ai" && (
-                    <Button 
-                      className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
-                      data-testid="button-generate-ai"
-                      onClick={handleGenerateContent}
-                      disabled={generateContent.isPending}
-                    >
-                      {generateContent.isPending ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Generate with AI
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button 
+                    variant="outline"
+                    className="flex-1 border-white/30 text-white hover:bg-white/10"
+                    data-testid="button-generate-ai"
+                    onClick={handleGenerateContent}
+                    disabled={generateContent.isPending}
+                  >
+                    {generateContent.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Generate Draft
+                      </>
+                    )}
+                  </Button>
                   <Button 
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
                     data-testid="button-publish"
