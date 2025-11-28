@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { AIChatWidget } from "@/components/AIChatWidget";
 import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -54,305 +56,953 @@ const websiteSchema = {
     "query-input": "required name=search_term_string"
   }
 };
+
+// ============================================================================
+// STATIC IMPORTS - Essential pages for SEO (kept in main bundle)
+// ============================================================================
 import Home from "@/pages/home-new";
-import WhyWashBizHub from "@/pages/why-washbizhub";
-import DesignStudio from "@/pages/design-studio";
 import CleanBI from "@/pages/cleanbi";
-import Calculator from "@/pages/calculator";
-import ROICalculator from "@/pages/roi-calculator";
-import FundingMatcher from "@/pages/funding-matcher";
-import Superstore from "@/pages/superstore";
-import SuperstoreProduct from "@/pages/superstore-product";
-import ProductComparison from "@/pages/product-comparison";
-import BuyersGuides from "@/pages/buyers-guides";
-import Courses from "@/pages/courses";
-import CourseDetail from "@/pages/course-detail";
-import CoursesHub from "@/pages/courses-hub";
-import ListingsHub from "@/pages/listings-hub";
-import VendorsHub from "@/pages/vendors-hub";
-import Advertising from "@/pages/advertising";
-import AdBuilder from "@/pages/ad-builder";
-import PartsCatalogue from "@/pages/parts-catalogue";
-import VendorDashboard from "@/pages/vendor-dashboard";
-import ListingForm from "@/pages/listing-form";
-import VendorForm from "@/pages/vendor-form";
-import ConsultantInquiry from "@/pages/consultant-inquiry";
-import ListingDetail from "@/pages/listing-detail";
-import FeaturedListings from "@/pages/featured-listings";
-import VendorSpotlight from "@/pages/vendor-spotlight";
-import AboutUs from "@/pages/about-us";
-import Funding from "@/pages/funding";
-import EquipmentFinancing from "@/pages/equipment-financing";
-import RealEstateFinancing from "@/pages/real-estate-financing";
-import GoKapital from "@/pages/gokapital";
-import WorkingCapitalFinancing from "@/pages/working-capital-financing";
-import StartupFunding from "@/pages/startup-funding";
-import AcquisitionsFunding from "@/pages/acquisitions-funding";
-import LoanCalculator from "@/pages/loan-calculator";
-import InsurancePartners from "@/pages/insurance-partners";
-import Book from "@/pages/book";
-import AIBlogging from "@/pages/ai-blogging";
-import SEOOptimizer from "@/pages/seo-optimizer";
-import Blog from "@/pages/blog";
-import Marketplace from "@/pages/marketplace";
-import Parts from "@/pages/parts";
-import PartsStore from "@/pages/parts-store";
-import Locator from "@/pages/locator";
-import DistributorLocator from "@/pages/distributor-locator";
-import Subscribe from "@/pages/subscribe";
-import Consultation from "@/pages/consultation";
-import Listings from "@/pages/listings";
-import Lesson from "@/pages/lesson";
-import FacebookGroup from "@/pages/FacebookGroup";
-import AtmServices from "@/pages/AtmServices";
-import Templates from "@/pages/templates";
-import Vault from "@/pages/vault";
-import Resources from "@/pages/resources";
-import ResourceDetail from "@/pages/resource-detail";
-import Vendors from "@/pages/vendors";
-import VendorStorefront from "@/pages/vendor-store";
-import ProductDetail from "@/pages/product-detail";
-import CalculatorsHub from "@/pages/calculators";
-import CalculatorsSuite from "@/pages/calculators-suite";
-import CalculatorBuilder from "@/pages/calculator-builder";
-import CalculatorMarketplace from "@/pages/calculator-marketplace";
-import OwnerDashboard from "@/pages/owner-dashboard";
-import BusinessBuilder from "@/pages/business-builder";
-import LaundryOrderPortal from "@/pages/laundry-order-portal";
-import LondrDemo from "@/pages/londr-demo";
-import LondrPartnership from "@/pages/londr-partnership";
-import WebsiteBuilder from "@/pages/website-builder";
-import WebsiteTemplates from "@/pages/website-templates";
-import AffiliateDashboard from "@/pages/affiliate-dashboard";
-import BrokerDashboard from "@/pages/broker-dashboard";
-import Forum from "@/pages/forum";
-import ForumCategory from "@/pages/forum-category";
-import ForumTopic from "@/pages/forum-topic";
-import ForumNewTopic from "@/pages/forum-new-topic";
-import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
-import RepairGuide from "@/pages/repair-guide";
-import SeoCommandCenter from "@/pages/seo-command-center";
-import AdminDashboard from "@/pages/admin/index";
-import AdminAds from "@/pages/admin/ads";
-import AdminBlog from "@/pages/admin/blog";
-import AdminCourses from "@/pages/admin/courses";
-import AdminResources from "@/pages/admin/resources";
-import AdminMarketplace from "@/pages/admin/marketplace";
-import AdminForum from "@/pages/admin/forum";
-import AdminUsers from "@/pages/admin/users";
-import AdminAnalytics from "@/pages/admin/analytics";
-import AdminSettings from "@/pages/admin/settings";
-import AdminIndexing from "@/pages/admin-indexing";
-import LaundromatListings from "@/pages/laundromat-listings";
-import EquipmentMarketplace from "@/pages/equipment-marketplace";
-import LearningPage from "@/pages/learning";
-import MarketplaceLanding from "@/pages/landing/marketplace-landing";
-import PosLanding from "@/pages/landing/pos-landing";
-import POSCommandCenter from "@/pages/pos-command-center";
-import CoursesLanding from "@/pages/landing/courses-landing";
-import LaundromatLocatorPage from "@/pages/laundromat-locator";
-import DesignStudioPro from "@/pages/design-studio-pro";
-import Login from "@/pages/login";
-import AdminLogin from "@/pages/admin-login";
-import AdminCommandCenter from "@/pages/admin-dashboard";
-import ValuationCalculator from "@/pages/valuation-calculator";
-import EquipmentDiagnostics from "@/pages/equipment-diagnostics";
-import TPDCalculator from "@/pages/tpd-calculator";
-import ServiceGuyAI from "@/pages/service-guy-ai";
-import ErrorCodes from "@/pages/error-codes";
-import ErrorCodeDetail from "@/pages/error-code-detail";
-import CLEANBICalculator from "@/pages/cleanbi-calculator";
-import CleanbiAuto from "@/pages/cleanbi-auto";
-import ROICalculatorAdvanced from "@/pages/roi-calculator-advanced";
-import ROICalculatorEnhanced from "@/pages/roi-calculator-enhanced";
-import AffiliateBlogsPage from "@/pages/affiliate-blogs";
-import ConsultationLanding from "@/pages/consultation-landing";
-import BookAdPreview from "@/pages/book-ad-preview";
-import PrivacyPolicy from "@/pages/privacy";
-import TermsOfService from "@/pages/terms";
-import SRAHome from "@/pages/sra/home";
-import SRAPricing from "@/pages/sra/pricing";
-import SRATracker from "@/pages/sra/tracker";
-import SRACompanion from "@/pages/sra/companion";
-import SRAGhostwriting from "@/pages/sra/ghostwriting";
-import SRAStore from "@/pages/sra/store";
-import SRACommunity from "@/pages/sra/community";
-import SRADashboard from "@/pages/sra/dashboard";
-import EquipmentMatcher from "@/pages/equipment-matcher";
-import SRAMarketplace from "@/pages/sra/marketplace";
-import SRAProductionConsole from "@/pages/sra/production-console";
-import AIContentStudio from "@/pages/ai-content-studio";
-import ListEquipment from "@/pages/list-equipment";
-import ListSupplies from "@/pages/list-supplies";
-import PlanPage from "@/pages/plan";
-import EvaluatePage from "@/pages/evaluate";
-import OperatePage from "@/pages/operate";
-import PartnerPage from "@/pages/partner";
+import Blog from "@/pages/blog";
+import CoursesHub from "@/pages/courses-hub";
+import AboutUs from "@/pages/about-us";
+import WhyWashBizHub from "@/pages/why-washbizhub";
 import NotFound from "@/pages/not-found";
+
+// ============================================================================
+// LAZY IMPORTS - Code split by feature area for optimal chunking
+// ============================================================================
+
+// Design Studio / 3D Features (heavy Three.js dependencies)
+const DesignStudio = lazy(() => import("@/pages/design-studio"));
+const DesignStudioPro = lazy(() => import("@/pages/design-studio-pro"));
+
+// POS Command Center (large dashboard)
+const POSCommandCenter = lazy(() => import("@/pages/pos-command-center"));
+const PosLanding = lazy(() => import("@/pages/landing/pos-landing"));
+
+// Admin Pages (authenticated only)
+const AdminDashboard = lazy(() => import("@/pages/admin/index"));
+const AdminAds = lazy(() => import("@/pages/admin/ads"));
+const AdminBlog = lazy(() => import("@/pages/admin/blog"));
+const AdminCourses = lazy(() => import("@/pages/admin/courses"));
+const AdminResources = lazy(() => import("@/pages/admin/resources"));
+const AdminMarketplace = lazy(() => import("@/pages/admin/marketplace"));
+const AdminForum = lazy(() => import("@/pages/admin/forum"));
+const AdminUsers = lazy(() => import("@/pages/admin/users"));
+const AdminAnalytics = lazy(() => import("@/pages/admin/analytics"));
+const AdminSettings = lazy(() => import("@/pages/admin/settings"));
+const AdminIndexing = lazy(() => import("@/pages/admin-indexing"));
+const AdminLogin = lazy(() => import("@/pages/admin-login"));
+const AdminCommandCenter = lazy(() => import("@/pages/admin-dashboard"));
+
+// AI Features
+const AIBlogging = lazy(() => import("@/pages/ai-blogging"));
+const SEOOptimizer = lazy(() => import("@/pages/seo-optimizer"));
+const AIContentStudio = lazy(() => import("@/pages/ai-content-studio"));
+const ServiceGuyAI = lazy(() => import("@/pages/service-guy-ai"));
+const SeoCommandCenter = lazy(() => import("@/pages/seo-command-center"));
+
+// Calculator Pages
+const Calculator = lazy(() => import("@/pages/calculator"));
+const ROICalculator = lazy(() => import("@/pages/roi-calculator"));
+const ROICalculatorAdvanced = lazy(() => import("@/pages/roi-calculator-advanced"));
+const ROICalculatorEnhanced = lazy(() => import("@/pages/roi-calculator-enhanced"));
+const ValuationCalculator = lazy(() => import("@/pages/valuation-calculator"));
+const TPDCalculator = lazy(() => import("@/pages/tpd-calculator"));
+const CLEANBICalculator = lazy(() => import("@/pages/cleanbi-calculator"));
+const LoanCalculator = lazy(() => import("@/pages/loan-calculator"));
+const CalculatorsHub = lazy(() => import("@/pages/calculators"));
+const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
+const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
+const CalculatorMarketplace = lazy(() => import("@/pages/calculator-marketplace"));
+
+// Forum Pages
+const Forum = lazy(() => import("@/pages/forum"));
+const ForumCategory = lazy(() => import("@/pages/forum-category"));
+const ForumTopic = lazy(() => import("@/pages/forum-topic"));
+const ForumNewTopic = lazy(() => import("@/pages/forum-new-topic"));
+
+// SRA (Stroke Recovery App) Pages
+const SRAHome = lazy(() => import("@/pages/sra/home"));
+const SRAPricing = lazy(() => import("@/pages/sra/pricing"));
+const SRATracker = lazy(() => import("@/pages/sra/tracker"));
+const SRACompanion = lazy(() => import("@/pages/sra/companion"));
+const SRAGhostwriting = lazy(() => import("@/pages/sra/ghostwriting"));
+const SRAStore = lazy(() => import("@/pages/sra/store"));
+const SRACommunity = lazy(() => import("@/pages/sra/community"));
+const SRADashboard = lazy(() => import("@/pages/sra/dashboard"));
+const SRAMarketplace = lazy(() => import("@/pages/sra/marketplace"));
+const SRAProductionConsole = lazy(() => import("@/pages/sra/production-console"));
+
+// Marketplace & Equipment
+const Marketplace = lazy(() => import("@/pages/marketplace"));
+const EquipmentMarketplace = lazy(() => import("@/pages/equipment-marketplace"));
+const EquipmentMatcher = lazy(() => import("@/pages/equipment-matcher"));
+const EquipmentDiagnostics = lazy(() => import("@/pages/equipment-diagnostics"));
+const EquipmentFinancing = lazy(() => import("@/pages/equipment-financing"));
+const ListEquipment = lazy(() => import("@/pages/list-equipment"));
+const ListSupplies = lazy(() => import("@/pages/list-supplies"));
+
+// Superstore
+const Superstore = lazy(() => import("@/pages/superstore"));
+const SuperstoreProduct = lazy(() => import("@/pages/superstore-product"));
+const ProductComparison = lazy(() => import("@/pages/product-comparison"));
+const BuyersGuides = lazy(() => import("@/pages/buyers-guides"));
+
+// Website Builder
+const WebsiteBuilder = lazy(() => import("@/pages/website-builder"));
+const WebsiteTemplates = lazy(() => import("@/pages/website-templates"));
+
+// Dashboards
+const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
+const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
+const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
+const BrokerDashboard = lazy(() => import("@/pages/broker-dashboard"));
+const VendorDashboard = lazy(() => import("@/pages/vendor-dashboard"));
+
+// Courses & Learning
+const Courses = lazy(() => import("@/pages/courses"));
+const CourseDetail = lazy(() => import("@/pages/course-detail"));
+const Lesson = lazy(() => import("@/pages/lesson"));
+const LearningPage = lazy(() => import("@/pages/learning"));
+const CoursesLanding = lazy(() => import("@/pages/landing/courses-landing"));
+
+// Funding Pages
+const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
+const Funding = lazy(() => import("@/pages/funding"));
+const RealEstateFinancing = lazy(() => import("@/pages/real-estate-financing"));
+const GoKapital = lazy(() => import("@/pages/gokapital"));
+const WorkingCapitalFinancing = lazy(() => import("@/pages/working-capital-financing"));
+const StartupFunding = lazy(() => import("@/pages/startup-funding"));
+const AcquisitionsFunding = lazy(() => import("@/pages/acquisitions-funding"));
+
+// Listings & Vendors
+const ListingsHub = lazy(() => import("@/pages/listings-hub"));
+const VendorsHub = lazy(() => import("@/pages/vendors-hub"));
+const ListingForm = lazy(() => import("@/pages/listing-form"));
+const VendorForm = lazy(() => import("@/pages/vendor-form"));
+const ListingDetail = lazy(() => import("@/pages/listing-detail"));
+const FeaturedListings = lazy(() => import("@/pages/featured-listings"));
+const VendorSpotlight = lazy(() => import("@/pages/vendor-spotlight"));
+const LaundromatListings = lazy(() => import("@/pages/laundromat-listings"));
+const Listings = lazy(() => import("@/pages/listings"));
+const Vendors = lazy(() => import("@/pages/vendors"));
+const VendorStorefront = lazy(() => import("@/pages/vendor-store"));
+const ProductDetail = lazy(() => import("@/pages/product-detail"));
+
+// Parts & Repair
+const Parts = lazy(() => import("@/pages/parts"));
+const PartsStore = lazy(() => import("@/pages/parts-store"));
+const PartsCatalogue = lazy(() => import("@/pages/parts-catalogue"));
+const RepairGuide = lazy(() => import("@/pages/repair-guide"));
+const ErrorCodes = lazy(() => import("@/pages/error-codes"));
+const ErrorCodeDetail = lazy(() => import("@/pages/error-code-detail"));
+
+// Locator Pages
+const Locator = lazy(() => import("@/pages/locator"));
+const DistributorLocator = lazy(() => import("@/pages/distributor-locator"));
+const LaundromatLocatorPage = lazy(() => import("@/pages/laundromat-locator"));
+
+// Advertising
+const Advertising = lazy(() => import("@/pages/advertising"));
+const AdBuilder = lazy(() => import("@/pages/ad-builder"));
+
+// Consultation & Partners
+const ConsultantInquiry = lazy(() => import("@/pages/consultant-inquiry"));
+const Consultation = lazy(() => import("@/pages/consultation"));
+const ConsultationLanding = lazy(() => import("@/pages/consultation-landing"));
+const InsurancePartners = lazy(() => import("@/pages/insurance-partners"));
+
+// Order & Londr
+const LaundryOrderPortal = lazy(() => import("@/pages/laundry-order-portal"));
+const LondrDemo = lazy(() => import("@/pages/londr-demo"));
+const LondrPartnership = lazy(() => import("@/pages/londr-partnership"));
+
+// CLEANBI Auto
+const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
+
+// Other Pages
+const Book = lazy(() => import("@/pages/book"));
+const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
+const Subscribe = lazy(() => import("@/pages/subscribe"));
+const FacebookGroup = lazy(() => import("@/pages/FacebookGroup"));
+const AtmServices = lazy(() => import("@/pages/AtmServices"));
+const Templates = lazy(() => import("@/pages/templates"));
+const Vault = lazy(() => import("@/pages/vault"));
+const Resources = lazy(() => import("@/pages/resources"));
+const ResourceDetail = lazy(() => import("@/pages/resource-detail"));
+const Settings = lazy(() => import("@/pages/settings"));
+const Login = lazy(() => import("@/pages/login"));
+const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
+const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
+const TermsOfService = lazy(() => import("@/pages/terms"));
+const MarketplaceLanding = lazy(() => import("@/pages/landing/marketplace-landing"));
+const PlanPage = lazy(() => import("@/pages/plan"));
+const EvaluatePage = lazy(() => import("@/pages/evaluate"));
+const OperatePage = lazy(() => import("@/pages/operate"));
+const PartnerPage = lazy(() => import("@/pages/partner"));
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show home page while loading or if not authenticated
-  // Once authenticated, show all routes
   return (
     <Switch>
+      {/* Static routes - essential for SEO */}
       <Route path="/" component={Home} />
-      <Route path="/plan" component={PlanPage} />
-      <Route path="/evaluate" component={EvaluatePage} />
-      <Route path="/operate" component={OperatePage} />
-      <Route path="/partner" component={PartnerPage} />
-      <Route path="/why-washbizhub" component={WhyWashBizHub} />
-      <Route path="/design-studio" component={DesignStudio} />
       <Route path="/cleanbi" component={CleanBI} />
       <Route path="/cleanbi-tool" component={CleanBI} />
-      <Route path="/cleanbi-auto" component={CleanbiAuto} />
-      <Route path="/calculators" component={CalculatorsHub} />
-      <Route path="/calculators-suite" component={CalculatorsSuite} />
-      <Route path="/calculators/builder" component={CalculatorBuilder} />
-      <Route path="/calculator-builder" component={CalculatorBuilder} />
-      <Route path="/calculator-marketplace" component={CalculatorMarketplace} />
-      <Route path="/tools" component={CalculatorMarketplace} />
-      <Route path="/owner-dashboard" component={OwnerDashboard} />
-      <Route path="/my-business" component={OwnerDashboard} />
-      <Route path="/business-builder" component={BusinessBuilder} />
-      <Route path="/build-my-business" component={BusinessBuilder} />
-      <Route path="/order" component={LaundryOrderPortal} />
-      <Route path="/laundry-order" component={LaundryOrderPortal} />
-      <Route path="/demo/londr" component={LondrDemo} />
-      <Route path="/londr-demo" component={LondrDemo} />
-      <Route path="/londr" component={LondrPartnership} />
-      <Route path="/partners/londr" component={LondrPartnership} />
-      <Route path="/calc/:slug" component={CalculatorsHub} />
-      <Route path="/calculator" component={Calculator} />
-      <Route path="/roi-calculator" component={ROICalculator} />
-      <Route path="/website-builder" component={WebsiteBuilder} />
-      <Route path="/website-templates" component={WebsiteTemplates} />
-      <Route path="/funding-matcher" component={FundingMatcher} />
-      <Route path="/superstore" component={Superstore} />
-      <Route path="/superstore/product/:asin" component={SuperstoreProduct} />
-      <Route path="/superstore/compare" component={ProductComparison} />
-      <Route path="/buyers-guides" component={BuyersGuides} />
-      <Route path="/courses" component={CoursesHub} />
-      <Route path="/courses/:courseId" component={CourseDetail} />
-      <Route path="/courses/:courseId/lessons/:lessonId" component={Lesson} />
-      <Route path="/book" component={Book} />
-      <Route path="/book-ad-preview" component={BookAdPreview} />
-      <Route path="/ai-blogging" component={AIBlogging} />
-      <Route path="/seo-optimizer" component={SEOOptimizer} />
-      <Route path="/seo" component={SeoCommandCenter} />
-      <Route path="/blog" component={Blog} />
-      <Route path="/marketplace" component={Marketplace} />
-      <Route path="/parts" component={Parts} />
-      <Route path="/locator" component={Locator} />
-      <Route path="/distributor-locator" component={DistributorLocator} />
-      <Route path="/subscribe" component={Subscribe} />
-      <Route path="/consultation" component={Consultation} />
-      <Route path="/listings" component={ListingsHub} />
-      <Route path="/templates" component={Templates} />
-      <Route path="/vault" component={Vault} />
-      <Route path="/resources" component={Resources} />
-      <Route path="/resources/:slug" component={ResourceDetail} />
-      <Route path="/vendors" component={VendorsHub} />
-      <Route path="/vendors/:storeSlug/products/:productSlug" component={ProductDetail} />
-      <Route path="/vendors/:storeSlug" component={VendorStorefront} />
-      <Route path="/advertising" component={Advertising} />
-      <Route path="/ad-builder" component={AdBuilder} />
-      <Route path="/parts-catalogue" component={PartsCatalogue} />
-      <Route path="/vendor-dashboard" component={VendorDashboard} />
-      <Route path="/listing-form" component={ListingForm} />
-      <Route path="/vendor-form" component={VendorForm} />
-      <Route path="/consultant-inquiry" component={ConsultantInquiry} />
-      <Route path="/listings/:listingId" component={ListingDetail} />
-      <Route path="/featured-listings" component={FeaturedListings} />
-      <Route path="/vendor-spotlight" component={VendorSpotlight} />
-      <Route path="/about-us" component={AboutUs} />
-      <Route path="/funding" component={Funding} />
-      <Route path="/equipment-financing" component={EquipmentFinancing} />
-      <Route path="/real-estate-financing" component={RealEstateFinancing} />
-      <Route path="/gokapital" component={GoKapital} />
-      <Route path="/working-capital-financing" component={WorkingCapitalFinancing} />
-      <Route path="/startup-funding" component={StartupFunding} />
-      <Route path="/acquisitions-funding" component={AcquisitionsFunding} />
-      <Route path="/loan-calculator" component={LoanCalculator} />
-      <Route path="/insurance-partners" component={InsurancePartners} />
-      <Route path="/facebook-group" component={FacebookGroup} />
-      <Route path="/atm-services" component={AtmServices} />
-      <Route path="/affiliate" component={AffiliateDashboard} />
-      <Route path="/broker" component={BrokerDashboard} />
-      <Route path="/forum" component={Forum} />
-      <Route path="/forum/new" component={ForumNewTopic} />
-      <Route path="/forum/category/:slug" component={ForumCategory} />
-      <Route path="/forum/topic/:slug" component={ForumTopic} />
-      <Route path="/settings" component={Settings} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/repair-guide" component={RepairGuide} />
-      <Route path="/service-guy-ai" component={ServiceGuyAI} />
-      <Route path="/error-codes" component={ErrorCodes} />
-      <Route path="/error-codes/:slug" component={ErrorCodeDetail} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/courses" component={CoursesHub} />
+      <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/ads" component={AdminAds} />
-      <Route path="/admin/blog" component={AdminBlog} />
-      <Route path="/admin/courses" component={AdminCourses} />
-      <Route path="/admin/resources" component={AdminResources} />
-      <Route path="/admin/marketplace" component={AdminMarketplace} />
-      <Route path="/admin/forum" component={AdminForum} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/analytics" component={AdminAnalytics} />
-      <Route path="/admin/settings" component={AdminSettings} />
-      <Route path="/admin/indexing" component={AdminIndexing} />
-      <Route path="/laundromat-listings" component={LaundromatListings} />
-      <Route path="/equipment" component={EquipmentMarketplace} />
-      <Route path="/equipment-matcher" component={EquipmentMatcher} />
-      <Route path="/list-equipment" component={ListEquipment} />
-      <Route path="/list-supplies" component={ListSupplies} />
-      <Route path="/learning" component={LearningPage} />
-      <Route path="/marketplace-landing" component={MarketplaceLanding} />
-      <Route path="/pos-landing" component={PosLanding} />
-      <Route path="/pos" component={POSCommandCenter} />
-      <Route path="/pos-system" component={POSCommandCenter} />
-      <Route path="/courses-landing" component={CoursesLanding} />
-      <Route path="/laundromat-locator" component={LaundromatLocatorPage} />
-      <Route path="/design-studio-pro" component={DesignStudioPro} />
-      <Route path="/login" component={Login} />
-      <Route path="/admin-login" component={AdminLogin} />
-      <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/dashboard" component={AdminCommandCenter} />
-      <Route path="/valuation-calculator" component={ValuationCalculator} />
-      <Route path="/equipment-diagnostics" component={EquipmentDiagnostics} />
-      <Route path="/tpd-calculator" component={TPDCalculator} />
-      <Route path="/cleanbi-calculator" component={CLEANBICalculator} />
-      <Route path="/roi-calculator-advanced" component={ROICalculatorAdvanced} />
-      <Route path="/roi-calculator-enhanced" component={ROICalculatorEnhanced} />
-      <Route path="/affiliate-blogs" component={AffiliateBlogsPage} />
-      <Route path="/consultation-landing" component={ConsultationLanding} />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
-      <Route path="/privacy" component={PrivacyPolicy} />
-      <Route path="/terms-of-service" component={TermsOfService} />
-      <Route path="/terms" component={TermsOfService} />
-      <Route path="/sra" component={SRAHome} />
-      <Route path="/sra/pricing" component={SRAPricing} />
-      <Route path="/sra/tracker" component={SRATracker} />
-      <Route path="/sra/companion" component={SRACompanion} />
-      <Route path="/sra/ghostwriting" component={SRAGhostwriting} />
-      <Route path="/sra/store" component={SRAStore} />
-      <Route path="/sra/community" component={SRACommunity} />
-      <Route path="/sra/dashboard" component={SRADashboard} />
-      <Route path="/sra/marketplace" component={SRAMarketplace} />
-      <Route path="/sra/factory" component={SRAProductionConsole} />
-      <Route path="/ai-content-studio" component={AIContentStudio} />
+      <Route path="/why-washbizhub" component={WhyWashBizHub} />
+
+      {/* Lazy-loaded routes wrapped in Suspense */}
+      <Route path="/plan">
+        <Suspense fallback={<LoadingFallback />}>
+          <PlanPage />
+        </Suspense>
+      </Route>
+      <Route path="/evaluate">
+        <Suspense fallback={<LoadingFallback />}>
+          <EvaluatePage />
+        </Suspense>
+      </Route>
+      <Route path="/operate">
+        <Suspense fallback={<LoadingFallback />}>
+          <OperatePage />
+        </Suspense>
+      </Route>
+      <Route path="/partner">
+        <Suspense fallback={<LoadingFallback />}>
+          <PartnerPage />
+        </Suspense>
+      </Route>
+
+      {/* Design Studio / 3D Features */}
+      <Route path="/design-studio">
+        <Suspense fallback={<LoadingFallback />}>
+          <DesignStudio />
+        </Suspense>
+      </Route>
+      <Route path="/design-studio-pro">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <DesignStudioPro />
+        </Suspense>
+      </Route>
+
+      {/* POS Command Center */}
+      <Route path="/pos">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <POSCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/pos-system">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <POSCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/pos-landing">
+        <Suspense fallback={<LoadingFallback />}>
+          <PosLanding />
+        </Suspense>
+      </Route>
+
+      {/* CLEANBI Auto */}
+      <Route path="/cleanbi-auto">
+        <Suspense fallback={<LoadingFallback />}>
+          <CleanbiAuto />
+        </Suspense>
+      </Route>
+
+      {/* Calculator Routes */}
+      <Route path="/calculators">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorsHub />
+        </Suspense>
+      </Route>
+      <Route path="/calculators-suite">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorsSuite />
+        </Suspense>
+      </Route>
+      <Route path="/calculators/builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorBuilder />
+        </Suspense>
+      </Route>
+      <Route path="/calculator-builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorBuilder />
+        </Suspense>
+      </Route>
+      <Route path="/calculator-marketplace">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/tools">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/calc/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <CalculatorsHub />
+        </Suspense>
+      </Route>
+      <Route path="/calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <Calculator />
+        </Suspense>
+      </Route>
+      <Route path="/roi-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <ROICalculator />
+        </Suspense>
+      </Route>
+      <Route path="/roi-calculator-advanced">
+        <Suspense fallback={<LoadingFallback />}>
+          <ROICalculatorAdvanced />
+        </Suspense>
+      </Route>
+      <Route path="/roi-calculator-enhanced">
+        <Suspense fallback={<LoadingFallback />}>
+          <ROICalculatorEnhanced />
+        </Suspense>
+      </Route>
+      <Route path="/valuation-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <ValuationCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/tpd-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <TPDCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/cleanbi-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <CLEANBICalculator />
+        </Suspense>
+      </Route>
+      <Route path="/loan-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <LoanCalculator />
+        </Suspense>
+      </Route>
+
+      {/* Dashboards */}
+      <Route path="/owner-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <OwnerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/my-business">
+        <Suspense fallback={<LoadingFallback />}>
+          <OwnerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/business-builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <BusinessBuilder />
+        </Suspense>
+      </Route>
+      <Route path="/build-my-business">
+        <Suspense fallback={<LoadingFallback />}>
+          <BusinessBuilder />
+        </Suspense>
+      </Route>
+      <Route path="/affiliate">
+        <Suspense fallback={<LoadingFallback />}>
+          <AffiliateDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/broker">
+        <Suspense fallback={<LoadingFallback />}>
+          <BrokerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/vendor-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorDashboard />
+        </Suspense>
+      </Route>
+
+      {/* Order & Londr */}
+      <Route path="/order">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundryOrderPortal />
+        </Suspense>
+      </Route>
+      <Route path="/laundry-order">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundryOrderPortal />
+        </Suspense>
+      </Route>
+      <Route path="/demo/londr">
+        <Suspense fallback={<LoadingFallback />}>
+          <LondrDemo />
+        </Suspense>
+      </Route>
+      <Route path="/londr-demo">
+        <Suspense fallback={<LoadingFallback />}>
+          <LondrDemo />
+        </Suspense>
+      </Route>
+      <Route path="/londr">
+        <Suspense fallback={<LoadingFallback />}>
+          <LondrPartnership />
+        </Suspense>
+      </Route>
+      <Route path="/partners/londr">
+        <Suspense fallback={<LoadingFallback />}>
+          <LondrPartnership />
+        </Suspense>
+      </Route>
+
+      {/* Website Builder */}
+      <Route path="/website-builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <WebsiteBuilder />
+        </Suspense>
+      </Route>
+      <Route path="/website-templates">
+        <Suspense fallback={<LoadingFallback />}>
+          <WebsiteTemplates />
+        </Suspense>
+      </Route>
+
+      {/* Funding */}
+      <Route path="/funding-matcher">
+        <Suspense fallback={<LoadingFallback />}>
+          <FundingMatcher />
+        </Suspense>
+      </Route>
+      <Route path="/funding">
+        <Suspense fallback={<LoadingFallback />}>
+          <Funding />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-financing">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentFinancing />
+        </Suspense>
+      </Route>
+      <Route path="/real-estate-financing">
+        <Suspense fallback={<LoadingFallback />}>
+          <RealEstateFinancing />
+        </Suspense>
+      </Route>
+      <Route path="/gokapital">
+        <Suspense fallback={<LoadingFallback />}>
+          <GoKapital />
+        </Suspense>
+      </Route>
+      <Route path="/working-capital-financing">
+        <Suspense fallback={<LoadingFallback />}>
+          <WorkingCapitalFinancing />
+        </Suspense>
+      </Route>
+      <Route path="/startup-funding">
+        <Suspense fallback={<LoadingFallback />}>
+          <StartupFunding />
+        </Suspense>
+      </Route>
+      <Route path="/acquisitions-funding">
+        <Suspense fallback={<LoadingFallback />}>
+          <AcquisitionsFunding />
+        </Suspense>
+      </Route>
+      <Route path="/insurance-partners">
+        <Suspense fallback={<LoadingFallback />}>
+          <InsurancePartners />
+        </Suspense>
+      </Route>
+
+      {/* Superstore */}
+      <Route path="/superstore">
+        <Suspense fallback={<LoadingFallback />}>
+          <Superstore />
+        </Suspense>
+      </Route>
+      <Route path="/superstore/product/:asin">
+        <Suspense fallback={<LoadingFallback />}>
+          <SuperstoreProduct />
+        </Suspense>
+      </Route>
+      <Route path="/superstore/compare">
+        <Suspense fallback={<LoadingFallback />}>
+          <ProductComparison />
+        </Suspense>
+      </Route>
+      <Route path="/buyers-guides">
+        <Suspense fallback={<LoadingFallback />}>
+          <BuyersGuides />
+        </Suspense>
+      </Route>
+
+      {/* Courses & Learning */}
+      <Route path="/courses/:courseId">
+        <Suspense fallback={<LoadingFallback />}>
+          <CourseDetail />
+        </Suspense>
+      </Route>
+      <Route path="/courses/:courseId/lessons/:lessonId">
+        <Suspense fallback={<LoadingFallback />}>
+          <Lesson />
+        </Suspense>
+      </Route>
+      <Route path="/learning">
+        <Suspense fallback={<LoadingFallback />}>
+          <LearningPage />
+        </Suspense>
+      </Route>
+      <Route path="/courses-landing">
+        <Suspense fallback={<LoadingFallback />}>
+          <CoursesLanding />
+        </Suspense>
+      </Route>
+
+      {/* Book & Content */}
+      <Route path="/book">
+        <Suspense fallback={<LoadingFallback />}>
+          <Book />
+        </Suspense>
+      </Route>
+      <Route path="/book-ad-preview">
+        <Suspense fallback={<LoadingFallback />}>
+          <BookAdPreview />
+        </Suspense>
+      </Route>
+
+      {/* AI Features */}
+      <Route path="/ai-blogging">
+        <Suspense fallback={<LoadingFallback />}>
+          <AIBlogging />
+        </Suspense>
+      </Route>
+      <Route path="/seo-optimizer">
+        <Suspense fallback={<LoadingFallback />}>
+          <SEOOptimizer />
+        </Suspense>
+      </Route>
+      <Route path="/seo">
+        <Suspense fallback={<LoadingFallback />}>
+          <SeoCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/ai-content-studio">
+        <Suspense fallback={<LoadingFallback />}>
+          <AIContentStudio />
+        </Suspense>
+      </Route>
+      <Route path="/service-guy-ai">
+        <Suspense fallback={<LoadingFallback />}>
+          <ServiceGuyAI />
+        </Suspense>
+      </Route>
+
+      {/* Marketplace & Equipment */}
+      <Route path="/marketplace">
+        <Suspense fallback={<LoadingFallback />}>
+          <Marketplace />
+        </Suspense>
+      </Route>
+      <Route path="/marketplace-landing">
+        <Suspense fallback={<LoadingFallback />}>
+          <MarketplaceLanding />
+        </Suspense>
+      </Route>
+      <Route path="/equipment">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-matcher">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentMatcher />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-diagnostics">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentDiagnostics />
+        </Suspense>
+      </Route>
+      <Route path="/list-equipment">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListEquipment />
+        </Suspense>
+      </Route>
+      <Route path="/list-supplies">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListSupplies />
+        </Suspense>
+      </Route>
+
+      {/* Parts & Repair */}
+      <Route path="/parts">
+        <Suspense fallback={<LoadingFallback />}>
+          <Parts />
+        </Suspense>
+      </Route>
+      <Route path="/parts-catalogue">
+        <Suspense fallback={<LoadingFallback />}>
+          <PartsCatalogue />
+        </Suspense>
+      </Route>
+      <Route path="/repair-guide">
+        <Suspense fallback={<LoadingFallback />}>
+          <RepairGuide />
+        </Suspense>
+      </Route>
+      <Route path="/error-codes">
+        <Suspense fallback={<LoadingFallback />}>
+          <ErrorCodes />
+        </Suspense>
+      </Route>
+      <Route path="/error-codes/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <ErrorCodeDetail />
+        </Suspense>
+      </Route>
+
+      {/* Locator */}
+      <Route path="/locator">
+        <Suspense fallback={<LoadingFallback />}>
+          <Locator />
+        </Suspense>
+      </Route>
+      <Route path="/distributor-locator">
+        <Suspense fallback={<LoadingFallback />}>
+          <DistributorLocator />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-locator">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatLocatorPage />
+        </Suspense>
+      </Route>
+
+      {/* Subscription & Newsletter */}
+      <Route path="/subscribe">
+        <Suspense fallback={<LoadingFallback />}>
+          <Subscribe />
+        </Suspense>
+      </Route>
+
+      {/* Consultation */}
+      <Route path="/consultation">
+        <Suspense fallback={<LoadingFallback />}>
+          <Consultation />
+        </Suspense>
+      </Route>
+      <Route path="/consultation-landing">
+        <Suspense fallback={<LoadingFallback />}>
+          <ConsultationLanding />
+        </Suspense>
+      </Route>
+      <Route path="/consultant-inquiry">
+        <Suspense fallback={<LoadingFallback />}>
+          <ConsultantInquiry />
+        </Suspense>
+      </Route>
+
+      {/* Listings & Vendors */}
+      <Route path="/listings">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListingsHub />
+        </Suspense>
+      </Route>
+      <Route path="/listings/:listingId">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListingDetail />
+        </Suspense>
+      </Route>
+      <Route path="/listing-form">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListingForm />
+        </Suspense>
+      </Route>
+      <Route path="/featured-listings">
+        <Suspense fallback={<LoadingFallback />}>
+          <FeaturedListings />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-listings">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatListings />
+        </Suspense>
+      </Route>
+      <Route path="/vendors">
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorsHub />
+        </Suspense>
+      </Route>
+      <Route path="/vendors/:storeSlug/products/:productSlug">
+        <Suspense fallback={<LoadingFallback />}>
+          <ProductDetail />
+        </Suspense>
+      </Route>
+      <Route path="/vendors/:storeSlug">
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorStorefront />
+        </Suspense>
+      </Route>
+      <Route path="/vendor-form">
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorForm />
+        </Suspense>
+      </Route>
+      <Route path="/vendor-spotlight">
+        <Suspense fallback={<LoadingFallback />}>
+          <VendorSpotlight />
+        </Suspense>
+      </Route>
+
+      {/* Advertising */}
+      <Route path="/advertising">
+        <Suspense fallback={<LoadingFallback />}>
+          <Advertising />
+        </Suspense>
+      </Route>
+      <Route path="/ad-builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <AdBuilder />
+        </Suspense>
+      </Route>
+
+      {/* Resources & Templates */}
+      <Route path="/templates">
+        <Suspense fallback={<LoadingFallback />}>
+          <Templates />
+        </Suspense>
+      </Route>
+      <Route path="/vault">
+        <Suspense fallback={<LoadingFallback />}>
+          <Vault />
+        </Suspense>
+      </Route>
+      <Route path="/resources">
+        <Suspense fallback={<LoadingFallback />}>
+          <Resources />
+        </Suspense>
+      </Route>
+      <Route path="/resources/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <ResourceDetail />
+        </Suspense>
+      </Route>
+
+      {/* Social */}
+      <Route path="/facebook-group">
+        <Suspense fallback={<LoadingFallback />}>
+          <FacebookGroup />
+        </Suspense>
+      </Route>
+      <Route path="/atm-services">
+        <Suspense fallback={<LoadingFallback />}>
+          <AtmServices />
+        </Suspense>
+      </Route>
+      <Route path="/affiliate-blogs">
+        <Suspense fallback={<LoadingFallback />}>
+          <AffiliateBlogsPage />
+        </Suspense>
+      </Route>
+
+      {/* Forum */}
+      <Route path="/forum">
+        <Suspense fallback={<LoadingFallback />}>
+          <Forum />
+        </Suspense>
+      </Route>
+      <Route path="/forum/new">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForumNewTopic />
+        </Suspense>
+      </Route>
+      <Route path="/forum/category/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForumCategory />
+        </Suspense>
+      </Route>
+      <Route path="/forum/topic/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForumTopic />
+        </Suspense>
+      </Route>
+
+      {/* Settings & Auth */}
+      <Route path="/settings">
+        <Suspense fallback={<LoadingFallback />}>
+          <Settings />
+        </Suspense>
+      </Route>
+      <Route path="/login">
+        <Suspense fallback={<LoadingFallback />}>
+          <Login />
+        </Suspense>
+      </Route>
+
+      {/* Legal */}
+      <Route path="/privacy-policy">
+        <Suspense fallback={<LoadingFallback />}>
+          <PrivacyPolicy />
+        </Suspense>
+      </Route>
+      <Route path="/privacy">
+        <Suspense fallback={<LoadingFallback />}>
+          <PrivacyPolicy />
+        </Suspense>
+      </Route>
+      <Route path="/terms-of-service">
+        <Suspense fallback={<LoadingFallback />}>
+          <TermsOfService />
+        </Suspense>
+      </Route>
+      <Route path="/terms">
+        <Suspense fallback={<LoadingFallback />}>
+          <TermsOfService />
+        </Suspense>
+      </Route>
+
+      {/* Admin Routes */}
+      <Route path="/admin">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/admin/ads">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminAds />
+        </Suspense>
+      </Route>
+      <Route path="/admin/blog">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminBlog />
+        </Suspense>
+      </Route>
+      <Route path="/admin/courses">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminCourses />
+        </Suspense>
+      </Route>
+      <Route path="/admin/resources">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminResources />
+        </Suspense>
+      </Route>
+      <Route path="/admin/marketplace">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/admin/forum">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminForum />
+        </Suspense>
+      </Route>
+      <Route path="/admin/users">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminUsers />
+        </Suspense>
+      </Route>
+      <Route path="/admin/analytics">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminAnalytics />
+        </Suspense>
+      </Route>
+      <Route path="/admin/settings">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminSettings />
+        </Suspense>
+      </Route>
+      <Route path="/admin/indexing">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminIndexing />
+        </Suspense>
+      </Route>
+      <Route path="/admin-login">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminLogin />
+        </Suspense>
+      </Route>
+      <Route path="/admin/login">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminLogin />
+        </Suspense>
+      </Route>
+      <Route path="/admin/dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminCommandCenter />
+        </Suspense>
+      </Route>
+
+      {/* SRA (Stroke Recovery App) Routes */}
+      <Route path="/sra">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRAHome />
+        </Suspense>
+      </Route>
+      <Route path="/sra/pricing">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRAPricing />
+        </Suspense>
+      </Route>
+      <Route path="/sra/tracker">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRATracker />
+        </Suspense>
+      </Route>
+      <Route path="/sra/companion">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRACompanion />
+        </Suspense>
+      </Route>
+      <Route path="/sra/ghostwriting">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRAGhostwriting />
+        </Suspense>
+      </Route>
+      <Route path="/sra/store">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRAStore />
+        </Suspense>
+      </Route>
+      <Route path="/sra/community">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRACommunity />
+        </Suspense>
+      </Route>
+      <Route path="/sra/dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRADashboard />
+        </Suspense>
+      </Route>
+      <Route path="/sra/marketplace">
+        <Suspense fallback={<LoadingFallback />}>
+          <SRAMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/sra/factory">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <SRAProductionConsole />
+        </Suspense>
+      </Route>
+
+      {/* 404 Not Found */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function AppContent() {
-  usePageTracking(); // Track page views on route changes
+  usePageTracking();
   const [location] = useLocation();
   
-  // Full-screen apps that need their own layout (no global nav/footer)
   const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
   
