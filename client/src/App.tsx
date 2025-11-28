@@ -84,6 +84,7 @@ import AboutUs from "@/pages/about-us";
 import Funding from "@/pages/funding";
 import EquipmentFinancing from "@/pages/equipment-financing";
 import RealEstateFinancing from "@/pages/real-estate-financing";
+import GoKapital from "@/pages/gokapital";
 import WorkingCapitalFinancing from "@/pages/working-capital-financing";
 import StartupFunding from "@/pages/startup-funding";
 import AcquisitionsFunding from "@/pages/acquisitions-funding";
@@ -270,6 +271,7 @@ function Router() {
       <Route path="/funding" component={Funding} />
       <Route path="/equipment-financing" component={EquipmentFinancing} />
       <Route path="/real-estate-financing" component={RealEstateFinancing} />
+      <Route path="/gokapital" component={GoKapital} />
       <Route path="/working-capital-financing" component={WorkingCapitalFinancing} />
       <Route path="/startup-funding" component={StartupFunding} />
       <Route path="/acquisitions-funding" component={AcquisitionsFunding} />
