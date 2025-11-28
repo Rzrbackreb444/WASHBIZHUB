@@ -4014,6 +4014,166 @@ Disallow: /private/`;
     }
   });
 
+  // POST /api/gokapital-inquiry - GoKapital Real Estate Financing Form
+  app.post("/api/gokapital-inquiry", async (req, res) => {
+    try {
+      const {
+        propertyAddress,
+        propertyType,
+        transactionType,
+        purchasePrice,
+        downPayment,
+        estimatedValue,
+        amountOwed,
+        closingEntity,
+        liquidAssets,
+        propertiesOwned,
+        creditScore,
+        generatingIncome,
+        rateTermExpectations,
+        contactName,
+        contactEmail,
+        contactPhone,
+      } = req.body;
+      
+      if (!propertyAddress || !contactEmail || !contactName) {
+        return res.status(400).json({ error: "Property address, contact name, and email are required" });
+      }
+
+      // Build email content
+      const emailHtml = `
+        <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #001F3F, #003366); padding: 24px; text-align: center;">
+            <h1 style="color: #39CCCC; margin: 0; font-size: 24px;">GoKapital Real Estate Financing Inquiry</h1>
+            <p style="color: #fff; margin: 8px 0 0;">Referred by: Nicholas Kremers (WashBizHub)</p>
+          </div>
+          
+          <div style="padding: 24px; background: #f9fafb;">
+            <h2 style="color: #001F3F; font-size: 18px; margin: 0 0 16px;">Contact Information</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr><td style="padding: 8px 0; color: #666;">Name:</td><td style="padding: 8px 0; font-weight: bold;">${contactName}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666;">Email:</td><td style="padding: 8px 0; font-weight: bold;">${contactEmail}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666;">Phone:</td><td style="padding: 8px 0; font-weight: bold;">${contactPhone || 'Not provided'}</td></tr>
+            </table>
+          </div>
+          
+          <div style="padding: 24px; background: #fff;">
+            <h2 style="color: #001F3F; font-size: 18px; margin: 0 0 16px;">Property Details</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">1. Property Address:</td><td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #eee;">${propertyAddress}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">2. Property Type:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${propertyType || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">3. Transaction Type:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${transactionType || 'Not specified'}</td></tr>
+              ${transactionType === 'purchase' ? `
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">Purchase Price:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${purchasePrice || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">Down Payment:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${downPayment || 'Not specified'}</td></tr>
+              ` : ''}
+              ${transactionType === 'refinance' || transactionType === 'cash-out' ? `
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">Estimated Value:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${estimatedValue || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">Amount Owed:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${amountOwed || 'Not specified'}</td></tr>
+              ` : ''}
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">5. Closing Entity:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${closingEntity || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">6. Liquid Assets:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${liquidAssets || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">7. Properties Owned (36 mo):</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${propertiesOwned || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">8. Credit Score:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${creditScore || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666; border-bottom: 1px solid #eee;">9. Income Status:</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${generatingIncome || 'Not specified'}</td></tr>
+            </table>
+            
+            ${rateTermExpectations ? `
+            <div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-left: 4px solid #39CCCC;">
+              <strong style="color: #001F3F;">10. Rate & Term Expectations:</strong>
+              <p style="margin: 8px 0 0; color: #333;">${rateTermExpectations}</p>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div style="padding: 16px 24px; background: #001F3F; color: #fff; text-align: center; font-size: 12px;">
+            <p style="margin: 0;">Referral ID: Nicholas Kremers | WashBizHub Partner Program</p>
+            <p style="margin: 8px 0 0; color: #39CCCC;">Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}</p>
+          </div>
+        </div>
+      `;
+
+      const emailText = `
+GoKapital Real Estate Financing Inquiry
+Referred by: Nicholas Kremers (WashBizHub)
+========================================
+
+CONTACT INFORMATION
+Name: ${contactName}
+Email: ${contactEmail}
+Phone: ${contactPhone || 'Not provided'}
+
+PROPERTY DETAILS
+1. Property Address: ${propertyAddress}
+2. Property Type: ${propertyType || 'Not specified'}
+3. Transaction Type: ${transactionType || 'Not specified'}
+${transactionType === 'purchase' ? `Purchase Price: ${purchasePrice || 'Not specified'}
+Down Payment: ${downPayment || 'Not specified'}` : ''}
+${transactionType === 'refinance' || transactionType === 'cash-out' ? `Estimated Value: ${estimatedValue || 'Not specified'}
+Amount Owed: ${amountOwed || 'Not specified'}` : ''}
+5. Closing Entity: ${closingEntity || 'Not specified'}
+6. Liquid Assets: ${liquidAssets || 'Not specified'}
+7. Properties Owned (36 mo): ${propertiesOwned || 'Not specified'}
+8. Credit Score: ${creditScore || 'Not specified'}
+9. Income Status: ${generatingIncome || 'Not specified'}
+10. Rate & Term Expectations: ${rateTermExpectations || 'Not specified'}
+
+Referral ID: Nicholas Kremers
+Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
+      `.trim();
+
+      // Send to BOTH email addresses
+      const recipients = ['consult@washbizhub.com', 'deals@gokapital.com'];
+      const apiKey = process.env.RESEND_API_KEY;
+      
+      if (!apiKey) {
+        console.error('Resend API key not configured');
+        return res.status(500).json({ error: "Email service not configured" });
+      }
+
+      const sendResults = await Promise.allSettled(
+        recipients.map(async (recipient) => {
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'WashBizHub <noreply@washbizhub.com>',
+              to: recipient,
+              subject: `GoKapital Financing Inquiry: ${propertyAddress} - ${contactName}`,
+              text: emailText,
+              html: emailHtml,
+            }),
+          });
+          
+          if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Failed to send to ${recipient}: ${error}`);
+          }
+          
+          console.log(`✅ GoKapital inquiry sent to ${recipient}`);
+          return recipient;
+        })
+      );
+
+      const successful = sendResults.filter(r => r.status === 'fulfilled').length;
+      const failed = sendResults.filter(r => r.status === 'rejected');
+      
+      if (failed.length > 0) {
+        console.error('Some emails failed:', failed);
+      }
+
+      console.log(`🏢 GoKapital Inquiry: ${contactName} | ${contactEmail} | ${propertyAddress} | Sent to ${successful}/${recipients.length} recipients`);
+      
+      res.json({ success: true, message: "Application submitted successfully" });
+    } catch (error: any) {
+      console.error('GoKapital inquiry error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
 
   // ==================== EMAIL ALERTS (SUPERSTORE) ====================
