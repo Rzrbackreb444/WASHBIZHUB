@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ import {
   DollarSign,
   Clock,
   CheckCircle2,
+  CheckCircle,
   AlertCircle,
   TrendingUp,
   TrendingDown,
@@ -109,6 +111,13 @@ import {
   FileSpreadsheet,
   UserSquare,
   CalendarDays,
+  Rocket,
+  Heart,
+  Cpu,
+  Building2,
+  Brain,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import {
   Collapsible,
@@ -362,6 +371,27 @@ export default function POSCommandCenter() {
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [machineSearchQuery, setMachineSearchQuery] = useState("");
+  
+  // Repair Logs & Maintenance State
+  const [repairLogsTab, setRepairLogsTab] = useState<"all" | "open" | "in_progress" | "completed">("all");
+  const [newRepairLogOpen, setNewRepairLogOpen] = useState(false);
+  const [newRepairLogForm, setNewRepairLogForm] = useState({
+    machineId: "",
+    title: "",
+    description: "",
+    priority: "medium" as "low" | "medium" | "high" | "urgent",
+    problemType: "mechanical" as "mechanical" | "electrical" | "software" | "plumbing" | "other",
+    symptoms: "",
+  });
+  
+  // Service Guy AI State
+  const [serviceGuyOpen, setServiceGuyOpen] = useState(false);
+  const [serviceGuyMessage, setServiceGuyMessage] = useState("");
+  const [serviceGuyMachineType, setServiceGuyMachineType] = useState("");
+  const [serviceGuyManufacturer, setServiceGuyManufacturer] = useState("");
+  const [serviceGuyModel, setServiceGuyModel] = useState("");
+  const [serviceGuySymptoms, setServiceGuySymptoms] = useState<string[]>([]);
+  const [serviceGuyHistory, setServiceGuyHistory] = useState<Array<{role: "user" | "assistant", content: string}>>([]);
   const [routeSearchQuery, setRouteSearchQuery] = useState("");
   const [inventorySearchQuery, setInventorySearchQuery] = useState("");
   const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState<string>("all");
@@ -578,6 +608,22 @@ export default function POSCommandCenter() {
     end: new Date().toISOString().split('T')[0],
   });
 
+  // Real-time updates (SSE) state
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const [lastLiveUpdate, setLastLiveUpdate] = useState<Date | null>(null);
+  
+  // Upgrade prompts state
+  const [upgradeBannerDismissed, setUpgradeBannerDismissed] = useState(() => {
+    const dismissed = localStorage.getItem("upgrade-banner-dismissed");
+    if (dismissed) {
+      const dismissedDate = new Date(dismissed);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      return dismissedDate > sevenDaysAgo;
+    }
+    return false;
+  });
+  const [planComparisonOpen, setPlanComparisonOpen] = useState(false);
+
   // Load settings from localStorage on mount
   useEffect(() => {
     const savedSettings = localStorage.getItem("pos-settings");
@@ -590,6 +636,88 @@ export default function POSCommandCenter() {
       }
     }
   }, []);
+
+  // SSE Real-time Updates Hook
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+
+    const connectSSE = () => {
+      try {
+        eventSource = new EventSource("/api/pos/live-updates");
+        
+        eventSource.onopen = () => {
+          setIsLiveConnected(true);
+          setLastLiveUpdate(new Date());
+        };
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            setLastLiveUpdate(new Date());
+            
+            switch (data.type) {
+              case "kpi_update":
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/dashboard/stats"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/analytics/kpis"] });
+                break;
+                
+              case "new_order":
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/orders"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/dashboard/stats"] });
+                toast({
+                  title: "New Order Received",
+                  description: `${data.data?.customerName || "Customer"} - $${data.data?.total || "0.00"}`,
+                });
+                break;
+                
+              case "order_status_change":
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/orders"] });
+                toast({
+                  title: "Order Status Updated",
+                  description: `${data.data?.customerName || "Order"} is now ${data.data?.newStatus || "updated"}`,
+                });
+                break;
+                
+              case "machine_alert":
+                queryClient.invalidateQueries({ queryKey: ["/api/pos/machines"] });
+                const severity = data.data?.severity || "info";
+                toast({
+                  title: `Machine Alert: ${data.data?.machineName || "Equipment"}`,
+                  description: data.data?.alertType?.replace(/_/g, " ") || "Attention needed",
+                  variant: severity === "critical" ? "destructive" : "default",
+                });
+                break;
+            }
+          } catch (e) {
+            console.error("Failed to parse SSE message:", e);
+          }
+        };
+
+        eventSource.onerror = () => {
+          setIsLiveConnected(false);
+          eventSource?.close();
+          reconnectTimeout = setTimeout(connectSSE, 5000);
+        };
+      } catch (e) {
+        console.error("Failed to establish SSE connection:", e);
+        setIsLiveConnected(false);
+      }
+    };
+
+    connectSSE();
+
+    return () => {
+      eventSource?.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    };
+  }, [toast]);
+
+  // Dismiss upgrade banner handler
+  const dismissUpgradeBanner = () => {
+    localStorage.setItem("upgrade-banner-dismissed", new Date().toISOString());
+    setUpgradeBannerDismissed(true);
+  };
 
   // Save settings to localStorage
   const saveSettings = () => {
@@ -857,6 +985,99 @@ export default function POSCommandCenter() {
     },
   });
   
+  // Create repair ticket mutation
+  const createRepairTicketMutation = useMutation({
+    mutationFn: async (ticketData: typeof newRepairLogForm) => {
+      const response = await apiRequest("/api/pos/repair-tickets", {
+        method: "POST",
+        body: JSON.stringify({
+          machineId: ticketData.machineId,
+          laundromatId: "default-laundromat",
+          title: ticketData.title,
+          description: ticketData.description,
+          priority: ticketData.priority,
+          problemType: ticketData.problemType,
+          symptoms: ticketData.symptoms.split(",").map(s => s.trim()).filter(s => s),
+        }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/repair-tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/machines"] });
+      toast({
+        title: "Repair Log Created",
+        description: "New repair ticket has been created successfully",
+      });
+      setNewRepairLogOpen(false);
+      setNewRepairLogForm({
+        machineId: "",
+        title: "",
+        description: "",
+        priority: "medium",
+        problemType: "mechanical",
+        symptoms: "",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create repair ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update repair ticket status mutation
+  const updateRepairTicketMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+      const response = await apiRequest(`/api/pos/repair-tickets/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/repair-tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/machines"] });
+      toast({
+        title: "Ticket Updated",
+        description: "Repair ticket has been updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update repair ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Service Guy AI mutation
+  const serviceGuyAIMutation = useMutation({
+    mutationFn: async (data: { message: string; machineType?: string; machineManufacturer?: string; machineModel?: string; symptoms?: string[]; previousMessages?: Array<{role: string; content: string}> }) => {
+      const response = await apiRequest("/api/pos/service-guy-ai", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      setServiceGuyHistory(prev => [
+        ...prev,
+        { role: "assistant", content: data.response }
+      ]);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "AI Error",
+        description: error.message || "Failed to get AI response. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+  
   // Create route mutation
   const createRouteMutation = useMutation({
     mutationFn: async (routeData: typeof newRouteForm) => {
@@ -1118,6 +1339,24 @@ export default function POSCommandCenter() {
     queryKey: ["/api/pos/machines"],
   });
 
+  // Fetch repair tickets for Machines section
+  const { data: repairTicketsData, isLoading: repairTicketsLoading } = useQuery({
+    queryKey: ["/api/pos/repair-tickets"],
+    enabled: activeSection === "machines",
+  });
+
+  // Fetch maintenance schedule for Machines section
+  const { data: maintenanceScheduleData, isLoading: maintenanceScheduleLoading } = useQuery({
+    queryKey: ["/api/pos/maintenance-schedule"],
+    enabled: activeSection === "machines",
+  });
+
+  // Fetch predictive maintenance data for Machines section
+  const { data: predictiveMaintenanceData, isLoading: predictiveMaintenanceLoading } = useQuery({
+    queryKey: ["/api/pos/predictive-maintenance"],
+    enabled: activeSection === "machines",
+  });
+
   // Fetch customers from real API
   const { data: customersData, isLoading: customersLoading } = useQuery({
     queryKey: ["/api/pos/customers"],
@@ -1131,6 +1370,59 @@ export default function POSCommandCenter() {
   // Fetch inventory from real API
   const { data: inventoryData, isLoading: inventoryLoading } = useQuery({
     queryKey: ["/api/pos/inventory"],
+  });
+
+  // Fetch upgrade prompts
+  const { data: upgradePromptsData } = useQuery<{
+    currentPlan: string;
+    prompts: Array<{
+      id: string;
+      title: string;
+      message: string;
+      benefit: string;
+      targetPlan: "pro" | "enterprise";
+      priority: number;
+      icon: string;
+      ctaText: string;
+    }>;
+    usageStats: {
+      monthlyOrders: number;
+      monthlyRevenue: number;
+      totalMachines: number;
+      totalRoutes: number;
+      maintenanceRate: number;
+    };
+  }>({
+    queryKey: ["/api/pos/upgrade-prompts"],
+    enabled: activeSection === "dashboard",
+  });
+
+  // Fetch feature recommendations
+  const { data: featureRecsData } = useQuery<{
+    recommendations: Array<{
+      id: string;
+      name: string;
+      description: string;
+      icon: string;
+      plan: string;
+      benefits: string[];
+      roi: {
+        monthlySavings: number;
+        yearlyReturn: number;
+        paybackMonths: number;
+      };
+      metrics: {
+        current: string;
+        potential: string;
+      };
+    }>;
+    totalPotentialSavings: {
+      monthly: number;
+      yearly: number;
+    };
+  }>({
+    queryKey: ["/api/pos/feature-recommendations"],
+    enabled: activeSection === "dashboard",
   });
 
   // Fetch chart data from real API
@@ -1859,10 +2151,18 @@ export default function POSCommandCenter() {
                     )}
                   </div>
                   <h1 className="text-base font-bold text-foreground">POS</h1>
-                  <Badge className="bg-[#b8860b] text-white border-0 text-[10px] px-1.5 py-0.5">
-                    <Activity className="w-2.5 h-2.5 mr-0.5" />
-                    LIVE
-                  </Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge className={`${isLiveConnected ? 'bg-emerald-500' : 'bg-amber-500'} text-white border-0 text-[10px] px-1.5 py-0.5 animate-pulse`}>
+                        {isLiveConnected ? <Wifi className="w-2.5 h-2.5 mr-0.5" /> : <WifiOff className="w-2.5 h-2.5 mr-0.5" />}
+                        LIVE
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-card border">
+                      {isLiveConnected ? "Real-time updates active" : "Reconnecting..."}
+                      {lastLiveUpdate && <span className="text-muted-foreground ml-1">({lastLiveUpdate.toLocaleTimeString()})</span>}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order-mobile">
@@ -1903,10 +2203,22 @@ export default function POSCommandCenter() {
             <div className="hidden lg:flex h-14 items-center justify-between px-4">
               <div className="flex items-center gap-4">
                 <h1 className="text-lg font-bold text-foreground">POS Command Center</h1>
-                <Badge className="bg-[#b8860b] text-white border-0">
-                  <Activity className="w-3 h-3 mr-1" />
-                  LIVE
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge className={`${isLiveConnected ? 'bg-emerald-500' : 'bg-amber-500'} text-white border-0 animate-pulse cursor-help`} data-testid="live-indicator">
+                      {isLiveConnected ? <Wifi className="w-3 h-3 mr-1" /> : <WifiOff className="w-3 h-3 mr-1" />}
+                      LIVE
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-card border">
+                    <div className="text-sm">
+                      <p className="font-medium">{isLiveConnected ? "Real-time updates active" : "Reconnecting..."}</p>
+                      {lastLiveUpdate && (
+                        <p className="text-muted-foreground text-xs">Last update: {lastLiveUpdate.toLocaleTimeString()}</p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               
               {/* Desktop Global Search Bar */}
@@ -1973,22 +2285,83 @@ export default function POSCommandCenter() {
           <main className="flex-1 overflow-auto p-3 lg:p-4 pb-24 lg:pb-4 bg-background">
             {activeSection === "dashboard" && (
               <div className="space-y-4 lg:space-y-6">
+                {/* Upgrade Prompt Banner */}
+                {!upgradeBannerDismissed && upgradePromptsData?.prompts?.[0] && (
+                  <div 
+                    className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#1e3a5f] via-[#1e4a6f] to-[#0d7377] p-4 shadow-lg border border-[#b8860b]/30"
+                    data-testid="upgrade-banner"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
+                    <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center shrink-0">
+                          <TrendingUp className="w-5 h-5 text-[#b8860b]" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-sm mb-1">
+                            {upgradePromptsData.prompts[0].title}
+                          </h3>
+                          <p className="text-white/80 text-xs mb-1">
+                            {upgradePromptsData.prompts[0].message}
+                          </p>
+                          <p className="text-emerald-300 text-xs flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            {upgradePromptsData.prompts[0].benefit}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#b8860b] hover:bg-[#9A7209] text-white font-semibold shadow-lg"
+                          onClick={() => setPlanComparisonOpen(true)}
+                          data-testid="button-upgrade-now"
+                        >
+                          <Crown className="w-3 h-3 mr-1" />
+                          {upgradePromptsData.prompts[0].ctaText}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="text-white/60 hover:text-white hover:bg-white/10 h-8 w-8"
+                          onClick={dismissUpgradeBanner}
+                          data-testid="button-dismiss-banner"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Dashboard Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="text-xl lg:text-2xl font-bold text-foreground">Dashboard Overview</h2>
                     <p className="text-sm text-muted-foreground">Real-time business intelligence and analytics</p>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-muted-foreground hover:text-[#b8860b] text-xs"
-                    onClick={() => setActiveSection("doctrine")}
-                    data-testid="button-learn-more-clean"
-                  >
-                    <Book className="w-3 h-3 mr-1" />
-                    Learn C.L.E.A.N.
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-[#b8860b] border-[#b8860b]/30 hover:bg-[#b8860b]/10 text-xs"
+                      onClick={() => setPlanComparisonOpen(true)}
+                      data-testid="button-view-plans"
+                    >
+                      <Crown className="w-3 h-3 mr-1" />
+                      View Plans
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-muted-foreground hover:text-[#b8860b] text-xs"
+                      onClick={() => setActiveSection("doctrine")}
+                      data-testid="button-learn-more-clean"
+                    >
+                      <Book className="w-3 h-3 mr-1" />
+                      Learn C.L.E.A.N.
+                    </Button>
+                  </div>
                 </div>
 
                 {/* KPI Strip - Glassmorphism Cards */}
@@ -2609,6 +2982,96 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
                 </div>
+
+                {/* Recommended Features Section */}
+                {featureRecsData?.recommendations && featureRecsData.recommendations.length > 0 && (
+                  <div className="space-y-4" data-testid="feature-recommendations-section">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                          <Rocket className="w-5 h-5 text-[#b8860b]" />
+                          Recommended Features
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Unlock up to ${featureRecsData.totalPotentialSavings?.monthly.toLocaleString()}/mo in potential savings
+                        </p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-[#b8860b] border-[#b8860b]/30 hover:bg-[#b8860b]/10"
+                        onClick={() => setPlanComparisonOpen(true)}
+                        data-testid="button-compare-plans"
+                      >
+                        <Crown className="w-3 h-3 mr-1" />
+                        Compare Plans
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {featureRecsData.recommendations.slice(0, 6).map((feature) => {
+                        const getFeatureIcon = (iconName: string) => {
+                          const icons: Record<string, typeof MapPin> = {
+                            "map-pin": MapPin,
+                            "cpu": Cpu,
+                            "heart": Heart,
+                            "building-2": Building2,
+                            "brain": Brain,
+                            "bar-chart-3": BarChart3,
+                          };
+                          const IconComponent = icons[iconName] || Zap;
+                          return IconComponent;
+                        };
+                        const FeatureIcon = getFeatureIcon(feature.icon);
+                        
+                        return (
+                          <Card 
+                            key={feature.id} 
+                            className="bg-card/50 backdrop-blur border border-border/50 hover:border-[#b8860b]/30 transition-all cursor-pointer group"
+                            data-testid={`feature-card-${feature.id}`}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="w-10 h-10 rounded-lg bg-[#1e3a5f]/20 flex items-center justify-center group-hover:bg-[#b8860b]/20 transition-colors">
+                                  <FeatureIcon className="w-5 h-5 text-[#1e3a5f] group-hover:text-[#b8860b] transition-colors" />
+                                </div>
+                                <Badge className={`${feature.plan === 'pro' ? 'bg-[#b8860b]/20 text-[#b8860b]' : 'bg-purple-500/20 text-purple-400'} text-[9px]`}>
+                                  {feature.plan === 'pro' ? 'Pro' : 'Enterprise'}
+                                </Badge>
+                              </div>
+                              <h4 className="font-semibold text-sm text-foreground mb-1">{feature.name}</h4>
+                              <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{feature.description}</p>
+                              
+                              <div className="space-y-2 mb-3">
+                                {feature.benefits.slice(0, 2).map((benefit, idx) => (
+                                  <div key={idx} className="flex items-center gap-1 text-xs text-emerald-500">
+                                    <Check className="w-3 h-3" />
+                                    <span>{benefit}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              <div className="bg-emerald-500/10 rounded-lg p-2 mb-3">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Est. Monthly Savings</span>
+                                  <span className="font-bold text-emerald-500">${feature.roi.monthlySavings.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs mt-1">
+                                  <span className="text-muted-foreground">Payback Period</span>
+                                  <span className="font-medium text-foreground">{feature.roi.paybackMonths} months</span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-muted-foreground">{feature.metrics.current}</span>
+                                <span className="text-[#b8860b] font-medium">{feature.metrics.potential}</span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -3553,6 +4016,444 @@ export default function POSCommandCenter() {
                     ))}
                   </div>
                 )}
+
+                {/* Repair Logs & Maintenance Section */}
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  {/* Repair Log Panel */}
+                  <Card className="bg-card/80 backdrop-blur border border-[#1e3a5f]/30">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                          <ClipboardList className="w-5 h-5 text-[#b8860b]" />
+                          Repair Logs
+                        </CardTitle>
+                        <Button 
+                          size="sm" 
+                          className="bg-[#b8860b] hover:bg-[#9A7209] h-8"
+                          onClick={() => setNewRepairLogOpen(true)}
+                          data-testid="button-new-repair-log"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          New Log
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        {(["all", "open", "in_progress", "completed"] as const).map((tab) => (
+                          <Button
+                            key={tab}
+                            size="sm"
+                            variant={repairLogsTab === tab ? "default" : "outline"}
+                            className={`h-7 text-xs ${repairLogsTab === tab ? "bg-[#1e3a5f] hover:bg-[#2a4a6f]" : ""}`}
+                            onClick={() => setRepairLogsTab(tab)}
+                            data-testid={`button-repair-filter-${tab}`}
+                          >
+                            {tab === "all" ? "All" : tab === "open" ? "Open" : tab === "in_progress" ? "In Progress" : "Completed"}
+                          </Button>
+                        ))}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ScrollArea className="h-64">
+                        {repairTicketsLoading ? (
+                          <div className="flex items-center justify-center h-32">
+                            <RefreshCw className="w-6 h-6 text-[#b8860b] animate-spin" />
+                          </div>
+                        ) : ((repairTicketsData as any)?.tickets || []).filter((t: any) => 
+                          repairLogsTab === "all" || t.status === repairLogsTab
+                        ).length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No repair logs found</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {((repairTicketsData as any)?.tickets || [])
+                              .filter((t: any) => repairLogsTab === "all" || t.status === repairLogsTab)
+                              .map((ticket: any) => (
+                                <div 
+                                  key={ticket.id} 
+                                  className="p-3 bg-background rounded-lg border hover:border-[#b8860b]/30 transition-colors"
+                                  data-testid={`repair-ticket-${ticket.id}`}
+                                >
+                                  <div className="flex items-start justify-between gap-2 mb-2">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-foreground text-sm truncate">{ticket.title}</p>
+                                      <p className="text-xs text-muted-foreground truncate">{ticket.machineName}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <Badge 
+                                        className={`text-[10px] ${
+                                          ticket.priority === "urgent" || ticket.priority === "critical" ? "bg-red-500/20 text-red-400" :
+                                          ticket.priority === "high" ? "bg-orange-500/20 text-orange-400" :
+                                          ticket.priority === "medium" ? "bg-amber-500/20 text-amber-400" :
+                                          "bg-gray-500/20 text-gray-400"
+                                        }`}
+                                      >
+                                        {ticket.priority}
+                                      </Badge>
+                                      <Badge 
+                                        className={`text-[10px] ${
+                                          ticket.status === "completed" || ticket.status === "closed" ? "bg-green-500/20 text-green-400" :
+                                          ticket.status === "in_progress" ? "bg-blue-500/20 text-blue-400" :
+                                          "bg-amber-500/20 text-amber-400"
+                                        }`}
+                                      >
+                                        {ticket.status === "in_progress" ? "In Progress" : ticket.status}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{ticket.description}</p>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {ticket.reportedAt ? new Date(ticket.reportedAt).toLocaleDateString() : "N/A"}
+                                    </span>
+                                    {ticket.status !== "completed" && ticket.status !== "closed" && (
+                                      <div className="flex items-center gap-1">
+                                        {ticket.status === "open" && (
+                                          <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="h-6 text-xs text-blue-400 hover:text-blue-300"
+                                            onClick={() => updateRepairTicketMutation.mutate({ id: ticket.id, updates: { status: "in_progress" } })}
+                                          >
+                                            Start
+                                          </Button>
+                                        )}
+                                        {ticket.status === "in_progress" && (
+                                          <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="h-6 text-xs text-green-400 hover:text-green-300"
+                                            onClick={() => updateRepairTicketMutation.mutate({ id: ticket.id, updates: { status: "completed" } })}
+                                          >
+                                            Complete
+                                          </Button>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+
+                  {/* Maintenance Schedule Card */}
+                  <Card className="bg-card/80 backdrop-blur border border-[#1e3a5f]/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <CalendarDays className="w-5 h-5 text-[#b8860b]" />
+                        Maintenance Schedule
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ScrollArea className="h-64">
+                        {maintenanceScheduleLoading ? (
+                          <div className="flex items-center justify-center h-32">
+                            <RefreshCw className="w-6 h-6 text-[#b8860b] animate-spin" />
+                          </div>
+                        ) : ((maintenanceScheduleData as any)?.schedule || []).length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <CalendarDays className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No scheduled maintenance</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {((maintenanceScheduleData as any)?.overdue || []).length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-xs font-semibold text-red-400 uppercase mb-2">Overdue</p>
+                                {((maintenanceScheduleData as any)?.overdue || []).map((task: any) => (
+                                  <div 
+                                    key={task.id} 
+                                    className="p-3 bg-red-500/10 rounded-lg border border-red-500/30 mb-2"
+                                    data-testid={`maintenance-overdue-${task.id}`}
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-foreground text-sm">{task.planName}</p>
+                                        <p className="text-xs text-muted-foreground">{task.machineName}</p>
+                                      </div>
+                                      <Badge className="bg-red-500/20 text-red-400 text-[10px]">
+                                        {Math.abs(task.daysUntilDue)} days overdue
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {((maintenanceScheduleData as any)?.upcoming || []).length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-amber-400 uppercase mb-2">Upcoming</p>
+                                {((maintenanceScheduleData as any)?.upcoming || []).map((task: any) => (
+                                  <div 
+                                    key={task.id} 
+                                    className="p-3 bg-background rounded-lg border hover:border-[#b8860b]/30 transition-colors mb-2"
+                                    data-testid={`maintenance-upcoming-${task.id}`}
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-foreground text-sm">{task.planName}</p>
+                                        <p className="text-xs text-muted-foreground">{task.machineName}</p>
+                                      </div>
+                                      <Badge className={`text-[10px] ${
+                                        task.daysUntilDue <= 7 ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"
+                                      }`}>
+                                        {task.daysUntilDue === 0 ? "Today" : `${task.daysUntilDue} days`}
+                                      </Badge>
+                                    </div>
+                                    {task.checklistItems && task.checklistItems.length > 0 && (
+                                      <div className="mt-2 text-xs text-muted-foreground">
+                                        {task.checklistItems.slice(0, 2).map((item: string, i: number) => (
+                                          <div key={i} className="flex items-center gap-1">
+                                            <CheckCircle2 className="w-3 h-3 text-muted-foreground/50" />
+                                            <span className="truncate">{item}</span>
+                                          </div>
+                                        ))}
+                                        {task.checklistItems.length > 2 && (
+                                          <span className="text-muted-foreground/50">+{task.checklistItems.length - 2} more</span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Predictive Maintenance Dashboard */}
+                <Card className="bg-card/80 backdrop-blur border border-[#1e3a5f]/30 mt-4">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-[#b8860b]" />
+                      Predictive Maintenance Dashboard
+                      <Badge className="bg-[#b8860b]/20 text-[#b8860b] text-[10px] ml-2">AI-Powered</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {predictiveMaintenanceLoading ? (
+                      <div className="flex items-center justify-center h-32">
+                        <RefreshCw className="w-6 h-6 text-[#b8860b] animate-spin" />
+                      </div>
+                    ) : (
+                      <>
+                        {/* Summary Stats */}
+                        <div className="grid grid-cols-5 gap-3 mb-4">
+                          <div className="bg-background rounded-lg p-3 text-center">
+                            <p className="text-2xl font-bold text-foreground">{(predictiveMaintenanceData as any)?.summary?.total || 0}</p>
+                            <p className="text-xs text-muted-foreground">Total Machines</p>
+                          </div>
+                          <div className="bg-background rounded-lg p-3 text-center">
+                            <p className="text-2xl font-bold text-red-400">{(predictiveMaintenanceData as any)?.summary?.critical || 0}</p>
+                            <p className="text-xs text-muted-foreground">Critical</p>
+                          </div>
+                          <div className="bg-background rounded-lg p-3 text-center">
+                            <p className="text-2xl font-bold text-orange-400">{(predictiveMaintenanceData as any)?.summary?.high || 0}</p>
+                            <p className="text-xs text-muted-foreground">High Risk</p>
+                          </div>
+                          <div className="bg-background rounded-lg p-3 text-center">
+                            <p className="text-2xl font-bold text-amber-400">{(predictiveMaintenanceData as any)?.summary?.medium || 0}</p>
+                            <p className="text-xs text-muted-foreground">Medium Risk</p>
+                          </div>
+                          <div className="bg-background rounded-lg p-3 text-center">
+                            <p className="text-2xl font-bold text-green-400">{(predictiveMaintenanceData as any)?.summary?.healthy || 0}</p>
+                            <p className="text-xs text-muted-foreground">Healthy</p>
+                          </div>
+                        </div>
+
+                        {/* Machine Health Cards */}
+                        <div className="grid grid-cols-4 gap-3">
+                          {((predictiveMaintenanceData as any)?.predictions || []).slice(0, 8).map((prediction: any) => (
+                            <div 
+                              key={prediction.machineId} 
+                              className={`p-3 rounded-lg border ${
+                                prediction.urgency === "critical" ? "bg-red-500/10 border-red-500/30" :
+                                prediction.urgency === "high" ? "bg-orange-500/10 border-orange-500/30" :
+                                prediction.urgency === "medium" ? "bg-amber-500/10 border-amber-500/30" :
+                                "bg-green-500/10 border-green-500/30"
+                              }`}
+                              data-testid={`prediction-card-${prediction.machineId}`}
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-foreground text-sm truncate">{prediction.machineName}</p>
+                                  <p className="text-xs text-muted-foreground capitalize">{prediction.machineType}</p>
+                                </div>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                                  prediction.healthScore >= 80 ? "bg-green-500/20 text-green-400" :
+                                  prediction.healthScore >= 50 ? "bg-amber-500/20 text-amber-400" :
+                                  "bg-red-500/20 text-red-400"
+                                }`}>
+                                  {prediction.healthScore}
+                                </div>
+                              </div>
+                              <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden mb-2">
+                                <div 
+                                  className={`h-full rounded-full ${
+                                    prediction.healthScore >= 80 ? "bg-green-500" :
+                                    prediction.healthScore >= 50 ? "bg-amber-500" :
+                                    "bg-red-500"
+                                  }`}
+                                  style={{ width: `${prediction.healthScore}%` }}
+                                ></div>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{prediction.recommendedAction}</p>
+                              {prediction.predictedDaysUntilMaintenance <= 14 && (
+                                <p className="text-xs mt-1 font-medium text-amber-400">
+                                  Service in ~{prediction.predictedDaysUntilMaintenance} days
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Service Guy AI Chat Widget */}
+                <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 border border-[#b8860b]/30 mt-4">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#b8860b]" />
+                        Service Guy AI
+                        <Badge className="bg-[#b8860b] text-white text-[10px]">Expert Technician</Badge>
+                      </CardTitle>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/20 h-8"
+                        onClick={() => setServiceGuyOpen(!serviceGuyOpen)}
+                        data-testid="button-toggle-service-guy"
+                      >
+                        {serviceGuyOpen ? "Collapse" : "Expand"}
+                      </Button>
+                    </div>
+                    <p className="text-sm text-white/70">Get AI-powered diagnostics and repair guidance for your equipment</p>
+                  </CardHeader>
+                  
+                  {serviceGuyOpen && (
+                    <CardContent className="pt-0">
+                      {/* Machine Context */}
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <Select value={serviceGuyMachineType} onValueChange={setServiceGuyMachineType}>
+                          <SelectTrigger className="bg-white/10 border-white/20 text-white h-9">
+                            <SelectValue placeholder="Machine Type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="washer">Washer</SelectItem>
+                            <SelectItem value="dryer">Dryer</SelectItem>
+                            <SelectItem value="combo">Combo</SelectItem>
+                            <SelectItem value="folder">Folder</SelectItem>
+                            <SelectItem value="ironer">Ironer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input 
+                          placeholder="Manufacturer" 
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-9"
+                          value={serviceGuyManufacturer}
+                          onChange={(e) => setServiceGuyManufacturer(e.target.value)}
+                          data-testid="input-service-guy-manufacturer"
+                        />
+                        <Input 
+                          placeholder="Model" 
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-9"
+                          value={serviceGuyModel}
+                          onChange={(e) => setServiceGuyModel(e.target.value)}
+                          data-testid="input-service-guy-model"
+                        />
+                      </div>
+
+                      {/* Chat History */}
+                      <ScrollArea className="h-48 bg-black/20 rounded-lg p-3 mb-3">
+                        {serviceGuyHistory.length === 0 ? (
+                          <div className="text-center text-white/50 py-8">
+                            <Sparkles className="w-8 h-8 mx-auto mb-2" />
+                            <p className="text-sm">Ask me about any equipment issue!</p>
+                            <p className="text-xs mt-1">I can diagnose problems, suggest parts, and guide you through repairs.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {serviceGuyHistory.map((msg, i) => (
+                              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                                <div className={`max-w-[80%] p-3 rounded-lg ${
+                                  msg.role === "user" 
+                                    ? "bg-[#b8860b] text-white" 
+                                    : "bg-white/10 text-white"
+                                }`}>
+                                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                            {serviceGuyAIMutation.isPending && (
+                              <div className="flex justify-start">
+                                <div className="bg-white/10 text-white p-3 rounded-lg">
+                                  <RefreshCw className="w-4 h-4 animate-spin" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </ScrollArea>
+
+                      {/* Input Area */}
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Describe the issue (e.g., 'Washer not draining, making grinding noise')"
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1"
+                          value={serviceGuyMessage}
+                          onChange={(e) => setServiceGuyMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey && serviceGuyMessage.trim()) {
+                              e.preventDefault();
+                              const userMsg = serviceGuyMessage.trim();
+                              setServiceGuyHistory(prev => [...prev, { role: "user", content: userMsg }]);
+                              setServiceGuyMessage("");
+                              serviceGuyAIMutation.mutate({
+                                message: userMsg,
+                                machineType: serviceGuyMachineType || undefined,
+                                machineManufacturer: serviceGuyManufacturer || undefined,
+                                machineModel: serviceGuyModel || undefined,
+                                symptoms: serviceGuySymptoms.length > 0 ? serviceGuySymptoms : undefined,
+                                previousMessages: serviceGuyHistory.map(m => ({ role: m.role, content: m.content })),
+                              });
+                            }
+                          }}
+                          data-testid="input-service-guy-message"
+                        />
+                        <Button 
+                          className="bg-[#b8860b] hover:bg-[#9A7209]"
+                          disabled={!serviceGuyMessage.trim() || serviceGuyAIMutation.isPending}
+                          onClick={() => {
+                            if (serviceGuyMessage.trim()) {
+                              const userMsg = serviceGuyMessage.trim();
+                              setServiceGuyHistory(prev => [...prev, { role: "user", content: userMsg }]);
+                              setServiceGuyMessage("");
+                              serviceGuyAIMutation.mutate({
+                                message: userMsg,
+                                machineType: serviceGuyMachineType || undefined,
+                                machineManufacturer: serviceGuyManufacturer || undefined,
+                                machineModel: serviceGuyModel || undefined,
+                                symptoms: serviceGuySymptoms.length > 0 ? serviceGuySymptoms : undefined,
+                                previousMessages: serviceGuyHistory.map(m => ({ role: m.role, content: m.content })),
+                              });
+                            }
+                          }}
+                          data-testid="button-service-guy-send"
+                        >
+                          <SendHorizontal className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
               </div>
             )}
 
@@ -7449,6 +8350,134 @@ export default function POSCommandCenter() {
           </DialogContent>
         </Dialog>
 
+        {/* New Repair Log Dialog */}
+        <Dialog open={newRepairLogOpen} onOpenChange={setNewRepairLogOpen}>
+          <DialogContent className="bg-card border text-foreground max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-[#b8860b]" />
+                Create Repair Log
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Log a new repair ticket for equipment maintenance
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Machine *</label>
+                <Select 
+                  value={newRepairLogForm.machineId} 
+                  onValueChange={(value) => setNewRepairLogForm({ ...newRepairLogForm, machineId: value })}
+                >
+                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-repair-machine">
+                    <SelectValue placeholder="Select a machine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {machines.map((m: any) => (
+                      <SelectItem key={m.id} value={m.id}>{m.name} ({m.type})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Issue Title *</label>
+                <Input
+                  placeholder="e.g., Washer not draining"
+                  className="bg-background border text-foreground"
+                  value={newRepairLogForm.title}
+                  onChange={(e) => setNewRepairLogForm({ ...newRepairLogForm, title: e.target.value })}
+                  data-testid="input-repair-title"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Description *</label>
+                <Textarea
+                  placeholder="Describe the issue in detail..."
+                  className="bg-background border text-foreground min-h-[80px]"
+                  value={newRepairLogForm.description}
+                  onChange={(e) => setNewRepairLogForm({ ...newRepairLogForm, description: e.target.value })}
+                  data-testid="input-repair-description"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Priority *</label>
+                  <Select 
+                    value={newRepairLogForm.priority} 
+                    onValueChange={(value: "low" | "medium" | "high" | "urgent") => setNewRepairLogForm({ ...newRepairLogForm, priority: value })}
+                  >
+                    <SelectTrigger className="bg-background border text-foreground" data-testid="select-repair-priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Problem Type</label>
+                  <Select 
+                    value={newRepairLogForm.problemType} 
+                    onValueChange={(value: "mechanical" | "electrical" | "software" | "plumbing" | "other") => setNewRepairLogForm({ ...newRepairLogForm, problemType: value })}
+                  >
+                    <SelectTrigger className="bg-background border text-foreground" data-testid="select-repair-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mechanical">Mechanical</SelectItem>
+                      <SelectItem value="electrical">Electrical</SelectItem>
+                      <SelectItem value="software">Software</SelectItem>
+                      <SelectItem value="plumbing">Plumbing</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Symptoms (comma-separated)</label>
+                <Input
+                  placeholder="e.g., grinding noise, water leak, error code E5"
+                  className="bg-background border text-foreground"
+                  value={newRepairLogForm.symptoms}
+                  onChange={(e) => setNewRepairLogForm({ ...newRepairLogForm, symptoms: e.target.value })}
+                  data-testid="input-repair-symptoms"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1 border text-foreground" 
+                onClick={() => setNewRepairLogOpen(false)}
+                disabled={createRepairTicketMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1 bg-[#b8860b] hover:bg-[#9A7209]" 
+                onClick={() => {
+                  if (!newRepairLogForm.machineId || !newRepairLogForm.title || !newRepairLogForm.description) {
+                    toast({
+                      title: "Validation Error",
+                      description: "Please select a machine and fill in title and description",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  createRepairTicketMutation.mutate(newRepairLogForm);
+                }}
+                disabled={createRepairTicketMutation.isPending}
+                data-testid="button-submit-repair-log"
+              >
+                {createRepairTicketMutation.isPending ? "Creating..." : "Create Repair Log"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* New Machine Dialog */}
         <Dialog open={newMachineOpen} onOpenChange={setNewMachineOpen}>
           <DialogContent className="bg-card border text-foreground max-w-md">
@@ -7839,6 +8868,233 @@ export default function POSCommandCenter() {
               >
                 {createPartMutation.isPending ? "Adding..." : "Add Part"}
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Plan Comparison Modal */}
+        <Dialog open={planComparisonOpen} onOpenChange={setPlanComparisonOpen}>
+          <DialogContent className="max-w-4xl bg-card border max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                <Crown className="w-5 h-5 text-[#b8860b]" />
+                Choose Your Plan
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Select the plan that best fits your laundromat business needs
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              {/* Starter Plan */}
+              <div className="relative rounded-xl border-2 border-border bg-card/50 p-6 flex flex-col" data-testid="plan-starter">
+                {settingsForm.currentPlan === "starter" && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
+                    Current Plan
+                  </Badge>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-foreground mb-1">Starter</h3>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-black text-foreground">Free</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">For small laundromats</p>
+                </div>
+                <div className="space-y-3 flex-1 mb-6">
+                  {[
+                    "Up to 50 orders/month",
+                    "Basic POS features",
+                    "3 machines max",
+                    "Email support",
+                    "Basic reporting",
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span className="text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                  {[
+                    "Route optimization",
+                    "Customer loyalty program",
+                    "AI diagnostics",
+                    "Multi-location",
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm opacity-50">
+                      <X className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground line-through">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  disabled={settingsForm.currentPlan === "starter"}
+                >
+                  {settingsForm.currentPlan === "starter" ? "Current Plan" : "Select Plan"}
+                </Button>
+              </div>
+
+              {/* Pro Plan - Highlighted */}
+              <div className="relative rounded-xl border-2 border-[#b8860b] bg-gradient-to-b from-[#b8860b]/10 to-card p-6 flex flex-col shadow-lg" data-testid="plan-pro">
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#b8860b] text-white animate-pulse">
+                  Most Popular
+                </Badge>
+                {settingsForm.currentPlan === "professional" && (
+                  <Badge className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
+                    Current Plan
+                  </Badge>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-foreground mb-1">Pro</h3>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-black text-[#b8860b]">$49</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">For growing businesses</p>
+                </div>
+                <div className="space-y-3 flex-1 mb-6">
+                  {[
+                    "Unlimited orders",
+                    "All POS features",
+                    "Unlimited machines",
+                    "Priority support",
+                    "Advanced analytics",
+                    "Route optimization",
+                    "Customer loyalty program",
+                    "AI diagnostics",
+                    "Demand forecasting",
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span className="text-foreground">{feature}</span>
+                    </div>
+                  ))}
+                  {[
+                    "Multi-location",
+                    "White-label",
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm opacity-50">
+                      <X className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground line-through">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white font-semibold"
+                  disabled={settingsForm.currentPlan === "professional"}
+                  data-testid="button-upgrade-pro"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  {settingsForm.currentPlan === "professional" ? "Current Plan" : "Upgrade to Pro"}
+                </Button>
+              </div>
+
+              {/* Enterprise Plan */}
+              <div className="relative rounded-xl border-2 border-purple-500/50 bg-gradient-to-b from-purple-500/10 to-card p-6 flex flex-col" data-testid="plan-enterprise">
+                {settingsForm.currentPlan === "enterprise" && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
+                    Current Plan
+                  </Badge>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-foreground mb-1">Enterprise</h3>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-black text-purple-500">$199</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">For multi-location chains</p>
+                </div>
+                <div className="space-y-3 flex-1 mb-6">
+                  {[
+                    "Everything in Pro",
+                    "Multi-location management",
+                    "White-label branding",
+                    "Dedicated account manager",
+                    "Custom integrations",
+                    "API access",
+                    "Predictive maintenance AI",
+                    "Staff management",
+                    "Custom reporting",
+                    "SLA guarantee",
+                  ].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span className="text-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  variant="outline"
+                  className="w-full border-purple-500/50 text-purple-500 hover:bg-purple-500/10"
+                  disabled={settingsForm.currentPlan === "enterprise"}
+                  data-testid="button-upgrade-enterprise"
+                >
+                  <Building2 className="w-4 h-4 mr-2" />
+                  {settingsForm.currentPlan === "enterprise" ? "Current Plan" : "Contact Sales"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Feature Comparison Table */}
+            <div className="mt-8">
+              <h4 className="text-sm font-bold text-foreground mb-4">Feature Comparison</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-muted-foreground font-medium">Feature</th>
+                      <th className="text-center py-2 px-3 text-muted-foreground font-medium">Starter</th>
+                      <th className="text-center py-2 px-3 text-[#b8860b] font-medium">Pro</th>
+                      <th className="text-center py-2 px-3 text-purple-500 font-medium">Enterprise</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { feature: "Orders per Month", starter: "50", pro: "Unlimited", enterprise: "Unlimited" },
+                      { feature: "Machine Tracking", starter: "3 max", pro: "Unlimited", enterprise: "Unlimited" },
+                      { feature: "Route Optimization", starter: false, pro: true, enterprise: true },
+                      { feature: "Customer Loyalty", starter: false, pro: true, enterprise: true },
+                      { feature: "AI Diagnostics", starter: false, pro: true, enterprise: true },
+                      { feature: "Multi-Location", starter: false, pro: false, enterprise: true },
+                      { feature: "Custom Branding", starter: false, pro: false, enterprise: true },
+                      { feature: "API Access", starter: false, pro: false, enterprise: true },
+                      { feature: "Predictive Maintenance", starter: false, pro: false, enterprise: true },
+                      { feature: "Support", starter: "Email", pro: "Priority", enterprise: "Dedicated" },
+                    ].map((row, idx) => (
+                      <tr key={idx} className="border-b border-border/50">
+                        <td className="py-2 px-3 text-foreground">{row.feature}</td>
+                        <td className="text-center py-2 px-3">
+                          {typeof row.starter === "boolean" ? (
+                            row.starter ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
+                          ) : (
+                            <span className="text-muted-foreground">{row.starter}</span>
+                          )}
+                        </td>
+                        <td className="text-center py-2 px-3 bg-[#b8860b]/5">
+                          {typeof row.pro === "boolean" ? (
+                            row.pro ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
+                          ) : (
+                            <span className="text-foreground font-medium">{row.pro}</span>
+                          )}
+                        </td>
+                        <td className="text-center py-2 px-3">
+                          {typeof row.enterprise === "boolean" ? (
+                            row.enterprise ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
+                          ) : (
+                            <span className="text-foreground font-medium">{row.enterprise}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <p className="text-xs text-muted-foreground">
+                All plans include 14-day free trial. No credit card required. Cancel anytime.
+              </p>
             </div>
           </DialogContent>
         </Dialog>
