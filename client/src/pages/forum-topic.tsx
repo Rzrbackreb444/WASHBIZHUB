@@ -11,7 +11,11 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   MessageSquare,
   Eye,
@@ -298,6 +302,12 @@ export default function ForumTopicPage() {
                           </div>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl">
+                          <VisuallyHidden>
+                            <DialogHeader>
+                              <DialogTitle>Image {idx + 1}</DialogTitle>
+                              <DialogDescription>Full-size image from forum post</DialogDescription>
+                            </DialogHeader>
+                          </VisuallyHidden>
                           <img 
                             src={img} 
                             alt={`Image ${idx + 1}`}

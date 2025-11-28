@@ -200,7 +200,7 @@ export default function DoctrinePage() {
       <SEO
         title="Doctrine Learning Hub | The Laundromat Bible Frameworks"
         description="Master the C.L.E.A.N., W.A.S.H., S.O.A.P., and D.R.Y. frameworks from The Laundromat Bible. Four proven methodologies from three generations of industry expertise."
-        keywords="laundromat business framework, CLEAN methodology, WASH strategy, SOAP operations, DRY due diligence, laundromat bible"
+        keywords={["laundromat business framework", "CLEAN methodology", "WASH strategy", "SOAP operations", "DRY due diligence", "laundromat bible"]}
         canonical="/doctrine"
         schema={doctrineSchema}
       />
