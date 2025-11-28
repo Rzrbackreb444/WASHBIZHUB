@@ -73,7 +73,22 @@ import {
   Check,
   Printer,
   Hash,
+  Book,
+  Shield,
+  Lightbulb,
+  GraduationCap,
+  Lock,
+  Droplets,
+  Wind,
+  Info,
 } from "lucide-react";
+import { Link } from "wouter";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
   LineChart,
@@ -150,6 +165,14 @@ export default function POSCommandCenter() {
   const [newPartOpen, setNewPartOpen] = useState(false);
   const [analyticsPeriod, setAnalyticsPeriod] = useState<"today" | "week" | "month" | "quarter">("week");
   const { toast } = useToast();
+  
+  // SOAP Daily Checklist State
+  const [soapChecklist, setSoapChecklist] = useState({
+    systemsCheck: false,
+    observeCustomers: false,
+    adjustOps: false,
+    promoteBrand: false,
+  });
   
   // New part form state
   const [newPartForm, setNewPartForm] = useState({
@@ -1170,6 +1193,7 @@ export default function POSCommandCenter() {
             { id: "routes", icon: Truck, label: "Routes" },
             { id: "inventory", icon: Package, label: "Inventory" },
             { id: "analytics", icon: BarChart3, label: "Analytics" },
+            { id: "doctrine", icon: Book, label: "Learn" },
             { id: "settings", icon: Settings, label: "Settings" },
           ].map((item) => (
             <button
@@ -1219,7 +1243,7 @@ export default function POSCommandCenter() {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm" className="border text-foreground h-9" data-testid="button-refresh">
+              <Button variant="outline" size="sm" className="border text-foreground h-9" aria-label="Refresh data" data-testid="button-refresh">
                 <RefreshCw className="w-4 h-4" />
               </Button>
               
@@ -1234,7 +1258,39 @@ export default function POSCommandCenter() {
           <main className="flex-1 overflow-auto p-4 bg-background">
             {activeSection === "dashboard" && (
               <div className="space-y-4">
-                {/* Top KPI Row - Large Numbers Like Reference Images */}
+                {/* Top KPI Row with C.L.E.A.N. Tip */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Key Performance Indicators</h3>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-5 w-5" aria-label="C.L.E.A.N. tip" data-testid="tooltip-clean-dashboard">
+                          <Sparkles className="w-3 h-3 text-emerald-400" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs bg-card border">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-emerald-400 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" /> C.L.E.A.N. Tip
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            <strong>Numbers:</strong> Track these KPIs daily. The "N" in C.L.E.A.N. reminds us that what gets measured gets managed. Focus on revenue, retention, and efficiency metrics.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-muted-foreground hover:text-[#b8860b] text-xs"
+                    onClick={() => setActiveSection("doctrine")}
+                    data-testid="button-learn-more-clean"
+                  >
+                    <Book className="w-3 h-3 mr-1" />
+                    Learn C.L.E.A.N.
+                  </Button>
+                </div>
                 <div className="grid grid-cols-6 gap-3">
                   {/* Total Revenue */}
                   <div className="bg-gradient-to-br from-primary to-primary/90 rounded-lg p-4 border">
@@ -1642,7 +1698,26 @@ export default function POSCommandCenter() {
             {activeSection === "orders" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-foreground">Order Management</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-foreground">Order Management</h2>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="S.O.A.P. tip" data-testid="tooltip-soap-orders">
+                          <Lightbulb className="w-4 h-4 text-amber-400" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs bg-card border">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-amber-400 flex items-center gap-1">
+                            <Lightbulb className="w-3 h-3" /> S.O.A.P. Tip
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            <strong>Observe Customers:</strong> Watch order patterns to identify peak times and popular services. Use this data to optimize staffing and pricing.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <div className="flex items-center gap-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
@@ -1718,13 +1793,13 @@ export default function POSCommandCenter() {
                           <td className="p-3 text-center text-muted-foreground">{order.time}</td>
                           <td className="p-3 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="View order">
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="Edit order">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]" aria-label="Weigh order">
                                 <Scale className="w-4 h-4" />
                               </Button>
                             </div>
@@ -1886,7 +1961,7 @@ export default function POSCommandCenter() {
                               >
                                 {customer.status === "active" ? "Active" : "Inactive"}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground" aria-label="More options">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -1943,10 +2018,10 @@ export default function POSCommandCenter() {
                               <span>Last visit: {customer.lastVisit}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground" aria-label="View customer">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]" aria-label="Edit customer">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -1964,7 +2039,26 @@ export default function POSCommandCenter() {
               <div className="space-y-4">
                 {/* Header with search and action */}
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold text-foreground">Machine Hub</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-foreground">Machine Hub</h2>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="D.R.Y. tip" data-testid="tooltip-dry-machines">
+                          <Shield className="w-4 h-4 text-red-400" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs bg-card border">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-red-400 flex items-center gap-1">
+                            <Shield className="w-3 h-3" /> D.R.Y. Tip
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            <strong>Due Diligence:</strong> Document all machine repairs and maintenance. Detailed records increase your business value by 15-20% when selling.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
@@ -2130,7 +2224,7 @@ export default function POSCommandCenter() {
                                  machine.status === 'needs_maintenance' ? 'Maintenance' :
                                  'Out of Order'}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground" aria-label="More options">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -2216,10 +2310,10 @@ export default function POSCommandCenter() {
                               <span>ID: {machine.machineNumber}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground" aria-label="View machine">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]" aria-label="Edit machine">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -2394,7 +2488,7 @@ export default function POSCommandCenter() {
                                  route.routeType === 'delivery' ? 'Delivery' :
                                  'Both'}
                               </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground" aria-label="More options">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </div>
@@ -2484,10 +2578,10 @@ export default function POSCommandCenter() {
                                'Planned'}
                             </Badge>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground" aria-label="View route">
                                 <Eye className="w-3.5 h-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]" aria-label="Edit route">
                                 <Edit className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -2734,10 +2828,10 @@ export default function POSCommandCenter() {
                                   </td>
                                   <td className="py-3 px-4 text-right">
                                     <div className="flex items-center justify-end gap-1">
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground" aria-label="View item">
                                         <Eye className="w-3.5 h-3.5" />
                                       </Button>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]" aria-label="Edit item">
                                         <Edit className="w-3.5 h-3.5" />
                                       </Button>
                                     </div>
@@ -2759,9 +2853,28 @@ export default function POSCommandCenter() {
               <div className="space-y-6" data-testid="analytics-section">
                 {/* Header with Date Range Selector */}
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">Business Analytics</h2>
-                    <p className="text-muted-foreground text-sm">Professional analytics for your laundromat</p>
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">Business Analytics</h2>
+                      <p className="text-muted-foreground text-sm">Professional analytics for your laundromat</p>
+                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="W.A.S.H. tip" data-testid="tooltip-wash-analytics">
+                          <Droplets className="w-4 h-4 text-blue-400" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs bg-card border">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-blue-400 flex items-center gap-1">
+                            <Droplets className="w-3 h-3" /> W.A.S.H. Tip
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            <strong>Scale Smart:</strong> Use these analytics to identify growth opportunities. Track trends over time to make data-driven expansion decisions.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="flex items-center gap-2">
                     {(["today", "week", "month", "quarter"] as const).map((period) => (
@@ -3270,6 +3383,375 @@ export default function POSCommandCenter() {
                     </CardContent>
                   </Card>
                 </div>
+              </div>
+            )}
+
+            {/* Doctrine / Learn Section */}
+            {activeSection === "doctrine" && (
+              <div className="space-y-6" data-testid="doctrine-section">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                      <GraduationCap className="w-7 h-7 text-[#b8860b]" />
+                      The Laundromat Bible
+                    </h2>
+                    <p className="text-muted-foreground mt-1">Master the proven doctrines for laundromat success</p>
+                  </div>
+                  <Link href="/pricing">
+                    <Button className="bg-gradient-to-r from-[#1e3a5f] to-[#b8860b] text-white" data-testid="button-unlock-training">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Unlock Advanced Training
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* CLEAN Score Card */}
+                <Card className="bg-gradient-to-r from-[#1e3a5f]/20 to-[#b8860b]/10 border border-[#b8860b]/30" data-testid="card-clean-score">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
+                          <Target className="w-8 h-8 text-[#b8860b]" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Your C.L.E.A.N. Score</h3>
+                          <p className="text-muted-foreground text-sm">Based on KPIs you're tracking in POS</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-4xl font-bold text-[#b8860b]" data-testid="text-clean-score">
+                          {Math.min(100, Math.round(
+                            (dashboardStats.revenue > 0 ? 20 : 0) +
+                            (dashboardStats.orders > 0 ? 20 : 0) +
+                            (dashboardStats.customers.active > 0 ? 20 : 0) +
+                            (machines.length > 0 ? 20 : 0) +
+                            (dashboardStats.customers.retention > 50 ? 20 : 0)
+                          ))}%
+                        </div>
+                        <p className="text-muted-foreground text-sm">5 of 5 KPIs tracked</p>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <div className="h-3 bg-background rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-[#1e3a5f] to-[#b8860b] rounded-full transition-all"
+                          style={{ width: `${Math.min(100, Math.round((dashboardStats.revenue > 0 ? 20 : 0) + (dashboardStats.orders > 0 ? 20 : 0) + (dashboardStats.customers.active > 0 ? 20 : 0) + (machines.length > 0 ? 20 : 0) + (dashboardStats.customers.retention > 50 ? 20 : 0)))}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                        <span>Beginner</span>
+                        <span>Intermediate</span>
+                        <span>Expert</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Framework Cards Grid */}
+                <div className="grid grid-cols-2 gap-6">
+                  {/* C.L.E.A.N. Framework */}
+                  <Card className="bg-white/5 backdrop-blur border border-white/10 hover-elevate" data-testid="card-clean-framework">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                            <Sparkles className="w-6 h-6 text-emerald-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-foreground">C.L.E.A.N.</CardTitle>
+                            <p className="text-xs text-muted-foreground">Business Foundation</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-emerald-500/20 text-emerald-400">Core</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="w-4 h-4 text-emerald-400" />
+                          <span><strong className="text-foreground">C</strong>ustomers - Build retention programs</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MapPin className="w-4 h-4 text-emerald-400" />
+                          <span><strong className="text-foreground">L</strong>ocation - Prime positioning</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Zap className="w-4 h-4 text-emerald-400" />
+                          <span><strong className="text-foreground">E</strong>fficiency - AI & automation</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Activity className="w-4 h-4 text-emerald-400" />
+                          <span><strong className="text-foreground">A</strong>dapt - Hybrid services</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <BarChart3 className="w-4 h-4 text-emerald-400" />
+                          <span><strong className="text-foreground">N</strong>umbers - Track KPIs</span>
+                        </div>
+                      </div>
+                      <div className="pt-3 border-t border-white/10">
+                        <Link href="/pricing">
+                          <Button variant="outline" size="sm" className="w-full border-emerald-500/30 text-emerald-400" data-testid="button-learn-clean">
+                            <Lock className="w-3 h-3 mr-2" />
+                            Unlock Full Course
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* W.A.S.H. Framework */}
+                  <Card className="bg-white/5 backdrop-blur border border-white/10 hover-elevate" data-testid="card-wash-framework">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <Droplets className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-foreground">W.A.S.H.</CardTitle>
+                            <p className="text-xs text-muted-foreground">Growth Strategy</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-blue-500/20 text-blue-400">Growth</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Wrench className="w-4 h-4 text-blue-400" />
+                          <span><strong className="text-foreground">W</strong>ork Biz - Hands-on approach</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Target className="w-4 h-4 text-blue-400" />
+                          <span><strong className="text-foreground">A</strong>lign Market - Demo days</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <TrendingUp className="w-4 h-4 text-blue-400" />
+                          <span><strong className="text-foreground">S</strong>cale Smart - Build systems</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Wind className="w-4 h-4 text-blue-400" />
+                          <span><strong className="text-foreground">H</strong>arness Trends - Eco focus</span>
+                        </div>
+                      </div>
+                      <div className="pt-3 border-t border-white/10">
+                        <Link href="/pricing">
+                          <Button variant="outline" size="sm" className="w-full border-blue-500/30 text-blue-400" data-testid="button-learn-wash">
+                            <Lock className="w-3 h-3 mr-2" />
+                            Unlock Full Course
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* S.O.A.P. Framework with Daily Checklist */}
+                  <Card className="bg-white/5 backdrop-blur border border-white/10 hover-elevate" data-testid="card-soap-framework">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                            <Lightbulb className="w-6 h-6 text-amber-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-foreground">S.O.A.P.</CardTitle>
+                            <p className="text-xs text-muted-foreground">Daily Operations</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-amber-500/20 text-amber-400">Daily</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground mb-3">Today's Checklist</p>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-3 p-2 rounded-lg bg-background/50 cursor-pointer hover:bg-background transition-colors">
+                          <Checkbox 
+                            checked={soapChecklist.systemsCheck}
+                            onCheckedChange={(checked) => setSoapChecklist(prev => ({ ...prev, systemsCheck: checked as boolean }))}
+                            data-testid="checkbox-systems-check"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm text-foreground">Systems Check</span>
+                            <p className="text-xs text-muted-foreground">Daily machine inspection</p>
+                          </div>
+                        </label>
+                        <label className="flex items-center gap-3 p-2 rounded-lg bg-background/50 cursor-pointer hover:bg-background transition-colors">
+                          <Checkbox 
+                            checked={soapChecklist.observeCustomers}
+                            onCheckedChange={(checked) => setSoapChecklist(prev => ({ ...prev, observeCustomers: checked as boolean }))}
+                            data-testid="checkbox-observe-customers"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm text-foreground">Observe Customers</span>
+                            <p className="text-xs text-muted-foreground">Monitor flow & behavior</p>
+                          </div>
+                        </label>
+                        <label className="flex items-center gap-3 p-2 rounded-lg bg-background/50 cursor-pointer hover:bg-background transition-colors">
+                          <Checkbox 
+                            checked={soapChecklist.adjustOps}
+                            onCheckedChange={(checked) => setSoapChecklist(prev => ({ ...prev, adjustOps: checked as boolean }))}
+                            data-testid="checkbox-adjust-ops"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm text-foreground">Adjust Operations</span>
+                            <p className="text-xs text-muted-foreground">Optimize pricing & hours</p>
+                          </div>
+                        </label>
+                        <label className="flex items-center gap-3 p-2 rounded-lg bg-background/50 cursor-pointer hover:bg-background transition-colors">
+                          <Checkbox 
+                            checked={soapChecklist.promoteBrand}
+                            onCheckedChange={(checked) => setSoapChecklist(prev => ({ ...prev, promoteBrand: checked as boolean }))}
+                            data-testid="checkbox-promote-brand"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm text-foreground">Promote Brand</span>
+                            <p className="text-xs text-muted-foreground">Authentic marketing</p>
+                          </div>
+                        </label>
+                      </div>
+                      <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {Object.values(soapChecklist).filter(Boolean).length}/4 completed today
+                        </span>
+                        <Link href="/pricing">
+                          <Button variant="ghost" size="sm" className="text-amber-400" data-testid="button-learn-soap">
+                            <Lock className="w-3 h-3 mr-1" />
+                            Full Training
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* D.R.Y. Framework */}
+                  <Card className="bg-white/5 backdrop-blur border border-white/10 hover-elevate" data-testid="card-dry-framework">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center">
+                            <Shield className="w-6 h-6 text-red-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-foreground">D.R.Y.</CardTitle>
+                            <p className="text-xs text-muted-foreground">Buying & Selling</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-red-500/20 text-red-400">Risk</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Search className="w-4 h-4 text-red-400" />
+                          <span><strong className="text-foreground">D</strong>ue Diligence - Verify everything</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Shield className="w-4 h-4 text-red-400" />
+                          <span><strong className="text-foreground">R</strong>isk Management - Compliance</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Eye className="w-4 h-4 text-red-400" />
+                          <span><strong className="text-foreground">Y</strong>our Eyes Open - Avoid traps</span>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-red-500/10 rounded-lg mt-2">
+                        <p className="text-xs text-red-400">
+                          <AlertCircle className="w-3 h-3 inline mr-1" />
+                          Critical for acquisitions and exits
+                        </p>
+                      </div>
+                      <div className="pt-3 border-t border-white/10">
+                        <Link href="/pricing">
+                          <Button variant="outline" size="sm" className="w-full border-red-500/30 text-red-400" data-testid="button-learn-dry">
+                            <Lock className="w-3 h-3 mr-2" />
+                            Unlock Full Course
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quick Insights from Current Data */}
+                <Card className="bg-card border" data-testid="card-doctrine-insights">
+                  <CardHeader>
+                    <CardTitle className="text-foreground flex items-center gap-2">
+                      <Lightbulb className="w-5 h-5 text-[#b8860b]" />
+                      Doctrine Insights from Your Data
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg bg-background">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-4 h-4 text-emerald-400" />
+                          <span className="text-sm font-medium text-foreground">C.L.E.A.N. Tip</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {dashboardStats.customers.retention > 70 
+                            ? "Great retention! Focus on upselling to your loyal customers." 
+                            : "Boost retention with a loyalty program - customers who return 3x spend 67% more."}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-background">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Droplets className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm font-medium text-foreground">W.A.S.H. Tip</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {machines.length > 10 
+                            ? "Consider route optimization software to scale your delivery service efficiently." 
+                            : "Start with demo days to attract new customers and showcase your services."}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-background">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Lightbulb className="w-4 h-4 text-amber-400" />
+                          <span className="text-sm font-medium text-foreground">S.O.A.P. Tip</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {Object.values(soapChecklist).filter(Boolean).length === 4
+                            ? "All daily tasks complete! Consistency builds winning habits."
+                            : "Complete your daily S.O.A.P. checklist above to build operational excellence."}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-background">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Shield className="w-4 h-4 text-red-400" />
+                          <span className="text-sm font-medium text-foreground">D.R.Y. Tip</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {machineStatusCounts.needsMaintenance > 0
+                            ? `${machineStatusCounts.needsMaintenance} machines need attention - document all repairs for resale value.`
+                            : "Keep detailed maintenance logs - buyers pay 15-20% more for well-documented operations."}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Upgrade CTA Banner */}
+                <Card className="bg-gradient-to-r from-[#1e3a5f] to-[#1e3a5f]/80 border border-[#b8860b]/50" data-testid="card-upgrade-cta">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
+                          <Crown className="w-7 h-7 text-[#b8860b]" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">Upgrade to Unlock Full Training</h3>
+                          <p className="text-white/70 text-sm">Get personalized recommendations, video courses, and expert coaching</p>
+                        </div>
+                      </div>
+                      <Link href="/pricing">
+                        <Button className="bg-[#b8860b] hover:bg-[#9A7209] text-white" data-testid="button-upgrade-training">
+                          View Plans
+                          <ChevronRight className="w-4 h-4 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 

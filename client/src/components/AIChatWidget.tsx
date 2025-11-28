@@ -541,6 +541,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
               size="icon"
               onClick={handleClearChat}
               title="Clear conversation"
+              aria-label="Clear conversation"
               data-testid="button-clear-chat"
               className="text-white hover:bg-white/20"
             >
@@ -551,6 +552,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
             variant="ghost"
             size="icon"
             onClick={() => setIsMinimized(!isMinimized)}
+            aria-label={isMinimized ? "Expand chat" : "Minimize chat"}
             data-testid="button-minimize-chat"
             className="text-white hover:bg-white/20"
           >
@@ -564,6 +566,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
             variant="ghost"
             size="icon"
             onClick={() => setIsOpen(false)}
+            aria-label="Close chat"
             data-testid="button-close-chat"
             className="text-white hover:bg-white/20"
           >
@@ -782,6 +785,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
                 disabled={!input.trim() || chatMutation.isPending}
                 size="icon"
                 className="flex-shrink-0"
+                aria-label="Send message"
                 data-testid="button-send-message"
               >
                 <Send className="h-4 w-4" />

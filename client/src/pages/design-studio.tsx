@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { equipmentLibrary } from "@shared/schema";
 import { 
@@ -171,7 +171,7 @@ function OnboardingTooltip({ show, onDismiss }: { show: boolean; onDismiss: () =
               <Sparkles className="h-5 w-5 text-[#39CCCC]" />
               Welcome to Design Studio
             </CardTitle>
-            <Button size="icon" variant="ghost" onClick={onDismiss} className="h-8 w-8 text-white/70 hover:text-white">
+            <Button size="icon" variant="ghost" onClick={onDismiss} className="h-8 w-8 text-white/70 hover:text-white" aria-label="Close onboarding">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -931,6 +931,7 @@ export default function DesignStudio() {
                     variant="outline"
                     onClick={() => setShowOnboarding(true)}
                     className="h-8 w-8 border-white/20 text-white/70"
+                    aria-label="Show tutorial"
                     data-testid="button-help"
                   >
                     <HelpCircle className="h-4 w-4" />
@@ -973,6 +974,9 @@ export default function DesignStudio() {
                       <LayoutTemplate className="h-5 w-5 text-[#39CCCC]" />
                       Choose a Starter Template
                     </DialogTitle>
+                    <DialogDescription className="text-white/60">
+                      Select a pre-configured layout template to start designing your laundromat.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-3 py-4">
                     {STARTER_TEMPLATES.map((template) => (
@@ -1108,6 +1112,7 @@ export default function DesignStudio() {
                         variant="outline"
                         onClick={() => setZoom(z => Math.min(z + 0.1, 2))}
                         className="h-8 w-8 border-white/20 text-white/70"
+                        aria-label="Zoom in"
                         data-testid="button-zoom-in"
                       >
                         <ZoomIn className="h-3 w-3" />
@@ -1117,6 +1122,7 @@ export default function DesignStudio() {
                         variant="outline"
                         onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
                         className="h-8 w-8 border-white/20 text-white/70"
+                        aria-label="Zoom out"
                         data-testid="button-zoom-out"
                       >
                         <ZoomOut className="h-3 w-3" />
@@ -1134,6 +1140,7 @@ export default function DesignStudio() {
                         onClick={undo}
                         disabled={historyIndex <= 0}
                         className="h-8 w-8 border-white/20 text-white/70 disabled:opacity-30"
+                        aria-label="Undo"
                         data-testid="button-undo"
                       >
                         <Undo2 className="h-3 w-3" />
@@ -1149,6 +1156,7 @@ export default function DesignStudio() {
                         onClick={redo}
                         disabled={historyIndex >= history.length - 1}
                         className="h-8 w-8 border-white/20 text-white/70 disabled:opacity-30"
+                        aria-label="Redo"
                         data-testid="button-redo"
                       >
                         <Redo2 className="h-3 w-3" />
@@ -1321,6 +1329,7 @@ export default function DesignStudio() {
                           variant="outline"
                           onClick={() => rotateEquipment(selectedId!)}
                           className="h-8 w-8 border-white/20 text-white/70"
+                          aria-label="Rotate equipment"
                           data-testid="button-rotate"
                         >
                           <RotateCw className="h-4 w-4" />
@@ -1330,6 +1339,7 @@ export default function DesignStudio() {
                           variant="outline"
                           onClick={() => removeEquipment(selectedId!)}
                           className="h-8 w-8 text-red-400 border-red-400/30 hover:bg-red-400/10"
+                          aria-label="Delete equipment"
                           data-testid="button-delete"
                         >
                           <Trash2 className="h-4 w-4" />

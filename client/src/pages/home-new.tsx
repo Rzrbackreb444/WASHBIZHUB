@@ -200,7 +200,7 @@ function CleanbiDemo() {
       <div className="grid lg:grid-cols-2 gap-8 items-start">
         <div className="text-center lg:text-left">
           <div className="inline-flex items-center gap-3 mb-4">
-            <span className={`text-8xl md:text-9xl font-black ${gradeInfo.color}`} style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <span className={`text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black ${gradeInfo.color}`} style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
               {overallScore}
             </span>
             <div className="text-left">
@@ -209,8 +209,8 @@ function CleanbiDemo() {
             </div>
           </div>
           
-          <p className="text-2xl text-white/80 mb-2">Projected Annual Revenue</p>
-          <p className="text-4xl md:text-5xl font-bold text-[#39CCCC] mb-6">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 mb-2">Projected Annual Revenue</p>
+          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#39CCCC] mb-6">
             {formatCurrency(revenueMin)} – {formatCurrency(revenueMax)}
           </p>
 
@@ -221,16 +221,16 @@ function CleanbiDemo() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-left text-sm mb-6">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 text-left text-sm mb-6">
             {[
               { label: 'Population 1mi', value: `${Math.floor(Math.random() * 15000 + 10000).toLocaleString()}`, score: scores[0] },
               { label: 'Median Income', value: `$${Math.floor(Math.random() * 30 + 50)}k`, score: scores[1] },
               { label: 'Competition', value: `${Math.floor(Math.random() * 2 + 1)} stores`, score: scores[4] },
               { label: 'Google Rating', value: `${(Math.random() * 0.5 + 4.3).toFixed(1)} ★`, score: scores[16] },
             ].map((item, i) => (
-              <div key={i} className="bg-white/5 rounded-lg p-3">
+              <div key={i} className="bg-white/5 rounded-lg p-2 sm:p-3">
                 <div className="text-white/60 text-xs">{item.label}</div>
-                <div className="text-white font-semibold">{item.value}</div>
+                <div className="text-white font-semibold text-sm sm:text-base">{item.value}</div>
                 <div className="text-[#39CCCC] text-xs">{item.score}/10</div>
               </div>
             ))}
@@ -400,11 +400,11 @@ export default function HomeNew() {
         </section>
 
         <div className="bg-[#39CCCC] py-4">
-          <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-6 md:gap-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 lg:gap-12">
             {stats.map((stat, i) => (
               <div key={i} className="text-center">
-                <div className="text-2xl md:text-3xl font-black text-[#001F3F]">{stat.value}</div>
-                <div className="text-[#001F3F]/70 text-sm font-medium">{stat.label}</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-black text-[#001F3F]">{stat.value}</div>
+                <div className="text-[#001F3F]/70 text-xs sm:text-sm font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -512,13 +512,13 @@ export default function HomeNew() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button className="h-12 px-6 bg-[#001F3F] hover:bg-[#002B5C] text-white font-bold" data-testid="button-chrome-extension">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Button className="w-full sm:w-auto h-12 px-6 bg-[#001F3F] hover:bg-[#002B5C] text-white font-bold" data-testid="button-chrome-extension">
                     <Chrome className="w-5 h-5 mr-2" />
                     Add to Chrome — Free
                   </Button>
-                  <Link href="/cleanbi-auto">
-                    <Button variant="outline" className="h-12 px-6 border-[#001F3F] text-[#001F3F] dark:border-white dark:text-white" data-testid="button-try-online">
+                  <Link href="/cleanbi-auto" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full h-12 px-6 border-[#001F3F] text-[#001F3F] dark:border-white dark:text-white" data-testid="button-try-online">
                       Try Online First
                     </Button>
                   </Link>

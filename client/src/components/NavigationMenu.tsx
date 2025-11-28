@@ -357,7 +357,7 @@ export function NavigationMenu() {
           {/* Hamburger Drawer */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden" data-testid="button-mobile-menu">
+              <Button variant="outline" size="icon" className="lg:hidden" data-testid="button-mobile-menu" aria-label="Open menu">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>

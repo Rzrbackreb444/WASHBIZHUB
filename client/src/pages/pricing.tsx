@@ -433,21 +433,21 @@ export default function Pricing() {
           { name: "Pricing", url: "/pricing" }
         ]}
       />
-      <div className="min-h-screen bg-background py-12">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="min-h-screen bg-background py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section - 14 Day Trial */}
-        <div className="text-center mb-8">
-          <Badge className="mb-4 bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30" data-testid="badge-trial-header">
+        <div className="text-center mb-6 sm:mb-8">
+          <Badge className="mb-3 sm:mb-4 bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30" data-testid="badge-trial-header">
             <Clock className="h-3 w-3 mr-1" />
             14-Day Full POS Trial - No Credit Card Required
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-pricing-title">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-3 sm:mb-4" data-testid="text-pricing-title">
             Start Your 14-Day Full POS Trial
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6" data-testid="text-pricing-subtitle">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 sm:mb-6 px-2" data-testid="text-pricing-subtitle">
             No credit card required • Unlimited machines • Cancel anytime
           </p>
-          <p className="text-teal-600 dark:text-teal-400 font-semibold">
+          <p className="text-sm sm:text-base text-teal-600 dark:text-teal-400 font-semibold">
             Keep the AI alerts even if you cancel
           </p>
         </div>
@@ -468,23 +468,23 @@ export default function Pricing() {
         </div>
 
         {/* Social Proof */}
-        <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-6 mb-8 sm:mb-12 text-xs sm:text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-2">
+            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
             <span>68% trial-to-paid conversion</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+          <div className="flex items-center justify-center gap-2">
+            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
             <span>72K+ community members</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+          <div className="flex items-center justify-center gap-2">
+            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
             <span>Save $2K-$12K in first 7 days</span>
           </div>
         </div>
 
         {/* Main Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
           {mainPlans.map((plan) => {
             const Icon = plan.icon;
             return (
@@ -545,10 +545,10 @@ export default function Pricing() {
                     </Button>
                   </Link>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 px-4 sm:px-6">
                   <ul className="space-y-2">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
+                      <li key={i} className="flex items-start gap-2 text-xs sm:text-sm">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span className="text-muted-foreground">{feature}</span>
                       </li>
@@ -587,9 +587,9 @@ export default function Pricing() {
         </div>
 
         {/* What You DON'T Get With Competitors */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-black text-center mb-8">What Others Charge For (That's FREE Here)</h2>
-          <div className="grid md:grid-cols-4 gap-4">
+        <div className="mb-12 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl font-black text-center mb-6 sm:mb-8">What Others Charge For (That's FREE Here)</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[
               { label: "7-day trials", us: "14 days full access", them: "7 days limited" },
               { label: "Credit card required", us: "No card needed", them: "Card upfront" },
@@ -597,16 +597,16 @@ export default function Pricing() {
               { label: "Transaction fees", us: "1.9% (or $99 flat)", them: "6-8% typical" },
             ].map((item, i) => (
               <Card key={i} className="text-center">
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <p className="text-xs text-muted-foreground mb-2">{item.label}</p>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1 sm:gap-2">
                     <div className="flex items-center justify-center gap-1 text-green-600">
-                      <Check className="h-4 w-4" />
-                      <span className="text-sm font-medium">{item.us}</span>
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium">{item.us}</span>
                     </div>
                     <div className="flex items-center justify-center gap-1 text-red-500 opacity-60">
-                      <X className="h-4 w-4" />
-                      <span className="text-sm line-through">{item.them}</span>
+                      <X className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm line-through">{item.them}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -616,11 +616,11 @@ export default function Pricing() {
         </div>
 
         {/* Enterprise Tiers (collapsed) */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-black text-center mb-2">Enterprise Solutions</h2>
-          <p className="text-muted-foreground text-center mb-8">For large operations and franchises</p>
+        <div className="mb-12 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl font-black text-center mb-2">Enterprise Solutions</h2>
+          <p className="text-sm sm:text-base text-muted-foreground text-center mb-6 sm:mb-8">For large operations and franchises</p>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {tiers.map((tier) => {
             const Icon = tier.icon;
             return (

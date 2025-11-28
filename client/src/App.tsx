@@ -225,6 +225,7 @@ const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
+const Doctrine = lazy(() => import("@/pages/doctrine"));
 const Subscribe = lazy(() => import("@/pages/subscribe"));
 const FacebookGroup = lazy(() => import("@/pages/FacebookGroup"));
 const AtmServices = lazy(() => import("@/pages/AtmServices"));
@@ -575,6 +576,11 @@ function Router() {
       <Route path="/book-ad-preview">
         <Suspense fallback={<LoadingFallback />}>
           <BookAdPreview />
+        </Suspense>
+      </Route>
+      <Route path="/doctrine">
+        <Suspense fallback={<LoadingFallback />}>
+          <Doctrine />
         </Suspense>
       </Route>
 
