@@ -112,6 +112,7 @@ import Vendors from "@/pages/vendors";
 import VendorStorefront from "@/pages/vendor-store";
 import ProductDetail from "@/pages/product-detail";
 import CalculatorsHub from "@/pages/calculators";
+import CalculatorsSuite from "@/pages/calculators-suite";
 import CalculatorBuilder from "@/pages/calculator-builder";
 import CalculatorMarketplace from "@/pages/calculator-marketplace";
 import OwnerDashboard from "@/pages/owner-dashboard";
@@ -206,6 +207,7 @@ function Router() {
       <Route path="/cleanbi-tool" component={CleanBI} />
       <Route path="/cleanbi-auto" component={CleanbiAuto} />
       <Route path="/calculators" component={CalculatorsHub} />
+      <Route path="/calculators-suite" component={CalculatorsSuite} />
       <Route path="/calculators/builder" component={CalculatorBuilder} />
       <Route path="/calculator-builder" component={CalculatorBuilder} />
       <Route path="/calculator-marketplace" component={CalculatorMarketplace} />
