@@ -228,6 +228,11 @@ function parseTableFile(filePath: string): RawCodeData[] {
       currentManufacturer = "LG";
     } else if (line.includes("MAYTAG") || line.includes("WHIRLPOOL")) {
       currentManufacturer = line.includes("MAYTAG") ? "Maytag" : "Whirlpool";
+    } else if (line.includes("CONTINENTAL GIRBAU") || line.includes("GIRBAU")) {
+      currentManufacturer = "Continental Girbau";
+      currentMachineType = "washer";
+    } else if (line.includes("WASCOMAT")) {
+      currentManufacturer = "Wascomat";
     }
     
     if (line.includes("**WASHERS**") || line.includes("WASHERS (")) {
@@ -274,6 +279,8 @@ async function importCodes() {
     "attached_assets/Pasted--ELE-1764312621671_1764312621671.txt",
     "attached_assets/Pasted--MIE-1764312653638_1764312653639.txt",
     "attached_assets/Pasted---1764312688301_1764312688301.txt",
+    "attached_assets/Pasted--MAY-1764312853567_1764312853567.txt",
+    "attached_assets/Pasted---1764312882893_1764312882894.txt",
   ];
 
   let totalImported = 0;
