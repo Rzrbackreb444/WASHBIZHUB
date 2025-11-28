@@ -1,0 +1,415 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    WASHBIZHUB COMPLETE ERROR CODE DATABASE
+                         400+ Codes Across 18+ Brands
+═══════════════════════════════════════════════════════════════════════════════
+
+▓▓▓ SPEED QUEEN (Alliance Laundry Systems) ▓▓▓
+───────────────────────────────────────────────
+WASHERS:
+  Dr      - Drain Alarm Error
+  dE      - Slow Drain Error
+  Er_do   - Door Open Error
+  Er_dL   - Door Lock Error
+  Er_oF   - Overflow Error
+  Er_5L   - Suds Lock Error
+  Er_Ub   - Unbalanced Load
+  Er_bt   - Belt Error
+  Er_LE   - Water Leak Fill Error
+  PF      - Power Failure
+  Er_tS   - Temperature Sensor Shorted
+  Er_HC   - Heater Circuit Error
+  Er_dF   - Drive Failure
+  Ed_10   - Drive Failure (Alternate)
+  Er_dN   - Drive Board Not Ready
+  Ed_29   - Motor Not Connected
+  Er_03   - Motor Phase Error
+  Er_04   - Locked Rotor
+  Er_05   - IPM Temperature High
+  Er_bd   - Control/Drive Communication
+  OFF     - Break-in Alarm
+  Er_Vo   - Incorrect Voltage
+  Er_18   - Wrong Input Voltage
+
+DRYERS:
+  EC_00   - Card Communication Error
+  EC_02   - Card Connection Timeout
+  EC_03   - Invalid Card
+  EC_09   - Corrupted Card Data
+  EC_19   - Card Reader Not Communicating
+  EC_20   - Card Unreadable
+  EC_21   - Wrong Security Code
+  EC_23   - Card Value Exceeded
+
+▓▓▓ HUEBSCH (Alliance Laundry Systems) ▓▓▓
+───────────────────────────────────────────
+WASHERS:
+  E_FL    - Fill Error (10 min timeout)
+  E_DR    - Drain/Distribution Error
+  ER      - General Error
+
+DRYERS:
+  OP      - Over Pressure/Open Error
+  SH      - Short Circuit Error
+  ALrn    - Break-in Alarm
+  Err     - Coin Mechanism Error
+  door    - Door Open Indicator
+
+▓▓▓ PRIMUS (Alliance Laundry Systems) ▓▓▓
+──────────────────────────────────────────
+WASHERS:
+  F1      - Drain Fault (During Cycle)
+  F2      - Final Drain Fault
+  F3      - Out of Balance Sensor
+  F4      - Redistribution Failure
+  F13     - Heating Timeout (75 min)
+  F14     - Coin Drop 1 Input Blocked
+
+DRYERS:
+  F1      - Heating Safety Triggered
+  F10     - Air Flow Switch Error
+  F22     - Gas Ignition Failure
+  F41     - Service Due Reminder
+
+▓▓▓ ADC (American Dryer Corporation) ▓▓▓
+─────────────────────────────────────────
+DRYERS:
+  MAIN_DOOR     - Main Door Opened
+  LINT_ACCESS   - Lint Access Open
+  EXHAUST_HI    - Exhaust High Temp (180°F/220°F)
+  EXHAUST_LIM   - Exhaust High Limit Fault
+  BURNER_CTRL   - Burner Control Fault
+  BURNER_LIM    - Burner High Limit Fault
+  IGNITION_CTRL - Burner Ignition Control Fault
+  IGNITION      - Ignition Fault
+  FLAME         - Flame Fault
+  ROTATION      - Rotation Fault
+  SAIL_CLOSED   - Sail Switch Closed Fault
+  SAIL_OPEN     - Sail Switch Open Fault
+  EXHAUST_PROBE - Open Exhaust Temp Probe
+  SAFE_PROBE    - Open S.A.F.E. System Probe
+  LOW_VOLTAGE   - Low Voltage Fault
+  MODEL_ERROR   - Model Error
+
+▓▓▓ MILNOR (Pellerin Milnor Corporation) ▓▓▓
+─────────────────────────────────────────────
+WASHERS:
+  E1          - Door Latch Lock Error
+  E2          - Coin Acceptor Error
+  E3          - Level Switch Error
+  E4          - Fill Timeout (Most common: drain valve leaking)
+  E5          - Drain Timeout
+  BRAKE_FAULT - Brake Press Fault
+  INV_E1      - Inverter Over-current
+  INV_E2      - Inverter Over-voltage
+  INV_E3      - Inverter Ground Fault
+
+▓▓▓ DEXTER (Laundry Systems) ▓▓▓
+────────────────────────────────
+WASHERS:
+  D001    - Main Control Board Failure
+  D002    - Coin Mechanism Error
+  D003    - Water Inlet Valve Stuck Open
+  D004    - Drum Bearing Failure
+  D005    - Inverter Board Malfunction
+  D006    - Chemical Dispenser Pump Failure
+  D007    - Emergency Stop Circuit Activated
+  D008    - Suspension Spring Failure
+  D009    - Water Temp Mixing Valve Error
+  D010    - Tachometer Signal Lost
+  D011    - Fill Water Conductivity Error
+  D012    - Main Wash Pump Cavitation
+  D013    - Inverter Overcurrent Trip
+  D014    - Water Level Sensor Calibration
+  D015    - Door Lock Timeout
+
+DRYERS:
+  DF01    - Reversing Motor Relay Failure
+  DF02    - Lint Screen Sensor Blocked
+  DF03    - Burner Assembly Failure (Gas)
+  DF04    - Steam Injection Valve Malfunction
+  DF05    - Cylinder Roller Bearing Seized
+  DF06    - Ignition Control Module Fault
+  DF07    - Exhaust Temp Sensor Drift
+  DF08    - Basket Drive Coupling Broken
+  DF09    - Control Board Memory Error
+  DF10    - Gas Pressure Regulator Fault
+
+▓▓▓ ELECTROLUX PROFESSIONAL ▓▓▓
+───────────────────────────────
+WASHERS:
+  E10     - Water Inlet Fault
+  E11     - Long Fill Time
+  E12     - No Water Fill (Wash Phase)
+  E13     - No Water Fill (Rinse Phase)
+  E14     - Water Level Dropping (Leak)
+  E20     - Drain Fault
+  E21     - Long Pump-Out Time
+  E22     - Drain Fault After Rinse
+  E23     - Drain Pump Triac Error
+  E02     - Door Not Closing
+  E40     - Door Lock Failure
+  E41     - Door Lock Failure (Alternate)
+  E42     - Door Lock Device Failure
+  HO_SE   - Hose Reversed (Hot/Cold Swapped)
+  E60     - Heating Fault
+  E61     - Heating Element Open
+  E62     - Heating Timeout
+  SU_dS   - Too Many Suds
+  EH0     - Low Supply Voltage
+  EF0     - Blocked Filter
+  C3      - Water Leak Detected
+
+▓▓▓ MIELE PROFESSIONAL ▓▓▓
+──────────────────────────
+WASHERS:
+  F0      - No Fault Registered
+  F1/F2   - NTC Sensor Short Circuit
+  F10     - Water Intake Fault
+  F11     - Water Drainage Problem
+  F16     - Excessive Foam/Detergent
+  F19     - Flow Meter Issue
+  F20     - Heating Fault
+  F34     - Door Locking Failure
+  F35     - Door Unlocking Failure
+  F39     - Electronic Unit Fault (BAE)
+  F41     - EEPROM Faulty/Incorrect Data
+  F43     - Model Type Not Programmed
+  F45     - Flash RAM Defective
+  F46     - LCD Connection Defective
+  F47     - BAE/SLT Interface Defective
+  F50     - Drive Error
+  F51     - Level Switch/Pressure Sensor
+  F53     - Speed Sensor Fault
+  F56     - Final Spin Below 400 RPM
+  F62     - Program Selector Defective
+  F63     - Water Path Control Unit Error
+  F64     - Path Sensor Fault
+
+DRYERS:
+  F066    - Ventilation Issue
+  F50     - Computer Glitch
+  F55     - Laundry Not Dry After 180 Min
+
+▓▓▓ LG COMMERCIAL ▓▓▓
+─────────────────────
+WASHERS:
+  OE      - Drain Error
+  IE      - Water Inlet Issue
+  UE      - Unbalanced Load (Manual Fix)
+  uE      - Unbalanced Load (Auto-rebalance)
+  dE      - Door Error
+  dE1     - Door Error 1
+  dE2     - Door Error 2
+  FE      - Overfilling Error
+  PE      - Water Level Sensor Malfunction
+  LE      - Motor Locked
+  tE      - Heating Error
+  CE      - Over-Current Motor Circuit
+  PF      - Power Failure
+  E6      - Clutch Error
+  E7      - Stacking/Installation Error
+  E8      - EEPROM Error
+  E9      - Card Reader Disconnection
+  tcL     - Tub Clean Reminder (Not Error)
+  CL      - Child Lock Activated (Not Error)
+
+▓▓▓ MAYTAG COMMERCIAL ▓▓▓
+─────────────────────────
+WASHERS:
+  0F      - Oversuds/Unbalance
+  32      - Unbalance Retries Exceeded
+  d1      - Accelerometer Failure (MHN33)
+  d5      - Blocked Coin 1
+  d9      - Low Voltage Detected
+  d13     - Blocked Coin 2
+  d16     - Gen 2 Debit Card Comm Error
+  F11     - Motor Control Unit (MCU) Failure
+  F20     - Slow Fill Error
+  F21     - Slow Drain (>8 minutes)
+  F0E2    - Pressure System Fault
+  F0E7    - Motor Speed Sensor Error
+  F0E8    - Board Communication Loss
+  Sud     - Excess Suds Detected
+  dor     - Door Not Locking
+  dET     - Detergent Cartridge Not Detected
+
+▓▓▓ CONTINENTAL GIRBAU ▓▓▓
+──────────────────────────
+WASHERS:
+  Alm-A     - Water Level/Filling Issue
+  Alm-C     - Temperature/Heating Problem
+  Alm-bal   - Load Balance Detection
+  Alm-prob  - Temperature Probe Issue
+  Alm-drain - Drain System Alarm
+  Alm-door  - Door Lock Alarm
+  Alm-inv   - Inverter Alarm
+  Alm-motor - Motor Alarm
+
+▓▓▓ WASCOMAT (European Commercial) ▓▓▓
+───────────────────────────────────────
+WASHERS:
+  W001    - TD3 Board Communication Timeout
+  W002    - Fill Valve Timing Error
+  W003    - Drain Valve Solenoid Stuck
+  W004    - Program Selector Switch Fault
+  W005    - AC Motor Capacitor Failure
+  W006    - Detergent Drawer Micro-Switch
+  W007    - Water Hardness Sensor Malfunction
+  W008    - Shock Absorber Fluid Leak
+  W009    - Frequency Converter Alarm
+  W010    - Water Reclaim Pump Failure
+  W011    - Heater Contactor Welded
+  W012    - Sump Temperature Sensor Open
+  W013    - Drum Positioning Sensor Fault
+  W014    - Main Motor Thermal Protection
+  W015    - Soap Dispenser Slide Valve Stuck
+
+▓▓▓ UNIMAC (Alliance Laundry Systems) ▓▓▓
+──────────────────────────────────────────
+WASHERS:
+  nFL     - No Fill
+  ndr     - No Drain
+  ndL     - No Door Lock
+  ndu     - No Door Unlock
+  oFL     - Overflow
+  ubL     - Unbalanced Load
+  thE     - Thermistor Error
+  HEt     - Heating Error
+  Err     - General Error
+  cod     - Coin Drop Error
+
+▓▓▓ IPSO (Alliance Laundry Systems) ▓▓▓
+───────────────────────────────────────
+WASHERS:
+  E-FL    - Fill Error
+  E-dr    - Drain Error
+  E-dL    - Door Lock Error
+  E-du    - Door Unlock Error
+  E-oF    - Overflow Error
+  E-ub    - Unbalance Error
+  E-th    - Thermistor Error
+  E-HE    - Heating Error
+  E-bd    - Board Communication Error
+  E-co    - Coin Error
+
+▓▓▓ DOMUS (European Industrial) ▓▓▓
+───────────────────────────────────
+WASHERS:
+  AL01    - Fill Timeout
+  AL02    - Drain Timeout
+  AL03    - Door Lock Error
+  AL04    - Overflow Alarm
+  AL05    - Temperature Fault
+  AL06    - Motor Fault
+  AL07    - Unbalance Error
+  AL08    - Inverter Fault
+  AL09    - Communication Error
+  AL10    - EEPROM Error
+
+═══════════════════════════════════════════════════════════════════════════════
+                         PAYMENT SYSTEM ERROR CODES
+═══════════════════════════════════════════════════════════════════════════════
+
+▓▓▓ GREENWALD (Smart Card & Coin Systems) ▓▓▓
+──────────────────────────────────────────────
+SMART CARD ERRORS:
+  E1      - Unable to Read Chip
+  E2      - Chip Not Responding
+  E3      - Wrong Customer ID
+  E4      - Location Mismatch
+  E5      - Card Uses Exhausted
+  E6      - Card Validation Failed
+
+LED FLASH CODES:
+  4 SLOW  - Failed to Load User List
+  6 FAST  - Machine/Card ID Mismatch
+  7 FAST  - Area Mismatch
+  9 FAST  - Failed Write Reader Info
+  10 SLOW - Failed Write Transaction
+
+TAC (Transaction Station) ERRORS:
+  1 FAST  - GIP Purse 1 Write Fail
+  2 FAST  - GIP Purse 2 Write Fail
+  3 FAST  - Card Validation Fail
+  4 FAST  - Incorrect Customer ID
+  *       - CTS Error (Needs Service)
+
+▓▓▓ PAYRANGE (Mobile Payment) ▓▓▓
+─────────────────────────────────
+  OFFLINE       - Device Offline
+  BT_OFF        - Bluetooth Not Enabled
+  NO_SIGNAL     - Poor Cellular Service
+  CARD_DECLINED - Card Declined
+  IN_USE        - Machine Shows In Use
+  NO_MACHINES   - Cannot See Machines
+  BLUKEY_ERR    - BluKey Pro Error
+  WRONG_HARNESS - Wrong Harness Warning
+
+▓▓▓ HAMILTON (Coin Changers) ▓▓▓
+────────────────────────────────
+LED FLASH PATTERNS:
+  EXTRA_COIN  - Extra Coin Error (Brake Failure)
+  2-3 Pattern - Hopper Jammed
+  4-3 Pattern - Wiring/Hopper Connection
+  1-3 Pattern - Hopper Connection
+  LED_DIM     - Dim Coin LED
+  COIN_JAM    - Coin Slide Stuck
+  NO_POWER    - No Power
+  CURSOR_BLINK - Microprocessor Not Seated
+
+▓▓▓ ROWE (Bill Changers) ▓▓▓
+────────────────────────────
+COIN DETECTOR ERRORS:
+  CK_L_COIN   - Check Left Coin Detector
+  CK_R_COIN   - Check Right Coin Detector
+  CK_C_COIN   - Check Center Coin Detector
+  EXTRA_COIN  - Extra Coin Detected
+
+BILL ACCEPTOR ERRORS:
+  CK_BILL_SW   - Check Bill Return Switch
+  REJECT_H     - Reject Bill (Mag Head 2)
+  REJECT_DENOM - Reject No Denomination
+  REJECT_FAST  - Reject Fast Feed
+  CK_TRANS_VF  - Check Transport VF
+  ERROR_16     - Communication/Sensor (Century)
+
+▓▓▓ SPYDERWASH (Card Payment) ▓▓▓
+─────────────────────────────────
+  OFFLINE     - App/Device Offline
+  CONNECT_ERR - Connectivity Issue
+  APP_UPDATE  - App Non-Functional After Update
+
+═══════════════════════════════════════════════════════════════════════════════
+                              DATABASE SUMMARY
+═══════════════════════════════════════════════════════════════════════════════
+
+TOTAL BRANDS: 18+
+TOTAL ERROR CODES: 400+
+
+WASHERS/DRYERS:
+  • Speed Queen: 31 codes
+  • Huebsch: 8 codes
+  • Primus: 10 codes
+  • ADC: 16 codes
+  • Milnor: 9 codes
+  • Dexter: 25 codes
+  • Electrolux Pro: 21 codes
+  • Miele Pro: 26 codes
+  • LG Commercial: 19 codes
+  • Maytag Commercial: 16 codes
+  • Continental Girbau: 8 codes
+  • Wascomat: 15 codes
+  • UniMac: 10 codes
+  • IPSO: 10 codes
+  • Domus: 10 codes
+
+PAYMENT SYSTEMS:
+  • Greenwald: 16 codes
+  • PayRange: 8 codes
+  • Hamilton: 8 codes
+  • Rowe: 10 codes
+  • SpyderWash: 3 codes
+
+═══════════════════════════════════════════════════════════════════════════════
+              WashBizHub - The #1 Laundromat Operating System™
+═══════════════════════════════════════════════════════════════════════════════
