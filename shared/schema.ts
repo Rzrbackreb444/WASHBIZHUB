@@ -10471,5 +10471,797 @@ export type InsertSupplyListing = z.infer<typeof insertSupplyListingSchema>;
 export type SupplyListing = typeof supplyListings.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete Platform with AI Content Studio
+// CUSTOMER SELF-SERVICE PORTAL - Industry-Leading Customer Experience
+// ============================================================================
+
+export const customerPortalAccounts = pgTable("customer_portal_accounts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  householdAccountId: varchar("household_account_id").references(() => householdAccounts.id),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Authentication
+  email: varchar("email").notNull(),
+  passwordHash: text("password_hash"),
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: text("email_verification_token"),
+  emailVerificationExpires: timestamp("email_verification_expires"),
+  passwordResetToken: text("password_reset_token"),
+  passwordResetExpires: timestamp("password_reset_expires"),
+  
+  // Profile
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  phone: varchar("phone"),
+  profileImage: text("profile_image"),
+  
+  // Address (for pickup/delivery)
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: varchar("zip"),
+  deliveryInstructions: text("delivery_instructions"),
+  
+  // Loyalty Program
+  loyaltyPoints: integer("loyalty_points").default(0),
+  loyaltyTier: text("loyalty_tier").default("bronze"), // "bronze", "silver", "gold", "platinum"
+  lifetimePoints: integer("lifetime_points").default(0),
+  lifetimeSpend: decimal("lifetime_spend", { precision: 12, scale: 2 }).default("0.00"),
+  
+  // Subscription
+  hasSubscription: boolean("has_subscription").default(false),
+  subscriptionPlanId: varchar("subscription_plan_id"),
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  
+  // Stripe
+  stripeCustomerId: text("stripe_customer_id"),
+  defaultPaymentMethodId: text("default_payment_method_id"),
+  
+  // Status
+  status: text("status").default("active"), // "pending", "active", "suspended", "closed"
+  lastLoginAt: timestamp("last_login_at"),
+  loginCount: integer("login_count").default(0),
+  
+  // Referral
+  referralCode: varchar("referral_code").unique(),
+  referredBy: varchar("referred_by"),
+  referralCount: integer("referral_count").default(0),
+  
+  // Communication Preferences
+  smsNotifications: boolean("sms_notifications").default(true),
+  emailNotifications: boolean("email_notifications").default(true),
+  marketingEmails: boolean("marketing_emails").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  emailIdx: index("customer_portal_email_idx").on(table.email),
+  laundromatIdx: index("customer_portal_laundromat_idx").on(table.laundromatId),
+  loyaltyTierIdx: index("customer_portal_loyalty_tier_idx").on(table.loyaltyTier),
+  referralCodeIdx: index("customer_portal_referral_code_idx").on(table.referralCode),
+}));
+
+export const insertCustomerPortalAccountSchema = createInsertSchema(customerPortalAccounts).omit({
+  id: true,
+  loyaltyPoints: true,
+  lifetimePoints: true,
+  lifetimeSpend: true,
+  loginCount: true,
+  referralCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCustomerPortalAccount = z.infer<typeof insertCustomerPortalAccountSchema>;
+export type CustomerPortalAccount = typeof customerPortalAccounts.$inferSelect;
+
+// Customer Preferences - Personalized laundry settings
+export const customerPreferences = pgTable("customer_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerPortalId: varchar("customer_portal_id").references(() => customerPortalAccounts.id).notNull(),
+  
+  // Detergent Preferences
+  detergentType: text("detergent_type").default("standard"), // "standard", "hypoallergenic", "scent_free", "eco_friendly"
+  detergentBrand: text("detergent_brand"),
+  fabricSoftener: boolean("fabric_softener").default(true),
+  fabricSoftenerType: text("fabric_softener_type"),
+  
+  // Wash Preferences
+  waterTemperature: text("water_temperature").default("warm"), // "cold", "warm", "hot"
+  dryerHeat: text("dryer_heat").default("medium"), // "low", "medium", "high", "air_dry"
+  
+  // Folding Preferences
+  foldingStyle: text("folding_style").default("standard"), // "standard", "military", "hung", "rolled"
+  hangDelicates: boolean("hang_delicates").default(true),
+  separateColors: boolean("separate_colors").default(true),
+  
+  // Special Instructions
+  allergies: text("allergies").array(),
+  specialInstructions: text("special_instructions"),
+  
+  // Starch Preferences
+  starchShirts: boolean("starch_shirts").default(false),
+  starchLevel: text("starch_level").default("light"), // "light", "medium", "heavy"
+  
+  // Packaging
+  packagingPreference: text("packaging_preference").default("folded_in_bag"), // "folded_in_bag", "on_hangers", "box"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  customerPortalIdx: index("customer_preferences_customer_idx").on(table.customerPortalId),
+}));
+
+export const insertCustomerPreferencesSchema = createInsertSchema(customerPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCustomerPreferences = z.infer<typeof insertCustomerPreferencesSchema>;
+export type CustomerPreferences = typeof customerPreferences.$inferSelect;
+
+// Loyalty Transactions - Track points earned/redeemed
+export const loyaltyTransactions = pgTable("loyalty_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerPortalId: varchar("customer_portal_id").references(() => customerPortalAccounts.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Transaction Details
+  transactionType: text("transaction_type").notNull(), // "earned", "redeemed", "bonus", "expired", "adjusted"
+  points: integer("points").notNull(),
+  balanceAfter: integer("balance_after").notNull(),
+  
+  // Reference
+  referenceType: text("reference_type"), // "order", "referral", "promotion", "manual"
+  referenceId: varchar("reference_id"),
+  
+  // Description
+  description: text("description"),
+  
+  // Expiration (for earned points)
+  expiresAt: timestamp("expires_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  customerPortalIdx: index("loyalty_transactions_customer_idx").on(table.customerPortalId),
+  laundromatIdx: index("loyalty_transactions_laundromat_idx").on(table.laundromatId),
+  typeIdx: index("loyalty_transactions_type_idx").on(table.transactionType),
+}));
+
+export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertLoyaltyTransaction = z.infer<typeof insertLoyaltyTransactionSchema>;
+export type LoyaltyTransaction = typeof loyaltyTransactions.$inferSelect;
+
+// ============================================================================
+// REPAIR LOGS - Comprehensive Machine Service History (Industry First!)
+// ============================================================================
+
+export const repairLogs = pgTable("repair_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Repair Details
+  repairNumber: text("repair_number").notNull().unique(),
+  repairType: text("repair_type").notNull(), // "preventive", "corrective", "emergency", "installation", "upgrade"
+  issueCategory: text("issue_category").notNull(), // "electrical", "mechanical", "plumbing", "electronic", "cosmetic", "software"
+  
+  // Issue Description
+  issueTitle: text("issue_title").notNull(),
+  issueDescription: text("issue_description"),
+  symptomsReported: text("symptoms_reported").array(),
+  errorCodes: text("error_codes").array(),
+  
+  // Severity
+  severity: text("severity").default("medium"), // "low", "medium", "high", "critical"
+  priority: integer("priority").default(5), // 1-10, 1 being highest
+  
+  // Resolution
+  resolutionDescription: text("resolution_description"),
+  rootCause: text("root_cause"),
+  workPerformed: text("work_performed").array(),
+  
+  // Technician
+  technicianId: varchar("technician_id"),
+  technicianName: text("technician_name"),
+  technicianCompany: text("technician_company"),
+  
+  // Timing
+  reportedAt: timestamp("reported_at").defaultNow().notNull(),
+  scheduledAt: timestamp("scheduled_at"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  
+  // Labor
+  laborHours: decimal("labor_hours", { precision: 6, scale: 2 }),
+  laborRate: decimal("labor_rate", { precision: 8, scale: 2 }),
+  laborCost: decimal("labor_cost", { precision: 10, scale: 2 }),
+  
+  // Travel
+  travelTime: decimal("travel_time", { precision: 4, scale: 2 }),
+  travelCost: decimal("travel_cost", { precision: 8, scale: 2 }),
+  
+  // Parts (detailed in separate table, summary here)
+  partsCost: decimal("parts_cost", { precision: 10, scale: 2 }).default("0.00"),
+  
+  // Total Cost
+  totalCost: decimal("total_cost", { precision: 12, scale: 2 }).default("0.00"),
+  
+  // Warranty
+  warrantyRepair: boolean("warranty_repair").default(false),
+  warrantyClaimNumber: text("warranty_claim_number"),
+  warrantyProvider: text("warranty_provider"),
+  
+  // Status
+  status: text("status").default("open"), // "open", "assigned", "in_progress", "waiting_parts", "completed", "cancelled"
+  
+  // Follow-up
+  followUpRequired: boolean("follow_up_required").default(false),
+  followUpDate: timestamp("follow_up_date"),
+  followUpNotes: text("follow_up_notes"),
+  
+  // Documentation
+  photos: text("photos").array(),
+  documents: text("documents").array(),
+  
+  // Machine readings at time of repair
+  cycleCountAtRepair: integer("cycle_count_at_repair"),
+  machineAgeAtRepair: integer("machine_age_days"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("repair_logs_machine_idx").on(table.machineId),
+  laundromatIdx: index("repair_logs_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("repair_logs_status_idx").on(table.status),
+  categoryIdx: index("repair_logs_category_idx").on(table.issueCategory),
+  technicianIdx: index("repair_logs_technician_idx").on(table.technicianId),
+}));
+
+export const insertRepairLogSchema = createInsertSchema(repairLogs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertRepairLog = z.infer<typeof insertRepairLogSchema>;
+export type RepairLog = typeof repairLogs.$inferSelect;
+
+// Repair Parts Used - Track every part in a repair
+export const repairPartsUsed = pgTable("repair_parts_used", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  repairLogId: varchar("repair_log_id").references(() => repairLogs.id).notNull(),
+  partInventoryId: varchar("part_inventory_id").references(() => partsInventory.id),
+  
+  // Part Details
+  partName: text("part_name").notNull(),
+  partNumber: text("part_number"),
+  manufacturer: text("manufacturer"),
+  
+  // Quantity & Cost
+  quantity: integer("quantity").default(1),
+  unitCost: decimal("unit_cost", { precision: 10, scale: 2 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  
+  // Source
+  source: text("source").default("inventory"), // "inventory", "vendor_order", "warranty"
+  vendorId: varchar("vendor_id"),
+  vendorName: text("vendor_name"),
+  
+  // Warranty
+  partWarrantyMonths: integer("part_warranty_months"),
+  partWarrantyExpires: timestamp("part_warranty_expires"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  repairLogIdx: index("repair_parts_repair_idx").on(table.repairLogId),
+  partInventoryIdx: index("repair_parts_inventory_idx").on(table.partInventoryId),
+}));
+
+export const insertRepairPartsUsedSchema = createInsertSchema(repairPartsUsed).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertRepairPartsUsed = z.infer<typeof insertRepairPartsUsedSchema>;
+export type RepairPartsUsed = typeof repairPartsUsed.$inferSelect;
+
+// ============================================================================
+// PREDICTIVE MAINTENANCE AI - No Competitor Has This!
+// ============================================================================
+
+export const machinePredictiveMetrics = pgTable("machine_predictive_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Health Score (0-100)
+  overallHealthScore: integer("overall_health_score").default(100),
+  mechanicalScore: integer("mechanical_score").default(100),
+  electricalScore: integer("electrical_score").default(100),
+  componentScore: integer("component_score").default(100),
+  
+  // Failure Predictions
+  predictedFailureDate: timestamp("predicted_failure_date"),
+  failureProbability: decimal("failure_probability", { precision: 5, scale: 2 }), // 0.00 to 100.00
+  mostLikelyFailureType: text("most_likely_failure_type"),
+  predictedRepairCost: decimal("predicted_repair_cost", { precision: 10, scale: 2 }),
+  
+  // Maintenance Recommendations
+  recommendedMaintenanceDate: timestamp("recommended_maintenance_date"),
+  maintenancePriority: text("maintenance_priority").default("normal"), // "low", "normal", "high", "urgent"
+  recommendedActions: text("recommended_actions").array(),
+  
+  // Cycle Analysis
+  avgCyclesPerDay: decimal("avg_cycles_per_day", { precision: 8, scale: 2 }),
+  cyclesTillMaintenance: integer("cycles_till_maintenance"),
+  usagePattern: text("usage_pattern"), // "heavy", "normal", "light"
+  
+  // Component Tracking
+  bearingWearLevel: decimal("bearing_wear_level", { precision: 5, scale: 2 }),
+  beltCondition: text("belt_condition").default("good"), // "new", "good", "worn", "replace_soon", "critical"
+  motorCondition: text("motor_condition").default("good"),
+  pumpCondition: text("pump_condition").default("good"),
+  drainCondition: text("drain_condition").default("good"),
+  
+  // Efficiency Metrics
+  energyEfficiencyScore: integer("energy_efficiency_score").default(100),
+  waterEfficiencyScore: integer("water_efficiency_score").default(100),
+  estimatedMonthlyCost: decimal("estimated_monthly_cost", { precision: 10, scale: 2 }),
+  
+  // ROI Impact
+  downTimeRisk: text("downtime_risk").default("low"), // "low", "medium", "high", "critical"
+  estimatedRevenueLoss: decimal("estimated_revenue_loss", { precision: 10, scale: 2 }),
+  
+  // AI Model
+  lastAnalyzedAt: timestamp("last_analyzed_at").defaultNow(),
+  modelVersion: text("model_version").default("v1.0"),
+  confidenceLevel: decimal("confidence_level", { precision: 5, scale: 2 }), // 0-100%
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("predictive_metrics_machine_idx").on(table.machineId),
+  laundromatIdx: index("predictive_metrics_laundromat_idx").on(table.laundromatId),
+  healthScoreIdx: index("predictive_metrics_health_idx").on(table.overallHealthScore),
+  priorityIdx: index("predictive_metrics_priority_idx").on(table.maintenancePriority),
+}));
+
+export const insertMachinePredictiveMetricsSchema = createInsertSchema(machinePredictiveMetrics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMachinePredictiveMetrics = z.infer<typeof insertMachinePredictiveMetricsSchema>;
+export type MachinePredictiveMetrics = typeof machinePredictiveMetrics.$inferSelect;
+
+// ============================================================================
+// SERVICE GUY AI - AI-Powered Repair Assistant
+// ============================================================================
+
+export const serviceGuyAIConversations = pgTable("service_guy_ai_conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  technicianId: varchar("technician_id"),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id),
+  machineId: varchar("machine_id").references(() => machineAssets.id),
+  repairLogId: varchar("repair_log_id").references(() => repairLogs.id),
+  
+  // Session
+  sessionId: varchar("session_id").notNull(),
+  
+  // Message
+  role: text("role").notNull(), // "user", "assistant", "system"
+  content: text("content").notNull(),
+  
+  // Context
+  errorCodes: text("error_codes").array(),
+  machineType: text("machine_type"),
+  manufacturer: text("manufacturer"),
+  model: text("model"),
+  
+  // AI Response Metadata
+  suggestedParts: text("suggested_parts").array(),
+  suggestedActions: text("suggested_actions").array(),
+  videoLinks: text("video_links").array(),
+  documentLinks: text("document_links").array(),
+  estimatedRepairTime: decimal("estimated_repair_time", { precision: 4, scale: 2 }),
+  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }),
+  
+  // Feedback
+  wasHelpful: boolean("was_helpful"),
+  feedbackNotes: text("feedback_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("service_guy_ai_session_idx").on(table.sessionId),
+  technicianIdx: index("service_guy_ai_technician_idx").on(table.technicianId),
+  machineIdx: index("service_guy_ai_machine_idx").on(table.machineId),
+}));
+
+export const insertServiceGuyAIConversationSchema = createInsertSchema(serviceGuyAIConversations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertServiceGuyAIConversation = z.infer<typeof insertServiceGuyAIConversationSchema>;
+export type ServiceGuyAIConversation = typeof serviceGuyAIConversations.$inferSelect;
+
+// ============================================================================
+// TECHNICIAN DISPATCH - Professional Service Management
+// ============================================================================
+
+export const technicians = pgTable("technicians", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id),
+  
+  // Profile
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  email: varchar("email"),
+  phone: varchar("phone").notNull(),
+  profileImage: text("profile_image"),
+  
+  // Company
+  companyName: text("company_name"),
+  isInternal: boolean("is_internal").default(false), // true = in-house, false = external vendor
+  
+  // Certifications
+  certifications: text("certifications").array(),
+  specializations: text("specializations").array(), // "washer", "dryer", "electrical", "plumbing"
+  
+  // Ratings
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  totalRepairs: integer("total_repairs").default(0),
+  
+  // Rates
+  hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
+  calloutFee: decimal("callout_fee", { precision: 8, scale: 2 }),
+  
+  // Availability
+  isAvailable: boolean("is_available").default(true),
+  serviceRadius: integer("service_radius_miles").default(50),
+  
+  // Location
+  baseAddress: text("base_address"),
+  baseCity: text("base_city"),
+  baseState: text("base_state"),
+  baseZip: varchar("base_zip"),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  
+  // Status
+  status: text("status").default("active"), // "active", "inactive", "suspended"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("technicians_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("technicians_status_idx").on(table.status),
+}));
+
+export const insertTechnicianSchema = createInsertSchema(technicians).omit({
+  id: true,
+  totalRepairs: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertTechnician = z.infer<typeof insertTechnicianSchema>;
+export type Technician = typeof technicians.$inferSelect;
+
+// Technician Dispatch Assignments
+export const technicianDispatches = pgTable("technician_dispatches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  repairLogId: varchar("repair_log_id").references(() => repairLogs.id).notNull(),
+  technicianId: varchar("technician_id").references(() => technicians.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Schedule
+  scheduledDate: timestamp("scheduled_date").notNull(),
+  scheduledTimeSlot: text("scheduled_time_slot"), // "morning", "afternoon", "evening"
+  estimatedDuration: decimal("estimated_duration", { precision: 4, scale: 2 }),
+  
+  // Status
+  status: text("status").default("scheduled"), // "scheduled", "en_route", "arrived", "in_progress", "completed", "cancelled", "rescheduled"
+  
+  // Tracking
+  dispatchedAt: timestamp("dispatched_at"),
+  enRouteAt: timestamp("en_route_at"),
+  arrivedAt: timestamp("arrived_at"),
+  completedAt: timestamp("completed_at"),
+  
+  // Location Tracking
+  currentLatitude: decimal("current_latitude", { precision: 10, scale: 7 }),
+  currentLongitude: decimal("current_longitude", { precision: 10, scale: 7 }),
+  estimatedArrival: timestamp("estimated_arrival"),
+  
+  // Notes
+  dispatchNotes: text("dispatch_notes"),
+  technicianNotes: text("technician_notes"),
+  
+  // Rating
+  customerRating: integer("customer_rating"), // 1-5
+  customerFeedback: text("customer_feedback"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  repairLogIdx: index("dispatches_repair_idx").on(table.repairLogId),
+  technicianIdx: index("dispatches_technician_idx").on(table.technicianId),
+  laundromatIdx: index("dispatches_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("dispatches_status_idx").on(table.status),
+}));
+
+export const insertTechnicianDispatchSchema = createInsertSchema(technicianDispatches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertTechnicianDispatch = z.infer<typeof insertTechnicianDispatchSchema>;
+export type TechnicianDispatch = typeof technicianDispatches.$inferSelect;
+
+// ============================================================================
+// MACHINE LIFECYCLE MANAGEMENT - Total Cost of Ownership
+// ============================================================================
+
+export const machineLifecycleMetrics = pgTable("machine_lifecycle_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Purchase Information
+  purchasePrice: decimal("purchase_price", { precision: 12, scale: 2 }),
+  purchaseDate: timestamp("purchase_date"),
+  financingType: text("financing_type"), // "cash", "lease", "loan"
+  monthlyPayment: decimal("monthly_payment", { precision: 10, scale: 2 }),
+  financingTermMonths: integer("financing_term_months"),
+  
+  // Depreciation
+  depreciationMethod: text("depreciation_method").default("straight_line"), // "straight_line", "declining_balance"
+  usefulLifeYears: integer("useful_life_years").default(10),
+  salvageValue: decimal("salvage_value", { precision: 10, scale: 2 }),
+  currentBookValue: decimal("current_book_value", { precision: 12, scale: 2 }),
+  accumulatedDepreciation: decimal("accumulated_depreciation", { precision: 12, scale: 2 }),
+  
+  // Revenue
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).default("0.00"),
+  averageRevenuePerMonth: decimal("average_revenue_per_month", { precision: 10, scale: 2 }),
+  revenuePerCycle: decimal("revenue_per_cycle", { precision: 6, scale: 2 }),
+  
+  // Operating Costs
+  totalRepairCosts: decimal("total_repair_costs", { precision: 12, scale: 2 }).default("0.00"),
+  totalMaintenanceCosts: decimal("total_maintenance_costs", { precision: 12, scale: 2 }).default("0.00"),
+  totalPartsCosts: decimal("total_parts_costs", { precision: 12, scale: 2 }).default("0.00"),
+  estimatedUtilityCost: decimal("estimated_utility_cost", { precision: 10, scale: 2 }),
+  insuranceCost: decimal("insurance_cost", { precision: 10, scale: 2 }),
+  
+  // Total Cost of Ownership
+  tcoToDate: decimal("tco_to_date", { precision: 14, scale: 2 }).default("0.00"),
+  projectedTCO: decimal("projected_tco", { precision: 14, scale: 2 }),
+  costPerCycle: decimal("cost_per_cycle", { precision: 6, scale: 2 }),
+  
+  // ROI Metrics
+  roi: decimal("roi", { precision: 8, scale: 2 }), // Return on Investment %
+  paybackPeriodMonths: integer("payback_period_months"),
+  netPresentValue: decimal("net_present_value", { precision: 12, scale: 2 }),
+  
+  // Energy Metrics
+  estimatedKwhPerCycle: decimal("estimated_kwh_per_cycle", { precision: 6, scale: 2 }),
+  estimatedWaterGallonsPerCycle: decimal("estimated_water_gallons_per_cycle", { precision: 6, scale: 2 }),
+  energyStarRating: integer("energy_star_rating"),
+  
+  // Replacement Analysis
+  recommendedReplacementDate: timestamp("recommended_replacement_date"),
+  replacementReason: text("replacement_reason"), // "age", "efficiency", "repair_costs", "technology"
+  estimatedReplacementCost: decimal("estimated_replacement_cost", { precision: 12, scale: 2 }),
+  tradeInValue: decimal("trade_in_value", { precision: 10, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("lifecycle_machine_idx").on(table.machineId),
+  laundromatIdx: index("lifecycle_laundromat_idx").on(table.laundromatId),
+}));
+
+export const insertMachineLifecycleMetricsSchema = createInsertSchema(machineLifecycleMetrics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMachineLifecycleMetrics = z.infer<typeof insertMachineLifecycleMetricsSchema>;
+export type MachineLifecycleMetrics = typeof machineLifecycleMetrics.$inferSelect;
+
+// ============================================================================
+// UPGRADE PROMPTS & RECOMMENDATIONS
+// ============================================================================
+
+export const upgradeRecommendations = pgTable("upgrade_recommendations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Recommendation Type
+  recommendationType: text("recommendation_type").notNull(), // "tier_upgrade", "feature_unlock", "equipment", "service", "addon"
+  
+  // Current State
+  currentTier: text("current_tier"),
+  currentFeatures: text("current_features").array(),
+  
+  // Recommended
+  recommendedTier: text("recommended_tier"),
+  recommendedFeature: text("recommended_feature"),
+  
+  // Reasoning
+  triggerReason: text("trigger_reason").notNull(), // "usage_threshold", "cost_savings", "feature_request", "time_based"
+  reasoningDetails: text("reasoning_details"),
+  
+  // Value Proposition
+  estimatedMonthlySavings: decimal("estimated_monthly_savings", { precision: 10, scale: 2 }),
+  estimatedROI: decimal("estimated_roi", { precision: 8, scale: 2 }),
+  benefitsList: text("benefits_list").array(),
+  
+  // Pricing
+  upgradeCost: decimal("upgrade_cost", { precision: 10, scale: 2 }),
+  priceId: text("stripe_price_id"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "viewed", "accepted", "dismissed", "expired"
+  viewedAt: timestamp("viewed_at"),
+  actionTakenAt: timestamp("action_taken_at"),
+  actionTaken: text("action_taken"), // "upgraded", "dismissed", "scheduled_demo"
+  
+  // Priority
+  priority: integer("priority").default(5), // 1-10
+  expiresAt: timestamp("expires_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("upgrade_recs_laundromat_idx").on(table.laundromatId),
+  userIdx: index("upgrade_recs_user_idx").on(table.userId),
+  statusIdx: index("upgrade_recs_status_idx").on(table.status),
+  typeIdx: index("upgrade_recs_type_idx").on(table.recommendationType),
+}));
+
+export const insertUpgradeRecommendationSchema = createInsertSchema(upgradeRecommendations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUpgradeRecommendation = z.infer<typeof insertUpgradeRecommendationSchema>;
+export type UpgradeRecommendation = typeof upgradeRecommendations.$inferSelect;
+
+// ============================================================================
+// ONBOARDING PROGRESS - Professional Setup Wizard
+// ============================================================================
+
+export const onboardingProgress = pgTable("onboarding_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Overall Progress
+  overallProgress: integer("overall_progress").default(0), // 0-100%
+  currentStep: integer("current_step").default(1),
+  totalSteps: integer("total_steps").default(10),
+  
+  // Step Completion
+  businessProfileComplete: boolean("business_profile_complete").default(false),
+  stripeConnected: boolean("stripe_connected").default(false),
+  machinesAdded: boolean("machines_added").default(false),
+  pricingConfigured: boolean("pricing_configured").default(false),
+  staffAdded: boolean("staff_added").default(false),
+  customersImported: boolean("customers_imported").default(false),
+  routesConfigured: boolean("routes_configured").default(false),
+  inventorySetup: boolean("inventory_setup").default(false),
+  brandingCustomized: boolean("branding_customized").default(false),
+  testOrderCompleted: boolean("test_order_completed").default(false),
+  
+  // Step Details
+  stepsCompletedAt: jsonb("steps_completed_at"), // { "step_name": "2024-01-01T00:00:00Z", ... }
+  stepNotes: jsonb("step_notes"), // { "step_name": "Note...", ... }
+  
+  // Training
+  trainingVideosWatched: text("training_videos_watched").array(),
+  quizScores: jsonb("quiz_scores"),
+  
+  // Support
+  supportTicketIds: text("support_ticket_ids").array(),
+  onboardingCallScheduled: boolean("onboarding_call_scheduled").default(false),
+  onboardingCallDate: timestamp("onboarding_call_date"),
+  
+  // Status
+  status: text("status").default("in_progress"), // "not_started", "in_progress", "completed", "paused"
+  completedAt: timestamp("completed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("onboarding_laundromat_idx").on(table.laundromatId),
+  userIdx: index("onboarding_user_idx").on(table.userId),
+  statusIdx: index("onboarding_status_idx").on(table.status),
+}));
+
+export const insertOnboardingProgressSchema = createInsertSchema(onboardingProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertOnboardingProgress = z.infer<typeof insertOnboardingProgressSchema>;
+export type OnboardingProgress = typeof onboardingProgress.$inferSelect;
+
+// ============================================================================
+// PARTS VENDORS - Preferred Supplier Management
+// ============================================================================
+
+export const partsVendors = pgTable("parts_vendors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id),
+  
+  // Vendor Info
+  vendorName: text("vendor_name").notNull(),
+  vendorCode: text("vendor_code"),
+  
+  // Contact
+  contactName: text("contact_name"),
+  email: varchar("email"),
+  phone: varchar("phone"),
+  website: text("website"),
+  
+  // Address
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: varchar("zip"),
+  country: text("country").default("US"),
+  
+  // Specialization
+  specializations: text("specializations").array(), // "washer", "dryer", "Speed Queen", "Dexter"
+  brandsCarried: text("brands_carried").array(),
+  
+  // Terms
+  paymentTerms: text("payment_terms"), // "Net 30", "COD", "Credit Card"
+  shippingTerms: text("shipping_terms"),
+  minimumOrder: decimal("minimum_order", { precision: 10, scale: 2 }),
+  
+  // Performance
+  averageDeliveryDays: integer("average_delivery_days"),
+  reliabilityScore: integer("reliability_score"), // 1-100
+  
+  // Account
+  accountNumber: text("account_number"),
+  taxId: text("tax_id"),
+  
+  // Status
+  isPreferred: boolean("is_preferred").default(false),
+  status: text("status").default("active"), // "active", "inactive", "suspended"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("vendors_laundromat_idx").on(table.laundromatId),
+  preferredIdx: index("vendors_preferred_idx").on(table.isPreferred),
+}));
+
+export const insertPartsVendorSchema = createInsertSchema(partsVendors).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPartsVendor = z.infer<typeof insertPartsVendorSchema>;
+export type PartsVendor = typeof partsVendors.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with Industry-Leading POS Features
 // ============================================================================

@@ -222,6 +222,9 @@ const LondrPartnership = lazy(() => import("@/pages/londr-partnership"));
 // CLEANBI Auto
 const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
 
+// Customer Portal
+const CustomerPortal = lazy(() => import("@/pages/customer-portal"));
+
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
@@ -461,6 +464,13 @@ function Router() {
       <Route path="/partners/londr">
         <Suspense fallback={<LoadingFallback />}>
           <LondrPartnership />
+        </Suspense>
+      </Route>
+
+      {/* Customer Portal */}
+      <Route path="/customer-portal">
+        <Suspense fallback={<LoadingFallback />}>
+          <CustomerPortal />
         </Suspense>
       </Route>
 
