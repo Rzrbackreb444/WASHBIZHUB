@@ -4597,14 +4597,17 @@ export const insertSensorThresholdSchema = createInsertSchema(sensorThresholds).
 export type InsertSensorThreshold = z.infer<typeof insertSensorThresholdSchema>;
 export type SensorThreshold = typeof sensorThresholds.$inferSelect;
 
-// Diagnostic Codes - Equipment error codes library
+// Diagnostic Codes - Equipment error codes library (939 codes across 49 brands)
 export const diagnosticCodes = pgTable("diagnostic_codes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   
-  // Code Details
-  code: text("code").notNull().unique(), // e.g., "E01", "F12", "dE"
-  manufacturer: text("manufacturer"), // "Speed Queen", "Maytag", "Dexter", etc.
-  machineType: text("machine_type"), // "washer", "dryer"
+  // Code Details - manufacturer+code is unique together
+  code: text("code").notNull(), // e.g., "E01", "F12", "dE"
+  manufacturer: text("manufacturer").notNull(), // "Speed Queen", "Maytag", "Dexter", etc.
+  machineType: text("machine_type"), // "washer", "dryer", "both"
+  
+  // URL-friendly slug for SEO
+  slug: text("slug").notNull().unique(), // e.g., "speed-queen-e01", "dexter-f12"
   
   // Description
   title: text("title").notNull(),
@@ -4624,12 +4627,18 @@ export const diagnosticCodes = pgTable("diagnostic_codes", {
   manualReference: text("manual_reference"),
   videoUrl: text("video_url"),
   
+  // SEO fields
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
-  codeIdx: uniqueIndex("diagnostic_codes_code_idx").on(table.code),
+  manufacturerCodeIdx: uniqueIndex("diagnostic_codes_manufacturer_code_idx").on(table.manufacturer, table.code),
+  slugIdx: uniqueIndex("diagnostic_codes_slug_idx").on(table.slug),
   manufacturerIdx: index("diagnostic_codes_manufacturer_idx").on(table.manufacturer),
   severityIdx: index("diagnostic_codes_severity_idx").on(table.severity),
+  codeIdx: index("diagnostic_codes_code_idx").on(table.code),
 }));
 
 export const insertDiagnosticCodeSchema = createInsertSchema(diagnosticCodes).omit({
