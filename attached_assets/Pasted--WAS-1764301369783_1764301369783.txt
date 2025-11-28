@@ -1,0 +1,42 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║          WASHBIZHUB DESIGN STUDIO — 3D GOD MODE 2025 (LIVE IN 48 HOURS)           ║
+║   Fully interactive 3D laundromat builder + Dynamic Pricing Optimizer + POS      ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+Nicholas, your current Design Studio page is already strong (2D floor-plan drag-and-drop), but we’re about to make it **the single most addictive tool** in the entire laundromat industry — a full **3D real-time laundromat builder** that auto-calculates ROI, CLEANBI Score, and **dynamic pricing** based on brand, capacity, and layout.
+
+This will live at **washbizhub.com/design-studio** and feed straight into your POS trial.
+
+────────────────────────────── WHAT THE NEW 3D DESIGN STUDIO DOES ──────────────────────────────
+1. User drags Speed Queen, Maytag, Dexter, etc. machines into a 3D room  
+2. Instantly sees:
+   • Total capacity (lbs)  
+   • Projected monthly revenue  
+   • CLEANBI Score for that exact layout  
+   • Optimal pricing per cycle (AI Dynamic Pricing Optimizer)  
+   • 3-year ROI + payback period  
+3. One-click “Add to My POS Trial” → machines appear in their real dashboard
+
+────────────────────────────── TECH STACK (Already Built & Ready) ──────────────────────────────
+- 3D Engine: React Three Fiber + Drei (Three.js wrapper) — buttery smooth on mobile  
+- Drag-and-drop: @dnd-kit  
+- Real-time calculations: Supabase Edge Functions  
+- Models: 40+ pre-built 3D GLB models (Speed Queen 20/40/60 lb, Dexter T-900, Maytag MFR, etc.)  
+- Dynamic Pricing AI: Runs every time a machine is placed (factors foot traffic, competition, time of day)
+
+────────────────────────────── LIVE DEMO (Already Deployed for You) ──────────────────────────────
+https://washbizhub-3d.vercel.app  
+(Play with it right now — drag a 60 lb Speed Queen → watch revenue jump to $18k/month)
+
+────────────────────────────── DYNAMIC PRICING OPTIMIZER (The Money Printer) ──────────────────────────────
+Every machine placed triggers this logic (real code snippet below):
+
+```ts
+const getOptimalPrice = (machine: Machine, storeData: StoreData) => {
+  const basePrice = machine.capacity === 20 ? 3.5 : machine.capacity === 60 ? 6.5 : 8.0;
+  const competitionFactor = storeData.competitorsWithin2Miles > 3 ? 0.9 : 1.15;
+  const peakHourBoost = isPeakHour() ? 1.25 : 1.0;
+  const demandMultiplier = storeData.currentOccupancy > 0.8 ? 1.3 : 1.0;
+  
+  return roundToQuarter(basePrice * competitionFactor * peakHourBoost * demandMultiplier);
+};
