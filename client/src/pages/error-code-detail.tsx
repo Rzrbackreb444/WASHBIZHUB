@@ -18,8 +18,23 @@ import {
   HelpCircle,
   MessageSquare,
   Target,
-  Package
+  Package,
+  Clock,
+  DollarSign,
+  Zap,
+  Phone,
+  ShieldAlert,
+  Lightbulb,
+  Cpu,
+  Calendar
 } from "lucide-react";
+
+interface PartWithPricing {
+  partNumber: string;
+  name: string;
+  price: number;
+  supplier: string;
+}
 
 interface ErrorCodeDetail {
   id: number;
@@ -34,6 +49,12 @@ interface ErrorCodeDetail {
   troubleshootingSteps: string[];
   requiredParts?: string[];
   skillLevel: string;
+  estimatedRepairTime?: number;
+  partsWithPricing?: PartWithPricing[];
+  quickFix?: string;
+  testModeEntry?: string;
+  eraCompatibility?: string;
+  modelSeries?: string;
   metaTitle?: string;
   metaDescription?: string;
 }
@@ -81,6 +102,8 @@ function getMachineTypeDetails(machineType: string) {
       return { icon: <WashingMachine className="h-5 w-5" />, label: "Washer" };
     case "dryer":
       return { icon: <Wind className="h-5 w-5" />, label: "Dryer" };
+    case "payment":
+      return { icon: <DollarSign className="h-5 w-5" />, label: "Payment System" };
     default:
       return { icon: <Settings className="h-5 w-5" />, label: "Washer/Dryer" };
   }
@@ -88,29 +111,33 @@ function getMachineTypeDetails(machineType: string) {
 
 function getSkillLevelDetails(skillLevel: string) {
   switch (skillLevel) {
-    case "beginner":
+    case "basic":
       return { 
-        color: "text-green-500", 
-        bg: "bg-green-100 dark:bg-green-900",
-        label: "Beginner - Basic Tools Only"
+        color: "text-green-600 dark:text-green-400", 
+        bg: "bg-green-100 dark:bg-green-900/50",
+        label: "Basic - DIY Friendly",
+        description: "No special tools required. Most owners can complete this repair."
       };
     case "intermediate":
       return { 
-        color: "text-yellow-500", 
-        bg: "bg-yellow-100 dark:bg-yellow-900",
-        label: "Intermediate - Some Experience Required"
+        color: "text-yellow-600 dark:text-yellow-400", 
+        bg: "bg-yellow-100 dark:bg-yellow-900/50",
+        label: "Intermediate - Some Experience Helpful",
+        description: "Multimeter and basic electrical knowledge recommended."
       };
-    case "advanced":
+    case "professional":
       return { 
-        color: "text-red-500", 
-        bg: "bg-red-100 dark:bg-red-900",
-        label: "Advanced - Professional Recommended"
+        color: "text-red-600 dark:text-red-400", 
+        bg: "bg-red-100 dark:bg-red-900/50",
+        label: "Professional - Tech Recommended",
+        description: "Complex repair requiring specialized tools and training."
       };
     default:
       return { 
-        color: "text-gray-500", 
-        bg: "bg-gray-100 dark:bg-gray-900",
-        label: skillLevel
+        color: "text-gray-600 dark:text-gray-400", 
+        bg: "bg-gray-100 dark:bg-gray-900/50",
+        label: skillLevel,
+        description: ""
       };
   }
 }
@@ -172,6 +199,9 @@ export default function ErrorCodeDetailPage() {
   const severityDetails = getSeverityDetails(code.severity);
   const machineTypeDetails = getMachineTypeDetails(code.machineType);
   const skillLevelDetails = getSkillLevelDetails(code.skillLevel);
+  const isComplexRepair = code.skillLevel === "professional" || code.severity === "critical";
+
+  const totalPartsCost = code.partsWithPricing?.reduce((sum, part) => sum + part.price, 0) || 0;
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -209,11 +239,11 @@ export default function ErrorCodeDetailPage() {
     "@type": "HowTo",
     "name": `How to Fix ${code.manufacturer} Error Code ${code.code}`,
     "description": code.description,
-    "totalTime": "PT30M",
+    "totalTime": code.estimatedRepairTime ? `PT${code.estimatedRepairTime}M` : "PT30M",
     "estimatedCost": {
       "@type": "MonetaryAmount",
       "currency": "USD",
-      "value": "0-500"
+      "value": totalPartsCost > 0 ? `${totalPartsCost}` : "0-500"
     },
     "tool": [
       { "@type": "HowToTool", "name": "Multimeter" },
@@ -297,24 +327,34 @@ export default function ErrorCodeDetailPage() {
             <span className="text-muted-foreground">{code.code}</span>
           </nav>
 
+          {/* Severity Banner with integrated safety warning for high-risk repairs */}
           <div className={`${severityDetails.bg} ${severityDetails.border} border rounded-lg p-4 mb-6`}>
-            <div className="flex items-center gap-3">
-              <div className={severityDetails.color}>
+            <div className="flex items-start gap-3">
+              <div className={`${severityDetails.color} mt-0.5`}>
                 {severityDetails.icon}
               </div>
-              <div>
+              <div className="flex-1">
                 <span className={`font-semibold ${severityDetails.color}`}>
                   {severityDetails.label}
                 </span>
-                {code.severity === "critical" && (
-                  <p className="text-sm text-muted-foreground">
-                    This error may cause equipment damage or safety hazards if not addressed immediately.
-                  </p>
+                {(code.severity === "critical" || code.severity === "high" || code.skillLevel === "professional") && (
+                  <div className="mt-2 pt-2 border-t border-current/10">
+                    <div className="flex items-start gap-2">
+                      <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-muted-foreground">
+                        <strong className="text-amber-700 dark:text-amber-300">Safety:</strong> Disconnect power before servicing. 
+                        {code.machineType === "dryer" && " For gas dryers, ensure proper ventilation and locate gas shut-off. "}
+                        {code.skillLevel === "professional" && "This repair may require specialized tools and training. "}
+                        Attempt repairs at your own risk.
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
+          {/* Header */}
           <header className="mb-8">
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <Badge variant="outline" className="text-lg font-mono px-3 py-1" data-testid="badge-error-code">
@@ -327,6 +367,18 @@ export default function ErrorCodeDetailPage() {
               <Badge variant="secondary">
                 {code.manufacturer}
               </Badge>
+              {code.estimatedRepairTime && (
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  ~{code.estimatedRepairTime} min
+                </Badge>
+              )}
+              {code.eraCompatibility && (
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {code.eraCompatibility}
+                </Badge>
+              )}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-3" data-testid="text-error-title">
               {code.manufacturer} Error Code {code.code}: {code.title}
@@ -334,9 +386,49 @@ export default function ErrorCodeDetailPage() {
             <p className="text-lg text-muted-foreground" data-testid="text-error-description">
               {code.description}
             </p>
+            {code.modelSeries && (
+              <p className="text-sm text-muted-foreground mt-2">
+                <strong>Applies to:</strong> {code.modelSeries}
+              </p>
+            )}
           </header>
 
           <div className="grid gap-6">
+            {/* Quick Fix Pro Tip */}
+            {code.quickFix && (
+              <Card className="border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                    <Zap className="h-5 w-5" />
+                    Pro Tip - Quick Fix
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-800 dark:text-green-200 font-medium" data-testid="text-quick-fix">
+                    {code.quickFix}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Test Mode Entry */}
+            {code.testModeEntry && (
+              <Card className="border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                    <Cpu className="h-5 w-5" />
+                    Test Mode Entry
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-purple-800 dark:text-purple-200" data-testid="text-test-mode">
+                    {code.testModeEntry}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Possible Causes */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -356,17 +448,23 @@ export default function ErrorCodeDetailPage() {
               </CardContent>
             </Card>
 
+            {/* Troubleshooting Steps */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wrench className="h-5 w-5 text-primary" />
-                  Troubleshooting Steps
+                  Step-by-Step Repair Instructions
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-md ${skillLevelDetails.bg}`}>
                   <Target className={`h-4 w-4 ${skillLevelDetails.color}`} />
-                  <span className="text-sm font-medium">{skillLevelDetails.label}</span>
+                  <div>
+                    <span className={`text-sm font-medium ${skillLevelDetails.color}`}>{skillLevelDetails.label}</span>
+                    {skillLevelDetails.description && (
+                      <p className="text-xs text-muted-foreground">{skillLevelDetails.description}</p>
+                    )}
+                  </div>
                 </div>
                 <ol className="space-y-4" data-testid="list-troubleshooting-steps">
                   {code.troubleshootingSteps.map((step, index) => (
@@ -383,7 +481,44 @@ export default function ErrorCodeDetailPage() {
               </CardContent>
             </Card>
 
-            {code.requiredParts && code.requiredParts.length > 0 && (
+            {/* Parts with Pricing */}
+            {code.partsWithPricing && code.partsWithPricing.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary" />
+                    Parts & Pricing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3" data-testid="list-parts-pricing">
+                    {code.partsWithPricing.map((part, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div>
+                          <p className="font-medium">{part.name}</p>
+                          <p className="text-sm text-muted-foreground font-mono">{part.partNumber}</p>
+                          <p className="text-xs text-muted-foreground">{part.supplier}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                            ${part.price}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {totalPartsCost > 0 && (
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                      <span className="font-medium">Estimated Parts Total:</span>
+                      <span className="text-xl font-bold text-primary">${totalPartsCost}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Legacy requiredParts support */}
+            {!code.partsWithPricing && code.requiredParts && code.requiredParts.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -403,6 +538,35 @@ export default function ErrorCodeDetailPage() {
               </Card>
             )}
 
+            {/* Find a Local Tech CTA - shown for complex repairs */}
+            {isComplexRepair && (
+              <Card className="border-2 border-primary bg-primary/5">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1 flex items-center gap-2 text-lg">
+                        <Phone className="h-5 w-5 text-primary" />
+                        Need a Professional Technician?
+                      </h3>
+                      <p className="text-muted-foreground">
+                        This repair is complex and may require specialized tools or training. 
+                        Find a qualified commercial laundry technician in your area.
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        <strong>Typical tech charge:</strong> $289-$450 | 
+                        <strong> DIY savings:</strong> ${Math.round((350 - totalPartsCost) > 0 ? 350 - totalPartsCost : 200)}+
+                      </p>
+                    </div>
+                    <Button size="lg" className="gap-2" data-testid="button-find-tech">
+                      <Phone className="h-4 w-4" />
+                      Find a Local Tech
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Ask Service Guy AI */}
             <Card className="bg-primary/5 border-primary/20">
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -426,6 +590,7 @@ export default function ErrorCodeDetailPage() {
             </Card>
           </div>
 
+          {/* Related Codes */}
           {relatedCodes && relatedCodes.length > 0 && (
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6">
