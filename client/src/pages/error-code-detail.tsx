@@ -12,16 +12,13 @@ import {
   AlertCircle,
   Info,
   Wrench,
-  CheckCircle,
   WashingMachine,
   Wind,
   Settings,
   HelpCircle,
   MessageSquare,
-  BookOpen,
-  Tool,
-  Clock,
-  Target
+  Target,
+  Package
 } from "lucide-react";
 
 interface ErrorCodeDetail {
@@ -390,7 +387,7 @@ export default function ErrorCodeDetailPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Tool className="h-5 w-5 text-primary" />
+                    <Package className="h-5 w-5 text-primary" />
                     Parts That May Need Replacement
                   </CardTitle>
                 </CardHeader>

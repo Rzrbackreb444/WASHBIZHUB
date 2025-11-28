@@ -114,16 +114,19 @@ export default function ErrorCodesPage() {
     codes: ErrorCode[];
     total: number;
   }>({
-    queryKey: [
-      "/api/error-codes",
-      { 
-        manufacturer: selectedManufacturer, 
-        machineType: selectedMachineType,
-        severity: selectedSeverity,
-        search: debouncedSearch,
-        limit: "100"
-      },
-    ],
+    queryKey: ["/api/error-codes", selectedManufacturer, selectedMachineType, selectedSeverity, debouncedSearch],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (selectedManufacturer !== "all") params.set("manufacturer", selectedManufacturer);
+      if (selectedMachineType !== "all") params.set("machineType", selectedMachineType);
+      if (selectedSeverity !== "all") params.set("severity", selectedSeverity);
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      params.set("limit", "100");
+      
+      const res = await fetch(`/api/error-codes?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch error codes");
+      return res.json();
+    }
   });
 
   const jsonLd = {
