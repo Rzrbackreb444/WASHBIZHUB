@@ -171,7 +171,7 @@ function injectAffiliateLinks(content: string, state: string, brand: string): st
   <h4 class="font-bold text-gray-900 mb-3">More Resources from WashBizHub:</h4>
   <ul class="space-y-2">
     <li><a href="${AFFILIATE_LINKS.cleanbi}" class="text-blue-600 hover:underline">CLEANBI Location Analysis Tool</a> - Score any address for laundromat potential</li>
-    <li><a href="${AFFILIATE_LINKS.serviceGuyAi}" class="text-blue-600 hover:underline">Service Guy AI</a> - 2,800+ error codes and diagnostic assistance</li>
+    <li><a href="${AFFILIATE_LINKS.serviceGuyAi}" class="text-blue-600 hover:underline">Service Guy AI</a> - 500+ error codes and diagnostic assistance</li>
     <li><a href="${AFFILIATE_LINKS.marketplace}" class="text-blue-600 hover:underline">Laundromat Marketplace</a> - Browse listings for sale</li>
     <li><a href="${AFFILIATE_LINKS.consultation}" class="text-blue-600 hover:underline">Expert Consultation</a> - Book a call with industry veterans</li>
   </ul>

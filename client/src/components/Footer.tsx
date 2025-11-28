@@ -452,7 +452,7 @@ export function Footer() {
                 <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-white/70 mb-4">
                   <span className="flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4 text-primary" />
-                    2,800+ Error Codes
+                    500+ Error Codes
                   </span>
                   <span className="flex items-center gap-1">
                     <Settings className="h-4 w-4 text-primary" />
