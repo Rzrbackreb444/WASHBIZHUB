@@ -18,7 +18,7 @@ import {
   Palette, Box, Plus, Save, Trash2, RotateCw, Grid3X3, 
   DollarSign, TrendingUp, Calculator, ZoomIn, ZoomOut,
   Download, Undo2, Info, Eye, Move3D, Maximize2, Camera,
-  Sun, Moon, RotateCcw, Layers, Sparkles
+  Sun, Moon, RotateCcw, Layers, Sparkles, Target, Zap, ChevronRight
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
@@ -241,6 +241,18 @@ export default function DesignStudio() {
   const dailyRevenue = totalTPD * avgVendPrice;
   const monthlyRevenue = dailyRevenue * 30;
   const annualRevenue = monthlyRevenue * 12;
+  
+  // CLEANBI Score calculation (40 base + equipment mix bonuses)
+  const cleanbiScore = Math.min(100, 40 + 
+    (washerCount * 4) + 
+    (dryerCount * 3) + 
+    (washerCount >= 4 && dryerCount >= 4 ? 10 : 0) + 
+    (totalTPD >= 20 ? 8 : 0)
+  );
+  
+  // Dynamic pricing potential (22% boost with peak-hour pricing)
+  const dynamicPricingBoost = Math.round(monthlyRevenue * 0.22);
+  const annualDynamicBoost = dynamicPricingBoost * 12;
 
   const addEquipment = useCallback((equipment: typeof equipmentLibrary[number]) => {
     const width = Math.round(equipment.width * SCALE_FACTOR);
@@ -646,12 +658,63 @@ export default function DesignStudio() {
 
                     <Separator className="bg-white/10" />
 
+                    {/* CLEANBI Score */}
+                    <div className="bg-gradient-to-br from-teal-500/20 to-teal-600/10 border border-teal-500/30 rounded-lg p-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Target className="h-3 w-3 text-teal-400" />
+                        <p className="text-[10px] text-teal-400 font-medium">CLEANBI Score</p>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <p className="text-xl font-black text-white">{cleanbiScore}</p>
+                        <p className="text-white/60 text-xs">/100</p>
+                      </div>
+                      <div className="w-full bg-black/30 rounded-full h-1.5 mt-1">
+                        <div 
+                          className="bg-gradient-to-r from-teal-500 to-teal-400 h-1.5 rounded-full transition-all"
+                          style={{ width: `${cleanbiScore}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Dynamic Pricing Boost */}
+                    {monthlyRevenue > 0 && (
+                      <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 rounded-lg p-2">
+                        <div className="flex items-center gap-1 mb-1">
+                          <Zap className="h-3 w-3 text-purple-400" />
+                          <p className="text-[10px] text-purple-400 font-medium">AI Dynamic Pricing</p>
+                        </div>
+                        <p className="text-lg font-black text-white">
+                          +${dynamicPricingBoost.toLocaleString()}<span className="text-white/60 text-xs">/mo</span>
+                        </p>
+                        <p className="text-[10px] text-white/50">+${annualDynamicBoost.toLocaleString()}/year with peak pricing</p>
+                      </div>
+                    )}
+
                     {totalCost > 0 && (
                       <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
                         <p className="text-[10px] text-primary font-medium mb-0.5">ROI Payback</p>
                         <p className="text-lg font-black text-white">
                           {monthlyRevenue > 0 ? Math.round(totalCost / monthlyRevenue) : '--'} months
                         </p>
+                      </div>
+                    )}
+
+                    <Separator className="bg-white/10" />
+
+                    {/* Launch in WashBizPOS CTA */}
+                    {placedEquipment.length > 0 && (
+                      <div className="bg-gradient-to-r from-teal-600 to-teal-500 rounded-lg p-3 text-center">
+                        <p className="text-white font-bold text-sm mb-1">Ready to Launch?</p>
+                        <p className="text-teal-100 text-[10px] mb-2">Pre-load your machines in WashBizPOS</p>
+                        <Link href="/pricing">
+                          <Button 
+                            className="w-full h-8 bg-white text-teal-700 hover:bg-white/90 text-xs font-bold"
+                            data-testid="button-launch-pos-trial"
+                          >
+                            Start 14-Day Free Trial
+                            <ChevronRight className="h-3 w-3 ml-1" />
+                          </Button>
+                        </Link>
                       </div>
                     )}
 
