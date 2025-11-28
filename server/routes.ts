@@ -3979,6 +3979,41 @@ Disallow: /private/`;
     }
   });
 
+  // POST /api/leads - CLEANBI Demo Lead Capture
+  app.post("/api/leads", async (req, res) => {
+    try {
+      const { email, address, source, action, score, projectedRevenue } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Also subscribe to newsletter
+      const existing = await storage.getEmailSubscriber(email);
+      if (!existing) {
+        await storage.createEmailSubscriber({
+          email,
+          firstName: null,
+          source: source || 'cleanbi_demo',
+          status: 'active',
+        });
+      }
+
+      // Notify admin of hot lead
+      notifyNewSubscription({
+        email,
+        source: `CLEANBI Demo - ${action} - Score: ${score} - ${projectedRevenue} - Address: ${address}`,
+      }).catch(err => console.error('Lead notification failed:', err));
+
+      console.log(`🔥 CLEANBI LEAD: ${email} | Action: ${action} | Score: ${score} | Address: ${address}`);
+      
+      res.json({ success: true, message: "Lead captured successfully" });
+    } catch (error: any) {
+      console.error('Lead capture error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // POST /api/newsletter/send - Send newsletter to all active subscribers (admin only)
 
   // ==================== EMAIL ALERTS (SUPERSTORE) ====================
