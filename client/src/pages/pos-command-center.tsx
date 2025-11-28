@@ -724,6 +724,31 @@ export default function POSCommandCenter() {
     queryKey: ["/api/pos/dashboard/charts", "7"],
   });
 
+  // Fetch analytics KPIs from new endpoint
+  const { data: analyticsKPIs, isLoading: kpisLoading } = useQuery({
+    queryKey: ["/api/pos/analytics/kpis"],
+  });
+
+  // Fetch revenue trends for charts
+  const { data: revenueTrends, isLoading: revenueTrendsLoading } = useQuery({
+    queryKey: ["/api/pos/analytics/revenue-trends", "week"],
+  });
+
+  // Fetch customer insights
+  const { data: customerInsights, isLoading: customerInsightsLoading } = useQuery({
+    queryKey: ["/api/pos/analytics/customer-insights", "week"],
+  });
+
+  // Fetch machine utilization
+  const { data: machineUtilization, isLoading: machineUtilizationLoading } = useQuery({
+    queryKey: ["/api/pos/analytics/machine-utilization", "week"],
+  });
+
+  // Fetch route performance
+  const { data: routePerformance, isLoading: routePerformanceLoading } = useQuery({
+    queryKey: ["/api/pos/analytics/route-performance"],
+  });
+
   // Get analytics period in days
   const analyticsPeriodDays = useMemo(() => {
     switch (analyticsPeriod) {
@@ -1533,28 +1558,12 @@ export default function POSCommandCenter() {
           {/* Dashboard Content - Added padding-bottom for mobile nav */}
           <main className="flex-1 overflow-auto p-3 lg:p-4 pb-24 lg:pb-4 bg-background">
             {activeSection === "dashboard" && (
-              <div className="space-y-3 lg:space-y-4">
-                {/* Top KPI Row with C.L.E.A.N. Tip */}
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Key Performance Indicators</h3>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-5 w-5" aria-label="C.L.E.A.N. tip" data-testid="tooltip-clean-dashboard">
-                          <Sparkles className="w-3 h-3 text-emerald-400" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs bg-card border">
-                        <div className="space-y-1">
-                          <p className="font-semibold text-emerald-400 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" /> C.L.E.A.N. Tip
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            <strong>Numbers:</strong> Track these KPIs daily. The "N" in C.L.E.A.N. reminds us that what gets measured gets managed. Focus on revenue, retention, and efficiency metrics.
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
+              <div className="space-y-4 lg:space-y-6">
+                {/* Dashboard Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl lg:text-2xl font-bold text-foreground">Dashboard Overview</h2>
+                    <p className="text-sm text-muted-foreground">Real-time business intelligence and analytics</p>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -1567,179 +1576,285 @@ export default function POSCommandCenter() {
                     Learn C.L.E.A.N.
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-                  {/* Total Revenue */}
-                  <div className="bg-gradient-to-br from-primary to-primary/90 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#b8860b]/20 flex items-center justify-center shrink-0">
-                        <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
+
+                {/* KPI Strip - Glassmorphism Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+                  {/* Revenue Today */}
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-gradient-to-br from-[#1e3a5f]/90 to-[#1e3a5f]/70 backdrop-blur-sm border border-[#b8860b]/20 shadow-lg">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#b8860b]/5 to-transparent"></div>
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
+                          <DollarSign className="w-4 h-4 text-[#b8860b]" />
+                        </div>
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                          ((analyticsKPIs as any)?.today?.revenueChange ?? 0) >= 0 
+                            ? 'bg-emerald-500/20 text-emerald-400' 
+                            : 'bg-red-500/20 text-red-400'
+                        }`}>
+                          {((analyticsKPIs as any)?.today?.revenueChange ?? 0) >= 0 ? (
+                            <ArrowUp className="w-3 h-3" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3" />
+                          )}
+                          {Math.abs((analyticsKPIs as any)?.today?.revenueChange ?? 0)}%
+                        </div>
                       </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Revenue</span>
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-black text-[#b8860b]" data-testid="kpi-revenue">${dashboardStats.today?.revenue}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <ArrowUp className="w-3 h-3 text-green-400" />
-                      <span className="text-[10px] sm:text-xs text-green-400">+12.5%</span>
+                      <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Revenue Today</p>
+                      <p className="text-2xl lg:text-3xl font-black text-[#b8860b]" data-testid="kpi-revenue">
+                        ${((analyticsKPIs as any)?.today?.revenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Total Orders */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
-                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
+                  {/* Orders Count */}
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                        <ShoppingCart className="w-4 h-4 text-blue-400" />
                       </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Orders</span>
+                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        ((analyticsKPIs as any)?.today?.ordersChange ?? 0) >= 0 
+                          ? 'bg-emerald-500/20 text-emerald-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {((analyticsKPIs as any)?.today?.ordersChange ?? 0) >= 0 ? (
+                          <ArrowUp className="w-3 h-3" />
+                        ) : (
+                          <ArrowDown className="w-3 h-3" />
+                        )}
+                        {Math.abs((analyticsKPIs as any)?.today?.ordersChange ?? 0)}%
+                      </div>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-black text-foreground" data-testid="kpi-orders">{dashboardStats.today?.orders}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge className="bg-amber-500/20 text-amber-400 text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0">{dashboardStats.today?.pending} pending</Badge>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Orders</p>
+                    <p className="text-2xl lg:text-3xl font-black text-foreground" data-testid="kpi-orders">
+                      {(analyticsKPIs as any)?.today?.orders ?? dashboardStats.today?.orders ?? 0}
+                    </p>
                   </div>
 
-                  {/* Avg Ticket */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
-                        <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
+                  {/* Average Ticket */}
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                        <Receipt className="w-4 h-4 text-purple-400" />
                       </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Avg Ticket</span>
+                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        ((analyticsKPIs as any)?.today?.avgTicketChange ?? 0) >= 0 
+                          ? 'bg-emerald-500/20 text-emerald-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {((analyticsKPIs as any)?.today?.avgTicketChange ?? 0) >= 0 ? (
+                          <ArrowUp className="w-3 h-3" />
+                        ) : (
+                          <ArrowDown className="w-3 h-3" />
+                        )}
+                        {Math.abs((analyticsKPIs as any)?.today?.avgTicketChange ?? 0)}%
+                      </div>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-black text-foreground">${dashboardStats.today?.avgTicket}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <ArrowUp className="w-3 h-3 text-green-400" />
-                      <span className="text-[10px] sm:text-xs text-green-400">+3.2%</span>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Avg Ticket</p>
+                    <p className="text-2xl lg:text-3xl font-black text-foreground">
+                      ${((analyticsKPIs as any)?.today?.avgTicket ?? 0).toFixed(2)}
+                    </p>
                   </div>
 
-                  {/* Customers */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                  {/* Active Customers */}
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-emerald-400" />
                       </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Customers</span>
+                      <Badge className="bg-teal-500/20 text-teal-400 text-[9px] px-1.5 py-0">
+                        +{(analyticsKPIs as any)?.today?.newCustomers ?? dashboardStats.customers?.new ?? 0} new
+                      </Badge>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-black text-foreground" data-testid="kpi-customers">{dashboardStats.customers?.active}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-[10px] sm:text-xs text-muted-foreground/70">+{dashboardStats.customers?.new} new</span>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Active Customers</p>
+                    <p className="text-2xl lg:text-3xl font-black text-foreground" data-testid="kpi-customers">
+                      {(analyticsKPIs as any)?.today?.customers ?? dashboardStats.customers?.active ?? 0}
+                    </p>
                   </div>
 
                   {/* Machine Uptime */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
-                        <Wrench className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                        <Wrench className="w-4 h-4 text-cyan-400" />
                       </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Machines</span>
+                      <div className="flex items-center gap-1">
+                        <div className={`w-2 h-2 rounded-full ${((analyticsKPIs as any)?.today?.machineUptime ?? 100) >= 90 ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`}></div>
+                      </div>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-black text-foreground">{dashboardStats.machines?.operational}/{dashboardStats.machines?.total}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      {dashboardStats.machines?.needsAttention > 0 && (
-                        <Badge className="bg-red-500/20 text-red-400 text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0">
-                          {dashboardStats.machines?.needsAttention} alerts
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Machine Uptime</p>
+                    <p className="text-2xl lg:text-3xl font-black text-foreground">
+                      {((analyticsKPIs as any)?.today?.machineUptime ?? 100).toFixed(0)}%
+                    </p>
+                    <div className="mt-2 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-cyan-500 to-teal-400 rounded-full transition-all"
+                        style={{ width: `${(analyticsKPIs as any)?.today?.machineUptime ?? 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Pending Pickups */}
+                  <div className="relative overflow-hidden rounded-xl p-4 bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                        <Package className="w-4 h-4 text-amber-400" />
+                      </div>
+                      {(dashboardStats.today?.pending ?? 0) > 0 && (
+                        <Badge className="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0 animate-pulse">
+                          Action
                         </Badge>
                       )}
                     </div>
-                  </div>
-
-                  {/* Retention Rate */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pink-500/20 flex items-center justify-center shrink-0">
-                        <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Retention</span>
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-black text-foreground">{dashboardStats.customers?.retention}%</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <ArrowDown className="w-3 h-3 text-red-400" />
-                      <span className="text-[10px] sm:text-xs text-red-400">-1.2%</span>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Pending Pickups</p>
+                    <p className="text-2xl lg:text-3xl font-black text-foreground">
+                      {dashboardStats.today?.pending ?? 0}
+                    </p>
                   </div>
                 </div>
 
-                {/* Main Charts Row - Responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
-                  {/* Revenue Chart - Full width on mobile, 8 cols on desktop */}
-                  <div className="lg:col-span-8 bg-card rounded-lg border p-3 sm:p-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+                {/* Charts Row 1 - Revenue Trend + Service Type Pie */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+                  {/* Revenue Trend Area Chart - 60% width */}
+                  <div className="lg:col-span-7 bg-card rounded-xl border p-4 lg:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                       <div>
-                        <h3 className="text-sm font-bold text-foreground">Revenue vs Target</h3>
-                        <p className="text-xs text-muted-foreground">Daily performance comparison</p>
+                        <h3 className="text-base font-bold text-foreground">Revenue Trend</h3>
+                        <p className="text-xs text-muted-foreground">7-day revenue performance</p>
                       </div>
-                      <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs flex-wrap">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-[#b8860b]"></div>
+                      <div className="flex items-center gap-4 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f]"></div>
                           <span className="text-muted-foreground">Revenue</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-[#1e3a5f]"></div>
-                          <span className="text-muted-foreground">Target</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2.5 h-0.5 sm:w-3 sm:h-1 bg-emerald-400"></div>
-                          <span className="text-muted-foreground">Orders</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-0.5 bg-[#b8860b]"></div>
+                          <span className="text-muted-foreground">Trend</span>
                         </div>
                       </div>
                     </div>
-                    <div className="h-[180px] sm:h-[200px]">
+                    <div className="h-[220px] lg:h-[260px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={revenueChartData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                          <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                          <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                          <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                        <AreaChart data={((revenueTrends as any)?.daily || revenueChartData).slice(-7)}>
+                          <defs>
+                            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#1e3a5f" stopOpacity={0.8} />
+                              <stop offset="50%" stopColor="#1e3a5f" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#1e3a5f" stopOpacity={0.05} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                          <XAxis 
+                            dataKey="date" 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={11} 
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => {
+                              const date = new Date(value);
+                              return date.toLocaleDateString('en-US', { weekday: 'short' });
+                            }}
+                          />
+                          <YAxis 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={11}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => `$${value.toLocaleString()}`}
+                          />
                           <RechartsTooltip
                             contentStyle={{
                               backgroundColor: "hsl(var(--card))",
                               border: "1px solid hsl(var(--border))",
-                              borderRadius: "8px",
+                              borderRadius: "12px",
                               fontSize: "12px",
                               color: "hsl(var(--foreground))",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                             }}
+                            formatter={(value: number) => [`$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 'Revenue']}
+                            labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                           />
-                          <Bar yAxisId="left" dataKey="revenue" fill="#b8860b" radius={[4, 4, 0, 0]} />
-                          <Bar yAxisId="left" dataKey="target" fill="#1e3a5f" radius={[4, 4, 0, 0]} />
-                          <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#10B981" strokeWidth={2} dot={{ fill: "#10B981", r: 3 }} />
-                        </ComposedChart>
+                          <Area 
+                            type="monotone" 
+                            dataKey="revenue" 
+                            stroke="#b8860b" 
+                            strokeWidth={3} 
+                            fill="url(#revenueGradient)"
+                            dot={{ fill: "#b8860b", strokeWidth: 2, r: 4, stroke: "#fff" }}
+                            activeDot={{ r: 6, fill: "#b8860b", stroke: "#fff", strokeWidth: 2 }}
+                          />
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
-                  {/* Order Types Donut + Stats - Full width on mobile, 4 cols on desktop */}
-                  <div className="lg:col-span-4 bg-card rounded-lg border p-3 sm:p-4">
-                    <h3 className="text-sm font-bold text-foreground mb-2 sm:mb-3">Order Distribution</h3>
-                    <div className="flex">
-                      <div className="w-1/2 h-[150px] sm:h-[180px]">
+                  {/* Service Type Breakdown Donut - 40% width */}
+                  <div className="lg:col-span-5 bg-card rounded-xl border p-4 lg:p-6 shadow-sm">
+                    <div className="mb-4">
+                      <h3 className="text-base font-bold text-foreground">Service Breakdown</h3>
+                      <p className="text-xs text-muted-foreground">Revenue by service type</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center">
+                      <div className="w-full sm:w-1/2 h-[180px] lg:h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPie>
                             <Pie
-                              data={orderTypeDistribution}
+                              data={((revenueTrends as any)?.byServiceType || []).map((s: any) => ({
+                                name: SERVICE_LABELS[s.type] || s.type,
+                                value: s.revenue,
+                                fill: ORDER_TYPE_COLORS[s.type as keyof typeof ORDER_TYPE_COLORS] || '#6366f1'
+                              })).length > 0 ? ((revenueTrends as any)?.byServiceType || []).map((s: any) => ({
+                                name: SERVICE_LABELS[s.type] || s.type,
+                                value: s.revenue,
+                                fill: ORDER_TYPE_COLORS[s.type as keyof typeof ORDER_TYPE_COLORS] || '#6366f1'
+                              })) : orderTypeDistribution}
                               cx="50%"
                               cy="50%"
-                              innerRadius={35}
-                              outerRadius={55}
-                              paddingAngle={2}
+                              innerRadius={50}
+                              outerRadius={75}
+                              paddingAngle={3}
                               dataKey="value"
+                              strokeWidth={0}
                             >
-                              {orderTypeDistribution.map((entry, index) => (
+                              {(((revenueTrends as any)?.byServiceType || []).length > 0 ? ((revenueTrends as any)?.byServiceType || []).map((s: any) => ({
+                                name: SERVICE_LABELS[s.type] || s.type,
+                                value: s.revenue,
+                                fill: ORDER_TYPE_COLORS[s.type as keyof typeof ORDER_TYPE_COLORS] || '#6366f1'
+                              })) : orderTypeDistribution).map((entry: any, index: number) => (
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                               ))}
                             </Pie>
-                            <RechartsTooltip />
+                            <RechartsTooltip 
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                border: "1px solid hsl(var(--border))",
+                                borderRadius: "8px",
+                                fontSize: "12px",
+                              }}
+                              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                            />
                           </RechartsPie>
                         </ResponsiveContainer>
                       </div>
-                      <div className="w-1/2 space-y-1.5 sm:space-y-2 pt-2 sm:pt-4">
-                        {orderTypeDistribution.map((type) => (
+                      <div className="w-full sm:w-1/2 space-y-3 pt-4 sm:pt-0 sm:pl-4">
+                        {(((revenueTrends as any)?.byServiceType || []).length > 0 ? ((revenueTrends as any)?.byServiceType || []).map((s: any) => ({
+                          name: SERVICE_LABELS[s.type] || s.type,
+                          value: s.revenue,
+                          count: s.count,
+                          fill: ORDER_TYPE_COLORS[s.type as keyof typeof ORDER_TYPE_COLORS] || '#6366f1'
+                        })) : orderTypeDistribution.map(t => ({ ...t, count: 0 }))).map((type: any) => (
                           <div key={type.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 sm:gap-2">
-                              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: type.fill }}></div>
-                              <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{type.name}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: type.fill }}></div>
+                              <span className="text-xs text-muted-foreground">{type.name}</span>
                             </div>
-                            <span className="text-[10px] sm:text-xs font-bold text-foreground">{type.value}%</span>
+                            <div className="text-right">
+                              <span className="text-xs font-bold text-foreground">${(type.value || 0).toLocaleString()}</span>
+                              {type.count > 0 && (
+                                <span className="text-[10px] text-muted-foreground ml-1">({type.count})</span>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1747,47 +1862,241 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
-                {/* Second Row - Orders Table + Machine Status + Top Customers - Responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
-                  {/* Live Orders Table - Full width on mobile, 5 cols on desktop */}
-                  <div className="lg:col-span-5 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
-                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
-                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
+                {/* Charts Row 2 - Orders Bar + Customer Growth + Machine Utilization */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+                  {/* Orders by Day Bar Chart */}
+                  <div className="bg-card rounded-xl border p-4 lg:p-5 shadow-sm">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-bold text-foreground">Orders by Day</h3>
+                      <p className="text-xs text-muted-foreground">Weekly order volume</p>
+                    </div>
+                    <div className="h-[180px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={((revenueTrends as any)?.daily || revenueChartData).slice(-7)}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                          <XAxis 
+                            dataKey="date" 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => {
+                              const date = new Date(value);
+                              return date.toLocaleDateString('en-US', { weekday: 'short' });
+                            }}
+                          />
+                          <YAxis 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <RechartsTooltip
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: "8px",
+                              fontSize: "11px",
+                            }}
+                          />
+                          <Bar 
+                            dataKey="orders" 
+                            fill="#1e3a5f" 
+                            radius={[4, 4, 0, 0]}
+                            maxBarSize={40}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Customer Growth Line Chart */}
+                  <div className="bg-card rounded-xl border p-4 lg:p-5 shadow-sm">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-bold text-foreground">Customer Trends</h3>
+                      <p className="text-xs text-muted-foreground">New vs returning customers</p>
+                    </div>
+                    <div className="h-[180px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={((customerInsights as any)?.daily || []).slice(-7).length > 0 ? ((customerInsights as any)?.daily || []).slice(-7) : [
+                          { date: '2024-01-01', newCustomers: 5, returningCustomers: 12 },
+                          { date: '2024-01-02', newCustomers: 8, returningCustomers: 15 },
+                          { date: '2024-01-03', newCustomers: 6, returningCustomers: 18 },
+                          { date: '2024-01-04', newCustomers: 10, returningCustomers: 20 },
+                          { date: '2024-01-05', newCustomers: 7, returningCustomers: 22 },
+                          { date: '2024-01-06', newCustomers: 12, returningCustomers: 25 },
+                          { date: '2024-01-07', newCustomers: 9, returningCustomers: 28 },
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+                          <XAxis 
+                            dataKey="date" 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => {
+                              const date = new Date(value);
+                              return date.toLocaleDateString('en-US', { weekday: 'short' });
+                            }}
+                          />
+                          <YAxis 
+                            stroke="hsl(var(--muted-foreground))" 
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <RechartsTooltip
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: "8px",
+                              fontSize: "11px",
+                            }}
+                          />
+                          <Line type="monotone" dataKey="newCustomers" stroke="#39CCCC" strokeWidth={2} dot={{ r: 3, fill: "#39CCCC" }} name="New" />
+                          <Line type="monotone" dataKey="returningCustomers" stroke="#b8860b" strokeWidth={2} dot={{ r: 3, fill: "#b8860b" }} name="Returning" />
+                          <Legend 
+                            iconType="circle"
+                            iconSize={8}
+                            wrapperStyle={{ fontSize: '10px' }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Machine Utilization */}
+                  <div className="bg-card rounded-xl border p-4 lg:p-5 shadow-sm">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-bold text-foreground">Machine Utilization</h3>
+                      <p className="text-xs text-muted-foreground">Real-time equipment status</p>
+                    </div>
+                    <div className="space-y-3">
+                      {/* Overall Uptime */}
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Overall Uptime</span>
+                          <span className="text-lg font-bold text-emerald-400">
+                            {((machineUtilization as any)?.overall?.uptime ?? 98).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all"
+                            style={{ width: `${(machineUtilization as any)?.overall?.uptime ?? 98}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Machine Status Breakdown */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                          <p className="text-lg font-bold text-emerald-400">{machineStatusCounts.operational}</p>
+                          <p className="text-[10px] text-muted-foreground">Online</p>
+                        </div>
+                        <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+                          <p className="text-lg font-bold text-amber-400">{machineStatusCounts.needsMaintenance}</p>
+                          <p className="text-[10px] text-muted-foreground">Maintenance</p>
+                        </div>
+                        <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+                          <p className="text-lg font-bold text-red-400">{machineStatusCounts.outOfOrder}</p>
+                          <p className="text-[10px] text-muted-foreground">Offline</p>
+                        </div>
+                      </div>
+
+                      {/* Top Performing Machines */}
+                      <div className="space-y-2">
+                        {machines.slice(0, 3).map((machine) => (
+                          <div key={machine.id} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                machine.status === 'operational' ? 'bg-emerald-400' :
+                                machine.status === 'needs_maintenance' ? 'bg-amber-400' : 'bg-red-400'
+                              }`}></div>
+                              <span className="text-xs text-muted-foreground truncate max-w-[100px]">{machine.name}</span>
+                            </div>
+                            <span className="text-xs font-medium text-foreground">{machine.uptime}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row - Quick Actions + Live Orders + Today's Snapshot */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+                  {/* Quick Actions Panel */}
+                  <div className="lg:col-span-3 bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 rounded-xl border border-[#b8860b]/20 p-4 lg:p-5 shadow-lg">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-[#b8860b]" />
+                      Quick Actions
+                    </h3>
+                    <div className="space-y-3">
+                      <Button 
+                        className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white font-medium"
+                        onClick={() => setNewOrderOpen(true)}
+                        data-testid="quick-action-new-order"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        New Order
+                      </Button>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+                        <Input 
+                          placeholder="Quick lookup..." 
+                          className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[#b8860b]"
+                          data-testid="input-quick-lookup"
+                        />
+                      </div>
+                      <div className="pt-2 border-t border-white/10">
+                        <p className="text-[10px] text-white/50 uppercase tracking-wide mb-2">Recent Activity</p>
+                        <div className="space-y-2">
+                          {orders.slice(0, 4).map((order, idx) => (
+                            <div key={order.id} className="flex items-center justify-between text-xs">
+                              <span className="text-white/70 truncate max-w-[100px]">{order.customerName}</span>
+                              <Badge className={`${getStatusColor(order.status)} text-[9px] px-1.5 py-0`}>
+                                {order.status}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Orders Table */}
+                  <div className="lg:col-span-5 bg-card rounded-xl border shadow-sm">
+                    <div className="flex items-center justify-between p-4 border-b">
+                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <ShoppingCart className="w-4 h-4 text-[#b8860b]" />
                         Live Orders
                       </h3>
-                      <Button variant="ghost" size="sm" className="text-[#b8860b] text-[10px] sm:text-xs h-6 sm:h-7 px-2" onClick={() => setActiveSection("orders")}>
+                      <Button variant="ghost" size="sm" className="text-[#b8860b] text-xs h-7" onClick={() => setActiveSection("orders")}>
                         View All <ChevronRight className="w-3 h-3 ml-1" />
                       </Button>
                     </div>
-                    <ScrollArea className="h-[200px] sm:h-[240px]">
-                      <table className="w-full text-[10px] sm:text-xs">
-                        <thead className="bg-background sticky top-0">
+                    <ScrollArea className="h-[220px]">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/30 sticky top-0">
                           <tr>
-                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium">Order</th>
-                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium hidden sm:table-cell">Customer</th>
-                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium hidden md:table-cell">Type</th>
-                            <th className="text-right p-1.5 sm:p-2 text-muted-foreground font-medium">Amount</th>
-                            <th className="text-center p-1.5 sm:p-2 text-muted-foreground font-medium">Status</th>
+                            <th className="text-left p-3 text-muted-foreground font-medium">Order</th>
+                            <th className="text-left p-3 text-muted-foreground font-medium hidden sm:table-cell">Customer</th>
+                            <th className="text-right p-3 text-muted-foreground font-medium">Amount</th>
+                            <th className="text-center p-3 text-muted-foreground font-medium">Status</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {orders.map((order, idx) => (
+                          {orders.slice(0, 5).map((order, idx) => (
                             <tr 
                               key={order.id} 
-                              className={`border-b border-border/50 hover:bg-muted/30 cursor-pointer ${idx % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
+                              className="border-b border-border/30 hover:bg-muted/20 cursor-pointer transition-colors"
                               data-testid={`order-row-${order.id}`}
                             >
-                              <td className="p-1.5 sm:p-2 font-mono text-foreground/80">{order.transactionNumber}</td>
-                              <td className="p-1.5 sm:p-2 text-foreground hidden sm:table-cell">{order.customerName}</td>
-                              <td className="p-1.5 sm:p-2 hidden md:table-cell">
-                                <div className="flex items-center gap-1 text-muted-foreground">
-                                  {getOrderTypeIcon(order.orderType)}
-                                </div>
-                              </td>
-                              <td className="p-1.5 sm:p-2 text-right font-bold text-[#b8860b]">${order.total}</td>
-                              <td className="p-1.5 sm:p-2 text-center">
-                                <Badge className={`${getStatusColor(order.status)} text-[10px] px-1.5 py-0`}>
+                              <td className="p-3 font-mono text-foreground">{order.transactionNumber}</td>
+                              <td className="p-3 text-foreground hidden sm:table-cell">{order.customerName}</td>
+                              <td className="p-3 text-right font-bold text-[#b8860b]">${order.total}</td>
+                              <td className="p-3 text-center">
+                                <Badge className={`${getStatusColor(order.status)} text-[10px] px-2 py-0.5`}>
                                   {order.status}
                                 </Badge>
                               </td>
@@ -1798,172 +2107,91 @@ export default function POSCommandCenter() {
                     </ScrollArea>
                   </div>
 
-                  {/* Machine Status Grid - Full width on mobile, 4 cols on desktop */}
-                  <div className="lg:col-span-4 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
-                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
-                        <Wrench className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
-                        Machine Status
-                      </h3>
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px]">
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></div>
-                          <span className="text-muted-foreground">OK</span>
-                        </div>
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500"></div>
-                          <span className="text-muted-foreground">Maint</span>
-                        </div>
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div>
-                          <span className="text-muted-foreground">Down</span>
-                        </div>
-                      </div>
-                    </div>
-                    <ScrollArea className="h-[180px] sm:h-[240px] p-2 sm:p-3">
-                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                        {machines.map((machine) => (
-                          <div 
-                            key={machine.id}
-                            className={`p-1.5 sm:p-2 rounded-lg border ${
-                              machine.status === 'operational' ? 'bg-green-500/10 border-green-500/30' :
-                              machine.status === 'needs_maintenance' ? 'bg-amber-500/10 border-amber-500/30' :
-                              'bg-red-500/10 border-red-500/30'
-                            }`}
-                            data-testid={`machine-card-${machine.id}`}
-                          >
-                            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
-                              <span className="text-[10px] sm:text-xs font-medium text-foreground truncate">{machine.name}</span>
-                              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${
-                                machine.status === 'operational' ? 'bg-green-500' :
-                                machine.status === 'needs_maintenance' ? 'bg-amber-500' :
-                                'bg-red-500'
-                              }`}></div>
-                            </div>
-                            <div className="flex items-center justify-between text-[9px] sm:text-[10px]">
-                              <span className="text-muted-foreground">{machine.cycles} cycles</span>
-                              <span className="text-[#b8860b] font-medium">{machine.revenue}</span>
-                            </div>
-                            <div className="mt-0.5 sm:mt-1 h-0.5 sm:h-1 bg-muted/50 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full ${
-                                  machine.uptime >= 95 ? 'bg-green-500' :
-                                  machine.uptime >= 85 ? 'bg-amber-500' :
-                                  'bg-red-500'
-                                }`}
-                                style={{ width: `${machine.uptime}%` }}
-                              ></div>
-                            </div>
+                  {/* Today's Snapshot Cards */}
+                  <div className="lg:col-span-4 space-y-4">
+                    <h3 className="text-sm font-bold text-foreground">Today's Snapshot</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Active Routes */}
+                      <div className="bg-card rounded-xl border p-4 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <Truck className="w-4 h-4 text-blue-400" />
                           </div>
-                        ))}
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{routeStatusCounts.active}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Active Routes</p>
+                        {routeStatusCounts.planned > 0 && (
+                          <Badge className="mt-2 bg-blue-500/20 text-blue-400 text-[9px]">
+                            {routeStatusCounts.planned} planned
+                          </Badge>
+                        )}
                       </div>
-                    </ScrollArea>
-                  </div>
 
-                  {/* Top Customers - Full width on mobile, 3 cols on desktop */}
-                  <div className="lg:col-span-3 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
-                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
-                        Top Customers
-                      </h3>
+                      {/* Pending Pickups */}
+                      <div className="bg-card rounded-xl border p-4 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                            <Package className="w-4 h-4 text-amber-400" />
+                          </div>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{dashboardStats.today?.pending || 0}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Pending Pickups</p>
+                      </div>
+
+                      {/* Ready for Pickup */}
+                      <div className="bg-card rounded-xl border p-4 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-emerald-400" />
+                          </div>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">
+                          {orders.filter((o: any) => o.status === 'ready').length}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Ready for Pickup</p>
+                      </div>
+
+                      {/* Low Inventory Alerts */}
+                      <div className="bg-card rounded-xl border p-4 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
+                            <AlertTriangle className="w-4 h-4 text-red-400" />
+                          </div>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{inventoryStats.lowStockCount}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Low Inventory</p>
+                        {inventoryStats.outOfStockCount > 0 && (
+                          <Badge className="mt-2 bg-red-500/20 text-red-400 text-[9px]">
+                            {inventoryStats.outOfStockCount} out of stock
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <ScrollArea className="h-[180px] sm:h-[240px]">
-                      <div className="p-1.5 sm:p-2 space-y-0.5 sm:space-y-1">
-                        {topCustomers.map((customer, idx) => (
-                          <div 
-                            key={customer.name}
-                            className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded hover:bg-muted/30 cursor-pointer"
-                            data-testid={`customer-row-${idx}`}
-                          >
-                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white shrink-0">
+
+                    {/* Top Customers Preview */}
+                    <div className="bg-card rounded-xl border p-4 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
+                          <Users className="w-3.5 h-3.5 text-[#b8860b]" />
+                          Top Customers
+                        </h4>
+                        <Button variant="ghost" size="sm" className="text-[#b8860b] text-[10px] h-6" onClick={() => setActiveSection("customers")}>
+                          View All
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {topCustomers.slice(0, 3).map((customer, idx) => (
+                          <div key={customer.name} className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center text-[9px] font-bold text-white">
                               {idx + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[10px] sm:text-xs font-medium text-foreground truncate">{customer.name}</p>
-                              <p className="text-[9px] sm:text-[10px] text-muted-foreground/70">{customer.orders} orders</p>
+                              <p className="text-xs font-medium text-foreground truncate">{customer.name}</p>
                             </div>
-                            <div className="text-right">
-                              <p className="text-[10px] sm:text-xs font-bold text-[#b8860b]">{customer.revenue}</p>
-                              <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 hidden sm:block">{customer.lastVisit}</p>
-                            </div>
+                            <p className="text-xs font-bold text-[#b8860b]">{customer.revenue}</p>
                           </div>
                         ))}
                       </div>
-                    </ScrollArea>
-                  </div>
-                </div>
-
-                {/* Third Row - Hourly Trend + Service Breakdown - Responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
-                  {/* Hourly Orders Trend - Full width on mobile, 8 cols on desktop */}
-                  <div className="lg:col-span-8 bg-card rounded-lg border p-3 sm:p-4">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <div>
-                        <h3 className="text-xs sm:text-sm font-bold text-foreground">Hourly Orders Trend</h3>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">Orders and revenue by hour today</p>
-                      </div>
-                    </div>
-                    <div className="h-[140px] sm:h-[160px]">
-                      {revenueChartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={revenueChartData}>
-                            <defs>
-                              <linearGradient id="ordersGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#b8860b" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#b8860b" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                            <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={9} />
-                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={9} />
-                            <RechartsTooltip
-                              contentStyle={{
-                                backgroundColor: "hsl(var(--card))",
-                                border: "1px solid hsl(var(--border))",
-                                borderRadius: "8px",
-                                fontSize: "10px",
-                                color: "hsl(var(--foreground))",
-                              }}
-                            />
-                            <Area type="monotone" dataKey="orders" stroke="#b8860b" strokeWidth={2} fill="url(#ordersGradient)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground/50 text-xs sm:text-sm">
-                          No trend data available
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Service Breakdown - Full width on mobile, 4 cols on desktop */}
-                  <div className="lg:col-span-4 bg-card rounded-lg border p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-bold text-foreground mb-2 sm:mb-3">Service Breakdown</h3>
-                    <div className="space-y-2 sm:space-y-3">
-                      {serviceBreakdown.length > 0 ? (
-                        serviceBreakdown.map((service) => (
-                          <div key={service.service}>
-                            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
-                              <span className="text-[10px] sm:text-xs text-muted-foreground">{service.service}</span>
-                              <div className="flex items-center gap-1.5 sm:gap-2">
-                                <span className="text-[10px] sm:text-xs text-muted-foreground">{service.count} orders</span>
-                                <span className="text-[10px] sm:text-xs font-bold text-[#b8860b]">${service.revenue}</span>
-                              </div>
-                            </div>
-                            <div className="h-1.5 sm:h-2 bg-muted/50 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full rounded-full bg-gradient-to-r from-[#b8860b] to-[#d4a017]"
-                                style={{ width: `${service.pct}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center text-muted-foreground/50 text-xs sm:text-sm py-4">
-                          No service data available
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

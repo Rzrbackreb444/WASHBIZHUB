@@ -1035,6 +1035,713 @@ export function registerPosRoutes(app: Express) {
       res.status(500).json({ error: "Failed to fetch chart data" });
     }
   });
+
+  // ========================================
+  // ENHANCED ANALYTICS ENDPOINTS
+  // ========================================
+
+  // Helper function to get date ranges
+  function getDateRange(period: string): { start: Date; end: Date; previousStart: Date; previousEnd: Date } {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    let start: Date, end: Date, previousStart: Date, previousEnd: Date;
+    
+    switch (period) {
+      case "today":
+        start = today;
+        end = tomorrow;
+        previousStart = new Date(today);
+        previousStart.setDate(previousStart.getDate() - 1);
+        previousEnd = today;
+        break;
+      case "week":
+        start = new Date(today);
+        start.setDate(start.getDate() - 7);
+        end = tomorrow;
+        previousStart = new Date(start);
+        previousStart.setDate(previousStart.getDate() - 7);
+        previousEnd = start;
+        break;
+      case "month":
+        start = new Date(today);
+        start.setMonth(start.getMonth() - 1);
+        end = tomorrow;
+        previousStart = new Date(start);
+        previousStart.setMonth(previousStart.getMonth() - 1);
+        previousEnd = start;
+        break;
+      case "quarter":
+        start = new Date(today);
+        start.setMonth(start.getMonth() - 3);
+        end = tomorrow;
+        previousStart = new Date(start);
+        previousStart.setMonth(previousStart.getMonth() - 3);
+        previousEnd = start;
+        break;
+      default:
+        start = today;
+        end = tomorrow;
+        previousStart = new Date(today);
+        previousStart.setDate(previousStart.getDate() - 1);
+        previousEnd = today;
+    }
+    
+    return { start, end, previousStart, previousEnd };
+  }
+
+  // Helper function to calculate percentage change
+  function calculateChange(current: number, previous: number): number {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - previous) / previous) * 100 * 100) / 100;
+  }
+
+  // 1. GET /api/pos/analytics/kpis - Comprehensive KPIs
+  app.get("/api/pos/analytics/kpis", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId } = req.query;
+
+      async function getKPIsForPeriod(period: string) {
+        const { start, end, previousStart, previousEnd } = getDateRange(period);
+
+        const baseConditions: any[] = [
+          gte(posTransactions.createdAt, start),
+          lte(posTransactions.createdAt, end),
+        ];
+        const prevConditions: any[] = [
+          gte(posTransactions.createdAt, previousStart),
+          lte(posTransactions.createdAt, previousEnd),
+        ];
+
+        if (laundromatId) {
+          baseConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+          prevConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+        }
+
+        const currentOrders = await db
+          .select()
+          .from(posTransactions)
+          .where(and(...baseConditions));
+
+        const previousOrders = await db
+          .select()
+          .from(posTransactions)
+          .where(and(...prevConditions));
+
+        const currentRevenue = currentOrders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+        const previousRevenue = previousOrders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+
+        const currentOrderCount = currentOrders.length;
+        const previousOrderCount = previousOrders.length;
+
+        const currentAvgTicket = currentOrderCount > 0 ? currentRevenue / currentOrderCount : 0;
+        const previousAvgTicket = previousOrderCount > 0 ? previousRevenue / previousOrderCount : 0;
+
+        const uniqueCustomers = new Set(currentOrders.filter(o => o.customerId).map(o => o.customerId));
+
+        const customerConditions: any[] = [
+          gte(householdAccounts.createdAt, start),
+          lte(householdAccounts.createdAt, end),
+        ];
+        if (laundromatId) {
+          customerConditions.push(eq(householdAccounts.laundromatId, laundromatId as string));
+        }
+        const newCustomers = await db
+          .select()
+          .from(householdAccounts)
+          .where(and(...customerConditions));
+
+        const machineConditions: any[] = [];
+        if (laundromatId) {
+          machineConditions.push(eq(machineAssets.laundromatId, laundromatId as string));
+        }
+        const machines = await db
+          .select()
+          .from(machineAssets)
+          .where(machineConditions.length > 0 ? and(...machineConditions) : undefined);
+
+        const activeMachines = machines.filter(m => m.status === "operational" || m.status === "active");
+        const machineUptime = machines.length > 0 ? (activeMachines.length / machines.length) * 100 : 100;
+
+        return {
+          revenue: Math.round(currentRevenue * 100) / 100,
+          revenueChange: calculateChange(currentRevenue, previousRevenue),
+          orders: currentOrderCount,
+          ordersChange: calculateChange(currentOrderCount, previousOrderCount),
+          avgTicket: Math.round(currentAvgTicket * 100) / 100,
+          avgTicketChange: calculateChange(currentAvgTicket, previousAvgTicket),
+          customers: uniqueCustomers.size,
+          newCustomers: newCustomers.length,
+          machinesActive: activeMachines.length,
+          machineUptime: Math.round(machineUptime * 100) / 100,
+        };
+      }
+
+      const [today, week, month, quarter] = await Promise.all([
+        getKPIsForPeriod("today"),
+        getKPIsForPeriod("week"),
+        getKPIsForPeriod("month"),
+        getKPIsForPeriod("quarter"),
+      ]);
+
+      res.json({ today, week, month, quarter });
+    } catch (error) {
+      console.error("Error fetching KPIs:", error);
+      res.status(500).json({ error: "Failed to fetch KPIs" });
+    }
+  });
+
+  // 2. GET /api/pos/analytics/revenue-trends - Daily revenue for charts
+  app.get("/api/pos/analytics/revenue-trends", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId, period = "month" } = req.query;
+      const { start, end } = getDateRange(period as string);
+
+      const conditions: any[] = [
+        gte(posTransactions.createdAt, start),
+        lte(posTransactions.createdAt, end),
+      ];
+      if (laundromatId) {
+        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      }
+
+      const orders = await db
+        .select()
+        .from(posTransactions)
+        .where(and(...conditions))
+        .orderBy(asc(posTransactions.createdAt));
+
+      const dailyData: { [key: string]: { revenue: number; orders: number } } = {};
+      const serviceTypeData: { [key: string]: { revenue: number; count: number } } = {};
+
+      const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      for (let i = 0; i < daysDiff; i++) {
+        const date = new Date(start);
+        date.setDate(date.getDate() + i);
+        const key = date.toISOString().split("T")[0];
+        dailyData[key] = { revenue: 0, orders: 0 };
+      }
+
+      orders.forEach((order) => {
+        const key = order.createdAt?.toISOString().split("T")[0];
+        if (key && dailyData[key]) {
+          const amount = parseFloat(order.total || "0");
+          dailyData[key].revenue += amount;
+          dailyData[key].orders += 1;
+        }
+
+        const serviceType = order.orderType || "other";
+        if (!serviceTypeData[serviceType]) {
+          serviceTypeData[serviceType] = { revenue: 0, count: 0 };
+        }
+        serviceTypeData[serviceType].revenue += parseFloat(order.total || "0");
+        serviceTypeData[serviceType].count += 1;
+      });
+
+      const daily = Object.entries(dailyData).map(([date, data]) => ({
+        date,
+        revenue: Math.round(data.revenue * 100) / 100,
+        orders: data.orders,
+      }));
+
+      const byServiceType = Object.entries(serviceTypeData).map(([type, data]) => ({
+        type,
+        revenue: Math.round(data.revenue * 100) / 100,
+        count: data.count,
+      }));
+
+      res.json({ daily, byServiceType });
+    } catch (error) {
+      console.error("Error fetching revenue trends:", error);
+      res.status(500).json({ error: "Failed to fetch revenue trends" });
+    }
+  });
+
+  // 3. GET /api/pos/analytics/customer-insights - Customer analytics
+  app.get("/api/pos/analytics/customer-insights", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId, period = "month" } = req.query;
+      const { start, end } = getDateRange(period as string);
+
+      const conditions: any[] = [
+        gte(posTransactions.createdAt, start),
+        lte(posTransactions.createdAt, end),
+      ];
+      if (laundromatId) {
+        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      }
+
+      const orders = await db
+        .select()
+        .from(posTransactions)
+        .where(and(...conditions));
+
+      const customerStats: { [id: string]: { name: string; orders: number; revenue: number } } = {};
+
+      orders.forEach((order) => {
+        const customerId = order.customerId || "guest";
+        const customerName = order.customerName || "Guest";
+
+        if (!customerStats[customerId]) {
+          customerStats[customerId] = { name: customerName, orders: 0, revenue: 0 };
+        }
+        customerStats[customerId].orders += 1;
+        customerStats[customerId].revenue += parseFloat(order.total || "0");
+      });
+
+      const topCustomers = Object.entries(customerStats)
+        .filter(([id]) => id !== "guest")
+        .map(([id, stats]) => ({
+          id,
+          name: stats.name,
+          orders: stats.orders,
+          revenue: Math.round(stats.revenue * 100) / 100,
+        }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10);
+
+      const customerConditions: any[] = [];
+      if (laundromatId) {
+        customerConditions.push(eq(householdAccounts.laundromatId, laundromatId as string));
+      }
+      const allCustomers = await db
+        .select()
+        .from(householdAccounts)
+        .where(customerConditions.length > 0 ? and(...customerConditions) : undefined);
+
+      const newCustomerIds = new Set(
+        allCustomers
+          .filter((c) => c.createdAt && c.createdAt >= start)
+          .map((c) => c.id)
+      );
+
+      const ordersWithCustomers = orders.filter((o) => o.customerId);
+      const returningCustomerOrders = ordersWithCustomers.filter(
+        (o) => o.customerId && !newCustomerIds.has(o.customerId)
+      );
+      const newCustomerOrders = ordersWithCustomers.filter(
+        (o) => o.customerId && newCustomerIds.has(o.customerId)
+      );
+
+      const loyaltyBreakdown = { bronze: 0, silver: 0, gold: 0, platinum: 0 };
+      Object.values(customerStats).forEach((stats) => {
+        if (stats.revenue >= 1000) loyaltyBreakdown.platinum++;
+        else if (stats.revenue >= 500) loyaltyBreakdown.gold++;
+        else if (stats.revenue >= 200) loyaltyBreakdown.silver++;
+        else loyaltyBreakdown.bronze++;
+      });
+
+      res.json({
+        topCustomers,
+        newVsReturning: {
+          new: newCustomerOrders.length,
+          returning: returningCustomerOrders.length,
+        },
+        loyaltyBreakdown,
+      });
+    } catch (error) {
+      console.error("Error fetching customer insights:", error);
+      res.status(500).json({ error: "Failed to fetch customer insights" });
+    }
+  });
+
+  // 4. GET /api/pos/analytics/machine-utilization - Machine analytics
+  app.get("/api/pos/analytics/machine-utilization", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId, period = "month" } = req.query;
+      const { start, end } = getDateRange(period as string);
+
+      const machineConditions: any[] = [];
+      if (laundromatId) {
+        machineConditions.push(eq(machineAssets.laundromatId, laundromatId as string));
+      }
+
+      const machines = await db
+        .select()
+        .from(machineAssets)
+        .where(machineConditions.length > 0 ? and(...machineConditions) : undefined);
+
+      const orderConditions: any[] = [
+        gte(posTransactions.createdAt, start),
+        lte(posTransactions.createdAt, end),
+      ];
+      if (laundromatId) {
+        orderConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      }
+      const orders = await db
+        .select()
+        .from(posTransactions)
+        .where(and(...orderConditions));
+
+      const typeStats: { [type: string]: { count: number; operational: number; revenue: number } } = {};
+
+      machines.forEach((machine) => {
+        const type = machine.machineType || "unknown";
+        if (!typeStats[type]) {
+          typeStats[type] = { count: 0, operational: 0, revenue: 0 };
+        }
+        typeStats[type].count++;
+        if (machine.status === "operational" || machine.status === "active") {
+          typeStats[type].operational++;
+        }
+      });
+
+      const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
+      const revenuePerMachine = machines.length > 0 ? totalRevenue / machines.length : 0;
+
+      Object.keys(typeStats).forEach((type) => {
+        typeStats[type].revenue = Math.round(revenuePerMachine * typeStats[type].count * 100) / 100;
+      });
+
+      const byType = Object.entries(typeStats).map(([type, stats]) => ({
+        type,
+        count: stats.count,
+        utilization: stats.count > 0 ? Math.round((stats.operational / stats.count) * 100) : 0,
+        revenue: stats.revenue,
+      }));
+
+      const alerts: { machineId: string; name: string; issue: string; severity: string }[] = [];
+      machines.forEach((machine) => {
+        if (machine.status === "needs_maintenance" || machine.status === "maintenance") {
+          alerts.push({
+            machineId: machine.id,
+            name: machine.machineName || machine.machineNumber || "Unknown",
+            issue: "Scheduled maintenance required",
+            severity: "medium",
+          });
+        } else if (machine.status === "out_of_order" || machine.status === "offline") {
+          alerts.push({
+            machineId: machine.id,
+            name: machine.machineName || machine.machineNumber || "Unknown",
+            issue: "Machine is out of service",
+            severity: "high",
+          });
+        }
+      });
+
+      res.json({ byType, alerts });
+    } catch (error) {
+      console.error("Error fetching machine utilization:", error);
+      res.status(500).json({ error: "Failed to fetch machine utilization" });
+    }
+  });
+
+  // 5. GET /api/pos/analytics/route-performance - Route metrics
+  app.get("/api/pos/analytics/route-performance", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId } = req.query;
+      const { start, end } = getDateRange("today");
+
+      const routeConditions: any[] = [
+        gte(routes.routeDate, start),
+        lte(routes.routeDate, end),
+      ];
+      if (laundromatId) {
+        routeConditions.push(eq(routes.laundromatId, laundromatId as string));
+      }
+
+      const todayRoutes = await db
+        .select()
+        .from(routes)
+        .where(and(...routeConditions));
+
+      const totalStops = todayRoutes.reduce((sum, r) => sum + (r.totalStops || 0), 0);
+      const completedStops = todayRoutes.reduce((sum, r) => sum + (r.onTimeStops || 0) + (r.lateStops || 0), 0);
+      const onTimeStops = todayRoutes.reduce((sum, r) => sum + (r.onTimeStops || 0), 0);
+      const onTimeRate = completedStops > 0 ? Math.round((onTimeStops / completedStops) * 100) : 100;
+
+      const recentConditions: any[] = [];
+      if (laundromatId) {
+        recentConditions.push(eq(routes.laundromatId, laundromatId as string));
+      }
+
+      const recentRoutesData = await db
+        .select({
+          route: routes,
+          driver: users,
+        })
+        .from(routes)
+        .leftJoin(users, eq(routes.driverId, users.id))
+        .where(recentConditions.length > 0 ? and(...recentConditions) : undefined)
+        .orderBy(desc(routes.routeDate))
+        .limit(10);
+
+      const recentRoutes = recentRoutesData.map((r) => ({
+        id: r.route.id,
+        name: r.route.routeName,
+        stops: r.route.totalStops || 0,
+        status: r.route.status || "planned",
+        driver: r.driver?.firstName
+          ? `${r.driver.firstName} ${r.driver.lastName || ""}`.trim()
+          : r.driver?.username || "Unassigned",
+      }));
+
+      res.json({
+        today: {
+          routes: todayRoutes.length,
+          stops: totalStops,
+          completed: completedStops,
+          onTime: onTimeRate,
+        },
+        recentRoutes,
+      });
+    } catch (error) {
+      console.error("Error fetching route performance:", error);
+      res.status(500).json({ error: "Failed to fetch route performance" });
+    }
+  });
+
+  // ========================================
+  // CALCULATORS
+  // ========================================
+
+  // Pricing rates configuration
+  const PRICING_CONFIG = {
+    baseRates: {
+      wash_dry_fold: 1.75,
+      dry_cleaning: 8.99,
+      alterations: 15.00,
+      pickup_delivery: 2.25,
+      self_service: 1.25,
+    },
+    extras: {
+      folding: 0.25,
+      starch: 0.50,
+      fabric_softener: 0.35,
+      bleach: 0.30,
+      hang_dry: 0.75,
+      express: 1.00,
+    },
+    rushMultiplier: 1.5,
+    minimumCharge: 15.00,
+    taxRate: 0.0825,
+  };
+
+  // 6. POST /api/pos/calculators/pricing - Calculate pricing
+  app.post("/api/pos/calculators/pricing", async (req: Request, res: Response) => {
+    try {
+      const { weight, serviceType, rushOrder, extras = [] } = req.body;
+
+      if (!weight || weight <= 0) {
+        return res.status(400).json({ error: "Weight must be a positive number" });
+      }
+
+      const baseRate = PRICING_CONFIG.baseRates[serviceType as keyof typeof PRICING_CONFIG.baseRates] || PRICING_CONFIG.baseRates.wash_dry_fold;
+      
+      let basePrice = weight * baseRate;
+
+      let extrasTotal = 0;
+      const extrasBreakdown: { name: string; price: number }[] = [];
+      (extras as string[]).forEach((extra) => {
+        const extraPrice = PRICING_CONFIG.extras[extra as keyof typeof PRICING_CONFIG.extras];
+        if (extraPrice) {
+          const extraCost = weight * extraPrice;
+          extrasTotal += extraCost;
+          extrasBreakdown.push({
+            name: extra.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+            price: Math.round(extraCost * 100) / 100,
+          });
+        }
+      });
+
+      let subtotal = basePrice + extrasTotal;
+
+      let rushFee = 0;
+      if (rushOrder) {
+        rushFee = subtotal * (PRICING_CONFIG.rushMultiplier - 1);
+        subtotal += rushFee;
+      }
+
+      subtotal = Math.max(subtotal, PRICING_CONFIG.minimumCharge);
+
+      const tax = subtotal * PRICING_CONFIG.taxRate;
+      const total = subtotal + tax;
+
+      res.json({
+        breakdown: {
+          basePrice: Math.round(basePrice * 100) / 100,
+          baseRate,
+          weight,
+          serviceType,
+          extras: extrasBreakdown,
+          extrasTotal: Math.round(extrasTotal * 100) / 100,
+          rushFee: rushOrder ? Math.round(rushFee * 100) / 100 : 0,
+          subtotal: Math.round(subtotal * 100) / 100,
+          tax: Math.round(tax * 100) / 100,
+          taxRate: PRICING_CONFIG.taxRate * 100,
+          total: Math.round(total * 100) / 100,
+        },
+        minimumApplied: basePrice + extrasTotal < PRICING_CONFIG.minimumCharge,
+        minimumCharge: PRICING_CONFIG.minimumCharge,
+      });
+    } catch (error) {
+      console.error("Error calculating pricing:", error);
+      res.status(500).json({ error: "Failed to calculate pricing" });
+    }
+  });
+
+  // 7. POST /api/pos/calculators/profitability - Calculate profitability
+  app.post("/api/pos/calculators/profitability", async (req: Request, res: Response) => {
+    try {
+      const { monthlyRevenue, laborCost, utilities, supplies, rent, otherExpenses = 0 } = req.body;
+
+      if (!monthlyRevenue || monthlyRevenue <= 0) {
+        return res.status(400).json({ error: "Monthly revenue must be a positive number" });
+      }
+
+      const totalExpenses = (laborCost || 0) + (utilities || 0) + (supplies || 0) + (rent || 0) + otherExpenses;
+
+      const grossProfit = monthlyRevenue - totalExpenses;
+      const grossMargin = (grossProfit / monthlyRevenue) * 100;
+
+      const operatingExpenses = totalExpenses * 0.1;
+      const netProfit = grossProfit - operatingExpenses;
+      const netMargin = (netProfit / monthlyRevenue) * 100;
+
+      const dailyRevenue = monthlyRevenue / 30;
+      const dailyExpenses = totalExpenses / 30;
+      const breakEvenDays = totalExpenses / dailyRevenue;
+      const breakEvenRevenue = totalExpenses / (1 - (totalExpenses / monthlyRevenue) * 0.1);
+
+      const yearlyRevenue = monthlyRevenue * 12;
+      const yearlyExpenses = totalExpenses * 12;
+      const yearlyProfit = netProfit * 12;
+
+      const scenarios = {
+        conservative: {
+          growthRate: 0.03,
+          yearlyRevenue: yearlyRevenue * 1.03,
+          yearlyProfit: (monthlyRevenue * 1.03 - totalExpenses - operatingExpenses) * 12,
+        },
+        moderate: {
+          growthRate: 0.08,
+          yearlyRevenue: yearlyRevenue * 1.08,
+          yearlyProfit: (monthlyRevenue * 1.08 - totalExpenses - operatingExpenses) * 12,
+        },
+        aggressive: {
+          growthRate: 0.15,
+          yearlyRevenue: yearlyRevenue * 1.15,
+          yearlyProfit: (monthlyRevenue * 1.15 - totalExpenses - operatingExpenses) * 12,
+        },
+      };
+
+      const expenseBreakdown = {
+        labor: { amount: laborCost || 0, percentage: ((laborCost || 0) / monthlyRevenue) * 100 },
+        utilities: { amount: utilities || 0, percentage: ((utilities || 0) / monthlyRevenue) * 100 },
+        supplies: { amount: supplies || 0, percentage: ((supplies || 0) / monthlyRevenue) * 100 },
+        rent: { amount: rent || 0, percentage: ((rent || 0) / monthlyRevenue) * 100 },
+        other: { amount: otherExpenses, percentage: (otherExpenses / monthlyRevenue) * 100 },
+      };
+
+      let healthScore = 100;
+      if (netMargin < 5) healthScore -= 30;
+      else if (netMargin < 10) healthScore -= 15;
+      if (expenseBreakdown.labor.percentage > 35) healthScore -= 20;
+      if (expenseBreakdown.rent.percentage > 25) healthScore -= 15;
+      if (grossMargin < 30) healthScore -= 20;
+      healthScore = Math.max(0, Math.min(100, healthScore));
+
+      res.json({
+        monthly: {
+          revenue: monthlyRevenue,
+          totalExpenses: Math.round(totalExpenses * 100) / 100,
+          grossProfit: Math.round(grossProfit * 100) / 100,
+          grossMargin: Math.round(grossMargin * 100) / 100,
+          operatingExpenses: Math.round(operatingExpenses * 100) / 100,
+          netProfit: Math.round(netProfit * 100) / 100,
+          netMargin: Math.round(netMargin * 100) / 100,
+        },
+        breakEven: {
+          daysToBreakEven: Math.round(breakEvenDays * 100) / 100,
+          breakEvenRevenue: Math.round(breakEvenRevenue * 100) / 100,
+          dailyRevenueNeeded: Math.round(dailyExpenses * 100) / 100,
+        },
+        yearly: {
+          revenue: Math.round(yearlyRevenue * 100) / 100,
+          expenses: Math.round(yearlyExpenses * 100) / 100,
+          profit: Math.round(yearlyProfit * 100) / 100,
+        },
+        projections: {
+          conservative: {
+            growthRate: scenarios.conservative.growthRate * 100,
+            yearlyRevenue: Math.round(scenarios.conservative.yearlyRevenue * 100) / 100,
+            yearlyProfit: Math.round(scenarios.conservative.yearlyProfit * 100) / 100,
+          },
+          moderate: {
+            growthRate: scenarios.moderate.growthRate * 100,
+            yearlyRevenue: Math.round(scenarios.moderate.yearlyRevenue * 100) / 100,
+            yearlyProfit: Math.round(scenarios.moderate.yearlyProfit * 100) / 100,
+          },
+          aggressive: {
+            growthRate: scenarios.aggressive.growthRate * 100,
+            yearlyRevenue: Math.round(scenarios.aggressive.yearlyRevenue * 100) / 100,
+            yearlyProfit: Math.round(scenarios.aggressive.yearlyProfit * 100) / 100,
+          },
+        },
+        expenseBreakdown: {
+          labor: {
+            amount: expenseBreakdown.labor.amount,
+            percentage: Math.round(expenseBreakdown.labor.percentage * 100) / 100,
+          },
+          utilities: {
+            amount: expenseBreakdown.utilities.amount,
+            percentage: Math.round(expenseBreakdown.utilities.percentage * 100) / 100,
+          },
+          supplies: {
+            amount: expenseBreakdown.supplies.amount,
+            percentage: Math.round(expenseBreakdown.supplies.percentage * 100) / 100,
+          },
+          rent: {
+            amount: expenseBreakdown.rent.amount,
+            percentage: Math.round(expenseBreakdown.rent.percentage * 100) / 100,
+          },
+          other: {
+            amount: expenseBreakdown.other.amount,
+            percentage: Math.round(expenseBreakdown.other.percentage * 100) / 100,
+          },
+        },
+        healthScore,
+        recommendations: generateProfitabilityRecommendations(expenseBreakdown, netMargin, grossMargin),
+      });
+    } catch (error) {
+      console.error("Error calculating profitability:", error);
+      res.status(500).json({ error: "Failed to calculate profitability" });
+    }
+  });
+
+  function generateProfitabilityRecommendations(
+    expenseBreakdown: { [key: string]: { amount: number; percentage: number } },
+    netMargin: number,
+    grossMargin: number
+  ): string[] {
+    const recommendations: string[] = [];
+
+    if (expenseBreakdown.labor.percentage > 35) {
+      recommendations.push("Labor costs are high (>35% of revenue). Consider optimizing schedules or automating processes.");
+    }
+    if (expenseBreakdown.rent.percentage > 25) {
+      recommendations.push("Rent is above 25% of revenue. Consider renegotiating lease terms or exploring alternative locations.");
+    }
+    if (expenseBreakdown.utilities.percentage > 15) {
+      recommendations.push("Utility costs are elevated. Invest in energy-efficient equipment and LED lighting.");
+    }
+    if (grossMargin < 30) {
+      recommendations.push("Gross margin below 30%. Review pricing structure and consider increasing prices or reducing costs.");
+    }
+    if (netMargin < 10) {
+      recommendations.push("Net margin below 10%. Focus on reducing operating expenses and increasing revenue per customer.");
+    }
+    if (netMargin >= 20) {
+      recommendations.push("Strong profitability! Consider reinvesting in equipment upgrades or marketing to drive growth.");
+    }
+    if (recommendations.length === 0) {
+      recommendations.push("Your business metrics look healthy. Maintain current operations and monitor for opportunities.");
+    }
+
+    return recommendations;
+  }
   
   console.log("✅ POS Command Center routes registered");
 }
