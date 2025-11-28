@@ -1,0 +1,36 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                               PART 6 OF 10 — CONTINENTAL GIRBAU + WASCOMAT + DOMUS + CISSELL        ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+CONTINENTAL GIRBAU (All HS, GFlex, S-Series 2025)
+Alm-A                 Water level / fill                   CGR-001P Inlet valve $50
+Alm-C                 Heating / temp                       CGR-002P Element $72
+Alm-bal               Unbalance                            CGR-003P Balance sensor $55
+Alm-prob              Temp probe                           CGR-004P Probe $32
+Alm-drain             Drain                                CGR-005P Pump $82
+Alm-door              Door lock                            CGR-006P Lock $78
+Alm-inv               Inverter                             CGR-007P Inverter board $245
+Alm-motor             Motor fault                          CGR-008P Motor $195
+
+WASCOMAT (All Classic, Selecta, Excalibur 2025)
+W001                  TD3 board timeout                    WAS-001P TD3 board $320
+W002                  Fill valve timing                    WAS-002P Fill valve $55
+W003                  Drain valve stuck                    WAS-003P Drain solenoid $40
+W004                  Program selector                     WAS-004P Selector switch $65
+W005                  Motor capacitor                      WAS-005P Capacitor $28
+W009                  Frequency converter                  WAS-009P Converter $280
+W011                  Heater contactor welded              WAS-011P Contactor $85
+W014                  Motor thermal                        WAS-014P Thermal protector $35
+
+DOMUS (DHS, DHP, Eco-Energy 2025)
+AL01                  Fill timeout                         DOM-001P Valve $48
+AL02                  Drain timeout                        DOM-002P Pump $80
+AL03                  Door lock                            DOM-003P Lock $72
+AL04                  Overflow                             DOM-004P Trap $38
+AL05                  Temp fault                           DOM-005P Element $68
+AL08                  Inverter                             DOM-008P Inverter $260
+
+CISSELL (Alliance Family Dryers 2025)
+E:HT                  Heat error                           CIS-001P Element $70
+E:AF                  Airflow                              CIS-002P Fan motor $60
+E:RT                  Rotation                             CIS-003P Belt $28

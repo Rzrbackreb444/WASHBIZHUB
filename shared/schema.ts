@@ -4597,14 +4597,14 @@ export const insertSensorThresholdSchema = createInsertSchema(sensorThresholds).
 export type InsertSensorThreshold = z.infer<typeof insertSensorThresholdSchema>;
 export type SensorThreshold = typeof sensorThresholds.$inferSelect;
 
-// Diagnostic Codes - Equipment error codes library (939 codes across 49 brands)
+// Diagnostic Codes - Equipment error codes library (2500+ codes across 60+ brands)
 export const diagnosticCodes = pgTable("diagnostic_codes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   
   // Code Details - manufacturer+code is unique together
   code: text("code").notNull(), // e.g., "E01", "F12", "dE"
   manufacturer: text("manufacturer").notNull(), // "Speed Queen", "Maytag", "Dexter", etc.
-  machineType: text("machine_type"), // "washer", "dryer", "both"
+  machineType: text("machine_type"), // "washer", "dryer", "both", "payment"
   
   // URL-friendly slug for SEO
   slug: text("slug").notNull().unique(), // e.g., "speed-queen-e01", "dexter-f12"
@@ -4616,9 +4616,17 @@ export const diagnosticCodes = pgTable("diagnostic_codes", {
   
   // Solution
   troubleshootingSteps: text("troubleshooting_steps").array(),
-  requiredParts: text("required_parts").array(),
+  requiredParts: text("required_parts").array(), // Part numbers with names
+  partsWithPricing: jsonb("parts_with_pricing"), // [{partNumber, name, price, supplier}]
   estimatedRepairTime: integer("estimated_repair_time"), // Minutes
   skillLevel: text("skill_level"), // "basic", "intermediate", "professional"
+  
+  // Quick fix tips (pro tips from experienced techs)
+  quickFix: text("quick_fix"), // "Clean pump filter first - fixes 70% of cases"
+  
+  // Era/Model compatibility
+  eraCompatibility: text("era_compatibility"), // "1990-2005", "2000-2025", etc.
+  modelSeries: text("model_series"), // "Quantum", "C-Series", "Phase 5", etc.
   
   // Priority
   severity: text("severity").default("medium"), // "low", "medium", "high", "critical"
@@ -4626,6 +4634,7 @@ export const diagnosticCodes = pgTable("diagnostic_codes", {
   // Reference
   manualReference: text("manual_reference"),
   videoUrl: text("video_url"),
+  testModeEntry: text("test_mode_entry"), // How to enter test/diagnostic mode
   
   // SEO fields
   metaTitle: text("meta_title"),

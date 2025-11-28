@@ -1,0 +1,57 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                               SPEED QUEEN — FULL 2025                              ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+WASHERS — Quantum Touch, Quantum Gold, Quantum Pro, SC/SCN/SUF Series
+Dr / dE                Slow or no drain                     F802118P Drain pump $89
+                                                    F808709P Drain hose $22
+                                                    F802119P Pump filter $15
+                                                    802290P Check valve $28
+                                                    F821207P Impeller kit $18
+Er_do / do            Door open during cycle               F840269P Door switch $45
+                                                    F808212P Door lock assembly $78
+                                                    F634109 Door strike $18
+Er_dL / dL            Door lock fault                      F808214P Lock solenoid $65
+                                                    F808215P Complete lock $112
+                                                    F634108 Microswitch $20
+Er_oF / oF            Overflow / overfill                  F808213P Inlet valve $52
+                                                    F821209P Pressure switch $40
+                                                    803667P Air trap hose $35
+Er_5L / 5L            Suds lock                            F802119P Suds sensor $15
+Er_Ub / Ub            Unbalanced load                      F808214P Shock absorber (×4) $120 set
+                                                    F808233P Load cell $75
+                                                    803945P Counterweight kit $90
+Er_bt / bt            Belt slip / broken                   F808215P Drive belt $25
+                                                    F821205P Tensioner pulley $38
+Er_LE                 Water leak detected                  F808216P Tub seal & bearing kit $95
+                                                    F821208P Bellows $55
+PF                    Power failure                        F808217P Power cord $18
+                                                    F808229P Fuse kit $12
+Er_tS / tS            Temperature sensor fault             F808218P NTC sensor $28
+Er_HC / HC            Heater circuit                       F808219P Heating element $68
+                                                    F808231P Heater relay $35
+Er_dF / Ed_10         Drive failure                        F808220P Inverter board $220
+                                                    F808221P Motor $180
+Er_dN                 Drive not ready                      F808222P Drive board $195
+Ed_29                 Motor not connected                  F808223P Motor harness $25
+Er_03                 Motor phase error                    F808224P Phase harness $30
+Er_04                 Locked rotor                         F808225P Clutch $45
+Er_05                 IPM overheat                         F808226P IPM module $55
+Er_bd                 Control/drive communication          F808227P Comm cable $15
+Er_Vo                 Wrong voltage                        F808228P Voltage regulator $60
+Er_18                 Wrong input voltage                  F808229P Fuse & filter kit $35
+E:AF                  Airflow fault                        F808230P Lint filter $20
+E:PS                  Pressure sensor                      F808232P Pressure switch $40
+E:ubL                 Low unbalance detection              F808233P Load cell $75
+
+DRYERS — Quantum & Non-Quantum
+EC_00                 Card reader comm                     F808234P Card reader $120
+EC_02                 Card timeout                         F808235P Antenna coil $25
+EC_03                 Invalid card                         F808236P Validator chip $15
+EC_09                 Corrupted card data                  F808237P EEPROM $20
+EC_19                 Reader not communicating             F808238P Reader harness $18
+EC_20                 Card unreadable                      F808239P Swipe head $40
+EC_21                 Wrong security code                  F808240P Security module $35
+E:AF                  Airflow restricted                   F808241P Exhaust duct kit $45
+E:HC                  Heater circuit                       F808242P Gas igniter $50 / F808243P Electric element $70
+E:LS                  Lint sensor                          F808243P Lint probe $25

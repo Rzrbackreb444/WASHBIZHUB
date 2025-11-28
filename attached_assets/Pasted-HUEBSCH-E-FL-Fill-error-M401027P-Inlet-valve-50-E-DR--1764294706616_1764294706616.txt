@@ -1,0 +1,33 @@
+HUEBSCH
+E_FL                  Fill error                           M401027P Inlet valve $50
+E_DR                  Drain error                          M410900P Drain pump $85
+ER                    General error                        M411000P Main board $180
+E_oF                  Overflow                             M411001P Air trap $30
+OP                    Over pressure (dryer)                M411003P Sail switch $32
+SH                    Short circuit                        M411004P Thermistor $20
+ALrn                  Break-in alarm                       M411005P Vault switch $28
+
+UNIMAC
+nFL                   No fill                              UNI-001P Inlet valve $52
+ndr                   No drain                             UNI-002P Pump $88
+ndL                   No door lock                         UNI-003P Lock $78
+ndu                   No door unlock                       UNI-004P Unlock solenoid $48
+oFL                   Overflow                             UNI-005P Trap $35
+ubL                   Unbalance                            UNI-006P Sensor $55
+thE                   Thermistor                           UNI-007P Sensor $28
+HEt                   Heating                              UNI-008P Element $70
+
+IPSO
+E-FL                  Fill                                 IPS-001P Valve $50
+E-dr                  Drain                                IPS-002P Pump $85
+E-dL                  Door lock                            IPS-003P Lock $75
+E-du                  Door unlock                          IPS-004P Solenoid $45
+E-oF                  Overflow                             IPS-005P Switch $30
+E-ub                  Unbalance                            IPS-006P Sensor $55
+
+PRIMUS
+F1                    Drain fault                          P6-001P Pump $80
+F2                    Final drain                          P6-002P Valve $35
+F3                    Out of balance                       P6-003P Sensor $40
+F13                   Heating timeout                      P6-005P Element $65
+F22 (dryer)           Gas ignition                         P7-003P Igniter $55

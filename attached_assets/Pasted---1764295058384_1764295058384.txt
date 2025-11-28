@@ -1,0 +1,26 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                           SPEED QUEEN / HUEBSCH / ALLIANCE (1990–2005)             ║
+║                  Legacy Phase 3–5 Controls (SWN/SCN/SWF Series)                    ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+WASHERS (Top/Front Load, 1990–2000 Models like SWN233W, SWF1300L)
+No Code / "No Fill"     Inlet valve clogged/stuck (pre-digital)  Inlet valve 201326P $45 [Parts Town]
+No Code / "No Drain"    Drain pump failure                       Drain pump 201327P $65 [Alliance Parts]
+No Code / "No Spin"     Belt slip or clutch wear                 Drive belt 200305P $20; Clutch 200306P $40 [Laundry Parts 711]
+"door" / Door Fault     Latch switch open (1995+ Phase 4)        Door switch 201328P $35 [Direct Laundry]
+E dL (1996–2000)        Door lock solenoid                       Lock solenoid 201329P $55 [Eastern Laundry]
+E FL (1998–2005)        Fill timeout (10 min, Huebsch cross)     Pressure switch 201330P $40; Inlet screens 201331P $10 [HK Laundry]
+PF (Power)              Power interrupt (Phase 5, 1997+)         Fuse kit 201332P $12 [Repair Clinic]
+SH (Dryer Cross, 1995+) Shorted thermistor                       Thermistor 201333P $20 [Appliance Parts Pros]
+
+DRYERS (1990–2005, e.g., ADE3TRWS431NW, ACG499 Models)
+Alrm / Break-In         Vault/door switch (1990 Phase 3)         Vault switch 201334P $28 [Parts Town]
+Door                    Service door open                        Door interlock 201335P $25 [Alliance]
+E:00 / Gen Error        IR comm fault (micro-wand, 1995+)        Micro-wand kit 201336P $50 [Laundry Nation]
+E:01 / Proximity        Wand misaim (Phase 4)                    IR communicator 201337P $45 [Parts King]
+E:02 / Disconnect       Wand removed early                       Wand harness 201338P $18 [Direct Laundry]
+E:05 / Invalid Value    Download error                           Control board Phase 4 201339P $150 [Eastern]
+E:OP / Open Sensor      Temp sensor open (1992–2000)             Temp probe 201340P $20 [Appliance Parts Pros]
+SH / Shorted            Thermistor short (Huebsch cross)         Thermistor 201333P $20 [HK Laundry]
+
+WHERE TO BUY: parts.alliancelaundry.com (model# search for 1990s PDFs) ; partstown.com (legacy stock) [web:0,1].
