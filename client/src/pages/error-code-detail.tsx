@@ -521,7 +521,24 @@ export default function ErrorCodeDetailPage() {
                           <Button 
                             size="sm"
                             className="bg-amber-600 hover:bg-amber-700"
-                            onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + part.name)}&tag=nicholaskreme-20`, '_blank')}
+                            onClick={() => {
+                              const supplier = part.supplier?.toLowerCase() || '';
+                              const manufacturer = code.manufacturer?.toLowerCase() || '';
+                              let url = '';
+                              
+                              if (supplier.includes('alliance') || manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                                url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part.partNumber)}`;
+                              } else if (manufacturer.includes('dexter')) {
+                                url = 'https://www.dexter.com/support/parts-lookup/';
+                              } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool')) {
+                                url = `https://www.reliableparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                              } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
+                                url = `https://oemlaundryparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                              } else {
+                                url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part.partNumber)}`;
+                              }
+                              window.open(url, '_blank');
+                            }}
                             data-testid={`button-order-part-${index}`}
                           >
                             <ShoppingCart className="h-4 w-4 mr-1" />
@@ -539,11 +556,24 @@ export default function ErrorCodeDetailPage() {
                       </div>
                       <Button 
                         className="bg-emerald-600 hover:bg-emerald-700 gap-2"
-                        onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + code.machineType + ' parts')}&tag=nicholaskreme-20`, '_blank')}
+                        onClick={() => {
+                          const manufacturer = code.manufacturer?.toLowerCase() || '';
+                          let url = '';
+                          if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                            url = 'https://parts.alliancelaundry.com/';
+                          } else if (manufacturer.includes('dexter')) {
+                            url = 'https://www.dexter.com/support/parts-lookup/';
+                          } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool')) {
+                            url = 'https://www.reliableparts.com/brands/speed-queen.html';
+                          } else {
+                            url = 'https://parts.alliancelaundry.com/';
+                          }
+                          window.open(url, '_blank');
+                        }}
                         data-testid="button-order-all-parts"
                       >
                         <ShoppingCart className="h-4 w-4" />
-                        Order All Parts on Amazon
+                        Order Parts from OEM Supplier
                         <ExternalLink className="h-3 w-3" />
                       </Button>
                     </div>
@@ -578,11 +608,22 @@ export default function ErrorCodeDetailPage() {
                         <Button 
                           size="sm"
                           className="bg-amber-600 hover:bg-amber-700"
-                          onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + part)}&tag=nicholaskreme-20`, '_blank')}
+                          onClick={() => {
+                            const manufacturer = code.manufacturer?.toLowerCase() || '';
+                            let url = '';
+                            if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                              url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part)}`;
+                            } else if (manufacturer.includes('dexter')) {
+                              url = 'https://www.dexter.com/support/parts-lookup/';
+                            } else {
+                              url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part)}`;
+                            }
+                            window.open(url, '_blank');
+                          }}
                           data-testid={`button-order-legacy-part-${index}`}
                         >
                           <ShoppingCart className="h-4 w-4 mr-1" />
-                          Find on Amazon
+                          Find Part
                         </Button>
                       </div>
                     ))}
@@ -590,11 +631,22 @@ export default function ErrorCodeDetailPage() {
                   <div className="mt-4 pt-4 border-t">
                     <Button 
                       className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
-                      onClick={() => window.open(`https://amazon.com/s?k=${encodeURIComponent(code.manufacturer + ' ' + code.machineType + ' parts')}&tag=nicholaskreme-20`, '_blank')}
+                      onClick={() => {
+                        const manufacturer = code.manufacturer?.toLowerCase() || '';
+                        let url = '';
+                        if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                          url = 'https://parts.alliancelaundry.com/';
+                        } else if (manufacturer.includes('dexter')) {
+                          url = 'https://www.dexter.com/support/parts-lookup/';
+                        } else {
+                          url = 'https://parts.alliancelaundry.com/';
+                        }
+                        window.open(url, '_blank');
+                      }}
                       data-testid="button-browse-all-parts"
                     >
                       <ShoppingCart className="h-4 w-4" />
-                      Browse All {code.manufacturer} Parts on Amazon
+                      Browse {code.manufacturer} Parts
                       <ExternalLink className="h-3 w-3" />
                     </Button>
                   </div>
