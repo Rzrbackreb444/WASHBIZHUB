@@ -1,7 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { registerSitemapRoutes } from "./sitemap";
 import { registerPosRoutes } from "./pos-routes";
+import { registerCustomerPortalRoutes } from "./customer-portal-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -366,6 +368,7 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 // CORS for Chrome Extension - Allow CLEANBI API calls from Google Maps, LoopNet, BizBuySell
 app.use('/api/cleanbi/auto', (req, res, next) => {
@@ -426,6 +429,7 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
   registerSitemapRoutes(app);
   registerPosRoutes(app);
+  registerCustomerPortalRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
