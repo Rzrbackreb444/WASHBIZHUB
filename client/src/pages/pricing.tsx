@@ -21,16 +21,94 @@ import {
   Store,
   GraduationCap,
   FileText,
-  Heart
+  Heart,
+  Gift,
+  Shield,
+  Clock,
+  Sparkles,
+  Target,
+  AlertTriangle,
+  ChevronRight,
+  X
 } from "lucide-react";
 
 export default function Pricing() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [pricingModel, setPricingModel] = useState<"flat" | "transaction">("flat");
 
+  // New 2025 winning pricing strategy
+  const mainPlans = [
+    {
+      name: "Free Forever",
+      price: 0,
+      icon: Gift,
+      iconBg: "bg-green-100 dark:bg-green-900/30",
+      iconColor: "text-green-600 dark:text-green-400",
+      popular: false,
+      description: "Essential tools at no cost",
+      cta: "Get Started Free",
+      features: [
+        "CLEANBI Score (unlimited)",
+        "Service Guy AI (2 messages)",
+        "50+ Business Calculators",
+        "Design Studio 2D",
+        "Marketplace Cash-Back (5-15%)",
+        "Error Code Database Access",
+        "Community Forum (72K+ members)",
+        "Educational Content"
+      ]
+    },
+    {
+      name: "Full POS Trial",
+      price: 0,
+      duration: "14 days",
+      icon: Rocket,
+      iconBg: "bg-teal-100 dark:bg-teal-900/30",
+      iconColor: "text-teal-600 dark:text-teal-400",
+      popular: true,
+      description: "Experience everything - no credit card required",
+      cta: "Start 14-Day Free Trial",
+      highlight: "68% convert to paid",
+      features: [
+        "UNLIMITED machines",
+        "AI Predictive Maintenance Alerts",
+        "Dynamic Pricing Engine",
+        "Remote Machine Control",
+        "Loyalty App for Customers",
+        "Full Analytics Dashboard",
+        "Route Optimization",
+        "Keep AI alerts even if you cancel"
+      ]
+    },
+    {
+      name: "WashBizPOS Pro",
+      price: pricingModel === "flat" ? 99 : 0,
+      transactionFee: pricingModel === "transaction" ? "1.9%" : null,
+      icon: Crown,
+      iconBg: "bg-purple-100 dark:bg-purple-900/30",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      popular: false,
+      description: pricingModel === "flat" 
+        ? "Flat rate, unlimited everything" 
+        : "Pay only when you earn",
+      cta: "Start Free Trial",
+      features: [
+        "Unlimited Machines",
+        "Unlimited Locations",
+        "AI Predictive Alerts (save $2k-$12k/year)",
+        "Dynamic Pricing (+22% revenue)",
+        "Full IoT Monitoring",
+        "2,200+ Error Code Database",
+        "Service Guy AI (500 messages/mo)",
+        "Priority Support"
+      ]
+    }
+  ];
+
+  // Legacy tiers for enterprise
   const tiers = [
     {
       name: "Accelerate",
-      price: billingCycle === "monthly" ? 249 : 2490,
+      price: 249,
       icon: Zap,
       iconBg: "bg-blue-100 dark:bg-blue-900/30",
       iconColor: "text-blue-600 dark:text-blue-400",
@@ -57,7 +135,7 @@ export default function Pricing() {
     },
     {
       name: "Scale",
-      price: billingCycle === "monthly" ? 499 : 4990,
+      price: 499,
       icon: TrendingUp,
       iconBg: "bg-accent/10",
       iconColor: "text-accent",
@@ -87,7 +165,7 @@ export default function Pricing() {
     },
     {
       name: "Summit",
-      price: billingCycle === "monthly" ? 899 : 8990,
+      price: 899,
       icon: Crown,
       iconBg: "bg-purple-100 dark:bg-purple-900/30",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -266,46 +344,195 @@ export default function Pricing() {
     }
   ];
 
-  const savings = billingCycle === "annual" 
-    ? "Save 16% with annual billing!" 
-    : "Switch to annual and save 16%!";
-
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <Badge variant="secondary" className="mb-4" data-testid="badge-pricing-header">
-            <DollarSign className="h-3 w-3 mr-1" />
-            Transparent Pricing
+        {/* Hero Section - 14 Day Trial */}
+        <div className="text-center mb-8">
+          <Badge className="mb-4 bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30" data-testid="badge-trial-header">
+            <Clock className="h-3 w-3 mr-1" />
+            14-Day Full POS Trial - No Credit Card Required
           </Badge>
-          <h1 className="text-5xl font-black text-foreground mb-4" data-testid="text-pricing-title">
-            Professional Laundromat Software
+          <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-pricing-title">
+            Start Your 14-Day Full POS Trial
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="text-pricing-subtitle">
-            World-class enterprise platform combining marketplace, POS, IoT monitoring, AI consultant, 
-            comprehensive SEO suite, website hosting with WYSIWYG builder, 50+ calculators, and viral UGC affiliate marketing
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6" data-testid="text-pricing-subtitle">
+            No credit card required • Unlimited machines • Cancel anytime
           </p>
-          
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as "monthly" | "annual")} className="w-full max-w-md">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="monthly" data-testid="tab-monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="annual" data-testid="tab-annual">
-                  Annual
-                  <Badge className="ml-2 bg-accent text-accent-foreground text-xs">Save 16%</Badge>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          <p className="text-accent text-sm mt-2 font-semibold" data-testid="text-savings">
-            {savings}
+          <p className="text-teal-600 dark:text-teal-400 font-semibold">
+            Keep the AI alerts even if you cancel
           </p>
         </div>
 
-        {/* Pricing Tiers */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        {/* Main CTA Button */}
+        <div className="flex justify-center mb-12">
+          <Link href="/register">
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-6 bg-teal-600 hover:bg-teal-700"
+              data-testid="button-start-trial-hero"
+            >
+              <Rocket className="h-5 w-5 mr-2" />
+              Start Your 14-Day Free Trial
+              <ChevronRight className="h-5 w-5 ml-2" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Social Proof */}
+        <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-500" />
+            <span>68% trial-to-paid conversion</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-500" />
+            <span>72K+ community members</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-500" />
+            <span>Save $2K-$12K in first 7 days</span>
+          </div>
+        </div>
+
+        {/* Main Plans Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          {mainPlans.map((plan) => {
+            const Icon = plan.icon;
+            return (
+              <Card 
+                key={plan.name}
+                className={`relative ${plan.popular ? 'scale-105 shadow-2xl ring-2 ring-teal-500 z-10' : ''}`}
+                data-testid={`card-plan-${plan.name.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-teal-500 text-white" data-testid="badge-recommended">
+                    <Star className="h-3 w-3 mr-1" />
+                    Recommended
+                  </Badge>
+                )}
+                {'highlight' in plan && plan.highlight && (
+                  <Badge className="absolute -top-3 right-4 bg-green-500 text-white text-xs">
+                    {plan.highlight}
+                  </Badge>
+                )}
+                <CardHeader className="text-center pb-4">
+                  <div className={`mx-auto mb-3 p-3 rounded-full ${plan.iconBg} w-fit`}>
+                    <Icon className={`h-7 w-7 ${plan.iconColor}`} />
+                  </div>
+                  <CardTitle className="text-2xl font-black text-foreground mb-1">
+                    {plan.name}
+                  </CardTitle>
+                  {'duration' in plan && plan.duration && (
+                    <Badge variant="outline" className="mb-2">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {plan.duration}
+                    </Badge>
+                  )}
+                  <CardDescription className="text-sm">
+                    {plan.description}
+                  </CardDescription>
+                  <div className="my-4">
+                    {plan.price === 0 ? (
+                      <span className="text-4xl font-black text-foreground">FREE</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-black text-foreground">${plan.price}</span>
+                        <span className="text-muted-foreground">/mo</span>
+                      </>
+                    )}
+                    {'transactionFee' in plan && plan.transactionFee && (
+                      <div className="text-sm text-muted-foreground mt-1">
+                        + {plan.transactionFee} per transaction
+                      </div>
+                    )}
+                  </div>
+                  <Link href="/register">
+                    <Button 
+                      className={`w-full ${plan.popular ? 'bg-teal-600 hover:bg-teal-700' : ''}`}
+                      variant={plan.popular ? "default" : "outline"}
+                      data-testid={`button-${plan.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ul className="space-y-2">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Pricing Model Toggle for Pro */}
+        <div className="max-w-xl mx-auto mb-16">
+          <Card className="bg-muted/30">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-bold text-center mb-4">Choose Your Pro Pricing Model</h3>
+              <Tabs value={pricingModel} onValueChange={(v) => setPricingModel(v as "flat" | "transaction")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="flat" data-testid="tab-flat-pricing">
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    $99/mo Flat
+                  </TabsTrigger>
+                  <TabsTrigger value="transaction" data-testid="tab-transaction-pricing">
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                    $0 + 1.9%
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <p className="text-center text-sm text-muted-foreground mt-3">
+                {pricingModel === "flat" 
+                  ? "Unlimited transactions, predictable monthly cost" 
+                  : "Pay only when you earn (cheaper than competitors' 6-8%)"}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* What You DON'T Get With Competitors */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-black text-center mb-8">What Others Charge For (That's FREE Here)</h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            {[
+              { label: "7-day trials", us: "14 days full access", them: "7 days limited" },
+              { label: "Credit card required", us: "No card needed", them: "Card upfront" },
+              { label: "Machine limits", us: "Unlimited", them: "Per-machine fees" },
+              { label: "Transaction fees", us: "1.9% (or $99 flat)", them: "6-8% typical" },
+            ].map((item, i) => (
+              <Card key={i} className="text-center">
+                <CardContent className="p-4">
+                  <p className="text-xs text-muted-foreground mb-2">{item.label}</p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-center gap-1 text-green-600">
+                      <Check className="h-4 w-4" />
+                      <span className="text-sm font-medium">{item.us}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1 text-red-500 opacity-60">
+                      <X className="h-4 w-4" />
+                      <span className="text-sm line-through">{item.them}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Enterprise Tiers (collapsed) */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-black text-center mb-2">Enterprise Solutions</h2>
+          <p className="text-muted-foreground text-center mb-8">For large operations and franchises</p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
           {tiers.map((tier) => {
             const Icon = tier.icon;
             return (
@@ -332,16 +559,9 @@ export default function Pricing() {
                   </CardDescription>
                   <div className="mb-4">
                     <span className="text-5xl font-black text-foreground" data-testid={`text-price-${tier.name.toLowerCase()}`}>
-                      ${billingCycle === "monthly" ? tier.price : Math.floor(tier.price / 12)}
+                      ${tier.price}
                     </span>
-                    <span className="text-muted-foreground text-lg">
-                      /{billingCycle === "monthly" ? "mo" : "mo"}
-                    </span>
-                    {billingCycle === "annual" && (
-                      <div className="text-sm text-muted-foreground mt-1">
-                        ${tier.price}/year (billed annually)
-                      </div>
-                    )}
+                    <span className="text-muted-foreground text-lg">/mo</span>
                   </div>
                   <Link href="/subscribe">
                     <Button 
@@ -401,6 +621,7 @@ export default function Pricing() {
               </Card>
             );
           })}
+        </div>
         </div>
 
         {/* Platform Features */}
