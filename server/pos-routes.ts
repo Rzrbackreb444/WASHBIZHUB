@@ -1879,6 +1879,585 @@ export function registerPosRoutes(app: Express) {
       res.status(500).json({ error: "Failed to calculate ROI" });
     }
   });
+
+  // ========================================
+  // REPAIR TICKETS SYSTEM
+  // ========================================
+
+  // GET /api/pos/repair-tickets - List all repair tickets with filters
+  app.get("/api/pos/repair-tickets", async (req: Request, res: Response) => {
+    try {
+      const { status, priority, machineId, laundromatId, limit = "50", offset = "0" } = req.query;
+      
+      const conditions: any[] = [];
+      
+      if (laundromatId) {
+        conditions.push(eq(repairTickets.laundromatId, laundromatId as string));
+      }
+      if (status) {
+        conditions.push(eq(repairTickets.status, status as string));
+      }
+      if (priority) {
+        conditions.push(eq(repairTickets.priority, priority as string));
+      }
+      if (machineId) {
+        conditions.push(eq(repairTickets.machineId, machineId as string));
+      }
+      
+      const tickets = await db
+        .select({
+          ticket: repairTickets,
+          machine: machineAssets,
+        })
+        .from(repairTickets)
+        .leftJoin(machineAssets, eq(repairTickets.machineId, machineAssets.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(repairTickets.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+      
+      const formattedTickets = tickets.map(t => ({
+        ...t.ticket,
+        machineName: t.machine?.machineName || t.machine?.machineNumber || "Unknown Machine",
+        machineType: t.machine?.machineType || "unknown",
+      }));
+      
+      res.json({ tickets: formattedTickets, count: formattedTickets.length });
+    } catch (error) {
+      console.error("Error fetching repair tickets:", error);
+      res.status(500).json({ error: "Failed to fetch repair tickets" });
+    }
+  });
+
+  // POST /api/pos/repair-tickets - Create a new repair ticket
+  app.post("/api/pos/repair-tickets", async (req: Request, res: Response) => {
+    try {
+      const { 
+        machineId, 
+        laundromatId,
+        title, 
+        description, 
+        problemType, 
+        priority = "medium",
+        reportedBy,
+        symptoms = []
+      } = req.body;
+      
+      if (!machineId || !title || !description) {
+        return res.status(400).json({ error: "Machine ID, title, and description are required" });
+      }
+      
+      const ticketNumber = `TKT-${Date.now()}`;
+      
+      const [ticket] = await db
+        .insert(repairTickets)
+        .values({
+          machineId,
+          laundromatId: laundromatId || "default-laundromat",
+          ticketNumber,
+          title,
+          description,
+          problemType: problemType || "other",
+          priority,
+          status: "open",
+          symptoms: symptoms,
+          reportedBy,
+          reportedAt: new Date(),
+        } as any)
+        .returning();
+      
+      // Update machine status to needs_maintenance
+      await db
+        .update(machineAssets)
+        .set({ status: "needs_maintenance", updatedAt: new Date() })
+        .where(eq(machineAssets.id, machineId));
+      
+      res.status(201).json({ ticket });
+    } catch (error) {
+      console.error("Error creating repair ticket:", error);
+      res.status(500).json({ error: "Failed to create repair ticket" });
+    }
+  });
+
+  // GET /api/pos/repair-tickets/:id - Get single repair ticket
+  app.get("/api/pos/repair-tickets/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const [result] = await db
+        .select({
+          ticket: repairTickets,
+          machine: machineAssets,
+        })
+        .from(repairTickets)
+        .leftJoin(machineAssets, eq(repairTickets.machineId, machineAssets.id))
+        .where(eq(repairTickets.id, id));
+      
+      if (!result) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      
+      res.json({
+        ...result.ticket,
+        machineName: result.machine?.machineName || result.machine?.machineNumber || "Unknown Machine",
+        machineType: result.machine?.machineType || "unknown",
+        machineManufacturer: result.machine?.manufacturer,
+        machineModel: result.machine?.model,
+      });
+    } catch (error) {
+      console.error("Error fetching repair ticket:", error);
+      res.status(500).json({ error: "Failed to fetch repair ticket" });
+    }
+  });
+
+  // PATCH /api/pos/repair-tickets/:id - Update repair ticket
+  app.patch("/api/pos/repair-tickets/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // Handle status changes
+      if (updates.status === "in_progress" && !updates.startedAt) {
+        updates.startedAt = new Date();
+      }
+      if ((updates.status === "completed" || updates.status === "closed") && !updates.completedAt) {
+        updates.completedAt = new Date();
+      }
+      
+      const [ticket] = await db
+        .update(repairTickets)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(repairTickets.id, id))
+        .returning();
+      
+      if (!ticket) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      
+      // If ticket is completed, update machine status back to operational
+      if (updates.status === "completed" || updates.status === "closed") {
+        await db
+          .update(machineAssets)
+          .set({ status: "operational", updatedAt: new Date() })
+          .where(eq(machineAssets.id, ticket.machineId));
+      }
+      
+      res.json({ ticket });
+    } catch (error) {
+      console.error("Error updating repair ticket:", error);
+      res.status(500).json({ error: "Failed to update repair ticket" });
+    }
+  });
+
+  // ========================================
+  // MACHINE HEALTH & PREDICTIVE MAINTENANCE
+  // ========================================
+
+  // Helper function to calculate machine health score
+  function calculateMachineHealthScore(machine: any): {
+    score: number;
+    factors: { name: string; score: number; impact: string }[];
+  } {
+    const factors: { name: string; score: number; impact: string }[] = [];
+    let totalScore = 100;
+    
+    // Factor 1: Age (install date)
+    if (machine.installDate) {
+      const ageYears = (Date.now() - new Date(machine.installDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+      let ageScore = Math.max(0, 100 - (ageYears * 5)); // Lose 5 points per year
+      ageScore = Math.round(ageScore);
+      factors.push({ 
+        name: "Equipment Age", 
+        score: ageScore, 
+        impact: ageYears > 10 ? "High" : ageYears > 5 ? "Medium" : "Low"
+      });
+      totalScore = Math.min(totalScore, ageScore + 20); // Age can't drop score below 20 alone
+    } else {
+      factors.push({ name: "Equipment Age", score: 80, impact: "Unknown" });
+    }
+    
+    // Factor 2: Cycle count / usage
+    const cycleCount = machine.cycleCount || machine.totalCycles || 0;
+    let usageScore = 100;
+    if (cycleCount > 50000) usageScore = 40;
+    else if (cycleCount > 30000) usageScore = 60;
+    else if (cycleCount > 15000) usageScore = 75;
+    else if (cycleCount > 5000) usageScore = 90;
+    factors.push({ 
+      name: "Usage Cycles", 
+      score: usageScore, 
+      impact: cycleCount > 30000 ? "High" : cycleCount > 15000 ? "Medium" : "Low"
+    });
+    
+    // Factor 3: Time since last maintenance
+    let maintenanceScore = 85;
+    if (machine.lastMaintenanceDate) {
+      const daysSinceMaintenance = (Date.now() - new Date(machine.lastMaintenanceDate).getTime()) / (24 * 60 * 60 * 1000);
+      if (daysSinceMaintenance > 180) maintenanceScore = 40;
+      else if (daysSinceMaintenance > 90) maintenanceScore = 60;
+      else if (daysSinceMaintenance > 60) maintenanceScore = 75;
+      else if (daysSinceMaintenance > 30) maintenanceScore = 85;
+      else maintenanceScore = 95;
+      factors.push({ 
+        name: "Maintenance Recency", 
+        score: maintenanceScore, 
+        impact: daysSinceMaintenance > 90 ? "High" : daysSinceMaintenance > 60 ? "Medium" : "Low"
+      });
+    } else {
+      factors.push({ name: "Maintenance Recency", score: 70, impact: "Unknown" });
+    }
+    
+    // Factor 4: Current status
+    let statusScore = 100;
+    if (machine.status === "out_of_order" || machine.status === "offline") statusScore = 0;
+    else if (machine.status === "needs_maintenance" || machine.status === "maintenance") statusScore = 50;
+    else if (machine.status === "operational" || machine.status === "active") statusScore = 100;
+    factors.push({ 
+      name: "Current Status", 
+      score: statusScore, 
+      impact: statusScore < 50 ? "Critical" : statusScore < 80 ? "Medium" : "Low"
+    });
+    
+    // Calculate weighted average
+    const weights = [0.2, 0.25, 0.3, 0.25]; // Age, Usage, Maintenance, Status
+    const weightedScores = factors.map((f, i) => f.score * weights[i]);
+    totalScore = Math.round(weightedScores.reduce((a, b) => a + b, 0));
+    
+    return { score: Math.max(0, Math.min(100, totalScore)), factors };
+  }
+
+  // GET /api/pos/machines/:id/health - Get machine health score
+  app.get("/api/pos/machines/:id/health", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const [machine] = await db
+        .select()
+        .from(machineAssets)
+        .where(eq(machineAssets.id, id));
+      
+      if (!machine) {
+        return res.status(404).json({ error: "Machine not found" });
+      }
+      
+      const health = calculateMachineHealthScore(machine);
+      
+      // Get recent repair tickets for this machine
+      const recentTickets = await db
+        .select()
+        .from(repairTickets)
+        .where(eq(repairTickets.machineId, id))
+        .orderBy(desc(repairTickets.createdAt))
+        .limit(5);
+      
+      res.json({
+        machineId: id,
+        machineName: machine.machineName || machine.machineNumber,
+        healthScore: health.score,
+        healthGrade: health.score >= 80 ? "Good" : health.score >= 50 ? "Fair" : "Poor",
+        factors: health.factors,
+        recentIssues: recentTickets.length,
+        lastMaintenanceDate: machine.lastMaintenanceDate,
+      });
+    } catch (error) {
+      console.error("Error fetching machine health:", error);
+      res.status(500).json({ error: "Failed to fetch machine health" });
+    }
+  });
+
+  // GET /api/pos/machines/:id/maintenance-history - Get maintenance history
+  app.get("/api/pos/machines/:id/maintenance-history", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const tickets = await db
+        .select()
+        .from(repairTickets)
+        .where(eq(repairTickets.machineId, id))
+        .orderBy(desc(repairTickets.createdAt));
+      
+      const history = tickets.map(t => ({
+        id: t.id,
+        ticketNumber: t.ticketNumber,
+        title: t.title,
+        description: t.description,
+        problemType: t.problemType,
+        status: t.status,
+        priority: t.priority,
+        reportedAt: t.reportedAt,
+        completedAt: t.completedAt,
+        laborHours: t.laborHours,
+        laborCost: t.laborCost,
+        partsCost: t.partsCost,
+        totalCost: t.totalCost,
+        resolutionNotes: t.resolutionNotes,
+        partsUsed: t.partsUsed,
+      }));
+      
+      // Calculate stats
+      const completedTickets = tickets.filter(t => t.status === "completed" || t.status === "closed");
+      const totalCost = completedTickets.reduce((sum, t) => sum + parseFloat(t.totalCost || "0"), 0);
+      const totalHours = completedTickets.reduce((sum, t) => sum + parseFloat(t.laborHours || "0"), 0);
+      
+      res.json({
+        machineId: id,
+        history,
+        stats: {
+          totalRepairs: tickets.length,
+          completedRepairs: completedTickets.length,
+          openRepairs: tickets.filter(t => t.status === "open" || t.status === "in_progress").length,
+          totalCost: Math.round(totalCost * 100) / 100,
+          totalLaborHours: Math.round(totalHours * 10) / 10,
+          successRate: tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 100,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching maintenance history:", error);
+      res.status(500).json({ error: "Failed to fetch maintenance history" });
+    }
+  });
+
+  // GET /api/pos/predictive-maintenance - Get machines predicted to need maintenance
+  app.get("/api/pos/predictive-maintenance", async (req: Request, res: Response) => {
+    try {
+      const { laundromatId } = req.query;
+      
+      const conditions: any[] = [];
+      if (laundromatId) {
+        conditions.push(eq(machineAssets.laundromatId, laundromatId as string));
+      }
+      
+      const machines = await db
+        .select()
+        .from(machineAssets)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+      
+      const predictions = machines.map(machine => {
+        const health = calculateMachineHealthScore(machine);
+        
+        // Predict days until maintenance based on health factors
+        let predictedDays = 365; // Default to 1 year
+        if (health.score < 30) predictedDays = 0; // Immediate
+        else if (health.score < 50) predictedDays = 7;
+        else if (health.score < 65) predictedDays = 14;
+        else if (health.score < 80) predictedDays = 30;
+        else if (health.score < 90) predictedDays = 60;
+        else predictedDays = 90;
+        
+        // Determine urgency level
+        let urgency = "low";
+        if (predictedDays <= 7) urgency = "critical";
+        else if (predictedDays <= 14) urgency = "high";
+        else if (predictedDays <= 30) urgency = "medium";
+        
+        return {
+          machineId: machine.id,
+          machineName: machine.machineName || machine.machineNumber || "Unknown",
+          machineType: machine.machineType,
+          manufacturer: machine.manufacturer,
+          model: machine.model,
+          currentStatus: machine.status,
+          healthScore: health.score,
+          healthGrade: health.score >= 80 ? "Good" : health.score >= 50 ? "Fair" : "Poor",
+          predictedDaysUntilMaintenance: predictedDays,
+          urgency,
+          factors: health.factors,
+          lastMaintenanceDate: machine.lastMaintenanceDate,
+          recommendedAction: predictedDays <= 7 
+            ? "Schedule immediate maintenance" 
+            : predictedDays <= 30 
+              ? "Plan maintenance within 2 weeks"
+              : "Continue monitoring",
+        };
+      });
+      
+      // Sort by urgency (most urgent first)
+      const sortedPredictions = predictions.sort((a, b) => {
+        const urgencyOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        return urgencyOrder[a.urgency as keyof typeof urgencyOrder] - urgencyOrder[b.urgency as keyof typeof urgencyOrder];
+      });
+      
+      // Filter to only show machines that need attention
+      const needsAttention = sortedPredictions.filter(p => p.predictedDaysUntilMaintenance <= 30);
+      
+      res.json({
+        predictions: sortedPredictions,
+        needsAttention,
+        summary: {
+          total: machines.length,
+          critical: predictions.filter(p => p.urgency === "critical").length,
+          high: predictions.filter(p => p.urgency === "high").length,
+          medium: predictions.filter(p => p.urgency === "medium").length,
+          healthy: predictions.filter(p => p.urgency === "low").length,
+          avgHealthScore: Math.round(predictions.reduce((sum, p) => sum + p.healthScore, 0) / predictions.length) || 0,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching predictive maintenance:", error);
+      res.status(500).json({ error: "Failed to fetch predictive maintenance data" });
+    }
+  });
+
+  // ========================================
+  // SERVICE GUY AI
+  // ========================================
+
+  // POST /api/pos/service-guy-ai - Chat with AI diagnostic assistant
+  app.post("/api/pos/service-guy-ai", async (req: Request, res: Response) => {
+    try {
+      const { message, machineType, machineManufacturer, machineModel, symptoms, previousMessages = [] } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+      
+      // Build context for the AI
+      const machineContext = machineType 
+        ? `Machine Type: ${machineType}${machineManufacturer ? `, Manufacturer: ${machineManufacturer}` : ""}${machineModel ? `, Model: ${machineModel}` : ""}`
+        : "";
+      
+      const symptomsContext = symptoms && symptoms.length > 0 
+        ? `Reported symptoms: ${symptoms.join(", ")}`
+        : "";
+      
+      const systemPrompt = `You are "Service Guy AI", an expert commercial laundry equipment technician and diagnostic assistant for WashBizHub. You have 30+ years of experience repairing washers, dryers, folders, ironers, and other commercial laundry equipment from all major manufacturers (Speed Queen, Dexter, Continental Girbau, Wascomat, Maytag, Huebsch, etc.).
+
+Your role is to help laundromat owners and operators diagnose and troubleshoot equipment issues. When responding:
+
+1. **Identify Likely Causes**: List the most probable causes of the issue in order of likelihood
+2. **Troubleshooting Steps**: Provide clear, step-by-step diagnostic procedures
+3. **Parts Needed**: Suggest parts that might need replacement with approximate costs
+4. **Repair Difficulty**: Rate as Easy (DIY), Moderate (experienced tech), or Complex (specialist needed)
+5. **Estimated Time**: Provide realistic repair time estimates
+6. **Safety Warnings**: Include any relevant safety precautions
+7. **Cost Estimate**: Rough estimate for parts and labor
+
+Be practical, direct, and safety-conscious. If an issue sounds dangerous or beyond DIY capability, recommend professional service.
+
+${machineContext ? `\nContext: ${machineContext}` : ""}
+${symptomsContext ? `\n${symptomsContext}` : ""}`;
+
+      // Use OpenAI integration (Replit AI Integrations)
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      });
+
+      // Build messages array
+      const messages: any[] = [
+        { role: "system", content: systemPrompt },
+        ...previousMessages.slice(-10), // Keep last 10 messages for context
+        { role: "user", content: message },
+      ];
+
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages,
+        max_completion_tokens: 2048,
+      });
+
+      const aiResponse = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
+
+      res.json({
+        response: aiResponse,
+        context: {
+          machineType,
+          machineManufacturer,
+          machineModel,
+          symptoms,
+        },
+      });
+    } catch (error) {
+      console.error("Error with Service Guy AI:", error);
+      res.status(500).json({ error: "Failed to get AI diagnosis. Please try again." });
+    }
+  });
+
+  // POST /api/pos/repair-tickets/:id/ai-diagnosis - Get AI diagnosis for a specific ticket
+  app.post("/api/pos/repair-tickets/:id/ai-diagnosis", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      // Get the ticket with machine info
+      const [result] = await db
+        .select({
+          ticket: repairTickets,
+          machine: machineAssets,
+        })
+        .from(repairTickets)
+        .leftJoin(machineAssets, eq(repairTickets.machineId, machineAssets.id))
+        .where(eq(repairTickets.id, id));
+      
+      if (!result) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      
+      const { ticket, machine } = result;
+      
+      // Build diagnostic request
+      const prompt = `Analyze this repair ticket and provide a diagnostic assessment:
+
+**Machine Details:**
+- Type: ${machine?.machineType || "Unknown"}
+- Manufacturer: ${machine?.manufacturer || "Unknown"}
+- Model: ${machine?.model || "Unknown"}
+- Age: ${machine?.installDate ? `Installed ${new Date(machine.installDate).toLocaleDateString()}` : "Unknown"}
+- Total Cycles: ${machine?.cycleCount || machine?.totalCycles || "Unknown"}
+
+**Issue Report:**
+- Title: ${ticket.title}
+- Description: ${ticket.description}
+- Problem Type: ${ticket.problemType || "Not specified"}
+- Priority: ${ticket.priority}
+- Symptoms: ${Array.isArray(ticket.symptoms) ? ticket.symptoms.join(", ") : "Not specified"}
+
+Please provide:
+1. Most likely root cause
+2. Step-by-step troubleshooting procedure
+3. Parts likely needed (with approximate costs)
+4. Repair difficulty level
+5. Estimated repair time
+6. Safety considerations`;
+
+      // Use OpenAI integration
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      });
+
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are "Service Guy AI", an expert commercial laundry equipment technician with 30+ years of experience. Provide detailed, practical diagnostic assessments for repair tickets. Be specific about parts, procedures, and costs.`,
+          },
+          { role: "user", content: prompt },
+        ],
+        max_completion_tokens: 2048,
+      });
+
+      const aiDiagnosis = completion.choices[0]?.message?.content || "Unable to generate diagnosis.";
+
+      res.json({
+        ticketId: id,
+        diagnosis: aiDiagnosis,
+        machineContext: {
+          type: machine?.machineType,
+          manufacturer: machine?.manufacturer,
+          model: machine?.model,
+        },
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error generating AI diagnosis:", error);
+      res.status(500).json({ error: "Failed to generate AI diagnosis" });
+    }
+  });
   
   console.log("✅ POS Command Center routes registered");
 }
