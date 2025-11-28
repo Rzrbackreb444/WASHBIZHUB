@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { db } from "./db";
-import { blogPosts, listings } from "@shared/schema";
+import { blogPosts, listings, diagnosticCodes } from "@shared/schema";
 import { eq, desc, isNotNull } from "drizzle-orm";
 
 interface SitemapUrl {
@@ -42,6 +42,10 @@ export function registerSitemapRoutes(app: Express) {
   </sitemap>
   <sitemap>
     <loc>${baseUrl}/sitemap-listings.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-error-codes.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
 </sitemapindex>`;
@@ -261,6 +265,70 @@ ${listingUrls.map(url => `  <url>
     res.send(xml);
   });
 
+  // Dedicated error codes sitemap (2,200+ diagnostic codes - HIGH SEO VALUE)
+  app.get('/sitemap-error-codes.xml', async (req, res) => {
+    const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+    const host = req.headers.host || 'washbizhub.com';
+    const baseUrl = `${protocol}://${host}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    let errorCodeUrls: SitemapUrl[] = [];
+    try {
+      const allCodes = await db.select({
+        slug: diagnosticCodes.slug,
+        manufacturer: diagnosticCodes.manufacturer,
+        code: diagnosticCodes.code,
+        createdAt: diagnosticCodes.createdAt,
+      }).from(diagnosticCodes)
+        .where(isNotNull(diagnosticCodes.slug));
+
+      errorCodeUrls = allCodes.map(code => {
+        // Higher priority for major brands
+        const majorBrand = ['Speed Queen', 'Maytag', 'Dexter', 'Huebsch', 'Continental', 'Wascomat'].includes(code.manufacturer || '');
+        return {
+          loc: `/error-codes/${code.slug}`,
+          lastmod: code.createdAt ? new Date(code.createdAt).toISOString().split('T')[0] : today,
+          changefreq: 'monthly' as const,
+          priority: majorBrand ? 0.85 : 0.75
+        };
+      });
+
+      // Add brand index pages (high priority for aggregator pages)
+      const brands = [...new Set(allCodes.map(c => c.manufacturer).filter(Boolean))];
+      brands.forEach(brand => {
+        const slug = (brand || '').toLowerCase().replace(/\s+/g, '-');
+        errorCodeUrls.push({
+          loc: `/error-codes/brand/${slug}`,
+          lastmod: today,
+          changefreq: 'weekly' as const,
+          priority: 0.9
+        });
+      });
+
+      // Add main error codes index page
+      errorCodeUrls.unshift({
+        loc: '/error-codes',
+        lastmod: today,
+        changefreq: 'daily' as const,
+        priority: 0.95
+      });
+
+    } catch (error) {
+      console.error('Sitemap-error-codes: Failed to fetch codes:', error);
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${errorCodeUrls.map(url => `  <url>
+    <loc>${baseUrl}${url.loc}</loc>${url.lastmod ? `\n    <lastmod>${url.lastmod}</lastmod>` : ''}${url.changefreq ? `\n    <changefreq>${url.changefreq}</changefreq>` : ''}${url.priority ? `\n    <priority>${url.priority}</priority>` : ''}
+  </url>`).join('\n')}
+</urlset>`;
+
+    res.header('Content-Type', 'application/xml');
+    res.header('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours (error codes change rarely)
+    res.send(xml);
+  });
+
   // Enhanced robots.txt with all sitemaps
   app.get('/robots.txt', (req, res) => {
     const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
@@ -279,6 +347,7 @@ Sitemap: ${baseUrl}/sitemap.xml
 # Additional Sitemaps
 Sitemap: ${baseUrl}/sitemap-blogs.xml
 Sitemap: ${baseUrl}/sitemap-listings.xml
+Sitemap: ${baseUrl}/sitemap-error-codes.xml
 Sitemap: ${baseUrl}/sitemap_index.xml
 
 # Disallow admin and private areas
