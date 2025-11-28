@@ -21,6 +21,13 @@ import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
+import { 
+  antiScrapingMiddleware, 
+  honeypotEndpoint, 
+  enforcePageLimits, 
+  obfuscateForAnonymous,
+  addSecurityHeaders 
+} from "./anti-scraping-middleware";
 import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
 import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
 import { optimizeBlogForSEO } from "./seo-optimizer";
@@ -8003,15 +8010,26 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // ============================================================================
-  // ERROR CODE DIAGNOSTIC TOOL - 939 Codes Across 49 Brands
+  // ERROR CODE DIAGNOSTIC TOOL - PROTECTED PROPRIETARY DATABASE
+  // Anti-scraping protection enabled - Rate limiting, bot detection, data obfuscation
   // ============================================================================
 
-  // Get all error codes with filtering
-  app.get("/api/error-codes", async (req, res) => {
+  // Honeypot endpoints - trap for scrapers
+  app.get("/api/error-codes/export", honeypotEndpoint);
+  app.get("/api/error-codes/download", honeypotEndpoint);
+  app.get("/api/error-codes/bulk", honeypotEndpoint);
+  app.get("/api/diagnostic-codes/all", honeypotEndpoint);
+
+  // Get all error codes with filtering - PROTECTED
+  app.get("/api/error-codes", antiScrapingMiddleware, enforcePageLimits, addSecurityHeaders, async (req, res) => {
     try {
-      const { manufacturer, machineType, severity, search, limit = "50", offset = "0" } = req.query;
+      const { manufacturer, machineType, severity, search } = req.query;
+      let { limit = "20", offset = "0" } = req.query;
       
-      let query = db.select().from(diagnosticCodes);
+      // Enforce maximum page size
+      const parsedLimit = Math.min(parseInt(limit as string) || 20, 20);
+      const parsedOffset = parseInt(offset as string) || 0;
+      
       const conditions: any[] = [];
 
       if (manufacturer && manufacturer !== "all") {
@@ -8033,12 +8051,12 @@ ${pdfData.text.substring(0, 15000)}`;
         );
       }
 
-      const codes = await db
+      const rawCodes = await db
         .select()
         .from(diagnosticCodes)
         .where(conditions.length > 0 ? sql`${conditions.reduce((acc, cond, i) => i === 0 ? cond : sql`${acc} AND ${cond}`)}` : undefined)
-        .limit(parseInt(limit as string))
-        .offset(parseInt(offset as string))
+        .limit(parsedLimit)
+        .offset(parsedOffset)
         .orderBy(diagnosticCodes.manufacturer, diagnosticCodes.code);
 
       const [countResult] = await db
@@ -8046,11 +8064,16 @@ ${pdfData.text.substring(0, 15000)}`;
         .from(diagnosticCodes)
         .where(conditions.length > 0 ? sql`${conditions.reduce((acc, cond, i) => i === 0 ? cond : sql`${acc} AND ${cond}`)}` : undefined);
 
+      // Obfuscate sensitive data for anonymous users
+      const isAuthenticated = !!(req as any).user;
+      const codes = obfuscateForAnonymous(rawCodes, isAuthenticated);
+
       res.json({
         codes,
         total: countResult?.count || 0,
-        limit: parseInt(limit as string),
-        offset: parseInt(offset as string)
+        limit: parsedLimit,
+        offset: parsedOffset,
+        protected: true
       });
     } catch (error: any) {
       console.error("Error fetching error codes:", error);
@@ -8058,14 +8081,9 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  // Get unique manufacturers list
-  app.get("/api/error-codes/manufacturers", async (req, res) => {
+  // Get unique manufacturers list - PROTECTED
+  app.get("/api/error-codes/manufacturers", antiScrapingMiddleware, addSecurityHeaders, async (req, res) => {
     try {
-      const manufacturers = await db
-        .selectDistinct({ manufacturer: diagnosticCodes.manufacturer })
-        .from(diagnosticCodes)
-        .orderBy(diagnosticCodes.manufacturer);
-
       const counts = await db
         .select({
           manufacturer: diagnosticCodes.manufacturer,
@@ -8082,49 +8100,58 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  // Get error code by slug (for SEO-friendly URLs)
-  app.get("/api/error-codes/slug/:slug", async (req, res) => {
+  // Get error code by slug (for SEO-friendly URLs) - PROTECTED with data obfuscation
+  app.get("/api/error-codes/slug/:slug", antiScrapingMiddleware, addSecurityHeaders, async (req, res) => {
     try {
       const { slug } = req.params;
       
-      const [code] = await db
+      const [rawCode] = await db
         .select()
         .from(diagnosticCodes)
         .where(eq(diagnosticCodes.slug, slug));
 
-      if (!code) {
+      if (!rawCode) {
         return res.status(404).json({ message: "Error code not found" });
       }
 
-      // Get related codes from same manufacturer
-      const relatedCodes = await db
+      // Get related codes from same manufacturer (limited)
+      const rawRelatedCodes = await db
         .select()
         .from(diagnosticCodes)
-        .where(sql`${diagnosticCodes.manufacturer} = ${code.manufacturer} AND ${diagnosticCodes.id} != ${code.id}`)
-        .limit(6);
+        .where(sql`${diagnosticCodes.manufacturer} = ${rawCode.manufacturer} AND ${diagnosticCodes.id} != ${rawCode.id}`)
+        .limit(4);
 
-      res.json({ code, relatedCodes });
+      // Obfuscate sensitive data for anonymous users
+      const isAuthenticated = !!(req as any).user;
+      const code = obfuscateForAnonymous(rawCode, isAuthenticated);
+      const relatedCodes = obfuscateForAnonymous(rawRelatedCodes, isAuthenticated);
+
+      res.json({ code, relatedCodes, protected: true });
     } catch (error: any) {
       console.error("Error fetching error code:", error);
       res.status(500).json({ message: error.message || "Failed to fetch error code" });
     }
   });
 
-  // Get error code by manufacturer and code
-  app.get("/api/error-codes/:manufacturer/:code", async (req, res) => {
+  // Get error code by manufacturer and code - PROTECTED with data obfuscation
+  app.get("/api/error-codes/:manufacturer/:code", antiScrapingMiddleware, addSecurityHeaders, async (req, res) => {
     try {
       const { manufacturer, code } = req.params;
       
-      const [result] = await db
+      const [rawResult] = await db
         .select()
         .from(diagnosticCodes)
         .where(sql`${diagnosticCodes.manufacturer} = ${manufacturer} AND ${diagnosticCodes.code} = ${code}`);
 
-      if (!result) {
+      if (!rawResult) {
         return res.status(404).json({ message: "Error code not found" });
       }
 
-      res.json(result);
+      // Obfuscate sensitive data for anonymous users
+      const isAuthenticated = !!(req as any).user;
+      const result = obfuscateForAnonymous(rawResult, isAuthenticated);
+
+      res.json({ ...result, protected: true });
     } catch (error: any) {
       console.error("Error fetching error code:", error);
       res.status(500).json({ message: error.message || "Failed to fetch error code" });
@@ -8143,8 +8170,8 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  // Get statistics for error codes
-  app.get("/api/error-codes/stats", async (req, res) => {
+  // Get statistics for error codes - PROTECTED (rate limited)
+  app.get("/api/error-codes/stats", antiScrapingMiddleware, addSecurityHeaders, async (req, res) => {
     try {
       const [totalCodes] = await db
         .select({ count: sql<number>`count(*)` })
@@ -8174,7 +8201,8 @@ ${pdfData.text.substring(0, 15000)}`;
         totalCodes: totalCodes?.count || 0,
         totalBrands: totalBrands?.count || 0,
         bySeverity,
-        byMachineType
+        byMachineType,
+        protected: true
       });
     } catch (error: any) {
       console.error("Error fetching stats:", error);
