@@ -96,7 +96,7 @@ export default function RepairGuide() {
             Service Guy AI
           </h1>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-3">
-            2,100+ diagnostic codes with step-by-step repair instructions, safety warnings, and one-click parts ordering
+            2,200+ diagnostic codes with step-by-step repair instructions, safety warnings, and one-click parts ordering
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 italic">
             <AlertTriangle className="w-4 h-4" />

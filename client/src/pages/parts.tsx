@@ -65,7 +65,7 @@ export default function Parts() {
             Parts Store & Diagnostics
           </h1>
           <p className="text-xl text-white/70" data-testid="text-parts-subtitle">
-            2,100+ fault codes with genuine replacement parts
+            2,200+ fault codes with genuine replacement parts
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function Parts() {
                   Fault Code Lookup
                 </CardTitle>
                 <CardDescription className="text-white/70">
-                  Search our database of 2,100+ diagnostic codes
+                  Search our database of 2,200+ diagnostic codes
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -215,7 +215,7 @@ export default function Parts() {
               <CardContent className="p-6 text-center">
                 <p className="text-white/90">
                   Can't find your code? <strong>Pro members</strong> get access to our complete 
-                  database of 2,100+ diagnostic codes with step-by-step repair guides.
+                  database of 2,200+ diagnostic codes with step-by-step repair guides.
                 </p>
                 <Button 
                   className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground font-bold"

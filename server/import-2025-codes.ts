@@ -250,6 +250,16 @@ function parseTableFile(filePath: string): RawCodeData[] {
       currentManufacturer = "Jensen";
     } else if (line.includes("TOLONUKI") || line.includes("TOLON")) {
       currentManufacturer = "Tolonuki";
+    } else if (line.includes("VEIT")) {
+      currentManufacturer = "Veit";
+    } else if (line.includes("YAMAMOTO")) {
+      currentManufacturer = "Yamamoto";
+    } else if (line.includes("CHICAGO DRYER")) {
+      currentManufacturer = "Chicago Dryer";
+    } else if (line.includes("AJAX")) {
+      currentManufacturer = "Ajax";
+    } else if (line.includes("ESD")) {
+      currentManufacturer = "ESD";
     }
     
     if (line.includes("**WASHERS**") || line.includes("WASHERS (")) {
@@ -302,6 +312,8 @@ async function importCodes() {
     "attached_assets/Pasted---1764312949563_1764312949563.txt",
     "attached_assets/Pasted---1764312978928_1764312978929.txt",
     "attached_assets/Pasted---1764313002176_1764313002177.txt",
+    "attached_assets/Pasted--FAGOR--1764313054455_1764313054455.txt",
+    "attached_assets/Pasted--VEIT-YAM-1764313076225_1764313076225.txt",
   ];
 
   let totalImported = 0;

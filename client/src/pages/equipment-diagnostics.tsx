@@ -98,7 +98,7 @@ export default function EquipmentDiagnostics() {
     <>
       <Helmet>
         <title>Equipment Diagnostics | WashBizHub - Equipment Fault Code Lookup</title>
-        <meta name="description" content="Equipment diagnostic tool with 2,100+ fault codes for Speed Queen, Dexter, Electrolux, Huebsch, Alliance, and UniMac laundry equipment. Instant troubleshooting and parts ordering." />
+        <meta name="description" content="Equipment diagnostic tool with 2,200+ fault codes for Speed Queen, Dexter, Electrolux, Huebsch, Alliance, and UniMac laundry equipment. Instant troubleshooting and parts ordering." />
         <meta name="keywords" content="equipment diagnostics, fault codes, washer repair, dryer repair, laundry equipment troubleshooting" />
         <link rel="canonical" href="https://washbizhub.com/equipment-diagnostics" />
         <meta property="og:title" content="Equipment Diagnostics - Fault Code Lookup" />
@@ -114,7 +114,7 @@ export default function EquipmentDiagnostics() {
               Equipment Diagnostics
             </h1>
             <p className="text-muted-foreground text-lg">
-              AI-powered fault code lookup for Speed Queen, Dexter, Electrolux, Huebsch, Alliance, and UniMac equipment. 2,100+ diagnostic codes with instant solutions and parts ordering.
+              AI-powered fault code lookup for Speed Queen, Dexter, Electrolux, Huebsch, Alliance, and UniMac equipment. 2,200+ diagnostic codes with instant solutions and parts ordering.
             </p>
           </div>
 
