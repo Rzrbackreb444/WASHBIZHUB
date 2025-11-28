@@ -75,7 +75,7 @@ export default function Subscribe() {
     "Unlimited 2D/3D design studio access",
     "Complete CLEANBI™ analysis with AI insights",
     "Advanced revenue modeling & projections",
-    "Access to all 500+ diagnostic fault codes",
+    "Access to all 2,100+ diagnostic fault codes",
     "Priority vendor marketplace listings",
     "Exclusive affiliate partner opportunities",
     "AI-powered blog content generation",
