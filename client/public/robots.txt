@@ -1,0 +1,60 @@
+# WashBizHub Robots.txt
+# The #1 Laundromat Resource & Educational Hub
+
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /error-codes/
+Allow: /calculators/
+Allow: /courses/
+Allow: /marketplace/
+Allow: /resources/
+Allow: /blog/
+Allow: /listings/
+Allow: /cleanbi/
+Allow: /design-studio/
+Allow: /pricing/
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /admin-*
+Disallow: /api/
+Disallow: /owner-dashboard
+Disallow: /settings
+Disallow: /vault
+
+# Prevent crawling of duplicate content
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=2
+Disallow: /*?*page=3
+Disallow: /*?*page=4
+
+# Sitemap location
+Sitemap: https://washbizhub.com/sitemap.xml
+
+# Crawl-delay for considerate crawling
+Crawl-delay: 1
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific  
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# AI Crawlers (ChatGPT, Claude, Perplexity)
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /

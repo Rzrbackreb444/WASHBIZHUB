@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SEO } from "@/components/SEO";
 import {
   Check,
   Star,
@@ -33,6 +34,73 @@ import {
 } from "lucide-react";
 
 export default function Pricing() {
+  const pricingFaqs = [
+    {
+      question: "Is there really no credit card required for the trial?",
+      answer: "Correct! Start your 14-day full POS trial with no credit card required. Experience unlimited machines, AI predictive alerts, and dynamic pricing with zero commitment."
+    },
+    {
+      question: "What's included in the free forever plan?",
+      answer: "The free plan includes CLEANBI Score (unlimited), 50+ business calculators, Design Studio 2D, Marketplace Cash-Back (5-15%), access to the 2,200+ error code database, community forum, and educational content."
+    },
+    {
+      question: "What happens after the 14-day trial ends?",
+      answer: "After your trial, choose between $99/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI alerts even if you cancel."
+    },
+    {
+      question: "How much can I save with WashBizPOS?",
+      answer: "Owners typically save $2,000-$12,000 in the first year through AI predictive maintenance alerts (preventing costly breakdowns), dynamic pricing (+22% revenue boost), and reduced transaction fees compared to competitors."
+    }
+  ];
+
+  const pricingSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "WashBizPOS Pro",
+    "description": "Complete laundromat POS system with AI predictive maintenance, dynamic pricing, and IoT monitoring",
+    "brand": {
+      "@type": "Brand",
+      "name": "WashBizHub"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Forever",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      {
+        "@type": "Offer",
+        "name": "14-Day Full Trial",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2025-12-31"
+      },
+      {
+        "@type": "Offer",
+        "name": "WashBizPOS Pro Flat",
+        "price": "99",
+        "priceCurrency": "USD",
+        "billingIncrement": "P1M",
+        "availability": "https://schema.org/InStock"
+      }
+    ]
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": pricingFaqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
   const [pricingModel, setPricingModel] = useState<"flat" | "transaction">("flat");
 
   // New 2025 winning pricing strategy
@@ -345,7 +413,27 @@ export default function Pricing() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-12">
+    <>
+      <SEO 
+        title="Pricing - 14-Day Free Trial | $99/mo or 1.9% Transaction Fee"
+        description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $99/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year. 68% trial-to-paid conversion."
+        canonicalUrl="/pricing"
+        keywords={[
+          "laundromat POS pricing",
+          "laundry software cost",
+          "free laundromat trial",
+          "WashBizPOS pricing",
+          "laundromat management software",
+          "coin laundry POS system",
+          "dynamic pricing laundromat"
+        ]}
+        structuredData={[pricingSchema, faqSchema]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Pricing", url: "/pricing" }
+        ]}
+      />
+      <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4">
         {/* Hero Section - 14 Day Trial */}
         <div className="text-center mb-8">
@@ -757,5 +845,6 @@ export default function Pricing() {
         </div>
       </div>
     </div>
+    </>
   );
 }
