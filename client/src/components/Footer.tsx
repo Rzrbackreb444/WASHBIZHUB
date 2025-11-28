@@ -505,10 +505,8 @@ export function Footer() {
                   Company Information
                 </h4>
                 <div className="text-white/60 text-xs space-y-1">
-                  <p>WashBizHub, LLC</p>
+                  <p>WashBizHub</p>
                   <p>Fort Smith, AR 72901</p>
-                  <p>EIN: XX-XXXXXXX</p>
-                  <p className="text-white/40 mt-2">Registered in the State of Arkansas</p>
                 </div>
               </div>
               
