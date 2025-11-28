@@ -522,20 +522,28 @@ export default function ErrorCodeDetailPage() {
                             size="sm"
                             className="bg-amber-600 hover:bg-amber-700"
                             onClick={() => {
-                              const supplier = part.supplier?.toLowerCase() || '';
                               const manufacturer = code.manufacturer?.toLowerCase() || '';
                               let url = '';
                               
-                              if (supplier.includes('alliance') || manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                              // Parts Town is #1 for everything - same-day shipping, search by part number
+                              if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso') || manufacturer.includes('primus')) {
+                                // Alliance family - use Alliance Laundry Systems for genuine OEM
                                 url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part.partNumber)}`;
-                              } else if (manufacturer.includes('dexter')) {
-                                url = 'https://www.dexter.com/support/parts-lookup/';
-                              } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool')) {
-                                url = `https://www.reliableparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                              } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
+                                // Dexter/Milnor - use LOW for cheapest prices
+                                url = `https://www.lowlaundry.com/search?q=${encodeURIComponent(part.partNumber)}`;
                               } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
-                                url = `https://oemlaundryparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                                // Wascomat/Electrolux - use Eastern Laundry Parts
+                                url = `https://www.easternlaundryparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                              } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool') || manufacturer.includes('lg') || manufacturer.includes('ge')) {
+                                // Residential brands - use Repair Clinic
+                                url = `https://www.repairclinic.com/Shop-For-Parts?q=${encodeURIComponent(part.partNumber)}`;
+                              } else if (manufacturer.includes('miele') || manufacturer.includes('fagor') || manufacturer.includes('schulthess')) {
+                                // European brands - use HK Laundry
+                                url = `https://www.hklaundry.com/search?q=${encodeURIComponent(part.partNumber)}`;
                               } else {
-                                url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part.partNumber)}`;
+                                // Default: Parts Town - #1 for everything, same-day shipping
+                                url = `https://www.partstown.com/search?q=${encodeURIComponent(part.partNumber)}`;
                               }
                               window.open(url, '_blank');
                             }}
@@ -559,21 +567,23 @@ export default function ErrorCodeDetailPage() {
                         onClick={() => {
                           const manufacturer = code.manufacturer?.toLowerCase() || '';
                           let url = '';
-                          if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                          if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                             url = 'https://parts.alliancelaundry.com/';
-                          } else if (manufacturer.includes('dexter')) {
-                            url = 'https://www.dexter.com/support/parts-lookup/';
-                          } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool')) {
-                            url = 'https://www.reliableparts.com/brands/speed-queen.html';
+                          } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
+                            url = 'https://www.lowlaundry.com/';
+                          } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
+                            url = 'https://www.easternlaundryparts.com/';
+                          } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool') || manufacturer.includes('lg')) {
+                            url = 'https://www.repairclinic.com/';
                           } else {
-                            url = 'https://parts.alliancelaundry.com/';
+                            url = 'https://www.partstown.com/laundry-parts';
                           }
                           window.open(url, '_blank');
                         }}
                         data-testid="button-order-all-parts"
                       >
                         <ShoppingCart className="h-4 w-4" />
-                        Order Parts from OEM Supplier
+                        Order from OEM Supplier
                         <ExternalLink className="h-3 w-3" />
                       </Button>
                     </div>
@@ -611,12 +621,14 @@ export default function ErrorCodeDetailPage() {
                           onClick={() => {
                             const manufacturer = code.manufacturer?.toLowerCase() || '';
                             let url = '';
-                            if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                            if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                               url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part)}`;
-                            } else if (manufacturer.includes('dexter')) {
-                              url = 'https://www.dexter.com/support/parts-lookup/';
+                            } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
+                              url = `https://www.lowlaundry.com/search?q=${encodeURIComponent(part)}`;
+                            } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
+                              url = `https://www.easternlaundryparts.com/search?q=${encodeURIComponent(part)}`;
                             } else {
-                              url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part)}`;
+                              url = `https://www.partstown.com/search?q=${encodeURIComponent(part)}`;
                             }
                             window.open(url, '_blank');
                           }}
@@ -634,12 +646,14 @@ export default function ErrorCodeDetailPage() {
                       onClick={() => {
                         const manufacturer = code.manufacturer?.toLowerCase() || '';
                         let url = '';
-                        if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac')) {
+                        if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                           url = 'https://parts.alliancelaundry.com/';
-                        } else if (manufacturer.includes('dexter')) {
-                          url = 'https://www.dexter.com/support/parts-lookup/';
+                        } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
+                          url = 'https://www.lowlaundry.com/';
+                        } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
+                          url = 'https://www.easternlaundryparts.com/';
                         } else {
-                          url = 'https://parts.alliancelaundry.com/';
+                          url = 'https://www.partstown.com/laundry-parts';
                         }
                         window.open(url, '_blank');
                       }}
