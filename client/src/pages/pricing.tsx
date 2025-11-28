@@ -138,7 +138,7 @@ export default function Pricing() {
         "MQTT/HTTPS sensor ingestion",
         "Machine telemetry (temp, vibration, water)",
         "Predictive maintenance alerts",
-        "2,800+ diagnostic codes library",
+        "500+ diagnostic codes library",
         "Repair ticket tracking",
         "Parts inventory management",
         "Warranty records"

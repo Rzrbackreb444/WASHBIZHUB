@@ -75,7 +75,7 @@ export default function Subscribe() {
     "Unlimited 2D/3D design studio access",
     "Complete CLEANBI™ analysis with AI insights",
     "Advanced revenue modeling & projections",
-    "Access to all 2,800+ diagnostic fault codes",
+    "Access to all 500+ diagnostic fault codes",
     "Priority vendor marketplace listings",
     "Exclusive affiliate partner opportunities",
     "AI-powered blog content generation",
@@ -193,7 +193,7 @@ export default function Subscribe() {
           </Card>
           <Card className="bg-white/10 backdrop-blur border-white/20 text-center">
             <CardContent className="pt-8">
-              <div className="text-4xl font-black text-accent mb-2">2,800+</div>
+              <div className="text-4xl font-black text-accent mb-2">500+</div>
               <p className="text-white/80">Diagnostic codes save thousands in repair costs</p>
             </CardContent>
           </Card>
