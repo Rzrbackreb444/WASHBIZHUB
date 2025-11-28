@@ -530,8 +530,8 @@ export default function ErrorCodeDetailPage() {
                                 // Alliance family - use Alliance Laundry Systems for genuine OEM
                                 url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part.partNumber)}`;
                               } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
-                                // Dexter/Milnor - use LOW for cheapest prices
-                                url = `https://www.lowlaundry.com/search?q=${encodeURIComponent(part.partNumber)}`;
+                                // Dexter/Milnor - AAdvantage Laundry affiliate
+                                url = 'https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry';
                               } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
                                 // Wascomat/Electrolux - use Eastern Laundry Parts
                                 url = `https://www.easternlaundryparts.com/search?q=${encodeURIComponent(part.partNumber)}`;
@@ -570,7 +570,7 @@ export default function ErrorCodeDetailPage() {
                           if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                             url = 'https://parts.alliancelaundry.com/';
                           } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
-                            url = 'https://www.lowlaundry.com/';
+                            url = 'https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry';
                           } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
                             url = 'https://www.easternlaundryparts.com/';
                           } else if (manufacturer.includes('maytag') || manufacturer.includes('whirlpool') || manufacturer.includes('lg')) {
@@ -624,7 +624,7 @@ export default function ErrorCodeDetailPage() {
                             if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                               url = `https://parts.alliancelaundry.com/catalogsearch/result/?q=${encodeURIComponent(part)}`;
                             } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
-                              url = `https://www.lowlaundry.com/search?q=${encodeURIComponent(part)}`;
+                              url = 'https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry';
                             } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
                               url = `https://www.easternlaundryparts.com/search?q=${encodeURIComponent(part)}`;
                             } else {
@@ -649,7 +649,7 @@ export default function ErrorCodeDetailPage() {
                         if (manufacturer.includes('speed queen') || manufacturer.includes('huebsch') || manufacturer.includes('unimac') || manufacturer.includes('ipso')) {
                           url = 'https://parts.alliancelaundry.com/';
                         } else if (manufacturer.includes('dexter') || manufacturer.includes('milnor')) {
-                          url = 'https://www.lowlaundry.com/';
+                          url = 'https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry';
                         } else if (manufacturer.includes('wascomat') || manufacturer.includes('electrolux')) {
                           url = 'https://www.easternlaundryparts.com/';
                         } else {
