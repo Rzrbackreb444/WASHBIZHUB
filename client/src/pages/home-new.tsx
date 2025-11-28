@@ -297,7 +297,7 @@ const features = [
   {
     icon: Shield,
     title: 'Error Code Diagnostics',
-    description: '2,100+ codes across 65+ machine brands',
+    description: '2,200+ codes across 70+ machine brands',
     color: 'from-teal-500 to-cyan-500'
   },
   {
@@ -343,7 +343,7 @@ const stats = [
   { value: '72,000+', label: 'Laundromat Owners' },
   { value: '$1.2B+', label: 'In Deals Analyzed' },
   { value: '41%', label: 'Average ROI Boost' },
-  { value: '2,100+', label: 'Error Codes' }
+  { value: '2,200+', label: 'Error Codes' }
 ];
 
 export default function HomeNew() {

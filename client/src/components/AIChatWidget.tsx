@@ -160,7 +160,7 @@ const getWelcomeMessage = (journey: JourneyType): string => {
     case 'partner':
       return "**Looking to connect with laundromat owners?**\n\nI can help you list equipment, advertise your services, and grow your business on WashBizHub.\n\nLet me assist with:\n• Listing laundromats for sale\n• Equipment marketplace strategies\n• Vendor partnership opportunities\n• Advertising best practices\n\nHow can I help you today?";
     default:
-      return "**Welcome to Service Guy AI — your AI-powered equipment diagnostic expert.**\n\nI specialize in commercial laundry equipment troubleshooting with access to:\n• **2,100+ error codes** across 65+ brands\n• Step-by-step repair guides\n• Parts recommendations with instant ordering\n• Predictive maintenance insights\n\n**Try the 14-day free trial** to unlock:\n• AI-powered root cause analysis\n• Parts cross-referencing\n• Equipment health scoring\n\nDescribe your issue or enter an error code to get started!";
+      return "**Welcome to Service Guy AI — your AI-powered equipment diagnostic expert.**\n\nI specialize in commercial laundry equipment troubleshooting with access to:\n• **2,200+ error codes** across 70+ brands\n• Step-by-step repair guides\n• Parts recommendations with instant ordering\n• Predictive maintenance insights\n\n**Try the 14-day free trial** to unlock:\n• AI-powered root cause analysis\n• Parts cross-referencing\n• Equipment health scoring\n\nDescribe your issue or enter an error code to get started!";
   }
 };
 
@@ -222,7 +222,7 @@ const SERVICE_GUY_PRICING = [
     price: "$0",
     period: "/forever",
     messages: "5 chats/month",
-    features: ["Basic error code lookup", "General troubleshooting tips", "Access to 2,100+ error codes"],
+    features: ["Basic error code lookup", "General troubleshooting tips", "Access to 2,200+ error codes"],
     cta: "Current Plan",
     popular: false,
   },
