@@ -18,7 +18,6 @@ export default function Blog() {
     title: "",
     content: "",
     category: "Operations",
-    type: "manual",
   });
 
   const { toast } = useToast();
@@ -72,13 +71,13 @@ export default function Blog() {
         userId: null,
         title: newPost.title,
         content: newPost.content,
-        type: newPost.type,
+        type: "manual",
         category: newPost.category,
         featured: false,
         published: true,
       });
 
-      setNewPost({ title: "", content: "", category: "Operations", type: "manual" });
+      setNewPost({ title: "", content: "", category: "Operations" });
       setActiveTab("browse");
       
       toast({

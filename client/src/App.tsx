@@ -119,6 +119,7 @@ import OwnerDashboard from "@/pages/owner-dashboard";
 import BusinessBuilder from "@/pages/business-builder";
 import LaundryOrderPortal from "@/pages/laundry-order-portal";
 import LondrDemo from "@/pages/londr-demo";
+import LondrPartnership from "@/pages/londr-partnership";
 import WebsiteBuilder from "@/pages/website-builder";
 import WebsiteTemplates from "@/pages/website-templates";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
@@ -220,6 +221,8 @@ function Router() {
       <Route path="/laundry-order" component={LaundryOrderPortal} />
       <Route path="/demo/londr" component={LondrDemo} />
       <Route path="/londr-demo" component={LondrDemo} />
+      <Route path="/londr" component={LondrPartnership} />
+      <Route path="/partners/londr" component={LondrPartnership} />
       <Route path="/calc/:slug" component={CalculatorsHub} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/roi-calculator" component={ROICalculator} />
