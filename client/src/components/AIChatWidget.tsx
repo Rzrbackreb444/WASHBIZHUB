@@ -1,12 +1,19 @@
 import { useState, useRef, useEffect, memo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { 
   MessageCircle, 
   X, 
@@ -34,11 +41,16 @@ import {
   Building,
   FileText,
   Users,
-  Megaphone
+  Megaphone,
+  Check,
+  Star,
+  ShoppingCart,
+  Gift
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
+import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
 
 type JourneyType = 'plan' | 'evaluate' | 'operate' | 'partner' | null;
 
@@ -148,7 +160,7 @@ const getWelcomeMessage = (journey: JourneyType): string => {
     case 'partner':
       return "**Looking to connect with laundromat owners?**\n\nI can help you list equipment, advertise your services, and grow your business on WashBizHub.\n\nLet me assist with:\n• Listing laundromats for sale\n• Equipment marketplace strategies\n• Vendor partnership opportunities\n• Advertising best practices\n\nHow can I help you today?";
     default:
-      return "**Welcome! I'm the WashBizHub Consultant — your AI-powered laundromat business expert.**\n\nBacked by 60+ years of Kremers family expertise, I can help you with:\n• Business valuation & pricing strategies\n• Location analysis & market research\n• Equipment selection & comparisons\n• Financial planning & ROI calculations\n• Industry best practices\n• **Service Guy AI** - Equipment diagnostics with 2,800+ error codes\n\nFor detailed diagnostics with step-by-step repair guides and parts ordering, check out our premium **Service Guy AI** tool.\n\nWhat can I help you with today?";
+      return "**Welcome to Service Guy AI — your AI-powered equipment diagnostic expert.**\n\nI specialize in commercial laundry equipment troubleshooting with access to:\n• **2,800+ error codes** across 60+ brands\n• Step-by-step repair guides\n• Parts recommendations with instant ordering\n• Predictive maintenance insights\n\n**Try the 14-day free trial** to unlock:\n• AI-powered root cause analysis\n• Parts cross-referencing\n• Equipment health scoring\n\nDescribe your issue or enter an error code to get started!";
   }
 };
 
@@ -203,7 +215,58 @@ const getJourneyBadge = (journey: JourneyType) => {
   }
 };
 
-const getTierBadge = (tier: string) => {
+const SERVICE_GUY_PRICING = [
+  {
+    tier: "free",
+    name: "Free",
+    price: "$0",
+    period: "/forever",
+    messages: "5 chats/month",
+    features: ["Basic error code lookup", "General troubleshooting tips", "Access to 2,800+ error codes"],
+    cta: "Current Plan",
+    popular: false,
+  },
+  {
+    tier: "essentials",
+    name: "Essentials",
+    price: "$79",
+    period: "/month",
+    messages: "50 chats/month",
+    features: ["AI-powered diagnostics", "Parts recommendations", "Step-by-step repair guides", "10% rebate on parts orders"],
+    cta: "Start Free Trial",
+    popular: true,
+  },
+  {
+    tier: "pro",
+    name: "Pro Shop",
+    price: "$199",
+    period: "/month",
+    messages: "Unlimited",
+    features: ["Everything in Essentials", "Multi-store access (5 seats)", "CRM export & analytics", "Priority support", "Custom equipment profiles"],
+    cta: "Start Free Trial",
+    popular: false,
+  },
+  {
+    tier: "enterprise",
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    messages: "Unlimited + API",
+    features: ["Everything in Pro", "Unlimited seats", "API access", "White-label options", "Dedicated account manager"],
+    cta: "Contact Sales",
+    popular: false,
+  },
+];
+
+const getTierBadge = (tier: string, isTrialActive?: boolean) => {
+  if (isTrialActive) {
+    return (
+      <Badge variant="default" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white gap-1">
+        <Gift className="h-3 w-3" />
+        Free Trial
+      </Badge>
+    );
+  }
   switch (tier) {
     case "enterprise":
       return (
@@ -217,6 +280,13 @@ const getTierBadge = (tier: string) => {
         <Badge variant="default" className="bg-gradient-to-r from-primary to-accent text-primary-foreground gap-1">
           <Zap className="h-3 w-3" />
           Pro
+        </Badge>
+      );
+    case "essentials":
+      return (
+        <Badge variant="default" className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white gap-1">
+          <Wrench className="h-3 w-3" />
+          Essentials
         </Badge>
       );
     default:
@@ -239,6 +309,8 @@ export const AIChatWidget = memo(function AIChatWidget() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [isTrialActive, setIsTrialActive] = useState(false);
 
   // Read journey from localStorage on mount
   useEffect(() => {
@@ -413,14 +485,18 @@ export const AIChatWidget = memo(function AIChatWidget() {
         className="fixed bottom-6 right-6 z-50 group"
         data-testid="button-open-chat"
       >
-        <div className="bg-primary px-6 py-3.5 rounded-full shadow-2xl border-2 border-primary/30 flex items-center gap-3 transition-all duration-300 hover:shadow-primary/50 hover:scale-105 active:scale-95">
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-5 py-3 rounded-full shadow-2xl border-2 border-slate-700 flex items-center gap-3 transition-all duration-300 hover:shadow-slate-900/50 hover:scale-105 active:scale-95">
           <div className="relative">
-            <Sparkles className="h-6 w-6 text-white animate-pulse" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+            <img 
+              src={serviceGuyAILogo} 
+              alt="Service Guy AI" 
+              className="h-10 w-10 rounded-full object-cover"
+            />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-800 animate-pulse" />
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-base font-bold text-white">AI Consultant</span>
-            <span className="text-xs font-medium text-white/90">Online Now</span>
+            <span className="text-base font-bold text-white">Service Guy AI</span>
+            <span className="text-xs font-medium text-emerald-400">Free Trial Available</span>
           </div>
         </div>
       </button>
@@ -437,21 +513,23 @@ export const AIChatWidget = memo(function AIChatWidget() {
       data-testid="widget-ai-chat"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-primary">
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-900 to-slate-800">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+            <img 
+              src={serviceGuyAILogo} 
+              alt="Service Guy AI" 
+              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/30"
+            />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-slate-800 animate-pulse" />
           </div>
           <div>
             <h3 className="font-bold text-base text-white flex items-center gap-2">
-              WashBizHub Consultant
-              {quotaInfo && getTierBadge(quotaInfo.tier)}
+              Service Guy AI
+              {quotaInfo && getTierBadge(quotaInfo.tier, isTrialActive)}
             </h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-white/80 font-medium">AI Expert • Online</p>
+              <p className="text-xs text-white/80 font-medium">Equipment Diagnostics</p>
               {userJourney && getJourneyBadge(userJourney)}
             </div>
           </div>
@@ -496,20 +574,36 @@ export const AIChatWidget = memo(function AIChatWidget() {
 
       {!isMinimized && (
         <>
-          {/* Quota Bar */}
+          {/* Quota Bar with Free Trial CTA */}
           {quotaInfo && (
             <div className="px-4 pt-3 pb-2 border-b bg-muted/30">
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="text-muted-foreground font-medium">
                   Monthly Usage: {quotaInfo.used} / {quotaInfo.limit === 999999 ? "∞" : quotaInfo.limit}
                 </span>
-                {quotaInfo.tier !== "enterprise" && quotaInfo.remaining <= 5 && (
-                  <Link href="/settings">
-                    <Button variant="ghost" size="sm" className="h-6 text-xs gap-1 hover-elevate">
-                      <ArrowUpCircle className="h-3 w-3" />
-                      Upgrade
-                    </Button>
-                  </Link>
+                {quotaInfo.tier === "free" && !isTrialActive && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 text-xs gap-1 hover-elevate text-emerald-600"
+                    onClick={() => setShowPricingModal(true)}
+                    data-testid="button-start-trial"
+                  >
+                    <Gift className="h-3 w-3" />
+                    14-Day Free Trial
+                  </Button>
+                )}
+                {quotaInfo.tier !== "enterprise" && quotaInfo.tier !== "free" && quotaInfo.remaining <= 5 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 text-xs gap-1 hover-elevate"
+                    onClick={() => setShowPricingModal(true)}
+                    data-testid="button-upgrade"
+                  >
+                    <ArrowUpCircle className="h-3 w-3" />
+                    Upgrade
+                  </Button>
                 )}
               </div>
               {quotaInfo.tier !== "enterprise" && (
@@ -678,7 +772,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about C.L.E.A.N., valuations, equipment..."
+                placeholder="Describe your equipment issue or error code..."
                 className="flex-1 bg-muted/50 border-muted-foreground/20 focus-visible:ring-primary"
                 disabled={chatMutation.isPending}
                 data-testid="input-chat-message"
@@ -701,6 +795,88 @@ export const AIChatWidget = memo(function AIChatWidget() {
           </div>
         </>
       )}
+
+      {/* Pricing Modal */}
+      <Dialog open={showPricingModal} onOpenChange={setShowPricingModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              <img src={serviceGuyAILogo} alt="Service Guy AI" className="h-10 w-10 rounded-full" />
+              Service Guy AI Pricing
+            </DialogTitle>
+            <DialogDescription>
+              AI-powered equipment diagnostics for laundromat professionals. Start with a 14-day free trial.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid md:grid-cols-4 gap-4 mt-4">
+            {SERVICE_GUY_PRICING.map((plan) => (
+              <Card 
+                key={plan.tier} 
+                className={cn(
+                  "relative",
+                  plan.popular && "border-emerald-500 border-2"
+                )}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white">
+                    <Star className="h-3 w-3 mr-1" />
+                    Most Popular
+                  </Badge>
+                )}
+                <CardContent className="pt-6">
+                  <h3 className="font-bold text-lg">{plan.name}</h3>
+                  <div className="mt-2 mb-4">
+                    <span className="text-3xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground text-sm">{plan.period}</span>
+                  </div>
+                  <Badge variant="outline" className="mb-4">{plan.messages}</Badge>
+                  <ul className="space-y-2 mb-6">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    className={cn(
+                      "w-full",
+                      plan.popular ? "bg-emerald-600 hover:bg-emerald-700" : "",
+                      plan.tier === "free" ? "bg-muted text-muted-foreground cursor-default" : ""
+                    )}
+                    disabled={plan.tier === "free"}
+                    onClick={() => {
+                      if (plan.tier === "enterprise") {
+                        window.location.href = "/contact";
+                      } else if (plan.tier !== "free") {
+                        setIsTrialActive(true);
+                        setQuotaInfo(prev => prev ? {...prev, tier: plan.tier, limit: plan.tier === "essentials" ? 50 : 999999} : null);
+                        setShowPricingModal(false);
+                      }
+                    }}
+                    data-testid={`button-select-${plan.tier}`}
+                  >
+                    {plan.cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Gift className="h-6 w-6 text-emerald-500" />
+              <div>
+                <h4 className="font-semibold">14-Day Free Trial</h4>
+                <p className="text-sm text-muted-foreground">
+                  Try any paid plan free for 14 days. No credit card required. Cancel anytime.
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 });

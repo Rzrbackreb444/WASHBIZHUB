@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import londrLogoUrl from "@assets/Londr_1763778448894.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -127,14 +128,14 @@ ${data.message || "No additional message"}
             </div>
             
             <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-teal-400 to-blue-600 flex items-center justify-center shadow-lg shadow-teal-500/20" data-testid="logo-londr">
-                <span className="text-white font-bold text-2xl">L</span>
-              </div>
-              <div className="text-left">
-                <h1 className="text-4xl md:text-5xl font-bold text-white" data-testid="heading-londr">Londr.com</h1>
-                <p className="text-teal-400 text-lg" data-testid="text-tagline">The Gig Economy for Laundry</p>
-              </div>
+              <img 
+                src={londrLogoUrl} 
+                alt="Londr - The Gig Economy for Laundry" 
+                className="h-16 md:h-20 w-auto"
+                data-testid="logo-londr"
+              />
             </div>
+            <p className="text-teal-400 text-xl font-semibold mb-2" data-testid="text-tagline">The Gig Economy for Laundry</p>
 
             <p className="text-white/80 text-lg max-w-2xl mx-auto" data-testid="text-description">
               Londr is revolutionizing laundry services by connecting customers with local washers and laundromat operators through a seamless on-demand platform.

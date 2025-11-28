@@ -24,8 +24,12 @@ import {
   ArrowLeft,
   WashingMachine,
   Wind,
-  Settings
+  Settings,
+  Sparkles,
+  ShoppingCart,
+  Zap
 } from "lucide-react";
+import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
 
 interface ErrorCode {
   id: number;
@@ -175,12 +179,47 @@ export default function ErrorCodesPage() {
             <span className="text-muted-foreground">Error Codes</span>
           </div>
 
+          {/* Service Guy AI Branding */}
+          <Card className="mb-8 bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700">
+            <CardContent className="py-6">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <img 
+                  src={serviceGuyAILogo} 
+                  alt="Service Guy AI" 
+                  className="h-16 md:h-20 w-auto"
+                  data-testid="logo-service-guy-ai"
+                />
+                <div className="flex-1 text-center md:text-left">
+                  <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                    AI-Powered Diagnostics
+                  </h2>
+                  <p className="text-slate-300 text-sm md:text-base">
+                    Get instant troubleshooting help and parts recommendations powered by AI. 
+                    Our database covers {stats?.totalCodes || "2,500"}+ error codes across {stats?.totalBrands || "60"}+ brands.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Link href="/parts-catalogue">
+                    <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2" data-testid="button-find-parts">
+                      <ShoppingCart className="h-4 w-4" />
+                      Find Parts
+                    </Button>
+                  </Link>
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 justify-center">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Free to Use
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-3" data-testid="text-page-title">
               Commercial Laundry Equipment Error Code Database
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl">
-              Search our comprehensive database of {stats?.totalCodes || "939"} error codes across {stats?.totalBrands || "49"} commercial laundry equipment brands. 
+              Search our comprehensive database of {stats?.totalCodes || "2,537"} error codes across {stats?.totalBrands || "60"} commercial laundry equipment brands. 
               Find troubleshooting guides, repair solutions, and parts information.
             </p>
           </div>
@@ -189,7 +228,7 @@ export default function ErrorCodesPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-primary" data-testid="text-total-codes">
-                  {stats?.totalCodes || 939}
+                  {stats?.totalCodes || "2,537"}
                 </div>
                 <p className="text-sm text-muted-foreground">Total Error Codes</p>
               </CardContent>
@@ -197,7 +236,7 @@ export default function ErrorCodesPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-primary" data-testid="text-total-brands">
-                  {stats?.totalBrands || 49}
+                  {stats?.totalBrands || "60+"}
                 </div>
                 <p className="text-sm text-muted-foreground">Equipment Brands</p>
               </CardContent>
