@@ -123,24 +123,24 @@ export default function CalculatorsHub() {
           </div>
         </div>
 
-        <section className="py-8">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="text-center mb-8">
-              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+        <section className="py-6 sm:py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30">
                 <Calculator className="w-3 h-3 mr-1" />
                 Professional Tools
               </Badge>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                 Laundromat Calculators
               </h1>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
                 Professional calculators powered by Google Sheets. Create your own copy to save calculations.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
               {/* Left sidebar - Calculator types */}
-              <div className="lg:col-span-1 space-y-3">
+              <div className="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3">
                 {CALCULATOR_TYPES.map(calc => {
                   const isActive = activeCalculator === calc.id;
                   const Icon = calc.icon;
@@ -207,20 +207,20 @@ export default function CalculatorsHub() {
               {/* Main content */}
               <div className="lg:col-span-3">
                 <Card className="h-full">
-                  <CardHeader className="flex flex-row items-center justify-between gap-4 pb-4 flex-wrap">
+                  <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="p-3 rounded-xl"
+                        className="p-2 sm:p-3 rounded-xl flex-shrink-0"
                         style={{ backgroundColor: `${selectedType.color}20` }}
                       >
-                        <selectedType.icon className="w-6 h-6" style={{ color: selectedType.color }} />
+                        <selectedType.icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: selectedType.color }} />
                       </div>
-                      <div>
-                        <CardTitle>{selectedType.title}</CardTitle>
-                        <p className="text-sm text-muted-foreground">{selectedType.description}</p>
+                      <div className="min-w-0">
+                        <CardTitle className="text-lg sm:text-xl">{selectedType.title}</CardTitle>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{selectedType.description}</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                       {existingSheet ? (
                         <a href={existingSheet.url} target="_blank" rel="noopener noreferrer">
                           <Button variant="outline" size="sm" data-testid="button-open-sheet">
@@ -298,14 +298,14 @@ function ValuationCalculator() {
   const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Income Section */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg border-b pb-2">Income Data</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Income Data</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-muted-foreground">Annual Gross Revenue</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Annual Gross Revenue</label>
               <Input
                 type="number"
                 value={values.revenue}
@@ -356,26 +356,26 @@ function ValuationCalculator() {
         </div>
 
         {/* Results Section */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg border-b pb-2">Valuation Results</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Valuation Results</h3>
           
-          <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-sm text-muted-foreground">Seller's Discretionary Earnings (SDE)</div>
-            <div className="text-3xl font-bold text-primary">{formatCurrency(sde)}</div>
+          <div className="p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20">
+            <div className="text-xs sm:text-sm text-muted-foreground">Seller's Discretionary Earnings (SDE)</div>
+            <div className="text-2xl sm:text-3xl font-bold text-primary">{formatCurrency(sde)}</div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 bg-muted rounded-lg text-center">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-muted rounded-lg text-center">
               <div className="text-xs text-muted-foreground">Low (2.0x)</div>
-              <div className="font-semibold">{formatCurrency(lowValue)}</div>
+              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(lowValue)}</div>
             </div>
-            <div className="p-3 bg-primary/20 rounded-lg text-center border border-primary/30">
+            <div className="p-2 sm:p-3 bg-primary/20 rounded-lg text-center border border-primary/30">
               <div className="text-xs text-muted-foreground">Mid (2.5x)</div>
-              <div className="font-bold text-primary">{formatCurrency(midValue)}</div>
+              <div className="text-xs sm:text-sm font-bold text-primary">{formatCurrency(midValue)}</div>
             </div>
-            <div className="p-3 bg-muted rounded-lg text-center">
+            <div className="p-2 sm:p-3 bg-muted rounded-lg text-center">
               <div className="text-xs text-muted-foreground">High (3.0x)</div>
-              <div className="font-semibold">{formatCurrency(highValue)}</div>
+              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(highValue)}</div>
             </div>
           </div>
 
@@ -422,14 +422,14 @@ function ROICalculator() {
   const formatPercent = (num: number) => `${num.toFixed(1)}%`;
 
   return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Input Section */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg border-b pb-2">Investment Details</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Investment Details</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm text-muted-foreground">Purchase Price</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Purchase Price</label>
               <Input
                 type="number"
                 value={values.purchasePrice}
@@ -439,7 +439,7 @@ function ROICalculator() {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground">Down Payment</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Down Payment</label>
               <Input
                 type="number"
                 value={values.downPayment}
@@ -449,7 +449,7 @@ function ROICalculator() {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground">Interest Rate (%)</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Interest Rate (%)</label>
               <Input
                 type="number"
                 step="0.1"
@@ -459,7 +459,7 @@ function ROICalculator() {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground">Annual Gross Revenue</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Annual Gross Revenue</label>
               <Input
                 type="number"
                 value={values.grossRevenue}
@@ -468,7 +468,7 @@ function ROICalculator() {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground">Annual Operating Expenses</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">Annual Operating Expenses</label>
               <Input
                 type="number"
                 value={values.operatingExpenses}
@@ -480,39 +480,39 @@ function ROICalculator() {
         </div>
 
         {/* Results Section */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg border-b pb-2">ROI Metrics</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">ROI Metrics</h3>
           
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <div className="text-sm text-muted-foreground">Cash-on-Cash Return</div>
-              <div className="text-2xl font-bold text-primary">{formatPercent(cashOnCash)}</div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20">
+              <div className="text-xs sm:text-sm text-muted-foreground">Cash-on-Cash Return</div>
+              <div className="text-lg sm:text-2xl font-bold text-primary">{formatPercent(cashOnCash)}</div>
             </div>
-            <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-              <div className="text-sm text-muted-foreground">Cap Rate</div>
-              <div className="text-2xl font-bold">{formatPercent(capRate)}</div>
+            <div className="p-3 sm:p-4 bg-accent/10 rounded-lg border border-accent/20">
+              <div className="text-xs sm:text-sm text-muted-foreground">Cap Rate</div>
+              <div className="text-lg sm:text-2xl font-bold">{formatPercent(capRate)}</div>
             </div>
           </div>
 
-          <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-            <div className="text-sm text-muted-foreground">Annual Cash Flow</div>
-            <div className="text-3xl font-bold text-green-600">{formatCurrency(cashFlow)}</div>
+          <div className="p-3 sm:p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+            <div className="text-xs sm:text-sm text-muted-foreground">Annual Cash Flow</div>
+            <div className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(cashFlow)}</div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-muted rounded-lg">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-muted rounded-lg">
               <div className="text-xs text-muted-foreground">Net Operating Income</div>
-              <div className="font-semibold">{formatCurrency(noi)}</div>
+              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(noi)}</div>
             </div>
-            <div className="p-3 bg-muted rounded-lg">
+            <div className="p-2 sm:p-3 bg-muted rounded-lg">
               <div className="text-xs text-muted-foreground">Annual Debt Service</div>
-              <div className="font-semibold">{formatCurrency(annualDebtService)}</div>
+              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(annualDebtService)}</div>
             </div>
           </div>
 
-          <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-            <div className="text-sm text-muted-foreground">Payback Period</div>
-            <div className="text-xl font-bold">{paybackPeriod.toFixed(1)} years</div>
+          <div className="p-3 sm:p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+            <div className="text-xs sm:text-sm text-muted-foreground">Payback Period</div>
+            <div className="text-lg sm:text-xl font-bold">{paybackPeriod.toFixed(1)} years</div>
           </div>
         </div>
       </div>
@@ -548,11 +548,11 @@ function StartupCalculator() {
   const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Equipment */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Equipment</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Equipment</h3>
           <div className="space-y-3">
             <div className="flex gap-2">
               <div className="flex-1">
@@ -575,15 +575,15 @@ function StartupCalculator() {
               </div>
             </div>
           </div>
-          <div className="p-3 bg-primary/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Equipment Total</div>
-            <div className="font-bold text-primary">{formatCurrency(equipmentTotal)}</div>
+            <div className="text-sm sm:text-base font-bold text-primary">{formatCurrency(equipmentTotal)}</div>
           </div>
         </div>
 
         {/* Build-out */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Build-out</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Build-out</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs text-muted-foreground">Lease Deposit</label>
@@ -598,15 +598,15 @@ function StartupCalculator() {
               <Input type="number" value={values.electrical} onChange={(e) => setValues({...values, electrical: Number(e.target.value)})} />
             </div>
           </div>
-          <div className="p-3 bg-accent/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-accent/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Build-out Total</div>
-            <div className="font-bold">{formatCurrency(buildoutTotal)}</div>
+            <div className="text-sm sm:text-base font-bold">{formatCurrency(buildoutTotal)}</div>
           </div>
         </div>
 
         {/* Operating Capital */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Operating Capital</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Operating Capital</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs text-muted-foreground">Rent Reserve (3mo)</label>
@@ -621,27 +621,27 @@ function StartupCalculator() {
               <Input type="number" value={values.insurance} onChange={(e) => setValues({...values, insurance: Number(e.target.value)})} />
             </div>
           </div>
-          <div className="p-3 bg-amber-500/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-amber-500/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Operating Total</div>
-            <div className="font-bold">{formatCurrency(operatingTotal)}</div>
+            <div className="text-sm sm:text-base font-bold">{formatCurrency(operatingTotal)}</div>
           </div>
         </div>
       </div>
 
       {/* Grand Total */}
-      <div className="p-6 bg-green-500/10 rounded-lg border border-green-500/20">
-        <div className="grid grid-cols-3 gap-4 text-center">
+      <div className="p-4 sm:p-6 bg-green-500/10 rounded-lg border border-green-500/20">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
           <div>
-            <div className="text-sm text-muted-foreground">Subtotal</div>
-            <div className="text-xl font-semibold">{formatCurrency(subtotal)}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Subtotal</div>
+            <div className="text-sm sm:text-lg md:text-xl font-semibold">{formatCurrency(subtotal)}</div>
           </div>
           <div>
-            <div className="text-sm text-muted-foreground">Contingency (10%)</div>
-            <div className="text-xl font-semibold">{formatCurrency(contingency)}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Contingency (10%)</div>
+            <div className="text-sm sm:text-lg md:text-xl font-semibold">{formatCurrency(contingency)}</div>
           </div>
           <div>
-            <div className="text-sm text-muted-foreground">Grand Total</div>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(grandTotal)}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Grand Total</div>
+            <div className="text-base sm:text-xl md:text-2xl font-bold text-green-600">{formatCurrency(grandTotal)}</div>
           </div>
         </div>
       </div>
@@ -677,11 +677,11 @@ function OperationsCalculator() {
   const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Fixed Costs */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Fixed Costs</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Fixed Costs</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs text-muted-foreground">Rent</label>
@@ -696,15 +696,15 @@ function OperationsCalculator() {
               <Input type="number" value={values.loanPayment} onChange={(e) => setValues({...values, loanPayment: Number(e.target.value)})} />
             </div>
           </div>
-          <div className="p-3 bg-primary/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Fixed Total</div>
-            <div className="font-bold text-primary">{formatCurrency(fixedCosts)}/mo</div>
+            <div className="text-sm sm:text-base font-bold text-primary">{formatCurrency(fixedCosts)}/mo</div>
           </div>
         </div>
 
         {/* Variable Costs */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Utilities</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Utilities</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs text-muted-foreground">Water</label>
@@ -719,15 +719,15 @@ function OperationsCalculator() {
               <Input type="number" value={values.electric} onChange={(e) => setValues({...values, electric: Number(e.target.value)})} />
             </div>
           </div>
-          <div className="p-3 bg-accent/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-accent/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Utilities Total</div>
-            <div className="font-bold">{formatCurrency(variableCosts)}/mo</div>
+            <div className="text-sm sm:text-base font-bold">{formatCurrency(variableCosts)}/mo</div>
           </div>
         </div>
 
         {/* Labor */}
-        <div className="space-y-4">
-          <h3 className="font-semibold border-b pb-2">Labor</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Labor</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs text-muted-foreground">Attendant Wages</label>
@@ -738,31 +738,31 @@ function OperationsCalculator() {
               <div>+ Workers Comp: {formatCurrency(workersComp)}</div>
             </div>
           </div>
-          <div className="p-3 bg-amber-500/10 rounded-lg">
+          <div className="p-2 sm:p-3 bg-amber-500/10 rounded-lg">
             <div className="text-xs text-muted-foreground">Labor Total</div>
-            <div className="font-bold">{formatCurrency(laborCosts)}/mo</div>
+            <div className="text-sm sm:text-base font-bold">{formatCurrency(laborCosts)}/mo</div>
           </div>
         </div>
       </div>
 
       {/* Revenue & Profit */}
-      <div className="p-6 bg-muted rounded-lg">
-        <div className="grid md:grid-cols-4 gap-4">
-          <div>
-            <label className="text-sm text-muted-foreground">Monthly Revenue</label>
+      <div className="p-4 sm:p-6 bg-muted rounded-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="col-span-2 md:col-span-1">
+            <label className="text-xs sm:text-sm text-muted-foreground">Monthly Revenue</label>
             <Input type="number" value={values.monthlyRevenue} onChange={(e) => setValues({...values, monthlyRevenue: Number(e.target.value)})} className="mt-1" />
           </div>
-          <div className="p-3 bg-card rounded-lg">
+          <div className="p-2 sm:p-3 bg-card rounded-lg">
             <div className="text-xs text-muted-foreground">Total Expenses</div>
-            <div className="font-bold text-destructive">{formatCurrency(totalMonthly)}</div>
+            <div className="text-sm sm:text-base font-bold text-destructive">{formatCurrency(totalMonthly)}</div>
           </div>
-          <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+          <div className="p-2 sm:p-3 bg-green-500/10 rounded-lg border border-green-500/20">
             <div className="text-xs text-muted-foreground">Monthly Profit</div>
-            <div className="font-bold text-green-600">{formatCurrency(monthlyProfit)}</div>
+            <div className="text-sm sm:text-base font-bold text-green-600">{formatCurrency(monthlyProfit)}</div>
           </div>
-          <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
             <div className="text-xs text-muted-foreground">Profit Margin</div>
-            <div className="font-bold text-primary">{profitMargin.toFixed(1)}%</div>
+            <div className="text-sm sm:text-base font-bold text-primary">{profitMargin.toFixed(1)}%</div>
           </div>
         </div>
       </div>

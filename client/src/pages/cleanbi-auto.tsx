@@ -282,46 +282,46 @@ export default function CleanbiAuto() {
         }}
       />
 
-      <div className="min-h-screen bg-background py-12">
+      <div className="min-h-screen bg-background py-8 sm:py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Badge className="mb-4 bg-accent">
+          <div className="text-center mb-8 sm:mb-12">
+            <Badge className="mb-3 sm:mb-4 bg-accent">
               Powered by Google APIs
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 px-2">
               Score ANY Address GLOBALLY: Business OR Residential
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-2">
               Get comprehensive intelligence in seconds for <span className="font-bold text-foreground">ANY address worldwide</span> - commercial businesses AND residential properties in <span className="font-bold text-foreground">220+ countries</span>. Just enter an address - our Google-powered engine does the rest.
             </p>
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto mt-2 px-2">
               <span className="font-semibold text-foreground">Businesses:</span> Restaurants • Retail • Gyms • Salons • Car Washes • Laundromats • Gas Stations • Hotels • Any Business Type<br/>
               <span className="font-semibold text-foreground">Properties:</span> Single-Family Homes • Condos • Townhouses • Investment Properties • Rental Properties<br/>
               <span className="font-semibold text-foreground">Global Coverage:</span> USA • Philippines • Japan • Australia • UK • EU • Asia • Africa • Americas • 220+ Countries
             </p>
-            <div className="mt-6 flex items-center justify-center gap-6 text-muted-foreground text-sm">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+            <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-muted-foreground text-xs sm:text-sm">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
                 <span>100% Free</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
                 <span>No Login Required</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
                 <span>Real-Time Data</span>
               </div>
             </div>
           </div>
 
           {/* Input Form */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Calculate CLEANBI Score</CardTitle>
-              <CardDescription>Enter ANY address - business OR residential - and we'll analyze it using Google data</CardDescription>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl">Calculate CLEANBI Score</CardTitle>
+              <CardDescription className="text-sm">Enter ANY address - business OR residential - and we'll analyze it using Google data</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6">
               <div className="space-y-2">
                 <Label htmlFor="address">Address *</Label>
                 <Input
@@ -383,28 +383,28 @@ export default function CleanbiAuto() {
 
           {/* Results */}
           {result && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Score Overview */}
-              <div className="lg:col-span-1 space-y-6">
+              <div className="lg:col-span-1 space-y-4 sm:space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>CLEANBI Score</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="px-4 sm:px-6">
+                    <CardTitle className="text-lg sm:text-xl">CLEANBI Score</CardTitle>
+                    <CardDescription className="text-sm">
                       {result.industryDisplay ? `${result.industryDisplay} Analysis` : 'Overall Rating'}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                     <div className="text-center">
-                      <div className={`text-6xl font-bold ${getGradeColor(result.grade)} mb-2`} data-testid="text-grade">
+                      <div className={`text-4xl sm:text-5xl md:text-6xl font-bold ${getGradeColor(result.grade)} mb-2`} data-testid="text-grade">
                         {result.grade}
                       </div>
-                      <div className="text-3xl font-bold mb-1" data-testid="text-score">
+                      <div className="text-2xl sm:text-3xl font-bold mb-1" data-testid="text-score">
                         {result.score}/100
                       </div>
-                      <div className="text-sm text-muted-foreground mb-4">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                         {getGradeDescription(result.grade)}
                       </div>
-                      <Progress value={result.score} className="h-3" data-testid="progress-overall-score" />
+                      <Progress value={result.score} className="h-2 sm:h-3" data-testid="progress-overall-score" />
                     </div>
 
                     <Separator />
@@ -468,15 +468,15 @@ export default function CleanbiAuto() {
               </div>
 
               {/* Breakdown */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Score Breakdown</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="px-4 sm:px-6">
+                    <CardTitle className="text-lg sm:text-xl">Score Breakdown</CardTitle>
+                    <CardDescription className="text-sm">
                       {result.addressType === 'residential' ? 'Investment Analysis' : 'Powered by Google Places API'}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                     {/* BUSINESS BREAKDOWN */}
                     {result.addressType !== 'residential' && result.breakdown.footTraffic && (
                       <>

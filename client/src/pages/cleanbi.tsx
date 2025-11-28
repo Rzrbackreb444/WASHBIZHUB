@@ -112,26 +112,26 @@ export default function CleanBI() {
         keywords={seoKeywords}
         ogType="website"
       />
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <Brain className="h-16 w-16 text-accent mx-auto mb-4" />
-          <h1 className="text-5xl font-black text-white mb-4" data-testid="text-cleanbi-title">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 sm:py-16 md:py-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8 sm:mb-12">
+          <Brain className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 text-accent mx-auto mb-3 sm:mb-4" />
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 sm:mb-4" data-testid="text-cleanbi-title">
             CLEANBI™ Scoring System
           </h1>
-          <p className="text-xl text-white/70" data-testid="text-cleanbi-subtitle">
+          <p className="text-base sm:text-lg md:text-xl text-white/70 px-2" data-testid="text-cleanbi-subtitle">
             17-Factor Business Intelligence Analysis with AI Insights
           </p>
         </div>
 
-        <Card className="bg-white/10 backdrop-blur border-white/20 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white text-2xl">Laundromat Assessment</CardTitle>
-            <CardDescription className="text-white/70">
+        <Card className="bg-white/10 backdrop-blur border-white/20 mb-6 sm:mb-8">
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="text-white text-xl sm:text-2xl">Laundromat Assessment</CardTitle>
+            <CardDescription className="text-white/70 text-sm sm:text-base">
               Rate your laundromat across 7 core categories (0-100)
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8">
+          <CardContent className="space-y-6 sm:space-y-8 px-4 sm:px-6">
             <div>
               <Label htmlFor="name" className="text-white/90 font-medium">Laundromat Name</Label>
               <Input
@@ -146,12 +146,12 @@ export default function CleanBI() {
 
             {categories.map((category) => (
               <div key={category.key}>
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <Label className="text-white/90 font-medium text-base">{category.label}</Label>
-                    <p className="text-sm text-white/60 mt-1">{category.description}</p>
+                <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
+                  <div className="min-w-0 flex-1">
+                    <Label className="text-white/90 font-medium text-sm sm:text-base">{category.label}</Label>
+                    <p className="text-xs sm:text-sm text-white/60 mt-0.5 sm:mt-1">{category.description}</p>
                   </div>
-                  <div className="text-2xl font-black text-accent min-w-[60px] text-right" data-testid={`score-${category.key}`}>
+                  <div className="text-xl sm:text-2xl font-black text-accent min-w-[50px] sm:min-w-[60px] text-right flex-shrink-0" data-testid={`score-${category.key}`}>
                     {scores[category.key as keyof typeof scores]}
                   </div>
                 </div>
@@ -188,27 +188,27 @@ export default function CleanBI() {
         </Card>
 
         {/* Results */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardContent className="pt-8">
+            <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
               <div className="text-center">
-                <div className="text-sm text-white/70 mb-2">Total CLEANBI™ Score</div>
-                <div className="text-6xl font-black text-accent mb-4" data-testid="total-score">
+                <div className="text-xs sm:text-sm text-white/70 mb-2">Total CLEANBI™ Score</div>
+                <div className="text-4xl sm:text-5xl md:text-6xl font-black text-accent mb-3 sm:mb-4" data-testid="total-score">
                   {totalScore}
                 </div>
-                <div className="text-2xl text-white/80">out of 700</div>
+                <div className="text-lg sm:text-xl md:text-2xl text-white/80">out of 700</div>
               </div>
             </CardContent>
           </Card>
 
           <Card className={`${gradeInfo.bg} backdrop-blur border-white/20`}>
-            <CardContent className="pt-8">
+            <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
               <div className="text-center">
-                <div className="text-sm text-white/70 mb-2">Grade</div>
-                <div className={`text-6xl font-black ${gradeInfo.color} mb-4`} data-testid="grade">
+                <div className="text-xs sm:text-sm text-white/70 mb-2">Grade</div>
+                <div className={`text-4xl sm:text-5xl md:text-6xl font-black ${gradeInfo.color} mb-3 sm:mb-4`} data-testid="grade">
                   {gradeInfo.grade}
                 </div>
-                <div className="text-2xl text-white/80">Average: {avgScore.toFixed(1)}</div>
+                <div className="text-lg sm:text-xl md:text-2xl text-white/80">Average: {avgScore.toFixed(1)}</div>
               </div>
             </CardContent>
           </Card>
