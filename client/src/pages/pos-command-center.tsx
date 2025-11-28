@@ -81,7 +81,40 @@ import {
   Droplets,
   Wind,
   Info,
+  Shirt,
+  UserCheck,
+  ListChecks,
+  Star,
+  Layers,
+  ArrowRight,
+  X,
+  ChevronDown,
+  Navigation,
+  MapPinned,
+  Bell,
+  SendHorizontal,
+  GripVertical,
+  AlertTriangle,
+  Calculator,
+  FileText,
+  Download,
+  Briefcase,
+  TrendingDown as TrendingDownIcon,
+  PieChart,
+  Factory,
+  Cog,
+  CircleDollarSign,
+  ClipboardList,
+  ReceiptText,
+  FileSpreadsheet,
+  UserSquare,
+  CalendarDays,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Link } from "wouter";
 import {
   Tooltip,
@@ -159,6 +192,8 @@ const NAV_ITEMS = [
   { id: "routes", icon: Truck, label: "Routes" },
   { id: "inventory", icon: Package, label: "Inventory" },
   { id: "analytics", icon: BarChart3, label: "Analytics" },
+  { id: "calculators", icon: Calculator, label: "Calculators" },
+  { id: "templates", icon: FileText, label: "Templates" },
   { id: "doctrine", icon: Book, label: "Learn" },
   { id: "settings", icon: Settings, label: "Settings" },
 ];
@@ -363,13 +398,30 @@ export default function POSCommandCenter() {
     preferredVendorId: "",
   });
   
-  // New order form state
+  // New order form state with WDF enhancements
   const [newOrderForm, setNewOrderForm] = useState({
     customerName: "",
     customerPhone: "",
     orderType: "wash_dry_fold" as "wash_dry_fold" | "pickup_delivery" | "dry_cleaning" | "self_service",
     specialInstructions: "",
+    weight: "",
+    serviceType: "regular" as "regular" | "express_24hr" | "same_day_rush",
+    specialCare: [] as string[],
+    starchPreference: "none" as "none" | "light" | "medium" | "heavy",
+    foldingPreference: "standard" as "standard" | "military" | "hung" | "rolled",
+    fabricSoftener: true,
   });
+  
+  // WDF Pipeline state
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [orderDetailOpen, setOrderDetailOpen] = useState(false);
+  const [foldingChecklist, setFoldingChecklist] = useState<Record<string, Record<string, { checked: boolean; notes: string }>>>({});
+  
+  // PUD Route Builder state
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [routeBuilderOpen, setRouteBuilderOpen] = useState(false);
+  const [routeStops, setRouteStops] = useState<any[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   
   // New customer form state
   const [newCustomerForm, setNewCustomerForm] = useState({
@@ -430,6 +482,102 @@ export default function POSCommandCenter() {
     acceptTips: true,
   });
 
+  // Calculator state
+  const [activeCalculator, setActiveCalculator] = useState<"pricing" | "profitability" | "labor" | "roi">("pricing");
+  const [activeTemplate, setActiveTemplate] = useState<"receipt" | "invoice" | "daily-report" | "customer-statement">("receipt");
+  
+  // Pricing Calculator state
+  const [pricingForm, setPricingForm] = useState({
+    weight: "",
+    serviceType: "wdf" as "wdf" | "dry_cleaning" | "pud",
+    rush: false,
+    starch: false,
+    fabricSoftener: false,
+    specialCare: false,
+  });
+  const [pricingResult, setPricingResult] = useState<{
+    basePrice: number;
+    extras: number;
+    rushSurcharge: number;
+    tax: number;
+    total: number;
+  } | null>(null);
+  
+  // Profitability Calculator state
+  const [profitabilityForm, setProfitabilityForm] = useState({
+    monthlyRevenue: "",
+    laborCost: "",
+    utilitiesCost: "",
+    suppliesCost: "",
+    rentCost: "",
+    equipmentCost: "",
+    otherCosts: "",
+  });
+  const [profitabilityResult, setProfitabilityResult] = useState<any | null>(null);
+  
+  // Labor Cost Calculator state
+  const [laborForm, setLaborForm] = useState({
+    numberOfEmployees: "",
+    averageHourlyWage: "",
+    averageHoursPerWeek: "",
+    payrollTaxRate: "7.65",
+    benefitsCostPerEmployee: "",
+    monthlyPounds: "",
+  });
+  const [laborResult, setLaborResult] = useState<{
+    weeklyLaborCost: number;
+    monthlyLaborCost: number;
+    annualLaborCost: number;
+    costPerHour: number;
+    costPerPound: number | null;
+  } | null>(null);
+  
+  // ROI Calculator state
+  const [roiForm, setRoiForm] = useState({
+    machineCost: "",
+    cyclesPerDay: "",
+    revenuePerCycle: "",
+    operatingCostPerCycle: "",
+    discountRate: "10",
+  });
+  const [roiResult, setRoiResult] = useState<{
+    dailyProfit: number;
+    monthlyProfit: number;
+    paybackPeriodMonths: number;
+    fiveYearROI: number;
+    npv: number;
+  } | null>(null);
+  
+  // Templates state
+  const [templateReceiptData, setTemplateReceiptData] = useState({
+    orderNumber: "WBH-001234",
+    customerName: "John Smith",
+    items: [
+      { description: "Wash & Fold (15 lbs)", price: 26.25 },
+      { description: "Express Service", price: 6.56 },
+      { description: "Fabric Softener", price: 2.00 },
+    ],
+    subtotal: 34.81,
+    tax: 2.87,
+    total: 37.68,
+    paymentMethod: "Credit Card",
+  });
+  
+  const [templateInvoiceData, setTemplateInvoiceData] = useState({
+    invoiceNumber: "INV-2024-0042",
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+    customerName: "ABC Hospitality Group",
+    customerAddress: "456 Business Ave, Suite 200",
+    customerEmail: "billing@abchospitality.com",
+  });
+  
+  const [dailyReportDate, setDailyReportDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedStatementCustomer, setSelectedStatementCustomer] = useState("");
+  const [statementDateRange, setStatementDateRange] = useState({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0],
+  });
+
   // Load settings from localStorage on mount
   useEffect(() => {
     const savedSettings = localStorage.getItem("pos-settings");
@@ -484,6 +632,12 @@ export default function POSCommandCenter() {
           customerPhone: orderData.customerPhone,
           orderType: orderData.orderType,
           specialInstructions: orderData.specialInstructions || undefined,
+          totalWeight: orderData.weight ? parseFloat(orderData.weight) : undefined,
+          serviceType: orderData.serviceType,
+          specialCare: orderData.specialCare,
+          starchPreference: orderData.starchPreference,
+          foldingPreference: orderData.foldingPreference,
+          fabricSoftener: orderData.fabricSoftener,
         }),
       });
       return response;
@@ -501,12 +655,119 @@ export default function POSCommandCenter() {
         customerPhone: "",
         orderType: "wash_dry_fold",
         specialInstructions: "",
+        weight: "",
+        serviceType: "regular",
+        specialCare: [],
+        starchPreference: "none",
+        foldingPreference: "standard",
+        fabricSoftener: true,
       });
     },
     onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create order",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Update order status mutation
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+      const response = await apiRequest(`/api/pos/orders/${orderId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/orders"] });
+      toast({
+        title: "Status Updated",
+        description: "Order status has been updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update order status",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Record weight mutation
+  const recordWeightMutation = useMutation({
+    mutationFn: async ({ orderId, weight, notes }: { orderId: string; weight: number; notes?: string }) => {
+      const response = await apiRequest(`/api/pos/orders/${orderId}/weigh`, {
+        method: "POST",
+        body: JSON.stringify({ weight, notes }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/orders"] });
+      toast({
+        title: "Weight Recorded",
+        description: "Order weight has been recorded",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to record weight",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Update route status mutation
+  const updateRouteStatusMutation = useMutation({
+    mutationFn: async ({ routeId, status }: { routeId: string; status: string }) => {
+      const response = await apiRequest(`/api/pos/routes/${routeId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/routes"] });
+      toast({
+        title: "Route Updated",
+        description: "Route status has been updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update route",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Send notification mutation
+  const sendNotificationMutation = useMutation({
+    mutationFn: async ({ stopId, type }: { stopId: string; type: "en_route" | "completed" }) => {
+      const response = await apiRequest(`/api/pos/routes/stops/${stopId}/notify`, {
+        method: "POST",
+        body: JSON.stringify({ notificationType: type }),
+      });
+      return response;
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: "Notification Sent",
+        description: variables.type === "en_route" 
+          ? "Customer notified: Driver is en route" 
+          : "Customer notified: Delivery completed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send notification",
         variant: "destructive",
       });
     },
@@ -684,6 +945,159 @@ export default function POSCommandCenter() {
       toast({
         title: "Error",
         description: error.message || "Failed to add part",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Pricing calculator mutation
+  const pricingCalculatorMutation = useMutation({
+    mutationFn: async (data: typeof pricingForm) => {
+      const extras: string[] = [];
+      if (data.starch) extras.push("starch");
+      if (data.fabricSoftener) extras.push("fabric_softener");
+      if (data.specialCare) extras.push("special_care");
+      
+      const serviceTypeMap: Record<string, string> = {
+        wdf: "wash_dry_fold",
+        dry_cleaning: "dry_cleaning",
+        pud: "pickup_delivery",
+      };
+      
+      const response = await apiRequest("/api/pos/calculators/pricing", {
+        method: "POST",
+        body: JSON.stringify({
+          weight: parseFloat(data.weight) || 0,
+          serviceType: serviceTypeMap[data.serviceType] || "wash_dry_fold",
+          rushOrder: data.rush,
+          extras,
+        }),
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      const breakdown = data.breakdown || data;
+      setPricingResult({
+        basePrice: breakdown.basePrice || 0,
+        extras: breakdown.extrasTotal || 0,
+        rushSurcharge: breakdown.rushFee || 0,
+        tax: breakdown.tax || 0,
+        total: breakdown.total || 0,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Error",
+        description: error.message || "Failed to calculate pricing",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Profitability calculator mutation
+  const profitabilityCalculatorMutation = useMutation({
+    mutationFn: async (data: typeof profitabilityForm) => {
+      const response = await apiRequest("/api/pos/calculators/profitability", {
+        method: "POST",
+        body: JSON.stringify({
+          monthlyRevenue: parseFloat(data.monthlyRevenue) || 0,
+          laborCost: parseFloat(data.laborCost) || 0,
+          utilities: parseFloat(data.utilitiesCost) || 0,
+          supplies: parseFloat(data.suppliesCost) || 0,
+          rent: parseFloat(data.rentCost) || 0,
+          otherExpenses: (parseFloat(data.equipmentCost) || 0) + (parseFloat(data.otherCosts) || 0),
+        }),
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      const monthly = data.monthly || {};
+      const breakEvenData = data.breakEven || {};
+      const yearly = data.yearly || {};
+      const projections = data.projections || {};
+      
+      setProfitabilityResult({
+        grossProfit: monthly.grossProfit,
+        grossMargin: monthly.grossMargin,
+        netProfit: monthly.netProfit,
+        netMargin: monthly.netMargin,
+        breakEven: {
+          days: breakEvenData.daysToBreakEven,
+          revenue: breakEvenData.breakEvenRevenue,
+        },
+        yearlyProjection: {
+          revenue: yearly.revenue,
+          profit: yearly.profit,
+        },
+        healthScore: data.healthScore,
+        growthScenarios: {
+          conservative: projections.conservative,
+          moderate: projections.moderate,
+          aggressive: projections.aggressive,
+        },
+        expenseBreakdown: data.expenseBreakdown,
+        recommendations: data.recommendations,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Error",
+        description: error.message || "Failed to calculate profitability",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Labor cost calculator mutation
+  const laborCalculatorMutation = useMutation({
+    mutationFn: async (data: typeof laborForm) => {
+      const response = await apiRequest("/api/pos/calculators/labor", {
+        method: "POST",
+        body: JSON.stringify({
+          numberOfEmployees: parseInt(data.numberOfEmployees) || 0,
+          averageHourlyWage: parseFloat(data.averageHourlyWage) || 0,
+          averageHoursPerWeek: parseFloat(data.averageHoursPerWeek) || 0,
+          payrollTaxRate: parseFloat(data.payrollTaxRate) || 7.65,
+          benefitsCostPerEmployee: parseFloat(data.benefitsCostPerEmployee) || 0,
+          monthlyPounds: parseFloat(data.monthlyPounds) || 0,
+        }),
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      setLaborResult(data);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Error",
+        description: error.message || "Failed to calculate labor costs",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // ROI calculator mutation
+  const roiCalculatorMutation = useMutation({
+    mutationFn: async (data: typeof roiForm) => {
+      const response = await apiRequest("/api/pos/calculators/roi", {
+        method: "POST",
+        body: JSON.stringify({
+          machineCost: parseFloat(data.machineCost) || 0,
+          cyclesPerDay: parseFloat(data.cyclesPerDay) || 0,
+          revenuePerCycle: parseFloat(data.revenuePerCycle) || 0,
+          operatingCostPerCycle: parseFloat(data.operatingCostPerCycle) || 0,
+          discountRate: parseFloat(data.discountRate) || 10,
+        }),
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      setRoiResult(data);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Error",
+        description: error.message || "Failed to calculate ROI",
         variant: "destructive",
       });
     },
@@ -2238,7 +2652,10 @@ export default function POSCommandCenter() {
                       <SelectContent>
                         <SelectItem value="all">All Status</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="weighing">Weighing</SelectItem>
+                        <SelectItem value="washing">Washing</SelectItem>
+                        <SelectItem value="drying">Drying</SelectItem>
+                        <SelectItem value="folding">Folding</SelectItem>
                         <SelectItem value="ready">Ready</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
                       </SelectContent>
@@ -2250,6 +2667,63 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
+                {/* WDF Order Status Pipeline - Visual Overview */}
+                <Card className="bg-card/80 backdrop-blur border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-[#b8860b]" />
+                        WDF Order Pipeline
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-[#1e3a5f]/30 text-muted-foreground text-xs">
+                          {orders.filter(o => o.status !== "completed" && o.status !== "cancelled").length} Active
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      {[
+                        { key: "intake", label: "Intake", icon: Package, color: "bg-slate-500" },
+                        { key: "weighing", label: "Weighing", icon: Scale, color: "bg-blue-500" },
+                        { key: "washing", label: "Washing", icon: Droplets, color: "bg-cyan-500" },
+                        { key: "drying", label: "Drying", icon: Wind, color: "bg-orange-500" },
+                        { key: "folding", label: "Folding", icon: Shirt, color: "bg-purple-500" },
+                        { key: "ready", label: "Ready", icon: CheckCircle2, color: "bg-green-500" },
+                        { key: "picked_up", label: "Picked Up", icon: UserCheck, color: "bg-[#b8860b]" },
+                      ].map((stage, idx, arr) => {
+                        const stageCount = orders.filter(o => {
+                          if (stage.key === "intake") return o.status === "pending";
+                          if (stage.key === "picked_up") return o.status === "completed";
+                          return o.status === stage.key;
+                        }).length;
+                        const StageIcon = stage.icon;
+                        return (
+                          <div key={stage.key} className="flex items-center flex-1">
+                            <div className="flex flex-col items-center flex-1">
+                              <div 
+                                className={`relative w-12 h-12 rounded-full ${stage.color}/20 flex items-center justify-center cursor-pointer hover:${stage.color}/30 transition-colors group`}
+                                data-testid={`pipeline-stage-${stage.key}`}
+                              >
+                                <StageIcon className={`w-5 h-5 ${stage.color.replace('bg-', 'text-')}`} />
+                                {stageCount > 0 && (
+                                  <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${stage.color} text-white text-xs flex items-center justify-center font-bold`}>
+                                    {stageCount}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-muted-foreground mt-1 text-center">{stage.label}</span>
+                            </div>
+                            {idx < arr.length - 1 && (
+                              <div className="flex-shrink-0 w-8 h-0.5 bg-border -mt-4" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Orders Table with Enhanced Features */}
                 <div className="bg-card rounded-lg border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead className="bg-background">
@@ -2268,7 +2742,12 @@ export default function POSCommandCenter() {
                       {orders.map((order, idx) => (
                         <tr 
                           key={order.id} 
-                          className={`border-b border-border/50 hover:bg-muted/30 ${idx % 2 === 0 ? '' : 'bg-muted/10'}`}
+                          className={`border-b border-border/50 hover:bg-muted/30 cursor-pointer ${idx % 2 === 0 ? '' : 'bg-muted/10'} ${selectedOrderId === order.id ? 'bg-[#b8860b]/10 border-l-2 border-l-[#b8860b]' : ''}`}
+                          onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setOrderDetailOpen(true);
+                          }}
+                          data-testid={`order-row-${order.id}`}
                         >
                           <td className="p-3 font-mono text-foreground">{order.transactionNumber}</td>
                           <td className="p-3">
@@ -2295,15 +2774,31 @@ export default function POSCommandCenter() {
                             </Badge>
                           </td>
                           <td className="p-3 text-center text-muted-foreground">{order.time}</td>
-                          <td className="p-3 text-right">
+                          <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="View order">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground" 
+                                aria-label="View order"
+                                onClick={() => {
+                                  setSelectedOrderId(order.id);
+                                  setOrderDetailOpen(true);
+                                }}
+                                data-testid={`button-view-order-${order.id}`}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="Edit order">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]" aria-label="Weigh order">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]" 
+                                aria-label="Weigh order"
+                                data-testid={`button-weigh-order-${order.id}`}
+                              >
                                 <Scale className="w-4 h-4" />
                               </Button>
                             </div>
@@ -2313,6 +2808,237 @@ export default function POSCommandCenter() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Order Detail Panel (shown when order is selected) */}
+                {selectedOrderId && orderDetailOpen && (() => {
+                  const selectedOrder = orders.find(o => o.id === selectedOrderId);
+                  if (!selectedOrder) return null;
+                  
+                  const pipelineStages = [
+                    { key: "pending", label: "Intake", icon: Package },
+                    { key: "weighing", label: "Weighing", icon: Scale },
+                    { key: "washing", label: "Washing", icon: Droplets },
+                    { key: "drying", label: "Drying", icon: Wind },
+                    { key: "folding", label: "Folding", icon: Shirt },
+                    { key: "ready", label: "Ready", icon: CheckCircle2 },
+                    { key: "completed", label: "Picked Up", icon: UserCheck },
+                  ];
+                  
+                  const currentStageIdx = pipelineStages.findIndex(s => s.key === selectedOrder.status);
+                  
+                  const foldingItems = [
+                    { id: "shirts", label: "Shirts folded", icon: Shirt },
+                    { id: "pants", label: "Pants folded", icon: Shirt },
+                    { id: "towels", label: "Towels folded", icon: Layers },
+                    { id: "sheets", label: "Sheets folded", icon: Layers },
+                    { id: "delicates", label: "Delicates handled", icon: Sparkles },
+                    { id: "special", label: "Special items", icon: Star },
+                  ];
+                  
+                  const orderChecklist = foldingChecklist[selectedOrderId] || {};
+                  const completedItems = Object.values(orderChecklist).filter(item => item.checked).length;
+                  const checklistProgress = (completedItems / foldingItems.length) * 100;
+                  
+                  return (
+                    <Card className="bg-card/90 backdrop-blur border border-[#b8860b]/30" data-testid="order-detail-panel">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Package className="w-5 h-5 text-[#b8860b]" />
+                            Order {selectedOrder.transactionNumber}
+                          </CardTitle>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => {
+                              setSelectedOrderId(null);
+                              setOrderDetailOpen(false);
+                            }}
+                            data-testid="button-close-order-detail"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{selectedOrder.customerName}</p>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Status Pipeline Visual */}
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Order Progress</h4>
+                          <div className="relative">
+                            <div className="flex items-center justify-between">
+                              {pipelineStages.map((stage, idx) => {
+                                const StageIcon = stage.icon;
+                                const isCompleted = idx < currentStageIdx;
+                                const isCurrent = idx === currentStageIdx;
+                                const isPending = idx > currentStageIdx;
+                                
+                                return (
+                                  <div key={stage.key} className="flex flex-col items-center flex-1 relative">
+                                    <button
+                                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                                        isCompleted ? 'bg-green-500 text-white' :
+                                        isCurrent ? 'bg-[#b8860b] text-white animate-pulse' :
+                                        'bg-muted text-muted-foreground'
+                                      }`}
+                                      onClick={() => {
+                                        if (!isCompleted && !isCurrent) {
+                                          updateOrderStatusMutation.mutate({ 
+                                            orderId: selectedOrderId, 
+                                            status: stage.key 
+                                          });
+                                        }
+                                      }}
+                                      data-testid={`button-stage-${stage.key}`}
+                                    >
+                                      {isCompleted ? <Check className="w-4 h-4" /> : <StageIcon className="w-4 h-4" />}
+                                    </button>
+                                    <span className={`text-[9px] mt-1 text-center ${isCurrent ? 'text-[#b8860b] font-semibold' : 'text-muted-foreground'}`}>
+                                      {stage.label}
+                                    </span>
+                                    {idx < pipelineStages.length - 1 && (
+                                      <div className={`absolute top-5 left-1/2 w-full h-0.5 ${isCompleted ? 'bg-green-500' : 'bg-muted'}`} style={{ transform: 'translateX(50%)' }} />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Weight Tracking Timeline */}
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                            <Scale className="w-3 h-3" />
+                            Weight Tracking
+                          </h4>
+                          <div className="bg-background rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Recorded Weight:</span>
+                              <span className="text-lg font-bold text-foreground">{selectedOrder.weight !== "-" ? `${selectedOrder.weight} lbs` : "Not weighed"}</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                              <span className="text-sm text-muted-foreground">Price per lb:</span>
+                              <span className="text-sm font-medium text-foreground">${settingsForm.pricePerPound}</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                              <span className="text-sm font-semibold text-foreground">Calculated Total:</span>
+                              <span className="text-lg font-bold text-[#b8860b]">
+                                ${selectedOrder.weight !== "-" 
+                                  ? (parseFloat(selectedOrder.weight) * parseFloat(settingsForm.pricePerPound)).toFixed(2)
+                                  : "0.00"
+                                }
+                              </span>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2 border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/10"
+                              data-testid="button-add-weight-adjustment"
+                            >
+                              <Scale className="w-3 h-3 mr-2" />
+                              Add Weight Adjustment
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Folding Checklist */}
+                        <Collapsible>
+                          <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-muted/30">
+                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                                <ListChecks className="w-3 h-3" />
+                                Folding Checklist
+                              </h4>
+                              <div className="flex items-center gap-2">
+                                <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-[#b8860b] transition-all" 
+                                    style={{ width: `${checklistProgress}%` }} 
+                                  />
+                                </div>
+                                <span className="text-xs text-muted-foreground">{completedItems}/{foldingItems.length}</span>
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="space-y-2 mt-2">
+                              {foldingItems.map(item => {
+                                const itemState = orderChecklist[item.id] || { checked: false, notes: "" };
+                                const ItemIcon = item.icon;
+                                return (
+                                  <div 
+                                    key={item.id} 
+                                    className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${itemState.checked ? 'bg-green-500/10' : 'bg-muted/30'}`}
+                                  >
+                                    <Checkbox
+                                      checked={itemState.checked}
+                                      onCheckedChange={(checked) => {
+                                        setFoldingChecklist(prev => ({
+                                          ...prev,
+                                          [selectedOrderId]: {
+                                            ...prev[selectedOrderId],
+                                            [item.id]: { ...itemState, checked: !!checked }
+                                          }
+                                        }));
+                                      }}
+                                      data-testid={`checkbox-${item.id}`}
+                                    />
+                                    <ItemIcon className={`w-4 h-4 ${itemState.checked ? 'text-green-500' : 'text-muted-foreground'}`} />
+                                    <span className={`flex-1 text-sm ${itemState.checked ? 'text-green-500 line-through' : 'text-foreground'}`}>
+                                      {item.label}
+                                    </span>
+                                    <Input
+                                      placeholder="Notes..."
+                                      className="h-7 w-32 text-xs bg-background"
+                                      value={itemState.notes}
+                                      onChange={(e) => {
+                                        setFoldingChecklist(prev => ({
+                                          ...prev,
+                                          [selectedOrderId]: {
+                                            ...prev[selectedOrderId],
+                                            [item.id]: { ...itemState, notes: e.target.value }
+                                          }
+                                        }));
+                                      }}
+                                      data-testid={`input-notes-${item.id}`}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+
+                        {/* Quick Actions */}
+                        <div className="flex gap-2 pt-2 border-t border-border/50">
+                          <Button 
+                            className="flex-1 bg-[#b8860b] hover:bg-[#9A7209]"
+                            onClick={() => {
+                              const nextStageIdx = currentStageIdx + 1;
+                              if (nextStageIdx < pipelineStages.length) {
+                                updateOrderStatusMutation.mutate({
+                                  orderId: selectedOrderId,
+                                  status: pipelineStages[nextStageIdx].key
+                                });
+                              }
+                            }}
+                            disabled={currentStageIdx >= pipelineStages.length - 1}
+                            data-testid="button-advance-stage"
+                          >
+                            <ArrowRight className="w-4 h-4 mr-1" />
+                            Advance Stage
+                          </Button>
+                          <Button variant="outline" className="border-muted-foreground/30">
+                            <Printer className="w-4 h-4 mr-1" />
+                            Print Tag
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
               </div>
             )}
 
@@ -2858,6 +3584,51 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
+                {/* Real-time Status Panel */}
+                <Card className="bg-card/80 backdrop-blur border border-[#b8860b]/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-[#b8860b]" />
+                        Live Route Status
+                      </h3>
+                      <Badge className="bg-green-500/20 text-green-400 text-xs">
+                        <span className="w-2 h-2 rounded-full bg-green-400 mr-1.5 animate-pulse"></span>
+                        Real-time
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4">
+                      <div className="bg-background rounded-lg p-3 text-center">
+                        <p className="text-2xl font-bold text-blue-400">{routeStatusCounts.active}</p>
+                        <p className="text-xs text-muted-foreground">Active Routes</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 text-center">
+                        <p className="text-2xl font-bold text-foreground">
+                          {routes.reduce((acc: number, r: any) => acc + (r.completedStops || 0), 0)}/{routes.reduce((acc: number, r: any) => acc + (r.totalStops || 0), 0)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Stops Done</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 text-center">
+                        <p className="text-2xl font-bold text-green-400">94%</p>
+                        <p className="text-xs text-muted-foreground">On-Time Rate</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 text-center">
+                        <p className="text-2xl font-bold text-amber-400">{routes.filter((r: any) => r.status === 'in_progress').length > 0 ? 2 : 0}</p>
+                        <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                          <AlertTriangle className="w-3 h-3" />
+                          Late Alerts
+                        </p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 text-center">
+                        <p className="text-2xl font-bold text-[#b8860b]">
+                          ${routes.reduce((acc: number, r: any) => acc + (r.estimatedRevenue || 0), 0).toFixed(0)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Est. Revenue</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Status Summary Cards */}
                 <div className="grid grid-cols-4 gap-4">
                   <Card className="bg-gradient-to-br from-primary to-primary/90 border">
@@ -2946,153 +3717,435 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-4">
-                    {filteredRoutes.map((route: any) => (
-                      <Card 
-                        key={route.id} 
-                        className={`border transition-colors ${
-                          route.status === 'completed' ? 'bg-green-500/5 border-green-500/30 hover:border-green-500/50' :
-                          route.status === 'in_progress' ? 'bg-blue-500/5 border-blue-500/30 hover:border-blue-500/50' :
-                          'bg-card border hover:border-[#b8860b]/50'
-                        }`}
-                        data-testid={`card-route-${route.id}`}
+                  <div className="space-y-4">
+                    {/* Route Builder View Toggle */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={!selectedRouteId ? "default" : "outline"}
+                        size="sm"
+                        className={!selectedRouteId ? "bg-[#b8860b] hover:bg-[#9A7209]" : ""}
+                        onClick={() => setSelectedRouteId(null)}
+                        data-testid="button-view-all-routes"
                       >
-                        <CardContent className="p-4">
-                          {/* Route Header */}
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                route.routeType === 'pickup' ? 'bg-amber-500/20' :
-                                route.routeType === 'delivery' ? 'bg-blue-500/20' :
-                                'bg-purple-500/20'
-                              }`}>
-                                <Truck className={`w-5 h-5 ${
-                                  route.routeType === 'pickup' ? 'text-amber-400' :
-                                  route.routeType === 'delivery' ? 'text-blue-400' :
-                                  'text-purple-400'
-                                }`} />
-                              </div>
-                              <div>
-                                <p className="font-bold text-foreground" data-testid={`text-route-name-${route.id}`}>
-                                  {route.routeName}
-                                </p>
-                                <p className="text-xs text-muted-foreground font-mono">{route.routeNumber}</p>
-                              </div>
+                        All Routes
+                      </Button>
+                      {selectedRouteId && (
+                        <Badge className="bg-[#1e3a5f]/30 text-foreground">
+                          Route Builder Active
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {selectedRouteId ? (
+                      /* Route Builder - Detail View with Stops */
+                      (() => {
+                        const selectedRoute = routes.find((r: any) => r.id === selectedRouteId);
+                        if (!selectedRoute) return null;
+                        
+                        const mockStops = [
+                          { id: "stop-1", customerName: "Johnson Family", address: "123 Oak Street, Suite 4B", type: "pickup", status: "completed", eta: "9:00 AM", phone: "555-0101" },
+                          { id: "stop-2", customerName: "Smith Residence", address: "456 Maple Avenue", type: "delivery", status: "completed", eta: "9:30 AM", phone: "555-0102" },
+                          { id: "stop-3", customerName: "Garcia Household", address: "789 Pine Road", type: "pickup", status: "in_transit", eta: "10:00 AM", phone: "555-0103" },
+                          { id: "stop-4", customerName: "Williams Co.", address: "321 Elm Street, Unit 12", type: "delivery", status: "pending", eta: "10:30 AM", phone: "555-0104" },
+                          { id: "stop-5", customerName: "Brown Family", address: "654 Cedar Lane", type: "pickup", status: "pending", eta: "11:00 AM", phone: "555-0105" },
+                        ];
+                        
+                        return (
+                          <div className="grid grid-cols-3 gap-4">
+                            {/* Left Panel - Stop List with Drag & Drop */}
+                            <div className="col-span-2 space-y-4">
+                              <Card className="bg-card border">
+                                <CardHeader className="pb-2">
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                      <MapPinned className="w-4 h-4 text-[#b8860b]" />
+                                      Route Stops ({mockStops.length})
+                                    </CardTitle>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="outline" size="sm" className="h-8 border-muted-foreground/30" data-testid="button-optimize-route">
+                                        <Zap className="w-3 h-3 mr-1 text-amber-500" />
+                                        Optimize
+                                      </Button>
+                                      <Button variant="outline" size="sm" className="h-8 border-muted-foreground/30" data-testid="button-add-stop">
+                                        <Plus className="w-3 h-3 mr-1" />
+                                        Add Stop
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">Drag stops to reorder the route</p>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                  {mockStops.map((stop, idx) => (
+                                    <div 
+                                      key={stop.id}
+                                      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors cursor-move ${
+                                        stop.status === 'completed' ? 'bg-green-500/5 border-green-500/20' :
+                                        stop.status === 'in_transit' ? 'bg-blue-500/5 border-blue-500/20' :
+                                        'bg-background border-border/50 hover:border-[#b8860b]/30'
+                                      }`}
+                                      data-testid={`stop-card-${stop.id}`}
+                                    >
+                                      {/* Drag Handle */}
+                                      <div className="text-muted-foreground/50 cursor-grab active:cursor-grabbing">
+                                        <GripVertical className="w-4 h-4" />
+                                      </div>
+                                      
+                                      {/* Stop Number */}
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                                        stop.status === 'completed' ? 'bg-green-500 text-white' :
+                                        stop.status === 'in_transit' ? 'bg-blue-500 text-white animate-pulse' :
+                                        'bg-muted text-muted-foreground'
+                                      }`}>
+                                        {stop.status === 'completed' ? <Check className="w-4 h-4" /> : idx + 1}
+                                      </div>
+                                      
+                                      {/* Stop Info */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <p className="font-medium text-foreground truncate">{stop.customerName}</p>
+                                          <Badge 
+                                            className={stop.type === 'pickup' ? 'bg-amber-500/20 text-amber-400 text-[10px]' : 'bg-blue-500/20 text-blue-400 text-[10px]'}
+                                          >
+                                            {stop.type === 'pickup' ? 'Pickup' : 'Delivery'}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground truncate">{stop.address}</p>
+                                      </div>
+                                      
+                                      {/* ETA */}
+                                      <div className="text-right">
+                                        <p className="text-xs text-muted-foreground">ETA</p>
+                                        <p className="text-sm font-medium text-foreground">{stop.eta}</p>
+                                      </div>
+                                      
+                                      {/* Status */}
+                                      <Badge 
+                                        className={`text-[10px] ${
+                                          stop.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                                          stop.status === 'in_transit' ? 'bg-blue-500/20 text-blue-400' :
+                                          stop.status === 'arrived' ? 'bg-purple-500/20 text-purple-400' :
+                                          'bg-muted text-muted-foreground'
+                                        }`}
+                                      >
+                                        {stop.status === 'in_transit' ? 'En Route' : 
+                                         stop.status === 'arrived' ? 'Arrived' :
+                                         stop.status === 'completed' ? 'Done' : 'Pending'}
+                                      </Badge>
+                                      
+                                      {/* Actions */}
+                                      <div className="flex items-center gap-1">
+                                        <Button 
+                                          variant="ghost" 
+                                          size="icon" 
+                                          className="h-7 w-7 text-muted-foreground hover:text-green-500"
+                                          data-testid={`button-call-${stop.id}`}
+                                        >
+                                          <Phone className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="icon" 
+                                          className="h-7 w-7 text-muted-foreground hover:text-blue-500"
+                                          data-testid={`button-navigate-${stop.id}`}
+                                        >
+                                          <Navigation className="w-3.5 h-3.5" />
+                                        </Button>
+                                        {stop.status === 'in_transit' && (
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-7 w-7 text-muted-foreground hover:text-[#b8860b]"
+                                            onClick={() => sendNotificationMutation.mutate({ stopId: stop.id, type: "en_route" })}
+                                            data-testid={`button-notify-${stop.id}`}
+                                          >
+                                            <Bell className="w-3.5 h-3.5" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </CardContent>
+                              </Card>
+                              
+                              {/* Notification Triggers */}
+                              <Card className="bg-card border">
+                                <CardHeader className="pb-2">
+                                  <CardTitle className="text-base flex items-center gap-2">
+                                    <Bell className="w-4 h-4 text-[#b8860b]" />
+                                    Customer Notifications
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex gap-3">
+                                  <Button 
+                                    variant="outline" 
+                                    className="flex-1 border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                                    onClick={() => {
+                                      const currentStop = mockStops.find(s => s.status === 'in_transit');
+                                      if (currentStop) {
+                                        sendNotificationMutation.mutate({ stopId: currentStop.id, type: "en_route" });
+                                      }
+                                    }}
+                                    data-testid="button-send-enroute-notification"
+                                  >
+                                    <SendHorizontal className="w-4 h-4 mr-2" />
+                                    Send "Driver En Route"
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    className="flex-1 border-green-500/30 text-green-400 hover:bg-green-500/10"
+                                    onClick={() => {
+                                      const lastCompleted = [...mockStops].reverse().find(s => s.status === 'completed');
+                                      if (lastCompleted) {
+                                        sendNotificationMutation.mutate({ stopId: lastCompleted.id, type: "completed" });
+                                      }
+                                    }}
+                                    data-testid="button-send-completed-notification"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    Send "Delivery Completed"
+                                  </Button>
+                                </CardContent>
+                              </Card>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge 
-                                className={
-                                  route.routeType === 'pickup' ? 'bg-amber-500/20 text-amber-400' :
-                                  route.routeType === 'delivery' ? 'bg-blue-500/20 text-blue-400' :
-                                  'bg-purple-500/20 text-purple-400'
-                                }
-                                data-testid={`badge-route-type-${route.id}`}
-                              >
-                                {route.routeType === 'pickup' ? 'Pickup' :
-                                 route.routeType === 'delivery' ? 'Delivery' :
-                                 'Both'}
-                              </Badge>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-foreground" aria-label="More options">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
+                            
+                            {/* Right Panel - Route Info & Driver */}
+                            <div className="space-y-4">
+                              {/* Route Info Card */}
+                              <Card className="bg-card border">
+                                <CardHeader className="pb-2">
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base">{selectedRoute.routeName}</CardTitle>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-7 w-7"
+                                      onClick={() => setSelectedRouteId(null)}
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">Status</span>
+                                    <Badge className={
+                                      selectedRoute.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                                      selectedRoute.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400' :
+                                      'bg-amber-500/20 text-amber-400'
+                                    }>
+                                      {selectedRoute.status === 'completed' ? 'Completed' :
+                                       selectedRoute.status === 'in_progress' ? 'In Progress' : 'Planned'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">Date</span>
+                                    <span className="text-sm text-foreground">{selectedRoute.routeDate}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">Est. Time</span>
+                                    <span className="text-sm text-foreground">2h 45m</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">Est. Distance</span>
+                                    <span className="text-sm text-foreground">28.5 miles</span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              
+                              {/* Driver Assignment Card */}
+                              <Card className="bg-card border">
+                                <CardHeader className="pb-2">
+                                  <CardTitle className="text-base flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-[#b8860b]" />
+                                    Driver Assignment
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                  <Select defaultValue={selectedRoute.driverName || undefined}>
+                                    <SelectTrigger className="bg-background border text-foreground" data-testid="select-driver">
+                                      <SelectValue placeholder="Assign driver..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Mike Johnson">Mike Johnson</SelectItem>
+                                      <SelectItem value="Sarah Chen">Sarah Chen</SelectItem>
+                                      <SelectItem value="Carlos Rodriguez">Carlos Rodriguez</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  {selectedRoute.driverName && (
+                                    <div className="bg-background rounded-lg p-3 space-y-2">
+                                      <div className="flex items-center gap-3">
+                                        <Avatar className="w-10 h-10">
+                                          <AvatarFallback className="bg-[#1e3a5f] text-white text-sm">
+                                            {selectedRoute.driverName.split(" ").map((n: string) => n[0]).join("")}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                          <p className="font-medium text-foreground">{selectedRoute.driverName}</p>
+                                          <p className="text-xs text-muted-foreground">Active Driver</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center justify-between text-xs">
+                                        <span className="text-muted-foreground">Current Load:</span>
+                                        <span className="text-foreground">3 routes / 15 stops</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                                        <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
+                                          <Phone className="w-3 h-3 mr-1" />
+                                          Call
+                                        </Button>
+                                        <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
+                                          <Mail className="w-3 h-3 mr-1" />
+                                          Message
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                              
+                              {/* Placeholder Map */}
+                              <Card className="bg-card border">
+                                <CardHeader className="pb-2">
+                                  <CardTitle className="text-base flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-[#b8860b]" />
+                                    Route Map
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="h-48 bg-[#1e3a5f]/20 rounded-lg flex items-center justify-center border border-dashed border-[#b8860b]/30">
+                                    <div className="text-center">
+                                      <MapPin className="w-8 h-8 text-[#b8860b]/50 mx-auto mb-2" />
+                                      <p className="text-xs text-muted-foreground">Route visualization</p>
+                                      <p className="text-[10px] text-muted-foreground/70">{mockStops.length} stops mapped</p>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
                             </div>
                           </div>
+                        );
+                      })()
+                    ) : (
+                      /* Route Cards Grid View */
+                      <div className="grid grid-cols-3 gap-4">
+                        {filteredRoutes.map((route: any) => (
+                          <Card 
+                            key={route.id} 
+                            className={`border transition-colors cursor-pointer ${
+                              route.status === 'completed' ? 'bg-green-500/5 border-green-500/30 hover:border-green-500/50' :
+                              route.status === 'in_progress' ? 'bg-blue-500/5 border-blue-500/30 hover:border-blue-500/50' :
+                              'bg-card border hover:border-[#b8860b]/50'
+                            }`}
+                            onClick={() => setSelectedRouteId(route.id)}
+                            data-testid={`card-route-${route.id}`}
+                          >
+                            <CardContent className="p-4">
+                              {/* Route Header */}
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                    route.routeType === 'pickup' ? 'bg-amber-500/20' :
+                                    route.routeType === 'delivery' ? 'bg-blue-500/20' :
+                                    'bg-purple-500/20'
+                                  }`}>
+                                    <Truck className={`w-5 h-5 ${
+                                      route.routeType === 'pickup' ? 'text-amber-400' :
+                                      route.routeType === 'delivery' ? 'text-blue-400' :
+                                      'text-purple-400'
+                                    }`} />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-foreground" data-testid={`text-route-name-${route.id}`}>
+                                      {route.routeName}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground font-mono">{route.routeNumber}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge 
+                                    className={
+                                      route.routeType === 'pickup' ? 'bg-amber-500/20 text-amber-400' :
+                                      route.routeType === 'delivery' ? 'bg-blue-500/20 text-blue-400' :
+                                      'bg-purple-500/20 text-purple-400'
+                                    }
+                                    data-testid={`badge-route-type-${route.id}`}
+                                  >
+                                    {route.routeType === 'pickup' ? 'Pickup' :
+                                     route.routeType === 'delivery' ? 'Delivery' :
+                                     'Both'}
+                                  </Badge>
+                                </div>
+                              </div>
 
-                          {/* Route Stats */}
-                          <div className="grid grid-cols-2 gap-3 mb-3">
-                            <div className="bg-background rounded-lg p-3">
-                              <div className="flex items-center gap-2 mb-1">
-                                <MapPin className="w-3 h-3 text-muted-foreground/70" />
-                                <p className="text-xs text-muted-foreground">Stops</p>
+                              {/* Route Stats */}
+                              <div className="grid grid-cols-2 gap-3 mb-3">
+                                <div className="bg-background rounded-lg p-3">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <MapPin className="w-3 h-3 text-muted-foreground/70" />
+                                    <p className="text-xs text-muted-foreground">Stops</p>
+                                  </div>
+                                  <p className="text-xl font-bold text-foreground" data-testid={`text-route-stops-${route.id}`}>
+                                    {route.completedStops}/{route.totalStops}
+                                  </p>
+                                </div>
+                                <div className="bg-background rounded-lg p-3">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <DollarSign className="w-3 h-3 text-[#b8860b]" />
+                                    <p className="text-xs text-muted-foreground">Revenue</p>
+                                  </div>
+                                  <p className="text-xl font-bold text-[#b8860b]" data-testid={`text-route-revenue-${route.id}`}>
+                                    ${route.estimatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  </p>
+                                </div>
                               </div>
-                              <p className="text-xl font-bold text-foreground" data-testid={`text-route-stops-${route.id}`}>
-                                {route.completedStops}/{route.totalStops}
-                              </p>
-                            </div>
-                            <div className="bg-background rounded-lg p-3">
-                              <div className="flex items-center gap-2 mb-1">
-                                <DollarSign className="w-3 h-3 text-[#b8860b]" />
-                                <p className="text-xs text-muted-foreground">Est. Revenue</p>
-                              </div>
-                              <p className="text-xl font-bold text-[#b8860b]" data-testid={`text-route-revenue-${route.id}`}>
-                                ${route.estimatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </p>
-                            </div>
-                          </div>
 
-                          {/* Progress Bar */}
-                          {route.totalStops > 0 && (
-                            <div className="mb-3">
-                              <div className="flex items-center justify-between text-xs mb-1">
-                                <span className="text-muted-foreground">Progress</span>
-                                <span className={`font-medium ${
-                                  route.status === 'completed' ? 'text-green-400' :
-                                  route.status === 'in_progress' ? 'text-blue-400' :
-                                  'text-muted-foreground'
-                                }`}>{Math.round((route.completedStops / route.totalStops) * 100)}%</span>
-                              </div>
-                              <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all ${
-                                    route.status === 'completed' ? 'bg-green-500' :
-                                    route.status === 'in_progress' ? 'bg-blue-500' :
-                                    'bg-[#b8860b]'
-                                  }`}
-                                  style={{ width: `${(route.completedStops / route.totalStops) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
+                              {/* Progress Bar */}
+                              {route.totalStops > 0 && (
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between text-xs mb-1">
+                                    <span className="text-muted-foreground">Progress</span>
+                                    <span className={`font-medium ${
+                                      route.status === 'completed' ? 'text-green-400' :
+                                      route.status === 'in_progress' ? 'text-blue-400' :
+                                      'text-muted-foreground'
+                                    }`}>{Math.round((route.completedStops / route.totalStops) * 100)}%</span>
+                                  </div>
+                                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                                    <div 
+                                      className={`h-full rounded-full transition-all ${
+                                        route.status === 'completed' ? 'bg-green-500' :
+                                        route.status === 'in_progress' ? 'bg-blue-500' :
+                                        'bg-[#b8860b]'
+                                      }`}
+                                      style={{ width: `${(route.completedStops / route.totalStops) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              )}
 
-                          {/* Route Details */}
-                          <div className="space-y-2 text-sm border-t border pt-3">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Calendar className="w-3.5 h-3.5" />
-                              <span>{route.routeDate} at {route.routeTime}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Users className="w-3.5 h-3.5" />
-                              <span>Driver: {route.driverName}</span>
-                            </div>
-                            {route.startTime && (
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>Started: {route.startTime}{route.endTime ? ` - Ended: ${route.endTime}` : ''}</span>
+                              {/* Driver Info */}
+                              <div className="flex items-center gap-2 text-sm border-t border pt-3">
+                                <Avatar className="w-6 h-6">
+                                  <AvatarFallback className="bg-[#1e3a5f] text-white text-[10px]">
+                                    {route.driverName?.split(" ").map((n: string) => n[0]).join("") || "?"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-muted-foreground truncate">{route.driverName || "Unassigned"}</span>
+                                <Badge className={`ml-auto text-[10px] ${
+                                  route.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                                  route.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400' :
+                                  'bg-amber-500/20 text-amber-400'
+                                }`}>
+                                  {route.status === 'completed' ? 'Done' :
+                                   route.status === 'in_progress' ? 'Active' : 'Planned'}
+                                </Badge>
                               </div>
-                            )}
-                          </div>
-
-                          {/* Footer with Status */}
-                          <div className="mt-3 pt-3 border-t border flex items-center justify-between">
-                            <Badge 
-                              className={
-                                route.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                                route.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400' :
-                                'bg-amber-500/20 text-amber-400'
-                              }
-                              data-testid={`badge-route-status-${route.id}`}
-                            >
-                              <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                route.status === 'completed' ? 'bg-green-400' :
-                                route.status === 'in_progress' ? 'bg-blue-400' :
-                                'bg-amber-400'
-                              }`}></span>
-                              {route.status === 'completed' ? 'Completed' :
-                               route.status === 'in_progress' ? 'In Progress' :
-                               'Planned'}
-                            </Badge>
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-foreground" aria-label="View route">
-                                <Eye className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground/70 hover:text-[#b8860b]" aria-label="Edit route">
-                                <Edit className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -4841,63 +5894,1428 @@ export default function POSCommandCenter() {
                 </div>
               </div>
             )}
+
+            {/* Calculators Section */}
+            {activeSection === "calculators" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-[#b8860b]" />
+                      Business Calculators
+                    </h2>
+                    <p className="text-sm text-muted-foreground">Professional tools to optimize your laundromat operations</p>
+                  </div>
+                </div>
+
+                {/* Calculator Tabs */}
+                <div className="flex flex-wrap gap-2 border-b border-border pb-3">
+                  {[
+                    { id: "pricing", label: "Pricing", icon: DollarSign },
+                    { id: "profitability", label: "Profitability", icon: TrendingUp },
+                    { id: "labor", label: "Labor Cost", icon: Users },
+                    { id: "roi", label: "ROI Projector", icon: PieChart },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.id}
+                      variant={activeCalculator === tab.id ? "default" : "outline"}
+                      className={`gap-2 ${activeCalculator === tab.id ? "bg-[#b8860b] hover:bg-[#9A7209]" : ""}`}
+                      onClick={() => setActiveCalculator(tab.id as typeof activeCalculator)}
+                      data-testid={`tab-calculator-${tab.id}`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Pricing Calculator */}
+                {activeCalculator === "pricing" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-card border" data-testid="card-pricing-calculator">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <DollarSign className="w-5 h-5 text-[#b8860b]" />
+                          Pricing Calculator
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Weight (lbs)</Label>
+                          <div className="relative">
+                            <Scale className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder="Enter weight"
+                              className="bg-background border text-foreground pl-10"
+                              value={pricingForm.weight}
+                              onChange={(e) => setPricingForm({ ...pricingForm, weight: e.target.value })}
+                              data-testid="input-pricing-weight"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Service Type</Label>
+                          <Select 
+                            value={pricingForm.serviceType}
+                            onValueChange={(value: "wdf" | "dry_cleaning" | "pud") => setPricingForm({ ...pricingForm, serviceType: value })}
+                          >
+                            <SelectTrigger className="bg-background border text-foreground" data-testid="select-pricing-service">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="wdf">Wash-Dry-Fold</SelectItem>
+                              <SelectItem value="dry_cleaning">Dry Cleaning</SelectItem>
+                              <SelectItem value="pud">Pickup & Delivery</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-sm">Extras</Label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="rush"
+                                checked={pricingForm.rush}
+                                onCheckedChange={(checked) => setPricingForm({ ...pricingForm, rush: !!checked })}
+                                data-testid="checkbox-pricing-rush"
+                              />
+                              <Label htmlFor="rush" className="text-sm text-foreground flex items-center gap-1">
+                                <Zap className="w-3 h-3 text-amber-400" /> Rush
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="starch"
+                                checked={pricingForm.starch}
+                                onCheckedChange={(checked) => setPricingForm({ ...pricingForm, starch: !!checked })}
+                                data-testid="checkbox-pricing-starch"
+                              />
+                              <Label htmlFor="starch" className="text-sm text-foreground">Starch</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="fabricSoftener"
+                                checked={pricingForm.fabricSoftener}
+                                onCheckedChange={(checked) => setPricingForm({ ...pricingForm, fabricSoftener: !!checked })}
+                                data-testid="checkbox-pricing-softener"
+                              />
+                              <Label htmlFor="fabricSoftener" className="text-sm text-foreground flex items-center gap-1">
+                                <Droplets className="w-3 h-3 text-cyan-400" /> Fabric Softener
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="specialCare"
+                                checked={pricingForm.specialCare}
+                                onCheckedChange={(checked) => setPricingForm({ ...pricingForm, specialCare: !!checked })}
+                                data-testid="checkbox-pricing-special"
+                              />
+                              <Label htmlFor="specialCare" className="text-sm text-foreground flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-purple-400" /> Special Care
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button 
+                          className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                          onClick={() => pricingCalculatorMutation.mutate(pricingForm)}
+                          disabled={!pricingForm.weight || pricingCalculatorMutation.isPending}
+                          data-testid="button-calculate-pricing"
+                        >
+                          {pricingCalculatorMutation.isPending ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                              Calculating...
+                            </>
+                          ) : (
+                            <>
+                              <Calculator className="w-4 h-4 mr-2" />
+                              Calculate Price
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Pricing Results */}
+                    <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 border-[#b8860b]/20" data-testid="card-pricing-results">
+                      <CardHeader>
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <Receipt className="w-5 h-5 text-[#b8860b]" />
+                          Price Breakdown
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {pricingResult ? (
+                          <div className="space-y-4">
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                <span className="text-white/70">Base Price</span>
+                                <span className="text-white font-semibold">${pricingResult.basePrice.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                <span className="text-white/70">Extras</span>
+                                <span className="text-white font-semibold">${pricingResult.extras.toFixed(2)}</span>
+                              </div>
+                              {pricingResult.rushSurcharge > 0 && (
+                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                  <span className="text-amber-400 flex items-center gap-1">
+                                    <Zap className="w-3 h-3" /> Rush Surcharge
+                                  </span>
+                                  <span className="text-amber-400 font-semibold">${pricingResult.rushSurcharge.toFixed(2)}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                <span className="text-white/70">Tax ({settingsForm.taxRate}%)</span>
+                                <span className="text-white font-semibold">${pricingResult.tax.toFixed(2)}</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center py-4 bg-white/10 rounded-lg px-4">
+                              <span className="text-white text-lg font-bold">Total</span>
+                              <span className="text-3xl font-black text-[#b8860b]">${pricingResult.total.toFixed(2)}</span>
+                            </div>
+                            <Button 
+                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                              onClick={() => {
+                                toast({
+                                  title: "Applied to Order",
+                                  description: `Price of $${pricingResult.total.toFixed(2)} applied to current order`,
+                                });
+                              }}
+                              data-testid="button-apply-pricing"
+                            >
+                              <Check className="w-4 h-4 mr-2" />
+                              Apply to Order
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Calculator className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                            <p className="text-white/50">Enter weight and options to calculate price</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Profitability Calculator */}
+                {activeCalculator === "profitability" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card className="bg-card border" data-testid="card-profitability-calculator">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-[#b8860b]" />
+                          Monthly Inputs
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Monthly Revenue</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
+                            <Input
+                              type="number"
+                              placeholder="e.g., 50000"
+                              className="bg-background border text-foreground pl-10"
+                              value={profitabilityForm.monthlyRevenue}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, monthlyRevenue: e.target.value })}
+                              data-testid="input-profit-revenue"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Labor Cost</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.laborCost}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, laborCost: e.target.value })}
+                              data-testid="input-profit-labor"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Utilities</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.utilitiesCost}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, utilitiesCost: e.target.value })}
+                              data-testid="input-profit-utilities"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Supplies</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.suppliesCost}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, suppliesCost: e.target.value })}
+                              data-testid="input-profit-supplies"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Rent</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.rentCost}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, rentCost: e.target.value })}
+                              data-testid="input-profit-rent"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Equipment</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.equipmentCost}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, equipmentCost: e.target.value })}
+                              data-testid="input-profit-equipment"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Other</Label>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="bg-background border text-foreground"
+                              value={profitabilityForm.otherCosts}
+                              onChange={(e) => setProfitabilityForm({ ...profitabilityForm, otherCosts: e.target.value })}
+                              data-testid="input-profit-other"
+                            />
+                          </div>
+                        </div>
+
+                        <Button 
+                          className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                          onClick={() => profitabilityCalculatorMutation.mutate(profitabilityForm)}
+                          disabled={!profitabilityForm.monthlyRevenue || profitabilityCalculatorMutation.isPending}
+                          data-testid="button-calculate-profitability"
+                        >
+                          {profitabilityCalculatorMutation.isPending ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <Calculator className="w-4 h-4 mr-2" />
+                              Analyze Profitability
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Profitability Results */}
+                    <Card className="bg-card border lg:col-span-2" data-testid="card-profitability-results">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <BarChart3 className="w-5 h-5 text-[#b8860b]" />
+                          Profitability Analysis
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {profitabilityResult ? (
+                          <div className="space-y-6">
+                            {/* Key Metrics */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                <p className="text-xs text-muted-foreground mb-1">Gross Profit</p>
+                                <p className="text-xl font-bold text-emerald-400">${profitabilityResult.grossProfit?.toLocaleString()}</p>
+                                <p className="text-xs text-emerald-400">{profitabilityResult.grossMargin?.toFixed(1)}% margin</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <p className="text-xs text-muted-foreground mb-1">Net Profit</p>
+                                <p className="text-xl font-bold text-blue-400">${profitabilityResult.netProfit?.toLocaleString()}</p>
+                                <p className="text-xs text-blue-400">{profitabilityResult.netMargin?.toFixed(1)}% margin</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                <p className="text-xs text-muted-foreground mb-1">Break-Even</p>
+                                <p className="text-xl font-bold text-amber-400">{profitabilityResult.breakEven?.days || 0} days</p>
+                                <p className="text-xs text-amber-400">${profitabilityResult.breakEven?.revenue?.toLocaleString()}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                                <p className="text-xs text-muted-foreground mb-1">Health Score</p>
+                                <p className="text-xl font-bold text-purple-400">{profitabilityResult.healthScore}/100</p>
+                                <p className="text-xs text-purple-400">{profitabilityResult.healthScore >= 80 ? "Excellent" : profitabilityResult.healthScore >= 60 ? "Good" : "Needs Work"}</p>
+                              </div>
+                            </div>
+
+                            {/* Yearly Projection & Growth Scenarios */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="p-4 rounded-lg bg-muted/30 border">
+                                <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                                  <Calendar className="w-4 h-4 text-[#b8860b]" />
+                                  Yearly Projection
+                                </h4>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Annual Revenue</span>
+                                    <span className="text-sm font-semibold text-foreground">${profitabilityResult.yearlyProjection?.revenue?.toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Annual Profit</span>
+                                    <span className="text-sm font-semibold text-emerald-400">${profitabilityResult.yearlyProjection?.profit?.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="p-4 rounded-lg bg-muted/30 border">
+                                <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                                  <TrendingUp className="w-4 h-4 text-[#b8860b]" />
+                                  Growth Scenarios
+                                </h4>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Conservative (+5%)</span>
+                                    <span className="text-sm font-semibold text-foreground">${profitabilityResult.growthScenarios?.conservative?.yearlyProfit?.toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Moderate (+10%)</span>
+                                    <span className="text-sm font-semibold text-foreground">${profitabilityResult.growthScenarios?.moderate?.yearlyProfit?.toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Aggressive (+20%)</span>
+                                    <span className="text-sm font-semibold text-emerald-400">${profitabilityResult.growthScenarios?.aggressive?.yearlyProfit?.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Expense Breakdown */}
+                            {profitabilityResult.expenseBreakdown && (
+                              <div className="p-4 rounded-lg bg-muted/30 border">
+                                <h4 className="text-sm font-semibold text-foreground mb-3">Expense Breakdown</h4>
+                                <div className="space-y-2">
+                                  {Object.entries(profitabilityResult.expenseBreakdown).map(([key, value]: [string, any]) => (
+                                    <div key={key} className="flex items-center gap-3">
+                                      <div className="flex-1">
+                                        <div className="flex justify-between text-sm mb-1">
+                                          <span className="text-muted-foreground capitalize">{key}</span>
+                                          <span className="text-foreground">${value.amount?.toLocaleString()} ({value.percentage?.toFixed(1)}%)</span>
+                                        </div>
+                                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-[#b8860b] rounded-full transition-all"
+                                            style={{ width: `${Math.min(value.percentage || 0, 100)}%` }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Recommendations */}
+                            {profitabilityResult.recommendations && profitabilityResult.recommendations.length > 0 && (
+                              <div className="p-4 rounded-lg bg-[#1e3a5f]/10 border border-[#1e3a5f]/20">
+                                <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                                  <Lightbulb className="w-4 h-4 text-[#b8860b]" />
+                                  Recommendations
+                                </h4>
+                                <ul className="space-y-2">
+                                  {profitabilityResult.recommendations.map((rec: string, idx: number) => (
+                                    <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                      {rec}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <BarChart3 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                            <p className="text-muted-foreground">Enter your monthly figures to analyze profitability</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Labor Cost Calculator */}
+                {activeCalculator === "labor" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-card border" data-testid="card-labor-calculator">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <Users className="w-5 h-5 text-[#b8860b]" />
+                          Labor Inputs
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Number of Employees</Label>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 5"
+                              className="bg-background border text-foreground"
+                              value={laborForm.numberOfEmployees}
+                              onChange={(e) => setLaborForm({ ...laborForm, numberOfEmployees: e.target.value })}
+                              data-testid="input-labor-employees"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Avg Hourly Wage ($)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="e.g., 15.00"
+                              className="bg-background border text-foreground"
+                              value={laborForm.averageHourlyWage}
+                              onChange={(e) => setLaborForm({ ...laborForm, averageHourlyWage: e.target.value })}
+                              data-testid="input-labor-wage"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Avg Hours/Week</Label>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 35"
+                              className="bg-background border text-foreground"
+                              value={laborForm.averageHoursPerWeek}
+                              onChange={(e) => setLaborForm({ ...laborForm, averageHoursPerWeek: e.target.value })}
+                              data-testid="input-labor-hours"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Payroll Tax (%)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="7.65"
+                              className="bg-background border text-foreground"
+                              value={laborForm.payrollTaxRate}
+                              onChange={(e) => setLaborForm({ ...laborForm, payrollTaxRate: e.target.value })}
+                              data-testid="input-labor-tax"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Benefits/Employee ($)</Label>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 200"
+                              className="bg-background border text-foreground"
+                              value={laborForm.benefitsCostPerEmployee}
+                              onChange={(e) => setLaborForm({ ...laborForm, benefitsCostPerEmployee: e.target.value })}
+                              data-testid="input-labor-benefits"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Monthly lbs (optional)</Label>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 10000"
+                              className="bg-background border text-foreground"
+                              value={laborForm.monthlyPounds}
+                              onChange={(e) => setLaborForm({ ...laborForm, monthlyPounds: e.target.value })}
+                              data-testid="input-labor-pounds"
+                            />
+                          </div>
+                        </div>
+
+                        <Button 
+                          className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                          onClick={() => laborCalculatorMutation.mutate(laborForm)}
+                          disabled={!laborForm.numberOfEmployees || !laborForm.averageHourlyWage || laborCalculatorMutation.isPending}
+                          data-testid="button-calculate-labor"
+                        >
+                          {laborCalculatorMutation.isPending ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                              Calculating...
+                            </>
+                          ) : (
+                            <>
+                              <Calculator className="w-4 h-4 mr-2" />
+                              Calculate Labor Costs
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Labor Results */}
+                    <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 border-[#b8860b]/20" data-testid="card-labor-results">
+                      <CardHeader>
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <Coins className="w-5 h-5 text-[#b8860b]" />
+                          Labor Cost Analysis
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {laborResult ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Weekly Cost</p>
+                                <p className="text-2xl font-bold text-white">${laborResult.weeklyLaborCost?.toLocaleString()}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Monthly Cost</p>
+                                <p className="text-2xl font-bold text-[#b8860b]">${laborResult.monthlyLaborCost?.toLocaleString()}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Annual Cost</p>
+                                <p className="text-2xl font-bold text-white">${laborResult.annualLaborCost?.toLocaleString()}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Cost per Hour</p>
+                                <p className="text-2xl font-bold text-white">${laborResult.costPerHour?.toFixed(2)}</p>
+                              </div>
+                            </div>
+                            {laborResult.costPerPound !== null && (
+                              <div className="p-4 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-white/80">Labor Cost per Pound</span>
+                                  <span className="text-2xl font-bold text-emerald-400">${laborResult.costPerPound?.toFixed(3)}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <Users className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                            <p className="text-white/50">Enter employee details to calculate labor costs</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* ROI Calculator */}
+                {activeCalculator === "roi" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-card border" data-testid="card-roi-calculator">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <Cog className="w-5 h-5 text-[#b8860b]" />
+                          Machine Investment
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Machine Cost ($)</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
+                            <Input
+                              type="number"
+                              placeholder="e.g., 25000"
+                              className="bg-background border text-foreground pl-10"
+                              value={roiForm.machineCost}
+                              onChange={(e) => setRoiForm({ ...roiForm, machineCost: e.target.value })}
+                              data-testid="input-roi-cost"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Cycles per Day</Label>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 20"
+                              className="bg-background border text-foreground"
+                              value={roiForm.cyclesPerDay}
+                              onChange={(e) => setRoiForm({ ...roiForm, cyclesPerDay: e.target.value })}
+                              data-testid="input-roi-cycles"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Revenue per Cycle ($)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="e.g., 5.00"
+                              className="bg-background border text-foreground"
+                              value={roiForm.revenuePerCycle}
+                              onChange={(e) => setRoiForm({ ...roiForm, revenuePerCycle: e.target.value })}
+                              data-testid="input-roi-revenue"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Cost per Cycle ($)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="e.g., 1.50"
+                              className="bg-background border text-foreground"
+                              value={roiForm.operatingCostPerCycle}
+                              onChange={(e) => setRoiForm({ ...roiForm, operatingCostPerCycle: e.target.value })}
+                              data-testid="input-roi-opcost"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Discount Rate (%)</Label>
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder="10"
+                              className="bg-background border text-foreground"
+                              value={roiForm.discountRate}
+                              onChange={(e) => setRoiForm({ ...roiForm, discountRate: e.target.value })}
+                              data-testid="input-roi-discount"
+                            />
+                          </div>
+                        </div>
+
+                        <Button 
+                          className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                          onClick={() => roiCalculatorMutation.mutate(roiForm)}
+                          disabled={!roiForm.machineCost || !roiForm.cyclesPerDay || roiCalculatorMutation.isPending}
+                          data-testid="button-calculate-roi"
+                        >
+                          {roiCalculatorMutation.isPending ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                              Calculating...
+                            </>
+                          ) : (
+                            <>
+                              <Calculator className="w-4 h-4 mr-2" />
+                              Calculate ROI
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* ROI Results */}
+                    <Card className="bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 border-[#b8860b]/20" data-testid="card-roi-results">
+                      <CardHeader>
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-[#b8860b]" />
+                          Return on Investment
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {roiResult ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Daily Profit</p>
+                                <p className="text-2xl font-bold text-emerald-400">${roiResult.dailyProfit?.toFixed(2)}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Monthly Profit</p>
+                                <p className="text-2xl font-bold text-[#b8860b]">${roiResult.monthlyProfit?.toLocaleString()}</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">Payback Period</p>
+                                <p className="text-2xl font-bold text-white">{roiResult.paybackPeriodMonths?.toFixed(1)} mo</p>
+                              </div>
+                              <div className="p-4 rounded-lg bg-white/10">
+                                <p className="text-xs text-white/60 mb-1">5-Year ROI</p>
+                                <p className="text-2xl font-bold text-emerald-400">{roiResult.fiveYearROI?.toFixed(0)}%</p>
+                              </div>
+                            </div>
+                            <div className="p-4 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                              <div className="flex justify-between items-center">
+                                <span className="text-white/80">Net Present Value (NPV)</span>
+                                <span className="text-2xl font-bold text-purple-400">${roiResult.npv?.toLocaleString()}</span>
+                              </div>
+                              <p className="text-xs text-white/50 mt-1">
+                                {roiResult.npv > 0 ? "Positive NPV - Good investment!" : "Negative NPV - Consider alternatives"}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <Cog className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                            <p className="text-white/50">Enter machine details to calculate ROI</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Templates Section */}
+            {activeSection === "templates" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-[#b8860b]" />
+                      Document Templates
+                    </h2>
+                    <p className="text-sm text-muted-foreground">Professional templates for your laundromat operations</p>
+                  </div>
+                </div>
+
+                {/* Template Tabs */}
+                <div className="flex flex-wrap gap-2 border-b border-border pb-3">
+                  {[
+                    { id: "receipt", label: "Receipt", icon: ReceiptText },
+                    { id: "invoice", label: "Invoice", icon: FileSpreadsheet },
+                    { id: "daily-report", label: "Daily Report", icon: ClipboardList },
+                    { id: "customer-statement", label: "Statement", icon: UserSquare },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.id}
+                      variant={activeTemplate === tab.id ? "default" : "outline"}
+                      className={`gap-2 ${activeTemplate === tab.id ? "bg-[#b8860b] hover:bg-[#9A7209]" : ""}`}
+                      onClick={() => setActiveTemplate(tab.id as typeof activeTemplate)}
+                      data-testid={`tab-template-${tab.id}`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Receipt Template */}
+                {activeTemplate === "receipt" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-white border shadow-lg" data-testid="card-receipt-template">
+                      <CardContent className="p-8">
+                        {/* Receipt Preview */}
+                        <div className="max-w-sm mx-auto font-mono text-sm">
+                          {/* Header */}
+                          <div className="text-center border-b border-dashed border-gray-300 pb-4 mb-4">
+                            <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                              <Building className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <h3 className="font-bold text-lg text-gray-900">{settingsForm.businessName || "Your Laundromat"}</h3>
+                            <p className="text-xs text-gray-500">{settingsForm.address || "123 Main Street"}</p>
+                            <p className="text-xs text-gray-500">{settingsForm.city || "City"}, {settingsForm.state || "ST"} {settingsForm.zip || "00000"}</p>
+                            <p className="text-xs text-gray-500">{settingsForm.phone || "(555) 123-4567"}</p>
+                          </div>
+
+                          {/* Order Info */}
+                          <div className="border-b border-dashed border-gray-300 pb-4 mb-4">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Order #:</span>
+                              <span className="font-semibold text-gray-900">{templateReceiptData.orderNumber}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Date:</span>
+                              <span className="text-gray-700">{new Date().toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Customer:</span>
+                              <span className="text-gray-700">{templateReceiptData.customerName}</span>
+                            </div>
+                          </div>
+
+                          {/* Items */}
+                          <div className="border-b border-dashed border-gray-300 pb-4 mb-4 space-y-2">
+                            {templateReceiptData.items.map((item, idx) => (
+                              <div key={idx} className="flex justify-between text-xs">
+                                <span className="text-gray-700">{item.description}</span>
+                                <span className="text-gray-900">${item.price.toFixed(2)}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Totals */}
+                          <div className="space-y-1 mb-4">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Subtotal:</span>
+                              <span className="text-gray-700">${templateReceiptData.subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Tax ({settingsForm.taxRate}%):</span>
+                              <span className="text-gray-700">${templateReceiptData.tax.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm font-bold border-t border-gray-300 pt-2 mt-2">
+                              <span className="text-gray-900">TOTAL:</span>
+                              <span className="text-gray-900">${templateReceiptData.total.toFixed(2)}</span>
+                            </div>
+                          </div>
+
+                          {/* Payment Method */}
+                          <div className="border-t border-dashed border-gray-300 pt-4 text-center">
+                            <p className="text-xs text-gray-500">Payment: {templateReceiptData.paymentMethod}</p>
+                            <p className="text-xs text-gray-500 mt-4">{settingsForm.receiptFooterMessage || "Thank you for your business!"}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="space-y-4">
+                      <Card className="bg-card border" data-testid="card-receipt-actions">
+                        <CardHeader>
+                          <CardTitle className="text-foreground text-sm">Receipt Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <Button 
+                            className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                            onClick={() => toast({ title: "PDF Generated", description: "Receipt PDF has been downloaded" })}
+                            data-testid="button-receipt-pdf"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Generate PDF
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => window.print()}
+                            data-testid="button-receipt-print"
+                          >
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print Receipt
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {/* Invoice Template */}
+                {activeTemplate === "invoice" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-white border shadow-lg" data-testid="card-invoice-template">
+                      <CardContent className="p-8">
+                        {/* Invoice Preview */}
+                        <div className="max-w-md mx-auto">
+                          {/* Header */}
+                          <div className="flex justify-between items-start mb-8">
+                            <div>
+                              <div className="w-16 h-16 bg-[#1e3a5f] rounded-lg flex items-center justify-center mb-3">
+                                <Building className="w-8 h-8 text-white" />
+                              </div>
+                              <h3 className="font-bold text-lg text-gray-900">{settingsForm.businessName || "Your Laundromat"}</h3>
+                              <p className="text-xs text-gray-500">{settingsForm.address || "123 Main Street"}</p>
+                              <p className="text-xs text-gray-500">{settingsForm.phone || "(555) 123-4567"}</p>
+                            </div>
+                            <div className="text-right">
+                              <h2 className="text-2xl font-bold text-[#b8860b] mb-2">INVOICE</h2>
+                              <p className="text-sm text-gray-500">#{templateInvoiceData.invoiceNumber}</p>
+                              <p className="text-sm text-gray-500">Date: {new Date().toLocaleDateString()}</p>
+                              <p className="text-sm text-gray-500">Due: {templateInvoiceData.dueDate}</p>
+                            </div>
+                          </div>
+
+                          {/* Bill To */}
+                          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                            <p className="text-xs text-gray-500 uppercase mb-1">Bill To:</p>
+                            <p className="font-semibold text-gray-900">{templateInvoiceData.customerName}</p>
+                            <p className="text-sm text-gray-500">{templateInvoiceData.customerAddress}</p>
+                            <p className="text-sm text-gray-500">{templateInvoiceData.customerEmail}</p>
+                          </div>
+
+                          {/* Items */}
+                          <table className="w-full mb-8">
+                            <thead>
+                              <tr className="border-b border-gray-200">
+                                <th className="text-left text-xs text-gray-500 pb-2">Description</th>
+                                <th className="text-right text-xs text-gray-500 pb-2">Amount</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {templateReceiptData.items.map((item, idx) => (
+                                <tr key={idx} className="border-b border-gray-100">
+                                  <td className="py-3 text-sm text-gray-700">{item.description}</td>
+                                  <td className="py-3 text-sm text-gray-900 text-right">${item.price.toFixed(2)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+
+                          {/* Totals */}
+                          <div className="border-t border-gray-200 pt-4">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm text-gray-500">Subtotal</span>
+                              <span className="text-sm text-gray-700">${templateReceiptData.subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between mb-3">
+                              <span className="text-sm text-gray-500">Tax</span>
+                              <span className="text-sm text-gray-700">${templateReceiptData.tax.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between p-3 bg-[#1e3a5f] rounded-lg">
+                              <span className="font-bold text-white">Total Due</span>
+                              <span className="text-xl font-bold text-[#b8860b]">${templateReceiptData.total.toFixed(2)}</span>
+                            </div>
+                          </div>
+
+                          {/* Payment Terms */}
+                          <div className="mt-6 text-center text-xs text-gray-500">
+                            <p>Payment Terms: Net 30</p>
+                            <p className="mt-1">{settingsForm.receiptFooterMessage || "Thank you for your business!"}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="space-y-4">
+                      <Card className="bg-card border" data-testid="card-invoice-actions">
+                        <CardHeader>
+                          <CardTitle className="text-foreground text-sm">Invoice Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <Button 
+                            className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                            onClick={() => toast({ title: "PDF Generated", description: "Invoice PDF has been downloaded" })}
+                            data-testid="button-invoice-pdf"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Generate PDF
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => toast({ title: "Email Sent", description: `Invoice sent to ${templateInvoiceData.customerEmail}` })}
+                            data-testid="button-invoice-email"
+                          >
+                            <Mail className="w-4 h-4 mr-2" />
+                            Email to Customer
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {/* Daily Report Template */}
+                {activeTemplate === "daily-report" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-card border" data-testid="card-report-template">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <CalendarDays className="w-5 h-5 text-[#b8860b]" />
+                          Daily Operations Report
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Report Date</Label>
+                          <Input
+                            type="date"
+                            className="bg-background border text-foreground"
+                            value={dailyReportDate}
+                            onChange={(e) => setDailyReportDate(e.target.value)}
+                            data-testid="input-report-date"
+                          />
+                        </div>
+
+                        {/* Auto-filled Stats */}
+                        <div className="p-4 rounded-lg bg-muted/30 border">
+                          <h4 className="text-sm font-semibold text-foreground mb-4">Day's Summary</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Total Revenue</p>
+                              <p className="text-lg font-bold text-[#b8860b]">${dashboardStats.today.revenue}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Order Count</p>
+                              <p className="text-lg font-bold text-foreground">{dashboardStats.today.orders}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Avg Ticket</p>
+                              <p className="text-lg font-bold text-foreground">${dashboardStats.today.avgTicket}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Completed</p>
+                              <p className="text-lg font-bold text-emerald-400">{dashboardStats.today.completed}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-muted/30 border">
+                          <h4 className="text-sm font-semibold text-foreground mb-3">Machine Status</h4>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+                              <span className="text-sm text-muted-foreground">{machineStatusCounts.operational} Online</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                              <span className="text-sm text-muted-foreground">{machineStatusCounts.needsMaintenance} Maintenance</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                              <span className="text-sm text-muted-foreground">{machineStatusCounts.outOfOrder} Offline</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="space-y-4">
+                      <Card className="bg-card border" data-testid="card-report-actions">
+                        <CardHeader>
+                          <CardTitle className="text-foreground text-sm">Report Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <Button 
+                            className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                            onClick={() => toast({ title: "PDF Generated", description: "Daily report PDF has been downloaded" })}
+                            data-testid="button-report-pdf"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Generate PDF
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {/* Customer Statement Template */}
+                {activeTemplate === "customer-statement" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-card border" data-testid="card-statement-template">
+                      <CardHeader>
+                        <CardTitle className="text-foreground flex items-center gap-2">
+                          <UserSquare className="w-5 h-5 text-[#b8860b]" />
+                          Customer Statement
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground text-sm">Select Customer</Label>
+                          <Select 
+                            value={selectedStatementCustomer}
+                            onValueChange={setSelectedStatementCustomer}
+                          >
+                            <SelectTrigger className="bg-background border text-foreground" data-testid="select-statement-customer">
+                              <SelectValue placeholder="Choose a customer..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {customers.slice(0, 10).map((customer: any) => (
+                                <SelectItem key={customer.id} value={customer.id}>
+                                  {customer.accountName || customer.contactName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">Start Date</Label>
+                            <Input
+                              type="date"
+                              className="bg-background border text-foreground"
+                              value={statementDateRange.start}
+                              onChange={(e) => setStatementDateRange({ ...statementDateRange, start: e.target.value })}
+                              data-testid="input-statement-start"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-muted-foreground text-sm">End Date</Label>
+                            <Input
+                              type="date"
+                              className="bg-background border text-foreground"
+                              value={statementDateRange.end}
+                              onChange={(e) => setStatementDateRange({ ...statementDateRange, end: e.target.value })}
+                              data-testid="input-statement-end"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Statement Preview */}
+                        {selectedStatementCustomer && (
+                          <div className="p-4 rounded-lg bg-muted/30 border">
+                            <h4 className="text-sm font-semibold text-foreground mb-3">Statement Summary</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Previous Balance</span>
+                                <span className="text-foreground">$0.00</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">New Charges</span>
+                                <span className="text-foreground">$245.50</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Payments</span>
+                                <span className="text-emerald-400">-$200.00</span>
+                              </div>
+                              <div className="flex justify-between text-sm font-bold border-t border-border pt-2 mt-2">
+                                <span className="text-foreground">Balance Due</span>
+                                <span className="text-[#b8860b]">$45.50</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <div className="space-y-4">
+                      <Card className="bg-card border" data-testid="card-statement-actions">
+                        <CardHeader>
+                          <CardTitle className="text-foreground text-sm">Statement Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <Button 
+                            className="w-full bg-[#b8860b] hover:bg-[#9A7209] text-white"
+                            disabled={!selectedStatementCustomer}
+                            onClick={() => toast({ title: "PDF Generated", description: "Customer statement PDF has been downloaded" })}
+                            data-testid="button-statement-pdf"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Generate PDF
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            disabled={!selectedStatementCustomer}
+                            onClick={() => toast({ title: "Email Sent", description: "Statement has been emailed to customer" })}
+                            data-testid="button-statement-email"
+                          >
+                            <Mail className="w-4 h-4 mr-2" />
+                            Email to Customer
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </main>
         </div>
 
-        {/* New Order Dialog */}
+        {/* New Order Dialog with WDF Enhancements */}
         <Dialog open={newOrderOpen} onOpenChange={setNewOrderOpen}>
-          <DialogContent className="bg-card border text-foreground max-w-md">
+          <DialogContent className="bg-card border text-foreground max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Order</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-[#b8860b]" />
+                Create New Order
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                Start a new WDF, PUD, or self-service order
+                Start a new WDF, PUD, or self-service order with full options
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Customer Name *</label>
-                <Input
-                  placeholder="Enter customer name"
-                  className="bg-background border text-foreground"
-                  value={newOrderForm.customerName}
-                  onChange={(e) => setNewOrderForm({ ...newOrderForm, customerName: e.target.value })}
-                  data-testid="input-new-order-customer"
-                />
+              {/* Basic Info Section */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold text-[#b8860b] uppercase tracking-wide">Customer Information</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-muted-foreground">Customer Name *</label>
+                    <Input
+                      placeholder="Enter customer name"
+                      className="bg-background border text-foreground h-9"
+                      value={newOrderForm.customerName}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, customerName: e.target.value })}
+                      data-testid="input-new-order-customer"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-muted-foreground">Phone Number *</label>
+                    <Input
+                      placeholder="(555) 123-4567"
+                      className="bg-background border text-foreground h-9"
+                      value={newOrderForm.customerPhone}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, customerPhone: e.target.value })}
+                      data-testid="input-new-order-phone"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Phone Number *</label>
-                <Input
-                  placeholder="(555) 123-4567"
-                  className="bg-background border text-foreground"
-                  value={newOrderForm.customerPhone}
-                  onChange={(e) => setNewOrderForm({ ...newOrderForm, customerPhone: e.target.value })}
-                  data-testid="input-new-order-phone"
-                />
+
+              {/* Order Type & Service Section */}
+              <div className="space-y-3 pt-2 border-t border-border/50">
+                <h4 className="text-xs font-semibold text-[#b8860b] uppercase tracking-wide">Order Details</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-muted-foreground">Order Type</label>
+                    <Select 
+                      value={newOrderForm.orderType} 
+                      onValueChange={(value: "wash_dry_fold" | "pickup_delivery" | "dry_cleaning" | "self_service") => 
+                        setNewOrderForm({ ...newOrderForm, orderType: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-background border text-foreground h-9" data-testid="select-new-order-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="wash_dry_fold">Wash-Dry-Fold</SelectItem>
+                        <SelectItem value="pickup_delivery">Pickup & Delivery</SelectItem>
+                        <SelectItem value="dry_cleaning">Dry Cleaning</SelectItem>
+                        <SelectItem value="self_service">Self-Service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-muted-foreground">Service Type</label>
+                    <Select 
+                      value={newOrderForm.serviceType} 
+                      onValueChange={(value: "regular" | "express_24hr" | "same_day_rush") => 
+                        setNewOrderForm({ ...newOrderForm, serviceType: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-background border text-foreground h-9" data-testid="select-service-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="regular">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3 h-3" />
+                            Regular (48-72 hrs)
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="express_24hr">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-3 h-3 text-amber-500" />
+                            Express 24hr (+25%)
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="same_day_rush">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="w-3 h-3 text-red-500" />
+                            Same Day Rush (+50%)
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Scale className="w-3 h-3" />
+                    Estimated Weight (lbs)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="Enter weight..."
+                    className="bg-background border text-foreground h-9"
+                    value={newOrderForm.weight}
+                    onChange={(e) => setNewOrderForm({ ...newOrderForm, weight: e.target.value })}
+                    data-testid="input-new-order-weight"
+                  />
+                  {newOrderForm.weight && (
+                    <p className="text-xs text-muted-foreground">
+                      Estimated: <span className="text-[#b8860b] font-semibold">
+                        ${(parseFloat(newOrderForm.weight) * parseFloat(settingsForm.pricePerPound) * 
+                          (newOrderForm.serviceType === "express_24hr" ? 1.25 : 
+                           newOrderForm.serviceType === "same_day_rush" ? 1.5 : 1)).toFixed(2)}
+                      </span>
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Order Type</label>
-                <Select 
-                  value={newOrderForm.orderType} 
-                  onValueChange={(value: "wash_dry_fold" | "pickup_delivery" | "dry_cleaning" | "self_service") => 
-                    setNewOrderForm({ ...newOrderForm, orderType: value })
-                  }
-                >
-                  <SelectTrigger className="bg-background border text-foreground" data-testid="select-new-order-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wash_dry_fold">Wash-Dry-Fold</SelectItem>
-                    <SelectItem value="pickup_delivery">Pickup & Delivery</SelectItem>
-                    <SelectItem value="dry_cleaning">Dry Cleaning</SelectItem>
-                    <SelectItem value="self_service">Self-Service</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Special Instructions</label>
+
+              {/* WDF Options Section - Only show for wash_dry_fold */}
+              {newOrderForm.orderType === "wash_dry_fold" && (
+                <div className="space-y-3 pt-2 border-t border-border/50">
+                  <h4 className="text-xs font-semibold text-[#b8860b] uppercase tracking-wide">WDF Preferences</h4>
+                  
+                  {/* Special Care Options */}
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground">Special Care Options</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { id: "delicates", label: "Delicates", icon: Sparkles },
+                        { id: "whites_separate", label: "Whites Separate", icon: Layers },
+                        { id: "cold_wash", label: "Cold Wash Only", icon: Droplets },
+                      ].map((option) => {
+                        const isSelected = newOrderForm.specialCare.includes(option.id);
+                        const OptionIcon = option.icon;
+                        return (
+                          <Button
+                            key={option.id}
+                            type="button"
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            className={`h-8 ${isSelected ? 'bg-[#b8860b] hover:bg-[#9A7209]' : 'border-muted-foreground/30'}`}
+                            onClick={() => {
+                              setNewOrderForm({
+                                ...newOrderForm,
+                                specialCare: isSelected 
+                                  ? newOrderForm.specialCare.filter(c => c !== option.id)
+                                  : [...newOrderForm.specialCare, option.id]
+                              });
+                            }}
+                            data-testid={`button-care-${option.id}`}
+                          >
+                            <OptionIcon className="w-3 h-3 mr-1.5" />
+                            {option.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Starch Preference */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground">Starch Preference</label>
+                      <Select 
+                        value={newOrderForm.starchPreference} 
+                        onValueChange={(value: "none" | "light" | "medium" | "heavy") => 
+                          setNewOrderForm({ ...newOrderForm, starchPreference: value })
+                        }
+                      >
+                        <SelectTrigger className="bg-background border text-foreground h-9" data-testid="select-starch">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="heavy">Heavy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Folding Preference */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground">Folding Preference</label>
+                      <Select 
+                        value={newOrderForm.foldingPreference} 
+                        onValueChange={(value: "standard" | "military" | "hung" | "rolled") => 
+                          setNewOrderForm({ ...newOrderForm, foldingPreference: value })
+                        }
+                      >
+                        <SelectTrigger className="bg-background border text-foreground h-9" data-testid="select-folding">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="standard">Standard Fold</SelectItem>
+                          <SelectItem value="military">Military Style</SelectItem>
+                          <SelectItem value="hung">Hung on Hangers</SelectItem>
+                          <SelectItem value="rolled">Rolled (Space Saver)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Fabric Softener */}
+                  <div className="flex items-center justify-between p-3 bg-background rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Droplets className="w-4 h-4 text-cyan-400" />
+                      <span className="text-sm text-foreground">Fabric Softener</span>
+                    </div>
+                    <Switch
+                      checked={newOrderForm.fabricSoftener}
+                      onCheckedChange={(checked) => setNewOrderForm({ ...newOrderForm, fabricSoftener: checked })}
+                      data-testid="switch-fabric-softener"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Special Instructions */}
+              <div className="space-y-1.5 pt-2 border-t border-border/50">
+                <label className="text-xs text-muted-foreground">Special Instructions</label>
                 <Input
-                  placeholder="Any special requests..."
-                  className="bg-background border text-foreground"
+                  placeholder="Any special requests or notes..."
+                  className="bg-background border text-foreground h-9"
                   value={newOrderForm.specialInstructions}
                   onChange={(e) => setNewOrderForm({ ...newOrderForm, specialInstructions: e.target.value })}
                   data-testid="input-new-order-instructions"

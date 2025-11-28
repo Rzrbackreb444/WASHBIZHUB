@@ -1742,6 +1742,143 @@ export function registerPosRoutes(app: Express) {
 
     return recommendations;
   }
+
+  // 8. POST /api/pos/calculators/labor - Calculate labor costs
+  app.post("/api/pos/calculators/labor", async (req: Request, res: Response) => {
+    try {
+      const {
+        numberOfEmployees,
+        averageHourlyWage,
+        averageHoursPerWeek,
+        payrollTaxRate = 7.65,
+        benefitsCostPerEmployee = 0,
+        monthlyPounds = 0,
+      } = req.body;
+
+      if (!numberOfEmployees || numberOfEmployees <= 0) {
+        return res.status(400).json({ error: "Number of employees must be a positive number" });
+      }
+      if (!averageHourlyWage || averageHourlyWage <= 0) {
+        return res.status(400).json({ error: "Average hourly wage must be a positive number" });
+      }
+
+      const hoursPerWeek = averageHoursPerWeek || 40;
+      
+      // Base weekly wage per employee
+      const weeklyWagePerEmployee = averageHourlyWage * hoursPerWeek;
+      
+      // Payroll taxes per employee
+      const payrollTaxMultiplier = 1 + (payrollTaxRate / 100);
+      const weeklyWageWithTaxes = weeklyWagePerEmployee * payrollTaxMultiplier;
+      
+      // Total weekly labor cost for all employees
+      const weeklyLaborCost = (weeklyWageWithTaxes * numberOfEmployees) + 
+        (benefitsCostPerEmployee * numberOfEmployees / 4.33); // Weekly benefits
+      
+      const monthlyLaborCost = weeklyLaborCost * 4.33; // Average weeks per month
+      const annualLaborCost = monthlyLaborCost * 12;
+      
+      // Total hours worked by all employees per week
+      const totalHoursPerWeek = hoursPerWeek * numberOfEmployees;
+      const totalHoursPerMonth = totalHoursPerWeek * 4.33;
+      
+      const costPerHour = monthlyLaborCost / totalHoursPerMonth;
+      
+      // Cost per pound (if monthly pounds provided)
+      const costPerPound = monthlyPounds > 0 ? monthlyLaborCost / monthlyPounds : null;
+
+      res.json({
+        weeklyLaborCost: Math.round(weeklyLaborCost * 100) / 100,
+        monthlyLaborCost: Math.round(monthlyLaborCost * 100) / 100,
+        annualLaborCost: Math.round(annualLaborCost * 100) / 100,
+        costPerHour: Math.round(costPerHour * 100) / 100,
+        costPerPound: costPerPound ? Math.round(costPerPound * 1000) / 1000 : null,
+        breakdown: {
+          employees: numberOfEmployees,
+          hourlyWage: averageHourlyWage,
+          hoursPerWeek: hoursPerWeek,
+          payrollTaxRate: payrollTaxRate,
+          benefitsPerEmployee: benefitsCostPerEmployee,
+          monthlyPounds: monthlyPounds,
+        },
+      });
+    } catch (error) {
+      console.error("Error calculating labor costs:", error);
+      res.status(500).json({ error: "Failed to calculate labor costs" });
+    }
+  });
+
+  // 9. POST /api/pos/calculators/roi - Calculate ROI for machine investment
+  app.post("/api/pos/calculators/roi", async (req: Request, res: Response) => {
+    try {
+      const {
+        machineCost,
+        cyclesPerDay,
+        revenuePerCycle,
+        operatingCostPerCycle = 0,
+        discountRate = 10,
+      } = req.body;
+
+      if (!machineCost || machineCost <= 0) {
+        return res.status(400).json({ error: "Machine cost must be a positive number" });
+      }
+      if (!cyclesPerDay || cyclesPerDay <= 0) {
+        return res.status(400).json({ error: "Cycles per day must be a positive number" });
+      }
+      if (!revenuePerCycle || revenuePerCycle <= 0) {
+        return res.status(400).json({ error: "Revenue per cycle must be a positive number" });
+      }
+
+      // Calculate daily profit
+      const profitPerCycle = revenuePerCycle - operatingCostPerCycle;
+      const dailyProfit = profitPerCycle * cyclesPerDay;
+      
+      // Monthly profit (assuming 30 operating days)
+      const operatingDaysPerMonth = 30;
+      const monthlyProfit = dailyProfit * operatingDaysPerMonth;
+      
+      // Payback period in months
+      const paybackPeriodMonths = monthlyProfit > 0 ? machineCost / monthlyProfit : Infinity;
+      
+      // Annual profit
+      const annualProfit = monthlyProfit * 12;
+      
+      // 5-year ROI
+      const totalProfitFiveYears = annualProfit * 5;
+      const fiveYearROI = ((totalProfitFiveYears - machineCost) / machineCost) * 100;
+      
+      // NPV calculation (5 years)
+      const annualDiscountRate = discountRate / 100;
+      let npv = -machineCost;
+      for (let year = 1; year <= 5; year++) {
+        npv += annualProfit / Math.pow(1 + annualDiscountRate, year);
+      }
+
+      res.json({
+        dailyProfit: Math.round(dailyProfit * 100) / 100,
+        monthlyProfit: Math.round(monthlyProfit * 100) / 100,
+        annualProfit: Math.round(annualProfit * 100) / 100,
+        paybackPeriodMonths: Math.round(paybackPeriodMonths * 10) / 10,
+        fiveYearROI: Math.round(fiveYearROI * 10) / 10,
+        npv: Math.round(npv * 100) / 100,
+        breakdown: {
+          machineCost,
+          cyclesPerDay,
+          revenuePerCycle,
+          operatingCostPerCycle,
+          profitPerCycle: Math.round(profitPerCycle * 100) / 100,
+          operatingDaysPerMonth,
+          discountRate,
+        },
+        recommendation: npv > 0 
+          ? "Positive NPV indicates this is a good investment opportunity." 
+          : "Negative NPV suggests reconsidering this investment or improving operational efficiency.",
+      });
+    } catch (error) {
+      console.error("Error calculating ROI:", error);
+      res.status(500).json({ error: "Failed to calculate ROI" });
+    }
+  });
   
   console.log("✅ POS Command Center routes registered");
 }
