@@ -150,6 +150,174 @@ const SERVICE_LABELS: Record<string, string> = {
   self_service: "Self-Service",
 };
 
+// Navigation items for sidebar and mobile nav
+const NAV_ITEMS = [
+  { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { id: "orders", icon: ShoppingCart, label: "Orders" },
+  { id: "customers", icon: Users, label: "Customers" },
+  { id: "machines", icon: Wrench, label: "Machines" },
+  { id: "routes", icon: Truck, label: "Routes" },
+  { id: "inventory", icon: Package, label: "Inventory" },
+  { id: "analytics", icon: BarChart3, label: "Analytics" },
+  { id: "doctrine", icon: Book, label: "Learn" },
+  { id: "settings", icon: Settings, label: "Settings" },
+];
+
+// Mobile nav items (essential 5)
+const MOBILE_NAV_ITEMS = [
+  { id: "dashboard", icon: LayoutDashboard, label: "Home" },
+  { id: "orders", icon: ShoppingCart, label: "Orders" },
+  { id: "customers", icon: Users, label: "CRM" },
+  { id: "machines", icon: Wrench, label: "Machines" },
+  { id: "analytics", icon: BarChart3, label: "Stats" },
+];
+
+// Search result types for predictive search
+type SearchResult = {
+  type: "order" | "customer" | "machine" | "route" | "inventory" | "page";
+  id: string;
+  title: string;
+  subtitle?: string;
+  icon: typeof LayoutDashboard;
+  action: () => void;
+};
+
+// Global Search Results Component with Predictive Text
+function GlobalSearchResults({ 
+  query, 
+  onSelect,
+  orders = [],
+  customers = [],
+  machines = []
+}: { 
+  query: string; 
+  onSelect: (section: string) => void;
+  orders?: any[];
+  customers?: any[];
+  machines?: any[];
+}) {
+  const searchLower = query.toLowerCase();
+  
+  // Filter and categorize results
+  const filteredOrders = orders.filter((o: any) => 
+    o.customerName?.toLowerCase().includes(searchLower) || 
+    String(o.id).includes(query)
+  ).slice(0, 3);
+  
+  const filteredCustomers = customers.filter((c: any) => 
+    c.accountName?.toLowerCase().includes(searchLower) || 
+    c.contactName?.toLowerCase().includes(searchLower) ||
+    c.phone?.includes(query)
+  ).slice(0, 3);
+  
+  const filteredMachines = machines.filter((m: any) => 
+    m.machineName?.toLowerCase().includes(searchLower) ||
+    m.model?.toLowerCase().includes(searchLower)
+  ).slice(0, 3);
+  
+  // Page suggestions based on query
+  const pageSuggestions = NAV_ITEMS.filter(item => 
+    item.label.toLowerCase().includes(searchLower)
+  );
+
+  const hasResults = filteredOrders.length > 0 || filteredCustomers.length > 0 || 
+                     filteredMachines.length > 0 || pageSuggestions.length > 0;
+
+  if (!hasResults) {
+    return (
+      <div className="p-4 text-center text-muted-foreground text-sm">
+        No results found for "{query}"
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-border">
+      {/* Page Navigation Suggestions */}
+      {pageSuggestions.length > 0 && (
+        <div className="p-2">
+          <p className="text-[10px] uppercase text-muted-foreground font-medium px-2 mb-1">Pages</p>
+          {pageSuggestions.map((page) => (
+            <button
+              key={page.id}
+              onClick={() => onSelect(page.id)}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted/50 text-left"
+              data-testid={`search-result-page-${page.id}`}
+            >
+              <page.icon className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-sm font-medium text-foreground">{page.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Orders Results */}
+      {filteredOrders.length > 0 && (
+        <div className="p-2">
+          <p className="text-[10px] uppercase text-muted-foreground font-medium px-2 mb-1">Orders</p>
+          {filteredOrders.map((order: any) => (
+            <button
+              key={order.id}
+              onClick={() => onSelect("orders")}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted/50 text-left"
+              data-testid={`search-result-order-${order.id}`}
+            >
+              <ShoppingCart className="w-4 h-4 text-blue-400" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{order.customerName}</p>
+                <p className="text-xs text-muted-foreground">Order #{order.id} - ${order.total}</p>
+              </div>
+              <Badge className={`text-[10px] ${getStatusColor(order.status)}`}>{order.status}</Badge>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Customers Results */}
+      {filteredCustomers.length > 0 && (
+        <div className="p-2">
+          <p className="text-[10px] uppercase text-muted-foreground font-medium px-2 mb-1">Customers</p>
+          {filteredCustomers.map((customer: any) => (
+            <button
+              key={customer.id}
+              onClick={() => onSelect("customers")}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted/50 text-left"
+              data-testid={`search-result-customer-${customer.id}`}
+            >
+              <Users className="w-4 h-4 text-emerald-400" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{customer.accountName}</p>
+                <p className="text-xs text-muted-foreground">{customer.contactName} - {customer.phone}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Machines Results */}
+      {filteredMachines.length > 0 && (
+        <div className="p-2">
+          <p className="text-[10px] uppercase text-muted-foreground font-medium px-2 mb-1">Machines</p>
+          {filteredMachines.map((machine: any) => (
+            <button
+              key={machine.id}
+              onClick={() => onSelect("machines")}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted/50 text-left"
+              data-testid={`search-result-machine-${machine.id}`}
+            >
+              <Wrench className="w-4 h-4 text-cyan-400" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{machine.machineName}</p>
+                <p className="text-xs text-muted-foreground">{machine.model} - {machine.status}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function POSCommandCenter() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedTimeframe, setSelectedTimeframe] = useState("today");
@@ -165,6 +333,11 @@ export default function POSCommandCenter() {
   const [newPartOpen, setNewPartOpen] = useState(false);
   const [analyticsPeriod, setAnalyticsPeriod] = useState<"today" | "week" | "month" | "quarter">("week");
   const { toast } = useToast();
+  
+  // Global search state
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   
   // SOAP Daily Checklist State
   const [soapChecklist, setSoapChecklist] = useState({
@@ -1167,9 +1340,9 @@ export default function POSCommandCenter() {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground flex">
-        {/* Left Sidebar Navigation */}
-        <aside className="w-16 bg-[#1e3a5f] flex flex-col items-center py-4 gap-2 border-r border">
+      <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row">
+        {/* Desktop Sidebar Navigation - Hidden on mobile */}
+        <aside className="hidden lg:flex w-16 xl:w-20 bg-[#1e3a5f] flex-col items-center py-4 gap-2 border-r border shrink-0">
           <div 
             className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center mb-4 cursor-pointer overflow-hidden hover:ring-2 hover:ring-border transition-all"
             onClick={() => setActiveSection("settings")}
@@ -1185,79 +1358,182 @@ export default function POSCommandCenter() {
             )}
           </div>
           
-          {[
-            { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-            { id: "orders", icon: ShoppingCart, label: "Orders" },
-            { id: "customers", icon: Users, label: "Customers" },
-            { id: "machines", icon: Wrench, label: "Machines" },
-            { id: "routes", icon: Truck, label: "Routes" },
-            { id: "inventory", icon: Package, label: "Inventory" },
-            { id: "analytics", icon: BarChart3, label: "Analytics" },
-            { id: "doctrine", icon: Book, label: "Learn" },
-            { id: "settings", icon: Settings, label: "Settings" },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
-                activeSection === item.id 
-                  ? "bg-[#b8860b] text-white" 
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-              }`}
-              title={item.label}
-              data-testid={`nav-${item.id}`}
-            >
-              <item.icon className="w-5 h-5" />
-            </button>
+          {NAV_ITEMS.map((item) => (
+            <Tooltip key={item.id}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setActiveSection(item.id)}
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
+                    activeSection === item.id 
+                      ? "bg-[#b8860b] text-white" 
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                  }`}
+                  data-testid={`nav-${item.id}`}
+                >
+                  <item.icon className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-card border">
+                {item.label}
+              </TooltipContent>
+            </Tooltip>
           ))}
         </aside>
 
+        {/* Mobile Bottom Navigation - Fixed at bottom */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1e3a5f] border-t border-[#2a4a6f] safe-area-bottom">
+          <div className="grid grid-cols-5 gap-1 px-2 py-2">
+            {MOBILE_NAV_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all ${
+                  activeSection === item.id 
+                    ? "bg-[#b8860b] text-white" 
+                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
+                data-testid={`mobile-nav-${item.id}`}
+              >
+                <item.icon className="w-5 h-5 mb-1" />
+                <span className="text-[10px] font-medium truncate">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Top Header Bar */}
-          <header className="h-14 bg-card border-b border flex items-center justify-between px-4">
-            <div className="flex items-center gap-4">
-              <h1 className="text-lg font-bold text-foreground">POS Command Center</h1>
-              <Badge className="bg-[#b8860b] text-white border-0">
-                <Activity className="w-3 h-3 mr-1" />
-                LIVE
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="text-right mr-4">
-                <p className="text-xs text-muted-foreground">Last Update</p>
-                <p className="text-sm font-medium text-[#b8860b]">{new Date().toLocaleTimeString()}</p>
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          {/* Top Header Bar - Responsive */}
+          <header className="bg-card border-b border shrink-0">
+            {/* Mobile Header */}
+            <div className="lg:hidden flex flex-col gap-2 p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-8 h-8 rounded-lg bg-[#b8860b] flex items-center justify-center cursor-pointer overflow-hidden"
+                    onClick={() => setActiveSection("settings")}
+                  >
+                    {settingsForm.logoUrl ? (
+                      <img src={settingsForm.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <LayoutDashboard className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <h1 className="text-base font-bold text-foreground">POS</h1>
+                  <Badge className="bg-[#b8860b] text-white border-0 text-[10px] px-1.5 py-0.5">
+                    <Activity className="w-2.5 h-2.5 mr-0.5" />
+                    LIVE
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order-mobile">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMobileNavOpen(!mobileNavOpen)}>
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
               
-              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="w-32 bg-background border text-foreground text-sm h-9" data-testid="select-timeframe">
-                  <Calendar className="w-4 h-4 mr-2 text-[#b8860b]" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
-                  <SelectItem value="quarter">Quarter</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Mobile Global Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search orders, customers, machines..."
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                  onFocus={() => setSearchOpen(true)}
+                  className="pl-9 h-9 bg-background border text-sm w-full"
+                  data-testid="input-global-search-mobile"
+                />
+                {searchOpen && globalSearch && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 max-h-[60vh] overflow-y-auto">
+                    <GlobalSearchResults 
+                      query={globalSearch} 
+                      onSelect={(section) => { setActiveSection(section); setSearchOpen(false); setGlobalSearch(""); }}
+                      orders={orders}
+                      customers={customers}
+                      machines={machines}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Header */}
+            <div className="hidden lg:flex h-14 items-center justify-between px-4">
+              <div className="flex items-center gap-4">
+                <h1 className="text-lg font-bold text-foreground">POS Command Center</h1>
+                <Badge className="bg-[#b8860b] text-white border-0">
+                  <Activity className="w-3 h-3 mr-1" />
+                  LIVE
+                </Badge>
+              </div>
               
-              <Button variant="outline" size="sm" className="border text-foreground h-9" aria-label="Refresh data" data-testid="button-refresh">
-                <RefreshCw className="w-4 h-4" />
-              </Button>
+              {/* Desktop Global Search Bar */}
+              <div className="relative flex-1 max-w-md mx-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search orders, customers, machines, inventory..."
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                  onFocus={() => setSearchOpen(true)}
+                  onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
+                  className="pl-9 pr-12 h-9 bg-background border text-sm w-full"
+                  data-testid="input-global-search"
+                />
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded hidden xl:inline">
+                  ⌘K
+                </kbd>
+                {searchOpen && globalSearch && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                    <GlobalSearchResults 
+                      query={globalSearch} 
+                      onSelect={(section) => { setActiveSection(section); setSearchOpen(false); setGlobalSearch(""); }}
+                      orders={orders}
+                      customers={customers}
+                      machines={machines}
+                    />
+                  </div>
+                )}
+              </div>
               
-              <Button className="bg-[#b8860b] hover:bg-[#9A7209] text-white h-9" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order">
-                <Plus className="w-4 h-4 mr-1" />
-                New Order
-              </Button>
+              <div className="flex items-center gap-3">
+                <div className="text-right mr-2 hidden xl:block">
+                  <p className="text-xs text-muted-foreground">Last Update</p>
+                  <p className="text-sm font-medium text-[#b8860b]">{new Date().toLocaleTimeString()}</p>
+                </div>
+                
+                <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+                  <SelectTrigger className="w-28 xl:w-32 bg-background border text-foreground text-sm h-9" data-testid="select-timeframe">
+                    <Calendar className="w-4 h-4 mr-1 xl:mr-2 text-[#b8860b]" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">This Week</SelectItem>
+                    <SelectItem value="month">This Month</SelectItem>
+                    <SelectItem value="quarter">Quarter</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button variant="outline" size="icon" className="border text-foreground h-9 w-9" aria-label="Refresh data" data-testid="button-refresh">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+                
+                <Button className="bg-[#b8860b] hover:bg-[#9A7209] text-white h-9" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order">
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="hidden xl:inline">New Order</span>
+                  <span className="xl:hidden">New</span>
+                </Button>
+              </div>
             </div>
           </header>
 
-          {/* Dashboard Content */}
-          <main className="flex-1 overflow-auto p-4 bg-background">
+          {/* Dashboard Content - Added padding-bottom for mobile nav */}
+          <main className="flex-1 overflow-auto p-3 lg:p-4 pb-24 lg:pb-4 bg-background">
             {activeSection === "dashboard" && (
-              <div className="space-y-4">
+              <div className="space-y-3 lg:space-y-4">
                 {/* Top KPI Row with C.L.E.A.N. Tip */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -1291,77 +1567,77 @@ export default function POSCommandCenter() {
                     Learn C.L.E.A.N.
                   </Button>
                 </div>
-                <div className="grid grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
                   {/* Total Revenue */}
-                  <div className="bg-gradient-to-br from-primary to-primary/90 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-primary to-primary/90 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-[#b8860b]/20 flex items-center justify-center">
-                        <DollarSign className="w-4 h-4 text-[#b8860b]" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#b8860b]/20 flex items-center justify-center shrink-0">
+                        <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Revenue</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Revenue</span>
                     </div>
-                    <p className="text-3xl font-black text-[#b8860b]" data-testid="kpi-revenue">${dashboardStats.today?.revenue}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-[#b8860b]" data-testid="kpi-revenue">${dashboardStats.today?.revenue}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <ArrowUp className="w-3 h-3 text-green-400" />
-                      <span className="text-xs text-green-400">+12.5%</span>
+                      <span className="text-[10px] sm:text-xs text-green-400">+12.5%</span>
                     </div>
                   </div>
 
                   {/* Total Orders */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <ShoppingCart className="w-4 h-4 text-blue-400" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Orders</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Orders</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground" data-testid="kpi-orders">{dashboardStats.today?.orders}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-foreground" data-testid="kpi-orders">{dashboardStats.today?.orders}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge className="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0">{dashboardStats.today?.pending} pending</Badge>
+                      <Badge className="bg-amber-500/20 text-amber-400 text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0">{dashboardStats.today?.pending} pending</Badge>
                     </div>
                   </div>
 
                   {/* Avg Ticket */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <Receipt className="w-4 h-4 text-purple-400" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
+                        <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Avg Ticket</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Avg Ticket</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground">${dashboardStats.today?.avgTicket}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-foreground">${dashboardStats.today?.avgTicket}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <ArrowUp className="w-3 h-3 text-green-400" />
-                      <span className="text-xs text-green-400">+3.2%</span>
+                      <span className="text-[10px] sm:text-xs text-green-400">+3.2%</span>
                     </div>
                   </div>
 
                   {/* Customers */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-emerald-400" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Customers</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Customers</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground" data-testid="kpi-customers">{dashboardStats.customers?.active}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-foreground" data-testid="kpi-customers">{dashboardStats.customers?.active}</p>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs text-muted-foreground/70">+{dashboardStats.customers?.new} new</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground/70">+{dashboardStats.customers?.new} new</span>
                     </div>
                   </div>
 
                   {/* Machine Uptime */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                        <Wrench className="w-4 h-4 text-cyan-400" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
+                        <Wrench className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Machines</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Machines</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground">{dashboardStats.machines?.operational}/{dashboardStats.machines?.total}</p>
+                    <p className="text-2xl sm:text-3xl font-black text-foreground">{dashboardStats.machines?.operational}/{dashboardStats.machines?.total}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {dashboardStats.machines?.needsAttention > 0 && (
-                        <Badge className="bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0">
+                        <Badge className="bg-red-500/20 text-red-400 text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0">
                           {dashboardStats.machines?.needsAttention} alerts
                         </Badge>
                       )}
@@ -1369,46 +1645,46 @@ export default function POSCommandCenter() {
                   </div>
 
                   {/* Retention Rate */}
-                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-4 border">
+                  <div className="bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg p-3 sm:p-4 border">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
-                        <Target className="w-4 h-4 text-pink-400" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pink-500/20 flex items-center justify-center shrink-0">
+                        <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400" />
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Retention</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Retention</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground">{dashboardStats.customers?.retention}%</p>
+                    <p className="text-2xl sm:text-3xl font-black text-foreground">{dashboardStats.customers?.retention}%</p>
                     <div className="flex items-center gap-1 mt-1">
                       <ArrowDown className="w-3 h-3 text-red-400" />
-                      <span className="text-xs text-red-400">-1.2%</span>
+                      <span className="text-[10px] sm:text-xs text-red-400">-1.2%</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Main Charts Row */}
-                <div className="grid grid-cols-12 gap-4">
-                  {/* Revenue Chart - Spans 8 columns */}
-                  <div className="col-span-8 bg-card rounded-lg border p-4">
-                    <div className="flex items-center justify-between mb-4">
+                {/* Main Charts Row - Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+                  {/* Revenue Chart - Full width on mobile, 8 cols on desktop */}
+                  <div className="lg:col-span-8 bg-card rounded-lg border p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
                       <div>
                         <h3 className="text-sm font-bold text-foreground">Revenue vs Target</h3>
                         <p className="text-xs text-muted-foreground">Daily performance comparison</p>
                       </div>
-                      <div className="flex items-center gap-4 text-xs">
+                      <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs flex-wrap">
                         <div className="flex items-center gap-1">
-                          <div className="w-3 h-3 rounded bg-[#b8860b]"></div>
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-[#b8860b]"></div>
                           <span className="text-muted-foreground">Revenue</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-3 h-3 rounded bg-[#1e3a5f]"></div>
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-[#1e3a5f]"></div>
                           <span className="text-muted-foreground">Target</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-3 h-1 bg-emerald-400"></div>
+                          <div className="w-2.5 h-0.5 sm:w-3 sm:h-1 bg-emerald-400"></div>
                           <span className="text-muted-foreground">Orders</span>
                         </div>
                       </div>
                     </div>
-                    <div className="h-[200px]">
+                    <div className="h-[180px] sm:h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={revenueChartData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
@@ -1432,19 +1708,19 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
 
-                  {/* Order Types Donut + Stats - Spans 4 columns */}
-                  <div className="col-span-4 bg-card rounded-lg border p-4">
-                    <h3 className="text-sm font-bold text-foreground mb-3">Order Distribution</h3>
+                  {/* Order Types Donut + Stats - Full width on mobile, 4 cols on desktop */}
+                  <div className="lg:col-span-4 bg-card rounded-lg border p-3 sm:p-4">
+                    <h3 className="text-sm font-bold text-foreground mb-2 sm:mb-3">Order Distribution</h3>
                     <div className="flex">
-                      <div className="w-1/2 h-[180px]">
+                      <div className="w-1/2 h-[150px] sm:h-[180px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPie>
                             <Pie
                               data={orderTypeDistribution}
                               cx="50%"
                               cy="50%"
-                              innerRadius={45}
-                              outerRadius={70}
+                              innerRadius={35}
+                              outerRadius={55}
                               paddingAngle={2}
                               dataKey="value"
                             >
@@ -1456,14 +1732,14 @@ export default function POSCommandCenter() {
                           </RechartsPie>
                         </ResponsiveContainer>
                       </div>
-                      <div className="w-1/2 space-y-2 pt-4">
+                      <div className="w-1/2 space-y-1.5 sm:space-y-2 pt-2 sm:pt-4">
                         {orderTypeDistribution.map((type) => (
                           <div key={type.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: type.fill }}></div>
-                              <span className="text-xs text-muted-foreground">{type.name}</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: type.fill }}></div>
+                              <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{type.name}</span>
                             </div>
-                            <span className="text-xs font-bold text-foreground">{type.value}%</span>
+                            <span className="text-[10px] sm:text-xs font-bold text-foreground">{type.value}%</span>
                           </div>
                         ))}
                       </div>
@@ -1471,28 +1747,28 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
-                {/* Second Row - Orders Table + Machine Status + Top Customers */}
-                <div className="grid grid-cols-12 gap-4">
-                  {/* Live Orders Table */}
-                  <div className="col-span-5 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-3 border-b border">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <ShoppingCart className="w-4 h-4 text-[#b8860b]" />
+                {/* Second Row - Orders Table + Machine Status + Top Customers - Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+                  {/* Live Orders Table - Full width on mobile, 5 cols on desktop */}
+                  <div className="lg:col-span-5 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
+                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
                         Live Orders
                       </h3>
-                      <Button variant="ghost" size="sm" className="text-[#b8860b] text-xs h-7" onClick={() => setActiveSection("orders")}>
+                      <Button variant="ghost" size="sm" className="text-[#b8860b] text-[10px] sm:text-xs h-6 sm:h-7 px-2" onClick={() => setActiveSection("orders")}>
                         View All <ChevronRight className="w-3 h-3 ml-1" />
                       </Button>
                     </div>
-                    <ScrollArea className="h-[240px]">
-                      <table className="w-full text-xs">
+                    <ScrollArea className="h-[200px] sm:h-[240px]">
+                      <table className="w-full text-[10px] sm:text-xs">
                         <thead className="bg-background sticky top-0">
                           <tr>
-                            <th className="text-left p-2 text-muted-foreground font-medium">Order</th>
-                            <th className="text-left p-2 text-muted-foreground font-medium">Customer</th>
-                            <th className="text-left p-2 text-muted-foreground font-medium">Type</th>
-                            <th className="text-right p-2 text-muted-foreground font-medium">Amount</th>
-                            <th className="text-center p-2 text-muted-foreground font-medium">Status</th>
+                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium">Order</th>
+                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium hidden sm:table-cell">Customer</th>
+                            <th className="text-left p-1.5 sm:p-2 text-muted-foreground font-medium hidden md:table-cell">Type</th>
+                            <th className="text-right p-1.5 sm:p-2 text-muted-foreground font-medium">Amount</th>
+                            <th className="text-center p-1.5 sm:p-2 text-muted-foreground font-medium">Status</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1502,15 +1778,15 @@ export default function POSCommandCenter() {
                               className={`border-b border-border/50 hover:bg-muted/30 cursor-pointer ${idx % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
                               data-testid={`order-row-${order.id}`}
                             >
-                              <td className="p-2 font-mono text-foreground/80">{order.transactionNumber}</td>
-                              <td className="p-2 text-foreground">{order.customerName}</td>
-                              <td className="p-2">
+                              <td className="p-1.5 sm:p-2 font-mono text-foreground/80">{order.transactionNumber}</td>
+                              <td className="p-1.5 sm:p-2 text-foreground hidden sm:table-cell">{order.customerName}</td>
+                              <td className="p-1.5 sm:p-2 hidden md:table-cell">
                                 <div className="flex items-center gap-1 text-muted-foreground">
                                   {getOrderTypeIcon(order.orderType)}
                                 </div>
                               </td>
-                              <td className="p-2 text-right font-bold text-[#b8860b]">${order.total}</td>
-                              <td className="p-2 text-center">
+                              <td className="p-1.5 sm:p-2 text-right font-bold text-[#b8860b]">${order.total}</td>
+                              <td className="p-1.5 sm:p-2 text-center">
                                 <Badge className={`${getStatusColor(order.status)} text-[10px] px-1.5 py-0`}>
                                   {order.status}
                                 </Badge>
@@ -1522,53 +1798,53 @@ export default function POSCommandCenter() {
                     </ScrollArea>
                   </div>
 
-                  {/* Machine Status Grid */}
-                  <div className="col-span-4 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-3 border-b border">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <Wrench className="w-4 h-4 text-[#b8860b]" />
+                  {/* Machine Status Grid - Full width on mobile, 4 cols on desktop */}
+                  <div className="lg:col-span-4 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
+                        <Wrench className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
                         Machine Status
                       </h3>
-                      <div className="flex items-center gap-2 text-[10px]">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px]">
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></div>
                           <span className="text-muted-foreground">OK</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500"></div>
                           <span className="text-muted-foreground">Maint</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"></div>
                           <span className="text-muted-foreground">Down</span>
                         </div>
                       </div>
                     </div>
-                    <ScrollArea className="h-[240px] p-3">
-                      <div className="grid grid-cols-2 gap-2">
+                    <ScrollArea className="h-[180px] sm:h-[240px] p-2 sm:p-3">
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                         {machines.map((machine) => (
                           <div 
                             key={machine.id}
-                            className={`p-2 rounded-lg border ${
+                            className={`p-1.5 sm:p-2 rounded-lg border ${
                               machine.status === 'operational' ? 'bg-green-500/10 border-green-500/30' :
                               machine.status === 'needs_maintenance' ? 'bg-amber-500/10 border-amber-500/30' :
                               'bg-red-500/10 border-red-500/30'
                             }`}
                             data-testid={`machine-card-${machine.id}`}
                           >
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-foreground">{machine.name}</span>
-                              <div className={`w-2 h-2 rounded-full ${
+                            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                              <span className="text-[10px] sm:text-xs font-medium text-foreground truncate">{machine.name}</span>
+                              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${
                                 machine.status === 'operational' ? 'bg-green-500' :
                                 machine.status === 'needs_maintenance' ? 'bg-amber-500' :
                                 'bg-red-500'
                               }`}></div>
                             </div>
-                            <div className="flex items-center justify-between text-[10px]">
+                            <div className="flex items-center justify-between text-[9px] sm:text-[10px]">
                               <span className="text-muted-foreground">{machine.cycles} cycles</span>
                               <span className="text-[#b8860b] font-medium">{machine.revenue}</span>
                             </div>
-                            <div className="mt-1 h-1 bg-muted/50 rounded-full overflow-hidden">
+                            <div className="mt-0.5 sm:mt-1 h-0.5 sm:h-1 bg-muted/50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${
                                   machine.uptime >= 95 ? 'bg-green-500' :
@@ -1584,32 +1860,32 @@ export default function POSCommandCenter() {
                     </ScrollArea>
                   </div>
 
-                  {/* Top Customers */}
-                  <div className="col-span-3 bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-3 border-b border">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <Users className="w-4 h-4 text-[#b8860b]" />
+                  {/* Top Customers - Full width on mobile, 3 cols on desktop */}
+                  <div className="lg:col-span-3 bg-card rounded-lg border">
+                    <div className="flex items-center justify-between p-2 sm:p-3 border-b border">
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b8860b]" />
                         Top Customers
                       </h3>
                     </div>
-                    <ScrollArea className="h-[240px]">
-                      <div className="p-2 space-y-1">
+                    <ScrollArea className="h-[180px] sm:h-[240px]">
+                      <div className="p-1.5 sm:p-2 space-y-0.5 sm:space-y-1">
                         {topCustomers.map((customer, idx) => (
                           <div 
                             key={customer.name}
-                            className="flex items-center gap-2 p-2 rounded hover:bg-muted/30 cursor-pointer"
+                            className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded hover:bg-muted/30 cursor-pointer"
                             data-testid={`customer-row-${idx}`}
                           >
-                            <div className="w-6 h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center text-[10px] font-bold text-white">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white shrink-0">
                               {idx + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-foreground truncate">{customer.name}</p>
-                              <p className="text-[10px] text-muted-foreground/70">{customer.orders} orders</p>
+                              <p className="text-[10px] sm:text-xs font-medium text-foreground truncate">{customer.name}</p>
+                              <p className="text-[9px] sm:text-[10px] text-muted-foreground/70">{customer.orders} orders</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs font-bold text-[#b8860b]">{customer.revenue}</p>
-                              <p className="text-[10px] text-muted-foreground/70">{customer.lastVisit}</p>
+                              <p className="text-[10px] sm:text-xs font-bold text-[#b8860b]">{customer.revenue}</p>
+                              <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 hidden sm:block">{customer.lastVisit}</p>
                             </div>
                           </div>
                         ))}
@@ -1618,17 +1894,17 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
-                {/* Third Row - Hourly Trend + Service Breakdown */}
-                <div className="grid grid-cols-12 gap-4">
-                  {/* Hourly Orders Trend */}
-                  <div className="col-span-8 bg-card rounded-lg border p-4">
-                    <div className="flex items-center justify-between mb-4">
+                {/* Third Row - Hourly Trend + Service Breakdown - Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4">
+                  {/* Hourly Orders Trend - Full width on mobile, 8 cols on desktop */}
+                  <div className="lg:col-span-8 bg-card rounded-lg border p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
                       <div>
-                        <h3 className="text-sm font-bold text-foreground">Hourly Orders Trend</h3>
-                        <p className="text-xs text-muted-foreground">Orders and revenue by hour today</p>
+                        <h3 className="text-xs sm:text-sm font-bold text-foreground">Hourly Orders Trend</h3>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Orders and revenue by hour today</p>
                       </div>
                     </div>
-                    <div className="h-[160px]">
+                    <div className="h-[140px] sm:h-[160px]">
                       {revenueChartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={revenueChartData}>
@@ -1639,14 +1915,14 @@ export default function POSCommandCenter() {
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                            <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} />
-                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                            <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={9} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={9} />
                             <RechartsTooltip
                               contentStyle={{
                                 backgroundColor: "hsl(var(--card))",
                                 border: "1px solid hsl(var(--border))",
                                 borderRadius: "8px",
-                                fontSize: "11px",
+                                fontSize: "10px",
                                 color: "hsl(var(--foreground))",
                               }}
                             />
@@ -1654,28 +1930,28 @@ export default function POSCommandCenter() {
                           </AreaChart>
                         </ResponsiveContainer>
                       ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground/50 text-sm">
+                        <div className="flex items-center justify-center h-full text-muted-foreground/50 text-xs sm:text-sm">
                           No trend data available
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Service Breakdown */}
-                  <div className="col-span-4 bg-card rounded-lg border p-4">
-                    <h3 className="text-sm font-bold text-foreground mb-3">Service Breakdown</h3>
-                    <div className="space-y-3">
+                  {/* Service Breakdown - Full width on mobile, 4 cols on desktop */}
+                  <div className="lg:col-span-4 bg-card rounded-lg border p-3 sm:p-4">
+                    <h3 className="text-xs sm:text-sm font-bold text-foreground mb-2 sm:mb-3">Service Breakdown</h3>
+                    <div className="space-y-2 sm:space-y-3">
                       {serviceBreakdown.length > 0 ? (
                         serviceBreakdown.map((service) => (
                           <div key={service.service}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-muted-foreground">{service.service}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">{service.count} orders</span>
-                                <span className="text-xs font-bold text-[#b8860b]">${service.revenue}</span>
+                            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                              <span className="text-[10px] sm:text-xs text-muted-foreground">{service.service}</span>
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <span className="text-[10px] sm:text-xs text-muted-foreground">{service.count} orders</span>
+                                <span className="text-[10px] sm:text-xs font-bold text-[#b8860b]">${service.revenue}</span>
                               </div>
                             </div>
-                            <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                            <div className="h-1.5 sm:h-2 bg-muted/50 rounded-full overflow-hidden">
                               <div 
                                 className="h-full rounded-full bg-gradient-to-r from-[#b8860b] to-[#d4a017]"
                                 style={{ width: `${service.pct}%` }}
@@ -1684,7 +1960,7 @@ export default function POSCommandCenter() {
                           </div>
                         ))
                       ) : (
-                        <div className="text-center text-muted-foreground/50 text-sm py-4">
+                        <div className="text-center text-muted-foreground/50 text-xs sm:text-sm py-4">
                           No service data available
                         </div>
                       )}
@@ -2895,22 +3171,22 @@ export default function POSCommandCenter() {
                   </div>
                 </div>
 
-                {/* KPI Cards Grid */}
-                <div className="grid grid-cols-6 gap-4">
+                {/* KPI Cards Grid - Responsive */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
                   {/* Total Revenue */}
                   <Card className="bg-card border" data-testid="kpi-revenue">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
-                          <DollarSign className="w-5 h-5 text-[#b8860b]" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
+                          <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-[#b8860b]" />
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">
-                          <ArrowUp className="w-3 h-3 mr-1" />
+                        <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                          <ArrowUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           {((rawStats?.week?.revenue || 0) > 0 ? 12.5 : 0).toFixed(1)}%
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Total Revenue</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-total-revenue">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Total Revenue</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-total-revenue">
                         ${analyticsPeriod === "today" 
                           ? (rawStats?.today?.revenue || "0.00")
                           : analyticsPeriod === "week"
@@ -2925,18 +3201,18 @@ export default function POSCommandCenter() {
 
                   {/* Total Orders */}
                   <Card className="bg-card border" data-testid="kpi-orders">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                          <ShoppingCart className="w-5 h-5 text-blue-400" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                          <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">
-                          <TrendingUp className="w-3 h-3 mr-1" />
+                        <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                          <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           +8.2%
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Total Orders</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-total-orders">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Total Orders</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-total-orders">
                         {analyticsPeriod === "today" 
                           ? (rawStats?.today?.orders || 0)
                           : analyticsPeriod === "week"
@@ -2951,18 +3227,18 @@ export default function POSCommandCenter() {
 
                   {/* Average Order Value */}
                   <Card className="bg-card border" data-testid="kpi-aov">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                          <Receipt className="w-5 h-5 text-purple-400" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                          <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">
-                          <ArrowUp className="w-3 h-3 mr-1" />
+                        <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                          <ArrowUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           +3.4%
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Avg Order Value</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-aov">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Avg Order Value</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-aov">
                         ${rawStats?.week?.avgOrderValue || dashboardStats.week.avgOrderValue || "0.00"}
                       </p>
                     </CardContent>
@@ -2970,18 +3246,18 @@ export default function POSCommandCenter() {
 
                   {/* Customer Retention */}
                   <Card className="bg-card border" data-testid="kpi-retention">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-emerald-400" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">
-                          <ArrowUp className="w-3 h-3 mr-1" />
+                        <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                          <ArrowUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           +2.1%
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Retention Rate</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-retention">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Retention Rate</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-retention">
                         {dashboardStats.customers.retention}%
                       </p>
                     </CardContent>
@@ -2989,19 +3265,19 @@ export default function POSCommandCenter() {
 
                   {/* Machine Utilization */}
                   <Card className="bg-card border" data-testid="kpi-utilization">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                          <Wrench className="w-5 h-5 text-amber-400" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                          <Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                         </div>
-                        <Badge className={`${machineStatusCounts.operational / Math.max(machineStatusCounts.total, 1) >= 0.9 
+                        <Badge className={`text-[10px] sm:text-xs px-1.5 sm:px-2 ${machineStatusCounts.operational / Math.max(machineStatusCounts.total, 1) >= 0.9 
                           ? 'bg-emerald-500/20 text-emerald-400' 
                           : 'bg-amber-500/20 text-amber-400'}`}>
                           {Math.round((machineStatusCounts.operational / Math.max(machineStatusCounts.total, 1)) * 100)}%
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Machine Utilization</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-utilization">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Machine Utilization</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-utilization">
                         {machineStatusCounts.operational}/{machineStatusCounts.total}
                       </p>
                     </CardContent>
@@ -3009,26 +3285,26 @@ export default function POSCommandCenter() {
 
                   {/* Peak Hours */}
                   <Card className="bg-card border" data-testid="kpi-peak">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
-                          <Clock className="w-5 h-5 text-pink-400" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                          <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                         </div>
-                        <Badge className="bg-[#1e3a5f] text-muted-foreground">
-                          <Activity className="w-3 h-3 mr-1" />
+                        <Badge className="bg-[#1e3a5f] text-muted-foreground text-[10px] sm:text-xs px-1.5 sm:px-2">
+                          <Activity className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           Live
                         </Badge>
                       </div>
-                      <p className="text-muted-foreground text-xs mb-1">Peak Hours</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-peak">
+                      <p className="text-muted-foreground text-[10px] sm:text-xs mb-0.5 sm:mb-1">Peak Hours</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-peak">
                         9-11 AM
                       </p>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Charts Row 1: Revenue Trend & Order Volume */}
-                <div className="grid grid-cols-2 gap-6">
+                {/* Charts Row 1: Revenue Trend & Order Volume - Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {/* Revenue Trend Area Chart */}
                   <Card className="bg-card border" data-testid="chart-revenue">
                     <CardHeader className="pb-2">
@@ -3244,34 +3520,34 @@ export default function POSCommandCenter() {
                   </Card>
                 </div>
 
-                {/* Bottom Row: Customer Metrics & Machine Stats */}
-                <div className="grid grid-cols-2 gap-6">
+                {/* Bottom Row: Customer Metrics & Machine Stats - Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {/* Customer Acquisition & Retention */}
                   <Card className="bg-card border" data-testid="chart-customers">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-foreground text-lg">Customer Metrics</CardTitle>
-                      <p className="text-muted-foreground text-xs">Acquisition & retention analysis</p>
+                    <CardHeader className="pb-1 sm:pb-2">
+                      <CardTitle className="text-foreground text-base sm:text-lg">Customer Metrics</CardTitle>
+                      <p className="text-muted-foreground text-[10px] sm:text-xs">Acquisition & retention analysis</p>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-background rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <UserPlus className="w-4 h-4 text-emerald-400" />
-                            <span className="text-muted-foreground text-xs">New Customers</span>
+                    <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                        <div className="bg-background rounded-lg p-2 sm:p-4">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                            <span className="text-muted-foreground text-[10px] sm:text-xs">New Customers</span>
                           </div>
-                          <p className="text-3xl font-bold text-foreground">{dashboardStats.customers.new}</p>
-                          <p className="text-xs text-emerald-400 mt-1">
-                            <ArrowUp className="w-3 h-3 inline" /> +5.2% from last period
+                          <p className="text-xl sm:text-3xl font-bold text-foreground">{dashboardStats.customers.new}</p>
+                          <p className="text-[10px] sm:text-xs text-emerald-400 mt-0.5 sm:mt-1">
+                            <ArrowUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 inline" /> +5.2% from last period
                           </p>
                         </div>
-                        <div className="bg-background rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Users className="w-4 h-4 text-blue-400" />
-                            <span className="text-muted-foreground text-xs">Active Customers</span>
+                        <div className="bg-background rounded-lg p-2 sm:p-4">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
+                            <span className="text-muted-foreground text-[10px] sm:text-xs">Active Customers</span>
                           </div>
-                          <p className="text-3xl font-bold text-foreground">{dashboardStats.customers.active}</p>
-                          <p className="text-xs text-blue-400 mt-1">
-                            <Target className="w-3 h-3 inline" /> {dashboardStats.customers.retention}% retention
+                          <p className="text-xl sm:text-3xl font-bold text-foreground">{dashboardStats.customers.active}</p>
+                          <p className="text-[10px] sm:text-xs text-blue-400 mt-0.5 sm:mt-1">
+                            <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3 inline" /> {dashboardStats.customers.retention}% retention
                           </p>
                         </div>
                       </div>
@@ -3447,51 +3723,51 @@ export default function POSCommandCenter() {
                   </CardContent>
                 </Card>
 
-                {/* Framework Cards Grid */}
-                <div className="grid grid-cols-2 gap-6">
+                {/* Framework Cards Grid - Responsive */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                   {/* C.L.E.A.N. Framework */}
                   <Card className="bg-white/5 backdrop-blur border border-white/10 hover-elevate" data-testid="card-clean-framework">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                            <Sparkles className="w-6 h-6 text-emerald-400" />
+                    <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+                            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
                           </div>
                           <div>
-                            <CardTitle className="text-lg text-foreground">C.L.E.A.N.</CardTitle>
-                            <p className="text-xs text-muted-foreground">Business Foundation</p>
+                            <CardTitle className="text-base sm:text-lg text-foreground">C.L.E.A.N.</CardTitle>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">Business Foundation</p>
                           </div>
                         </div>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">Core</Badge>
+                        <Badge className="bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs px-1.5 sm:px-2 shrink-0">Core</Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Users className="w-4 h-4 text-emerald-400" />
+                    <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-6 pt-0">
+                      <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                          <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                           <span><strong className="text-foreground">C</strong>ustomers - Build retention programs</span>
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="w-4 h-4 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                          <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                           <span><strong className="text-foreground">L</strong>ocation - Prime positioning</span>
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Zap className="w-4 h-4 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                          <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                           <span><strong className="text-foreground">E</strong>fficiency - AI & automation</span>
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Activity className="w-4 h-4 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                          <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                           <span><strong className="text-foreground">A</strong>dapt - Hybrid services</span>
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <BarChart3 className="w-4 h-4 text-emerald-400" />
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                          <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                           <span><strong className="text-foreground">N</strong>umbers - Track KPIs</span>
                         </div>
                       </div>
-                      <div className="pt-3 border-t border-white/10">
+                      <div className="pt-2 sm:pt-3 border-t border-white/10">
                         <Link href="/pricing">
-                          <Button variant="outline" size="sm" className="w-full border-emerald-500/30 text-emerald-400" data-testid="button-learn-clean">
-                            <Lock className="w-3 h-3 mr-2" />
+                          <Button variant="outline" size="sm" className="w-full border-emerald-500/30 text-emerald-400 h-8 sm:h-9 text-xs sm:text-sm" data-testid="button-learn-clean">
+                            <Lock className="w-3 h-3 mr-1.5 sm:mr-2" />
                             Unlock Full Course
                           </Button>
                         </Link>
