@@ -54,7 +54,7 @@ const websiteSchema = {
     "query-input": "required name=search_term_string"
   }
 };
-import Home from "@/pages/home";
+import Home from "@/pages/home-new";
 import WhyWashBizHub from "@/pages/why-washbizhub";
 import DesignStudio from "@/pages/design-studio";
 import CleanBI from "@/pages/cleanbi";
