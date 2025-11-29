@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Linkedin, Twitter, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Chrome, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap, Lock, CheckCircle, Users, Award, Trophy, Star, MapPin, Clock, Accessibility, Cookie, FileCheck, Building2, Scale, Activity, Map } from "lucide-react";
+import { ExternalLink, Facebook, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap, Lock, CheckCircle, Users, Award, Trophy, Star, MapPin, Clock, Accessibility, Cookie, FileCheck, Building2, Scale, Map } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
