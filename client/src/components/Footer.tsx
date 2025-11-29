@@ -185,10 +185,10 @@ export function Footer() {
                 Business Services
               </h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                <Link href="/website-hosting">
+                <Link href="/website-builder">
                   <span className="flex items-center gap-2 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-website-hosting">
                     <Globe className="h-3 w-3" />
-                    Website Hosting
+                    Website Builder
                   </span>
                 </Link>
                 <Link href="/pos">
@@ -244,7 +244,9 @@ export function Footer() {
                 </span>
               </button>
               <a
-                href="/chrome-extension"
+                href="https://chrome.google.com/webstore/detail/cleanbi-anywhere"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors text-sm"
                 data-testid="link-footer-chrome-extension"
               >
@@ -588,7 +590,7 @@ export function Footer() {
               Cookie Settings
             </button>
             <span className="text-white/20">|</span>
-            <Link href="/accessibility">
+            <Link href="/about-us">
               <span className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer" data-testid="link-footer-accessibility">
                 <Accessibility className="h-3 w-3" />
                 Accessibility

@@ -309,6 +309,11 @@ function Router() {
           <POSCommandCenter />
         </Suspense>
       </Route>
+      <Route path="/pos-command-center">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <POSCommandCenter />
+        </Suspense>
+      </Route>
       <Route path="/pos-landing">
         <Suspense fallback={<LoadingFallback />}>
           <PosLanding />
@@ -425,7 +430,17 @@ function Router() {
           <AffiliateDashboard />
         </Suspense>
       </Route>
+      <Route path="/affiliate-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <AffiliateDashboard />
+        </Suspense>
+      </Route>
       <Route path="/broker">
+        <Suspense fallback={<LoadingFallback />}>
+          <BrokerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/broker-dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <BrokerDashboard />
         </Suspense>
@@ -611,6 +626,11 @@ function Router() {
           <SeoCommandCenter />
         </Suspense>
       </Route>
+      <Route path="/seo-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <SeoCommandCenter />
+        </Suspense>
+      </Route>
       <Route path="/ai-content-studio">
         <Suspense fallback={<LoadingFallback />}>
           <AIContentStudio />
@@ -634,6 +654,11 @@ function Router() {
         </Suspense>
       </Route>
       <Route path="/equipment">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentMarketplace />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-marketplace">
         <Suspense fallback={<LoadingFallback />}>
           <EquipmentMarketplace />
         </Suspense>
@@ -663,6 +688,11 @@ function Router() {
       <Route path="/parts">
         <Suspense fallback={<LoadingFallback />}>
           <Parts />
+        </Suspense>
+      </Route>
+      <Route path="/parts-store">
+        <Suspense fallback={<LoadingFallback />}>
+          <PartsStore />
         </Suspense>
       </Route>
       <Route path="/parts-catalogue">
@@ -781,6 +811,11 @@ function Router() {
 
       {/* Advertising */}
       <Route path="/advertising">
+        <Suspense fallback={<LoadingFallback />}>
+          <Advertising />
+        </Suspense>
+      </Route>
+      <Route path="/advertise">
         <Suspense fallback={<LoadingFallback />}>
           <Advertising />
         </Suspense>
