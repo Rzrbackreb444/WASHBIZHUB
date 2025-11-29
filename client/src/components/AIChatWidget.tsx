@@ -482,7 +482,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 group"
+        className="fixed bottom-6 left-6 z-50 group"
         data-testid="button-open-chat"
       >
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-5 py-3 rounded-full shadow-2xl border-2 border-slate-700 flex items-center gap-3 transition-all duration-300 hover:shadow-slate-900/50 hover:scale-105 active:scale-95">
@@ -506,7 +506,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
   return (
     <Card
       className={cn(
-        "fixed bottom-6 right-6 z-50 shadow-2xl border border-border/50 flex flex-col overflow-hidden transition-all duration-300 backdrop-blur-xl",
+        "fixed bottom-6 left-6 z-50 shadow-2xl border border-border/50 flex flex-col overflow-hidden transition-all duration-300 backdrop-blur-xl",
         isMinimized ? "h-16" : "h-[650px]",
         "w-[400px] rounded-2xl"
       )}

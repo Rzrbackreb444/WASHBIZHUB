@@ -74,7 +74,7 @@ export function Footer() {
             For owners, operators, brokers, investors, buyers, sellers, vendors — anyone in the industry. US & Global listings.
           </p>
           <p className="text-white/60 text-xs sm:text-sm max-w-2xl mx-auto mb-4">
-            CLEANBI analyzer · Chrome extension · Valuations · Competition · Courses · Calculators · Funding · Vendors
+            CLEANBI analyzer · Valuations · Competition · Courses · Calculators · Funding · Vendors
           </p>
           <a 
             href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" 
@@ -210,16 +210,6 @@ export function Footer() {
                   WashBizHub Consultant
                 </span>
               </button>
-              <a
-                href="https://chrome.google.com/webstore/detail/cleanbi-anywhere"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors text-sm"
-                data-testid="link-footer-chrome-extension"
-              >
-                <Chrome className="h-3 w-3" />
-                Chrome Extension
-              </a>
               <Link href="/service-guy-ai">
                 <span className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-service-guy-ai">
                   <Wrench className="h-3 w-3" />
