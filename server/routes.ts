@@ -9490,6 +9490,9 @@ ${pdfData.text.substring(0, 15000)}`;
       const approvalToken = crypto.randomBytes(32).toString('hex');
       
       // Insert listing
+      const imagesArray = images && images.length > 0 ? images : [];
+      const imagesJson = JSON.stringify(imagesArray);
+      
       const result = await db.execute(sql`
         INSERT INTO marketplace_listings (
           seller_name, seller_email, seller_phone,
@@ -9498,11 +9501,11 @@ ${pdfData.text.substring(0, 15000)}`;
           manufacturer, model, year_made, quantity, condition,
           images, approval_token, status
         ) VALUES (
-          ${sellerName}, ${sellerEmail}, ${sellerPhone},
+          ${sellerName}, ${sellerEmail}, ${sellerPhone || null},
           ${title}, ${description}, ${category}, ${subcategory || null},
-          ${price || null}, ${priceType || 'fixed'}, ${city || null}, ${state || null}, ${country || 'USA'}, ${zipCode || null},
-          ${manufacturer || null}, ${model || null}, ${yearMade || null}, ${quantity || 1}, ${condition || null},
-          ${images || []}, ${approvalToken}, 'pending'
+          ${price ? Number(price) : null}, ${priceType || 'fixed'}, ${city || null}, ${state || null}, ${country || 'USA'}, ${zipCode || null},
+          ${manufacturer || null}, ${model || null}, ${yearMade ? Number(yearMade) : null}, ${quantity ? Number(quantity) : 1}, ${condition || null},
+          ARRAY[]::text[], ${approvalToken}, 'pending'
         )
         RETURNING id
       `);
