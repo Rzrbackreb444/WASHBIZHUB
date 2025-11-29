@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { SEO } from '@/components/SEO';
 import { useToast } from '@/hooks/use-toast';
+import { VideoDemo } from '@/components/VideoDemo';
+import { FloatingCTA } from '@/components/EmailCaptureModal';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -114,7 +116,7 @@ function CleanbiDemo() {
         },
         pointLabels: { 
           color: 'rgba(255,255,255,0.8)',
-          font: { size: 10, weight: '500' as const }
+          font: { size: 10, weight: 'bold' as const }
         }
       }
     },
@@ -347,15 +349,17 @@ const stats = [
 ];
 
 export default function HomeNew() {
+  const [showVideoDemo, setShowVideoDemo] = useState(false);
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
 
   return (
     <>
+      <VideoDemo isOpen={showVideoDemo} onClose={() => setShowVideoDemo(false)} />
+      <FloatingCTA />
       <SEO 
         title="WashBizHub - The #1 Laundromat Platform | CLEANBI Score + POS + AI"
         description="AI predicts failures, dynamic pricing adds $24k/year, marketplace gives you cash back. Join 72,000+ laundromat owners already winning with CLEANBI and professional tools."
         keywords={["laundromat pos", "cleanbi score", "laundromat calculator", "laundromat roi", "laundromat software", "laundromat business"]}
-        type="website"
       />
 
       <div className="min-h-screen">
@@ -376,12 +380,14 @@ export default function HomeNew() {
                 AI predicts failures • Dynamic pricing adds $24k/year • Marketplace gives you cash back
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Link href="#demo">
-                  <Button className="h-14 px-8 bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F] text-lg font-bold rounded-xl" data-testid="button-play-demo">
-                    <Play className="w-5 h-5 mr-2" />
-                    Play Live Demo (30 Seconds)
-                  </Button>
-                </Link>
+                <Button 
+                  className="h-14 px-8 bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F] text-lg font-bold rounded-xl" 
+                  data-testid="button-play-demo"
+                  onClick={() => setShowVideoDemo(true)}
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  Play Live Demo (30 Seconds)
+                </Button>
                 <Link href="/cleanbi-auto">
                   <Button variant="outline" className="h-14 px-8 border-2 border-[#39CCCC] text-[#39CCCC] hover:bg-[#39CCCC] hover:text-[#001F3F] text-lg font-bold rounded-xl" data-testid="button-cleanbi-cta">
                     Run My Free CLEANBI Score

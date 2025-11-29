@@ -6,7 +6,7 @@ import { SEO } from '@/components/SEO';
 
 const STARTUP_PARTNERS = [
   {
-    name: 'GoCapital',
+    name: 'GoKapital',
     description: 'Business credit-based financing for laundromat startups and new operations',
     approval: '24-48 hours',
     terms: '6-36 months flexible',
@@ -122,7 +122,7 @@ export default function StartupFunding() {
                     <div><span className="font-semibold">Working Capital:</span> 3 months operating expenses ($25K)</div>
                     <div><span className="font-semibold">Financing Option:</span> $85K at 12 months = $7,500/month</div>
                     <div><span className="font-semibold">Payback Window:</span> 4-5 months at $10K/month projected revenue</div>
-                    <div className="text-xs text-muted-foreground mt-2">Best fit: Personal credit with Preferred Funding Group or business credit with GoCapital</div>
+                    <div className="text-xs text-muted-foreground mt-2">Best fit: Personal credit with Preferred Funding Group or business credit with GoKapital</div>
                   </div>
                 </CardContent>
               </Card>
@@ -162,7 +162,7 @@ export default function StartupFunding() {
                     <div><span className="font-semibold">Personal Credit Bridge:</span> $40,000</div>
                     <div><span className="font-semibold">Combined Approach:</span> Use both personal + business credit</div>
                     <div><span className="font-semibold">Growth Path:</span> Build 6+ months of business credit history → refinance to larger SBA loan</div>
-                    <div className="text-xs text-muted-foreground mt-2">Best fit: GoCapital (business) + Preferred Funding Group (personal)</div>
+                    <div className="text-xs text-muted-foreground mt-2">Best fit: GoKapital (business) + Preferred Funding Group (personal)</div>
                   </div>
                 </CardContent>
               </Card>
@@ -265,7 +265,7 @@ export default function StartupFunding() {
                   <CardTitle className="text-base">How Quickly Can I Get Funded?</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  <p><span className="font-semibold text-foreground">GoCapital:</span> 24-48 hours approval, funds within 3-5 business days</p>
+                  <p><span className="font-semibold text-foreground">GoKapital:</span> 24-48 hours approval, funds within 3-5 business days</p>
                   <p className="mt-2"><span className="font-semibold text-foreground">Preferred Funding Group:</span> 48 hours approval, funds within 3-7 business days</p>
                   <p className="mt-2">Once funded, you can order equipment and be operational within 2-3 weeks.</p>
                 </CardContent>
@@ -281,8 +281,8 @@ export default function StartupFunding() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a href="https://itsgokapital.com" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-orange-900 hover:bg-orange-50" data-testid="button-apply-gocapital">
-                  Start with GoCapital (Business Credit)
+                <Button className="bg-white text-orange-900 hover:bg-orange-50" data-testid="button-apply-gokapital">
+                  Start with GoKapital (Business Credit)
                 </Button>
               </a>
               <a href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" target="_blank" rel="noopener noreferrer">
