@@ -4,6 +4,7 @@ import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
@@ -58,7 +59,7 @@ export function Footer() {
 
         {/* Large Logo Hero Section */}
         <div className="text-center mb-12 pb-12 border-b border-white/10">
-          <img 
+          <LazyImage 
             src={logoUrl} 
             alt="WashBizHub - The #1 Laundromat Resource" 
             className="h-40 sm:h-48 md:h-56 lg:h-60 w-auto mx-auto mb-6" 
@@ -370,7 +371,7 @@ export function Footer() {
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-shrink-0">
                 <Link href="/service-guy-ai">
-                  <img 
+                  <LazyImage 
                     src={serviceGuyAiLogoUrl} 
                     alt="Service Guy AI - Premium Commercial Laundry Equipment Diagnostics" 
                     className="h-24 md:h-32 w-auto object-contain cursor-pointer hover:scale-105 transition-transform"

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { LazyImage } from "@/components/LazyImage";
 import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
 
 interface FeaturedListing {
@@ -71,10 +72,12 @@ export function FeaturedListings() {
                 {/* Image/Visual Section */}
                 <div className="md:col-span-1 relative overflow-hidden">
                   {listing.image ? (
-                    <img 
+                    <LazyImage 
                       src={listing.image} 
                       alt={`${listing.name} - ${listing.location}`}
                       className="w-full h-full object-cover"
+                      width={400}
+                      height={300}
                     />
                   ) : (
                     <div className="bg-gradient-to-br from-accent/20 to-primary/20 h-full" />
