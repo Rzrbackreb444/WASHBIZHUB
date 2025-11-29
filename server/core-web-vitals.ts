@@ -36,12 +36,14 @@ export interface VitalMetric {
  */
 export async function analyzeCoreWebVitals(url: string, strategy: "mobile" | "desktop" = "mobile"): Promise<CoreWebVitals> {
   try {
-    const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY || process.env.GOOGLE_SEARCH_CONSOLE_API_KEY;
+    const apiKey = process.env.PAGE_SPEED_INSIGHTS_API_KEY || process.env.GOOGLE_PAGESPEED_API_KEY || process.env.GOOGLE_SEARCH_CONSOLE_API_KEY;
     
     if (!apiKey) {
       console.log("⚠️ No PageSpeed API key configured - using simulated data");
       return getSimulatedVitals();
     }
+    
+    console.log("✅ PageSpeed API key found, using real Google API");
 
     const psiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&category=performance&category=accessibility&category=seo&key=${apiKey}`;
     
