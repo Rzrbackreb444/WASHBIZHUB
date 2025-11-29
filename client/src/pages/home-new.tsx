@@ -584,6 +584,86 @@ export default function HomeNew() {
           </div>
         </section>
 
+        {/* Featured Expert: Larry Larsen */}
+        <section className="py-16 md:py-20 bg-[#001F3F]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-10">
+              <p className="text-[#b8860b] font-semibold text-sm tracking-wider uppercase mb-3">Industry Partner</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                Work With a Proven Expert
+              </h2>
+              <p className="text-white/60 max-w-2xl mx-auto">
+                Get personalized guidance from one of the most experienced professionals in the laundromat industry
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-r from-white/5 to-[#b8860b]/10 backdrop-blur border border-white/10 rounded-2xl p-6 md:p-8 hover:border-[#b8860b]/30 transition-all" data-testid="card-featured-expert">
+              <div className="flex flex-col lg:flex-row gap-8 items-center">
+                <div className="flex-shrink-0 text-center lg:text-left">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-[#b8860b] to-[#8B6914] flex items-center justify-center mx-auto lg:mx-0 mb-4">
+                    <span className="text-4xl md:text-5xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>LL</span>
+                  </div>
+                  <div className="inline-flex items-center gap-2 bg-[#b8860b]/20 text-[#b8860b] px-3 py-1 rounded-full text-sm font-semibold">
+                    <Award className="w-4 h-4" />
+                    50+ Years Experience
+                  </div>
+                </div>
+                
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                    Larry "Laundromat Larry" Larsen
+                  </h3>
+                  <p className="text-[#39CCCC] font-semibold mb-4">
+                    Laundromat Consulting • laundromat123.com
+                  </p>
+                  <p className="text-white/70 mb-6 max-w-2xl">
+                    With over five decades in the laundromat industry, Larry provides expert guidance on due diligence, store acquisitions, 
+                    equipment evaluation, lease analysis, and insurance. Based in Orange County, California, he's helped hundreds of 
+                    owners make smarter business decisions.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    {[
+                      'Due Diligence',
+                      'Buyer Consulting',
+                      'Store Design',
+                      'Lease Analysis',
+                      'Equipment Evaluation',
+                      'Insurance Education',
+                      'Expert Witness',
+                      'Broker Services'
+                    ].map((service, i) => (
+                      <div key={i} className="flex items-center gap-2 text-white/80 text-sm">
+                        <CheckCircle className="w-4 h-4 text-[#39CCCC] flex-shrink-0" />
+                        {service}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <a href="tel:714-390-9969">
+                      <Button className="w-full sm:w-auto h-12 px-6 bg-[#b8860b] hover:bg-[#9a7209] text-white font-bold" data-testid="button-call-larry">
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        Call: 714-390-9969
+                      </Button>
+                    </a>
+                    <a href="mailto:larry@washbizhub.com">
+                      <Button variant="outline" className="w-full sm:w-auto h-12 px-6 border-[#39CCCC] text-[#39CCCC] hover:bg-[#39CCCC]/10" data-testid="button-email-larry">
+                        Email Larry
+                      </Button>
+                    </a>
+                    <Link href="/consultation">
+                      <Button variant="outline" className="w-full sm:w-auto h-12 px-6 border-white/30 text-white hover:bg-white/10" data-testid="button-book-consultation">
+                        Book Consultation
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="py-20 bg-gradient-to-b from-[#001F3F] to-[#002B5C]">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>

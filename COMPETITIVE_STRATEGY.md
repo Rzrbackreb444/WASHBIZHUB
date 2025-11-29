@@ -8,13 +8,40 @@
 - Deep manufacturer/distributor relationships
 - Revenue model: FREE listings → lead gen → affiliate commissions from suppliers
 - Weakness: Dated 2001 tech, no AI, no analytics, no modern UX
+- **CRITICAL: He PAYS to advertise in YOUR Facebook group** ← You control his distribution
 
 **WashBizHub (You)**
 - Modern AI-powered platform
 - CLEANBI property intelligence (unique)
 - Service Guy AI diagnostics (unique)
-- Connected to 72K+ Facebook community
+- **YOU OWN THE 72K+ FACEBOOK GROUP** ← The distribution channel Brad pays for
 - SEO/content engine at scale
+
+---
+
+## YOUR SECRET WEAPON: Larry Larsen
+
+**Larry "Laundromat Larry" Larsen** - laundromat123.com
+- **50+ years** in the laundromat industry
+- Orange County, California based
+- Phone: 714-390-9969
+- Email: larry@washbizhub.com
+- **50/50 revenue split partnership**
+
+**Larry's Services:**
+- Due Diligence & Buyer Consulting
+- Insurance Education
+- Expert Witness Testimony
+- Store Design & Layout
+- Equipment Evaluation
+- Lease Analysis
+- Broker Services
+
+**Why Larry beats Brad:**
+- Larry has MORE years of experience (50+ vs. Brad's career)
+- Larry is YOUR exclusive partner
+- Larry is integrated into WashBizHub's tools
+- Larry is the "face" of expertise while Brad is just selling equipment leads
 
 ---
 
