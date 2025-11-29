@@ -3,8 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SocialNavigation } from "./SocialNavigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { Input } from "@/components/ui/input";
 import {
   NavigationMenu as NavMenu,
   NavigationMenuContent,
@@ -17,6 +17,8 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import {
   Accordion,
@@ -51,15 +53,22 @@ import {
   Building2,
   TrendingUp,
   Download,
+  Mail,
+  ChevronRight,
+  Search,
+  Sparkles,
+  Star,
+  ArrowRight,
+  X,
 } from "lucide-react";
-import { SiFacebook } from "react-icons/si";
+import { SiFacebook, SiLinkedin, SiX } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
-  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
+  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment", featured: true },
   { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
   { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
   { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide from experts" },
@@ -68,524 +77,756 @@ const PLAN_LINKS = [
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis" },
+  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis", featured: true },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
   { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },
   { href: "/resources", label: "Due Diligence Guide", icon: ClipboardCheck, description: "What to check before buying" },
-  { href: "/equipment", label: "Equipment Marketplace", icon: ShoppingCart, description: "Browse new & used equipment" },
+  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: ShoppingCart, description: "Browse new & used equipment" },
 ];
 
 const OPERATE_LINKS = [
-  { href: "/pos", label: "POS Command Center", icon: Monitor, description: "Manage payments, loyalty & operations" },
+  { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, description: "Manage payments, loyalty & operations", featured: true },
   { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, description: "AI-powered equipment troubleshooting" },
   { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Activity, description: "Diagnose machine issues instantly" },
   { href: "/design-studio-pro", label: "Design Studio Pro", icon: Palette, description: "Plan your floor layout in 3D" },
-  { href: "/equipment", label: "Equipment Marketplace", icon: Wrench, description: "Shop equipment, parts & supplies" },
+  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Wrench, description: "Shop equipment, parts & supplies" },
   { href: "/resources", label: "Resources Hub", icon: Library, description: "Guides, templates & downloads" },
 ];
 
 const PARTNER_LINKS = [
-  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true, badge: "FREE" },
+  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true, badge: "FREE", featured: true },
   { href: "/list-equipment", label: "List Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
   { href: "/list-supplies", label: "List Supplies", icon: Package, description: "Sell detergents, chemicals & products" },
   { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us as a supplier" },
-  { href: "/resources", label: "Affiliate Program", icon: TrendingUp, description: "Earn commissions on referrals" },
+  { href: "/advertise", label: "Advertise With Us", icon: TrendingUp, description: "Reach 72,000+ laundromat professionals" },
 ];
+
+const SECTION_NAV: Record<string, { label: string; links: { href: string; label: string }[] }> = {
+  "/plan": {
+    label: "Planning Tools",
+    links: [
+      { href: "/calculators", label: "Calculators" },
+      { href: "/startup-funding", label: "Funding" },
+      { href: "/book", label: "The Bible" },
+      { href: "/blog", label: "Blog" },
+    ],
+  },
+  "/evaluate": {
+    label: "Evaluation Tools",
+    links: [
+      { href: "/cleanbi-auto", label: "CLEANBI" },
+      { href: "/laundromat-listings", label: "Listings" },
+      { href: "/valuation-calculator", label: "Valuation" },
+    ],
+  },
+  "/operate": {
+    label: "Operations",
+    links: [
+      { href: "/pos-command-center", label: "POS" },
+      { href: "/service-guy-ai", label: "Service AI" },
+      { href: "/equipment-diagnostics", label: "Diagnostics" },
+    ],
+  },
+  "/partner": {
+    label: "Partner With Us",
+    links: [
+      { href: "/listing-form", label: "List Business" },
+      { href: "/vendor-form", label: "Become Vendor" },
+      { href: "/advertise", label: "Advertise" },
+    ],
+  },
+};
+
+function getBreadcrumb(pathname: string): { label: string; href: string }[] {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return [];
+  
+  const breadcrumbs: { label: string; href: string }[] = [{ label: "Home", href: "/" }];
+  
+  let path = "";
+  for (const segment of segments) {
+    path += `/${segment}`;
+    const label = segment
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    breadcrumbs.push({ label, href: path });
+  }
+  
+  return breadcrumbs;
+}
+
+function getContextualSection(pathname: string): string | null {
+  if (pathname.startsWith("/calculator") || pathname.startsWith("/startup") || pathname.startsWith("/book") || pathname.startsWith("/blog") || pathname.startsWith("/consultation")) {
+    return "/plan";
+  }
+  if (pathname.startsWith("/cleanbi") || pathname.startsWith("/laundromat-listing") || pathname.startsWith("/valuation") || pathname.startsWith("/resources")) {
+    return "/evaluate";
+  }
+  if (pathname.startsWith("/pos") || pathname.startsWith("/service") || pathname.startsWith("/equipment") || pathname.startsWith("/design")) {
+    return "/operate";
+  }
+  if (pathname.startsWith("/listing-form") || pathname.startsWith("/list-") || pathname.startsWith("/vendor") || pathname.startsWith("/advertise")) {
+    return "/partner";
+  }
+  return null;
+}
+
+interface MegamenuItemProps {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  description: string;
+  highlight?: boolean;
+  badge?: string;
+  featured?: boolean;
+  onClick?: () => void;
+}
+
+function MegamenuItem({ href, label, icon: Icon, description, highlight, badge, featured, onClick }: MegamenuItemProps) {
+  return (
+    <NavigationMenuLink asChild>
+      <Link
+        href={href}
+        onClick={onClick}
+        className={`group flex items-start gap-3 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-200 hover:bg-muted/80 focus:bg-muted ${
+          highlight ? "bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30" : ""
+        } ${featured ? "col-span-2 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border border-primary/20" : ""}`}
+        data-testid={`link-megamenu-${label.toLowerCase().replace(/\s+/g, '-')}`}
+      >
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+          featured 
+            ? "bg-primary text-primary-foreground" 
+            : highlight 
+              ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" 
+              : "bg-muted group-hover:bg-primary/10"
+        }`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold leading-none group-hover:text-primary transition-colors">{label}</span>
+            {badge && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30">{badge}</Badge>
+            )}
+            {highlight && !badge && (
+              <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4">Popular</Badge>
+            )}
+            {featured && (
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+            )}
+          </div>
+          <p className="mt-1 text-xs leading-snug text-muted-foreground line-clamp-2">
+            {description}
+          </p>
+        </div>
+        <ArrowRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100" />
+      </Link>
+    </NavigationMenuLink>
+  );
+}
 
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = useMemo(() => (path: string) => location === path, [location]);
+  const breadcrumbs = useMemo(() => getBreadcrumb(location), [location]);
+  const contextSection = useMemo(() => getContextualSection(location), [location]);
+  const isHomePage = location === "/" || location === "";
+  const showUtilityRail = !isHomePage && (breadcrumbs.length > 1 || contextSection);
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link href="/" data-testid="link-logo">
-          <div className="flex items-center gap-2 hover:opacity-85 active:opacity-75 transition-opacity cursor-pointer">
-            <img 
-              src={logoUrl} 
-              alt="WashBizHub - The #1 Laundromat Resource" 
-              className="h-16 sm:h-20 md:h-24 w-auto" 
-              loading="lazy"
-              data-testid="img-logo"
-            />
-          </div>
-        </Link>
+    <header className="sticky top-0 z-50">
+      {/* TIER 1: Brand Bar */}
+      <div className="bg-navy-900 text-white/90 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-8 flex items-center justify-between gap-4 text-xs">
+            {/* Left: Social Proof */}
+            <div className="hidden sm:flex items-center gap-2">
+              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+              <span className="font-medium">Serving 72,000+ Laundromat Professionals</span>
+            </div>
+            <div className="flex sm:hidden items-center gap-2">
+              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+              <span className="font-medium">72K+ Professionals</span>
+            </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
-          <NavMenu>
-            <NavigationMenuList className="gap-1">
-              {/* PLAN Megamenu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger 
-                  className="h-9"
-                  data-testid="dropdown-plan"
-                >
-                  <Lightbulb className="w-4 h-4 mr-1" />
-                  PLAN
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="p-4 w-[480px]">
-                    <div className="mb-3 pb-2 border-b">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Dreamers</span>
-                      <p className="text-sm text-muted-foreground">Thinking about buying a laundromat?</p>
-                    </div>
-                    <ul className="grid gap-2">
-                      {PLAN_LINKS.map((link) => {
-                        const Icon = link.icon;
-                        return (
-                          <li key={link.href + link.label}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={link.href}
-                                className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
-                                  link.highlight ? "bg-primary/5 border border-primary/20" : ""
-                                }`}
-                                data-testid={`link-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                  <Icon className="w-4 h-4 text-primary" />
-                                  {link.label}
-                                  {link.highlight && (
-                                    <Badge variant="default" className="ml-1 text-xs">Popular</Badge>
-                                  )}
-                                </div>
-                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
-                                  {link.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+            {/* Right: Contact, Social, Theme, Auth */}
+            <div className="flex items-center gap-1 sm:gap-3">
+              {/* Contact */}
+              <a 
+                href="mailto:nick@washbizhub.com" 
+                className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                data-testid="link-contact-email"
+              >
+                <Mail className="w-3 h-3" />
+                <span>Contact</span>
+              </a>
 
-              {/* EVALUATE Megamenu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger 
-                  className="h-9"
-                  data-testid="dropdown-evaluate"
-                >
-                  <Target className="w-4 h-4 mr-1" />
-                  EVALUATE
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="p-4 w-[480px]">
-                    <div className="mb-3 pb-2 border-b">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Buyers</span>
-                      <p className="text-sm text-muted-foreground">Actively searching for a laundromat?</p>
-                    </div>
-                    <ul className="grid gap-2">
-                      {EVALUATE_LINKS.map((link) => {
-                        const Icon = link.icon;
-                        return (
-                          <li key={link.href + link.label}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={link.href}
-                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                data-testid={`link-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                  <Icon className="w-4 h-4 text-primary" />
-                                  {link.label}
-                                </div>
-                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
-                                  {link.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* OPERATE Megamenu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger 
-                  className="h-9"
-                  data-testid="dropdown-operate"
-                >
-                  <Settings className="w-4 h-4 mr-1" />
-                  OPERATE
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="p-4 w-[480px]">
-                    <div className="mb-3 pb-2 border-b">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Owners</span>
-                      <p className="text-sm text-muted-foreground">Running your laundromat business?</p>
-                    </div>
-                    <ul className="grid gap-2">
-                      {OPERATE_LINKS.map((link) => {
-                        const Icon = link.icon;
-                        return (
-                          <li key={link.href + link.label}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={link.href}
-                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                data-testid={`link-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                  <Icon className="w-4 h-4 text-primary" />
-                                  {link.label}
-                                </div>
-                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
-                                  {link.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* PARTNER Megamenu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger 
-                  className="h-9"
-                  data-testid="dropdown-partner"
-                >
-                  <Users className="w-4 h-4 mr-1" />
-                  PARTNER
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="p-4 w-[480px]">
-                    <div className="mb-3 pb-2 border-b">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">For Vendors & Brokers</span>
-                      <p className="text-sm text-muted-foreground">Service providers & sellers welcome</p>
-                    </div>
-                    <ul className="grid gap-2">
-                      {PARTNER_LINKS.map((link) => {
-                        const Icon = link.icon;
-                        return (
-                          <li key={link.href + link.label}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={link.href}
-                                className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ${
-                                  link.highlight ? "bg-primary/5 border border-primary/20" : ""
-                                }`}
-                                data-testid={`link-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                  <Icon className="w-4 h-4 text-primary" />
-                                  {link.label}
-                                  {link.badge && (
-                                    <Badge variant="secondary" className="ml-1 text-xs">{link.badge}</Badge>
-                                  )}
-                                </div>
-                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
-                                  {link.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavMenu>
-        </nav>
-
-        {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Install CLEANBI Extension CTA - Desktop */}
-          <a
-            href={CHROME_EXTENSION_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden xl:flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors"
-            data-testid="link-extension-desktop"
-          >
-            <Download className="w-4 h-4" />
-            <span className="text-sm font-semibold">Install CLEANBI</span>
-          </a>
-
-          {/* FB Group CTA - Desktop */}
-          <a
-            href={FB_GROUP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden xl:flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            data-testid="link-fb-group-desktop"
-          >
-            <SiFacebook className="w-4 h-4" />
-            <span className="text-sm font-semibold">72K+</span>
-          </a>
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-          {/* Auth */}
-          {isLoading ? (
-            <div className="w-8 h-8 bg-muted rounded-full animate-pulse" data-testid="skeleton-auth" />
-          ) : isAuthenticated && user ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => logout()}
-              data-testid="button-logout"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline ml-2">Logout</span>
-            </Button>
-          ) : (
-            <a href="/api/login">
-              <Button size="sm" data-testid="button-login">
-                Sign In
-              </Button>
-            </a>
-          )}
-
-          {/* Hamburger Drawer */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden" data-testid="button-mobile-menu" aria-label="Open menu">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
-              <div className="space-y-6 mt-6 pb-8">
-                {/* Install CLEANBI Extension CTA */}
-                <a
-                  href={CHROME_EXTENSION_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-colors"
-                  data-testid="link-extension-mobile"
-                >
-                  <Download className="w-7 h-7" />
-                  <div>
-                    <div className="font-bold text-lg">Install CLEANBI</div>
-                    <div className="text-xs opacity-90">Chrome Extension - Analyze Any Location</div>
-                  </div>
-                </a>
-
-                {/* FB Group CTA */}
+              {/* Social Links */}
+              <div className="flex items-center gap-0.5">
                 <a
                   href={FB_GROUP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors"
-                  data-testid="link-fb-group-mobile"
+                  className="p-1.5 rounded hover:bg-white/10 transition-colors"
+                  aria-label="Facebook Group"
+                  data-testid="link-social-facebook"
                 >
-                  <SiFacebook className="w-7 h-7" />
-                  <div>
-                    <div className="font-bold text-lg">72K+ Members</div>
-                    <div className="text-xs opacity-90">Join The Laundromat FB Group</div>
-                  </div>
+                  <SiFacebook className="w-3.5 h-3.5" />
                 </a>
-
-                <Accordion type="multiple" className="w-full" defaultValue={["plan", "evaluate"]}>
-                  {/* PLAN Section */}
-                  <AccordionItem value="plan" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-plan"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Lightbulb className="w-5 h-5" />
-                        PLAN
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="px-2 pb-2">
-                        <span className="text-xs text-muted-foreground">For Dreamers - Thinking about buying</span>
-                      </div>
-                      <div className="space-y-1 pl-2">
-                        {PLAN_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
-                            <Link key={link.href + link.label} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  link.highlight
-                                    ? "bg-primary/10 border border-primary/20"
-                                    : isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{link.label}</span>
-                                    {link.highlight && (
-                                      <Badge variant="default" className="text-xs">Popular</Badge>
-                                    )}
-                                  </div>
-                                  <span className="text-xs text-muted-foreground">{link.description}</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* EVALUATE Section */}
-                  <AccordionItem value="evaluate" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-evaluate"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Target className="w-5 h-5" />
-                        EVALUATE
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="px-2 pb-2">
-                        <span className="text-xs text-muted-foreground">For Buyers - Actively searching</span>
-                      </div>
-                      <div className="space-y-1 pl-2">
-                        {EVALUATE_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
-                            <Link key={link.href + link.label} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <div>
-                                  <span className="block font-medium">{link.label}</span>
-                                  <span className="text-xs text-muted-foreground">{link.description}</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* OPERATE Section */}
-                  <AccordionItem value="operate" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-operate"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Settings className="w-5 h-5" />
-                        OPERATE
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="px-2 pb-2">
-                        <span className="text-xs text-muted-foreground">For Owners - Running your business</span>
-                      </div>
-                      <div className="space-y-1 pl-2">
-                        {OPERATE_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
-                            <Link key={link.href + link.label} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <div>
-                                  <span className="block font-medium">{link.label}</span>
-                                  <span className="text-xs text-muted-foreground">{link.description}</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* PARTNER Section */}
-                  <AccordionItem value="partner" className="border-none">
-                    <AccordionTrigger 
-                      className="font-bold text-lg text-primary hover:no-underline py-3"
-                      data-testid="accordion-partner"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        PARTNER
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="px-2 pb-2">
-                        <span className="text-xs text-muted-foreground">For Vendors & Brokers</span>
-                      </div>
-                      <div className="space-y-1 pl-2">
-                        {PARTNER_LINKS.map((link) => {
-                          const Icon = link.icon;
-                          return (
-                            <Link key={link.href + link.label} href={link.href}>
-                              <div
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                  link.highlight
-                                    ? "bg-primary/10 border border-primary/20"
-                                    : isActive(link.href)
-                                    ? "bg-accent text-accent-foreground font-semibold"
-                                    : "hover:bg-muted"
-                                }`}
-                                onClick={() => setMobileOpen(false)}
-                                data-testid={`link-mobile-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                              >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{link.label}</span>
-                                    {link.badge && (
-                                      <Badge variant="secondary" className="text-xs">{link.badge}</Badge>
-                                    )}
-                                  </div>
-                                  <span className="text-xs text-muted-foreground">{link.description}</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-
-                {/* Social Links */}
-                <div className="pt-4 border-t">
-                  <SocialNavigation />
-                </div>
+                <a
+                  href="https://twitter.com/washbizhub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 rounded hover:bg-white/10 transition-colors"
+                  aria-label="Twitter"
+                  data-testid="link-social-twitter"
+                >
+                  <SiX className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href="https://linkedin.com/company/washbizhub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:block p-1.5 rounded hover:bg-white/10 transition-colors"
+                  aria-label="LinkedIn"
+                  data-testid="link-social-linkedin"
+                >
+                  <SiLinkedin className="w-3.5 h-3.5" />
+                </a>
               </div>
-            </SheetContent>
-          </Sheet>
+
+              <div className="w-px h-4 bg-white/20 mx-1" />
+
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              {/* Auth */}
+              {isLoading ? (
+                <div className="w-6 h-6 bg-white/20 rounded animate-pulse" data-testid="skeleton-auth" />
+              ) : isAuthenticated && user ? (
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                  data-testid="button-logout"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              ) : (
+                <a 
+                  href="/api/login"
+                  className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                  data-testid="link-login"
+                >
+                  <span>Login</span>
+                </a>
+              )}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* TIER 2: Main Product Navigation */}
+      <div className="bg-white dark:bg-gray-900 border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-[72px] flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link href="/" data-testid="link-logo">
+              <div className="flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer shrink-0">
+                <img 
+                  src={logoUrl} 
+                  alt="WashBizHub - The #1 Laundromat Resource" 
+                  className="h-12 sm:h-14 md:h-16 w-auto" 
+                  loading="lazy"
+                  data-testid="img-logo"
+                />
+              </div>
+            </Link>
+
+            {/* Desktop Navigation - Megamenus */}
+            <nav className="hidden lg:flex items-center flex-1 justify-center">
+              <NavMenu>
+                <NavigationMenuList className="gap-1">
+                  {/* PLAN Megamenu */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger 
+                      className="h-10 text-sm font-semibold tracking-wide"
+                      data-testid="dropdown-plan"
+                    >
+                      <Lightbulb className="w-4 h-4 mr-1.5" />
+                      PLAN
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-[580px] p-5">
+                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Dreamers</span>
+                            <p className="text-sm text-muted-foreground mt-0.5">Thinking about buying a laundromat?</p>
+                          </div>
+                          <Link href="/plan" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                            View All <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <ul className="grid grid-cols-2 gap-2">
+                          {PLAN_LINKS.map((link) => (
+                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                              <MegamenuItem {...link} />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+
+                  {/* EVALUATE Megamenu */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger 
+                      className="h-10 text-sm font-semibold tracking-wide"
+                      data-testid="dropdown-evaluate"
+                    >
+                      <Target className="w-4 h-4 mr-1.5" />
+                      EVALUATE
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-[580px] p-5">
+                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Buyers</span>
+                            <p className="text-sm text-muted-foreground mt-0.5">Actively searching for a laundromat?</p>
+                          </div>
+                          <Link href="/evaluate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                            View All <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <ul className="grid grid-cols-2 gap-2">
+                          {EVALUATE_LINKS.map((link) => (
+                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                              <MegamenuItem {...link} />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+
+                  {/* OPERATE Megamenu */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger 
+                      className="h-10 text-sm font-semibold tracking-wide"
+                      data-testid="dropdown-operate"
+                    >
+                      <Settings className="w-4 h-4 mr-1.5" />
+                      OPERATE
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-[580px] p-5">
+                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Owners</span>
+                            <p className="text-sm text-muted-foreground mt-0.5">Running your laundromat business?</p>
+                          </div>
+                          <Link href="/operate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                            View All <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <ul className="grid grid-cols-2 gap-2">
+                          {OPERATE_LINKS.map((link) => (
+                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                              <MegamenuItem {...link} />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+
+                  {/* PARTNER Megamenu */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger 
+                      className="h-10 text-sm font-semibold tracking-wide"
+                      data-testid="dropdown-partner"
+                    >
+                      <Users className="w-4 h-4 mr-1.5" />
+                      PARTNER
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-[580px] p-5">
+                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Vendors & Brokers</span>
+                            <p className="text-sm text-muted-foreground mt-0.5">Service providers & sellers welcome</p>
+                          </div>
+                          <Link href="/partner" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                            View All <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <ul className="grid grid-cols-2 gap-2">
+                          {PARTNER_LINKS.map((link) => (
+                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                              <MegamenuItem {...link} />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavMenu>
+            </nav>
+
+            {/* Right Section */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Search Button - Desktop */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden md:flex"
+                onClick={() => setSearchOpen(!searchOpen)}
+                data-testid="button-search"
+              >
+                <Search className="w-5 h-5" />
+              </Button>
+
+              {/* Install CLEANBI Extension CTA - Desktop */}
+              <a
+                href={CHROME_EXTENSION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden xl:flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
+                data-testid="link-extension-desktop"
+              >
+                <Download className="w-4 h-4" />
+                <span>Get CLEANBI</span>
+              </a>
+
+              {/* Start Free Trial - Gold CTA */}
+              <Link href="/pricing">
+                <Button 
+                  className="hidden sm:flex bg-amber-500 hover:bg-amber-600 text-black font-semibold shadow-md"
+                  data-testid="button-start-trial"
+                >
+                  <span className="hidden md:inline">Start Free Trial</span>
+                  <span className="md:hidden">Free Trial</span>
+                </Button>
+              </Link>
+
+              {/* Mobile Menu Button */}
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="lg:hidden" data-testid="button-mobile-menu" aria-label="Open menu">
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto p-0">
+                  <SheetHeader className="p-4 border-b bg-navy-900 text-white">
+                    <SheetTitle className="text-white flex items-center gap-2">
+                      <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" />
+                    </SheetTitle>
+                  </SheetHeader>
+                  
+                  <div className="p-4 space-y-4">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Search tools & resources..." 
+                        className="pl-9"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        data-testid="input-mobile-search"
+                      />
+                    </div>
+
+                    {/* Quick CTAs */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <a
+                        href={CHROME_EXTENSION_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center gap-1 p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-center"
+                        data-testid="link-extension-mobile"
+                      >
+                        <Download className="w-5 h-5" />
+                        <span className="text-xs font-medium">Get CLEANBI</span>
+                      </a>
+                      <Link href="/pricing" onClick={() => setMobileOpen(false)}>
+                        <div className="flex flex-col items-center gap-1 p-3 bg-amber-500 hover:bg-amber-600 text-black rounded-lg transition-colors text-center cursor-pointer h-full justify-center">
+                          <Sparkles className="w-5 h-5" />
+                          <span className="text-xs font-semibold">Free Trial</span>
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* FB Group Banner */}
+                    <a
+                      href={FB_GROUP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      data-testid="link-fb-group-mobile"
+                    >
+                      <SiFacebook className="w-6 h-6" />
+                      <div>
+                        <div className="font-semibold">Join 72K+ Professionals</div>
+                        <div className="text-xs opacity-90">The Laundromat FB Group</div>
+                      </div>
+                    </a>
+
+                    {/* Navigation Accordion */}
+                    <Accordion type="multiple" className="w-full" defaultValue={["plan"]}>
+                      {/* PLAN Section */}
+                      <AccordionItem value="plan" className="border-none">
+                        <AccordionTrigger 
+                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          data-testid="accordion-plan"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                              <Lightbulb className="w-4 h-4 text-primary" />
+                            </div>
+                            PLAN
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          <div className="ml-10 space-y-1">
+                            {PLAN_LINKS.map((link) => {
+                              const Icon = link.icon;
+                              return (
+                                <Link key={link.href + link.label} href={link.href}>
+                                  <div
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                                      link.highlight
+                                        ? "bg-amber-500/10 border border-amber-500/30"
+                                        : isActive(link.href)
+                                        ? "bg-primary/10"
+                                        : "hover:bg-muted"
+                                    }`}
+                                    onClick={() => setMobileOpen(false)}
+                                    data-testid={`link-mobile-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                  >
+                                    <Icon className="w-4 h-4 text-muted-foreground" />
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">{link.label}</span>
+                                        {link.highlight && (
+                                          <Badge variant="default" className="text-[10px] h-4">Popular</Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* EVALUATE Section */}
+                      <AccordionItem value="evaluate" className="border-none">
+                        <AccordionTrigger 
+                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          data-testid="accordion-evaluate"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                              <Target className="w-4 h-4 text-primary" />
+                            </div>
+                            EVALUATE
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          <div className="ml-10 space-y-1">
+                            {EVALUATE_LINKS.map((link) => {
+                              const Icon = link.icon;
+                              return (
+                                <Link key={link.href + link.label} href={link.href}>
+                                  <div
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                                      isActive(link.href)
+                                        ? "bg-primary/10"
+                                        : "hover:bg-muted"
+                                    }`}
+                                    onClick={() => setMobileOpen(false)}
+                                    data-testid={`link-mobile-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                  >
+                                    <Icon className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">{link.label}</span>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* OPERATE Section */}
+                      <AccordionItem value="operate" className="border-none">
+                        <AccordionTrigger 
+                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          data-testid="accordion-operate"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                              <Settings className="w-4 h-4 text-primary" />
+                            </div>
+                            OPERATE
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          <div className="ml-10 space-y-1">
+                            {OPERATE_LINKS.map((link) => {
+                              const Icon = link.icon;
+                              return (
+                                <Link key={link.href + link.label} href={link.href}>
+                                  <div
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                                      isActive(link.href)
+                                        ? "bg-primary/10"
+                                        : "hover:bg-muted"
+                                    }`}
+                                    onClick={() => setMobileOpen(false)}
+                                    data-testid={`link-mobile-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                  >
+                                    <Icon className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">{link.label}</span>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* PARTNER Section */}
+                      <AccordionItem value="partner" className="border-none">
+                        <AccordionTrigger 
+                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          data-testid="accordion-partner"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                              <Users className="w-4 h-4 text-primary" />
+                            </div>
+                            PARTNER
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          <div className="ml-10 space-y-1">
+                            {PARTNER_LINKS.map((link) => {
+                              const Icon = link.icon;
+                              return (
+                                <Link key={link.href + link.label} href={link.href}>
+                                  <div
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                                      link.highlight
+                                        ? "bg-amber-500/10 border border-amber-500/30"
+                                        : isActive(link.href)
+                                        ? "bg-primary/10"
+                                        : "hover:bg-muted"
+                                    }`}
+                                    onClick={() => setMobileOpen(false)}
+                                    data-testid={`link-mobile-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                  >
+                                    <Icon className="w-4 h-4 text-muted-foreground" />
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">{link.label}</span>
+                                        {link.badge && (
+                                          <Badge variant="secondary" className="text-[10px] h-4">{link.badge}</Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Overlay - Desktop */}
+        {searchOpen && (
+          <div className="hidden md:block border-t bg-background/95 backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="relative max-w-2xl mx-auto">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input 
+                  placeholder="Search calculators, guides, listings, resources..." 
+                  className="pl-12 pr-10 h-12 text-base"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  data-testid="input-search"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* TIER 3: Utility Rail (Contextual - only on inner pages) */}
+      {showUtilityRail && (
+        <div className="bg-muted/50 dark:bg-muted/30 border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="h-10 flex items-center justify-between gap-4 text-sm overflow-x-auto">
+              {/* Breadcrumbs */}
+              <nav className="flex items-center gap-1 text-muted-foreground whitespace-nowrap" aria-label="Breadcrumb">
+                {breadcrumbs.map((crumb, idx) => (
+                  <div key={crumb.href} className="flex items-center gap-1">
+                    {idx > 0 && <ChevronRight className="w-3 h-3 shrink-0" />}
+                    {idx === breadcrumbs.length - 1 ? (
+                      <span className="font-medium text-foreground">{crumb.label}</span>
+                    ) : (
+                      <Link href={crumb.href} className="hover:text-foreground transition-colors">
+                        {crumb.label}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </nav>
+
+              {/* Context Quick Links */}
+              {contextSection && SECTION_NAV[contextSection] && (
+                <div className="hidden sm:flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground mr-2">{SECTION_NAV[contextSection].label}:</span>
+                  {SECTION_NAV[contextSection].links.map((link) => (
+                    <Link key={link.href} href={link.href}>
+                      <Button 
+                        variant={isActive(link.href) ? "secondary" : "ghost"} 
+                        size="sm" 
+                        className="h-7 text-xs"
+                        data-testid={`link-utility-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        {link.label}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
