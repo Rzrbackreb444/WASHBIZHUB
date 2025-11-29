@@ -4,18 +4,7 @@ import { Chrome, ArrowRight, Download, CheckCircle, Loader2, Mail } from "lucide
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Radar } from 'react-chartjs-2';
-
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+import { LazyRadarChart } from "./LazyRadarChart";
 
 type DemoStep = 'address' | 'analyzing' | 'results' | 'capture' | 'success';
 
@@ -102,6 +91,11 @@ export function Hero() {
           alt="Premium stacked commercial laundromat washers and dryers in modern industrial facility"
           className="w-full h-full object-cover opacity-20"
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
+          width={1920}
+          height={1080}
+          data-testid="img-hero-background"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy-900/95 via-navy-900/90 to-navy-800/95" />
       </div>
@@ -189,7 +183,7 @@ export function Hero() {
                 
                 <div className="bg-navy-900/50 rounded-3xl p-4 sm:p-8 mb-8">
                   <div className="max-w-lg mx-auto">
-                    <Radar data={radarData} options={radarOptions} />
+                    <LazyRadarChart data={radarData} options={radarOptions} />
                   </div>
                 </div>
 

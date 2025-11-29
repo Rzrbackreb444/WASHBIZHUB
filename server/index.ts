@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { registerSitemapRoutes } from "./sitemap";
 import { registerPosRoutes } from "./pos-routes";
@@ -11,6 +12,20 @@ import { initializeCacheLayer } from "./cleanbi-cache-layer";
 import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
 
 const app = express();
+
+// Enable gzip/brotli compression for all responses (major performance boost)
+app.use(compression({
+  level: 6, // Balanced compression level
+  threshold: 1024, // Only compress responses > 1KB
+  filter: (req, res) => {
+    // Don't compress if client doesn't accept it
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Use compression's default filter
+    return compression.filter(req, res);
+  }
+}));
 
 declare module 'http' {
   interface IncomingMessage {

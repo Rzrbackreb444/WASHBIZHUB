@@ -10,11 +10,14 @@ import { TenantProvider } from "@/contexts/TenantContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { AIChatWidget } from "@/components/AIChatWidget";
-import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/Analytics";
+import { usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
-import { APIProvider } from "@vis.gl/react-google-maps";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { APIProvider } from "@vis.gl/react-google-maps";
+
+// Lazy load analytics to defer non-critical tracking scripts
+const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -59,16 +62,20 @@ const websiteSchema = {
 };
 
 // ============================================================================
-// STATIC IMPORTS - Essential pages for SEO (kept in main bundle)
+// STATIC IMPORTS - Only absolute critical path (minimal main bundle)
 // ============================================================================
 import Home from "@/pages/home-new";
-import CleanBI from "@/pages/cleanbi";
-import Pricing from "@/pages/pricing";
-import Blog from "@/pages/blog";
-import CoursesHub from "@/pages/courses-hub";
-import AboutUs from "@/pages/about-us";
-import WhyWashBizHub from "@/pages/why-washbizhub";
 import NotFound from "@/pages/not-found";
+
+// ============================================================================
+// LAZY IMPORTS - SEO pages (still indexable, but code-split)
+// ============================================================================
+const CleanBI = lazy(() => import("@/pages/cleanbi"));
+const Pricing = lazy(() => import("@/pages/pricing"));
+const Blog = lazy(() => import("@/pages/blog"));
+const CoursesHub = lazy(() => import("@/pages/courses-hub"));
+const AboutUs = lazy(() => import("@/pages/about-us"));
+const WhyWashBizHub = lazy(() => import("@/pages/why-washbizhub"));
 
 // ============================================================================
 // LAZY IMPORTS - Code split by feature area for optimal chunking
@@ -1092,8 +1099,9 @@ function AppContent() {
   if (isFullScreenApp) {
     return (
       <>
-        <GoogleAnalytics />
-        <FacebookPixel />
+        <Suspense fallback={null}>
+          <DeferredAnalytics />
+        </Suspense>
         <RouteErrorBoundary>
           <Suspense fallback={<FullPageLoadingFallback />}>
             <Router />
@@ -1114,8 +1122,9 @@ function AppContent() {
         </script>
       </Helmet>
       <div className="min-h-screen flex flex-col">
-        <GoogleAnalytics />
-        <FacebookPixel />
+        <Suspense fallback={null}>
+          <DeferredAnalytics />
+        </Suspense>
         <NavigationMenu />
         <div className="flex-1">
           <RouteErrorBoundary>
