@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -263,6 +264,52 @@ export default function ServiceGuyAI() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <SEO 
+        title="Service Guy AI - Smart Laundry Equipment Diagnostics"
+        description="Free AI-powered troubleshooting for Speed Queen, Dexter, Maytag & 47 more brands. 2,200+ error codes, repair guides, part numbers & maintenance tips from industry experts."
+        keywords={[
+          "laundromat error codes",
+          "washer error codes",
+          "dryer fault codes", 
+          "Speed Queen error codes",
+          "Dexter error codes",
+          "laundry equipment troubleshooting",
+          "commercial washer repair",
+          "laundromat maintenance AI",
+          "Service Guy AI"
+        ]}
+        canonicalUrl="/service-guy-ai"
+        ogType="website"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Tools", url: "/calculators" },
+          { name: "Service Guy AI", url: "/service-guy-ai" }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "Service Guy AI",
+          "description": "AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "2,200+ error code database",
+            "AI-powered troubleshooting",
+            "Part number lookup",
+            "Repair time estimates",
+            "50+ manufacturer support"
+          ],
+          "provider": {
+            "@type": "Organization",
+            "name": "WashBizHub"
+          }
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-8">

@@ -39,20 +39,87 @@ export async function analyzeCoreWebVitals(url: string, strategy: "mobile" | "de
     const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY || process.env.GOOGLE_SEARCH_CONSOLE_API_KEY;
     
     if (!apiKey) {
-      // Return simulated data if no API key
+      console.log("⚠️ No PageSpeed API key configured - using simulated data");
       return getSimulatedVitals();
     }
 
-    // Would call PageSpeed Insights API
-    const psiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&key=${apiKey}`;
+    const psiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&category=performance&category=accessibility&category=seo&key=${apiKey}`;
     
-    console.log(`Analyzing Core Web Vitals for ${url} (${strategy})`);
+    console.log(`📊 Analyzing Core Web Vitals for ${url} (${strategy})`);
     
-    // Simulated response for now
-    return getSimulatedVitals();
+    const response = await fetch(psiUrl);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ PageSpeed API error (${response.status}):`, errorText);
+      return getSimulatedVitals();
+    }
+    
+    const data = await response.json();
+    
+    // Extract real metrics from PageSpeed Insights response
+    const lighthouseResult = data.lighthouseResult;
+    const audits = lighthouseResult?.audits || {};
+    const categories = lighthouseResult?.categories || {};
+    
+    // Extract Core Web Vitals metrics
+    const lcpAudit = audits['largest-contentful-paint'];
+    const fidAudit = audits['max-potential-fid'] || audits['total-blocking-time'];
+    const clsAudit = audits['cumulative-layout-shift'];
+    const ttfbAudit = audits['server-response-time'];
+    
+    const lcp: VitalMetric = {
+      value: lcpAudit?.numericValue ? lcpAudit.numericValue / 1000 : 2.5,
+      rating: lcpAudit?.score >= 0.9 ? "good" : lcpAudit?.score >= 0.5 ? "needs-improvement" : "poor",
+      threshold: { good: 2.5, poor: 4.0 },
+      impact: "LCP measures loading performance. Aim for < 2.5s",
+    };
+    
+    const fid: VitalMetric = {
+      value: fidAudit?.numericValue || 100,
+      rating: fidAudit?.score >= 0.9 ? "good" : fidAudit?.score >= 0.5 ? "needs-improvement" : "poor",
+      threshold: { good: 100, poor: 300 },
+      impact: "FID measures interactivity. Aim for < 100ms",
+    };
+    
+    const cls: VitalMetric = {
+      value: clsAudit?.numericValue || 0.1,
+      rating: clsAudit?.score >= 0.9 ? "good" : clsAudit?.score >= 0.5 ? "needs-improvement" : "poor",
+      threshold: { good: 0.1, poor: 0.25 },
+      impact: "CLS measures visual stability. Aim for < 0.1",
+    };
+    
+    const ttfb: VitalMetric = {
+      value: ttfbAudit?.numericValue || 800,
+      rating: ttfbAudit?.score >= 0.9 ? "good" : ttfbAudit?.score >= 0.5 ? "needs-improvement" : "poor",
+      threshold: { good: 800, poor: 1800 },
+      impact: "TTFB measures server response time. Aim for < 800ms",
+    };
+    
+    // Calculate overall score from PageSpeed performance score
+    const performanceScore = Math.round((categories.performance?.score || 0) * 100);
+    const seoScore = Math.round((categories.seo?.score || 0) * 100);
+    const accessibilityScore = Math.round((categories.accessibility?.score || 0) * 100);
+    
+    const score = performanceScore;
+    const grade = score >= 90 ? "Good" : score >= 50 ? "Needs Improvement" : "Poor";
+    
+    const recommendations = generateVitalsRecommendations({ lcp, fid, cls, ttfb });
+    
+    console.log(`✅ PageSpeed Analysis Complete: Performance ${performanceScore}, SEO ${seoScore}, Accessibility ${accessibilityScore}`);
+    
+    return {
+      score,
+      lcp,
+      fid,
+      cls,
+      ttfb,
+      grade,
+      recommendations,
+    };
     
   } catch (error) {
-    console.error("PageSpeed API error:", error);
+    console.error("❌ PageSpeed API error:", error);
     return getSimulatedVitals();
   }
 }
