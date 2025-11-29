@@ -9417,31 +9417,28 @@ ${pdfData.text.substring(0, 15000)}`;
   // Get all approved marketplace listings (public)
   app.get("/api/marketplace/listings", async (req, res) => {
     try {
-      const { category, status = 'approved', state, limit = 50 } = req.query;
+      const { category, status = 'approved', limit = 50 } = req.query;
+      const statusStr = String(status);
+      const limitNum = Number(limit);
       
-      let query = `
-        SELECT * FROM marketplace_listings 
-        WHERE status = $1
-      `;
-      const params: any[] = [status];
-      let paramIndex = 2;
-      
-      if (category) {
-        query += ` AND category = $${paramIndex}`;
-        params.push(category);
-        paramIndex++;
+      let result;
+      if (category && category !== 'all') {
+        const categoryStr = String(category);
+        result = await db.execute(sql`
+          SELECT * FROM marketplace_listings 
+          WHERE status = ${statusStr} AND category = ${categoryStr}
+          ORDER BY featured DESC, created_at DESC 
+          LIMIT ${limitNum}
+        `);
+      } else {
+        result = await db.execute(sql`
+          SELECT * FROM marketplace_listings 
+          WHERE status = ${statusStr}
+          ORDER BY featured DESC, created_at DESC 
+          LIMIT ${limitNum}
+        `);
       }
       
-      if (state) {
-        query += ` AND state = $${paramIndex}`;
-        params.push(state);
-        paramIndex++;
-      }
-      
-      query += ` ORDER BY featured DESC, created_at DESC LIMIT $${paramIndex}`;
-      params.push(Number(limit));
-      
-      const result = await db.execute(sql.raw(query, ...params));
       res.json(result.rows || []);
     } catch (error: any) {
       console.error("Error fetching marketplace listings:", error);
