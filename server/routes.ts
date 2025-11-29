@@ -4979,6 +4979,163 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
+  // POST /api/subscriptions/billing-portal - Open Stripe billing portal
+  app.post("/api/subscriptions/billing-portal", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Create or get Stripe customer
+      let customerId = currentUser.user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: currentUser.user.email || undefined,
+          metadata: {
+            userId: currentUser.userId,
+          },
+        });
+        customerId = customer.id;
+        await storage.updateUser(currentUser.userId, { stripeCustomerId: customerId });
+      }
+
+      // Create billing portal session
+      const session = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: `${req.headers.origin}/settings`,
+      });
+
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error("Billing portal error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== ONBOARDING ====================
+
+  // GET /api/onboarding/state - Get user's onboarding state
+  app.get("/api/onboarding/state", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      res.json({
+        completed: currentUser.user.onboardingCompleted || false,
+        step: currentUser.user.onboardingStep || 0,
+        checklist: currentUser.user.onboardingChecklist || {
+          profileComplete: false,
+          locationAdded: false,
+          machinesAdded: false,
+          firstSaleComplete: false,
+          teamInvited: false
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/onboarding/progress - Update onboarding progress
+  app.patch("/api/onboarding/progress", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { step, checklistItem, completed } = req.body;
+
+      const updates: any = {};
+      
+      if (step !== undefined) {
+        updates.onboardingStep = step;
+      }
+      
+      if (completed !== undefined) {
+        updates.onboardingCompleted = completed;
+      }
+
+      if (checklistItem) {
+        const currentChecklist = currentUser.user.onboardingChecklist || {};
+        updates.onboardingChecklist = {
+          ...currentChecklist,
+          [checklistItem]: true
+        };
+      }
+
+      await storage.updateUser(currentUser.userId, updates);
+
+      res.json({ success: true, ...updates });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/dashboard/summary - Get user dashboard summary
+  app.get("/api/dashboard/summary", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const user = currentUser.user;
+
+      // Calculate subscription info
+      let subscriptionEnd = null;
+      let subscriptionStatus = "none";
+      
+      if (stripe && user.stripeSubscriptionId) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+          subscriptionStatus = subscription.status;
+          subscriptionEnd = subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null;
+        } catch (e) {
+          // Subscription might not exist
+        }
+      }
+
+      // Get activity counts (simplified)
+      const recentActivity = [];
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          companyName: user.companyName,
+          role: user.role,
+          numberOfLocations: user.numberOfLocations || 1
+        },
+        subscription: {
+          tier: user.subscriptionTier || "free",
+          status: subscriptionStatus,
+          endsAt: subscriptionEnd,
+          isPro: user.isPro,
+          hasStripeCustomer: !!user.stripeCustomerId
+        },
+        onboarding: {
+          completed: user.onboardingCompleted || false,
+          step: user.onboardingStep || 0,
+          checklist: user.onboardingChecklist || {}
+        },
+        recentActivity
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== EQUIPMENT LISTINGS ====================
 
   // GET /api/equipment-listings - List all equipment
