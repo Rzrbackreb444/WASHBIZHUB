@@ -1289,6 +1289,105 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type Review = typeof reviews.$inferSelect;
 
+// =============================================
+// MARKETPLACE LISTINGS (Equipment, Services, Businesses for Sale)
+// =============================================
+export const marketplaceListings = pgTable("marketplace_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Seller Information
+  userId: varchar("user_id").references(() => users.id),
+  sellerName: text("seller_name").notNull(),
+  sellerEmail: text("seller_email").notNull(),
+  sellerPhone: text("seller_phone"),
+  
+  // Listing Details
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  
+  // Category System (Primary → Secondary → Tertiary)
+  category: text("category").notNull(), // "laundromats", "equipment", "services", "other_businesses"
+  subcategory: text("subcategory"), // "coin_op", "commercial", "routes", "car_wash", "restaurant", etc.
+  
+  // Pricing
+  price: decimal("price", { precision: 12, scale: 2 }),
+  priceType: text("price_type").default("fixed"), // "fixed", "negotiable", "call", "auction"
+  currency: text("currency").default("USD"),
+  
+  // Location
+  city: text("city"),
+  state: text("state"),
+  country: text("country").default("USA"),
+  zipCode: text("zip_code"),
+  
+  // Equipment-specific fields
+  manufacturer: text("manufacturer"),
+  model: text("model"),
+  yearMade: integer("year_made"),
+  quantity: integer("quantity").default(1),
+  condition: text("condition"), // "new", "like_new", "good", "fair", "for_parts"
+  
+  // Images (stored in object storage)
+  images: text("images").array(), // Array of image URLs
+  
+  // Approval Workflow
+  status: text("status").default("pending").notNull(), // "pending", "approved", "denied", "expired"
+  approvalToken: text("approval_token"), // Secret token for approve/deny links
+  denialReason: text("denial_reason"),
+  
+  // Premium Features
+  featured: boolean("featured").default(false),
+  listingTier: text("listing_tier").default("free"), // "free", "featured", "spotlight"
+  
+  // Analytics
+  views: integer("views").default(0).notNull(),
+  inquiries: integer("inquiries").default(0).notNull(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  approvedAt: timestamp("approved_at"),
+  expiresAt: timestamp("expires_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertMarketplaceListingSchema = createInsertSchema(marketplaceListings).omit({
+  id: true,
+  approvalToken: true,
+  views: true,
+  inquiries: true,
+  createdAt: true,
+  approvedAt: true,
+  updatedAt: true,
+});
+
+export type InsertMarketplaceListing = z.infer<typeof insertMarketplaceListingSchema>;
+export type MarketplaceListing = typeof marketplaceListings.$inferSelect;
+
+// Marketplace Inquiries (leads from listings)
+export const marketplaceInquiries = pgTable("marketplace_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => marketplaceListings.id),
+  
+  // Inquirer Info
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  message: text("message").notNull(),
+  
+  // Status
+  status: text("status").default("new"), // "new", "contacted", "closed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMarketplaceInquirySchema = createInsertSchema(marketplaceInquiries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMarketplaceInquiry = z.infer<typeof insertMarketplaceInquirySchema>;
+export type MarketplaceInquiry = typeof marketplaceInquiries.$inferSelect;
+
 // Competition Intelligence
 export const competitionIntelligence = pgTable("competition_intelligence", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -8586,10 +8685,10 @@ export type InsertIndexingEvent = z.infer<typeof insertIndexingEventSchema>;
 export type IndexingEvent = typeof indexingEvents.$inferSelect;
 
 // ============================================================================
-// MARKETPLACE LISTINGS - Sell books & courses
+// DIGITAL PRODUCT LISTINGS - Sell books & courses (StrokeRecoveryAcademy)
 // ============================================================================
 
-export const marketplaceListings = pgTable("marketplace_listings", {
+export const digitalProductListings = pgTable("digital_product_listings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
   
@@ -8649,20 +8748,20 @@ export const marketplaceListings = pgTable("marketplace_listings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
-  userIdx: index("marketplace_user_idx").on(table.userId),
-  slugIdx: index("marketplace_slug_idx").on(table.slug),
-  statusIdx: index("marketplace_status_idx").on(table.status),
-  categoryIdx: index("marketplace_category_idx").on(table.category),
+  userIdx: index("digital_product_user_idx").on(table.userId),
+  slugIdx: index("digital_product_slug_idx").on(table.slug),
+  statusIdx: index("digital_product_status_idx").on(table.status),
+  categoryIdx: index("digital_product_category_idx").on(table.category),
 }));
 
-export const insertMarketplaceListingSchema = createInsertSchema(marketplaceListings).omit({
+export const insertDigitalProductListingSchema = createInsertSchema(digitalProductListings).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export type InsertMarketplaceListing = z.infer<typeof insertMarketplaceListingSchema>;
-export type MarketplaceListing = typeof marketplaceListings.$inferSelect;
+export type InsertDigitalProductListing = z.infer<typeof insertDigitalProductListingSchema>;
+export type DigitalProductListing = typeof digitalProductListings.$inferSelect;
 
 // ============================================================================
 // CONTENT PIPELINES - Multi-agent production orchestration
