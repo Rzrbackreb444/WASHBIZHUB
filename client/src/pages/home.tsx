@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
 import londrLogoUrl from "@assets/Londr_1763778448894.png";
-import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 const journeyPaths = [
   {

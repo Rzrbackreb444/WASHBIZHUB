@@ -5,7 +5,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/6_1764040628012.png";
-import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 

@@ -29,7 +29,7 @@ import {
   ShoppingCart,
   Zap
 } from "lucide-react";
-import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAILogo from "@assets/SERVICE GUY_1764436998885.png";
 
 interface ErrorCode {
   id: number;
