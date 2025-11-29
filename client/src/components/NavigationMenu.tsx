@@ -60,6 +60,7 @@ import {
   Star,
   ArrowRight,
   X,
+  MapPin,
 } from "lucide-react";
 import { SiFacebook, SiLinkedin, SiX } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -492,18 +493,6 @@ export function NavigationMenu() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              {/* Install CLEANBI Extension CTA - Desktop */}
-              <a
-                href={CHROME_EXTENSION_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden xl:flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
-                data-testid="link-extension-desktop"
-              >
-                <Download className="w-4 h-4" />
-                <span>Get CLEANBI</span>
-              </a>
-
               {/* Start Free Trial - Gold CTA */}
               <Link href="/pricing">
                 <Button 
@@ -544,16 +533,14 @@ export function NavigationMenu() {
 
                     {/* Quick CTAs */}
                     <div className="grid grid-cols-2 gap-2">
-                      <a
-                        href={CHROME_EXTENSION_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col items-center gap-1 p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-center"
-                        data-testid="link-extension-mobile"
-                      >
-                        <Download className="w-5 h-5" />
-                        <span className="text-xs font-medium">Get CLEANBI</span>
-                      </a>
+                      <Link href="/cleanbi-auto" onClick={() => setMobileOpen(false)}>
+                        <div className="flex flex-col items-center gap-1 p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-center cursor-pointer h-full justify-center"
+                        data-testid="link-cleanbi-mobile"
+                        >
+                          <MapPin className="w-5 h-5" />
+                          <span className="text-xs font-medium">Try CLEANBI</span>
+                        </div>
+                      </Link>
                       <Link href="/pricing" onClick={() => setMobileOpen(false)}>
                         <div className="flex flex-col items-center gap-1 p-3 bg-amber-500 hover:bg-amber-600 text-black rounded-lg transition-colors text-center cursor-pointer h-full justify-center">
                           <Sparkles className="w-5 h-5" />
