@@ -146,3 +146,26 @@ Replit Auth (OIDC) handles authentication, with sessions stored in PostgreSQL. R
 -   **Twilio:** Two-way SMS for route optimization.
 -   **Google APIs:** Places, Reviews, Distance Matrix, Geocoding, Search Console, SERP, Workspace, Cloud APIs, Indexing API.
 -   **IndexNow:** For search engine indexing (Bing, Yahoo, Yandex, DuckDuckGo).
+
+## Performance Optimizations (November 2025)
+
+### Lighthouse Score Improvements
+Target: 90+ on both mobile and desktop. Starting baseline: Mobile 18/100, Desktop 55/100.
+
+### Implemented Optimizations:
+1. **Gzip Compression:** Added compression middleware to server/index.ts for all responses > 1KB
+2. **Font Optimization:** Removed render-blocking font import from CSS, now preloaded in index.html with async loading
+3. **Resource Hints:** Added preconnect/dns-prefetch for Google APIs, Stripe, and analytics services
+4. **Code Splitting:** Converted 6+ pages to lazy imports (CleanBI, Pricing, Blog, CoursesHub, AboutUs, WhyWashBizHub)
+5. **Deferred Analytics:** Created DeferredAnalytics component using requestIdleCallback to defer GA/FB Pixel loading
+6. **Lazy Chart.js:** Created LazyRadarChart/RadarChartInner to defer Chart.js loading until user interaction
+7. **Hero Image Optimization:** Added fetchPriority="high", width/height attributes, and decoding="async"
+8. **LazyImage Component:** Created intersection-observer-based lazy loading component for images
+
+### Key Files:
+- `client/src/components/DeferredAnalytics.tsx` - Deferred analytics loading
+- `client/src/components/LazyImage.tsx` - Lazy-loaded image component
+- `client/src/components/LazyRadarChart.tsx` - Lazy-loaded Chart.js wrapper
+- `client/src/components/RadarChartInner.tsx` - Chart.js implementation
+- `server/core-web-vitals.ts` - PageSpeed Insights integration
+- `client/index.html` - Font preloading and resource hints
