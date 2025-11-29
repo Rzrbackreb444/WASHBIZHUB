@@ -243,6 +243,7 @@ const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
 const Doctrine = lazy(() => import("@/pages/doctrine"));
 const Subscribe = lazy(() => import("@/pages/subscribe"));
+const SubscriptionSuccess = lazy(() => import("@/pages/subscription-success"));
 const FacebookGroup = lazy(() => import("@/pages/FacebookGroup"));
 const AtmServices = lazy(() => import("@/pages/AtmServices"));
 const Templates = lazy(() => import("@/pages/templates"));
@@ -749,6 +750,11 @@ function Router() {
       <Route path="/subscribe">
         <Suspense fallback={<LoadingFallback />}>
           <Subscribe />
+        </Suspense>
+      </Route>
+      <Route path="/subscription-success">
+        <Suspense fallback={<LoadingFallback />}>
+          <SubscriptionSuccess />
         </Suspense>
       </Route>
 
