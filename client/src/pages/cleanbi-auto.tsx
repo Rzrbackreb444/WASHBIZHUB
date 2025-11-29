@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift } from "lucide-react";
+import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift, BarChart3 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { LegalDisclaimer } from "@/components/legal-disclaimer";
 import { apiRequest } from "@/lib/queryClient";
+import { LazyRadarChart } from "@/components/LazyRadarChart";
 
 // Maximum SEO/AEO Structured Data for CLEANBI Universal Scoring Tool
 const cleanbiAutoStructuredData = {
@@ -514,6 +515,73 @@ export default function CleanbiAuto() {
                         <span className="text-muted-foreground">Data Quality</span>
                         <Badge variant="outline" className="capitalize">{result.dataQuality}</Badge>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Radar Chart Visualization */}
+                <Card className="bg-gradient-to-br from-[#001F3F]/5 to-[#39CCCC]/5 border-[#39CCCC]/20">
+                  <CardHeader className="px-4 sm:px-6 pb-2">
+                    <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-[#39CCCC]" />
+                      Score Visualization
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 sm:px-6">
+                    <div className="h-64 sm:h-72" data-testid="chart-radar-container">
+                      <LazyRadarChart
+                        data={{
+                          labels: result.addressType === 'residential' 
+                            ? ['Property Value', 'Neighborhood', 'Schools', 'Safety', 'Walkability']
+                            : ['Foot Traffic', 'Competition', 'Reviews', 'Location', 'Visibility'],
+                          datasets: [{
+                            label: 'CLEANBI Score',
+                            data: result.addressType === 'residential'
+                              ? [
+                                  result.breakdown.propertyValue?.score ? (result.breakdown.propertyValue.score / 30) * 100 : 0,
+                                  result.breakdown.neighborhoodQuality?.score ? (result.breakdown.neighborhoodQuality.score / 25) * 100 : 0,
+                                  result.breakdown.schoolRating?.score ? (result.breakdown.schoolRating.score / 20) * 100 : 0,
+                                  result.breakdown.crimeScore?.score ? (result.breakdown.crimeScore.score / 15) * 100 : 0,
+                                  result.breakdown.walkability?.score ? (result.breakdown.walkability.score / 10) * 100 : 0,
+                                ]
+                              : [
+                                  result.breakdown.footTraffic?.score ? (result.breakdown.footTraffic.score / 30) * 100 : 0,
+                                  result.breakdown.competition?.score ? (result.breakdown.competition.score / 20) * 100 : 0,
+                                  result.breakdown.reviews?.score ? (result.breakdown.reviews.score / 25) * 100 : 0,
+                                  result.breakdown.locationQuality?.score ? (result.breakdown.locationQuality.score / 15) * 100 : 0,
+                                  result.breakdown.visibility?.score ? (result.breakdown.visibility.score / 10) * 100 : 0,
+                                ],
+                            backgroundColor: 'rgba(57, 204, 204, 0.2)',
+                            borderColor: 'rgba(57, 204, 204, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(57, 204, 204, 1)',
+                          }],
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { display: false },
+                          },
+                          scales: {
+                            r: {
+                              beginAtZero: true,
+                              max: 100,
+                              ticks: {
+                                stepSize: 20,
+                                color: 'rgba(128, 128, 128, 0.7)',
+                              },
+                              grid: {
+                                color: 'rgba(57, 204, 204, 0.1)',
+                              },
+                              pointLabels: {
+                                color: 'rgba(128, 128, 128, 0.9)',
+                                font: { size: 11 },
+                              },
+                            },
+                          },
+                        }}
+                      />
                     </div>
                   </CardContent>
                 </Card>
