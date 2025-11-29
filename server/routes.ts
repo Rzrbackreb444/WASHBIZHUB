@@ -7401,6 +7401,99 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // GET /api/admin/pagespeed - Analyze Core Web Vitals using Google PageSpeed API
+  app.get("/api/admin/pagespeed", isAdmin, async (req: any, res) => {
+    try {
+      const url = req.query.url as string;
+      const strategy = (req.query.strategy as "mobile" | "desktop") || "mobile";
+      
+      if (!url) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "URL parameter required" 
+        });
+      }
+      
+      const { analyzeCoreWebVitals, getPerformanceChecklist } = await import("./core-web-vitals");
+      
+      console.log(`📊 Admin PageSpeed analysis requested for: ${url}`);
+      
+      const vitals = await analyzeCoreWebVitals(url, strategy);
+      const checklist = getPerformanceChecklist();
+      
+      res.json({
+        success: true,
+        url,
+        strategy,
+        vitals,
+        checklist,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("PageSpeed analysis failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/pagespeed-batch - Analyze multiple URLs in batch
+  app.post("/api/admin/pagespeed-batch", isAdmin, async (req: any, res) => {
+    try {
+      const { urls, strategy = "mobile" } = req.body;
+      
+      if (!urls || !Array.isArray(urls) || urls.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "URLs array required" 
+        });
+      }
+      
+      if (urls.length > 10) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Maximum 10 URLs per batch" 
+        });
+      }
+      
+      const { analyzeCoreWebVitals } = await import("./core-web-vitals");
+      
+      console.log(`📊 Admin batch PageSpeed analysis for ${urls.length} URLs`);
+      
+      const results = await Promise.all(
+        urls.map(async (url: string) => {
+          try {
+            const vitals = await analyzeCoreWebVitals(url, strategy);
+            return { url, success: true, vitals };
+          } catch (error: any) {
+            return { url, success: false, error: error.message };
+          }
+        })
+      );
+      
+      const avgScore = results
+        .filter(r => r.success && r.vitals?.score)
+        .reduce((acc, r) => acc + (r.vitals?.score || 0), 0) / 
+        results.filter(r => r.success).length || 0;
+      
+      res.json({
+        success: true,
+        strategy,
+        totalUrls: urls.length,
+        averageScore: Math.round(avgScore),
+        results,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("Batch PageSpeed analysis failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
   // ========== SERVICE GUY AI - Equipment Diagnostics ==========
   app.post("/api/service-guy-ai/diagnose", async (req, res) => {
     try {
