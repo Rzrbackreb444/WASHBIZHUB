@@ -156,6 +156,49 @@ async function getCurrentUser(req: any): Promise<{ userId: string; user: any; is
   };
 }
 
+// Subscription tier levels for access control
+const SUBSCRIPTION_TIER_LEVELS: Record<string, number> = {
+  free: 0,
+  accelerate: 1,
+  scale: 2,
+  summit: 3,
+};
+
+// Middleware to check subscription tier access
+export function requiresSubscriptionTier(minTier: "free" | "accelerate" | "scale" | "summit") {
+  return async (req: any, res: any, next: any) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      
+      if (!currentUser) {
+        return res.status(401).json({ 
+          error: "Authentication required",
+          requiredTier: minTier 
+        });
+      }
+
+      const userTier = (currentUser.user.subscriptionTier as string) || "free";
+      const userLevel = SUBSCRIPTION_TIER_LEVELS[userTier] ?? 0;
+      const requiredLevel = SUBSCRIPTION_TIER_LEVELS[minTier] ?? 0;
+
+      if (userLevel >= requiredLevel) {
+        return next();
+      }
+
+      return res.status(403).json({
+        error: "Upgrade required",
+        message: `This feature requires ${minTier} tier or higher`,
+        currentTier: userTier,
+        requiredTier: minTier,
+        upgradeUrl: `/pricing?feature=${req.path}`
+      });
+    } catch (error) {
+      console.error("Subscription check error:", error);
+      return res.status(500).json({ error: "Failed to verify subscription" });
+    }
+  };
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== MULTI-TENANT MIDDLEWARE ====================
@@ -441,7 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cleanbi/:id/insights", isAuthenticated, async (req: any, res) => {
+  // CLEANBI AI Insights (requires Accelerate tier or higher)
+  app.post("/api/cleanbi/:id/insights", isAuthenticated, requiresSubscriptionTier("accelerate"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
