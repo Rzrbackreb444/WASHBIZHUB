@@ -105,12 +105,12 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
       icon: BarChart3
     },
     footer: {
-      title: "20% Affiliate Commission",
-      description: "Earn commissions on every equipment sale you refer",
-      cta: "Join Affiliate Program",
-      link: "/affiliate",
+      title: "Partner With Us",
+      description: "List your services in our directory and reach 72,000+ laundromat owners",
+      cta: "Get Featured",
+      link: "/directory",
       bgClass: "bg-gradient-to-r from-accent/10 to-primary/10",
-      icon: DollarSign
+      icon: Target
     },
     inline: {
       title: "Pro Subscription",
