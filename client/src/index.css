@@ -4,11 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* WashBizHub Navy/Teal Theme Colors */
+/* WashBizHub Navy/Teal/Gold Theme Colors - Enterprise SaaS Palette */
 :root {
   --navy-900: 210 100% 12%;
   --navy-800: 210 100% 13%;
   --teal-400: 180 60% 51%;
+  --gold-500: 43 89% 38%;
+  --gold-400: 43 80% 48%;
+  --gold-600: 43 95% 30%;
 
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -282,7 +285,7 @@
   }
 }
 
-/* Navy/Teal color utilities */
+/* Navy/Teal/Gold color utilities */
 .bg-navy-900 {
   background-color: hsl(210 100% 12%);
 }
@@ -303,6 +306,35 @@
 }
 .hover\:text-teal-400:hover {
   color: hsl(180 60% 51%);
+}
+
+/* Gold accent utilities - WashBizHub premium brand color #b8860b */
+.text-gold-500 {
+  color: hsl(43 89% 38%);
+}
+.text-gold-400 {
+  color: hsl(43 80% 48%);
+}
+.text-gold-600 {
+  color: hsl(43 95% 30%);
+}
+.bg-gold-500 {
+  background-color: hsl(43 89% 38%);
+}
+.bg-gold-400 {
+  background-color: hsl(43 80% 48%);
+}
+.bg-gold-600 {
+  background-color: hsl(43 95% 30%);
+}
+.border-gold-500 {
+  border-color: hsl(43 89% 38%);
+}
+.hover\:bg-gold-600:hover {
+  background-color: hsl(43 95% 30%);
+}
+.hover\:text-gold-400:hover {
+  color: hsl(43 80% 48%);
 }
 
 /**
