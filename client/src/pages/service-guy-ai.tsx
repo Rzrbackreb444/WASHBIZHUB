@@ -37,7 +37,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
-import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 const MANUFACTURERS = [
   { id: "speed_queen", name: "Speed Queen", logo: "SQ" },

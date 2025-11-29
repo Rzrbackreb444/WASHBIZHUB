@@ -50,7 +50,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
-import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAILogo from "@assets/SERVICE GUY_1764436998885.png";
 
 type JourneyType = 'plan' | 'evaluate' | 'operate' | 'partner' | null;
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import serviceGuyAILogo from "@assets/service guy ai_1764034013003.png";
+import serviceGuyAILogo from "@assets/SERVICE GUY_1764436998885.png";
 import { 
   ChevronRight, 
   ArrowLeft,
