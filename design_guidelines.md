@@ -136,7 +136,7 @@
 
 **Tagline Integration:**
 - Display "STRATEGY • FUNDING • GROWTH" in footer
-- Hero sections can reference positioning: "The Bloomberg of Laundromats"
+- Position as "The #1 Laundromat Resource & Educational Hub"
 
 ---
 
