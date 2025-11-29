@@ -4,6 +4,7 @@
  * Feature parity with Curbside/Cents + UNIQUE advantages
  * 
  * TENANT ISOLATION: All operations are scoped to laundromats owned by the authenticated user
+ * SECURITY: All endpoints validate tenant access before performing any operations
  */
 
 import type { Express, Request, Response, NextFunction } from "express";
@@ -29,10 +30,61 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
+import { storage } from "./storage";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2025-03-31.basil",
 });
+
+// ============================================================================
+// SUBSCRIPTION TIER LEVELS & GATING
+// ============================================================================
+
+const SUBSCRIPTION_TIER_LEVELS: Record<string, number> = {
+  free: 0,
+  accelerate: 1,
+  scale: 2,
+  summit: 3,
+};
+
+// Middleware to check subscription tier access for POS routes
+function requiresSubscriptionTier(minTier: "free" | "accelerate" | "scale" | "summit") {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ 
+          error: "Authentication required",
+          requiredTier: minTier 
+        });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      const userTier = (user.subscriptionTier as string) || "free";
+      const userLevel = SUBSCRIPTION_TIER_LEVELS[userTier] ?? 0;
+      const requiredLevel = SUBSCRIPTION_TIER_LEVELS[minTier] ?? 0;
+
+      if (userLevel >= requiredLevel) {
+        return next();
+      }
+
+      return res.status(403).json({
+        error: "Upgrade required",
+        message: `This feature requires ${minTier} tier or higher`,
+        currentTier: userTier,
+        requiredTier: minTier,
+        upgradeUrl: `/pricing?feature=${req.path}`
+      });
+    } catch (error) {
+      console.error("Subscription check error:", error);
+      return res.status(500).json({ error: "Failed to verify subscription" });
+    }
+  };
+}
 
 // ============================================================================
 // TENANT ISOLATION HELPERS
@@ -76,6 +128,120 @@ async function verifyLaundromatAccess(req: AuthenticatedRequest, laundromatId: s
     ));
   
   return !!userLaundromat;
+}
+
+// Verify user has access to a specific order (via laundromat ownership)
+async function verifyOrderAccess(req: AuthenticatedRequest, orderId: string): Promise<{ hasAccess: boolean; order: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, order: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, order: null };
+  
+  const [order] = await db
+    .select()
+    .from(posTransactions)
+    .where(eq(posTransactions.id, orderId));
+  
+  if (!order) return { hasAccess: false, order: null };
+  
+  const hasAccess = userLaundromatIds.includes(order.laundromatId);
+  return { hasAccess, order };
+}
+
+// Verify user has access to a specific customer (via laundromat ownership)
+async function verifyCustomerAccess(req: AuthenticatedRequest, customerId: string): Promise<{ hasAccess: boolean; customer: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, customer: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, customer: null };
+  
+  const [customer] = await db
+    .select()
+    .from(householdAccounts)
+    .where(eq(householdAccounts.id, customerId));
+  
+  if (!customer) return { hasAccess: false, customer: null };
+  
+  const hasAccess = userLaundromatIds.includes(customer.laundromatId);
+  return { hasAccess, customer };
+}
+
+// Verify user has access to a specific machine (via laundromat ownership)
+async function verifyMachineAccess(req: AuthenticatedRequest, machineId: string): Promise<{ hasAccess: boolean; machine: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, machine: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, machine: null };
+  
+  const [machine] = await db
+    .select()
+    .from(machineAssets)
+    .where(eq(machineAssets.id, machineId));
+  
+  if (!machine) return { hasAccess: false, machine: null };
+  
+  const hasAccess = userLaundromatIds.includes(machine.laundromatId);
+  return { hasAccess, machine };
+}
+
+// Verify user has access to a specific route (via laundromat ownership)
+async function verifyRouteAccess(req: AuthenticatedRequest, routeId: string): Promise<{ hasAccess: boolean; route: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, route: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, route: null };
+  
+  const [route] = await db
+    .select()
+    .from(routes)
+    .where(eq(routes.id, routeId));
+  
+  if (!route) return { hasAccess: false, route: null };
+  
+  const hasAccess = userLaundromatIds.includes(route.laundromatId);
+  return { hasAccess, route };
+}
+
+// Verify user has access to a specific inventory item (via laundromat ownership)
+async function verifyInventoryAccess(req: AuthenticatedRequest, inventoryId: string): Promise<{ hasAccess: boolean; item: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, item: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, item: null };
+  
+  const [item] = await db
+    .select()
+    .from(partsInventory)
+    .where(eq(partsInventory.id, inventoryId));
+  
+  if (!item) return { hasAccess: false, item: null };
+  
+  const hasAccess = userLaundromatIds.includes(item.laundromatId);
+  return { hasAccess, item };
+}
+
+// Verify user has access to a specific repair ticket (via laundromat ownership)
+async function verifyRepairTicketAccess(req: AuthenticatedRequest, ticketId: string): Promise<{ hasAccess: boolean; ticket: any | null }> {
+  const userId = await getUserId(req);
+  if (!userId) return { hasAccess: false, ticket: null };
+  
+  const userLaundromatIds = await getUserLaundromats(userId);
+  if (userLaundromatIds.length === 0) return { hasAccess: false, ticket: null };
+  
+  const [ticket] = await db
+    .select()
+    .from(repairTickets)
+    .where(eq(repairTickets.id, ticketId));
+  
+  if (!ticket) return { hasAccess: false, ticket: null };
+  
+  const hasAccess = userLaundromatIds.includes(ticket.laundromatId);
+  return { hasAccess, ticket };
 }
 
 function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -215,18 +381,18 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Get single order with items
-  app.get("/api/pos/orders/:id", async (req: Request, res: Response) => {
+  // Get single order with items (tenant-isolated)
+  app.get("/api/pos/orders/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       
-      const [order] = await db
-        .select()
-        .from(posTransactions)
-        .where(eq(posTransactions.id, id));
-      
+      // TENANT ISOLATION: Verify user has access to this order
+      const { hasAccess, order } = await verifyOrderAccess(req, id);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
       }
       
       const items = await db
@@ -280,21 +446,26 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Update order status
-  app.patch("/api/pos/orders/:id", async (req: Request, res: Response) => {
+  // Update order status (tenant-isolated)
+  app.patch("/api/pos/orders/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const updates = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this order before updating
+      const { hasAccess, order: existingOrder } = await verifyOrderAccess(req, id);
+      if (!existingOrder) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
+      }
       
       const [order] = await db
         .update(posTransactions)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(posTransactions.id, id))
         .returning();
-      
-      if (!order) {
-        return res.status(404).json({ error: "Order not found" });
-      }
       
       res.json({ order });
     } catch (error) {
@@ -303,11 +474,20 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Add item to order
-  app.post("/api/pos/orders/:id/items", async (req: Request, res: Response) => {
+  // Add item to order (tenant-isolated)
+  app.post("/api/pos/orders/:id/items", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { itemType, description, quantity, weight, pricePerPound, unitPrice } = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this order
+      const { hasAccess, order } = await verifyOrderAccess(req, id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
+      }
       
       // Calculate subtotal
       let subtotal = "0.00";
@@ -355,11 +535,20 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Record weight measurement
-  app.post("/api/pos/orders/:id/weigh", async (req: Request, res: Response) => {
+  // Record weight measurement (tenant-isolated)
+  app.post("/api/pos/orders/:id/weigh", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { weight, scaleId, weighedBy, photoUrl } = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this order
+      const { hasAccess, order } = await verifyOrderAccess(req, id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
+      }
       
       const [weighEvent] = await db
         .insert(weighEvents)
@@ -388,19 +577,19 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Process payment
-  app.post("/api/pos/orders/:id/payment", async (req: Request, res: Response) => {
+  // Process payment (tenant-isolated)
+  app.post("/api/pos/orders/:id/payment", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { paymentMethod } = req.body;
       
-      const [order] = await db
-        .select()
-        .from(posTransactions)
-        .where(eq(posTransactions.id, id));
-      
+      // TENANT ISOLATION: Verify user has access to this order
+      const { hasAccess, order } = await verifyOrderAccess(req, id);
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
       }
       
       if (paymentMethod === "card") {
@@ -489,18 +678,18 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Get customer with stats
-  app.get("/api/pos/customers/:id", async (req: Request, res: Response) => {
+  // Get customer with stats (tenant-isolated)
+  app.get("/api/pos/customers/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       
-      const [customer] = await db
-        .select()
-        .from(householdAccounts)
-        .where(eq(householdAccounts.id, id));
-      
+      // TENANT ISOLATION: Verify user has access to this customer
+      const { hasAccess, customer } = await verifyCustomerAccess(req, id);
       if (!customer) {
         return res.status(404).json({ error: "Customer not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this customer" });
       }
       
       // Get order history
@@ -563,21 +752,26 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Update customer
-  app.patch("/api/pos/customers/:id", async (req: Request, res: Response) => {
+  // Update customer (tenant-isolated)
+  app.patch("/api/pos/customers/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const updates = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this customer
+      const { hasAccess, customer: existingCustomer } = await verifyCustomerAccess(req, id);
+      if (!existingCustomer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this customer" });
+      }
       
       const [customer] = await db
         .update(householdAccounts)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(householdAccounts.id, id))
         .returning();
-      
-      if (!customer) {
-        return res.status(404).json({ error: "Customer not found" });
-      }
       
       res.json({ customer });
     } catch (error) {
@@ -630,18 +824,18 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Get machine with telemetry
-  app.get("/api/pos/machines/:id", async (req: Request, res: Response) => {
+  // Get machine with telemetry (tenant-isolated)
+  app.get("/api/pos/machines/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       
-      const [machine] = await db
-        .select()
-        .from(machineAssets)
-        .where(eq(machineAssets.id, id));
-      
+      // TENANT ISOLATION: Verify user has access to this machine
+      const { hasAccess, machine } = await verifyMachineAccess(req, id);
       if (!machine) {
         return res.status(404).json({ error: "Machine not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this machine" });
       }
       
       // Get recent sensor data
@@ -697,38 +891,60 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Get maintenance alerts
-  app.get("/api/pos/machines/alerts", async (req: Request, res: Response) => {
+  // Get maintenance alerts (tenant-isolated)
+  app.get("/api/pos/machines/alerts", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId } = req.query;
       
-      // Get machines needing maintenance
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // If specific laundromat requested, verify access
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      // Filter to user's laundromats only
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
+      if (targetLaundromats.length === 0) {
+        return res.json({
+          alerts: { machinesNeedingAttention: 0, openTickets: 0 },
+          machines: [],
+          tickets: [],
+        });
+      }
+      
+      // Get machines needing maintenance (filtered by user's laundromats)
       const machines = await db
         .select()
         .from(machineAssets)
         .where(
-          laundromatId
-            ? and(
-                eq(machineAssets.laundromatId, laundromatId as string),
-                or(
-                  eq(machineAssets.status, "needs_maintenance"),
-                  eq(machineAssets.status, "out_of_order")
-                )
-              )
-            : or(
-                eq(machineAssets.status, "needs_maintenance"),
-                eq(machineAssets.status, "out_of_order")
-              )
+          and(
+            inArray(machineAssets.laundromatId, targetLaundromats),
+            or(
+              eq(machineAssets.status, "needs_maintenance"),
+              eq(machineAssets.status, "out_of_order")
+            )
+          )
         );
       
-      // Get open repair tickets
+      // Get open repair tickets (filtered by user's laundromats)
       const tickets = await db
         .select()
         .from(repairTickets)
         .where(
-          or(
-            eq(repairTickets.status, "open"),
-            eq(repairTickets.status, "in_progress")
+          and(
+            inArray(repairTickets.laundromatId, targetLaundromats),
+            or(
+              eq(repairTickets.status, "open"),
+              eq(repairTickets.status, "in_progress")
+            )
           )
         )
         .orderBy(desc(repairTickets.priority));
@@ -747,11 +963,20 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Log maintenance
-  app.post("/api/pos/machines/:id/maintenance", async (req: Request, res: Response) => {
+  // Log maintenance (tenant-isolated)
+  app.post("/api/pos/machines/:id/maintenance", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { title, description, priority, assignedTo } = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this machine
+      const { hasAccess, machine } = await verifyMachineAccess(req, id);
+      if (!machine) {
+        return res.status(404).json({ error: "Machine not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this machine" });
+      }
       
       const ticketNumber = `TKT-${Date.now()}`;
       
@@ -759,6 +984,7 @@ export function registerPosRoutes(app: Express) {
         .insert(repairTickets)
         .values({
           machineId: id,
+          laundromatId: machine.laundromatId,
           ticketNumber,
           title,
           description,
@@ -785,16 +1011,27 @@ export function registerPosRoutes(app: Express) {
   // ROUTES
   // ========================================
   
-  // List routes
-  app.get("/api/pos/routes", async (req: Request, res: Response) => {
+  // List routes (tenant-isolated)
+  app.get("/api/pos/routes", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, date, status } = req.query;
       
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
       const conditions: any[] = [];
       
+      // TENANT ISOLATION: Filter to user's laundromats
       if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
         conditions.push(eq(routes.laundromatId, laundromatId as string));
+      } else if (userLaundromatIds.length > 0) {
+        conditions.push(inArray(routes.laundromatId, userLaundromatIds));
       }
+      
       if (date) {
         const targetDate = new Date(date as string);
         const nextDay = new Date(targetDate);
@@ -819,18 +1056,18 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Get route with stops
-  app.get("/api/pos/routes/:id", async (req: Request, res: Response) => {
+  // Get route with stops (tenant-isolated)
+  app.get("/api/pos/routes/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       
-      const [route] = await db
-        .select()
-        .from(routes)
-        .where(eq(routes.id, id));
-      
+      // TENANT ISOLATION: Verify user has access to this route
+      const { hasAccess, route } = await verifyRouteAccess(req, id);
       if (!route) {
         return res.status(404).json({ error: "Route not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this route" });
       }
       
       const stops = await db
@@ -846,10 +1083,16 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Create route
-  app.post("/api/pos/routes", async (req: Request, res: Response) => {
+  // Create route (tenant-isolated)
+  app.post("/api/pos/routes", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const data = createRouteSchema.parse(req.body);
+      
+      // TENANT ISOLATION: Verify user has access to the laundromat
+      const hasAccess = await verifyLaundromatAccess(req, data.laundromatId);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this laundromat" });
+      }
       
       const [route] = await db
         .insert(routes)
@@ -872,11 +1115,20 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Add stop to route
-  app.post("/api/pos/routes/:id/stops", async (req: Request, res: Response) => {
+  // Add stop to route (tenant-isolated)
+  app.post("/api/pos/routes/:id/stops", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { transactionId, address, customerName, scheduledTime, notes } = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this route
+      const { hasAccess, route } = await verifyRouteAccess(req, id);
+      if (!route) {
+        return res.status(404).json({ error: "Route not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this route" });
+      }
       
       // Get current stop count
       const existingStops = await db
@@ -917,16 +1169,27 @@ export function registerPosRoutes(app: Express) {
   // INVENTORY (partsInventory)
   // ========================================
   
-  // List inventory
-  app.get("/api/pos/inventory", async (req: Request, res: Response) => {
+  // List inventory (tenant-isolated)
+  app.get("/api/pos/inventory", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, category, lowStock } = req.query;
       
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
       const conditions: any[] = [];
       
+      // TENANT ISOLATION: Filter to user's laundromats
       if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
         conditions.push(eq(partsInventory.laundromatId, laundromatId as string));
+      } else if (userLaundromatIds.length > 0) {
+        conditions.push(inArray(partsInventory.laundromatId, userLaundromatIds));
       }
+      
       if (category) {
         conditions.push(eq(partsInventory.category, category as string));
       }
@@ -953,10 +1216,18 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Add part
-  app.post("/api/pos/inventory", async (req: Request, res: Response) => {
+  // Add part (tenant-isolated)
+  app.post("/api/pos/inventory", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const data = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to the laundromat
+      if (data.laundromatId) {
+        const hasAccess = await verifyLaundromatAccess(req, data.laundromatId);
+        if (!hasAccess) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
       
       const [part] = await db
         .insert(partsInventory)
@@ -970,21 +1241,26 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Update stock
-  app.patch("/api/pos/inventory/:id", async (req: Request, res: Response) => {
+  // Update stock (tenant-isolated)
+  app.patch("/api/pos/inventory/:id", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const updates = req.body;
+      
+      // TENANT ISOLATION: Verify user has access to this inventory item
+      const { hasAccess, item: existingItem } = await verifyInventoryAccess(req, id);
+      if (!existingItem) {
+        return res.status(404).json({ error: "Part not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this inventory item" });
+      }
       
       const [part] = await db
         .update(partsInventory)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(partsInventory.id, id))
         .returning();
-      
-      if (!part) {
-        return res.status(404).json({ error: "Part not found" });
-      }
       
       res.json({ part });
     } catch (error) {
@@ -997,18 +1273,43 @@ export function registerPosRoutes(app: Express) {
   // DASHBOARD ANALYTICS
   // ========================================
   
-  // Dashboard stats
-  app.get("/api/pos/dashboard/stats", async (req: Request, res: Response) => {
+  // Dashboard stats (tenant-isolated)
+  app.get("/api/pos/dashboard/stats", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      // Use requested laundromat or all user's laundromats
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
+      if (targetLaundromats.length === 0) {
+        return res.json({
+          today: { revenue: "0.00", orders: 0, pending: 0, completed: 0 },
+          week: { revenue: "0.00", orders: 0, avgOrderValue: "0.00" },
+          customers: { total: 0, active: 0 },
+          machines: { total: 0, operational: 0, needsAttention: 0 },
+        });
+      }
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const conditions: any[] = [gte(posTransactions.createdAt, today)];
-      if (laundromatId) {
-        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
-      }
+      const conditions: any[] = [
+        gte(posTransactions.createdAt, today),
+        inArray(posTransactions.laundromatId, targetLaundromats)
+      ];
       
       // Today's orders
       const todayOrders = await db
@@ -1024,10 +1325,10 @@ export function registerPosRoutes(app: Express) {
       const weekAgo = new Date(today);
       weekAgo.setDate(weekAgo.getDate() - 7);
       
-      const weekConditions: any[] = [gte(posTransactions.createdAt, weekAgo)];
-      if (laundromatId) {
-        weekConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
-      }
+      const weekConditions: any[] = [
+        gte(posTransactions.createdAt, weekAgo),
+        inArray(posTransactions.laundromatId, targetLaundromats)
+      ];
       
       const weekOrders = await db
         .select()
@@ -1036,27 +1337,17 @@ export function registerPosRoutes(app: Express) {
       
       const weekRevenue = weekOrders.reduce((sum, o) => sum + parseFloat(o.total || "0"), 0);
       
-      // Customer count
-      const customerConditions: any[] = [];
-      if (laundromatId) {
-        customerConditions.push(eq(householdAccounts.laundromatId, laundromatId as string));
-      }
-      
+      // Customer count (filtered by user's laundromats)
       const customers = await db
         .select()
         .from(householdAccounts)
-        .where(customerConditions.length > 0 ? and(...customerConditions) : undefined);
+        .where(inArray(householdAccounts.laundromatId, targetLaundromats));
       
-      // Machine status
-      const machineConditions: any[] = [];
-      if (laundromatId) {
-        machineConditions.push(eq(machineAssets.laundromatId, laundromatId as string));
-      }
-      
+      // Machine status (filtered by user's laundromats)
       const machines = await db
         .select()
         .from(machineAssets)
-        .where(machineConditions.length > 0 ? and(...machineConditions) : undefined);
+        .where(inArray(machineAssets.laundromatId, targetLaundromats));
       
       const operationalMachines = machines.filter((m) => m.status === "operational").length;
       
@@ -1088,20 +1379,40 @@ export function registerPosRoutes(app: Express) {
     }
   });
   
-  // Chart data
-  app.get("/api/pos/dashboard/charts", async (req: Request, res: Response) => {
+  // Chart data (tenant-isolated)
+  app.get("/api/pos/dashboard/charts", async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, period = "7" } = req.query;
       const days = parseInt(period as string);
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      // Use requested laundromat or all user's laundromats
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
+      if (targetLaundromats.length === 0) {
+        return res.json({ chartData: [] });
+      }
       
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
       startDate.setHours(0, 0, 0, 0);
       
-      const conditions: any[] = [gte(posTransactions.createdAt, startDate)];
-      if (laundromatId) {
-        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
-      }
+      const conditions: any[] = [
+        gte(posTransactions.createdAt, startDate),
+        inArray(posTransactions.laundromatId, targetLaundromats)
+      ];
       
       const orders = await db
         .select()
@@ -1202,10 +1513,26 @@ export function registerPosRoutes(app: Express) {
     return Math.round(((current - previous) / previous) * 100 * 100) / 100;
   }
 
-  // 1. GET /api/pos/analytics/kpis - Comprehensive KPIs
-  app.get("/api/pos/analytics/kpis", async (req: Request, res: Response) => {
+  // 1. GET /api/pos/analytics/kpis - Comprehensive KPIs (subscription gated + tenant isolated)
+  app.get("/api/pos/analytics/kpis", requiresSubscriptionTier("accelerate"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      // Use requested laundromat or all user's laundromats
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
 
       async function getKPIsForPeriod(period: string) {
         const { start, end, previousStart, previousEnd } = getDateRange(period);
@@ -1219,9 +1546,10 @@ export function registerPosRoutes(app: Express) {
           lte(posTransactions.createdAt, previousEnd),
         ];
 
-        if (laundromatId) {
-          baseConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
-          prevConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+        // TENANT ISOLATION: Filter to user's laundromats
+        if (targetLaundromats.length > 0) {
+          baseConditions.push(inArray(posTransactions.laundromatId, targetLaundromats));
+          prevConditions.push(inArray(posTransactions.laundromatId, targetLaundromats));
         }
 
         const currentOrders = await db
@@ -1249,8 +1577,9 @@ export function registerPosRoutes(app: Express) {
           gte(householdAccounts.createdAt, start),
           lte(householdAccounts.createdAt, end),
         ];
-        if (laundromatId) {
-          customerConditions.push(eq(householdAccounts.laundromatId, laundromatId as string));
+        // TENANT ISOLATION: Filter to user's laundromats
+        if (targetLaundromats.length > 0) {
+          customerConditions.push(inArray(householdAccounts.laundromatId, targetLaundromats));
         }
         const newCustomers = await db
           .select()
@@ -1258,8 +1587,9 @@ export function registerPosRoutes(app: Express) {
           .where(and(...customerConditions));
 
         const machineConditions: any[] = [];
-        if (laundromatId) {
-          machineConditions.push(eq(machineAssets.laundromatId, laundromatId as string));
+        // TENANT ISOLATION: Filter to user's laundromats
+        if (targetLaundromats.length > 0) {
+          machineConditions.push(inArray(machineAssets.laundromatId, targetLaundromats));
         }
         const machines = await db
           .select()
@@ -1297,18 +1627,35 @@ export function registerPosRoutes(app: Express) {
     }
   });
 
-  // 2. GET /api/pos/analytics/revenue-trends - Daily revenue for charts
-  app.get("/api/pos/analytics/revenue-trends", async (req: Request, res: Response) => {
+  // 2. GET /api/pos/analytics/revenue-trends - Daily revenue for charts (subscription gated + tenant isolated)
+  app.get("/api/pos/analytics/revenue-trends", requiresSubscriptionTier("accelerate"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, period = "month" } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
       const { start, end } = getDateRange(period as string);
 
       const conditions: any[] = [
         gte(posTransactions.createdAt, start),
         lte(posTransactions.createdAt, end),
       ];
-      if (laundromatId) {
-        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        conditions.push(inArray(posTransactions.laundromatId, targetLaundromats));
       }
 
       const orders = await db
@@ -1363,18 +1710,35 @@ export function registerPosRoutes(app: Express) {
     }
   });
 
-  // 3. GET /api/pos/analytics/customer-insights - Customer analytics
-  app.get("/api/pos/analytics/customer-insights", async (req: Request, res: Response) => {
+  // 3. GET /api/pos/analytics/customer-insights - Customer analytics (subscription gated + tenant isolated)
+  app.get("/api/pos/analytics/customer-insights", requiresSubscriptionTier("accelerate"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, period = "month" } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
       const { start, end } = getDateRange(period as string);
 
       const conditions: any[] = [
         gte(posTransactions.createdAt, start),
         lte(posTransactions.createdAt, end),
       ];
-      if (laundromatId) {
-        conditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        conditions.push(inArray(posTransactions.laundromatId, targetLaundromats));
       }
 
       const orders = await db
@@ -1407,8 +1771,9 @@ export function registerPosRoutes(app: Express) {
         .slice(0, 10);
 
       const customerConditions: any[] = [];
-      if (laundromatId) {
-        customerConditions.push(eq(householdAccounts.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        customerConditions.push(inArray(householdAccounts.laundromatId, targetLaundromats));
       }
       const allCustomers = await db
         .select()
@@ -1451,15 +1816,32 @@ export function registerPosRoutes(app: Express) {
     }
   });
 
-  // 4. GET /api/pos/analytics/machine-utilization - Machine analytics
-  app.get("/api/pos/analytics/machine-utilization", async (req: Request, res: Response) => {
+  // 4. GET /api/pos/analytics/machine-utilization - Machine analytics (subscription gated + tenant isolated)
+  app.get("/api/pos/analytics/machine-utilization", requiresSubscriptionTier("accelerate"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId, period = "month" } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
       const { start, end } = getDateRange(period as string);
 
       const machineConditions: any[] = [];
-      if (laundromatId) {
-        machineConditions.push(eq(machineAssets.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        machineConditions.push(inArray(machineAssets.laundromatId, targetLaundromats));
       }
 
       const machines = await db
@@ -1471,8 +1853,9 @@ export function registerPosRoutes(app: Express) {
         gte(posTransactions.createdAt, start),
         lte(posTransactions.createdAt, end),
       ];
-      if (laundromatId) {
-        orderConditions.push(eq(posTransactions.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        orderConditions.push(inArray(posTransactions.laundromatId, targetLaundromats));
       }
       const orders = await db
         .select()
@@ -1532,18 +1915,35 @@ export function registerPosRoutes(app: Express) {
     }
   });
 
-  // 5. GET /api/pos/analytics/route-performance - Route metrics
-  app.get("/api/pos/analytics/route-performance", async (req: Request, res: Response) => {
+  // 5. GET /api/pos/analytics/route-performance - Route metrics (subscription gated + tenant isolated)
+  app.get("/api/pos/analytics/route-performance", requiresSubscriptionTier("scale"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { laundromatId } = req.query;
+      
+      // TENANT ISOLATION: Get user's laundromats
+      const userId = await getUserId(req);
+      const userLaundromatIds = userId ? await getUserLaundromats(userId) : [];
+      
+      // Verify access if specific laundromat requested
+      if (laundromatId) {
+        if (!userLaundromatIds.includes(laundromatId as string)) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+      }
+      
+      const targetLaundromats = laundromatId 
+        ? [laundromatId as string] 
+        : userLaundromatIds;
+      
       const { start, end } = getDateRange("today");
 
       const routeConditions: any[] = [
         gte(routes.routeDate, start),
         lte(routes.routeDate, end),
       ];
-      if (laundromatId) {
-        routeConditions.push(eq(routes.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        routeConditions.push(inArray(routes.laundromatId, targetLaundromats));
       }
 
       const todayRoutes = await db
@@ -1557,8 +1957,9 @@ export function registerPosRoutes(app: Express) {
       const onTimeRate = completedStops > 0 ? Math.round((onTimeStops / completedStops) * 100) : 100;
 
       const recentConditions: any[] = [];
-      if (laundromatId) {
-        recentConditions.push(eq(routes.laundromatId, laundromatId as string));
+      // TENANT ISOLATION: Filter to user's laundromats
+      if (targetLaundromats.length > 0) {
+        recentConditions.push(inArray(routes.laundromatId, targetLaundromats));
       }
 
       const recentRoutesData = await db
@@ -3035,10 +3436,19 @@ ${symptomsContext ? `\n${symptomsContext}` : ""}`;
     }
   });
 
-  // POST /api/pos/repair-tickets/:id/ai-diagnosis - Get AI diagnosis for a specific ticket
-  app.post("/api/pos/repair-tickets/:id/ai-diagnosis", async (req: Request, res: Response) => {
+  // POST /api/pos/repair-tickets/:id/ai-diagnosis - Get AI diagnosis for a specific ticket (subscription gated + tenant isolated)
+  app.post("/api/pos/repair-tickets/:id/ai-diagnosis", requiresSubscriptionTier("accelerate"), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
+      
+      // TENANT ISOLATION: Verify user has access to this repair ticket
+      const { hasAccess, ticket: existingTicket } = await verifyRepairTicketAccess(req, id);
+      if (!existingTicket) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this repair ticket" });
+      }
       
       // Get the ticket with machine info
       const [result] = await db
@@ -3049,10 +3459,6 @@ ${symptomsContext ? `\n${symptomsContext}` : ""}`;
         .from(repairTickets)
         .leftJoin(machineAssets, eq(repairTickets.machineId, machineAssets.id))
         .where(eq(repairTickets.id, id));
-      
-      if (!result) {
-        return res.status(404).json({ error: "Ticket not found" });
-      }
       
       const { ticket, machine } = result;
       

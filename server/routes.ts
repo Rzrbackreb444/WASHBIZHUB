@@ -5088,6 +5088,9 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PATCH /api/onboarding/progress - Update onboarding progress
+  // SECURITY: Validate checklist items against allowed keys to prevent arbitrary data injection
+  const ALLOWED_CHECKLIST_KEYS = ["business_info", "add_machines", "invite_team", "connect_payments", "launch_website"] as const;
+  
   app.patch("/api/onboarding/progress", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
@@ -5108,6 +5111,14 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
       }
 
       if (checklistItem) {
+        // SECURITY: Validate checklist item against allowed keys
+        if (!ALLOWED_CHECKLIST_KEYS.includes(checklistItem)) {
+          return res.status(400).json({ 
+            error: "Invalid checklist item", 
+            allowedKeys: ALLOWED_CHECKLIST_KEYS 
+          });
+        }
+        
         const currentChecklist = currentUser.user.onboardingChecklist || {};
         updates.onboardingChecklist = {
           ...currentChecklist,
