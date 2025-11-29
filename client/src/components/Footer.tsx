@@ -80,11 +80,12 @@ export function Footer() {
             href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            className="inline-flex items-center gap-2 bg-[hsl(45,38%,42%)] hover:bg-[hsl(45,38%,35%)] text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg border border-[hsl(45,38%,50%)]"
             data-testid="link-footer-startup-funding"
+            aria-label="Apply for startup funding - personal credit $5K to $150K"
           >
-            <DollarSign className="h-4 w-4" />
-            Startup Funding — Personal Credit $5K-$150K
+            <DollarSign className="h-5 w-5" />
+            <span>Get Startup Funding — $5K-$150K Personal Credit</span>
           </a>
         </div>
 
