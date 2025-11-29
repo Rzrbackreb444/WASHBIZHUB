@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
+import { Map, Marker, InfoWindow, APIProvider } from '@vis.gl/react-google-maps';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Navigation, MapPin, ExternalLink } from 'lucide-react';
@@ -23,10 +23,12 @@ export function ListingLocationMap({
   showHQ = true,
 }: ListingLocationMapProps) {
   const [selectedMarker, setSelectedMarker] = useState<'listing' | 'hq' | null>(null);
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
   const center = { lat: latitude, lng: longitude };
 
   return (
+    <APIProvider apiKey={apiKey}>
     <div className="relative w-full h-full rounded-lg overflow-hidden">
       <Map
         defaultCenter={center}
@@ -126,5 +128,6 @@ export function ListingLocationMap({
         )}
       </Map>
     </div>
+    </APIProvider>
   );
 }

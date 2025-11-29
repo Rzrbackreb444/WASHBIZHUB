@@ -9,12 +9,11 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
-import { AIChatWidget } from "@/components/AIChatWidget";
+import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
 import { usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
-import { APIProvider } from "@vis.gl/react-google-maps";
 
 // Lazy load analytics to defer non-critical tracking scripts
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
@@ -1135,24 +1134,20 @@ function AppContent() {
         </div>
         <Footer />
       </div>
-      <AIChatWidget />
+      <DeferredAIChatWidget />
     </>
   );
 }
 
 function App() {
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TenantProvider>
           <ThemeProvider>
             <TooltipProvider>
-              <APIProvider apiKey={googleMapsApiKey}>
-                <AppContent />
-                <Toaster />
-              </APIProvider>
+              <AppContent />
+              <Toaster />
             </TooltipProvider>
           </ThemeProvider>
         </TenantProvider>
