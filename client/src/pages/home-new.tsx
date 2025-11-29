@@ -614,12 +614,12 @@ export default function HomeNew() {
                     Larry "Laundromat Larry" Larsen
                   </h3>
                   <p className="text-[#39CCCC] font-semibold mb-4">
-                    Laundromat Consulting • laundromat123.com
+                    WashBizHub Featured Consultant • 50+ Years Experience
                   </p>
                   <p className="text-white/70 mb-6 max-w-2xl">
                     With over five decades in the laundromat industry, Larry provides expert guidance on due diligence, store acquisitions, 
                     equipment evaluation, lease analysis, and insurance. Based in Orange County, California, he's helped hundreds of 
-                    owners make smarter business decisions.
+                    owners make smarter business decisions. Book through WashBizHub for priority scheduling.
                   </p>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -641,20 +641,15 @@ export default function HomeNew() {
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="tel:714-390-9969">
-                      <Button className="w-full sm:w-auto h-12 px-6 bg-[#b8860b] hover:bg-[#9a7209] text-white font-bold" data-testid="button-call-larry">
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        Call: 714-390-9969
-                      </Button>
-                    </a>
-                    <a href="mailto:larry@washbizhub.com">
-                      <Button variant="outline" className="w-full sm:w-auto h-12 px-6 border-[#39CCCC] text-[#39CCCC] hover:bg-[#39CCCC]/10" data-testid="button-email-larry">
-                        Email Larry
-                      </Button>
-                    </a>
                     <Link href="/consultation">
-                      <Button variant="outline" className="w-full sm:w-auto h-12 px-6 border-white/30 text-white hover:bg-white/10" data-testid="button-book-consultation">
-                        Book Consultation
+                      <Button className="w-full sm:w-auto h-12 px-6 bg-[#b8860b] hover:bg-[#9a7209] text-white font-bold" data-testid="button-book-larry-consultation">
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        Book Free Consultation
+                      </Button>
+                    </Link>
+                    <Link href="/consultation-landing">
+                      <Button variant="outline" className="w-full sm:w-auto h-12 px-6 border-[#39CCCC] text-[#39CCCC] hover:bg-[#39CCCC]/10" data-testid="button-view-services">
+                        View All Services
                       </Button>
                     </Link>
                   </div>

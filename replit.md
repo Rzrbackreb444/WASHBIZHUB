@@ -73,14 +73,33 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
 ## Strategic Partnerships
 
 ### Larry "Laundromat Larry" Larsen - Featured Consultant
-- **Company:** Laundromat Larry Consulting (laundromat123.com)
 - **Experience:** 50+ years in laundromat industry
 - **Location:** Orange County, California
-- **Phone:** 714-390-9969
-- **Email:** larry@washbizhub.com
+- **Platform Email:** larry@washbizhub.com
 - **Revenue Split:** 50/50 on consulting referrals
 - **Services:** Due Diligence, Buyer Consulting, Insurance Education, Expert Witness, Store Design, Equipment Evaluation, Lease Analysis, Broker Services
 - **Status:** Featured Pro listing, verified badge, homepage hero placement
+- **IMPORTANT:** All consultations route through WashBizHub platform (/consultation) - do NOT display external phone or website to preserve lead capture
+
+## Competitive Strategy
+
+### Primary Competitor: LaundryWizard.com (Brad Pollack)
+- Brad Pollack pays to advertise in our Facebook group - we control his distribution
+- LaundryWizard has 24+ years industry presence but dated 2001 technology
+- Their model: FREE listings → lead gen → affiliate commissions from suppliers
+
+### Our Unfair Advantages:
+1. **We own the 72K+ Facebook group** - the distribution channel Brad pays for
+2. **CLEANBI** - AI-powered property intelligence (no competitor has this)
+3. **Service Guy AI** - 2,200+ error code diagnostics
+4. **Larry Larsen partnership** - 50+ years experience, exclusive to WashBizHub
+5. **Modern AI stack** - Multi-model orchestration vs. Brad's 2001 tech
+
+### Strategic Positioning:
+- Don't compete on equipment classifieds (Brad's strength)
+- Own the "intelligence" layer - CLEANBI for due diligence, Service Guy AI for diagnostics
+- Target the pre-purchase journey before buyers need equipment
+- See COMPETITIVE_STRATEGY.md for full battle plan
 
 ### Email Routing (9 addresses configured):
 - info@washbizhub.com - General inquiries

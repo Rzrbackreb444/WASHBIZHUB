@@ -34,8 +34,8 @@ const FEATURED_LISTINGS: FeaturedListing[] = [
     annualRevenue: "$82,753",
     netIncome: "$11,393",
     rating: 4.8,
-    broker: "Lawrence Larsen (Laundromat Larry)",
-    brokerPhone: "714-390-9969",
+    broker: "Larry Larsen — WashBizHub Consultant",
+    brokerPhone: "Contact via WashBizHub",
     machines: 27,
     description: "Premium opportunity in high-income Orange County location. Unique fluff & fold development potential with graduated lease terms. 20-year lease available for qualified buyers.",
     highlights: [
