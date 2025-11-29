@@ -103,11 +103,17 @@ import {
   insertAiConversationSchema,
   insertContentProjectSchema,
   insertEmailContactSchema,
+  insertBusinessListingSchema,
+  insertBusinessListingInquirySchema,
   aiConversations,
   contentProjects,
   emailContacts,
   equipmentListings,
   supplyListings,
+  businessListings,
+  businessListingCategories,
+  businessListingInquiries,
+  businessListingAnalytics,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -8764,6 +8770,567 @@ ${pdfData.text.substring(0, 15000)}`;
       res.status(500).json({ message: error.message || "Failed to fetch statistics" });
     }
   });
+
+  // ==================== BUSINESS DIRECTORY API ====================
+
+  // Helper function to generate slug from business name
+  function generateDirectorySlug(name: string): string {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36);
+  }
+
+  // --- PUBLIC ENDPOINTS ---
+
+  // GET /api/directory/categories - List all active categories
+  app.get("/api/directory/categories", async (req, res) => {
+    try {
+      const categories = await db
+        .select()
+        .from(businessListingCategories)
+        .where(eq(businessListingCategories.isActive, true))
+        .orderBy(businessListingCategories.sortOrder, businessListingCategories.name);
+      
+      res.json(categories);
+    } catch (error: any) {
+      console.error("Error fetching directory categories:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch categories" });
+    }
+  });
+
+  // GET /api/directory/listings - List all active listings with pagination and filtering
+  app.get("/api/directory/listings", async (req, res) => {
+    try {
+      const { category, city, state, tier, search } = req.query;
+      let { limit = "20", offset = "0" } = req.query;
+      
+      const parsedLimit = Math.min(parseInt(limit as string) || 20, 50);
+      const parsedOffset = parseInt(offset as string) || 0;
+      
+      const conditions: any[] = [eq(businessListings.status, "active")];
+      
+      if (category && category !== "all") {
+        conditions.push(eq(businessListings.categoryId, category as string));
+      }
+      if (city) {
+        conditions.push(sql`${businessListings.city} ILIKE ${city}`);
+      }
+      if (state) {
+        conditions.push(sql`${businessListings.state} ILIKE ${state}`);
+      }
+      if (tier && tier !== "all") {
+        conditions.push(eq(businessListings.tier, tier as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            sql`${businessListings.businessName} ILIKE ${'%' + search + '%'}`,
+            sql`${businessListings.description} ILIKE ${'%' + search + '%'}`,
+            sql`${businessListings.city} ILIKE ${'%' + search + '%'}`
+          )
+        );
+      }
+      
+      const whereClause = conditions.length > 0 
+        ? and(...conditions) 
+        : undefined;
+      
+      const listings = await db
+        .select()
+        .from(businessListings)
+        .where(whereClause)
+        .orderBy(
+          desc(businessListings.isPrioritySearch),
+          desc(businessListings.isFeatured),
+          desc(businessListings.createdAt)
+        )
+        .limit(parsedLimit)
+        .offset(parsedOffset);
+      
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(businessListings)
+        .where(whereClause);
+      
+      res.json({
+        listings,
+        total: countResult?.count || 0,
+        limit: parsedLimit,
+        offset: parsedOffset
+      });
+    } catch (error: any) {
+      console.error("Error fetching directory listings:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch listings" });
+    }
+  });
+
+  // GET /api/directory/listings/featured - Get featured listings for homepage/sidebars
+  app.get("/api/directory/listings/featured", async (req, res) => {
+    try {
+      let { limit = "6" } = req.query;
+      const parsedLimit = Math.min(parseInt(limit as string) || 6, 20);
+      
+      const featured = await db
+        .select()
+        .from(businessListings)
+        .where(
+          and(
+            eq(businessListings.status, "active"),
+            eq(businessListings.isFeatured, true)
+          )
+        )
+        .orderBy(desc(businessListings.isHomepageHero), desc(businessListings.createdAt))
+        .limit(parsedLimit);
+      
+      res.json(featured);
+    } catch (error: any) {
+      console.error("Error fetching featured listings:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch featured listings" });
+    }
+  });
+
+  // GET /api/directory/listings/:slug - Get single listing by slug (increment view count)
+  app.get("/api/directory/listings/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      const [listing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.slug, slug));
+      
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      await db
+        .update(businessListings)
+        .set({ viewCount: sql`${businessListings.viewCount} + 1` })
+        .where(eq(businessListings.id, listing.id));
+      
+      const [category] = listing.categoryId ? await db
+        .select()
+        .from(businessListingCategories)
+        .where(eq(businessListingCategories.id, listing.categoryId)) : [null];
+      
+      res.json({ ...listing, category });
+    } catch (error: any) {
+      console.error("Error fetching listing by slug:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch listing" });
+    }
+  });
+
+  // POST /api/directory/listings/:id/track - Track clicks (website, phone, email)
+  app.post("/api/directory/listings/:id/track", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { type, source } = req.body; // type: "website" | "phone" | "email"
+      
+      if (!["website", "phone", "email"].includes(type)) {
+        return res.status(400).json({ error: "Invalid click type. Must be website, phone, or email" });
+      }
+      
+      const [listing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.id, id));
+      
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      await db
+        .update(businessListings)
+        .set({ clickCount: sql`${businessListings.clickCount} + 1` })
+        .where(eq(businessListings.id, id));
+      
+      if (listing.showAnalytics) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const [existingAnalytics] = await db
+          .select()
+          .from(businessListingAnalytics)
+          .where(
+            and(
+              eq(businessListingAnalytics.listingId, id),
+              sql`DATE(${businessListingAnalytics.date}) = DATE(${today})`
+            )
+          );
+        
+        if (existingAnalytics) {
+          await db
+            .update(businessListingAnalytics)
+            .set({ clicks: sql`${businessListingAnalytics.clicks} + 1` })
+            .where(eq(businessListingAnalytics.id, existingAnalytics.id));
+        } else {
+          await db.insert(businessListingAnalytics).values({
+            listingId: id,
+            date: today,
+            clicks: 1,
+            source: source || "directory"
+          });
+        }
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error tracking click:", error);
+      res.status(500).json({ error: error.message || "Failed to track click" });
+    }
+  });
+
+  // POST /api/directory/inquiries - Submit inquiry to a listing
+  app.post("/api/directory/inquiries", async (req, res) => {
+    try {
+      const validated = insertBusinessListingInquirySchema.parse(req.body);
+      
+      const [listing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.id, validated.listingId));
+      
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      const [inquiry] = await db.insert(businessListingInquiries).values(validated).returning();
+      
+      await db
+        .update(businessListings)
+        .set({ inquiryCount: sql`${businessListings.inquiryCount} + 1` })
+        .where(eq(businessListings.id, validated.listingId));
+      
+      if (listing.showAnalytics) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const [existingAnalytics] = await db
+          .select()
+          .from(businessListingAnalytics)
+          .where(
+            and(
+              eq(businessListingAnalytics.listingId, validated.listingId),
+              sql`DATE(${businessListingAnalytics.date}) = DATE(${today})`
+            )
+          );
+        
+        if (existingAnalytics) {
+          await db
+            .update(businessListingAnalytics)
+            .set({ inquiries: sql`${businessListingAnalytics.inquiries} + 1` })
+            .where(eq(businessListingAnalytics.id, existingAnalytics.id));
+        } else {
+          await db.insert(businessListingAnalytics).values({
+            listingId: validated.listingId,
+            date: today,
+            inquiries: 1,
+            source: validated.source || "directory"
+          });
+        }
+      }
+      
+      res.json(inquiry);
+    } catch (error: any) {
+      console.error("Error submitting inquiry:", error);
+      res.status(400).json({ error: error.message || "Failed to submit inquiry" });
+    }
+  });
+
+  // --- OWNER ENDPOINTS (require auth) ---
+
+  // GET /api/directory/my-listings - Get user's own listings
+  app.get("/api/directory/my-listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const listings = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.ownerId, currentUser.userId))
+        .orderBy(desc(businessListings.createdAt));
+      
+      res.json(listings);
+    } catch (error: any) {
+      console.error("Error fetching user listings:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch your listings" });
+    }
+  });
+
+  // POST /api/directory/listings - Create new listing (free tier)
+  app.post("/api/directory/listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const validated = insertBusinessListingSchema.parse(req.body);
+      const slug = generateDirectorySlug(validated.businessName);
+      
+      const [listing] = await db.insert(businessListings).values({
+        ...validated,
+        ownerId: currentUser.userId,
+        ownerEmail: validated.ownerEmail || currentUser.user.email || "",
+        slug,
+        tier: "free",
+        status: "pending"
+      }).returning();
+      
+      res.json(listing);
+    } catch (error: any) {
+      console.error("Error creating listing:", error);
+      res.status(400).json({ error: error.message || "Failed to create listing" });
+    }
+  });
+
+  // PUT /api/directory/listings/:id - Update own listing
+  app.put("/api/directory/listings/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const { id } = req.params;
+      
+      const [existing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.id, id));
+      
+      if (!existing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      if (existing.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only edit your own listings" });
+      }
+      
+      const validated = insertBusinessListingSchema.partial().parse(req.body);
+      
+      const [updated] = await db
+        .update(businessListings)
+        .set({
+          ...validated,
+          updatedAt: new Date()
+        })
+        .where(eq(businessListings.id, id))
+        .returning();
+      
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating listing:", error);
+      res.status(400).json({ error: error.message || "Failed to update listing" });
+    }
+  });
+
+  // GET /api/directory/listings/:id/analytics - Get listing analytics (premium only)
+  app.get("/api/directory/listings/:id/analytics", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const { id } = req.params;
+      const { days = "30" } = req.query;
+      const parsedDays = Math.min(parseInt(days as string) || 30, 90);
+      
+      const [listing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.id, id));
+      
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      if (listing.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only view analytics for your own listings" });
+      }
+      
+      if (!listing.showAnalytics && listing.tier === "free") {
+        return res.status(403).json({ 
+          error: "Analytics not available",
+          message: "Upgrade to Boost tier or higher to access detailed analytics",
+          upgradeUrl: `/directory/upgrade/${id}`
+        });
+      }
+      
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - parsedDays);
+      
+      const analytics = await db
+        .select()
+        .from(businessListingAnalytics)
+        .where(
+          and(
+            eq(businessListingAnalytics.listingId, id),
+            sql`${businessListingAnalytics.date} >= ${startDate}`
+          )
+        )
+        .orderBy(desc(businessListingAnalytics.date));
+      
+      const totals = {
+        views: listing.viewCount || 0,
+        clicks: listing.clickCount || 0,
+        inquiries: listing.inquiryCount || 0
+      };
+      
+      res.json({
+        listing: {
+          id: listing.id,
+          businessName: listing.businessName,
+          tier: listing.tier
+        },
+        totals,
+        dailyStats: analytics,
+        periodDays: parsedDays
+      });
+    } catch (error: any) {
+      console.error("Error fetching listing analytics:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch analytics" });
+    }
+  });
+
+  // --- STRIPE INTEGRATION ---
+
+  // Directory tier pricing (Stripe Price IDs should be set as env vars)
+  const DIRECTORY_TIER_PRICING: Record<string, { priceId: string; name: string; amount: number }> = {
+    boost: {
+      priceId: process.env.STRIPE_DIRECTORY_BOOST_PRICE_ID || "",
+      name: "Boost",
+      amount: 2900 // $29/month
+    },
+    spotlight: {
+      priceId: process.env.STRIPE_DIRECTORY_SPOTLIGHT_PRICE_ID || "",
+      name: "Spotlight",
+      amount: 7900 // $79/month
+    },
+    pro: {
+      priceId: process.env.STRIPE_DIRECTORY_PRO_PRICE_ID || "",
+      name: "Pro",
+      amount: 14900 // $149/month
+    }
+  };
+
+  // POST /api/directory/listings/:id/upgrade - Create Stripe checkout session for tier upgrade
+  app.post("/api/directory/listings/:id/upgrade", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment processing is not configured" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const { id } = req.params;
+      const { tier, successUrl, cancelUrl } = req.body;
+      
+      if (!tier || !["boost", "spotlight", "pro"].includes(tier)) {
+        return res.status(400).json({ error: "Invalid tier. Must be boost, spotlight, or pro" });
+      }
+      
+      const [listing] = await db
+        .select()
+        .from(businessListings)
+        .where(eq(businessListings.id, id));
+      
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      if (listing.ownerId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ error: "Forbidden - you can only upgrade your own listings" });
+      }
+      
+      const pricing = DIRECTORY_TIER_PRICING[tier];
+      if (!pricing.priceId) {
+        return res.status(503).json({ error: `Pricing for ${tier} tier is not configured` });
+      }
+      
+      let customerId = listing.stripeCustomerId;
+      if (!customerId && currentUser.user.stripeCustomerId) {
+        customerId = currentUser.user.stripeCustomerId;
+      }
+      
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: currentUser.user.email || listing.ownerEmail,
+          metadata: {
+            userId: currentUser.userId,
+            listingId: id
+          }
+        });
+        customerId = customer.id;
+        
+        await db
+          .update(businessListings)
+          .set({ stripeCustomerId: customerId })
+          .where(eq(businessListings.id, id));
+      }
+      
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        mode: "subscription",
+        line_items: [
+          {
+            price: pricing.priceId,
+            quantity: 1
+          }
+        ],
+        success_url: successUrl || `${req.headers.origin}/directory/upgrade-success?session_id={CHECKOUT_SESSION_ID}&listing_id=${id}`,
+        cancel_url: cancelUrl || `${req.headers.origin}/directory/${listing.slug}`,
+        metadata: {
+          listingId: id,
+          tier,
+          userId: currentUser.userId
+        },
+        subscription_data: {
+          metadata: {
+            listingId: id,
+            tier,
+            userId: currentUser.userId
+          }
+        }
+      });
+      
+      res.json({ 
+        checkoutUrl: session.url,
+        sessionId: session.id
+      });
+    } catch (error: any) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ error: error.message || "Failed to create checkout session" });
+    }
+  });
+
+  // Webhook endpoint for Stripe directory subscription events
+  // Note: This should be added to your main Stripe webhook handler
+  // The webhook should listen for:
+  // - checkout.session.completed: Activate the tier upgrade
+  // - customer.subscription.updated: Handle tier changes
+  // - customer.subscription.deleted: Downgrade to free tier
+  // 
+  // Example webhook handler logic:
+  // if (event.type === 'checkout.session.completed') {
+  //   const session = event.data.object;
+  //   const { listingId, tier } = session.metadata;
+  //   await db.update(businessListings).set({
+  //     tier,
+  //     stripeSubscriptionId: session.subscription,
+  //     isFeatured: tier !== 'free',
+  //     isPrioritySearch: tier !== 'free',
+  //     showAnalytics: tier !== 'free',
+  //     isHomepageHero: tier === 'spotlight' || tier === 'pro',
+  //     hasVerifiedBadge: tier === 'pro',
+  //     status: 'active'
+  //   }).where(eq(businessListings.id, listingId));
+  // }
 
   const httpServer = createServer(app);
   return httpServer;
