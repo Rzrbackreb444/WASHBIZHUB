@@ -62,6 +62,36 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
     *   **Integration Wrapper:** Production entry point for the CLEANBI system, handling usage tracking and quota enforcement.
     *   **Database Migrations:** Automated system ensuring critical tables and indexes are in place on server startup.
 -   **Affiliate Blog Systems (AADVANTAGE, DAVID ALLEN CAPITAL, SOUTH END CAPITAL):** Bulk generation systems for SEO-optimized blogs featuring affiliate links for laundry equipment financing, general business financing across diverse industries, and SBA loans/commercial financing, respectively.
+-   **Business Directory System:** Freemium vendor/service provider directory with tiered subscriptions:
+    *   **Free Tier:** Basic listing with business info, contact details, services
+    *   **Boost ($99/mo):** Featured spots, analytics dashboard
+    *   **Spotlight ($249/mo):** Homepage hero placement, calculator sidebars
+    *   **Pro Bundle ($499/mo):** Newsletter features, marketplace banners
+    *   Routes: `/directory`, `/directory/:slug`, `/list-business`
+    *   Email routing: listings@washbizhub.com (submissions), sales@washbizhub.com (upgrades)
+
+## Strategic Partnerships
+
+### Larry "Laundromat Larry" Larsen - Featured Consultant
+- **Company:** Laundromat Larry Consulting (laundromat123.com)
+- **Experience:** 50+ years in laundromat industry
+- **Location:** Orange County, California
+- **Phone:** 714-390-9969
+- **Email:** larry@washbizhub.com
+- **Revenue Split:** 50/50 on consulting referrals
+- **Services:** Due Diligence, Buyer Consulting, Insurance Education, Expert Witness, Store Design, Equipment Evaluation, Lease Analysis, Broker Services
+- **Status:** Featured Pro listing, verified badge, homepage hero placement
+
+### Email Routing (9 addresses configured):
+- info@washbizhub.com - General inquiries
+- contact@washbizhub.com - Contact form submissions
+- support@washbizhub.com - Customer support
+- consult@washbizhub.com - Consulting inquiries
+- funding@washbizhub.com - Financing/funding inquiries
+- partner@washbizhub.com - Partnership opportunities
+- sales@washbizhub.com - Premium upgrades, advertising
+- insurance@washbizhub.com - Insurance inquiries (routed to Larry)
+- listings@washbizhub.com - Directory listing submissions
 
 ### Data Storage Solutions
 PostgreSQL (Neon Serverless) is the primary data store via Drizzle ORM. Redis is used for pub/sub, sessions, and caching. BullMQ manages background jobs, and EMQX serves as the MQTT broker for IoT.

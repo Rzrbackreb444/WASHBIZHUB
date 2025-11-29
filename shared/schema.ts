@@ -11268,5 +11268,184 @@ export type InsertPartsVendor = z.infer<typeof insertPartsVendorSchema>;
 export type PartsVendor = typeof partsVendors.$inferSelect;
 
 // ============================================================================
+// BUSINESS DIRECTORY - Free Listings + Premium Visibility
+// ============================================================================
+
+export const businessListingCategories = pgTable("business_listing_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  icon: text("icon"), // Lucide icon name
+  parentId: varchar("parent_id"), // For subcategories
+  sortOrder: integer("sort_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const businessListings = pgTable("business_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Owner (optional - allows anonymous listings)
+  ownerId: varchar("owner_id").references(() => users.id),
+  ownerEmail: varchar("owner_email").notNull(), // For contact even without account
+  
+  // Basic Info (Free tier)
+  businessName: text("business_name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  shortDescription: varchar("short_description", { length: 160 }), // For SEO meta
+  
+  // Category
+  categoryId: varchar("category_id").references(() => businessListingCategories.id),
+  subcategories: text("subcategories").array(), // Additional tags
+  
+  // Contact
+  email: varchar("email"),
+  phone: varchar("phone"),
+  website: text("website"),
+  
+  // Location
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: varchar("zip"),
+  country: text("country").default("US"),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  serviceArea: text("service_area"), // "Nationwide", "Arkansas", etc.
+  
+  // Media
+  logo: text("logo"),
+  coverImage: text("cover_image"),
+  gallery: text("gallery").array(),
+  
+  // Business Details
+  yearEstablished: integer("year_established"),
+  employeeCount: text("employee_count"), // "1-5", "6-20", "21-50", "50+"
+  servicesOffered: text("services_offered").array(),
+  brandsCarried: text("brands_carried").array(),
+  certifications: text("certifications").array(),
+  
+  // Social Links
+  facebook: text("facebook"),
+  instagram: text("instagram"),
+  linkedin: text("linkedin"),
+  twitter: text("twitter"),
+  youtube: text("youtube"),
+  
+  // Premium Tier
+  tier: text("tier").default("free").notNull(), // "free", "boost", "spotlight", "pro"
+  tierExpiresAt: timestamp("tier_expires_at"),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  
+  // Premium Features (activated by tier)
+  isFeatured: boolean("is_featured").default(false), // Boost+
+  isHomepageHero: boolean("is_homepage_hero").default(false), // Spotlight+
+  isPrioritySearch: boolean("is_priority_search").default(false), // Boost+
+  showAnalytics: boolean("show_analytics").default(false), // Boost+
+  hasVerifiedBadge: boolean("has_verified_badge").default(false), // Pro
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  focusKeyphrases: text("focus_keyphrases").array(),
+  
+  // Stats
+  viewCount: integer("view_count").default(0),
+  clickCount: integer("click_count").default(0),
+  inquiryCount: integer("inquiry_count").default(0),
+  
+  // Status
+  status: text("status").default("pending").notNull(), // "pending", "active", "suspended", "expired"
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+}, (table) => ({
+  slugIdx: index("business_listings_slug_idx").on(table.slug),
+  categoryIdx: index("business_listings_category_idx").on(table.categoryId),
+  tierIdx: index("business_listings_tier_idx").on(table.tier),
+  statusIdx: index("business_listings_status_idx").on(table.status),
+  featuredIdx: index("business_listings_featured_idx").on(table.isFeatured),
+  cityStateIdx: index("business_listings_city_state_idx").on(table.city, table.state),
+}));
+
+export const insertBusinessListingSchema = createInsertSchema(businessListings).omit({
+  id: true,
+  viewCount: true,
+  clickCount: true,
+  inquiryCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBusinessListing = z.infer<typeof insertBusinessListingSchema>;
+export type BusinessListing = typeof businessListings.$inferSelect;
+
+// Analytics for premium listings
+export const businessListingAnalytics = pgTable("business_listing_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => businessListings.id).notNull(),
+  
+  date: timestamp("date").notNull(),
+  
+  // Traffic
+  views: integer("views").default(0),
+  uniqueVisitors: integer("unique_visitors").default(0),
+  
+  // Engagement
+  clicks: integer("clicks").default(0), // Website/phone/email clicks
+  inquiries: integer("inquiries").default(0),
+  
+  // Source
+  source: text("source"), // "directory", "homepage", "search", "calculator", "blog"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  listingDateIdx: index("listing_analytics_listing_date_idx").on(table.listingId, table.date),
+}));
+
+// Inquiries/leads for listings
+export const businessListingInquiries = pgTable("business_listing_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => businessListings.id).notNull(),
+  
+  // Contact Info
+  name: text("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  company: text("company"),
+  
+  // Message
+  subject: text("subject"),
+  message: text("message").notNull(),
+  
+  // Tracking
+  source: text("source"), // Where they found the listing
+  
+  // Status
+  status: text("status").default("new"), // "new", "read", "replied", "closed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  listingIdx: index("biz_listing_inquiries_listing_idx").on(table.listingId),
+  statusIdx: index("biz_listing_inquiries_status_idx").on(table.status),
+}));
+
+export const insertBusinessListingInquirySchema = createInsertSchema(businessListingInquiries).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+});
+
+export type InsertBusinessListingInquiry = z.infer<typeof insertBusinessListingInquirySchema>;
+export type BusinessListingInquiry = typeof businessListingInquiries.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading POS Features
 // ============================================================================

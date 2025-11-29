@@ -193,6 +193,11 @@ const Vendors = lazy(() => import("@/pages/vendors"));
 const VendorStorefront = lazy(() => import("@/pages/vendor-store"));
 const ProductDetail = lazy(() => import("@/pages/product-detail"));
 
+// Business Directory
+const ListBusiness = lazy(() => import("@/pages/list-business"));
+const Directory = lazy(() => import("@/pages/directory"));
+const DirectoryListing = lazy(() => import("@/pages/directory-listing"));
+
 // Parts & Repair
 const Parts = lazy(() => import("@/pages/parts"));
 const PartsStore = lazy(() => import("@/pages/parts-store"));
@@ -774,6 +779,24 @@ function Router() {
           <ListingForm />
         </Suspense>
       </Route>
+      
+      {/* Business Directory */}
+      <Route path="/directory">
+        <Suspense fallback={<LoadingFallback />}>
+          <Directory />
+        </Suspense>
+      </Route>
+      <Route path="/directory/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <DirectoryListing />
+        </Suspense>
+      </Route>
+      <Route path="/list-business">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListBusiness />
+        </Suspense>
+      </Route>
+      
       <Route path="/featured-listings">
         <Suspense fallback={<LoadingFallback />}>
           <FeaturedListings />
