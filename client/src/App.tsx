@@ -144,6 +144,8 @@ const SRAProductionConsole = lazy(() => import("@/pages/sra/production-console")
 
 // Marketplace & Equipment
 const Marketplace = lazy(() => import("@/pages/marketplace"));
+const Classifieds = lazy(() => import("@/pages/classifieds"));
+const ClassifiedsSubmit = lazy(() => import("@/pages/classifieds-submit"));
 const EquipmentMarketplace = lazy(() => import("@/pages/equipment-marketplace"));
 const EquipmentMatcher = lazy(() => import("@/pages/equipment-matcher"));
 const EquipmentDiagnostics = lazy(() => import("@/pages/equipment-diagnostics"));
@@ -694,6 +696,18 @@ function Router() {
       <Route path="/list-supplies">
         <Suspense fallback={<LoadingFallback />}>
           <ListSupplies />
+        </Suspense>
+      </Route>
+
+      {/* Classifieds - User-to-User Marketplace */}
+      <Route path="/classifieds">
+        <Suspense fallback={<LoadingFallback />}>
+          <Classifieds />
+        </Suspense>
+      </Route>
+      <Route path="/classifieds/submit">
+        <Suspense fallback={<LoadingFallback />}>
+          <ClassifiedsSubmit />
         </Suspense>
       </Route>
 
