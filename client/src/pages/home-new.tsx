@@ -491,26 +491,27 @@ export default function HomeNew() {
           </div>
         </section>
 
+        {/* CLEANBI Analysis Section - Simplified until Chrome Extension approved */}
         <section className="py-16 md:py-20 bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 bg-[#39CCCC]/10 text-[#39CCCC] px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                  <Chrome className="w-4 h-4" />
-                  Chrome Extension Available
+                  <MapPin className="w-4 h-4" />
+                  Location Intelligence
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                  CLEANBI Anywhere — Score Any Address in Seconds
+                  CLEANBI — Score Any Address in Seconds
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
-                  Install our free Chrome extension to analyze any property while browsing LoopNet, BizBuySell, Zillow, or any listing site. Instant intelligence at your fingertips.
+                  Get instant location intelligence for any address. Analyze demographics, competition, traffic patterns, and market potential before you invest.
                 </p>
                 <ul className="space-y-3 mb-8">
                   {[
-                    'Works on any website with addresses',
-                    'One-click CLEANBI scores while browsing',
-                    'Compare locations side-by-side',
-                    'Save reports to your dashboard'
+                    'Demographic & income analysis',
+                    'Competition mapping within radius',
+                    'Traffic and visibility scoring',
+                    'Market potential assessment'
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <CheckCircle className="w-5 h-5 text-[#39CCCC]" />
@@ -519,13 +520,15 @@ export default function HomeNew() {
                   ))}
                 </ul>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Button className="w-full sm:w-auto h-12 px-6 bg-[#001F3F] hover:bg-[#002B5C] text-white font-bold" data-testid="button-chrome-extension">
-                    <Chrome className="w-5 h-5 mr-2" />
-                    Add to Chrome — Free
-                  </Button>
                   <Link href="/cleanbi-auto" className="w-full sm:w-auto">
-                    <Button variant="outline" className="w-full h-12 px-6 border-[#001F3F] text-[#001F3F] dark:border-white dark:text-white" data-testid="button-try-online">
-                      Try Online First
+                    <Button className="w-full h-12 px-6 bg-[#001F3F] hover:bg-[#002B5C] text-white font-bold" data-testid="button-try-cleanbi">
+                      <MapPin className="w-5 h-5 mr-2" />
+                      Try CLEANBI Free
+                    </Button>
+                  </Link>
+                  <Link href="/cleanbi" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full h-12 px-6 border-[#001F3F] text-[#001F3F] dark:border-white dark:text-white" data-testid="button-learn-more-cleanbi">
+                      Learn More
                     </Button>
                   </Link>
                 </div>
