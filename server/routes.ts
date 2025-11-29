@@ -29,6 +29,12 @@ import {
   addSecurityHeaders 
 } from "./anti-scraping-middleware";
 import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
+import { 
+  triggerBlogIndexing, 
+  triggerListingIndexing, 
+  triggerResourceIndexing,
+  getIndexingLog 
+} from "./content-indexing-hooks";
 import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
 import { optimizeBlogForSEO } from "./seo-optimizer";
 import { readFileSync } from "fs";
@@ -550,6 +556,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validated = insertBlogPostSchema.parse(req.body);
       const post = await storage.createBlogPost(validated);
+      
+      triggerBlogIndexing(post.id, post.slug || undefined);
+      
       res.json(post);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -618,6 +627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`✅ Blog created: ${blogPost.id} (SEO Score: ${seoData.seoScore})`);
       
+      triggerBlogIndexing(blogPost.id, seoData.slug, { immediate: true });
+      
       res.json({ 
         success: true, 
         blog: blogPost,
@@ -679,9 +690,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         
         savedBlogs.push(blogPost);
+        
+        triggerBlogIndexing(blogPost.id, seoData.slug);
       }
       
-      console.log(`✅ Batch complete: ${savedBlogs.length} blogs created`);
+      console.log(`✅ Batch complete: ${savedBlogs.length} blogs created and queued for indexing`);
       
       res.json({ 
         success: true, 
@@ -2419,6 +2432,9 @@ Create engaging, well-researched content that provides value to laundromat owner
         ...validated,
         userId: currentUser.userId,
       });
+      
+      triggerListingIndexing(listing.id, listing.slug || undefined);
+      
       res.json(listing);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -2443,6 +2459,9 @@ Create engaging, well-researched content that provides value to laundromat owner
 
       const validated = insertListingSchema.partial().parse(req.body);
       const updated = await storage.updateListing(req.params.id, validated);
+      
+      triggerListingIndexing(updated.id, updated.slug || undefined);
+      
       res.json(updated);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -2936,6 +2955,9 @@ Create engaging, well-researched content that provides value to laundromat owner
     try {
       const validated = insertResourceSchema.parse(req.body);
       const resource = await storage.createResource(validated);
+      
+      triggerResourceIndexing(resource.id, resource.slug || undefined);
+      
       res.json(resource);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -2947,6 +2969,9 @@ Create engaging, well-researched content that provides value to laundromat owner
     try {
       const validated = insertResourceSchema.partial().parse(req.body);
       const resource = await storage.updateResource(req.params.id, validated);
+      
+      triggerResourceIndexing(resource.id, resource.slug || undefined);
+      
       res.json(resource);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -7427,6 +7452,26 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       });
     } catch (error: any) {
       console.error("IndexNow bulk submission failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // GET /api/admin/indexing-log - Get recent IndexNow submission log
+  app.get("/api/admin/indexing-log", isAdmin, async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const log = getIndexingLog(limit);
+      
+      res.json({
+        success: true,
+        count: log.length,
+        entries: log,
+      });
+    } catch (error: any) {
+      console.error("Failed to get indexing log:", error);
       res.status(500).json({ 
         success: false,
         error: error.message 
