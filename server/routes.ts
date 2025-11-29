@@ -1533,6 +1533,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/cleanbi/purchase-report - Create Stripe checkout for $97 full report
+  app.post("/api/cleanbi/purchase-report", async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+
+      const { address, score, addressType, email } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ message: "Address is required" });
+      }
+
+      // Create Stripe checkout session for $97 CLEANBI report
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "CLEANBI Full Intelligence Report",
+                description: `Comprehensive ${addressType === 'residential' ? 'property' : 'business'} analysis for: ${address.substring(0, 100)}`,
+                images: ["https://washbizhub.com/cleanbi-report-preview.png"],
+              },
+              unit_amount: 9700, // $97.00
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.headers.origin}/cleanbi-report?success=true&address=${encodeURIComponent(address)}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/cleanbi?canceled=true`,
+        customer_email: email || undefined,
+        metadata: {
+          type: "cleanbi_report",
+          address: address.substring(0, 500),
+          score: String(score || 0),
+          addressType: addressType || 'business',
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      console.error('CLEANBI report purchase error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ==================== MARKETPLACE ====================
   
   app.get("/api/vendors", async (req, res) => {

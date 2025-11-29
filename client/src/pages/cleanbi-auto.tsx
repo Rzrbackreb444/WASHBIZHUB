@@ -158,8 +158,46 @@ export default function CleanbiAuto() {
   const [address, setAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [result, setResult] = useState<CleanbiResult | null>(null);
   const { toast } = useToast();
+
+  const handlePurchaseReport = async () => {
+    if (!result) return;
+    
+    setIsPurchasing(true);
+    try {
+      const response = await fetch('/api/cleanbi/purchase-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: address.trim(),
+          score: result.score,
+          addressType: result.addressType || 'business',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create checkout session');
+      }
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start purchase. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
 
   const handleCalculate = async () => {
     if (!address.trim()) {
@@ -689,8 +727,21 @@ export default function CleanbiAuto() {
                           : 'Get comprehensive market analysis, financial projections, and personalized acquisition strategy'}
                       </p>
                       <div className="flex flex-col gap-2">
-                        <Button size="lg" className="bg-accent hover:bg-accent/90" data-testid="button-get-report">
-                          Get Full CLEANBI Report - $97
+                        <Button 
+                          size="lg" 
+                          className="bg-accent hover:bg-accent/90" 
+                          data-testid="button-get-report"
+                          onClick={handlePurchaseReport}
+                          disabled={isPurchasing}
+                        >
+                          {isPurchasing ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Redirecting to Checkout...
+                            </>
+                          ) : (
+                            "Get Full CLEANBI Report - $97"
+                          )}
                         </Button>
                         <p className="text-xs text-muted-foreground">
                           Available for businesses and residential properties
