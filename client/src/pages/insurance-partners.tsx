@@ -9,9 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const INSURANCE_PARTNERS = [
   {
-    name: 'Larry Larsen - Laundromat123.com',
+    name: 'Larry Larsen — WashBizHub Featured Consultant',
     category: 'California Insurance Specialist',
-    description: 'Direct partnership with Larry Larsen, California-based laundromat insurance expert. Currently serving California operators only. Specializes in CA regulations, equipment protection, and multi-location coverage.',
+    description: 'Direct partnership with Larry "Laundromat Larry" Larsen, 50+ year industry veteran and California-based laundromat insurance expert. Currently serving California operators only. Specializes in CA regulations, equipment protection, and multi-location coverage.',
     commission: 'Direct referral partnership',
     commissionType: 'Revenue share arrangement',
     features: [
@@ -20,12 +20,12 @@ const INSURANCE_PARTNERS = [
       'Commercial property & liability',
       'Equipment breakdown protection',
       'Multi-location support in CA',
-      'Direct broker relationship'
+      '50+ years industry experience'
     ],
     links: [
-      { title: 'Visit Laundromat123.com', url: 'https://laundromat123.com' }
+      { title: 'Book Consultation', url: '/consultation' }
     ],
-    badge: 'California Only',
+    badge: 'Featured Partner',
     bestFor: 'California laundromat operators'
   },
   {
