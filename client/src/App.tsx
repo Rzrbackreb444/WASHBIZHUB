@@ -155,6 +155,7 @@ const WebsiteBuilder = lazy(() => import("@/pages/website-builder"));
 const WebsiteTemplates = lazy(() => import("@/pages/website-templates"));
 
 // Dashboards
+const Dashboard = lazy(() => import("@/pages/dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
 const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
@@ -848,6 +849,13 @@ function Router() {
       <Route path="/forum/topic/:slug">
         <Suspense fallback={<LoadingFallback />}>
           <ForumTopic />
+        </Suspense>
+      </Route>
+
+      {/* User Dashboard */}
+      <Route path="/dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <Dashboard />
         </Suspense>
       </Route>
 

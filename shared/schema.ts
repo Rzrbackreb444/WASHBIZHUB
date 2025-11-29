@@ -65,6 +65,11 @@ export const users = pgTable("users", {
   cleanbiSubscriptionStatus: text("cleanbi_subscription_status"), // "active", "canceled", "past_due", etc.
   cleanbiQuotaResetDate: timestamp("cleanbi_quota_reset_date").default(sql`NOW() + INTERVAL '1 month'`),
   
+  // Onboarding & Getting Started
+  onboardingCompleted: boolean("onboarding_completed").default(false),
+  onboardingStep: integer("onboarding_step").default(0), // Current step in wizard (0 = not started)
+  onboardingChecklist: jsonb("onboarding_checklist").default(sql`'{"profileComplete":false,"locationAdded":false,"machinesAdded":false,"firstSaleComplete":false,"teamInvited":false}'::jsonb`),
+  
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

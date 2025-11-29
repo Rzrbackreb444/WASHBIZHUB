@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,16 +14,13 @@ import {
   TrendingUp,
   Zap,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   ExternalLink,
   Loader2,
-  Shield,
   Bell,
   User,
   Building2,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 export default function SettingsPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -101,6 +98,25 @@ export default function SettingsPage() {
       toast({
         title: "Error",
         description: error.message || "Failed to cancel subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const billingPortalMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/subscriptions/billing-portal");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to open billing portal",
         variant: "destructive",
       });
     },
@@ -186,17 +202,21 @@ export default function SettingsPage() {
                       {currentTierData ? `$${currentTierData.price}/month` : "$0/month"}
                     </p>
                   </div>
-                  {user.stripeSubscriptionId && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href="https://billing.stripe.com/p/login/test_..."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        data-testid="button-manage-billing"
-                      >
-                        Manage Billing
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </a>
+                  {user.stripeCustomerId && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => billingPortalMutation.mutate()}
+                      disabled={billingPortalMutation.isPending}
+                      data-testid="button-manage-billing"
+                    >
+                      {billingPortalMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                      ) : (
+                        <CreditCard className="w-3 h-3 mr-2" />
+                      )}
+                      Manage Billing
+                      <ExternalLink className="w-3 h-3 ml-2" />
                     </Button>
                   )}
                 </div>
