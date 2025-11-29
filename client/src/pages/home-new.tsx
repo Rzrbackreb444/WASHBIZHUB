@@ -20,7 +20,7 @@ import { Radar } from 'react-chartjs-2';
 import { 
   Play, Download, Zap, Shield, TrendingUp, Users, 
   Star, CheckCircle, ArrowRight, ChevronRight, Sparkles,
-  DollarSign, BarChart3, Cpu, Store, Calculator, Chrome,
+  DollarSign, BarChart3, Cpu, Store, Calculator, MapPin,
   MessageCircle, Award, Target, Settings, Lightbulb
 } from 'lucide-react';
 
