@@ -30,11 +30,11 @@ export function Footer() {
     <footer className="bg-[hsl(215,25%,16%)] py-16 border-t-2 border-[hsl(45,38%,59%)]" data-testid="footer-main">
       <div className="max-w-7xl mx-auto px-4">
         
-        {/* Enterprise Trust Badges Section */}
+        {/* Trust Badges Section */}
         <div className="mb-12 pb-8 border-b border-white/10">
           <div className="text-center mb-6">
             <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-2" data-testid="text-trust-heading">
-              Enterprise Security & Compliance
+              Security & Community
             </h3>
           </div>
           <div className="flex flex-wrap justify-center gap-3 md:gap-4">
@@ -51,30 +51,6 @@ export function Footer() {
                   <p className="text-white text-sm font-semibold">{badge.label}</p>
                   <p className="text-white/50 text-xs">{badge.description}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Awards & Recognition Section */}
-        <div className="mb-12 pb-8 border-b border-white/10">
-          <div className="text-center mb-6">
-            <h3 className="text-white/60 text-xs uppercase tracking-widest font-semibold mb-2" data-testid="text-awards-heading">
-              Awards & Recognition
-            </h3>
-          </div>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-            {awards.map((award, index) => (
-              <div 
-                key={index}
-                className="flex flex-col items-center text-center group"
-                data-testid={`badge-award-${index}`}
-              >
-                <div className="bg-gradient-to-br from-[hsl(45,38%,59%)]/30 to-[hsl(45,38%,59%)]/10 backdrop-blur-sm border border-[hsl(45,38%,59%)]/30 rounded-xl p-4 mb-2 group-hover:border-[hsl(45,38%,59%)]/60 group-hover:from-[hsl(45,38%,59%)]/40 transition-all duration-300">
-                  <award.icon className="h-6 w-6 text-[hsl(45,38%,59%)]" />
-                </div>
-                <p className="text-white text-sm font-semibold">{award.label}</p>
-                <p className="text-white/50 text-xs">{award.subtitle}</p>
               </div>
             ))}
           </div>
@@ -487,10 +463,10 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Legal Compliance Section */}
+        {/* Company Info Section */}
         <div className="border-t border-white/10 pt-8 mb-8">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Company Info */}
               <div>
                 <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -503,46 +479,24 @@ export function Footer() {
                 </div>
               </div>
               
-              {/* Industry Certifications */}
+              {/* Security */}
               <div>
                 <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <FileCheck className="h-4 w-4 text-[hsl(45,38%,59%)]" />
-                  Industry Certifications
+                  <Shield className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+                  Platform Security
                 </h4>
                 <div className="text-white/60 text-xs space-y-1">
-                  <p className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-emerald-500" />
-                    Coin Laundry Association Member
-                  </p>
-                  <p className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-emerald-500" />
-                    Multi-Housing Laundry Association
-                  </p>
-                  <p className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-emerald-500" />
-                    BBB Accredited Business
-                  </p>
-                </div>
-              </div>
-              
-              {/* Compliance */}
-              <div>
-                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-[hsl(45,38%,59%)]" />
-                  Compliance
-                </h4>
-                <div className="text-white/60 text-xs space-y-1">
-                  <p className="flex items-center gap-1">
-                    <Shield className="h-3 w-3 text-blue-400" />
-                    SOC 2 Type II Certified
-                  </p>
                   <p className="flex items-center gap-1">
                     <Lock className="h-3 w-3 text-blue-400" />
-                    GDPR & CCPA Compliant
+                    256-bit SSL Encryption
                   </p>
                   <p className="flex items-center gap-1">
-                    <Accessibility className="h-3 w-3 text-blue-400" />
-                    WCAG 2.1 AA Accessible
+                    <Shield className="h-3 w-3 text-blue-400" />
+                    Stripe PCI-Compliant Payments
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3 text-blue-400" />
+                    Secure Cloud Hosting (Replit)
                   </p>
                 </div>
               </div>
