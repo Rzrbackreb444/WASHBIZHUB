@@ -40,6 +40,7 @@ import { optimizeBlogForSEO } from "./seo-optimizer";
 import { readFileSync } from "fs";
 import { join } from "path";
 import multer from "multer";
+import crypto from "crypto";
 
 // Configure multer for file uploads (memory storage for PDF processing)
 const multerUpload = multer({ 
@@ -9408,6 +9409,402 @@ ${pdfData.text.substring(0, 15000)}`;
   //     status: 'active'
   //   }).where(eq(businessListings.id, listingId));
   // }
+
+  // ========================================================
+  // MARKETPLACE API - Equipment, Services, Businesses for Sale
+  // ========================================================
+  
+  // Get all approved marketplace listings (public)
+  app.get("/api/marketplace/listings", async (req, res) => {
+    try {
+      const { category, status = 'approved', state, limit = 50 } = req.query;
+      
+      let query = `
+        SELECT * FROM marketplace_listings 
+        WHERE status = $1
+      `;
+      const params: any[] = [status];
+      let paramIndex = 2;
+      
+      if (category) {
+        query += ` AND category = $${paramIndex}`;
+        params.push(category);
+        paramIndex++;
+      }
+      
+      if (state) {
+        query += ` AND state = $${paramIndex}`;
+        params.push(state);
+        paramIndex++;
+      }
+      
+      query += ` ORDER BY featured DESC, created_at DESC LIMIT $${paramIndex}`;
+      params.push(Number(limit));
+      
+      const result = await db.execute(sql.raw(query, ...params));
+      res.json(result.rows || []);
+    } catch (error: any) {
+      console.error("Error fetching marketplace listings:", error);
+      res.status(500).json({ error: "Failed to fetch listings" });
+    }
+  });
+
+  // Get single listing by ID (public)
+  app.get("/api/marketplace/listings/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const result = await db.execute(
+        sql`SELECT * FROM marketplace_listings WHERE id = ${id}`
+      );
+      
+      if (!result.rows?.length) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      // Increment views
+      await db.execute(
+        sql`UPDATE marketplace_listings SET views = views + 1 WHERE id = ${id}`
+      );
+      
+      res.json(result.rows[0]);
+    } catch (error: any) {
+      console.error("Error fetching listing:", error);
+      res.status(500).json({ error: "Failed to fetch listing" });
+    }
+  });
+
+  // Submit new marketplace listing (with SMS + email notifications)
+  app.post("/api/marketplace/listings", async (req, res) => {
+    try {
+      const { 
+        sellerName, sellerEmail, sellerPhone,
+        title, description, category, subcategory,
+        price, priceType, city, state, country, zipCode,
+        manufacturer, model, yearMade, quantity, condition,
+        images
+      } = req.body;
+      
+      // Validation
+      if (!sellerName || !sellerEmail || !title || !description || !category) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // Generate approval token
+      const approvalToken = crypto.randomBytes(32).toString('hex');
+      
+      // Insert listing
+      const result = await db.execute(sql`
+        INSERT INTO marketplace_listings (
+          seller_name, seller_email, seller_phone,
+          title, description, category, subcategory,
+          price, price_type, city, state, country, zip_code,
+          manufacturer, model, year_made, quantity, condition,
+          images, approval_token, status
+        ) VALUES (
+          ${sellerName}, ${sellerEmail}, ${sellerPhone},
+          ${title}, ${description}, ${category}, ${subcategory || null},
+          ${price || null}, ${priceType || 'fixed'}, ${city || null}, ${state || null}, ${country || 'USA'}, ${zipCode || null},
+          ${manufacturer || null}, ${model || null}, ${yearMade || null}, ${quantity || 1}, ${condition || null},
+          ${images || []}, ${approvalToken}, 'pending'
+        )
+        RETURNING id
+      `);
+      
+      const listingId = result.rows?.[0]?.id;
+      const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+      const approveUrl = `${baseUrl}/api/marketplace/approve/${approvalToken}`;
+      const denyUrl = `${baseUrl}/api/marketplace/deny/${approvalToken}`;
+      
+      // Send SMS notification via AT&T gateway
+      const ownerSmsEmail = '4798834314@txt.att.net';
+      const ownerEmail = 'nick@washbizhub.com';
+      
+      try {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        // Send SMS via AT&T email-to-SMS gateway
+        await resend.emails.send({
+          from: 'WashBizHub <listings@washbizhub.com>',
+          to: ownerSmsEmail,
+          subject: 'New Listing',
+          text: `NEW: "${title}" - ${category} from ${sellerName}. Approve: ${approveUrl.substring(0, 50)}...`
+        });
+        
+        // Send detailed email with approve/deny buttons
+        await resend.emails.send({
+          from: 'WashBizHub Marketplace <listings@washbizhub.com>',
+          to: ownerEmail,
+          subject: `[ACTION REQUIRED] New Marketplace Listing: ${title}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #001F3F 0%, #0d4f8b 100%); padding: 20px; text-align: center;">
+                <h1 style="color: #b8860b; margin: 0;">New Marketplace Listing</h1>
+              </div>
+              
+              <div style="padding: 20px; background: #f5f5f5;">
+                <h2 style="color: #001F3F; margin-top: 0;">${title}</h2>
+                
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Category:</strong></td><td>${category}${subcategory ? ` > ${subcategory}` : ''}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Seller:</strong></td><td>${sellerName}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Email:</strong></td><td>${sellerEmail}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Phone:</strong></td><td>${sellerPhone || 'Not provided'}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Location:</strong></td><td>${city || ''} ${state || ''} ${zipCode || ''}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #ddd;"><strong>Price:</strong></td><td>${price ? `$${Number(price).toLocaleString()}` : 'Call for pricing'}</td></tr>
+                </table>
+                
+                <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 5px;">
+                  <strong>Description:</strong>
+                  <p style="margin: 10px 0 0;">${description}</p>
+                </div>
+                
+                ${manufacturer ? `<p><strong>Manufacturer:</strong> ${manufacturer}</p>` : ''}
+                ${model ? `<p><strong>Model:</strong> ${model}</p>` : ''}
+                ${yearMade ? `<p><strong>Year:</strong> ${yearMade}</p>` : ''}
+                ${condition ? `<p><strong>Condition:</strong> ${condition}</p>` : ''}
+                
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${approveUrl}" style="display: inline-block; background: #28a745; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; margin: 5px; font-weight: bold;">
+                    ✓ APPROVE
+                  </a>
+                  <a href="${denyUrl}" style="display: inline-block; background: #dc3545; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; margin: 5px; font-weight: bold;">
+                    ✗ DENY
+                  </a>
+                </div>
+              </div>
+              
+              <div style="background: #001F3F; color: white; padding: 15px; text-align: center; font-size: 12px;">
+                WashBizHub Marketplace - Equipment, Services & Businesses for Sale
+              </div>
+            </div>
+          `
+        });
+        
+        console.log(`📧 Marketplace notification sent for listing: ${listingId}`);
+      } catch (emailError) {
+        console.error("Failed to send notifications:", emailError);
+        // Don't fail the listing submission if email fails
+      }
+      
+      res.json({ 
+        success: true, 
+        listingId,
+        message: "Listing submitted successfully! You'll receive an email once it's approved."
+      });
+    } catch (error: any) {
+      console.error("Error creating marketplace listing:", error);
+      res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
+
+  // Approve listing via token
+  app.get("/api/marketplace/approve/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      const result = await db.execute(sql`
+        UPDATE marketplace_listings 
+        SET status = 'approved', approved_at = NOW(), expires_at = NOW() + INTERVAL '90 days'
+        WHERE approval_token = ${token} AND status = 'pending'
+        RETURNING id, title, seller_email, seller_name
+      `);
+      
+      if (!result.rows?.length) {
+        return res.send(`
+          <html>
+            <head><title>Already Processed</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+              <h1>⚠️ Listing Already Processed</h1>
+              <p>This listing has already been approved or denied.</p>
+              <a href="/" style="color: #b8860b;">Return to WashBizHub</a>
+            </body>
+          </html>
+        `);
+      }
+      
+      const listing = result.rows[0];
+      
+      // Send approval email to seller
+      try {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        await resend.emails.send({
+          from: 'WashBizHub Marketplace <listings@washbizhub.com>',
+          to: listing.seller_email,
+          subject: `Your listing "${listing.title}" has been approved!`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #001F3F 0%, #0d4f8b 100%); padding: 20px; text-align: center;">
+                <h1 style="color: #b8860b; margin: 0;">Listing Approved!</h1>
+              </div>
+              <div style="padding: 20px;">
+                <p>Hi ${listing.seller_name},</p>
+                <p>Great news! Your listing "<strong>${listing.title}</strong>" has been approved and is now live on the WashBizHub Marketplace.</p>
+                <p style="text-align: center; margin: 30px 0;">
+                  <a href="https://washbizhub.com/marketplace" style="background: #b8860b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">
+                    View Your Listing
+                  </a>
+                </p>
+                <p>Your listing will be active for 90 days. We'll notify you before it expires.</p>
+                <p>Thanks for using WashBizHub!</p>
+              </div>
+            </div>
+          `
+        });
+      } catch (e) {
+        console.error("Failed to send approval email:", e);
+      }
+      
+      res.send(`
+        <html>
+          <head>
+            <title>Listing Approved</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+              .card { background: white; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+              h1 { color: #28a745; }
+              a { color: #b8860b; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>✓ Listing Approved!</h1>
+              <p><strong>"${listing.title}"</strong> is now live on the marketplace.</p>
+              <p>The seller has been notified via email.</p>
+              <p style="margin-top: 30px;"><a href="/marketplace">View Marketplace</a></p>
+            </div>
+          </body>
+        </html>
+      `);
+    } catch (error: any) {
+      console.error("Error approving listing:", error);
+      res.status(500).send("Error processing approval");
+    }
+  });
+
+  // Deny listing via token
+  app.get("/api/marketplace/deny/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const reason = req.query.reason || "Did not meet marketplace guidelines";
+      
+      const result = await db.execute(sql`
+        UPDATE marketplace_listings 
+        SET status = 'denied', denial_reason = ${reason as string}
+        WHERE approval_token = ${token} AND status = 'pending'
+        RETURNING id, title, seller_email, seller_name
+      `);
+      
+      if (!result.rows?.length) {
+        return res.send(`
+          <html>
+            <head><title>Already Processed</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+              <h1>⚠️ Listing Already Processed</h1>
+              <p>This listing has already been approved or denied.</p>
+              <a href="/" style="color: #b8860b;">Return to WashBizHub</a>
+            </body>
+          </html>
+        `);
+      }
+      
+      const listing = result.rows[0];
+      
+      // Send denial email to seller
+      try {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        await resend.emails.send({
+          from: 'WashBizHub Marketplace <listings@washbizhub.com>',
+          to: listing.seller_email,
+          subject: `Update on your listing "${listing.title}"`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: #001F3F; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Listing Update</h1>
+              </div>
+              <div style="padding: 20px;">
+                <p>Hi ${listing.seller_name},</p>
+                <p>Unfortunately, your listing "<strong>${listing.title}</strong>" was not approved for our marketplace.</p>
+                <p><strong>Reason:</strong> ${reason}</p>
+                <p>If you believe this was an error or have questions, please reply to this email or contact us at listings@washbizhub.com.</p>
+                <p>Thanks for your interest in WashBizHub!</p>
+              </div>
+            </div>
+          `
+        });
+      } catch (e) {
+        console.error("Failed to send denial email:", e);
+      }
+      
+      res.send(`
+        <html>
+          <head>
+            <title>Listing Denied</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+              .card { background: white; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+              h1 { color: #dc3545; }
+              a { color: #b8860b; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>✗ Listing Denied</h1>
+              <p><strong>"${listing.title}"</strong> has been removed.</p>
+              <p>The seller has been notified via email.</p>
+              <p style="margin-top: 30px;"><a href="/marketplace">View Marketplace</a></p>
+            </div>
+          </body>
+        </html>
+      `);
+    } catch (error: any) {
+      console.error("Error denying listing:", error);
+      res.status(500).send("Error processing denial");
+    }
+  });
+
+  // Get pending listings (admin only)
+  app.get("/api/marketplace/admin/pending", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser?.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const result = await db.execute(sql`
+        SELECT * FROM marketplace_listings 
+        WHERE status = 'pending'
+        ORDER BY created_at DESC
+      `);
+      
+      res.json(result.rows || []);
+    } catch (error: any) {
+      console.error("Error fetching pending listings:", error);
+      res.status(500).json({ error: "Failed to fetch pending listings" });
+    }
+  });
+  
+  // Get marketplace categories with counts
+  app.get("/api/marketplace/categories", async (req, res) => {
+    try {
+      const result = await db.execute(sql`
+        SELECT category, subcategory, COUNT(*) as count
+        FROM marketplace_listings 
+        WHERE status = 'approved'
+        GROUP BY category, subcategory
+        ORDER BY category, subcategory
+      `);
+      
+      res.json(result.rows || []);
+    } catch (error: any) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
