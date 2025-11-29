@@ -1796,48 +1796,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== STRIPE SUBSCRIPTION ====================
   
+  // Create Stripe Checkout Session for subscription
   app.post("/api/create-subscription", async (req, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
       }
       
-      const { email, name } = req.body;
-
-      // Create Stripe customer
-      const customer = await stripe.customers.create({
-        email,
-        name,
-      });
-
-      // Create subscription ($97/month Pro plan)
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [
-          {
-            price_data: {
-              currency: "usd",
-              product: "prod_washbizhub_pro",
-              recurring: {
-                interval: "month",
+      const { tierId, interval = 'month', userId } = req.body;
+      
+      // Define subscription tiers with Stripe price IDs
+      const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string }> = {
+        'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID },
+        'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID },
+        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: process.env.STRIPE_STARTER_PRICE_ID },
+        'pro': { name: 'CLEANBI Pro', amount: 9700, priceId: process.env.STRIPE_PRO_PRICE_ID },
+        'enterprise': { name: 'CLEANBI Enterprise', amount: 49900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID },
+      };
+      
+      const tier = subscriptionTiers[tierId] || subscriptionTiers['pro'];
+      const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+      
+      // Create Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [
+          tier.priceId ? 
+            { price: tier.priceId, quantity: 1 } :
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: tier.name,
+                  description: `Monthly subscription to ${tier.name}`,
+                },
+                recurring: { interval: interval as 'month' | 'year' },
+                unit_amount: tier.amount,
               },
-              unit_amount: 9700, // $97.00
-            } as any, // Stripe typing issue with inline product_data
-          },
+              quantity: 1,
+            },
         ],
-        payment_behavior: "default_incomplete",
-        expand: ["latest_invoice.payment_intent"],
+        success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/pricing`,
+        metadata: {
+          tierId,
+          userId: userId || '',
+          type: 'subscription',
+        },
+        allow_promotion_codes: true,
       });
 
-      const invoice = subscription.latest_invoice as any;
-      const paymentIntent = invoice?.payment_intent as Stripe.PaymentIntent;
-
-      res.json({
-        subscriptionId: subscription.id,
-        clientSecret: paymentIntent.client_secret,
-        customerId: customer.id,
+      res.json({ 
+        checkoutUrl: session.url,
+        sessionId: session.id 
       });
     } catch (error: any) {
+      console.error('Subscription checkout error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Get Stripe Checkout Session details
+  app.get("/api/stripe/session/:sessionId", async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
+      
+      res.json({
+        planName: session.metadata?.tierId || 'Pro',
+        status: session.status,
+        customerEmail: session.customer_email,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Stripe Customer Portal for subscription management
+  app.post("/api/stripe/customer-portal", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, currentUser.userId)
+      });
+      
+      if (!user?.stripeCustomerId) {
+        return res.status(400).json({ message: "No active subscription found" });
+      }
+      
+      const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+      
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: user.stripeCustomerId,
+        return_url: `${baseUrl}/account`,
+      });
+      
+      res.json({ url: portalSession.url });
+    } catch (error: any) {
+      console.error('Customer portal error:', error);
       res.status(500).json({ message: error.message });
     }
   });

@@ -287,11 +287,34 @@ export default function CleanbiAuto() {
         description: `CLEANBI Score: ${data.score}/100 (Grade: ${data.grade})`,
       });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to calculate CLEANBI score",
-        variant: "destructive",
-      });
+      const errorMessage = error.message || "Failed to calculate CLEANBI score";
+      
+      // Check for specific error types and provide helpful feedback
+      if (errorMessage.includes('Rate limit')) {
+        toast({
+          title: "Too Many Requests",
+          description: "Please wait a moment and try again. Free tier allows 30 requests per minute.",
+          variant: "destructive",
+        });
+      } else if (errorMessage.includes('Google') || errorMessage.includes('API')) {
+        toast({
+          title: "Location Data Unavailable",
+          description: "We couldn't find data for this address. Try adding more details like city, state, or zip code.",
+          variant: "destructive",
+        });
+      } else if (errorMessage.includes('network') || errorMessage.includes('Network')) {
+        toast({
+          title: "Connection Issue",
+          description: "Please check your internet connection and try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Analysis Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
