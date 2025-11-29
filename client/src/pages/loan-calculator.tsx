@@ -19,7 +19,7 @@ const FUNDING_TYPES = {
   startup: {
     label: 'Startup Funding',
     lenders: [
-      { name: 'GoCapital', minRate: 8, maxRate: 18, minAmount: 10000, maxAmount: 250000 },
+      { name: 'GoKapital', minRate: 8, maxRate: 18, minAmount: 10000, maxAmount: 250000 },
       { name: 'Preferred Funding Group', minRate: 10, maxRate: 20, minAmount: 5000, maxAmount: 150000 },
     ],
   },
