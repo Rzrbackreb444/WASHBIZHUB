@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2 } from "lucide-react";
+import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { LegalDisclaimer } from "@/components/legal-disclaimer";
+import { apiRequest } from "@/lib/queryClient";
 
 // Maximum SEO/AEO Structured Data for CLEANBI Universal Scoring Tool
 const cleanbiAutoStructuredData = {
@@ -160,7 +161,58 @@ export default function CleanbiAuto() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [result, setResult] = useState<CleanbiResult | null>(null);
+  const [hasUnlockedResults, setHasUnlockedResults] = useState(false);
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [captureEmail, setCaptureEmail] = useState("");
+  const [captureFirstName, setCaptureFirstName] = useState("");
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('cleanbi_unlocked');
+    if (storedEmail) {
+      setHasUnlockedResults(true);
+    }
+  }, []);
+
+  const handleEmailUnlock = async () => {
+    if (!captureEmail.trim() || !captureFirstName.trim()) {
+      toast({
+        title: "Please fill in all fields",
+        description: "We need your name and email to send your results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmittingEmail(true);
+    try {
+      await apiRequest("POST", "/api/newsletter/subscribe", {
+        email: captureEmail.trim(),
+        firstName: captureFirstName.trim(),
+        primaryIndustry: "cleanbi_user",
+        industries: ["cleanbi_user"],
+        source: "cleanbi_results_unlock",
+        leadMagnet: "cleanbi_full_report"
+      });
+
+      localStorage.setItem('cleanbi_unlocked', captureEmail.trim());
+      setHasUnlockedResults(true);
+      setShowEmailCapture(false);
+      toast({
+        title: "Success! Results Unlocked",
+        description: "You now have full access to CLEANBI results.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingEmail(false);
+    }
+  };
 
   const handlePurchaseReport = async () => {
     if (!result) return;
@@ -507,14 +559,63 @@ export default function CleanbiAuto() {
 
               {/* Breakdown */}
               <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                <Card>
+                <Card className="relative">
                   <CardHeader className="px-4 sm:px-6">
-                    <CardTitle className="text-lg sm:text-xl">Score Breakdown</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                      Score Breakdown
+                      {!hasUnlockedResults && <Lock className="w-4 h-4 text-muted-foreground" />}
+                    </CardTitle>
                     <CardDescription className="text-sm">
                       {result.addressType === 'residential' ? 'Investment Analysis' : 'Powered by Google Places API'}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+                  
+                  {/* Email Capture Overlay */}
+                  {!hasUnlockedResults && (
+                    <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-background/95 to-background/80 flex items-center justify-center rounded-lg">
+                      <div className="text-center p-6 max-w-md">
+                        <div className="w-16 h-16 bg-[#39CCCC]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Gift className="w-8 h-8 text-[#39CCCC]" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">Unlock Your Full Results</h3>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          Enter your email to see the complete breakdown, expert recommendations, and get access to future industry reports.
+                        </p>
+                        <div className="space-y-3">
+                          <Input
+                            placeholder="Your first name"
+                            value={captureFirstName}
+                            onChange={(e) => setCaptureFirstName(e.target.value)}
+                            data-testid="input-unlock-name"
+                          />
+                          <Input
+                            type="email"
+                            placeholder="Your email address"
+                            value={captureEmail}
+                            onChange={(e) => setCaptureEmail(e.target.value)}
+                            data-testid="input-unlock-email"
+                          />
+                          <Button 
+                            className="w-full bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F]" 
+                            onClick={handleEmailUnlock}
+                            disabled={isSubmittingEmail}
+                            data-testid="button-unlock-results"
+                          >
+                            {isSubmittingEmail ? (
+                              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Unlocking...</>
+                            ) : (
+                              <><Mail className="w-4 h-4 mr-2" />Unlock Full Report</>
+                            )}
+                          </Button>
+                          <p className="text-xs text-muted-foreground">
+                            Free forever. No spam, unsubscribe anytime.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <CardContent className={`space-y-4 sm:space-y-6 px-4 sm:px-6 ${!hasUnlockedResults ? 'blur-sm pointer-events-none' : ''}`}>
                     {/* BUSINESS BREAKDOWN */}
                     {result.addressType !== 'residential' && result.breakdown.footTraffic && (
                       <>
