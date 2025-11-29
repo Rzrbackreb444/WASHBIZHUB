@@ -123,26 +123,6 @@ export function Footer() {
               >
                 <Facebook className="h-5 w-5 text-accent" />
               </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-primary/10 hover:bg-primary/20 p-2 rounded-lg transition-colors"
-                data-testid="link-footer-linkedin"
-                aria-label="Follow us on LinkedIn"
-              >
-                <Linkedin className="h-5 w-5 text-accent" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-primary/10 hover:bg-primary/20 p-2 rounded-lg transition-colors"
-                data-testid="link-footer-twitter"
-                aria-label="Follow us on Twitter"
-              >
-                <Twitter className="h-5 w-5 text-accent" />
-              </a>
             </div>
 
             {/* Business Services Sub-section */}
@@ -572,17 +552,6 @@ export function Footer() {
             >
               <Mail className="h-3 w-3" />
               Support
-            </a>
-            <span className="text-white/20">|</span>
-            <a 
-              href="https://status.washbizhub.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-white/60 hover:text-[hsl(45,38%,59%)] transition-colors"
-              data-testid="link-footer-status"
-            >
-              <Activity className="h-3 w-3 text-emerald-500" />
-              <span className="text-emerald-500">All Systems Operational</span>
             </a>
           </div>
 
