@@ -10,18 +10,9 @@ import serviceGuyAiLogoUrl from "@assets/service guy ai_1764034013003.png";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 const trustBadges = [
-  { icon: Shield, label: "99.99% Uptime SLA", description: "Enterprise reliability" },
-  { icon: Lock, label: "SOC 2 Certified", description: "Security compliant" },
-  { icon: CheckCircle, label: "GDPR Compliant", description: "Privacy protected" },
-  { icon: Lock, label: "256-bit SSL", description: "Bank-level encryption" },
-  { icon: Users, label: "72,000+ Members", description: "Industry trusted" },
-];
-
-const awards = [
-  { icon: Trophy, label: "Inc. 5000", subtitle: "Fastest Growing 2025" },
-  { icon: Award, label: "Best Platform", subtitle: "Laundromat Industry 2025" },
-  { icon: Star, label: "Featured In", subtitle: "Coin Laundry Association" },
-  { icon: FileCheck, label: "CLA Certified", subtitle: "Industry Partner" },
+  { icon: Lock, label: "256-bit SSL", description: "Secure encryption" },
+  { icon: Shield, label: "Stripe Payments", description: "PCI compliant processing" },
+  { icon: Users, label: "72,000+ Community", description: "Facebook group members" },
 ];
 
 export function Footer() {
