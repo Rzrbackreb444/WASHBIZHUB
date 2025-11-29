@@ -10,6 +10,11 @@
  * - Schema.org structured data types
  */
 
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
 export interface PageSEOConfig {
   title: string;
   description: string;
@@ -18,6 +23,7 @@ export interface PageSEOConfig {
   ogImage: string;
   ogType: 'website' | 'article' | 'product' | 'course';
   schema: string[];
+  breadcrumbs?: BreadcrumbItem[];
   canonicalPath?: string;
   noIndex?: boolean;
   priority: number;
@@ -48,6 +54,7 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
     ogImage: '/washbizhub-logo.png',
     ogType: 'website',
     schema: ['Organization', 'WebSite', 'SoftwareApplication'],
+    breadcrumbs: [{ name: 'Home', url: '/' }],
     priority: 1.0,
     changefreq: 'daily'
   },
@@ -71,6 +78,11 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'free location analysis tool',
       'foot traffic analyzer',
       'commercial property score'
+    ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Tools', url: '/calculators' },
+      { name: 'CLEANBI Score', url: '/cleanbi-auto' }
     ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'website',
@@ -97,6 +109,10 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'laundromat POS cost',
       'free laundromat software',
       'laundry business software price'
+    ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Pricing', url: '/pricing' }
     ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'product',
@@ -125,6 +141,11 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'AI laundromat management',
       'laundromat payment processing'
     ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Products', url: '/pricing' },
+      { name: 'POS Command Center', url: '/pos-command-center' }
+    ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'product',
     schema: ['SoftwareApplication', 'Product', 'FAQPage'],
@@ -150,6 +171,11 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'laundry profit calculator',
       'laundromat valuation tool',
       'coin laundry revenue estimator'
+    ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Tools', url: '/calculators' },
+      { name: 'Calculators', url: '/calculators' }
     ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'website',
@@ -177,6 +203,10 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'laundromat startup checklist',
       'laundry business plan template'
     ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Resources', url: '/resources' }
+    ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'website',
     schema: ['CollectionPage', 'ItemList'],
@@ -203,6 +233,11 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
       'buy a laundromat',
       'coin laundry for sale',
       'laundromat marketplace listings'
+    ],
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Marketplace', url: '/laundromat-listings' },
+      { name: 'Laundromats for Sale', url: '/laundromat-listings' }
     ],
     ogImage: '/washbizhub-logo.png',
     ogType: 'website',
