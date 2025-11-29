@@ -14,6 +14,7 @@ import { GoogleAnalytics, FacebookPixel, usePageTracking } from "@/components/An
 import { useAuth } from "@/hooks/useAuth";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
+import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -1070,7 +1071,11 @@ function AppContent() {
       <>
         <GoogleAnalytics />
         <FacebookPixel />
-        <Router />
+        <RouteErrorBoundary>
+          <Suspense fallback={<FullPageLoadingFallback />}>
+            <Router />
+          </Suspense>
+        </RouteErrorBoundary>
       </>
     );
   }
@@ -1090,7 +1095,11 @@ function AppContent() {
         <FacebookPixel />
         <NavigationMenu />
         <div className="flex-1">
-          <Router />
+          <RouteErrorBoundary>
+            <Suspense fallback={<LoadingFallback />}>
+              <Router />
+            </Suspense>
+          </RouteErrorBoundary>
         </div>
         <Footer />
       </div>
