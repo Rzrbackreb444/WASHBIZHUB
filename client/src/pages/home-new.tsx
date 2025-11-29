@@ -310,34 +310,38 @@ const features = [
   }
 ];
 
-const journeyCards = [
+const solutionCards = [
   {
-    icon: Lightbulb,
-    title: 'Thinking About It?',
-    description: 'Learn if owning a laundromat is right for you',
-    link: '/startup-funding',
-    color: 'blue'
+    title: 'Evaluate an Investment',
+    subtitle: 'Before You Buy',
+    metrics: ['17-factor CLEANBI scoring', '$1.2B+ deals analyzed', '5-min due diligence reports'],
+    cta: 'Run Free Analysis',
+    link: '/cleanbi-auto',
+    featured: true
   },
   {
-    icon: Target,
-    title: 'Ready to Buy?',
-    description: 'Find and analyze your next investment',
-    link: '/laundromat-listings',
-    color: 'green'
-  },
-  {
-    icon: Settings,
-    title: 'Already Own One?',
-    description: 'Run your laundromat like a pro',
+    title: 'Operate & Optimize',
+    subtitle: 'For Current Owners',
+    metrics: ['AI predictive maintenance', 'Dynamic pricing engine', 'Real-time POS analytics'],
+    cta: 'Start Free Trial',
     link: '/pos-command-center',
-    color: 'orange'
+    featured: false
   },
   {
-    icon: Users,
-    title: 'Sell or Serve?',
-    description: 'Connect with laundromat owners',
-    link: '/listing-form',
-    color: 'purple'
+    title: 'Buy or Sell',
+    subtitle: 'Marketplace',
+    metrics: ['Active laundromat listings', 'Verified buyer network', 'Financing connections'],
+    cta: 'Browse Listings',
+    link: '/laundromat-listings',
+    featured: false
+  },
+  {
+    title: 'Grow Your Business',
+    subtitle: 'For Vendors & Partners',
+    metrics: ['72,000+ owner audience', 'Featured directory listings', 'Lead generation tools'],
+    cta: 'Partner With Us',
+    link: '/directory',
+    featured: false
   }
 ];
 
@@ -416,44 +420,61 @@ export default function HomeNew() {
           </div>
         </div>
 
-        <section className="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <section className="py-16 md:py-20 bg-[#001F3F]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                Your Journey Starts Here
+              <p className="text-[#b8860b] font-semibold text-sm tracking-wider uppercase mb-3">Platform Solutions</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                Solutions by Outcome
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Whether you're dreaming, buying, operating, or selling — we've got the tools
+              <p className="text-white/60 max-w-2xl mx-auto">
+                Enterprise-grade intelligence for every stage of the laundromat business lifecycle
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {journeyCards.map((card, i) => {
-                const colorMap: Record<string, string> = {
-                  blue: 'border-blue-500/30 hover:border-blue-500 bg-blue-500/5',
-                  green: 'border-green-500/30 hover:border-green-500 bg-green-500/5',
-                  orange: 'border-orange-500/30 hover:border-orange-500 bg-orange-500/5',
-                  purple: 'border-purple-500/30 hover:border-purple-500 bg-purple-500/5'
-                };
-                const iconColorMap: Record<string, string> = {
-                  blue: 'text-blue-500',
-                  green: 'text-green-500',
-                  orange: 'text-orange-500',
-                  purple: 'text-purple-500'
-                };
-                return (
-                  <Link key={i} href={card.link}>
-                    <Card className={`p-6 border-2 ${colorMap[card.color]} transition-all hover:scale-[1.02] cursor-pointer h-full`} data-testid={`card-journey-${card.color}`}>
-                      <card.icon className={`w-10 h-10 ${iconColorMap[card.color]} mb-4`} />
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{card.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{card.description}</p>
-                      <span className={`${iconColorMap[card.color]} text-sm font-semibold flex items-center gap-1`}>
-                        Explore <ChevronRight className="w-4 h-4" />
+              {solutionCards.map((card, i) => (
+                <div 
+                  key={i} 
+                  className={`relative bg-white/5 backdrop-blur border rounded-xl p-6 transition-all hover:bg-white/10 ${
+                    card.featured 
+                      ? 'border-[#b8860b]/50 ring-1 ring-[#b8860b]/20' 
+                      : 'border-white/10 hover:border-white/20'
+                  }`}
+                  data-testid={`card-solution-${i}`}
+                >
+                  {card.featured && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="bg-[#b8860b] text-[#001F3F] text-xs font-bold px-3 py-1 rounded-full">
+                        Most Popular
                       </span>
-                    </Card>
+                    </div>
+                  )}
+                  <p className="text-[#39CCCC] text-xs font-semibold uppercase tracking-wider mb-2">{card.subtitle}</p>
+                  <h3 className="text-xl font-bold text-white mb-4">{card.title}</h3>
+                  <ul className="space-y-2 mb-6">
+                    {card.metrics.map((metric, j) => (
+                      <li key={j} className="flex items-start gap-2 text-white/70 text-sm">
+                        <CheckCircle className="w-4 h-4 text-[#39CCCC] mt-0.5 flex-shrink-0" />
+                        {metric}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={card.link}>
+                    <Button 
+                      className={`w-full ${
+                        card.featured 
+                          ? 'bg-[#b8860b] hover:bg-[#9a7209] text-white' 
+                          : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                      }`}
+                      data-testid={`button-solution-${i}`}
+                    >
+                      {card.cta}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                   </Link>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </section>
