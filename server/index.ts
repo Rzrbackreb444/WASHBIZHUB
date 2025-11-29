@@ -13,7 +13,7 @@ import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
 
 const app = express();
 
-// Enable gzip/brotli compression for all responses (major performance boost)
+// Enable gzip compression for all responses (major performance boost)
 app.use(compression({
   level: 6, // Balanced compression level
   threshold: 1024, // Only compress responses > 1KB
@@ -26,6 +26,20 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
+
+// Add caching headers for static assets
+app.use((req, res, next) => {
+  const url = req.url;
+  // JavaScript and CSS files (with content hashes) - aggressive caching
+  if (url.match(/\.(js|css)(\?.*)?$/)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+  // Images and fonts - long cache (30 days)
+  else if (url.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf|eot)(\?.*)?$/)) {
+    res.setHeader('Cache-Control', 'public, max-age=2592000');
+  }
+  next();
+});
 
 declare module 'http' {
   interface IncomingMessage {
