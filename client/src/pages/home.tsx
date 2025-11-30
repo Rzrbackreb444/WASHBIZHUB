@@ -10,12 +10,22 @@ import { StickyActionBar, FloatingCTAButton } from "@/components/StickyActionBar
 import { PlatformStats, TrustBadges, EnterpriseFeatures } from "@/components/PlatformStats";
 import { PartnerActionsSection, QuickListBanner } from "@/components/PartnerActions";
 import { 
+  CLEANBIQuickScoreDemo, 
+  InteractiveCalculatorDemo, 
+  AIConsultantPreview,
+  AnimatedStatsCounter,
+  FeaturedMarketScores
+} from "@/components/demos";
+import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
-  Chrome, MessageCircle, Sparkles
+  Chrome, MessageCircle, Sparkles, MapPin, Calculator, Bot
 } from "lucide-react";
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
 import londrLogoUrl from "@assets/Londr_1763778448894.png";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
+import laundromatInterior1 from "@assets/AdobeStock_711286802_1764520189991.jpeg";
+import laundromatInterior2 from "@assets/AdobeStock_561067303_1764520189991.jpeg";
+import laundromatDexter from "@assets/Dexter Laundromat Stock photo_1764520273177.jpg";
 
 const journeyPaths = [
   {
@@ -108,7 +118,7 @@ export default function Home() {
     "@type": "FAQPage",
     "mainEntity": [
       { "@type": "Question", "name": "What is WashBizHub?", "acceptedAnswer": { "@type": "Answer", "text": "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors." } },
-      { "@type": "Question", "name": "What is CLEANBI and how does it work?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for ANY business type (restaurants, retail, laundromats, car washes, gyms, etc.) or residential property in 220+ countries. Scores 90+ = A grade, 80-89 = B, 70-79 = C, below 70 = Needs Work. Premium $97 reports available for deep analysis." } },
+      { "@type": "Question", "name": "What is CLEANBI and how does it work?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for ANY business type (restaurants, retail, laundromats, car washes, gyms, etc.) or residential property in 220+ countries. Scores 85+ = A grade, 70-84 = B, 55-69 = C, below 55 = Needs Work. Premium $97 reports available for deep analysis." } },
       { "@type": "Question", "name": "Is CLEANBI free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! The basic CLEANBI score is 100% free with unlimited searches for any address globally. No login required. Premium $97 reports are available for deeper analysis, business valuations, AI-powered investment recommendations, and comprehensive market data." } },
       { "@type": "Question", "name": "What business types can CLEANBI score?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI scores ANY business type including restaurants, retail stores, laundromats, car washes, gyms, salons, gas stations, hotels, coffee shops, convenience stores, and any business with a Google Places listing. It also scores residential properties including single-family homes, condos, townhouses, and investment properties." } },
       { "@type": "Question", "name": "What countries does CLEANBI cover?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI provides global coverage across 220+ countries including USA, Canada, UK, Australia, Japan, Philippines, Germany, France, Spain, Italy, Brazil, Mexico, India, China, South Africa, Singapore, UAE, and everywhere Google Maps/Places data is available." } },
@@ -126,7 +136,7 @@ export default function Home() {
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "2847", "bestRating": "5", "worstRating": "1" },
     "description": "Score ANY business or residential property worldwide in seconds. Uses Google Places API to analyze foot traffic, competition, reviews, location quality. Works for all business types in 220+ countries. 100% free basic scores.",
-    "featureList": ["Universal Address Scoring for ANY business type", "Global Coverage - 220+ countries", "Real-Time Google Data", "Instant A-F Grades", "Free Chrome Extension", "$97 Premium Reports"]
+    "featureList": ["Universal Address Scoring for ANY business type", "Global Coverage - 220+ countries", "Real-Time Google Data", "Instant A-C Grades", "Free Chrome Extension", "$97 Premium Reports"]
   };
 
   const howToSchema = {
@@ -138,7 +148,7 @@ export default function Home() {
       { "@type": "HowToStep", "position": 1, "name": "Visit CLEANBI", "text": "Go to washbizhub.com/cleanbi-auto to access the free universal address scoring tool" },
       { "@type": "HowToStep", "position": 2, "name": "Enter Address", "text": "Type any business or residential address including street, city, state, and country" },
       { "@type": "HowToStep", "position": 3, "name": "Click Calculate", "text": "Press 'Calculate CLEANBI Score' to analyze the location with Google Places data in seconds" },
-      { "@type": "HowToStep", "position": 4, "name": "View Results", "text": "Receive your 0-100 score with A-F grade, category breakdown, and AI recommendations" },
+      { "@type": "HowToStep", "position": 4, "name": "View Results", "text": "Receive your 0-100 score with A-C grade, category breakdown, and AI recommendations" },
       { "@type": "HowToStep", "position": 5, "name": "Get Premium Report", "text": "Optionally upgrade to $97 premium report for deep analysis, valuations, and investment recommendations" }
     ],
     "totalTime": "PT30S"
@@ -176,6 +186,73 @@ export default function Home() {
         <Hero />
         
         <TrustBadges />
+
+        {/* Premium Demo Section - CLEANBI Quick Score */}
+        <section className="relative py-16 sm:py-24 overflow-hidden" data-testid="section-cleanbi-demo">
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={laundromatInterior1}
+              alt="Modern laundromat interior"
+              className="w-full h-full object-cover opacity-10"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+          </div>
+          
+          <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <Badge className="mb-4 bg-teal-500/20 text-teal-400 border-teal-500/30">
+                <MapPin className="w-3 h-3 mr-1" />
+                Live Demo
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4" data-testid="text-cleanbi-demo-heading">
+                Try CLEANBI™ Location Intelligence
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Enter any address to see our AI-powered scoring in action. 
+                Works for businesses and residential properties in 220+ countries.
+              </p>
+            </div>
+            
+            <CLEANBIQuickScoreDemo />
+          </div>
+        </section>
+
+        {/* Interactive Tools Demo Section */}
+        <section className="relative py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden" data-testid="section-tools-demo">
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={laundromatDexter}
+              alt="Professional laundromat equipment"
+              className="w-full h-full object-cover opacity-5"
+              loading="lazy"
+            />
+          </div>
+          
+          <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
+                <Calculator className="w-3 h-3 mr-1" />
+                Interactive Tools
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4" data-testid="text-tools-demo-heading">
+                Professional-Grade Business Tools
+              </h2>
+              <p className="text-lg text-white/70 max-w-2xl mx-auto">
+                From revenue calculators to AI consulting — everything you need to make 
+                data-driven decisions for your laundromat business.
+              </p>
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              <InteractiveCalculatorDemo />
+              <AIConsultantPreview />
+            </div>
+          </div>
+        </section>
+
+        {/* Animated Stats Counter */}
+        <AnimatedStatsCounter />
 
         {/* Choose Your Path Section */}
         <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black" data-testid="section-choose-path">
@@ -235,6 +312,9 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Featured Market Scores */}
+        <FeaturedMarketScores />
+
         {/* CLEANBI Chrome Extension Banner */}
         <section className="py-12 sm:py-16 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 border-y border-accent/20" data-testid="section-chrome-extension">
           <div className="mx-auto max-w-5xl px-6 lg:px-8 text-center">
@@ -273,8 +353,18 @@ export default function Home() {
         <EnterpriseFeatures />
 
         {/* Social Proof Section */}
-        <section className="py-12 bg-background" data-testid="section-social-proof">
-          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+        <section className="relative py-12 overflow-hidden" data-testid="section-social-proof">
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={laundromatInterior2}
+              alt="Laundromat facility"
+              className="w-full h-full object-cover opacity-5"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/98 to-background" />
+          </div>
+          
+          <div className="relative z-10 mx-auto max-w-6xl px-6 lg:px-8">
             <div className="text-center mb-8">
               <p 
                 className="text-sm font-bold tracking-wider text-muted-foreground uppercase"
