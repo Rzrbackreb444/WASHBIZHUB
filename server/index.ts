@@ -232,6 +232,52 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           console.error(`❌ Failed to track product sale: ${error.message}`);
         }
       }
+      
+      // Listing subscription - Premium tier activation
+      if (metadata.type === "listing_subscription" && metadata.listingId && metadata.tierId) {
+        try {
+          const listing = await storage.getListing(metadata.listingId);
+          if (!listing) {
+            console.error(`❌ Listing ${metadata.listingId} not found`);
+            return res.json({ received: true });
+          }
+          
+          // Tier benefit limits
+          const tierBenefits: Record<string, { mediaLimit: number; videoLimit: number; featured: boolean; prioritySearch: boolean }> = {
+            basic: { mediaLimit: 15, videoLimit: 2, featured: false, prioritySearch: false },
+            showcase: { mediaLimit: 30, videoLimit: 5, featured: true, prioritySearch: true },
+            diamond: { mediaLimit: 999, videoLimit: 20, featured: true, prioritySearch: true },
+          };
+          
+          const benefits = tierBenefits[metadata.tierId] || tierBenefits.basic;
+          const subscriptionId = session.subscription as string;
+          
+          // Update listing with subscription info
+          await storage.updateListing(metadata.listingId, {
+            subscriptionTier: metadata.tierId,
+            stripeSubscriptionId: subscriptionId,
+            subscriptionStartDate: new Date(),
+            subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+            mediaLimit: benefits.mediaLimit,
+            videoLimit: benefits.videoLimit,
+            featured: benefits.featured,
+            prioritySearch: benefits.prioritySearch,
+          });
+          
+          console.log(`✅ Listing ${metadata.listingId} upgraded to ${metadata.tierId} tier`);
+          
+          // Send notification
+          await notifyPurchase({
+            type: 'subscription',
+            productName: `Listing ${metadata.tierId.charAt(0).toUpperCase() + metadata.tierId.slice(1)} Tier`,
+            amount: amountTotal,
+            interval: 'month',
+            customerEmail: session.customer_email || undefined,
+          });
+        } catch (error: any) {
+          console.error(`❌ Failed to activate listing subscription: ${error.message}`);
+        }
+      }
     }
 
     // Handle subscription creation - CLEANBI tier sync

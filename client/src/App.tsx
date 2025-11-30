@@ -183,6 +183,7 @@ const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
 const BrokerDashboard = lazy(() => import("@/pages/broker-dashboard"));
 const VendorDashboard = lazy(() => import("@/pages/vendor-dashboard"));
+const SellerDashboard = lazy(() => import("@/pages/seller-dashboard"));
 
 // Courses & Learning
 const Courses = lazy(() => import("@/pages/courses"));
@@ -479,6 +480,16 @@ function Router() {
       <Route path="/vendor-dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <VendorDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/seller-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/seller">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellerDashboard />
         </Suspense>
       </Route>
 

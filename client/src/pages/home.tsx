@@ -32,10 +32,12 @@ const journeyPaths = [
   {
     id: "evaluate",
     icon: Target,
-    headline: "Ready to Buy?",
-    description: "Find and analyze your next investment",
-    features: "CLEANBI Score • Marketplace • Valuations",
-    link: "/laundromat-listings",
+    headline: "Ready to Buy or Sell?",
+    description: "Browse active listings or list your own",
+    features: "Marketplace • CLEANBI Score • Valuations",
+    link: "/listings",
+    secondaryLink: "/add-listing",
+    secondaryText: "Add a Listing",
     colorClass: "bg-green-500/20 text-green-400 border-green-500/30",
     hoverBg: "hover:border-green-500/50",
     testId: "evaluate"

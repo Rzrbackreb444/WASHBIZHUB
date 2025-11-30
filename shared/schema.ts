@@ -2148,6 +2148,14 @@ export const listings = pgTable("listings", {
   prioritySearch: boolean("priority_search").notNull().default(false), // Premium tier: top of search
   visibilityBoost: integer("visibility_boost").default(0), // Premium tier: 0 (normal), 1-5 (boosted)
   
+  // Premium Subscription Tiers
+  subscriptionTier: text("subscription_tier").notNull().default("free"), // "free", "basic", "showcase", "diamond"
+  stripeSubscriptionId: text("stripe_subscription_id"), // Stripe subscription ID for listing tier
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  mediaLimit: integer("media_limit").notNull().default(5), // free=5, basic=15, showcase=30, diamond=999
+  videoLimit: integer("video_limit").notNull().default(0), // free=0, basic=2, showcase=5, diamond=20
+  
   // SEO
   seoTitle: text("seo_title"),
   seoDescription: text("seo_description"),
