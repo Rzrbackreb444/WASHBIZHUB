@@ -9,9 +9,20 @@ import {
 
 const partnerActions = [
   {
+    href: "/add-listing",
+    title: "Add a Listing",
+    description: "List laundromats, equipment, services, or products",
+    icon: Store,
+    badge: "START HERE",
+    badgeColor: "bg-[#39CCCC]",
+    highlight: true,
+    stats: "5 listing types",
+    color: "from-[#39CCCC] to-teal-600"
+  },
+  {
     href: "/listing-form",
-    title: "List Your Laundromat",
-    description: "Selling your business? Get it in front of 72,000+ buyers",
+    title: "Sell Your Laundromat",
+    description: "Get your business in front of 72,000+ buyers",
     icon: Store,
     badge: "FREE",
     badgeColor: "bg-green-500",
@@ -39,16 +50,6 @@ const partnerActions = [
     highlight: true,
     stats: "72K+ monthly views",
     color: "from-orange-500 to-red-500"
-  },
-  {
-    href: "/vendor-form",
-    title: "Become a Vendor",
-    description: "Partner with us as a service provider or supplier",
-    icon: Building2,
-    badge: null,
-    highlight: false,
-    stats: "200+ vendors listed",
-    color: "from-purple-500 to-purple-600"
   },
 ];
 

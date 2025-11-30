@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap, Lock, CheckCircle, Users, Award, Trophy, Star, MapPin, Clock, Accessibility, Cookie, FileCheck, Building2, Scale, Map } from "lucide-react";
+import { ExternalLink, Facebook, MessageCircle, Phone, Mail, Wrench, AlertTriangle, Settings, Shield, DollarSign, BarChart3, Calculator, ShoppingCart, GraduationCap, Briefcase, Bot, Layout, BookOpen, FileText, Globe, Monitor, Zap, Lock, CheckCircle, Users, Award, Trophy, Star, MapPin, Clock, Accessibility, Cookie, FileCheck, Building2, Scale, Map, Store } from "lucide-react";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button } from "@/components/ui/button";
@@ -257,6 +257,12 @@ export function Footer() {
               <Link href="/listings">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-buy-sell-laundromats">
                   Buy/Sell Laundromats
+                </span>
+              </Link>
+              <Link href="/add-listing">
+                <span className="flex items-center gap-1 text-accent hover:text-[hsl(45,38%,70%)] transition-colors cursor-pointer text-sm font-semibold" data-testid="link-footer-add-listing">
+                  <Store className="h-3 w-3" />
+                  Add a Listing
                 </span>
               </Link>
               <Link href="/vendors">
