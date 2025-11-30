@@ -1,0 +1,106 @@
+
+Security Command Center API
+Google Enterprise API 
+Security Command Center API provides access to temporal views of assets and findings within an…
+
+
+Security Token Service API
+Google Enterprise API 
+The Security Token Service exchanges Google or third-party credentials for a short-lived access…
+
+
+Serverless VPC Access API
+Google Enterprise API 
+API for managing VPC access connectors.
+
+
+Service Consumer Management API
+Google Enterprise API 
+Manages the service consumers of a Service Infrastructure service.
+
+
+Service Control API
+Google Enterprise API 
+Provides admission control and telemetry reporting for services integrated with Service…
+
+
+Service Directory API
+Google Enterprise API 
+Service Directory is a platform for discovering, publishing, and connecting services.
+
+
+Service Management API
+Google Enterprise API 
+Google Service Management allows service producers to publish their services on Google Cloud…
+
+
+Service Networking API
+Google Enterprise API 
+Provides automatic management of network configurations
+
+
+Service Usage API
+Google Enterprise API 
+Enables services that service consumers want to use on Google Cloud Platform, lists the available…
+
+
+Stackdriver API
+Google Enterprise API 
+Used by Google Cloud’s operations suite to collect signals across Google Cloud internal and…
+
+
+Storage Transfer API
+Google Enterprise API 
+Transfers data from external data sources to a Google Cloud Storage bucket or between Google Cloud…
+
+
+Traffic Director API
+Google Enterprise API 
+
+Transcoder API
+Google Enterprise API 
+This API converts video files into formats suitable for consumer distribution.
+
+
+Vertex AI API
+Google Enterprise API 
+Train high-quality custom machine learning models with minimal machine learning expertise and…
+
+
+Vertex AI Search for commerce API
+Google Enterprise API 
+Vertex AI Search for commerce API is made up of Retail Search, Browse and Recommendations. These…
+
+
+VM Manager (OS Config API)
+Google Enterprise API 
+OS management tools for patching, inventory, and configuration.
+
+
+VM Migration API
+Google Enterprise API 
+Use the Migrate to Virtual Machines API to programmatically migrate workloads.
+
+
+VMware Engine API
+Google Enterprise API 
+The Google VMware Engine API lets you programmatically manage VMware environments.
+
+
+Web Risk API
+Google Enterprise API 
+
+Web Security Scanner API
+Google Enterprise API 
+Scans your Compute and App Engine apps for common web vulnerabilities.
+
+
+Workflow Executions API
+Google Enterprise API 
+Execute workflows created with Workflows API.
+
+
+Workflows API
+Google Enterprise API 
+Manage workflow definitions. To execute workflows and manage executions, see the Workflows…
+
