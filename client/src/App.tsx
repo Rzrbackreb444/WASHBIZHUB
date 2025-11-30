@@ -135,6 +135,9 @@ const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
 const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
 const CalculatorMarketplace = lazy(() => import("@/pages/calculator-marketplace"));
 
+// CLEANBI Explorer (Immersive Map Experience)
+const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
+
 // Forum Pages
 const Forum = lazy(() => import("@/pages/forum"));
 const ForumCategory = lazy(() => import("@/pages/forum-category"));
@@ -288,6 +291,11 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/cleanbi" component={CleanBI} />
       <Route path="/cleanbi-tool" component={CleanBI} />
+      <Route path="/cleanbi-explorer">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <CleanBIExplorer />
+        </Suspense>
+      </Route>
       <Route path="/pricing" component={Pricing} />
       <Route path="/blog" component={Blog} />
       <Route path="/courses" component={CoursesHub} />
