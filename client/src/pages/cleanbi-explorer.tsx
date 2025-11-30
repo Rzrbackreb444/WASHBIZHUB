@@ -1032,41 +1032,69 @@ export default function CleanBIExplorer() {
             data-testid="explorer-map"
           />
 
-          {/* Welcome Overlay */}
-          {!analysisResult && (
-            <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
-              <div className="bg-black/70 backdrop-blur-sm rounded-xl p-6 max-w-lg border border-white/10">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shrink-0">
-                    <MapPin className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white mb-1">CLEANBI™ Explorer 2.0</h2>
-                    <p className="text-white/60 text-sm">
-                      Enter any address to get AI-powered market intelligence, competition analysis, demographics, and opportunity scoring.
-                    </p>
+          {/* Floating Search Bar - Always visible on map */}
+          <div className="absolute top-4 left-4 right-4 z-10">
+            <div className="bg-black/80 backdrop-blur-md rounded-2xl p-4 max-w-2xl mx-auto border border-white/20 shadow-2xl">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">CLEANBI™ Explorer</h2>
+                  <p className="text-white/50 text-xs">AI-Powered Location Intelligence</p>
+                </div>
+              </div>
+              
+              {/* Search Input - Always Visible */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
+                    placeholder="Enter any address to analyze..."
+                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base rounded-xl"
+                    data-testid="input-map-search"
+                  />
+                </div>
+                <Button 
+                  onClick={analyzeLocation}
+                  disabled={isAnalyzing}
+                  className="bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 px-6 rounded-xl"
+                  data-testid="button-analyze-map"
+                >
+                  {isAnalyzing ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 mr-2" />
+                      Analyze
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Saved locations quick access */}
+              {savedAnalyses.length > 0 && !analysisResult && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="text-xs text-white/40 mb-2">Recent analyses:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {savedAnalyses.slice(0, 4).map((saved) => (
+                      <Badge 
+                        key={saved.id}
+                        className="cursor-pointer hover:opacity-80 text-xs"
+                        style={{ backgroundColor: GRADE_COLORS[saved.grade] + "33", color: GRADE_COLORS[saved.grade] }}
+                        onClick={() => loadSavedAnalysis(saved)}
+                      >
+                        {saved.grade} · {saved.address.split(",")[0]}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-                {savedAnalyses.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <div className="text-xs text-white/50 mb-2">Your saved locations appear as markers on the map</div>
-                    <div className="flex flex-wrap gap-2">
-                      {savedAnalyses.slice(0, 3).map((saved) => (
-                        <Badge 
-                          key={saved.id}
-                          className="cursor-pointer hover:opacity-80"
-                          style={{ backgroundColor: GRADE_COLORS[saved.grade] + "33", color: GRADE_COLORS[saved.grade] }}
-                          onClick={() => loadSavedAnalysis(saved)}
-                        >
-                          {saved.grade} · {saved.address.split(",")[0]}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Street View Modal */}
