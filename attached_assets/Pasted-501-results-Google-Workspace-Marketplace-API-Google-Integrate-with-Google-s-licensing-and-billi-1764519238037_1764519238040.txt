@@ -1,0 +1,197 @@
+501 results
+
+Google Workspace Marketplace API
+Google
+Integrate with Google's licensing and billing services.
+
+
+Google People API
+Google Enterprise API 
+Provides access to information about profiles and contacts.
+
+
+Firebase App Hosting API
+Google
+Quickly ship Angular and Next.js apps. Manages everything from the CDN to server-side rendering.
+
+
+Maps Embed API
+Google Enterprise API 
+Make places easily discoverable with interactive Google Maps.
+
+
+Map Tiles API
+Google
+2D, 3D and Street View tiles for building immersive visualizations.
+
+
+Gmail Postmaster Tools API
+Google
+The Gmail Postmaster API is a RESTful API that provides programmatic access to email traffic…
+
+
+Cloud Run Admin API
+Google Enterprise API 
+Serverless agility for containerized apps
+
+
+Enterprise License Manager API
+Google Enterprise API 
+Manage Google Workspace and related licenses for users
+
+
+Autoscaling API
+Google
+An API for consuming autoscaling signals
+
+
+Google Chat API
+Google Enterprise API 
+Create apps for Google Chat.
+
+
+Geocoding API
+Google Enterprise API 
+Convert between addresses and geographic coordinates.
+
+
+Places UI Kit
+Google
+Display Google Maps Places on any map with a few lines of code
+
+
+Maps Static API
+Google Enterprise API 
+Simple, embeddable map image with minimal code.
+
+
+Data Portability API
+Google
+Request a copy of a user's data from various Google services.
+
+
+Navigation SDK
+Google
+Provide a navigation user experience. Presents a user interface to a driver that takes them through…
+
+
+Places API
+Google Enterprise API 
+Get detailed information about 100 million places
+
+
+Aerial View API
+Google Enterprise API 
+Get 3D cinematic videos of places
+
+
+Maps Elevation API
+Google Enterprise API 
+Elevation data for any point in the world.
+
+
+Firebase App Distribution API
+Google
+Easily manage your pre-release testing
+
+
+Firebase Cloud Messaging Data API
+Google
+
+Gemini API
+Google
+Build with latest models from Google Deepmind using the Gemini API for Developers
+
+
+Google Tasks API
+Google Enterprise API 
+Manage your tasks and task lists
+
+
+Google Earth Engine API
+Google
+Geospatial insights for a more sustainable world.
+
+
+Maps 3D SDK for Android
+Google
+Immersive 3D Maps for your native Android app
+
+
+Blockchain API
+Google
+Enterprise-grade RPC for building on the blockchain
+
+
+Tenor API
+Google
+The most relevant GIFs and stickers, anywhere in the world.
+
+
+Gmail API
+Google Enterprise API 
+View and manage Gmail mailbox data.
+
+
+[Deprecated] Maps Grounding API
+Google
+No longer needed. Please refer to the link in the overview.
+
+
+Cloud Deploy API
+Google
+Deliver continuously to Google Kubernetes Engine, Anthos, and Cloud Run
+
+
+Google Drive API
+Google Enterprise API 
+Create and manage resources in Google Drive.
+
+
+Google Workspace Marketplace SDK
+Google
+Publish applications to the Google Workspace Marketplace.
+
+
+Datastream API
+Google
+Real-time, anytime: Serverless, cloud-native CDC and replication
+
+
+Maps 3D SDK for iOS
+Google
+Immersive 3D Maps for your native iOS app
+
+
+CalDAV API
+Google Enterprise API 
+Manage calendars and events in Google Calendar using the CalDAV protocol.
+
+
+Maps Grounding Lite
+Google
+Power your agentic flows easily and swiftly with fresh Google Maps data.
+
+
+Google Calendar API
+Google Enterprise API 
+Manage calendars and events in Google Calendar.
+
+
+Dataform
+Google
+Service to develop, version control, and operationalize SQL pipelines in BigQuery.
+
+
+Document AI Warehouse
+Google
+
+Checks API
+Google
+Simplifying the path to privacy compliance for development teams and the apps they’re building.
+
+
+Weather API
+Google
+Provides weather data for a specific location
+

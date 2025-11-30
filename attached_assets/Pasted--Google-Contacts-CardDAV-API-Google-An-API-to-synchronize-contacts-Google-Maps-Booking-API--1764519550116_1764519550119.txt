@@ -1,0 +1,149 @@
+
+Google Contacts CardDAV API
+Google
+An API to synchronize contacts.
+
+
+Google Maps Booking API
+Google
+Scheduling aggregators call this API to notify us of appointment updates, and update their…
+
+
+Google Maps Booking API (Dev)
+Google
+Scheduling aggregators call this API to notify us of appointment updates, and update their…
+
+
+Google Play Custom App Publishing API
+Google
+API to create and publish custom Android apps
+
+
+Google Workspace Migrate API
+Google
+
+Google+ Hangouts API
+Google
+Important: The Google+ API for Hangouts is no longer supported. Apps will continue to function…
+
+
+HomeGraph API
+Google
+
+Knowledge Graph Search API
+Google
+Searches the Google Knowledge Graph for entities.
+
+
+Library Agent API
+Google
+A simple Google Example Library API.
+
+
+Looker Studio API
+Google
+Allows programmatic viewing and editing of Looker Studio assets.
+
+
+Manufacturer Center API
+Google
+Public API for managing Manufacturer Center related data.
+
+
+Mesh Configuration API
+Google
+Anthos Service Mesh uses the Mesh Configuration API to relay configuration data from your mesh to…
+
+
+ML Kit API
+Google
+Access custom machine learning models hosted via ML Kit.
+
+
+Mobile Crash Reporting API
+Google
+Mobile Crash Reporting API.
+
+
+Nearby Messages API
+Google
+Api for exchanging messages with nearby devices.
+
+
+PageSpeed Insights API
+Google
+Improve your web pages
+
+
+Play Movies Anywhere API
+Google
+Movies Anywhere API
+
+
+Poly API
+Google
+Provides read and whitelisted upload access to assets on Poly
+
+
+Realtime API
+Google
+The Google Realtime API makes it easy to build realtime collaboration into your application. Note…
+
+
+Remote Build Execution API
+Google
+Supplies a Remote Execution API service for tools such as bazel.
+
+
+Safe Browsing API (Legacy)
+Google
+The Safe Browsing API (v3 and earlier) is an experimental API that allows client applications to…
+
+
+SAS Portal API
+Google
+
+Service Metadata API
+Google
+This API provides static metadata about Google Cloud Platform. Currently, it only provides basic…
+
+
+Site Verification API
+Google
+The Google Site Verification API lets applications automate the process of managing ownership…
+
+
+Smart Device Management API
+Google
+Allow select enterprise partners to access, control, and manage Google and Nest devices…
+
+
+Subscribe with Google Publication API
+Google
+The Subscribe with Google Publication APIs enable a publisher to fetch information related to their…
+
+
+Token Service API
+Google
+The Token Service API lets you exchange an ID token or a refresh token for an access token and a…
+
+
+Travel Partner API
+Google
+The Travel Partner API provides you with a RESTful interface to the Google Hotel Center platform.…
+
+
+Web Fonts Developer API
+Google
+The Google Web Fonts Developer API lets you retrieve information about web fonts served by…
+
+
+Web Search Indexing API
+Google
+Notifies Google Web Search when your web pages change.
+
+
+YouTube Embedded Player API
+Google
+Verify permissions for applications and sites using the YouTube Embedded Player.
+
