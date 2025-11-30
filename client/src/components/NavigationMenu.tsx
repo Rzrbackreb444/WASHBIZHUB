@@ -72,8 +72,9 @@ const PLAN_LINKS = [
   { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment", featured: true },
   { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
   { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
+  { href: "/academy", label: "Laundry Tech Academy", icon: GraduationCap, description: "4-tier certification from FREE to Master Tech", highlight: true, badge: "NEW" },
   { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide from experts" },
-  { href: "/blog", label: "Blog & Education", icon: GraduationCap, description: "Articles, guides, and industry insights" },
+  { href: "/blog", label: "Blog & Education", icon: Lightbulb, description: "Articles, guides, and industry insights" },
   { href: "/consultation", label: "Book Consultation", icon: Phone, description: "1-on-1 expert guidance for your journey" },
 ];
 
