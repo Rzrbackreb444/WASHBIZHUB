@@ -104,23 +104,77 @@ async function getUserTier(userId: string | null): Promise<SubscriptionTier> {
   }
 }
 
+const dailyUsageCache = new Map<string, { count: number; date: string }>();
+
 async function checkExplorerRateLimit(
   ipAddress: string, 
   userId: string | null, 
   tier: SubscriptionTier
-): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+): Promise<{ 
+  allowed: boolean; 
+  remainingMinute: number; 
+  remainingDaily: number;
+  resetAt: Date;
+  limitType?: "minute" | "daily" 
+}> {
   const limits = TIER_RATE_LIMITS[tier] || TIER_RATE_LIMITS.free;
   const key = userId || ipAddress;
   
   try {
-    const allowed = await storage.checkRateLimit(key, "/api/cleanbi-explorer", limits.perMinute, 1/60);
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    const dailyKey = `daily:${key}`;
+    let dailyUsage = dailyUsageCache.get(dailyKey);
+    
+    if (!dailyUsage || dailyUsage.date !== today) {
+      dailyUsage = { count: 0, date: today };
+      dailyUsageCache.set(dailyKey, dailyUsage);
+    }
+    
+    if (dailyUsage.count >= limits.perDay) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      return {
+        allowed: false,
+        remainingMinute: limits.perMinute,
+        remainingDaily: 0,
+        resetAt: tomorrow,
+        limitType: "daily"
+      };
+    }
+    
+    const minuteAllowed = await storage.checkRateLimit(key, "/api/cleanbi-explorer", limits.perMinute, 1/60);
+    
+    if (!minuteAllowed) {
+      return {
+        allowed: false,
+        remainingMinute: 0,
+        remainingDaily: limits.perDay - dailyUsage.count,
+        resetAt: new Date(Date.now() + 60000),
+        limitType: "minute"
+      };
+    }
+    
+    dailyUsage.count++;
+    dailyUsageCache.set(dailyKey, dailyUsage);
+    
     return {
-      allowed,
-      remaining: limits.perMinute - 1,
+      allowed: true,
+      remainingMinute: limits.perMinute - 1,
+      remainingDaily: limits.perDay - dailyUsage.count,
       resetAt: new Date(Date.now() + 60000)
     };
-  } catch {
-    return { allowed: true, remaining: limits.perMinute, resetAt: new Date() };
+  } catch (err) {
+    console.warn("Rate limit check failed, allowing request:", err);
+    return { 
+      allowed: true, 
+      remainingMinute: limits.perMinute, 
+      remainingDaily: limits.perDay,
+      resetAt: new Date() 
+    };
   }
 }
 
@@ -392,9 +446,16 @@ router.post("/analyze", async (req: Request, res: Response) => {
     const rateCheck = await checkExplorerRateLimit(ipAddress, userId, tier);
     
     if (!rateCheck.allowed) {
+      const limitMessage = rateCheck.limitType === "daily" 
+        ? `Daily limit reached (${TIER_RATE_LIMITS[tier]?.perDay || 20}/day for ${tier} tier)`
+        : `Too many requests (${TIER_RATE_LIMITS[tier]?.perMinute || 5}/minute for ${tier} tier)`;
+      
       return res.status(429).json({
         success: false,
-        error: "Rate limit exceeded",
+        error: limitMessage,
+        limitType: rateCheck.limitType,
+        remainingMinute: rateCheck.remainingMinute,
+        remainingDaily: rateCheck.remainingDaily,
         retryAfter: rateCheck.resetAt,
         upgradeUrl: "/pricing"
       });
