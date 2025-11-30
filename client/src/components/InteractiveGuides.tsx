@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Lightbulb, CheckCircle2, AlertCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Guide {
   id: string;
@@ -175,8 +177,10 @@ export function InteractiveGuides() {
 
             <CardContent className="space-y-4">
               {/* Preview of content */}
-              <div className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-4 text-muted-foreground">
-                {guide.content}
+              <div className="text-sm leading-relaxed line-clamp-4 text-muted-foreground prose prose-sm dark:prose-invert prose-headings:text-foreground prose-strong:text-primary prose-p:text-muted-foreground max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {guide.content}
+                </ReactMarkdown>
               </div>
 
               {/* Key Takeaways */}
