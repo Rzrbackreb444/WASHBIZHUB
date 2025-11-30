@@ -586,6 +586,234 @@ export default function Pricing() {
           </Card>
         </div>
 
+        {/* Comprehensive Feature Comparison Table */}
+        <div className="mb-12 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl font-black text-center mb-2" data-testid="text-comparison-title">
+            Complete Feature Comparison
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground text-center mb-6 sm:mb-8">
+            See exactly what's included in each plan
+          </p>
+          
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="table-feature-comparison">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left p-4 font-semibold text-foreground min-w-[200px]">Feature</th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Gift className="w-5 h-5 text-green-500" />
+                        <span>Free</span>
+                        <span className="text-xs text-muted-foreground font-normal">$0/mo</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px] bg-teal-500/10">
+                      <div className="flex flex-col items-center gap-1">
+                        <Rocket className="w-5 h-5 text-teal-500" />
+                        <span>Trial</span>
+                        <span className="text-xs text-muted-foreground font-normal">14 days</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Crown className="w-5 h-5 text-purple-500" />
+                        <span>Pro</span>
+                        <span className="text-xs text-muted-foreground font-normal">$149/mo</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Zap className="w-5 h-5 text-blue-500" />
+                        <span>Accelerate</span>
+                        <span className="text-xs text-muted-foreground font-normal">$349/mo</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <TrendingUp className="w-5 h-5 text-accent" />
+                        <span>Scale</span>
+                        <span className="text-xs text-muted-foreground font-normal">$699/mo</span>
+                      </div>
+                    </th>
+                    <th className="text-center p-4 font-semibold text-foreground min-w-[120px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Crown className="w-5 h-5 text-amber-500" />
+                        <span>Summit</span>
+                        <span className="text-xs text-muted-foreground font-normal">$1,199/mo</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Core Features */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Calculator className="w-4 h-4 text-primary" />
+                        Core Tools
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "CLEANBI Score Analysis", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "50+ Business Calculators", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Design Studio 2D", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Error Code Database (2,200+)", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Community Forum Access", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Educational Content", free: true, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+
+                  {/* POS & Operations */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Store className="w-4 h-4 text-primary" />
+                        POS & Operations
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "Unlimited Machines", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "POS System", free: false, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Order Management", free: false, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Stripe Integration", free: false, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "Pickup/Delivery", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "Route Optimization", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+
+                  {/* AI & Intelligence */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Bot className="w-4 h-4 text-primary" />
+                        AI & Intelligence
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "Service Guy AI", free: "2 msg", trial: "500/mo", pro: "500/mo", accelerate: "100/mo", scale: "Unlimited", summit: "Unlimited" },
+                    { feature: "AI Predictive Maintenance", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "Dynamic Pricing Engine", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "Multi-AI Orchestration", free: false, trial: false, pro: false, accelerate: false, scale: true, summit: true },
+                    { feature: "AI Blog Suite", free: false, trial: false, pro: false, accelerate: false, scale: true, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{typeof row.free === 'string' ? <span className="text-xs font-medium text-amber-600">{row.free}</span> : row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{typeof row.trial === 'string' ? <span className="text-xs font-medium text-amber-600">{row.trial}</span> : row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.pro === 'string' ? <span className="text-xs font-medium text-amber-600">{row.pro}</span> : row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.accelerate === 'string' ? <span className="text-xs font-medium text-amber-600">{row.accelerate}</span> : row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.scale === 'string' ? <span className="text-xs font-medium text-amber-600">{row.scale}</span> : row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.summit === 'string' ? <span className="text-xs font-medium text-amber-600">{row.summit}</span> : row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+
+                  {/* IoT & Monitoring */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-primary" />
+                        IoT & Analytics
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "IoT Machine Monitoring", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "Real-time Telemetry", free: false, trial: true, pro: true, accelerate: false, scale: true, summit: true },
+                    { feature: "Analytics Dashboard", free: false, trial: true, pro: true, accelerate: true, scale: true, summit: true },
+                    { feature: "SEO Command Center", free: false, trial: false, pro: false, accelerate: true, scale: true, summit: true },
+                    { feature: "Google Search Console", free: false, trial: false, pro: false, accelerate: false, scale: false, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+
+                  {/* Website & Marketing */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-primary" />
+                        Website & Marketing
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "Website Builder", free: false, trial: false, pro: false, accelerate: true, scale: true, summit: true },
+                    { feature: "Custom Domain", free: false, trial: false, pro: false, accelerate: true, scale: true, summit: true },
+                    { feature: "AI Chatbot Builder", free: false, trial: false, pro: false, accelerate: true, scale: true, summit: true },
+                    { feature: "Email Marketing", free: false, trial: false, pro: false, accelerate: false, scale: true, summit: true },
+                    { feature: "White-Label Branding", free: false, trial: false, pro: false, accelerate: false, scale: false, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+
+                  {/* Support & Limits */}
+                  <tr className="bg-muted/30">
+                    <td colSpan={7} className="p-3 font-semibold text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-primary" />
+                        Support & Limits
+                      </div>
+                    </td>
+                  </tr>
+                  {[
+                    { feature: "Locations", free: "N/A", trial: "Unlimited", pro: "Unlimited", accelerate: "1", scale: "5", summit: "Unlimited" },
+                    { feature: "Users", free: "1", trial: "Unlimited", pro: "Unlimited", accelerate: "2", scale: "10", summit: "Unlimited" },
+                    { feature: "Support", free: "Community", trial: "Email", pro: "Priority", accelerate: "Email", scale: "Priority", summit: "24/7 Phone" },
+                    { feature: "Dedicated Manager", free: false, trial: false, pro: false, accelerate: false, scale: false, summit: true },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b hover:bg-muted/20">
+                      <td className="p-3 text-muted-foreground">{row.feature}</td>
+                      <td className="p-3 text-center">{typeof row.free === 'string' ? <span className="text-xs font-medium text-muted-foreground">{row.free}</span> : row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center bg-teal-500/5">{typeof row.trial === 'string' ? <span className="text-xs font-medium text-teal-600">{row.trial}</span> : row.trial ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.pro === 'string' ? <span className="text-xs font-medium text-purple-600">{row.pro}</span> : row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.accelerate === 'string' ? <span className="text-xs font-medium text-blue-600">{row.accelerate}</span> : row.accelerate ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.scale === 'string' ? <span className="text-xs font-medium text-accent">{row.scale}</span> : row.scale ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                      <td className="p-3 text-center">{typeof row.summit === 'string' ? <span className="text-xs font-medium text-amber-600">{row.summit}</span> : row.summit ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+
         {/* What You DON'T Get With Competitors */}
         <div className="mb-12 sm:mb-16">
           <h2 className="text-xl sm:text-2xl font-black text-center mb-6 sm:mb-8">What Others Charge For (That's FREE Here)</h2>

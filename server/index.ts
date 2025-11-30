@@ -528,12 +528,17 @@ app.use((req, res, next) => {
     try {
       const { laundromatTemplates } = await import("./seed-templates.js");
       const existing = await storage.getWebsiteTemplates();
-      if (existing.length === 0) {
-        log("📦 Seeding website templates...");
-        for (const template of laundromatTemplates) {
+      const existingNames = new Set(existing.map(t => t.name));
+      
+      // Find templates that don't exist yet
+      const newTemplates = laundromatTemplates.filter(t => !existingNames.has(t.name));
+      
+      if (newTemplates.length > 0) {
+        log(`📦 Seeding ${newTemplates.length} new website templates...`);
+        for (const template of newTemplates) {
           await storage.createWebsiteTemplate(template);
         }
-        log(`✅ Seeded ${laundromatTemplates.length} templates`);
+        log(`✅ Seeded ${newTemplates.length} new templates (total: ${existing.length + newTemplates.length})`);
       } else {
         log(`✅ ${existing.length} templates already in database`);
       }

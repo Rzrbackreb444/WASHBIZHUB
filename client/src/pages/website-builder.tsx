@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DroppableCanvas, Block } from "@/components/website-builder/DroppableCanvas";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 import {
   Globe, Plus, Layout, Palette, Bot, Image as ImageIcon, Video, FileText,
   Settings, Save, ExternalLink, Upload, Trash2, Edit, Building2, Layers,
@@ -25,8 +26,10 @@ import {
   MessageSquare, Zap, Shield, Link2, Eye, EyeOff, ChevronRight,
   Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor,
   Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle,
-  Server, Lock, RefreshCw, Wifi, Activity, ShoppingCart, CreditCard
+  Server, Lock, RefreshCw, Wifi, Activity, ShoppingCart, CreditCard,
+  FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface BusinessProfile {
   id: string;
@@ -141,6 +144,89 @@ const PERSONALITY_OPTIONS = [
   { value: 'enthusiastic', label: 'Enthusiastic & Upbeat' },
 ];
 
+interface ABTest {
+  id: string;
+  name: string;
+  status: 'draft' | 'running' | 'paused' | 'completed';
+  variants: {
+    id: string;
+    name: string;
+    traffic: number;
+    visitors: number;
+    conversions: number;
+    conversionRate: number;
+  }[];
+  goal: 'button_click' | 'form_submission' | 'time_on_page' | 'scroll_depth';
+  goalDescription: string;
+  startDate: string | null;
+  endDate: string | null;
+  confidenceLevel: number;
+  winner: string | null;
+}
+
+const MOCK_AB_TESTS: ABTest[] = [
+  {
+    id: 'test-1',
+    name: 'Hero Section CTA Test',
+    status: 'running',
+    variants: [
+      { id: 'a', name: 'Variant A (Control)', traffic: 50, visitors: 1247, conversions: 89, conversionRate: 7.1 },
+      { id: 'b', name: 'Variant B', traffic: 50, visitors: 1253, conversions: 112, conversionRate: 8.9 },
+    ],
+    goal: 'button_click',
+    goalDescription: 'Click on "Get Started" button',
+    startDate: '2025-11-25',
+    endDate: null,
+    confidenceLevel: 94,
+    winner: null,
+  },
+  {
+    id: 'test-2',
+    name: 'Pricing Page Layout',
+    status: 'completed',
+    variants: [
+      { id: 'a', name: 'Variant A (Control)', traffic: 50, visitors: 3421, conversions: 198, conversionRate: 5.8 },
+      { id: 'b', name: 'Variant B', traffic: 50, visitors: 3389, conversions: 287, conversionRate: 8.5 },
+    ],
+    goal: 'form_submission',
+    goalDescription: 'Submit pricing inquiry form',
+    startDate: '2025-11-10',
+    endDate: '2025-11-24',
+    confidenceLevel: 99,
+    winner: 'b',
+  },
+  {
+    id: 'test-3',
+    name: 'Service Cards Order',
+    status: 'paused',
+    variants: [
+      { id: 'a', name: 'Variant A (Control)', traffic: 70, visitors: 892, conversions: 45, conversionRate: 5.0 },
+      { id: 'b', name: 'Variant B', traffic: 30, visitors: 384, conversions: 23, conversionRate: 6.0 },
+    ],
+    goal: 'scroll_depth',
+    goalDescription: 'Scroll past 75% of page',
+    startDate: '2025-11-20',
+    endDate: null,
+    confidenceLevel: 72,
+    winner: null,
+  },
+];
+
+const TRAFFIC_SPLIT_OPTIONS = [
+  { value: '50-50', label: '50% / 50%', a: 50, b: 50 },
+  { value: '60-40', label: '60% / 40%', a: 60, b: 40 },
+  { value: '70-30', label: '70% / 30%', a: 70, b: 30 },
+  { value: '80-20', label: '80% / 20%', a: 80, b: 20 },
+  { value: '90-10', label: '90% / 10%', a: 90, b: 10 },
+];
+
+const CONVERSION_GOALS = [
+  { value: 'button_click', label: 'Button Clicks', icon: MousePointerClick, description: 'Track when users click a specific button' },
+  { value: 'form_submission', label: 'Form Submissions', icon: FileCheck, description: 'Track when users submit a form' },
+  { value: 'time_on_page', label: 'Time on Page', icon: Timer, description: 'Track when users spend X seconds on page' },
+  { value: 'scroll_depth', label: 'Scroll Depth', icon: TrendingUp, description: 'Track when users scroll to X% of page' },
+];
+
 export default function WebsiteBuilder() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("pages");
@@ -219,6 +305,16 @@ export default function WebsiteBuilder() {
     isHighlighted: false,
     isFeatured: false,
     order: 0,
+  });
+
+  const [abTests, setAbTests] = useState<ABTest[]>(MOCK_AB_TESTS);
+  const [createTestDialogOpen, setCreateTestDialogOpen] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<ABTest | null>(null);
+  const [newTest, setNewTest] = useState({
+    name: '',
+    trafficSplit: '50-50',
+    goal: 'button_click',
+    goalDescription: '',
   });
 
   const saveProfileMutation = useMutation({
@@ -392,6 +488,10 @@ export default function WebsiteBuilder() {
               <TabsTrigger value="seo" className="gap-2" data-testid="tab-seo">
                 <Search className="w-4 h-4" />
                 SEO
+              </TabsTrigger>
+              <TabsTrigger value="ab-testing" className="gap-2" data-testid="tab-ab-testing">
+                <FlaskConical className="w-4 h-4" />
+                A/B Testing
               </TabsTrigger>
               <TabsTrigger value="email" className="gap-2" data-testid="tab-email">
                 <Send className="w-4 h-4" />
@@ -1571,6 +1671,534 @@ export default function WebsiteBuilder() {
                       </p>
                     </CardContent>
                   </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* A/B TESTING TAB */}
+            <TabsContent value="ab-testing" className="space-y-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <FlaskConical className="w-5 h-5 text-primary" />
+                            A/B Tests
+                          </CardTitle>
+                          <CardDescription>Create and manage split tests for your landing pages</CardDescription>
+                        </div>
+                        <Dialog open={createTestDialogOpen} onOpenChange={setCreateTestDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button data-testid="button-create-ab-test">
+                              <Plus className="w-4 h-4 mr-2" />
+                              Create Test
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-lg">
+                            <DialogHeader>
+                              <DialogTitle>Create A/B Test</DialogTitle>
+                              <DialogDescription>Set up a new split test for your landing page variants</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                <Label>Test Name</Label>
+                                <Input
+                                  value={newTest.name}
+                                  onChange={(e) => setNewTest(prev => ({ ...prev, name: e.target.value }))}
+                                  placeholder="e.g., Hero Section CTA Test"
+                                  data-testid="input-test-name"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Traffic Split</Label>
+                                <Select
+                                  value={newTest.trafficSplit}
+                                  onValueChange={(value) => setNewTest(prev => ({ ...prev, trafficSplit: value }))}
+                                >
+                                  <SelectTrigger data-testid="select-traffic-split">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {TRAFFIC_SPLIT_OPTIONS.map(opt => (
+                                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">How to split traffic between Variant A and Variant B</p>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Conversion Goal</Label>
+                                <Select
+                                  value={newTest.goal}
+                                  onValueChange={(value) => setNewTest(prev => ({ ...prev, goal: value }))}
+                                >
+                                  <SelectTrigger data-testid="select-conversion-goal">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {CONVERSION_GOALS.map(goal => (
+                                      <SelectItem key={goal.value} value={goal.value}>
+                                        <div className="flex items-center gap-2">
+                                          <goal.icon className="w-4 h-4" />
+                                          {goal.label}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Goal Description</Label>
+                                <Input
+                                  value={newTest.goalDescription}
+                                  onChange={(e) => setNewTest(prev => ({ ...prev, goalDescription: e.target.value }))}
+                                  placeholder="e.g., Click on 'Get Started' button"
+                                  data-testid="input-goal-description"
+                                />
+                              </div>
+                              <Separator />
+                              <div className="grid grid-cols-2 gap-4">
+                                <Card className="bg-muted/30 border-dashed">
+                                  <CardContent className="pt-4 text-center">
+                                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-2">
+                                      <span className="text-lg font-bold text-blue-500">A</span>
+                                    </div>
+                                    <p className="font-medium text-sm">Control</p>
+                                    <p className="text-xs text-muted-foreground">Current design</p>
+                                  </CardContent>
+                                </Card>
+                                <Card className="bg-muted/30 border-dashed">
+                                  <CardContent className="pt-4 text-center">
+                                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-2">
+                                      <span className="text-lg font-bold text-purple-500">B</span>
+                                    </div>
+                                    <p className="font-medium text-sm">Variant</p>
+                                    <p className="text-xs text-muted-foreground">Modified design</p>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setCreateTestDialogOpen(false)} data-testid="button-cancel-create-test">
+                                Cancel
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  const splitOption = TRAFFIC_SPLIT_OPTIONS.find(o => o.value === newTest.trafficSplit);
+                                  const newAbTest: ABTest = {
+                                    id: `test-${Date.now()}`,
+                                    name: newTest.name || 'Untitled Test',
+                                    status: 'draft',
+                                    variants: [
+                                      { id: 'a', name: 'Variant A (Control)', traffic: splitOption?.a || 50, visitors: 0, conversions: 0, conversionRate: 0 },
+                                      { id: 'b', name: 'Variant B', traffic: splitOption?.b || 50, visitors: 0, conversions: 0, conversionRate: 0 },
+                                    ],
+                                    goal: newTest.goal as ABTest['goal'],
+                                    goalDescription: newTest.goalDescription,
+                                    startDate: null,
+                                    endDate: null,
+                                    confidenceLevel: 0,
+                                    winner: null,
+                                  };
+                                  setAbTests(prev => [newAbTest, ...prev]);
+                                  setCreateTestDialogOpen(false);
+                                  setNewTest({ name: '', trafficSplit: '50-50', goal: 'button_click', goalDescription: '' });
+                                  toast({ title: "Test Created!", description: "Your A/B test has been created. Start it when ready." });
+                                }}
+                                data-testid="button-confirm-create-test"
+                              >
+                                Create Test
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {abTests.length === 0 ? (
+                        <div className="text-center py-12">
+                          <FlaskConical className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                          <h3 className="text-lg font-semibold mb-2">No A/B Tests Yet</h3>
+                          <p className="text-muted-foreground mb-4">Create your first test to optimize conversions</p>
+                          <Button onClick={() => setCreateTestDialogOpen(true)} data-testid="button-create-first-test">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Your First Test
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {abTests.map((test) => (
+                            <Card
+                              key={test.id}
+                              className={`hover-elevate cursor-pointer transition-all ${selectedTest?.id === test.id ? 'ring-2 ring-primary' : ''}`}
+                              onClick={() => setSelectedTest(test)}
+                              data-testid={`ab-test-card-${test.id}`}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between flex-wrap gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${
+                                      test.status === 'running' ? 'bg-green-500/20' :
+                                      test.status === 'completed' ? 'bg-blue-500/20' :
+                                      test.status === 'paused' ? 'bg-yellow-500/20' :
+                                      'bg-muted'
+                                    }`}>
+                                      <FlaskConical className={`w-5 h-5 ${
+                                        test.status === 'running' ? 'text-green-500' :
+                                        test.status === 'completed' ? 'text-blue-500' :
+                                        test.status === 'paused' ? 'text-yellow-500' :
+                                        'text-muted-foreground'
+                                      }`} />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium">{test.name}</p>
+                                      <div className="flex items-center gap-2 mt-1">
+                                        <Badge
+                                          variant="secondary"
+                                          className={`text-xs ${
+                                            test.status === 'running' ? 'bg-green-500/20 text-green-500' :
+                                            test.status === 'completed' ? 'bg-blue-500/20 text-blue-500' :
+                                            test.status === 'paused' ? 'bg-yellow-500/20 text-yellow-500' :
+                                            ''
+                                          }`}
+                                        >
+                                          {test.status.charAt(0).toUpperCase() + test.status.slice(1)}
+                                        </Badge>
+                                        {test.winner && (
+                                          <Badge className="bg-primary/20 text-primary text-xs gap-1">
+                                            <Trophy className="w-3 h-3" />
+                                            Winner: Variant {test.winner.toUpperCase()}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-6 text-sm">
+                                    <div className="text-center">
+                                      <p className="text-muted-foreground text-xs">Total Visitors</p>
+                                      <p className="font-bold" data-testid={`text-visitors-${test.id}`}>
+                                        {test.variants.reduce((sum, v) => sum + v.visitors, 0).toLocaleString()}
+                                      </p>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="text-muted-foreground text-xs">Conversions</p>
+                                      <p className="font-bold" data-testid={`text-conversions-${test.id}`}>
+                                        {test.variants.reduce((sum, v) => sum + v.conversions, 0).toLocaleString()}
+                                      </p>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="text-muted-foreground text-xs">Confidence</p>
+                                      <p className={`font-bold ${test.confidenceLevel >= 95 ? 'text-green-500' : test.confidenceLevel >= 80 ? 'text-yellow-500' : 'text-muted-foreground'}`} data-testid={`text-confidence-${test.id}`}>
+                                        {test.confidenceLevel}%
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {selectedTest && (
+                    <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                      <CardHeader>
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <BarChart3 className="w-5 h-5 text-primary" />
+                              Test Results: {selectedTest.name}
+                            </CardTitle>
+                            <CardDescription>{selectedTest.goalDescription}</CardDescription>
+                          </div>
+                          <div className="flex gap-2">
+                            {selectedTest.status === 'running' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setAbTests(prev => prev.map(t => t.id === selectedTest.id ? { ...t, status: 'paused' } : t));
+                                  setSelectedTest(prev => prev ? { ...prev, status: 'paused' } : null);
+                                  toast({ title: "Test Paused", description: "The A/B test has been paused." });
+                                }}
+                                data-testid="button-pause-test"
+                              >
+                                <Pause className="w-4 h-4 mr-2" />
+                                Pause
+                              </Button>
+                            )}
+                            {selectedTest.status === 'paused' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setAbTests(prev => prev.map(t => t.id === selectedTest.id ? { ...t, status: 'running' } : t));
+                                  setSelectedTest(prev => prev ? { ...prev, status: 'running' } : null);
+                                  toast({ title: "Test Resumed", description: "The A/B test is now running." });
+                                }}
+                                data-testid="button-resume-test"
+                              >
+                                <Play className="w-4 h-4 mr-2" />
+                                Resume
+                              </Button>
+                            )}
+                            {selectedTest.status === 'draft' && (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setAbTests(prev => prev.map(t => t.id === selectedTest.id ? { ...t, status: 'running', startDate: new Date().toISOString().split('T')[0] } : t));
+                                  setSelectedTest(prev => prev ? { ...prev, status: 'running', startDate: new Date().toISOString().split('T')[0] } : null);
+                                  toast({ title: "Test Started!", description: "Your A/B test is now live." });
+                                }}
+                                data-testid="button-start-test"
+                              >
+                                <Play className="w-4 h-4 mr-2" />
+                                Start Test
+                              </Button>
+                            )}
+                            {(selectedTest.status === 'running' || selectedTest.status === 'paused') && selectedTest.confidenceLevel >= 95 && (
+                              <Button
+                                size="sm"
+                                className="bg-primary"
+                                onClick={() => {
+                                  const winningVariant = selectedTest.variants.reduce((prev, curr) => curr.conversionRate > prev.conversionRate ? curr : prev);
+                                  setAbTests(prev => prev.map(t => t.id === selectedTest.id ? { ...t, status: 'completed', winner: winningVariant.id, endDate: new Date().toISOString().split('T')[0] } : t));
+                                  setSelectedTest(prev => prev ? { ...prev, status: 'completed', winner: winningVariant.id, endDate: new Date().toISOString().split('T')[0] } : null);
+                                  toast({ title: "Winner Declared!", description: `Variant ${winningVariant.id.toUpperCase()} has been declared the winner.` });
+                                }}
+                                data-testid="button-declare-winner"
+                              >
+                                <Trophy className="w-4 h-4 mr-2" />
+                                Declare Winner
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {selectedTest.variants.map((variant, index) => (
+                            <Card
+                              key={variant.id}
+                              className={`${selectedTest.winner === variant.id ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+                              data-testid={`variant-card-${variant.id}`}
+                            >
+                              <CardContent className="pt-4">
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0 ? 'bg-blue-500/20' : 'bg-purple-500/20'}`}>
+                                      <span className={`font-bold ${index === 0 ? 'text-blue-500' : 'text-purple-500'}`}>{variant.id.toUpperCase()}</span>
+                                    </div>
+                                    <span className="font-medium">{variant.name}</span>
+                                  </div>
+                                  {selectedTest.winner === variant.id && (
+                                    <Badge className="bg-primary/20 text-primary gap-1">
+                                      <Trophy className="w-3 h-3" />
+                                      Winner
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm text-muted-foreground">Traffic Share</span>
+                                    <span className="font-medium">{variant.traffic}%</span>
+                                  </div>
+                                  <Progress value={variant.traffic} className="h-2" />
+                                  <div className="grid grid-cols-3 gap-2 pt-2">
+                                    <div className="text-center p-2 rounded-lg bg-muted/30">
+                                      <p className="text-lg font-bold" data-testid={`text-variant-visitors-${variant.id}`}>{variant.visitors.toLocaleString()}</p>
+                                      <p className="text-xs text-muted-foreground">Visitors</p>
+                                    </div>
+                                    <div className="text-center p-2 rounded-lg bg-muted/30">
+                                      <p className="text-lg font-bold" data-testid={`text-variant-conversions-${variant.id}`}>{variant.conversions.toLocaleString()}</p>
+                                      <p className="text-xs text-muted-foreground">Conversions</p>
+                                    </div>
+                                    <div className="text-center p-2 rounded-lg bg-muted/30">
+                                      <p className={`text-lg font-bold ${variant.conversionRate > (selectedTest.variants.find(v => v.id !== variant.id)?.conversionRate || 0) ? 'text-green-500' : ''}`} data-testid={`text-variant-rate-${variant.id}`}>
+                                        {variant.conversionRate.toFixed(1)}%
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">Conv. Rate</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+
+                        <Card className="bg-muted/30">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium">Conversion Rate Comparison</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="h-48">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={selectedTest.variants.map(v => ({
+                                    name: `Variant ${v.id.toUpperCase()}`,
+                                    rate: v.conversionRate,
+                                    fill: v.id === 'a' ? '#3b82f6' : '#8b5cf6'
+                                  }))}
+                                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} />
+                                  <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickFormatter={(value) => `${value}%`} />
+                                  <Tooltip
+                                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
+                                    labelStyle={{ color: 'white' }}
+                                    formatter={(value: number) => [`${value.toFixed(1)}%`, 'Conversion Rate']}
+                                  />
+                                  <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
+                                    {selectedTest.variants.map((v, index) => (
+                                      <Cell key={v.id} fill={index === 0 ? '#3b82f6' : '#8b5cf6'} />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        Conversion Goals
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {CONVERSION_GOALS.map((goal) => (
+                        <div key={goal.value} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                          <goal.icon className="w-5 h-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="font-medium text-sm">{goal.label}</p>
+                            <p className="text-xs text-muted-foreground">{goal.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-primary" />
+                        Testing Tips
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <p className="text-sm text-muted-foreground">Test one element at a time for clear results</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <p className="text-sm text-muted-foreground">Wait for 95% confidence before declaring a winner</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <p className="text-sm text-muted-foreground">Run tests for at least 2 weeks for reliable data</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <p className="text-sm text-muted-foreground">Use 50/50 traffic split for fastest results</p>
+                      </div>
+                      <Separator />
+                      <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <span className="font-medium text-sm">Statistical Significance</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Tests reaching 95%+ confidence have a high probability of being accurate and not due to random chance.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {selectedTest && (
+                    <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Settings className="w-5 h-5 text-primary" />
+                          Test Details
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Status</span>
+                          <Badge
+                            variant="secondary"
+                            className={`${
+                              selectedTest.status === 'running' ? 'bg-green-500/20 text-green-500' :
+                              selectedTest.status === 'completed' ? 'bg-blue-500/20 text-blue-500' :
+                              selectedTest.status === 'paused' ? 'bg-yellow-500/20 text-yellow-500' :
+                              ''
+                            }`}
+                            data-testid="text-selected-test-status"
+                          >
+                            {selectedTest.status.charAt(0).toUpperCase() + selectedTest.status.slice(1)}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Goal Type</span>
+                          <span className="font-medium" data-testid="text-selected-test-goal">{CONVERSION_GOALS.find(g => g.value === selectedTest.goal)?.label}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Start Date</span>
+                          <span className="font-medium" data-testid="text-selected-test-start">{selectedTest.startDate || 'Not started'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">End Date</span>
+                          <span className="font-medium" data-testid="text-selected-test-end">{selectedTest.endDate || 'Ongoing'}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Confidence Level</span>
+                          <span className={`font-bold ${selectedTest.confidenceLevel >= 95 ? 'text-green-500' : selectedTest.confidenceLevel >= 80 ? 'text-yellow-500' : 'text-muted-foreground'}`} data-testid="text-selected-test-confidence">
+                            {selectedTest.confidenceLevel}%
+                          </span>
+                        </div>
+                        <Progress value={selectedTest.confidenceLevel} className="h-2" />
+                        {selectedTest.confidenceLevel < 95 && (
+                          <p className="text-xs text-muted-foreground">Need {(95 - selectedTest.confidenceLevel).toFixed(0)}% more for statistical significance</p>
+                        )}
+                        {selectedTest.confidenceLevel >= 95 && (
+                          <p className="text-xs text-green-500">Statistically significant! Ready to declare a winner.</p>
+                        )}
+                      </CardContent>
+                      <CardFooter className="flex-col gap-2">
+                        <Button variant="outline" className="w-full" size="sm" data-testid="button-duplicate-test">
+                          <Copy className="w-4 h-4 mr-2" />
+                          Duplicate Test
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          size="sm"
+                          onClick={() => {
+                            setAbTests(prev => prev.filter(t => t.id !== selectedTest.id));
+                            setSelectedTest(null);
+                            toast({ title: "Test Deleted", description: "The A/B test has been removed." });
+                          }}
+                          data-testid="button-delete-test"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Test
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  )}
                 </div>
               </div>
             </TabsContent>
