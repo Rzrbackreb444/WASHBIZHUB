@@ -172,19 +172,19 @@ export default function AboutUs() {
           <div className="grid md:grid-cols-4 gap-6 py-12 border-t border-b border-border">
             <div className="text-center">
               <div className="text-4xl font-bold text-primary mb-2">72K+</div>
-              <p className="text-muted-foreground">Laundromat Owners</p>
+              <p className="text-muted-foreground">Community Members</p>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">1000+</div>
-              <p className="text-muted-foreground">Business Listings</p>
+              <div className="text-4xl font-bold text-primary mb-2">220+</div>
+              <p className="text-muted-foreground">Countries Covered</p>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">$2B+</div>
-              <p className="text-muted-foreground">Facilitated Volume</p>
+              <div className="text-4xl font-bold text-primary mb-2">80+</div>
+              <p className="text-muted-foreground">Calculators & Tools</p>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">50+</div>
-              <p className="text-muted-foreground">Interactive Calculators</p>
+              <div className="text-4xl font-bold text-primary mb-2">2,200+</div>
+              <p className="text-muted-foreground">Error Codes Database</p>
             </div>
           </div>
 
