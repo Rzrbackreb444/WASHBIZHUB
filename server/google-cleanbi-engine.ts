@@ -23,6 +23,7 @@
  */
 
 import { detectIndustry, getIndustryConfig } from './industry-config';
+import { getGrade, getGradeInfo, type CLEANBIGrade } from '../shared/cleanbi-grades';
 
 interface GoogleCleanbiInput {
   address: string;
@@ -276,12 +277,9 @@ export async function calculateGoogleCleanbi(input: GoogleCleanbiInput): Promise
   // ==== CALCULATE FINAL SCORE ====
   const totalScore = Math.round(footTrafficScore + competitionScore + reviewsScore + locationScore + visibilityScore);
   
-  // Grade mapping (positive grading scale - no D/F grades)
-  let grade: 'A' | 'B' | 'C' | 'Needs Work';
-  if (totalScore >= 90) grade = 'A';
-  else if (totalScore >= 80) grade = 'B';
-  else if (totalScore >= 70) grade = 'C';
-  else grade = 'Needs Work';
+  // Use canonical CLEANBI grade thresholds from shared module
+  // A = 85+, B = 70-84, C = 55-69, Needs Work = <55
+  const grade = getGrade(totalScore);
   
   // Confidence based on data availability
   let confidence = 70; // Base confidence
