@@ -341,7 +341,29 @@ export default function CleanBIExplorer() {
   };
 
   const toggleLayer = (layer: keyof typeof layers) => {
-    setLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
+    const newValue = !layers[layer];
+    setLayers(prev => ({ ...prev, [layer]: newValue }));
+    
+    if (!mapInstance.current || !analysisResult) return;
+    
+    if (layer === "competition") {
+      markersRef.current.forEach((marker, idx) => {
+        if (idx > 0) {
+          marker.setVisible(newValue);
+        }
+      });
+    }
+    
+    if (layer === "opportunities" && heatmapLayer.current) {
+      heatmapLayer.current.setMap(newValue ? mapInstance.current : null);
+    }
+    
+    if (layer === "demographics" || layer === "traffic") {
+      toast({ 
+        title: `${layer.charAt(0).toUpperCase() + layer.slice(1)} Layer`, 
+        description: "Run a new analysis to update map with this layer" 
+      });
+    }
   };
 
   return (
@@ -592,15 +614,19 @@ export default function CleanBIExplorer() {
           />
 
           {!analysisResult && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#C8A661]/20 to-[#8B7355]/20 flex items-center justify-center border border-[#C8A661]/30">
-                  <MapPin className="w-12 h-12 text-[#C8A661]" />
+            <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
+              <div className="bg-black/70 backdrop-blur-sm rounded-xl p-6 max-w-md border border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shrink-0">
+                    <MapPin className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-white mb-1">Enter an Address</h2>
+                    <p className="text-white/60 text-sm">
+                      Use the sidebar to search any location and get CLEANBI™ scoring
+                    </p>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Enter an Address to Explore</h2>
-                <p className="text-white/50 max-w-md">
-                  Discover market opportunities with 3D aerial views, competition heatmaps, and demographic intelligence
-                </p>
               </div>
             </div>
           )}

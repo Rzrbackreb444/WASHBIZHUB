@@ -82,13 +82,13 @@ function AnimatedCounter({ end, duration, suffix }: CounterProps) {
 
 export function AnimatedStatsCounter() {
   return (
-    <section className="py-16 sm:py-20 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900" data-testid="section-animated-stats">
+    <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 border-y border-white/10" data-testid="section-animated-stats">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
             Trusted by the Industry's Best
           </h2>
-          <p className="text-white/60 max-w-2xl mx-auto">
+          <p className="text-gray-300 max-w-2xl mx-auto">
             Join thousands of laundromat owners, investors, and industry professionals 
             who rely on WashBizHub for data-driven decisions.
           </p>
@@ -100,20 +100,20 @@ export function AnimatedStatsCounter() {
             return (
               <div 
                 key={idx}
-                className="text-center group"
+                className="text-center group bg-white/5 rounded-xl p-4 border border-white/10"
                 data-testid={`stat-item-${idx}`}
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/5 border border-white/10 mb-4 group-hover:border-white/20 group-hover:bg-white/10 transition-all">
-                  <Icon className={`w-7 h-7 ${stat.color}`} />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-black/30 mb-3">
+                  <Icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
-                <div className={`text-3xl sm:text-4xl font-black ${stat.color} mb-2`}>
+                <div className={`text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}>
                   <AnimatedCounter 
                     end={stat.value} 
                     duration={2000} 
                     suffix={stat.suffix}
                   />
                 </div>
-                <p className="text-white/60 text-sm font-medium">
+                <p className="text-gray-400 text-xs font-medium">
                   {stat.label}
                 </p>
               </div>
