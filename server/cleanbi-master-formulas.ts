@@ -313,10 +313,21 @@ function calculateBreakEvenTPD(
   return monthlyFixed / (machineCount * marginPerCycle * 30);
 }
 
+/**
+ * CLEANBI™ Grading System (Chrome Web Store Style)
+ * 
+ * ONLY A, B, C are positive grades. Everything below is "Needs Work".
+ * This is intentionally encouraging - we NEVER show D or F grades.
+ * 
+ * A  = 85+ (Excellent opportunity)
+ * B  = 70-84 (Good opportunity)  
+ * C  = 55-69 (Fair opportunity)
+ * Needs Work = Below 55 (Requires strategic improvements)
+ */
 function getGrade(score: number): 'A' | 'B' | 'C' | 'Needs Work' {
-  if (score >= 90) return 'A';
-  if (score >= 80) return 'B';
-  if (score >= 70) return 'C';
+  if (score >= 85) return 'A';
+  if (score >= 70) return 'B';
+  if (score >= 55) return 'C';
   return 'Needs Work';
 }
 
