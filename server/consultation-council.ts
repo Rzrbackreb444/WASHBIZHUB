@@ -10,11 +10,11 @@
  * 3. Operations Expert - Equipment efficiency, layout optimization
  * 4. Risk Assessor - Market saturation, economic factors, threats
  * 5. Strategic Advisor - Final synthesis and recommendations
- * 6. Dave Menz (Laundromat123.com) - 30+ years industry expertise
+ * 6. Larry Larsen ("Laundromat Larry") - 30+ years industry expertise
  */
 
 import { askCouncil, consultCouncil } from './ai-council';
-import { CONSULTATION_TIERS, DAVE_MENZ_PERSONA, ConsultationTier } from './consultation-tiers';
+import { CONSULTATION_TIERS, LARRY_LARSEN_PERSONA, ConsultationTier } from './consultation-tiers';
 import { analyzeCompetition, generateHeatmapPoints } from './competition-analyzer';
 import { generatePricingStrategy, analyzeFootTraffic, projectOptimizedRevenue, analyzeEquipmentCapacity } from './pricing-optimizer';
 
@@ -55,14 +55,14 @@ const EXPERT_PERSONAS = {
     style: "Big-picture thinker, synthesizes all inputs, provides actionable recommendations",
     icon: "🎯"
   },
-  daveMenz: {
-    name: "Dave Menz",
+  larryLarsen: {
+    name: "Larry Larsen",
     title: "Industry Expert",
-    company: "Laundromat123.com",
+    company: "Laundromat Larry Consulting",
     expertise: "30+ years ownership, 500+ acquisitions consulted, Due Diligence Expert",
     style: "Tells it like it is, practical real-world experience, focuses on avoiding costly mistakes",
     icon: "👔",
-    knowledgeBase: DAVE_MENZ_PERSONA.knowledgeBase
+    knowledgeBase: LARRY_LARSEN_PERSONA.knowledgeBase
   }
 };
 
@@ -753,7 +753,7 @@ export async function runTieredConsultation(
   pricingStrategy?: any;
   footTraffic?: any;
   equipmentAnalysis?: any;
-  daveMenzReview?: any;
+  larryLarsenReview?: any;
 }> {
   const tier = CONSULTATION_TIERS.find(t => t.id === tierId);
   if (!tier) {
@@ -837,31 +837,32 @@ export async function runTieredConsultation(
     );
   }
 
-  // Dave Menz Review (Enterprise+)
-  let daveMenzReview = null;
+  // Larry Larsen Review (Enterprise+)
+  let larryLarsenReview = null;
   if (tier.includes.daveMenzReview) {
-    const daveMenzPrompt = `You are ${EXPERT_PERSONAS.daveMenz.name}, founder of Laundromat123.com with 30+ years of experience.
+    const larryPrompt = `You are ${EXPERT_PERSONAS.larryLarsen.name}, known industry-wide as "Laundromat Larry" with 30+ years of experience.
 
 YOUR EXPERTISE:
 - Consulted on 500+ laundromat acquisitions
-- Former multi-store owner and operator
+- Multi-store owner and operator
 - Known for practical, no-nonsense advice
+- Trusted advisor to the WashBizHub community
 
 YOUR KNOWLEDGE BASE:
 RED FLAGS TO WATCH FOR:
-${DAVE_MENZ_PERSONA.knowledgeBase.redFlags.map(f => `- ${f}`).join('\n')}
+${LARRY_LARSEN_PERSONA.knowledgeBase.redFlags.map(f => `- ${f}`).join('\n')}
 
 GREEN FLAGS (GOOD SIGNS):
-${DAVE_MENZ_PERSONA.knowledgeBase.greenFlags.map(f => `- ${f}`).join('\n')}
+${LARRY_LARSEN_PERSONA.knowledgeBase.greenFlags.map(f => `- ${f}`).join('\n')}
 
 VALUATION RULES:
-${DAVE_MENZ_PERSONA.knowledgeBase.valuationRules.map(r => `- ${r}`).join('\n')}
+${LARRY_LARSEN_PERSONA.knowledgeBase.valuationRules.map(r => `- ${r}`).join('\n')}
 
 NEGOTIATION TIPS:
-${DAVE_MENZ_PERSONA.knowledgeBase.negotiationTips.map(t => `- ${t}`).join('\n')}
+${LARRY_LARSEN_PERSONA.knowledgeBase.negotiationTips.map(t => `- ${t}`).join('\n')}
 
 OPERATIONAL BEST PRACTICES:
-${DAVE_MENZ_PERSONA.knowledgeBase.operationalBestPractices.map(p => `- ${p}`).join('\n')}
+${LARRY_LARSEN_PERSONA.knowledgeBase.operationalBestPractices.map(p => `- ${p}`).join('\n')}
 
 DEAL UNDER REVIEW:
 Address: ${input.address}
@@ -872,7 +873,7 @@ Competitors: ${input.competitors || '?'} within 1 mile
 Additional Context: ${input.additionalContext || 'None provided'}
 
 Based on your 30+ years of experience, provide:
-1. DAVE'S VERDICT (1-2 sentences - would you pursue this deal?)
+1. LARRY'S VERDICT (1-2 sentences - would you pursue this deal?)
 2. RED FLAGS I SEE (list any concerns)
 3. GREEN FLAGS I SEE (list any positives)
 4. MY TOP NEGOTIATION TIPS for this specific deal
@@ -881,13 +882,13 @@ Based on your 30+ years of experience, provide:
 
 Be direct and practical - this is a real investment decision.`;
 
-    const daveMenzResult = await askCouncil({ prompt: daveMenzPrompt, taskType: "analysis" });
-    daveMenzReview = {
-      expert: EXPERT_PERSONAS.daveMenz,
-      analysis: daveMenzResult.result,
-      cost: daveMenzResult.cost
+    const larryResult = await askCouncil({ prompt: larryPrompt, taskType: "analysis" });
+    larryLarsenReview = {
+      expert: EXPERT_PERSONAS.larryLarsen,
+      analysis: larryResult.result,
+      cost: larryResult.cost
     };
-    baseResult.totalCost += daveMenzResult.cost;
+    baseResult.totalCost += larryResult.cost;
   }
 
   // Revenue projection with optimized pricing (Enterprise+)
@@ -903,9 +904,9 @@ Be direct and practical - this is a real investment decision.`;
     pricingStrategy,
     footTraffic,
     equipmentAnalysis,
-    daveMenzReview,
+    larryLarsenReview,
     revenueProjection
   };
 }
 
-export { EXPERT_PERSONAS, CONSULTATION_TIERS, DAVE_MENZ_PERSONA };
+export { EXPERT_PERSONAS, CONSULTATION_TIERS, LARRY_LARSEN_PERSONA };

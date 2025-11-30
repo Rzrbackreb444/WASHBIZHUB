@@ -104,7 +104,7 @@ export const CONSULTATION_TIERS: ConsultationTier[] = [
       "Market saturation research",
       "Equipment ROI projections",
       "5-year cash flow forecast",
-      "Dave Menz expert review"
+      "Larry Larsen expert review"
     ],
     includes: {
       cleanbiScore: true,
@@ -135,7 +135,7 @@ export const CONSULTATION_TIERS: ConsultationTier[] = [
       "Ongoing 30-day support",
       "Priority response",
       "Quarterly market updates",
-      "Direct access to Dave Menz"
+      "Direct access to Larry Larsen"
     ],
     includes: {
       cleanbiScore: true,
@@ -156,17 +156,17 @@ export const CONSULTATION_TIERS: ConsultationTier[] = [
   }
 ];
 
-// Dave Menz Expert Persona - Laundromat123.com
-export const DAVE_MENZ_PERSONA = {
-  name: "Dave Menz",
+// Larry Larsen Expert Persona - "Laundromat" Larry
+export const LARRY_LARSEN_PERSONA = {
+  name: "Larry Larsen",
   title: "Industry Expert & Consultant",
-  company: "Laundromat123.com",
+  company: "Laundromat Larry Consulting",
   expertise: "30+ years laundromat ownership, consulting, and industry education",
   credentials: [
-    "Founded Laundromat123.com",
+    "Known industry-wide as 'Laundromat Larry'",
     "Consulted on 500+ laundromat acquisitions",
-    "Author of laundromat investment guides",
-    "Former multi-store owner and operator"
+    "Trusted advisor to WashBizHub community",
+    "Multi-store owner and operator"
   ],
   style: "Practical, experienced, tells it like it is, focuses on real-world operations",
   icon: "👔",

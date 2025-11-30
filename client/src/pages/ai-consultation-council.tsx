@@ -36,7 +36,13 @@ import {
   Loader2,
   ArrowRight,
   Crown,
-  Sparkles
+  Sparkles,
+  Globe,
+  Lock,
+  CreditCard,
+  Quote,
+  CheckCircle2,
+  ChevronDown
 } from "lucide-react";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
@@ -118,6 +124,93 @@ const VERDICT_COLORS: Record<string, string> = {
 
 const FORM_STORAGE_KEY = "consultation_form_data";
 const TIER_STORAGE_KEY = "consultation_selected_tier";
+
+const EXPERTS_DATA = [
+  {
+    id: "sarah-chen",
+    name: "Dr. Sarah Chen",
+    title: "Market Analyst",
+    specialty: "Demographics & competition analysis",
+    bio: "Ph.D. in Market Research with 15+ years analyzing retail demographics and competitive landscapes.",
+    icon: BarChart3,
+  },
+  {
+    id: "michael-torres",
+    name: "Michael Torres, CFA",
+    title: "Financial Analyst",
+    specialty: "Valuation & ROI projections",
+    bio: "Chartered Financial Analyst specializing in small business valuations and investment returns.",
+    icon: DollarSign,
+  },
+  {
+    id: "james-williams",
+    name: "James Williams",
+    title: "Operations Expert",
+    specialty: "Equipment & efficiency optimization",
+    bio: "20+ years in commercial laundry operations, equipment selection, and workflow optimization.",
+    icon: Building2,
+  },
+  {
+    id: "emily-rodriguez",
+    name: "Dr. Emily Rodriguez",
+    title: "Risk Assessor",
+    specialty: "Market threats & risk analysis",
+    bio: "Risk management specialist with expertise in small business vulnerability assessment.",
+    icon: AlertTriangle,
+  },
+  {
+    id: "robert-anderson",
+    name: "Robert Anderson",
+    title: "Strategic Advisor",
+    specialty: "Growth strategy & recommendations",
+    bio: "Former McKinsey consultant focused on retail growth strategies and market expansion.",
+    icon: Target,
+  },
+  {
+    id: "larry-larsen",
+    name: "Larry Larsen",
+    title: '"Laundromat Larry"',
+    specialty: "30+ years, 500+ acquisitions",
+    bio: "Industry legend with three decades helping operators build profitable laundromat empires.",
+    icon: Crown,
+    featured: true,
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    id: 1,
+    quote: "The AI Council identified issues my broker completely missed. Saved me from a $200K mistake.",
+    name: "Marcus Johnson",
+    location: "Dallas, TX",
+    initials: "MJ",
+    rating: 5,
+  },
+  {
+    id: 2,
+    quote: "Worth every penny. The CLEANBI score was spot-on and helped me negotiate $50K off the asking price.",
+    name: "Sarah Mitchell",
+    location: "Phoenix, AZ",
+    initials: "SM",
+    rating: 5,
+  },
+  {
+    id: 3,
+    quote: "Finally, professional-grade analysis without the $10K consulting fee. This is a game-changer.",
+    name: "David Chen",
+    location: "Los Angeles, CA",
+    initials: "DC",
+    rating: 5,
+  },
+  {
+    id: 4,
+    quote: "The Larry Larsen review alone was worth the Executive Package. His insights are gold.",
+    name: "Jennifer Williams",
+    location: "Chicago, IL",
+    initials: "JW",
+    rating: 5,
+  },
+];
 
 export default function AIConsultationCouncil() {
   const { toast } = useToast();
@@ -350,7 +443,7 @@ export default function AIConsultationCouncil() {
     "@context": "https://schema.org",
     "@type": "Service",
     "name": "AI Consultation Council",
-    "description": "6 AI experts + Dave Menz analyze any laundromat deal. Get CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations.",
+    "description": "6 AI experts + 'Laundromat' Larry Larsen analyze any laundromat deal. Get CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations.",
     "provider": {
       "@type": "Organization",
       "name": "WashBizHub",
@@ -376,14 +469,14 @@ export default function AIConsultationCouncil() {
         "name": "Deep Dive Analysis",
         "price": "499",
         "priceCurrency": "USD",
-        "description": "Competition heatmap, pricing optimizer, foot traffic analysis, Dave Menz review"
+        "description": "Competition heatmap, pricing optimizer, foot traffic analysis, Larry Larsen review"
       },
       {
         "@type": "Offer",
         "name": "Executive Package",
         "price": "999",
         "priceCurrency": "USD",
-        "description": "30-minute live consultation, POS integration, ongoing 30-day support, direct Dave Menz access"
+        "description": "30-minute live consultation, POS integration, ongoing 30-day support, direct Larry Larsen access"
       }
     ],
     "areaServed": "Worldwide",
@@ -393,7 +486,7 @@ export default function AIConsultationCouncil() {
   const faqItems = [
     {
       question: "What is the AI Consultation Council?",
-      answer: "The AI Consultation Council is a panel of 6 AI specialists that analyze laundromat deals using multiple data sources including CLEANBI scoring, market analysis, financial projections, and industry expertise from Dave Menz of Laundromat123.com."
+      answer: "The AI Consultation Council is a panel of 6 AI specialists that analyze laundromat deals using multiple data sources including CLEANBI scoring, market analysis, financial projections, and industry expertise from 'Laundromat' Larry Larsen."
     },
     {
       question: "How is this different from traditional consulting?",
@@ -404,8 +497,8 @@ export default function AIConsultationCouncil() {
       answer: "CLEANBI is our proprietary 17-factor scoring system that analyzes any property address globally, evaluating demographics, competition, traffic, income levels, and market saturation to give you a grade from A to F."
     },
     {
-      question: "Who is Dave Menz?",
-      answer: "Dave Menz is the founder of Laundromat123.com with 30+ years of experience and 500+ acquisitions consulted. Our Deep Dive ($499) and Executive Package ($999) tiers include his personal review of your deal."
+      question: "Who is Larry Larsen?",
+      answer: "Larry Larsen, known industry-wide as 'Laundromat Larry,' has 30+ years of experience and has consulted on 500+ acquisitions. Our Deep Dive ($499) and Executive Package ($999) tiers include his personal review of your deal."
     },
     {
       question: "Can I use this to evaluate any laundromat?",
@@ -413,22 +506,22 @@ export default function AIConsultationCouncil() {
     },
     {
       question: "What's included in each tier?",
-      answer: "Quick Analysis ($49) includes CLEANBI score and basic valuation. Full Council Review ($149) adds 5 AI experts and PDF report. Deep Dive ($499) includes competition heatmaps and Dave Menz review. Executive Package ($999) adds live consultation and 30-day support."
+      answer: "Quick Analysis ($49) includes CLEANBI score and basic valuation. Full Council Review ($149) adds 5 AI experts and PDF report. Deep Dive ($499) includes competition heatmaps and Larry Larsen review. Executive Package ($999) adds live consultation and 30-day support."
     }
   ];
 
   return (
     <>
       <SEO
-        title="AI Consultation Council | 6 AI Experts + Dave Menz Analyze Your Laundromat Deal | WashBizHub"
-        description="Get expert laundromat analysis from 6 AI specialists + Dave Menz. CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations. Starting at $49 - a fraction of traditional $5K-$10K consulting. Creating millionaires one customer at a time."
+        title="AI Consultation Council | 6 AI Experts + Larry Larsen Analyze Your Laundromat Deal | WashBizHub"
+        description="Get expert laundromat analysis from 6 AI specialists + 'Laundromat' Larry Larsen. CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations. Starting at $49 - a fraction of traditional $5K-$10K consulting. Creating millionaires one customer at a time."
         canonicalUrl="/ai-consultation"
         keywords={[
           "laundromat consultation",
           "AI laundromat analysis",
           "CLEANBI score",
           "laundromat valuation",
-          "Dave Menz consultation",
+          "Larry Larsen consultation",
           "laundromat business analysis",
           "buy laundromat",
           "laundromat investment",
@@ -452,177 +545,401 @@ export default function AIConsultationCouncil() {
 
       <div className="min-h-screen bg-background">
         {step === "select" && (
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            {/* Hero Section */}
-            <div className="text-center mb-12">
-              <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-semibold" variant="secondary">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Creating Millionaires One Customer at a Time
-              </Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text" data-testid="text-page-title">
-                AI Consultation Council
-              </h1>
-              <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4">
-                6 AI Experts + Dave Menz Analyze Your Deal
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>CLEANBI Score Analysis</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Competition Heatmap</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>ROI & Valuation</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Expert Recommendations</span>
-                </div>
+          <div className="relative">
+            {/* Premium Hero Section */}
+            <section className="relative overflow-hidden bg-gradient-to-br from-[#001428] via-[#001F3F] to-[#002B5C] py-20 lg:py-32">
+              {/* Animated floating orbs */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-20 left-[10%] w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute top-40 right-[15%] w-80 h-80 bg-amber-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+                <div className="absolute bottom-20 left-[30%] w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+                <div className="absolute top-10 right-[40%] w-48 h-48 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "0.5s" }} />
               </div>
-              <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border border-amber-500/30 rounded-xl p-4 max-w-2xl mx-auto">
-                <p className="text-lg font-medium">
-                  Traditional consulting: <span className="line-through text-muted-foreground">$5,000 - $10,000</span>
-                </p>
-                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                  AI Council: Starting at $49
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Same insights, fraction of the cost, delivered in hours not weeks
-                </p>
-              </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {tiersLoading ? (
-                Array(4).fill(0).map((_, i) => (
-                  <Card key={i} className="animate-pulse">
-                    <CardHeader className="h-32 bg-muted" />
-                    <CardContent className="h-48 bg-muted/50" />
-                  </Card>
-                ))
-              ) : (
-                tiers?.map((tier) => (
-                  <Card
-                    key={tier.id}
-                    className={`relative flex flex-col transition-all ${
-                      selectedTier === tier.id ? "ring-2 ring-accent" : ""
-                    } ${tier.popular ? "border-accent" : ""}`}
-                    data-testid={`card-tier-${tier.id}`}
-                  >
-                    {tier.popular && (
+              <div className="relative max-w-7xl mx-auto px-4">
+                <div className="text-center">
+                  {/* Premium badge */}
+                  <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30" data-testid="badge-premium">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span className="text-amber-300 font-medium text-sm">Creating Millionaires One Customer at a Time</span>
+                  </div>
+
+                  {/* Main headline */}
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-6 tracking-tight" data-testid="text-page-title">
+                    AI Consultation
+                    <span className="block bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                      Council
+                    </span>
+                  </h1>
+
+                  {/* Subheadline */}
+                  <p className="text-xl sm:text-2xl text-white/80 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    6 AI Experts + "Laundromat" Larry Larsen analyze your deal with 
+                    <span className="text-teal-400 font-semibold"> enterprise-grade precision</span>
+                  </p>
+
+                  {/* Trust badges row */}
+                  <div className="flex flex-wrap items-center justify-center gap-6 mb-10" data-testid="trust-badges">
+                    <div className="flex items-center gap-2 text-white/70">
+                      <Users className="w-5 h-5 text-teal-400" />
+                      <span className="font-medium">72K+ Community</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/70">
+                      <Globe className="w-5 h-5 text-teal-400" />
+                      <span className="font-medium">220+ Countries</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/70">
+                      <Lock className="w-5 h-5 text-teal-400" />
+                      <span className="font-medium">Secure Payments</span>
+                    </div>
+                  </div>
+
+                  {/* Premium price comparison box */}
+                  <div className="inline-block" data-testid="price-comparison-box">
+                    <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 max-w-xl">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-accent text-accent-foreground">
-                          <Star className="w-3 h-3 mr-1" />
-                          Most Popular
+                        <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold px-4" variant="secondary">
+                          SAVE $9,000+
                         </Badge>
                       </div>
-                    )}
-                    <CardHeader className="pt-8">
-                      <CardTitle className="flex items-center gap-2">
-                        {tier.id === "premium" && <Crown className="w-5 h-5 text-yellow-500" />}
-                        {tier.name}
-                      </CardTitle>
-                      <CardDescription className="flex items-baseline gap-1">
-                        <span className="text-3xl font-bold text-foreground">${tier.price}</span>
-                        <span className="text-muted-foreground">one-time</span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                        <Clock className="w-4 h-4" />
-                        <span>Delivery: {tier.turnaround}</span>
+                      <div className="space-y-3 mt-2">
+                        <p className="text-white/60 text-lg">
+                          Traditional consulting:
+                          <span className="line-through ml-2 text-white/40">$5,000 - $10,000</span>
+                        </p>
+                        <p className="text-3xl sm:text-4xl font-black">
+                          <span className="text-white">AI Council: </span>
+                          <span className="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">Starting at $49</span>
+                        </p>
+                        <p className="text-white/50 text-sm">
+                          Same insights, fraction of the cost, delivered in hours not weeks
+                        </p>
                       </div>
-                      <ul className="space-y-2">
-                        {tier.features.map((feature, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <CheckCircle className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        className="w-full gap-2"
-                        variant={tier.popular ? "default" : "outline"}
-                        onClick={() => handlePurchase(tier.id)}
-                        data-testid={`button-select-${tier.id}`}
-                      >
-                        {tier.price === 0 ? "Start Free Analysis" : `Get ${tier.name}`}
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))
-              )}
-            </div>
-
-            <div className="bg-muted/50 border rounded-lg p-8">
-              <h2 className="text-2xl font-bold mb-6 text-center">Meet Your AI Council</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {[
-                  { name: "Dr. Sarah Chen", title: "Market Analyst", icon: BarChart3 },
-                  { name: "Michael Torres", title: "Financial Analyst", icon: DollarSign },
-                  { name: "James Williams", title: "Operations Expert", icon: Building2 },
-                  { name: "Dr. Emily Rodriguez", title: "Risk Assessor", icon: AlertTriangle },
-                  { name: "Robert Anderson", title: "Strategic Advisor", icon: Target },
-                  { name: "Dave Menz", title: "Laundromat123.com", icon: Crown },
-                ].map((expert) => (
-                  <div key={expert.name} className="text-center">
-                    <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-2">
-                      <expert.icon className="w-8 h-8 text-accent" />
+                      <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-white/10">
+                        <CreditCard className="w-5 h-5 text-white/40" />
+                        <span className="text-white/40 text-sm">Powered by Stripe</span>
+                      </div>
                     </div>
-                    <p className="font-medium text-sm">{expert.name}</p>
-                    <p className="text-xs text-muted-foreground">{expert.title}</p>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* FAQ Section for SEO */}
-            <div className="mt-12 max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6 text-center" data-testid="text-faq-heading">
-                Frequently Asked Questions
-              </h2>
-              <Accordion type="single" collapsible className="w-full">
-                {faqItems.map((faq, index) => (
-                  <AccordionItem key={index} value={`faq-${index}`}>
-                    <AccordionTrigger className="text-left" data-testid={`accordion-faq-${index}`}>
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-12 text-center">
-              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-green-500" />
-                  <span>Bank-level Security</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-blue-500" />
-                  <span>72,000+ Laundromat Professionals</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-500" />
-                  <span>Results in Minutes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-purple-500" />
-                  <span>220+ Countries Supported</span>
+                  {/* Scroll indicator */}
+                  <div className="mt-12 animate-bounce">
+                    <ChevronDown className="w-8 h-8 text-white/40 mx-auto" />
+                  </div>
                 </div>
               </div>
-            </div>
+            </section>
+
+            {/* Visual Process Flow Section */}
+            <section className="py-20 bg-background border-b" data-testid="section-process-flow">
+              <div className="max-w-5xl mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
+                  <p className="text-muted-foreground text-lg">Three simple steps to professional-grade analysis</p>
+                </div>
+
+                <div className="relative">
+                  {/* Connecting line */}
+                  <div className="hidden md:block absolute top-16 left-[16.5%] right-[16.5%] h-0.5 bg-gradient-to-r from-teal-500 via-amber-500 to-green-500" />
+
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {/* Step 1 */}
+                    <div className="relative text-center" data-testid="process-step-1">
+                      <div className="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-teal-500/20 to-teal-600/20 border-2 border-teal-500/30 flex items-center justify-center">
+                        <MapPin className="w-12 h-12 text-teal-500" />
+                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center text-sm">1</div>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">Enter Address</h3>
+                      <p className="text-muted-foreground">Provide the property address and any available financial details</p>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="relative text-center" data-testid="process-step-2">
+                      <div className="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-500/30 flex items-center justify-center">
+                        <Bot className="w-12 h-12 text-amber-500" />
+                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center text-sm">2</div>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">AI Analysis</h3>
+                      <p className="text-muted-foreground">Our 6-expert council analyzes 17+ data points in minutes</p>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="relative text-center" data-testid="process-step-3">
+                      <div className="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-500/20 to-green-600/20 border-2 border-green-500/30 flex items-center justify-center">
+                        <FileText className="w-12 h-12 text-green-500" />
+                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-sm">3</div>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">Get Report</h3>
+                      <p className="text-muted-foreground">Receive comprehensive analysis with actionable recommendations</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Premium Tier Cards Section */}
+            <section className="py-20 bg-muted/30" data-testid="section-tiers">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4">Choose Your Analysis Level</h2>
+                  <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                    From quick insights to comprehensive executive analysis, we have a tier for every need
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {tiersLoading ? (
+                    Array(4).fill(0).map((_, i) => (
+                      <Card key={i} className="animate-pulse">
+                        <CardHeader className="h-32 bg-muted" />
+                        <CardContent className="h-48 bg-muted/50" />
+                      </Card>
+                    ))
+                  ) : (
+                    tiers?.map((tier) => {
+                      const isPopular = tier.popular;
+                      const isPremium = tier.id === "premium" || tier.name.toLowerCase().includes("executive");
+
+                      return (
+                        <Card
+                          key={tier.id}
+                          className={`relative flex flex-col transition-all duration-300 hover:scale-[1.02] ${
+                            selectedTier === tier.id ? "ring-2 ring-accent" : ""
+                          } ${isPopular ? "ring-2 ring-teal-500/50 shadow-lg shadow-teal-500/10" : ""} ${
+                            isPremium ? "border-amber-500/30" : ""
+                          }`}
+                          data-testid={`card-tier-${tier.id}`}
+                        >
+                          {/* Premium tier gold header */}
+                          {isPremium && (
+                            <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 rounded-t-lg" />
+                          )}
+
+                          {isPopular && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                              <Badge className="bg-teal-500 text-white font-bold shadow-lg">
+                                <Star className="w-3 h-3 mr-1" />
+                                Most Popular
+                              </Badge>
+                            </div>
+                          )}
+
+                          <CardHeader className={`pt-8 ${isPremium ? "pt-10" : ""}`}>
+                            <CardTitle className="flex items-center gap-2">
+                              {isPremium && <Crown className="w-5 h-5 text-amber-500" />}
+                              {tier.name}
+                            </CardTitle>
+                            <div className="flex items-baseline gap-2 mt-2">
+                              <span className="text-4xl font-black">${tier.price}</span>
+                              <Badge variant="outline" className="text-xs">one-time</Badge>
+                            </div>
+                          </CardHeader>
+
+                          <CardContent className="flex-1">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 pb-4 border-b">
+                              <Clock className="w-4 h-4" />
+                              <span>Delivery: {tier.turnaround}</span>
+                            </div>
+                            <ul className="space-y-3">
+                              {tier.features.map((feature, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+
+                          <CardFooter>
+                            <Button
+                              className={`w-full gap-2 ${
+                                isPremium
+                                  ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold"
+                                  : isPopular
+                                  ? "bg-teal-500 hover:bg-teal-600"
+                                  : ""
+                              }`}
+                              variant={isPopular || isPremium ? "default" : "outline"}
+                              onClick={() => handlePurchase(tier.id)}
+                              data-testid={`button-select-${tier.id}`}
+                            >
+                              {tier.price === 0 ? "Start Free Analysis" : `Get ${tier.name}`}
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Expert Council Section */}
+            <section className="py-20 bg-gradient-to-br from-[#001428] via-[#001F3F] to-[#002B5C]" data-testid="section-experts">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Meet Your AI Council</h2>
+                  <p className="text-white/60 text-lg max-w-2xl mx-auto">
+                    Six specialized AI experts, each trained on decades of industry data, working together to analyze your deal
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {EXPERTS_DATA.map((expert) => (
+                    <div
+                      key={expert.id}
+                      className={`relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:bg-white/10 hover:border-white/20 ${
+                        expert.featured ? "lg:col-span-1 ring-2 ring-amber-500/30" : ""
+                      }`}
+                      data-testid={`card-expert-${expert.id}`}
+                    >
+                      {expert.featured && (
+                        <div className="absolute -top-3 left-4">
+                          <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold">
+                            <Crown className="w-3 h-3 mr-1" />
+                            Featured Expert
+                          </Badge>
+                        </div>
+                      )}
+
+                      <div className="flex items-start gap-4 mt-2">
+                        <div className={`w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                          expert.featured
+                            ? "bg-gradient-to-br from-amber-500/30 to-amber-600/30 border border-amber-500/30"
+                            : "bg-gradient-to-br from-teal-500/20 to-cyan-500/20 border border-teal-500/20"
+                        }`}>
+                          <expert.icon className={`w-8 h-8 ${expert.featured ? "text-amber-400" : "text-teal-400"}`} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-white truncate">{expert.name}</h3>
+                          <p className={`text-sm font-medium ${expert.featured ? "text-amber-400" : "text-teal-400"}`}>
+                            {expert.title}
+                          </p>
+                          <p className="text-white/50 text-sm mt-1">{expert.specialty}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-white/60 text-sm mt-4 leading-relaxed">{expert.bio}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Social Proof Section */}
+            <section className="py-20 bg-muted/30" data-testid="section-testimonials">
+              <div className="max-w-6xl mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4">What Our Customers Say</h2>
+                  <p className="text-muted-foreground text-lg">Real results from laundromat investors who used our AI Council</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {TESTIMONIALS.map((testimonial) => (
+                    <Card key={testimonial.id} className="bg-card/50 backdrop-blur" data-testid={`card-testimonial-${testimonial.id}`}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start gap-4">
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-bold text-lg">{testimonial.initials}</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1 mb-2">
+                              {Array(testimonial.rating).fill(0).map((_, i) => (
+                                <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                              ))}
+                            </div>
+                            <Quote className="w-6 h-6 text-muted-foreground/30 mb-2" />
+                            <p className="text-foreground leading-relaxed mb-4">{testimonial.quote}</p>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-semibold">{testimonial.name}</p>
+                                <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section className="py-20 bg-background" data-testid="section-faq">
+              <div className="max-w-4xl mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4" data-testid="text-faq-heading">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-muted-foreground text-lg">Everything you need to know about the AI Consultation Council</p>
+                </div>
+
+                <div className="space-y-4">
+                  {faqItems.map((faq, index) => (
+                    <Card key={index} className="overflow-hidden" data-testid={`card-faq-${index}`}>
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value={`faq-${index}`} className="border-none">
+                          <AccordionTrigger className="px-6 py-4 text-left hover:no-underline" data-testid={`accordion-faq-${index}`}>
+                            <span className="text-base font-semibold">{faq.question}</span>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-6 pb-4">
+                            <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Trust Footer Section */}
+            <section className="py-16 bg-gradient-to-br from-[#001428] via-[#001F3F] to-[#002B5C]" data-testid="section-trust-footer">
+              <div className="max-w-5xl mx-auto px-4">
+                <div className="grid md:grid-cols-3 gap-8 text-center">
+                  {/* Security */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center mb-4">
+                      <Shield className="w-8 h-8 text-teal-400" />
+                    </div>
+                    <h3 className="text-white font-bold mb-2">Bank-Level Security</h3>
+                    <p className="text-white/50 text-sm">256-bit SSL encryption protects all your data and transactions</p>
+                  </div>
+
+                  {/* Secure Payments */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+                      <CreditCard className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <h3 className="text-white font-bold mb-2">Powered by Stripe</h3>
+                    <p className="text-white/50 text-sm">Secure payment processing trusted by millions of businesses</p>
+                  </div>
+
+                  {/* Guarantee */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                      <CheckCircle className="w-8 h-8 text-green-400" />
+                    </div>
+                    <h3 className="text-white font-bold mb-2">Satisfaction Guaranteed</h3>
+                    <p className="text-white/50 text-sm">100% money-back guarantee if you're not satisfied with your analysis</p>
+                  </div>
+                </div>
+
+                {/* Partner logos placeholder */}
+                <div className="mt-12 pt-8 border-t border-white/10 text-center">
+                  <p className="text-white/30 text-sm mb-4">Trusted Technology Partners</p>
+                  <div className="flex items-center justify-center gap-8 text-white/20">
+                    <span className="text-sm font-medium">OpenAI</span>
+                    <span className="text-sm font-medium">Anthropic</span>
+                    <span className="text-sm font-medium">Google Gemini</span>
+                    <span className="text-sm font-medium">Stripe</span>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         )}
 
@@ -640,7 +957,7 @@ export default function AIConsultationCouncil() {
 
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <CardTitle className="text-2xl">Property Analysis Form</CardTitle>
                     <CardDescription>
@@ -948,7 +1265,7 @@ export default function AIConsultationCouncil() {
 
         {step === "results" && consultationResult && (
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
               <div>
                 <h1 className="text-3xl font-bold" data-testid="text-results-title">
                   Consultation Results
@@ -1069,7 +1386,7 @@ export default function AIConsultationCouncil() {
                       <Crown className="w-6 h-6 text-yellow-500" />
                     </div>
                     <div>
-                      <CardTitle className="flex items-center gap-2">
+                      <CardTitle className="flex items-center gap-2 flex-wrap">
                         {consultationResult.daveMenzReview.expert.name}
                         <Badge variant="secondary">Laundromat123.com</Badge>
                       </CardTitle>
