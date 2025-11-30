@@ -29,10 +29,6 @@ export function Header() {
       <div className="bg-navy-900 border-b border-teal-400/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-center py-1.5 gap-4 sm:gap-8 text-xs sm:text-sm flex-wrap">
-            <div className="flex items-center gap-1.5 text-white/80">
-              <Shield className="w-3.5 h-3.5 text-teal-400" />
-              <span>256-bit SSL</span>
-            </div>
             <div className="hidden sm:flex items-center gap-1.5 text-white/80">
               <Globe className="w-3.5 h-3.5 text-teal-400" />
               <span>220+ Countries</span>
