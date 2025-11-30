@@ -10,6 +10,7 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
 import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
+import { securityHeaders, sanitizeInput, corsMiddleware, authRateLimiter } from "./security-middleware";
 
 const app = express();
 
@@ -444,6 +445,16 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Security middleware - Headers, CORS, Input Sanitization
+app.use(securityHeaders);
+app.use(corsMiddleware);
+app.use(sanitizeInput);
+
+// Rate limit authentication endpoints
+app.use('/api/auth', authRateLimiter);
+app.use('/api/login', authRateLimiter);
+app.use('/api/register', authRateLimiter);
 
 // CORS for Chrome Extension - Allow CLEANBI API calls from Google Maps, LoopNet, BizBuySell
 app.use('/api/cleanbi/auto', (req, res, next) => {
