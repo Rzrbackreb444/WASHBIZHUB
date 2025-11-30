@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Chrome, ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon } from "lucide-react";
+import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
@@ -119,13 +119,15 @@ export function Hero() {
     };
   };
 
-  const runDemo = () => {
-    if (!address.trim()) return;
+  const runDemo = (inputAddress?: string) => {
+    const targetAddress = inputAddress || address;
+    if (!targetAddress.trim()) return;
+    if (inputAddress) setAddress(inputAddress);
     setStep('analyzing');
     setShowPredictions(false);
     
     setTimeout(() => {
-      const addressType = detectAddressType(address);
+      const addressType = detectAddressType(targetAddress);
       const demoResult = generateRealisticScore(addressType);
       setResult(demoResult);
       setStep('results');
@@ -237,14 +239,16 @@ export function Hero() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-bebas leading-tight mb-6 text-white"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-bebas leading-tight mb-6 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)' }}
             data-testid="text-hero-title"
           >
             The Only Laundromat Platform That <span className="text-teal-400">Pays You Back</span> Before You Pay Us
           </h1>
           
           <p 
-            className="text-xl sm:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto"
+            className="text-xl sm:text-2xl text-white mb-12 max-w-3xl mx-auto font-medium"
+            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
             data-testid="text-hero-subtitle"
           >
             AI predicts failures &bull; Dynamic pricing adds $24k/year &bull; Marketplace gives you cash back
@@ -299,19 +303,17 @@ export function Hero() {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  <span className="text-gray-400 text-sm">Try:</span>
+                  <span className="text-gray-400 text-sm">Try a real laundromat:</span>
                   {[
-                    { name: "Spin City Laundry", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
-                    { name: "WaveMax Laundry", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
-                    { name: "Suds Factory", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
+                    { name: "Spin City Laundry, Las Vegas", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
+                    { name: "WaveMax, Phoenix", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
+                    { name: "Suds Factory, Miami", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
                   ].map((sample) => (
                     <button
                       key={sample.name}
-                      onClick={() => {
-                        setAddress(sample.addr);
-                        runDemo();
-                      }}
+                      onClick={() => runDemo(sample.addr)}
                       className="px-3 py-1.5 bg-teal-400/20 text-teal-300 rounded-full text-sm hover:bg-teal-400/30 transition flex items-center gap-1"
+                      data-testid={`button-sample-${sample.name.split(',')[0].toLowerCase().replace(/\s/g, '-')}`}
                     >
                       <Building2 className="w-3 h-3" />
                       {sample.name}
@@ -321,7 +323,7 @@ export function Hero() {
                 
                 <div>
                   <Button 
-                    onClick={runDemo} 
+                    onClick={() => runDemo()} 
                     size="lg"
                     disabled={!address.trim()}
                     className="bg-teal-400 hover:bg-teal-300 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -507,36 +509,32 @@ export function Hero() {
           </div>
 
           <p 
-            className="mt-12 text-xl text-gray-300"
+            className="mt-12 text-xl text-white font-medium"
+            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
             data-testid="text-hero-trust-stat"
           >
             Join 72,000+ owners already winning &rarr;
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-            <a 
-              href="https://chrome.google.com/webstore/detail/cleanbi-anywhere" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <Link href="/cleanbi-explorer">
               <Button 
                 size="lg"
-                className="bg-teal-400 text-navy-900 hover-elevate active-elevate-2 font-semibold shadow-xl"
-                data-testid="button-hero-chrome-extension"
+                className="bg-teal-400 text-navy-900 hover:bg-teal-300 font-semibold shadow-xl"
+                data-testid="button-hero-explorer"
               >
-                <Chrome className="mr-2 h-5 w-5" />
-                Install Free Chrome Extension
+                Explore CLEANBI Map
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </a>
-            <Link href="/pos-command-center">
+            </Link>
+            <Link href="/pricing">
               <Button 
                 size="lg" 
                 variant="outline"
-                className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover-elevate active-elevate-2 font-semibold backdrop-blur-sm"
-                data-testid="button-hero-pos"
+                className="text-white border-white/50 hover:bg-white/20 font-semibold"
+                data-testid="button-hero-pricing"
               >
-                Explore POS System
-                <ArrowRight className="ml-2 h-4 w-4" />
+                View Plans
               </Button>
             </Link>
           </div>

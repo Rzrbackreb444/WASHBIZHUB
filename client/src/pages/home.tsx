@@ -10,7 +10,6 @@ import { StickyActionBar, FloatingCTAButton } from "@/components/StickyActionBar
 import { PlatformStats, TrustBadges, EnterpriseFeatures } from "@/components/PlatformStats";
 import { PartnerActionsSection, QuickListBanner } from "@/components/PartnerActions";
 import { 
-  CLEANBIQuickScoreDemo, 
   InteractiveCalculatorDemo, 
   AIConsultantPreview,
   AnimatedStatsCounter,
@@ -23,7 +22,6 @@ import {
 import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
 import londrLogoUrl from "@assets/Londr_1763778448894.png";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
-import laundromatInterior1 from "@assets/AdobeStock_711286802_1764520189991.jpeg";
 import laundromatInterior2 from "@assets/AdobeStock_561067303_1764520189991.jpeg";
 import laundromatDexter from "@assets/Dexter Laundromat Stock photo_1764520273177.jpg";
 
@@ -186,37 +184,6 @@ export default function Home() {
         <Hero />
         
         <TrustBadges />
-
-        {/* Premium Demo Section - CLEANBI Quick Score */}
-        <section className="relative py-16 sm:py-24 overflow-hidden" data-testid="section-cleanbi-demo">
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={laundromatInterior1}
-              alt="Modern laundromat interior"
-              className="w-full h-full object-cover opacity-10"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
-          </div>
-          
-          <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <Badge className="mb-4 bg-teal-500/20 text-teal-400 border-teal-500/30">
-                <MapPin className="w-3 h-3 mr-1" />
-                Live Demo
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4" data-testid="text-cleanbi-demo-heading">
-                Try CLEANBI™ Location Intelligence
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Enter any address to see our AI-powered scoring in action. 
-                Works for businesses and residential properties in 220+ countries.
-              </p>
-            </div>
-            
-            <CLEANBIQuickScoreDemo />
-          </div>
-        </section>
 
         {/* Interactive Tools Demo Section */}
         <section className="relative py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden" data-testid="section-tools-demo">
