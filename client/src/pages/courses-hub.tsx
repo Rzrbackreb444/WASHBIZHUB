@@ -1,132 +1,130 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
-import { BookOpen, Users, BarChart3, Trophy, Clock, GraduationCap, Filter, Award, Star } from 'lucide-react';
+import { BookOpen, Users, Clock, GraduationCap, Filter, Award, Star, CheckCircle, Loader2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import {
   StatCard, DashboardGrid, DonutChart
 } from '@/components/dashboard/DashboardComponents';
 
-const COURSES = [
-  {
-    id: 'laundromat-101',
-    title: 'Laundromat 101: The Fundamentals',
-    description: 'Everything you need to know to start your laundromat business - from site selection to operations.',
-    instructor: 'WashBizHub Academy',
-    level: 'Beginner',
-    duration: '8 weeks',
-    durationHours: 24,
-    students: 1250,
-    rating: 4.9,
-    modules: 12,
-    lessons: 48,
-    thumbnail: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=300&fit=crop',
-  },
-  {
-    id: 'advanced-ops',
-    title: 'Advanced Operations & Scaling',
-    description: 'Master the operational excellence frameworks used by top-tier laundromat operators managing 20+ locations.',
-    instructor: 'Operations Director at WashBizHub',
-    level: 'Advanced',
-    duration: '6 weeks',
-    durationHours: 18,
-    students: 420,
-    rating: 4.8,
-    modules: 10,
-    lessons: 35,
-    thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
-  },
-  {
-    id: 'financial-mastery',
-    title: 'Financial Mastery for Laundromat Owners',
-    description: 'Deep dive into pricing strategies, cost optimization, profitability analysis, and financial forecasting.',
-    instructor: 'CFO of WashBizHub',
-    level: 'Intermediate',
-    duration: '5 weeks',
-    durationHours: 15,
-    students: 680,
-    rating: 4.9,
-    modules: 9,
-    lessons: 32,
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-adf4e5a0a1b2?w=400&h=300&fit=crop',
-  },
-  {
-    id: 'marketing-growth',
-    title: 'Marketing & Customer Acquisition',
-    description: 'Learn proven marketing strategies to acquire and retain customers - from local SEO to loyalty programs.',
-    instructor: 'CMO of WashBizHub',
-    level: 'Intermediate',
-    duration: '4 weeks',
-    durationHours: 12,
-    students: 520,
-    rating: 4.8,
-    modules: 8,
-    lessons: 28,
-    thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
-  },
-];
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  instructorName: string;
+  price: string;
+  duration: number;
+  level: string;
+  category: string;
+  thumbnailUrl: string | null;
+  published: boolean;
+  featured: boolean;
+  isFree?: boolean;
+  tierLevel?: number;
+  certificateEnabled?: boolean;
+}
 
 const COURSE_LEVELS = [
   { id: 'all', name: 'All Levels', color: '#8b5cf6' },
-  { id: 'Beginner', name: 'Beginner', color: '#10b981' },
-  { id: 'Intermediate', name: 'Intermediate', color: '#f59e0b' },
-  { id: 'Advanced', name: 'Advanced', color: '#ef4444' },
+  { id: 'beginner', name: 'Beginner', color: '#10b981' },
+  { id: 'intermediate', name: 'Intermediate', color: '#f59e0b' },
+  { id: 'advanced', name: 'Advanced', color: '#ef4444' },
 ];
+
+const getLevelColor = (level: string) => {
+  const found = COURSE_LEVELS.find(l => l.id === level.toLowerCase());
+  return found?.color || '#8b5cf6';
+};
+
+const getCourseThumbnail = (course: Course) => {
+  if (course.thumbnailUrl) return course.thumbnailUrl;
+  const thumbnails = [
+    'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1460925895917-adf4e5a0a1b2?w=400&h=300&fit=crop',
+  ];
+  return thumbnails[Math.abs(course.title.charCodeAt(0)) % thumbnails.length];
+};
 
 export default function CoursesHub() {
   const [selectedLevel, setSelectedLevel] = useState('all');
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
+  const { data: courses = [], isLoading } = useQuery<Course[]>({
+    queryKey: ["/api/courses"],
+  });
+
+  const publishedCourses = courses.filter(c => c.published);
+  
   const filteredCourses = selectedLevel === 'all' 
-    ? COURSES 
-    : COURSES.filter(c => c.level === selectedLevel);
+    ? publishedCourses 
+    : publishedCourses.filter(c => c.level.toLowerCase() === selectedLevel);
 
-  const totalHours = COURSES.reduce((acc, c) => acc + c.durationHours, 0);
-  const totalStudents = COURSES.reduce((acc, c) => acc + c.students, 0);
+  const totalHours = Math.round(publishedCourses.reduce((acc, c) => acc + (c.duration || 0), 0) / 60);
 
   const levelData = COURSE_LEVELS.slice(1).map(level => ({
     label: level.name,
-    value: COURSES.filter(c => c.level === level.id).length,
+    value: publishedCourses.filter(c => c.level.toLowerCase() === level.id).length,
     color: level.color,
   }));
+
+  if (isLoading) {
+    return (
+      <>
+        <SEO
+          title="WashBizHub Academy | Professional Laundromat Training"
+          description="Industry-leading courses taught by experienced operators. Master laundromat operations, equipment diagnostics, and business management."
+          canonicalUrl="/courses"
+        />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading courses...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <SEO
-        title="Learn Laundromat Business | Courses & Training | WashBizHub"
-        description="Industry-leading courses taught by experienced operators and executives. Master laundromat operations, financials, marketing, and scaling."
+        title="WashBizHub Academy | Professional Laundromat Training"
+        description="Industry-leading courses taught by experienced operators. Master laundromat operations, equipment diagnostics, and business management."
         canonicalUrl="/courses"
-        keywords={['laundromat courses', 'business training', 'laundry industry education', 'operations management', 'financial planning']}
+        keywords={['laundromat courses', 'equipment training', 'laundry industry education', 'operations management']}
       />
       
       <div className="min-h-screen bg-background">
-        {/* Breadcrumb */}
         <div className="bg-muted/30 border-b">
           <div className="mx-auto max-w-7xl px-6 py-3">
             <Breadcrumb items={[{ name: "Academy", url: "/courses" }]} />
           </div>
         </div>
 
-        {/* Dashboard Header */}
-        <section className="bg-background border-b">
-          <div className="mx-auto max-w-7xl px-6 py-8">
+        <section className="bg-gradient-to-b from-[#001F3F] to-[#002B5C] text-white py-12">
+          <div className="mx-auto max-w-7xl px-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-blue-500/20 rounded-xl">
-                <GraduationCap className="w-8 h-8 text-blue-400" />
+              <div className="p-3 bg-white/10 rounded-xl">
+                <GraduationCap className="w-8 h-8 text-[#39CCCC]" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground" data-testid="text-courses-title">WashBizHub Academy</h1>
-                <p className="text-muted-foreground" data-testid="text-courses-subtitle">Master laundromat operations with expert-led courses</p>
+                <h1 className="text-3xl font-bold" data-testid="text-courses-title" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                  WashBizHub Academy
+                </h1>
+                <p className="text-white/70" data-testid="text-courses-subtitle">
+                  Professional training for laundromat operators
+                </p>
               </div>
             </div>
 
             <DashboardGrid cols={4}>
               <StatCard
                 title="Total Courses"
-                value={COURSES.length}
+                value={publishedCourses.length}
                 subtitle="Expert-led programs"
                 icon={BookOpen}
                 variant="blue"
@@ -134,99 +132,92 @@ export default function CoursesHub() {
               <StatCard
                 title="Learning Hours"
                 value={totalHours}
-                subtitle="Of video content"
+                subtitle="Of training content"
                 icon={Clock}
                 variant="purple"
               />
               <StatCard
-                title="Students Enrolled"
-                value={`${(totalStudents / 1000).toFixed(1)}K+`}
-                subtitle="Active learners"
-                icon={Users}
-                variant="pink"
+                title="Free Courses"
+                value={publishedCourses.filter(c => c.isFree).length}
+                subtitle="No cost to start"
+                icon={CheckCircle}
+                variant="green"
               />
               <StatCard
-                title="Avg. Rating"
-                value="4.85"
-                subtitle="Industry leading"
-                icon={Star}
-                variant="green"
+                title="Certifications"
+                value={publishedCourses.filter(c => c.certificateEnabled).length}
+                subtitle="Earn credentials"
+                icon={Award}
+                variant="pink"
               />
             </DashboardGrid>
           </div>
         </section>
 
-        {/* Main Content */}
         <section className="py-8">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid lg:grid-cols-4 gap-8">
-              {/* Left Sidebar - Filters */}
               <div className="lg:col-span-1">
-                <Card className="sticky top-4">
+                <Card className="sticky top-24">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Filter className="w-5 h-5 text-blue-500" />
-                      Filters
+                      <Filter className="w-5 h-5 text-primary" />
+                      Filter by Level
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Level Filter */}
-                    <div>
-                      <h4 className="text-sm font-semibold mb-3">Difficulty Level</h4>
-                      <div className="space-y-2">
-                        {COURSE_LEVELS.map(level => (
-                          <button
-                            key={level.id}
-                            onClick={() => setSelectedLevel(level.id)}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                              selectedLevel === level.id
-                                ? 'bg-primary text-primary-foreground'
-                                : 'hover:bg-muted'
-                            }`}
-                            data-testid={`button-filter-${level.id}`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full" 
-                                style={{ backgroundColor: level.color }} 
-                              />
-                              {level.name}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+                    <div className="space-y-2">
+                      {COURSE_LEVELS.map(level => (
+                        <button
+                          key={level.id}
+                          onClick={() => setSelectedLevel(level.id)}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                            selectedLevel === level.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'hover:bg-muted'
+                          }`}
+                          data-testid={`button-filter-${level.id}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: level.color }} 
+                            />
+                            {level.name}
+                          </div>
+                        </button>
+                      ))}
                     </div>
 
-                    {/* Course Levels Chart */}
-                    <div className="pt-4 border-t">
-                      <h4 className="text-sm font-semibold mb-3">Course Distribution</h4>
-                      <DonutChart
-                        data={levelData}
-                        size={120}
-                        thickness={16}
-                        centerValue={COURSES.length}
-                        centerLabel="Courses"
-                        showLegend={false}
-                      />
-                      <div className="mt-4 space-y-2">
-                        {levelData.map((item, i) => (
-                          <div key={i} className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                              <span className="text-muted-foreground">{item.label}</span>
+                    {publishedCourses.length > 0 && (
+                      <div className="pt-4 border-t">
+                        <h4 className="text-sm font-semibold mb-3">Course Distribution</h4>
+                        <DonutChart
+                          data={levelData}
+                          size={120}
+                          thickness={16}
+                          centerValue={publishedCourses.length}
+                          centerLabel="Courses"
+                          showLegend={false}
+                        />
+                        <div className="mt-4 space-y-2">
+                          {levelData.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-muted-foreground">{item.label}</span>
+                              </div>
+                              <span className="font-medium">{item.value}</span>
                             </div>
-                            <span className="font-medium">{item.value}</span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Main Content - Courses Grid */}
               <div className="lg:col-span-3">
-                {/* Results Count */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold" data-testid="text-courses-count">{filteredCourses.length}</span>
@@ -234,66 +225,83 @@ export default function CoursesHub() {
                   </div>
                 </div>
 
-                {/* Courses Grid */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  {filteredCourses.map(course => (
-                    <Card key={course.id} className="hover-elevate overflow-hidden flex flex-col" data-testid={`card-course-${course.id}`}>
-                      <div 
-                        className="h-40 bg-cover bg-center relative"
-                        style={{ backgroundImage: `url(${course.thumbnail})` }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                          <Badge 
-                            variant="secondary"
-                            className="text-white border-white/20"
-                            style={{ backgroundColor: COURSE_LEVELS.find(l => l.id === course.level)?.color }}
-                          >
-                            {course.level}
-                          </Badge>
-                          <div className="flex items-center gap-1 text-white text-sm">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            {course.rating}
+                {filteredCourses.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <GraduationCap className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+                    <p className="text-muted-foreground mb-4">Try selecting a different filter level</p>
+                    <Button variant="outline" onClick={() => setSelectedLevel('all')}>
+                      View All Courses
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {filteredCourses.map(course => (
+                      <Card key={course.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow" data-testid={`card-course-${course.id}`}>
+                        <div 
+                          className="h-40 bg-cover bg-center relative"
+                          style={{ backgroundImage: `url(${getCourseThumbnail(course)})` }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                          <div className="absolute top-3 left-3 flex gap-2">
+                            {course.featured && (
+                              <Badge className="bg-amber-500 text-black">Featured</Badge>
+                            )}
+                            {course.isFree && (
+                              <Badge className="bg-green-500 text-white">Free</Badge>
+                            )}
+                          </div>
+                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <Badge 
+                              variant="secondary"
+                              className="text-white border-white/20"
+                              style={{ backgroundColor: getLevelColor(course.level) }}
+                            >
+                              {course.level}
+                            </Badge>
+                            {course.certificateEnabled && (
+                              <div className="flex items-center gap-1 text-white text-xs bg-black/40 px-2 py-1 rounded">
+                                <Award className="w-3 h-3" />
+                                Certificate
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
-                      <CardHeader className="flex-1">
-                        <CardTitle className="line-clamp-2">{course.title}</CardTitle>
-                        <CardDescription className="line-clamp-2">{course.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3 mb-4">
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <BarChart3 className="w-4 h-4" />
-                              {course.modules} modules
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <BookOpen className="w-4 h-4" />
-                              {course.lessons} lessons
-                            </span>
+                        <CardHeader className="flex-1">
+                          <CardTitle className="line-clamp-2 text-lg">{course.title}</CardTitle>
+                          <CardDescription className="line-clamp-2 text-sm">{course.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3 mb-4">
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                {Math.round(course.duration / 60)} hours
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-4 h-4" />
+                                {course.instructorName}
+                              </span>
+                            </div>
+                            <div className="text-sm">
+                              {course.isFree ? (
+                                <span className="text-green-600 font-semibold">Free Course</span>
+                              ) : (
+                                <span className="font-semibold">${parseFloat(course.price).toFixed(0)}</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              {course.students.toLocaleString()} students
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {course.duration}
-                            </span>
-                          </div>
-                        </div>
-                        <Link href={`/courses/${course.id}`}>
-                          <Button className="w-full hover-elevate active-elevate-2" data-testid={`button-enroll-${course.id}`}>
-                            <Award className="w-4 h-4 mr-2" />
-                            Enroll Now
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                          <Link href={`/courses/${course.id}`}>
+                            <Button className="w-full" data-testid={`button-view-${course.id}`}>
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              {course.isFree ? 'Start Learning' : 'View Course'}
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

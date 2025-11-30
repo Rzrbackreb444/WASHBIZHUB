@@ -1,11 +1,13 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
-  BookOpen, Clock, Award, CheckCircle2, Lock, Shield,
-  TrendingUp, Users, Star, PlayCircle, Download
+  BookOpen, Clock, Award, CheckCircle2, Shield, GraduationCap,
+  PlayCircle, ArrowLeft, Loader2
 } from "lucide-react";
 
 interface Course {
@@ -20,6 +22,9 @@ interface Course {
   thumbnailUrl: string | null;
   published: boolean;
   featured: boolean;
+  isFree?: boolean;
+  certificateEnabled?: boolean;
+  certificateTitle?: string;
 }
 
 interface Lesson {
@@ -31,6 +36,15 @@ interface Lesson {
   duration: number;
   isFree: boolean;
 }
+
+const getLevelColor = (level: string) => {
+  const colors: Record<string, string> = {
+    beginner: '#10b981',
+    intermediate: '#f59e0b',
+    advanced: '#ef4444',
+  };
+  return colors[level.toLowerCase()] || '#8b5cf6';
+};
 
 export default function CourseDetail() {
   const { courseId } = useParams();
@@ -48,7 +62,10 @@ export default function CourseDetail() {
   if (courseLoading || lessonsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground text-xl">Loading course...</div>
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading course...</p>
+        </div>
       </div>
     );
   }
@@ -60,8 +77,12 @@ export default function CourseDetail() {
           <CardContent className="text-center py-12">
             <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">Course not found</h3>
+            <p className="text-muted-foreground mb-4">This course may have been moved or is no longer available.</p>
             <Link href="/courses">
-              <Button variant="outline">Back to Courses</Button>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Courses
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -69,204 +90,216 @@ export default function CourseDetail() {
     );
   }
 
-  const totalHours = Math.floor(course.duration / 60);
-  const firstLesson = lessons[0];
-
-  // Group lessons by module (every 5-7 lessons is a module based on our data)
-  const modules = [
-    { name: "Module 1: Find Your $10K/Month Deal", lessons: lessons.slice(0, 5) },
-    { name: "Module 2: Buy at 60¢ on the Dollar", lessons: lessons.slice(5, 11) },
-    { name: "Module 3: Operate on Autopilot", lessons: lessons.slice(11, 17) },
-    { name: "Module 4: Scale to 3+ Stores", lessons: lessons.slice(17) },
-  ];
-
-  const bonuses = [
-    { name: "Private Slack Community", value: "Lifetime Access", icon: Users },
-    { name: "Monthly Group Coaching Call", value: "12 Months", icon: Users },
-    { name: "CLEANBI™ Pro Spreadsheet", value: "$497 Value", icon: TrendingUp },
-    { name: "Equipment Buying Checklist PDF", value: "Included", icon: Download },
-    { name: "1-Hour Deal Review with Nick", value: "Priceless", icon: Star },
-  ];
+  const totalHours = Math.round(course.duration / 60);
+  const totalMinutes = course.duration % 60;
+  const firstLesson = lessons.find(l => l.isFree) || lessons[0];
+  const freeLessons = lessons.filter(l => l.isFree);
+  const isFree = course.isFree || parseFloat(course.price) === 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="bg-primary py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              {course.featured && (
-                <Badge className="mb-4 bg-accent text-accent-foreground">
-                  🔥 FEATURED COURSE
-                </Badge>
-              )}
-              <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4" data-testid="text-course-title">
-                {course.title}
-              </h1>
-              <p className="text-xl text-primary-foreground/90 mb-6">
-                {course.description}
-              </p>
-              <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-2 text-primary-foreground/80">
-                  <Clock className="w-5 h-5" />
-                  <span>{totalHours} hours</span>
-                </div>
-                <div className="flex items-center gap-2 text-primary-foreground/80">
-                  <BookOpen className="w-5 h-5" />
-                  <span>{lessons.length} lessons</span>
-                </div>
-                <div className="flex items-center gap-2 text-primary-foreground/80">
-                  <Award className="w-5 h-5" />
-                  <span className="capitalize">{course.level}</span>
-                </div>
-              </div>
-              <div className="text-sm text-primary-foreground/70 mb-8">
-                Instructor: <span className="font-semibold text-primary-foreground">{course.instructorName}</span>
-              </div>
-            </div>
+    <>
+      <SEO 
+        title={`${course.title} | WashBizHub Academy`}
+        description={course.description}
+        canonicalUrl={`/courses/${courseId}`}
+      />
 
-            {/* Price Card */}
-            <Card className="bg-card/95 backdrop-blur-sm">
-              <CardHeader>
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-accent mb-2" data-testid="text-course-price">
-                    ${parseFloat(course.price).toFixed(0)}
-                  </div>
-                  <p className="text-muted-foreground">One-time payment • Lifetime access</p>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Link href={`/courses/${courseId}/lessons/${firstLesson?.id}`}>
-                  <Button 
-                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-6"
-                    disabled={!firstLesson}
-                    data-testid="button-enroll-now"
-                  >
-                    <Lock className="w-5 h-5 mr-2" />
-                    Enroll Now – 50 Spots Only
-                  </Button>
-                </Link>
-                {firstLesson?.isFree && (
-                  <Link href={`/courses/${courseId}/lessons/${firstLesson.id}`}>
-                    <Button variant="outline" className="w-full" data-testid="button-preview-free">
-                      <PlayCircle className="w-4 h-4 mr-2" />
-                      Preview First Lesson Free
-                    </Button>
-                  </Link>
-                )}
-                <div className="pt-4 border-t">
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 font-semibold">
-                    <Shield className="w-4 h-4" />
-                    <span>100% Money-Back Guarantee</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Complete Module 1. If you don't find a deal worth analyzing in 30 days, get a full refund.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="min-h-screen bg-background">
+        <div className="bg-muted/30 border-b">
+          <div className="mx-auto max-w-6xl px-6 py-3">
+            <Breadcrumb items={[
+              { name: "Academy", url: "/courses" },
+              { name: course.title, url: `/courses/${courseId}` }
+            ]} />
           </div>
         </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* What You'll Build */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-foreground text-center mb-8">
-            What You'll Build
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {modules.map((module, idx) => (
-              <Card key={idx} className="hover-elevate">
-                <CardHeader>
-                  <CardTitle className="flex items-start gap-3">
-                    <div className="bg-accent text-accent-foreground rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
-                      {idx + 1}
-                    </div>
-                    <span>{module.name}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {module.lessons.map((lesson) => (
-                      <li key={lesson.id} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-foreground/80">{lesson.title}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        <div className="bg-gradient-to-b from-[#001F3F] to-[#002B5C] py-12 sm:py-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
+              <div className="lg:col-span-3">
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge 
+                    style={{ backgroundColor: getLevelColor(course.level) }}
+                    className="text-white"
+                  >
+                    {course.level}
+                  </Badge>
+                  {course.featured && (
+                    <Badge className="bg-amber-500 text-black">Featured</Badge>
+                  )}
+                  {isFree && (
+                    <Badge className="bg-green-500 text-white">Free Course</Badge>
+                  )}
+                  {course.certificateEnabled && (
+                    <Badge variant="outline" className="border-white/30 text-white">
+                      <Award className="w-3 h-3 mr-1" />
+                      Certificate
+                    </Badge>
+                  )}
+                </div>
 
-        {/* Bonuses */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-foreground text-center mb-4">
-            Exclusive Bonuses
-          </h2>
-          <p className="text-center text-muted-foreground mb-8 text-lg">
-            $2,997 Value Included Free
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bonuses.map((bonus, idx) => {
-              const Icon = bonus.icon;
-              return (
-                <Card key={idx} className="hover-elevate text-center">
-                  <CardContent className="pt-6">
-                    <Icon className="w-12 h-12 mx-auto mb-4 text-accent" />
-                    <h3 className="font-bold mb-2">{bonus.name}</h3>
-                    <p className="text-sm text-muted-foreground">{bonus.value}</p>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4" 
+                    style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+                    data-testid="text-course-title">
+                  {course.title}
+                </h1>
+
+                <p className="text-lg sm:text-xl text-white/80 mb-6">
+                  {course.description}
+                </p>
+
+                <div className="flex flex-wrap gap-4 sm:gap-6 text-white/70 text-sm sm:text-base">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    <span>{totalHours > 0 ? `${totalHours}h ` : ''}{totalMinutes > 0 ? `${totalMinutes}m` : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    <span>{lessons.length} lessons</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5" />
+                    <span>{course.instructorName}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2">
+                <Card className="shadow-xl">
+                  <CardHeader className="text-center pb-2">
+                    {isFree ? (
+                      <div className="text-3xl font-bold text-green-600">Free</div>
+                    ) : (
+                      <div className="text-4xl font-bold text-foreground" data-testid="text-course-price">
+                        ${parseFloat(course.price).toFixed(0)}
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      {isFree ? 'Start learning today' : 'One-time payment • Lifetime access'}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {firstLesson ? (
+                      <Link href={`/courses/${courseId}/lessons/${firstLesson.id}`}>
+                        <Button 
+                          className="w-full h-12 text-base font-semibold bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F]"
+                          data-testid="button-start-course"
+                        >
+                          <PlayCircle className="w-5 h-5 mr-2" />
+                          {isFree ? 'Start Course' : 'Enroll & Start'}
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button disabled className="w-full h-12">
+                        Coming Soon
+                      </Button>
+                    )}
+
+                    {freeLessons.length > 0 && !isFree && (
+                      <p className="text-center text-sm text-muted-foreground">
+                        {freeLessons.length} lesson{freeLessons.length > 1 ? 's' : ''} available for free preview
+                      </p>
+                    )}
+
+                    {course.certificateEnabled && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
+                        <Award className="w-4 h-4 text-amber-500" />
+                        <span>Earn: {course.certificateTitle || 'Certificate of Completion'}</span>
+                      </div>
+                    )}
+
+                    {!isFree && (
+                      <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 pt-2">
+                        <Shield className="w-4 h-4" />
+                        <span>30-day money-back guarantee</span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
-              );
-            })}
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Money-Back Guarantee */}
-        <section className="mb-16">
-          <Card className="bg-gradient-to-br from-green-900/20 to-green-800/20 border-green-500/30">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                <Shield className="w-8 h-8 text-green-500" />
-                100% Money-Back Guarantee
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-lg text-foreground/90">
-                Complete Module 1. If you don't find a deal worth analyzing in 30 days, 
-                get a full refund. No questions asked.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Final CTA */}
-        <section className="text-center">
-          <div className="bg-primary/50 backdrop-blur-sm rounded-xl p-8">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Ready to Build Your $10K/Month Laundromat Empire?
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-foreground mb-6">
+              Course Curriculum
             </h2>
-            <p className="text-xl text-muted-foreground mb-6">
-              Only 50 spots available. Doors close in 3 days.
+            
+            {lessons.length === 0 ? (
+              <Card className="p-8 text-center">
+                <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Lessons are being prepared. Check back soon!</p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {lessons.map((lesson, idx) => (
+                  <Card key={lesson.id} className="overflow-hidden">
+                    <div className="flex items-center gap-4 p-4">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-medium text-foreground truncate">{lesson.title}</h3>
+                          {lesson.isFree && (
+                            <Badge variant="secondary" className="text-xs">Free Preview</Badge>
+                          )}
+                        </div>
+                        {lesson.description && (
+                          <p className="text-sm text-muted-foreground truncate">{lesson.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-sm text-muted-foreground">
+                          {lesson.duration} min
+                        </span>
+                        {lesson.isFree || isFree ? (
+                          <Link href={`/courses/${courseId}/lessons/${lesson.id}`}>
+                            <Button size="sm" variant="outline" data-testid={`button-lesson-${idx}`}>
+                              <PlayCircle className="w-4 h-4 mr-1" />
+                              Play
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button size="sm" variant="ghost" disabled className="text-muted-foreground">
+                            <CheckCircle2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="bg-muted/50 rounded-xl p-6 sm:p-8 text-center">
+            <h2 className="text-2xl font-bold text-foreground mb-3">
+              Ready to get started?
+            </h2>
+            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+              {isFree 
+                ? 'This course is completely free. Start learning professional laundromat skills today.'
+                : 'Invest in your professional development with lifetime access to this course.'}
             </p>
-            <Link href={`/courses/${courseId}/lessons/${firstLesson?.id}`}>
-              <Button 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-xl px-12 py-7"
-                disabled={!firstLesson}
-                data-testid="button-enroll-bottom"
-              >
-                YES! I WANT IN – SECURE MY SPOT
-              </Button>
-            </Link>
-            <p className="text-sm text-muted-foreground mt-4">
-              🔒 Secure checkout • Lifetime access • 30-day guarantee
-            </p>
-          </div>
-        </section>
+            {firstLesson && (
+              <Link href={`/courses/${courseId}/lessons/${firstLesson.id}`}>
+                <Button 
+                  size="lg"
+                  className="bg-[#001F3F] hover:bg-[#002B5C] text-white"
+                  data-testid="button-enroll-bottom"
+                >
+                  <PlayCircle className="w-5 h-5 mr-2" />
+                  {isFree ? 'Start Learning' : 'Enroll Now'}
+                </Button>
+              </Link>
+            )}
+          </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
