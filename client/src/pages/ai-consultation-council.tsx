@@ -346,32 +346,154 @@ export default function AIConsultationCouncil() {
 
   const selectedTierData = tiers?.find(t => t.id === selectedTier);
 
+  const serviceStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "AI Consultation Council",
+    "description": "6 AI experts + Dave Menz analyze any laundromat deal. Get CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations.",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": "https://washbizhub.com"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Quick Analysis",
+        "price": "49",
+        "priceCurrency": "USD",
+        "description": "CLEANBI Score, basic valuation, 1 AI Market Analyst review"
+      },
+      {
+        "@type": "Offer",
+        "name": "Full Council Review",
+        "price": "149",
+        "priceCurrency": "USD",
+        "description": "Full 5-Expert AI Council with complete calculator suite and PDF report"
+      },
+      {
+        "@type": "Offer",
+        "name": "Deep Dive Analysis",
+        "price": "499",
+        "priceCurrency": "USD",
+        "description": "Competition heatmap, pricing optimizer, foot traffic analysis, Dave Menz review"
+      },
+      {
+        "@type": "Offer",
+        "name": "Executive Package",
+        "price": "999",
+        "priceCurrency": "USD",
+        "description": "30-minute live consultation, POS integration, ongoing 30-day support, direct Dave Menz access"
+      }
+    ],
+    "areaServed": "Worldwide",
+    "serviceType": "Business Consulting"
+  };
+
+  const faqItems = [
+    {
+      question: "What is the AI Consultation Council?",
+      answer: "The AI Consultation Council is a panel of 6 AI specialists that analyze laundromat deals using multiple data sources including CLEANBI scoring, market analysis, financial projections, and industry expertise from Dave Menz of Laundromat123.com."
+    },
+    {
+      question: "How is this different from traditional consulting?",
+      answer: "Traditional consulting costs $5,000-$10,000 and takes weeks. Our AI Council delivers comprehensive analysis starting at just $49 for Quick Analysis, up to $999 for the full Executive Package with live consultation and ongoing support."
+    },
+    {
+      question: "What is the CLEANBI Score?",
+      answer: "CLEANBI is our proprietary 17-factor scoring system that analyzes any property address globally, evaluating demographics, competition, traffic, income levels, and market saturation to give you a grade from A to F."
+    },
+    {
+      question: "Who is Dave Menz?",
+      answer: "Dave Menz is the founder of Laundromat123.com with 30+ years of experience and 500+ acquisitions consulted. Our Deep Dive ($499) and Executive Package ($999) tiers include his personal review of your deal."
+    },
+    {
+      question: "Can I use this to evaluate any laundromat?",
+      answer: "Yes! Our system works for existing laundromats for sale, new location scouting, competitor analysis, or evaluating your own business. We analyze properties in 220+ countries worldwide."
+    },
+    {
+      question: "What's included in each tier?",
+      answer: "Quick Analysis ($49) includes CLEANBI score and basic valuation. Full Council Review ($149) adds 5 AI experts and PDF report. Deep Dive ($499) includes competition heatmaps and Dave Menz review. Executive Package ($999) adds live consultation and 30-day support."
+    }
+  ];
+
   return (
     <>
       <SEO
-        title="AI Consultation Council | Expert Laundromat Analysis | WashBizHub"
-        description="Get instant expert analysis from our AI Council of 6 specialists. CLEANBI scoring, competition heatmaps, Dave Menz review, and actionable recommendations starting at $49."
+        title="AI Consultation Council | 6 AI Experts + Dave Menz Analyze Your Laundromat Deal | WashBizHub"
+        description="Get expert laundromat analysis from 6 AI specialists + Dave Menz. CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations. Starting at $49 - a fraction of traditional $5K-$10K consulting. Creating millionaires one customer at a time."
         canonicalUrl="/ai-consultation"
-        keywords={["laundromat analysis", "AI consultation", "business valuation", "CLEANBI", "Dave Menz"]}
+        keywords={[
+          "laundromat consultation",
+          "AI laundromat analysis",
+          "CLEANBI score",
+          "laundromat valuation",
+          "Dave Menz consultation",
+          "laundromat business analysis",
+          "buy laundromat",
+          "laundromat investment",
+          "laundromat ROI calculator",
+          "laundromat due diligence"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Plan", url: "/plan" },
+          { name: "AI Consultation Council", url: "/ai-consultation" }
+        ]}
+        structuredData={[serviceStructuredData]}
+        faqs={faqItems}
+        ogType="website"
+        author={{
+          name: "WashBizHub AI Council",
+          expertise: "Laundromat Business Intelligence",
+          credentials: "Powered by OpenAI, Anthropic, Google Gemini, and Perplexity AI"
+        }}
       />
 
       <div className="min-h-screen bg-background">
         {step === "select" && (
           <div className="max-w-7xl mx-auto px-4 py-12">
+            {/* Hero Section */}
             <div className="text-center mb-12">
-              <Badge className="mb-4" variant="secondary">
-                <Bot className="w-3 h-3 mr-1" />
-                Powered by Multi-AI Orchestration
+              <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-semibold" variant="secondary">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Creating Millionaires One Customer at a Time
               </Badge>
-              <h1 className="text-4xl sm:text-5xl font-bold mb-4" data-testid="text-page-title">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text" data-testid="text-page-title">
                 AI Consultation Council
               </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-2">
-                Get instant expert analysis from our council of 6 AI specialists
+              <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4">
+                6 AI Experts + Dave Menz Analyze Your Deal
               </p>
-              <p className="text-muted-foreground">
-                Traditional consulting: <span className="line-through">$5,000 - $10,000</span> | Our AI Council: <span className="text-accent font-bold">$49 - $999</span>
-              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>CLEANBI Score Analysis</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Competition Heatmap</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>ROI & Valuation</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Expert Recommendations</span>
+                </div>
+              </div>
+              <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border border-amber-500/30 rounded-xl p-4 max-w-2xl mx-auto">
+                <p className="text-lg font-medium">
+                  Traditional consulting: <span className="line-through text-muted-foreground">$5,000 - $10,000</span>
+                </p>
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  AI Council: Starting at $49
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Same insights, fraction of the cost, delivered in hours not weeks
+                </p>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -458,6 +580,47 @@ export default function AIConsultationCouncil() {
                     <p className="text-xs text-muted-foreground">{expert.title}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* FAQ Section for SEO */}
+            <div className="mt-12 max-w-4xl mx-auto">
+              <h2 className="text-2xl font-bold mb-6 text-center" data-testid="text-faq-heading">
+                Frequently Asked Questions
+              </h2>
+              <Accordion type="single" collapsible className="w-full">
+                {faqItems.map((faq, index) => (
+                  <AccordionItem key={index} value={`faq-${index}`}>
+                    <AccordionTrigger className="text-left" data-testid={`accordion-faq-${index}`}>
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-12 text-center">
+              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span>Bank-level Security</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-500" />
+                  <span>72,000+ Laundromat Professionals</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-500" />
+                  <span>Results in Minutes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-purple-500" />
+                  <span>220+ Countries Supported</span>
+                </div>
               </div>
             </div>
           </div>

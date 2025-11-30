@@ -69,7 +69,7 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
-  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "8 AI experts analyze your deal - Creating millionaires one customer at a time", featured: true, highlight: true, badge: "HOT" },
+  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts + Dave Menz analyze your deal from $49", featured: true, highlight: true, badge: "HOT" },
   { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
   { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
   { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
@@ -80,7 +80,7 @@ const PLAN_LINKS = [
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "8 AI experts + Dave Menz analyze any deal", featured: true, highlight: true, badge: "HOT" },
+  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts + Dave Menz analyze any deal from $49", featured: true, highlight: true, badge: "HOT" },
   { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis" },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
   { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },

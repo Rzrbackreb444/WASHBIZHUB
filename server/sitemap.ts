@@ -200,8 +200,9 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/advertising', lastmod: today, changefreq: 'weekly', priority: 0.75 },
       
       // ============================================================================
-      // AI TOOLS (0.75-0.85)
+      // AI TOOLS & CONSULTATION (0.85-0.95)
       // ============================================================================
+      { loc: '/ai-consultation', lastmod: today, changefreq: 'daily', priority: 0.95 },
       { loc: '/service-guy-ai', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       { loc: '/ai-blogging', lastmod: today, changefreq: 'weekly', priority: 0.7 },
       { loc: '/ai-content-studio', lastmod: today, changefreq: 'weekly', priority: 0.7 },
