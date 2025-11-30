@@ -6128,6 +6128,124 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // ==================== AI COUNCIL (MULTI-AI ORCHESTRATION) ====================
+  
+  // POST /api/ai/council - Query the AI Council (routes to optimal AI)
+  app.post("/api/ai/council", rateLimiter("/api/ai/council", 20, 60), async (req, res) => {
+    try {
+      const { prompt, taskType = "general", context, useCache = true } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+      
+      const { askCouncil } = await import("./ai-council");
+      const response = await askCouncil({
+        prompt,
+        taskType,
+        context,
+        useCache,
+      });
+      
+      res.json(response);
+    } catch (error: any) {
+      console.error("AI Council error:", error);
+      res.status(500).json({ error: error.message || "AI Council query failed" });
+    }
+  });
+
+  // POST /api/ai/council/consult - Get insights from multiple AIs
+  app.post("/api/ai/council/consult", rateLimiter("/api/ai/council/consult", 10, 60), async (req, res) => {
+    try {
+      const { prompt, taskType = "general", models, synthesize = true } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+      
+      const { consultCouncil } = await import("./ai-council");
+      const response = await consultCouncil(prompt, taskType, { models, synthesize });
+      
+      res.json(response);
+    } catch (error: any) {
+      console.error("AI Council consult error:", error);
+      res.status(500).json({ error: error.message || "AI Council consultation failed" });
+    }
+  });
+
+  // POST /api/ai/council/research - Web research via Perplexity
+  app.post("/api/ai/council/research", rateLimiter("/api/ai/council/research", 10, 60), async (req, res) => {
+    try {
+      const { question } = req.body;
+      
+      if (!question) {
+        return res.status(400).json({ error: "Question is required" });
+      }
+      
+      const { researchQuery } = await import("./ai-council");
+      const result = await researchQuery(question);
+      
+      res.json({ result, provider: "perplexity" });
+    } catch (error: any) {
+      console.error("AI Council research error:", error);
+      res.status(500).json({ error: error.message || "Research query failed" });
+    }
+  });
+
+  // POST /api/ai/council/trending - Get trending insights via Grok
+  app.post("/api/ai/council/trending", rateLimiter("/api/ai/council/trending", 10, 60), async (req, res) => {
+    try {
+      const { topic } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ error: "Topic is required" });
+      }
+      
+      const { trendingQuery } = await import("./ai-council");
+      const result = await trendingQuery(topic);
+      
+      res.json({ result, provider: "grok" });
+    } catch (error: any) {
+      console.error("AI Council trending error:", error);
+      res.status(500).json({ error: error.message || "Trending query failed" });
+    }
+  });
+
+  // POST /api/ai/council/validate - Cross-validate a claim with multiple AIs
+  app.post("/api/ai/council/validate", rateLimiter("/api/ai/council/validate", 5, 60), async (req, res) => {
+    try {
+      const { claim } = req.body;
+      
+      if (!claim) {
+        return res.status(400).json({ error: "Claim is required" });
+      }
+      
+      const { validateClaim } = await import("./ai-council");
+      const result = await validateClaim(claim);
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error("AI Council validate error:", error);
+      res.status(500).json({ error: error.message || "Validation failed" });
+    }
+  });
+
+  // GET /api/ai/council/status - Get AI Council status and available models
+  app.get("/api/ai/council/status", async (req, res) => {
+    try {
+      const { getCouncilStatus } = await import("./ai-council");
+      const status = await getCouncilStatus();
+      
+      res.json({
+        ...status,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("AI Council status error:", error);
+      res.status(500).json({ error: error.message || "Status check failed" });
+    }
+  });
+
   // ==================== GEOCODING & LOCATION SERVICES ====================
   
   // Simple rate limiter: Track requests per IP
