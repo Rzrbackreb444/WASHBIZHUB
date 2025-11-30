@@ -1,0 +1,90 @@
+Are All Calculators Needed? Including Turns Per Day (TPD) and Everything?
+Let’s evaluate your calculator suite based on industry needs (Coin Laundry Association, Cents, Turns), your book content, and group feedback. Current calculators include WDF Pricing, Funding Matcher, and POS Prototype. Here’s a comprehensive list, assessing necessity and depth.
+Existing Calculators
+1.  WDF Pricing Calculator
+	•  Purpose: Determines optimal Wash, Dry, Fold pricing based on costs, labor, and margin.
+	•  Formula: Price = (Cost per Load + Labor Cost) / (1 - Margin/100)
+	•  Depth: Basic but effective; integrates with POS for real-time updates.
+	•  Status: Live with Chart.js (test pending).
+2.  Funding Matcher
+	•  Purpose: Matches funding needs (e.g., SBA, crypto) to eligibility.
+	•  Formula: Lender Suitability Score = f(Revenue, Time in Business, Credit Score, Loan Amount) [Logic-based, e.g., if Time = 0 & Credit > 700 & Loan < $50K, score = 90]
+	•  Depth: Covers key options but lacks ROI projection.
+	•  Status: Drafted, needs Chart.js.
+3.  POS Prototype
+	•  Purpose: Logs transactions (WDF/PUD), links to consultations.
+	•  Formula: N/A (log-based, future analytics).
+	•  Depth: Basic; needs PUD scheduling, diagnostics.
+	•  Status: Prototype, expandable.
+Needed Calculators
+Based on industry standards (Cents, Turns, CleanCloud), your book (e.g., Chapter 8: Operations Mastery), and group polls (e.g., 65% prioritize TPD), here’s what’s missing:
+1.  Turns Per Day (TPD) Calculator
+	•  Purpose: Calculates cycles per washer/day to optimize revenue (key KPI in laundromats).
+	•  Formula: TPD = Total Cycles / Number of Washers / Operating Days
+		•  Revenue Impact: Revenue = TPD × Vend Price × Days (350-365)
+		•  Breakeven TPD: Breakeven TPD = Fixed Costs / (Vend Price - $0.50-$1.00/turn)
+		•  Score: TPD Score = clamp((TPD - 2) / (8 - 2) × 100, 0, 100) [Target: 4.5 urban, 4 rural]
+	•  Depth: Include sensitivity (TPD ±10%), Monte Carlo (10,000 sims, mean=4.5, sd=0.5), and group benchmark (70k average 4.5).
+	•  Tier: Free (basic), $19.99/mo (sensitivity), $49.99/mo (Monte Carlo).
+2.  ROI Calculator
+	•  Purpose: Estimates return on investment for equipment, stores.
+	•  Formula: ROI = (NOI - Debt Service) / Equity
+		•  NOI: Revenue - (Utilities + Labor + Rent + Maintenance)
+		•  EBITDA: NOI - Owner Salary
+		•  DSCR: NOI / (PMT × 12), PMT = (r/12 × Loan) / (1 - (1 + r/12)^(-years×12))
+	•  Depth: Multi-year projections (3-5 years), equipment-specific (e.g., Dexter vs. Girbau), group case studies.
+	•  Tier: Free (basic), $19.99/mo (projections), $49.99/mo (cases).
+3.  Cash Flow Calculator
+	•  Purpose: Tracks cash inflows/outflows for operational stability.
+	•  Formula: Cash Flow = Cash Inflows - Cash Outflows
+		•  Inflows: Revenue, loans
+		•  Outflows: Expenses, repayments
+	•  Depth: Monthly/annual views, sensitivity (revenue ±10%), group benchmarks.
+	•  Tier: Free (monthly), $19.99/mo (annual), $49.99/mo (sensitivity).
+4.  Equipment Cost Estimator
+	•  Purpose: Estimates equipment costs (new/used) and lifespan.
+	•  Formula: Total Cost = Purchase Price + Installation + Maintenance (Annual × Lifespan)
+		•  Lifespan: 10-25 years (e.g., Dexter 20 years)
+	•  Depth: Condition-based pricing (new/used), distributor quotes (Appendix G), parts ordering link.
+	•  Tier: Free (basic), $19.99/mo (quotes), $49.99/mo (parts).
+5.  Valuation Tool
+	•  Purpose: Valuates laundromat for sale/exit.
+	•  Formula: Valuation = EBITDA × Multiplier (2.5-6x)
+		•  Multipliers: Lease (+20%), rent (+15%), equip (+25%), WDF (+30%)
+	•  Depth: Location-adjusted (CLEANBI score), group sale data, exit tips.
+	•  Tier: Free (basic), $19.99/mo (location-adjusted), $49.99/mo (group data).
+6.  SBA Loan Eligibility Checker
+	•  Purpose: Assesses eligibility for SBA loans.
+	•  Formula: Eligibility Score = f(Time in Business, Credit Score, Revenue, Debt) [e.g., >6mo, >500 credit, $50K revenue = 80%]
+	•  Depth: 2025 criteria (6-9% rates), funding options (Chapter 7).
+	•  Tier: Free (basic), $19.99/mo (detailed criteria), $49.99/mo (options).
+7.  Market Trend Analyzer
+	•  Purpose: Forecasts market trends (e.g., eco-demand).
+	•  Formula: Trend Impact = f(Population Growth, Renters %, Eco-Adoption %) [e.g., 1.5% growth, 60% renters, 40% eco = 50% impact]
+	•  Depth: AI predictions (Chapter 14), group polls, 2035 scenarios.
+	•  Tier: Free (basic), $19.99/mo (AI), $49.99/mo (scenarios).
+Completeness Assessment
+•  Coverage: These 10 cover operational (TPD, ROI), financial (Cash Flow, Valuation, SBA), equipment (Cost Estimator), and strategic (Market Trend) needs—aligned with your book and group priorities (65% focus on TPD).
+•  Gaps:
+	•  PUD Scheduling: Needs a dedicated tool (e.g., CleanCloud’s app), can be POS add-on.
+	•  Employee Scheduling: Missing (e.g., Laundry Boss feature), could tie to Handbook template.
+•  Recommendation: Add PUD Scheduler and Employee Scheduler later (post-launch feedback). Current 10 are sufficient for launch.
+Pricing and Tiers
+•  Free Tier: Basic versions (e.g., TPD score, ROI estimate) for lead gen.
+•  Pro Tier ($19.99/mo): Advanced features (sensitivity, projections) via Ultimate Member.
+•  Elite Tier ($49.99/mo): Premium (Monte Carlo, group data) for consultants/investors.
+
+What WashBizHub.com Should Be
+•  Mission: Empower laundromat operators (single moms, newbies, investors) with tools, knowledge, and community to build profitable empires.
+•  Core Offerings:
+	•  Book: THE WASHBIZHUB LAUNDROMAT BIBLE (250 pages, $50 premium, free basic via WPForms).
+	•  Calculators: 10 tools (WDF Pricing, TPD, ROI, etc.) with tiers.
+	•  POS: WashBizPOS (prototype tonight, full tomorrow) for WDF/PUD, diagnostics.
+	•  Templates: Enhanced PDFs (Operational Plan, Marketing Plan) in appendices.
+	•  Consulting: $100-$500 via consult@washbizhub.com.
+•  Branding: Sasquatch grit (growth bars, navy/teal), group-driven insights.
+•  Revenue Model: $1K-$5K/mo consultations, $10K-$50K/year affiliates, $1.6K/mo per calculator (8 users x $200).
+•  Tech Stack: WP + Next.js (POS), Ultimate Member (tiers), Chart.js (calculators).
+
+Reedsy-Ready Instructions (1-2 Hours)
+1.  Add TPD Calculator (15 Minutes):

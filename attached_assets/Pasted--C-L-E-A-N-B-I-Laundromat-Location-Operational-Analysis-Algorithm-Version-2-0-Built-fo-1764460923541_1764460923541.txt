@@ -1,0 +1,143 @@
+# 🧠 C.L.E.A.N.B.I. — Laundromat Location & Operational Analysis Algorithm
+# Version 2.0 — Built for WashBizHub / LaundroTech
+# Designed to grade a laundromat A–C based on operational strength and investment appeal.
+
+# ----------------------------------------------------
+# INPUT VARIABLES
+# ----------------------------------------------------
+inputs = {
+    # Market Data
+    "population_density": None,          # per square mile
+    "median_income": None,               # annual household income
+    "rent_cost": None,                   # avg rent per sqft
+    "competition_radius": None,          # # of competing laundromats within 1 mi
+    "demographic_fit": None,             # % renters or multi-family units
+    
+    # Store Data
+    "washer_count": None,
+    "dryer_count": None,
+    "equipment_age_avg": None,           # years
+    "utilities_efficiency": None,        # % or indexed rating
+    "vend_price_avg": None,              # $ per wash
+    "sqft": None,
+    
+    # Financial Data
+    "gross_monthly_income": None,
+    "total_expenses": None,
+    "lease_term_remaining": None,        # years
+    "asking_price": None,
+    
+    # Operational Data
+    "hours_open_per_week": None,
+    "employee_presence": None,           # 1 = attended, 0 = unattended
+    "wash_dry_fold_service": None,       # Boolean
+    "payment_system": None,              # coin / card / hybrid
+    "maintenance_condition": None,       # subjective 1–10
+    
+    # Optional (for deeper scoring)
+    "real_estate_owned": None,           # Boolean
+    "parking_availability": None,        # 1–10
+    "visibility_score": None,            # 1–10
+}
+
+# ----------------------------------------------------
+# WEIGHTED SCORING SYSTEM
+# ----------------------------------------------------
+weights = {
+    "cashflow_strength": 0.25,
+    "location_viability": 0.25,
+    "equipment_condition": 0.20,
+    "operations_efficiency": 0.15,
+    "market_fit": 0.10,
+    "expansion_potential": 0.05
+}
+
+# ----------------------------------------------------
+# COMPONENT CALCULATIONS
+# ----------------------------------------------------
+def safe_divide(a, b, fallback=0):
+    try:
+        return a / b if b != 0 else fallback
+    except:
+        return fallback
+
+def estimate_missing_value(var_name, fallback_dict):
+    """If a variable is missing, use average or fallback logic."""
+    if inputs[var_name] is not None:
+        return inputs[var_name]
+    return fallback_dict.get(var_name, 0)
+
+fallbacks = {
+    "population_density": 5000,
+    "median_income": 45000,
+    "competition_radius": 3,
+    "gross_monthly_income": 12000,
+    "total_expenses": 8000,
+    "equipment_age_avg": 7,
+    "maintenance_condition": 6,
+}
+
+# Core Logic
+cashflow_strength = (estimate_missing_value("gross_monthly_income", fallbacks) -
+                     estimate_missing_value("total_expenses", fallbacks)) / max(estimate_missing_value("total_expenses", fallbacks), 1)
+
+location_viability = (
+    (estimate_missing_value("population_density", fallbacks) / 8000 * 10)
+    - (estimate_missing_value("competition_radius", fallbacks) * 1.5)
+    + (estimate_missing_value("visibility_score", fallbacks) or 5)
+)
+
+equipment_condition = 10 - (estimate_missing_value("equipment_age_avg", fallbacks) / 2)
+operations_efficiency = (estimate_missing_value("maintenance_condition", fallbacks) + (3 if inputs["wash_dry_fold_service"] else 0))
+market_fit = (estimate_missing_value("demographic_fit", fallbacks) or 50) / 10
+expansion_potential = (estimate_missing_value("lease_term_remaining", fallbacks) or 5) / 2
+
+# Normalize
+def normalize(value, min_val=0, max_val=10):
+    return max(min(value, max_val), min_val)
+
+cashflow_strength = normalize(cashflow_strength * 10)
+location_viability = normalize(location_viability)
+equipment_condition = normalize(equipment_condition)
+operations_efficiency = normalize(operations_efficiency)
+market_fit = normalize(market_fit)
+expansion_potential = normalize(expansion_potential)
+
+# Weighted Total
+total_score = (
+    cashflow_strength * weights["cashflow_strength"] +
+    location_viability * weights["location_viability"] +
+    equipment_condition * weights["equipment_condition"] +
+    operations_efficiency * weights["operations_efficiency"] +
+    market_fit * weights["market_fit"] +
+    expansion_potential * weights["expansion_potential"]
+)
+
+# ----------------------------------------------------
+# OUTPUT GRADING
+# ----------------------------------------------------
+if total_score >= 8.5:
+    grade = "A"
+elif total_score >= 7.0:
+    grade = "B"
+else:
+    grade = "C"
+
+# ----------------------------------------------------
+# FINAL OUTPUT OBJECT
+# ----------------------------------------------------
+cleanbi_result = {
+    "grade": grade,
+    "score": round(total_score, 2),
+    "details": {
+        "Cashflow Strength": round(cashflow_strength, 1),
+        "Location Viability": round(location_viability, 1),
+        "Equipment Condition": round(equipment_condition, 1),
+        "Operational Efficiency": round(operations_efficiency, 1),
+        "Market Fit": round(market_fit, 1),
+        "Expansion Potential": round(expansion_potential, 1)
+    },
+    "rationale": f"This laundromat earns a {grade}-grade due to {('strong' if grade=='A' else 'moderate' if grade=='B' else 'limited')} performance in key business drivers such as cashflow and location viability. Recommended next steps include targeted reinvestment in {('equipment upgrades and service offerings' if grade!='A' else 'strategic marketing and multi-store scalability')}."
+}
+
+print(cleanbi_result)
