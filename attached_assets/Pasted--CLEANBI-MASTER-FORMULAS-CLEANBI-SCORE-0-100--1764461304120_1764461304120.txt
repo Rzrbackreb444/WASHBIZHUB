@@ -1,0 +1,274 @@
+==========================
+CLEANBI MASTER FORMULAS
+==========================
+
+CLEANBI SCORE (0–100)
+CleanBI = round(
+    (0.25 * MarketScore) +
+    (0.25 * FinancialScore) +
+    (0.20 * LeaseScore) +
+    (0.15 * EquipmentScore) +
+    (0.10 * UtilitiesScore) +
+    (0.05 * GrowthScore)
+)
+
+GRADE:
+90–100 = A
+80–89  = B
+70–79  = C
+Below 70 = Needs Work (no D/F shown publicly)
+
+-----------------------------------------
+MARKET SCORE (0–100)
+-----------------------------------------
+MarketScore = normalized weighted system:
+
+• Renter Ratio Weight = 0.30
+    RenterScore = (renterPct / 70) * 100
+    Cap at 100.
+
+• Median Income Sweet Spot Weight = 0.20
+    IncomeScore =
+        if income between 35k–65k => 100
+        else => linear dropoff ±1 point per $1k away
+
+• Population Density Weight = 0.20
+    DensityScore = min( (popDensity / 2500) * 100 , 100 )
+
+• Competition Weight = 0.20
+    CompetitionScore =
+        if competitionCount = 0 → 100
+        if 1 → 85
+        if 2 → 65
+        if 3 → 45
+        >3 → 25
+
+• Neighborhood Condition Weight = 0.10
+    CleanlinessScore (0–10) * 10
+
+MarketScore =
+    0.30*RenterScore +
+    0.20*IncomeScore +
+    0.20*DensityScore +
+    0.20*CompetitionScore +
+    0.10*CleanlinessScore
+
+-----------------------------------------
+FINANCIAL SCORE (0–100)
+-----------------------------------------
+Inputs:
+GrossRevenue, NetProfit, Rent, Utilities, Payroll, Supplies
+
+• Rent-to-Revenue Ratio:
+    Ratio = (monthlyRent * 12) / grossRevenue
+    If Ratio <= 20% → 100
+    21–25% → 85
+    26–30% → 70
+    >30% → 50
+
+• Net Margin:
+    Margin = (netProfit / grossRevenue) * 100
+    MarginScore =
+        >35% → 100
+        25–34% → 85
+        15–24% → 70
+        10–14% → 55
+        <10% → 40
+
+• Revenue Per Machine:
+    RPM = grossRevenue / machineCount
+    Normalize:
+        if RPM >= 3500 → 100
+        if 2500–3499 → 85
+        if 1500–2499 → 70
+        if 1000–1499 → 55
+        if <1000 → 40
+
+FinancialScore =
+   (0.40 * RentRatioScore) +
+   (0.40 * MarginScore) +
+   (0.20 * RPMScore)
+
+-----------------------------------------
+LEASE SCORE (0–100)
+-----------------------------------------
+LeaseScore formula uses:
+• YearsRemaining
+• RenewalOptions
+• AnnualEscalation
+• NNN vs Gross
+• Exclusive Use Clause (yes/no)
+
+YearsScore:
+    if 10+ years → 100
+    7–9 → 85
+    5–6 → 70
+    3–4 → 55
+    <3 → 40
+
+EscalationScore:
+    if escalation <= 2% → 100
+    3–4% → 80
+    5% → 60
+    >5% → 40
+
+AlignmentBonus:
+    +10 if ExclusiveUseClause = true
+
+LeaseScore =
+    min( YearsScore*0.6 + EscalationScore*0.4 + AlignmentBonus, 100 )
+
+-----------------------------------------
+EQUIPMENT SCORE (0–100)
+-----------------------------------------
+AgeWeightedAverage = average of all machine ages
+
+• AgeScore:
+    if Age <= 5y → 100
+    6–10y → 85
+    11–15y → 65
+    16–20y → 45
+    >20y → 30
+
+• Mix Score:
+    if extractorRPM >= 200G → +10 bonus
+    if mostly single-load tops → -15 penalty
+
+• Brand Reliability Score:
+    Dexter = 100
+    SpeedQueen / Huebsch = 90
+    Wascomat = 80
+    LG = 70
+    Others = 60
+
+EquipmentScore =
+    min( (0.5 * AgeScore) + (0.3 * BrandScore) + (0.2 * MixScore), 100 )
+
+-----------------------------------------
+UTILITIES SCORE (0–100)
+-----------------------------------------
+• Gas Efficiency:
+    GasPerCycle = GasBill / (turnsPerDay * machineCount * 30)
+    Normalize: lower is better
+    EfficiencyScore = min( (2.5 / GasPerCycle) * 100 , 100 )
+
+• Water Efficiency:
+    Similar formula using water bill
+
+UtilitiesScore =
+    (0.6 * EfficiencyScore) +
+    (0.4 * WaterScore)
+
+-----------------------------------------
+GROWTH SCORE (0–100)
+-----------------------------------------
+Based on:
+• Permits for new housing
+• Competition building
+• Local income trend
+
+GrowthScore =
+    +30 if population is increasing >2%/yr
+    +30 if new apartments within 1 mile
+    +20 if no new laundromats permitted
+    +20 if rents increasing slower than median income
+
+Cap at 100.
+
+-----------------------------------------
+CONFIDENCE SCORE (0–1.0)
+-----------------------------------------
+Confidence =
+    (0.25 * posData) +
+    (0.20 * leaseDoc) +
+    (0.15 * utilitiesBills) +
+    (0.15 * manufacturerData) +
+    (0.15 * censusData) +
+    (0.10 * mapboxData)
+
+-----------------------------------------
+FALLBACK RULES (missing data)
+-----------------------------------------
+
+If missing machine count:
+    Estimate = grossRevenue / 3000
+
+If missing TPD:
+    Estimate = (grossRevenue / machineCount) / vendedPrice / 365
+
+If missing rent:
+    Use local market avg = $18–28/sqft depending on zip
+
+If missing equipment ages:
+    Use serial lookup if known brand
+    Else default age = 14 years
+
+If missing census variables:
+    Pull from zip centroid automatically
+
+All fallback variables add:
+    fallbackPenalty = - (1–confidence) * 15  
+Applied after total CleanBI score.
+
+-----------------------------------------
+LEASE RISK ALGORITHM
+-----------------------------------------
+LeaseRisk = 
+    (100 - LeaseScore) +
+    (EscalationPct * 2) -
+    (YearsRemaining)
+
+-----------------------------------------
+BREAK-EVEN FORMULA
+-----------------------------------------
+BreakEvenTPD =
+    (monthlyRent + monthlyUtilities + Supplies + Labor) /
+    (machineCount * (vendedPrice - costPerCycle))
+
+-----------------------------------------
+TPD CALCULATOR
+-----------------------------------------
+TPD = 
+    GrossRevenue / (365 * machineCount * vendedPrice)
+
+-----------------------------------------
+TURNOVER HEALTH
+-----------------------------------------
+If TPD >= 4.5 → Excellent  
+3.0–4.4 → Good  
+2.0–2.9 → Moderate  
+<2 → Needs Work
+
+-----------------------------------------
+RENT-TO-REVENUE RATIO
+-----------------------------------------
+RentRatio = (monthlyRent * 12) / grossRevenue
+
+-----------------------------------------
+VALUATION (SDE/Laundromat Method)
+-----------------------------------------
+Value = SDE * Multiple
+
+Multiples:
+    A stores → 3.5–4.5
+    B stores → 3.0–3.4
+    C stores → 2.2–2.9
+
+-----------------------------------------
+EQUIPMENT DEPRECIATION (straight line)
+-----------------------------------------
+AnnualDepreciation = (Cost / 10 years)
+
+-----------------------------------------
+UTILITY COST PER CYCLE
+-----------------------------------------
+WaterPerCycle = WaterBill / monthlyTurns
+GasPerCycle = GasBill / monthlyTurns
+
+-----------------------------------------
+DEMOGRAPHIC POWER SCORE
+-----------------------------------------
+DemoScore =
+    (0.4 * RenterPct) +
+    (0.3 * DensityNormalized) +
+    (0.3 * IncomeBandScore)
