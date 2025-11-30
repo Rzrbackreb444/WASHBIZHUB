@@ -343,14 +343,14 @@ export function NavigationMenu() {
       {/* TIER 2: Main Product Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-[72px] flex items-center justify-between gap-4">
+          <div className="h-[140px] md:h-[160px] flex items-center justify-between gap-4">
             {/* Logo */}
             <Link href="/" data-testid="link-logo">
               <div className="flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer shrink-0">
                 <img 
                   src={logoUrl} 
                   alt="WashBizHub - The #1 Laundromat Resource" 
-                  className="h-12 sm:h-14 md:h-16 w-auto" 
+                  className="h-32 sm:h-40 md:h-48 w-auto" 
                   loading="lazy"
                   data-testid="img-logo"
                 />
