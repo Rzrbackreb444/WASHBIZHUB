@@ -69,7 +69,8 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
-  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment", featured: true },
+  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "8 AI experts analyze your deal - Creating millionaires one customer at a time", featured: true, highlight: true, badge: "HOT" },
+  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
   { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
   { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
   { href: "/academy", label: "Laundry Tech Academy", icon: GraduationCap, description: "4-tier certification from FREE to Master Tech", highlight: true, badge: "NEW" },
@@ -79,7 +80,8 @@ const PLAN_LINKS = [
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis", featured: true },
+  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "8 AI experts + Dave Menz analyze any deal", featured: true, highlight: true, badge: "HOT" },
+  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis" },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
   { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },
   { href: "/distributor-locator", label: "Equipment Distributors", icon: MapPin, description: "Find authorized distributors for 11+ brands", highlight: true },
@@ -108,6 +110,7 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
   "/plan": {
     label: "Planning Tools",
     links: [
+      { href: "/ai-consultation", label: "AI Council" },
       { href: "/calculators", label: "Calculators" },
       { href: "/startup-funding", label: "Funding" },
       { href: "/book", label: "The Bible" },
@@ -117,6 +120,7 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
   "/evaluate": {
     label: "Evaluation Tools",
     links: [
+      { href: "/ai-consultation", label: "AI Council" },
       { href: "/cleanbi-auto", label: "CLEANBI" },
       { href: "/laundromat-listings", label: "Listings" },
       { href: "/valuation-calculator", label: "Valuation" },
@@ -161,7 +165,7 @@ function getBreadcrumb(pathname: string): { label: string; href: string }[] {
 }
 
 function getContextualSection(pathname: string): string | null {
-  if (pathname.startsWith("/calculator") || pathname.startsWith("/startup") || pathname.startsWith("/book") || pathname.startsWith("/blog") || pathname.startsWith("/consultation")) {
+  if (pathname.startsWith("/calculator") || pathname.startsWith("/startup") || pathname.startsWith("/book") || pathname.startsWith("/blog") || pathname.startsWith("/consultation") || pathname.startsWith("/ai-consultation")) {
     return "/plan";
   }
   if (pathname.startsWith("/cleanbi") || pathname.startsWith("/laundromat-listing") || pathname.startsWith("/valuation") || pathname.startsWith("/resources") || pathname.startsWith("/distributor-locator") || pathname.startsWith("/laundromat-locator")) {
@@ -536,19 +540,27 @@ export function NavigationMenu() {
                     </div>
 
                     {/* Quick CTAs */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <Link href="/ai-consultation" onClick={() => setMobileOpen(false)}>
+                        <div className="flex flex-col items-center gap-1 p-3 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black rounded-lg transition-colors text-center cursor-pointer h-full justify-center shadow-lg"
+                        data-testid="link-ai-council-mobile"
+                        >
+                          <Bot className="w-5 h-5" />
+                          <span className="text-[10px] font-bold">AI Council</span>
+                        </div>
+                      </Link>
                       <Link href="/cleanbi-auto" onClick={() => setMobileOpen(false)}>
                         <div className="flex flex-col items-center gap-1 p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-center cursor-pointer h-full justify-center"
                         data-testid="link-cleanbi-mobile"
                         >
                           <MapPin className="w-5 h-5" />
-                          <span className="text-xs font-medium">Try CLEANBI</span>
+                          <span className="text-[10px] font-medium">CLEANBI</span>
                         </div>
                       </Link>
                       <Link href="/pricing" onClick={() => setMobileOpen(false)}>
-                        <div className="flex flex-col items-center gap-1 p-3 bg-amber-500 hover:bg-amber-600 text-black rounded-lg transition-colors text-center cursor-pointer h-full justify-center">
+                        <div className="flex flex-col items-center gap-1 p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors text-center cursor-pointer h-full justify-center">
                           <Sparkles className="w-5 h-5" />
-                          <span className="text-xs font-semibold">Free Trial</span>
+                          <span className="text-[10px] font-semibold">Free Trial</span>
                         </div>
                       </Link>
                     </div>
