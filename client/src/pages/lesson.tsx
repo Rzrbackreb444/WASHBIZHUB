@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { InteractiveQuiz } from "@/components/InteractiveQuiz";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { 
   BookOpen, CheckCircle, ArrowLeft, ArrowRight, 
   Clock, Award, PlayCircle
@@ -169,8 +171,10 @@ export default function LessonPage() {
                 Lesson Overview
               </CardTitle>
             </CardHeader>
-            <CardContent className="prose dark:prose-invert max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: lessonContent.text }} />
+            <CardContent className="prose dark:prose-invert max-w-none prose-headings:text-foreground prose-h2:text-2xl prose-h2:font-bold prose-h2:border-b prose-h2:pb-2 prose-h2:mb-4 prose-h3:text-lg prose-h3:font-semibold prose-strong:text-primary prose-p:text-muted-foreground prose-hr:border-border prose-hr:my-6">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {lessonContent.text}
+              </ReactMarkdown>
             </CardContent>
           </Card>
         )}
