@@ -69,10 +69,10 @@ interface HeatmapPoint {
 // ========================================
 
 const TIER_RATE_LIMITS: Record<string, { perMinute: number; perDay: number }> = {
-  free: { perMinute: 5, perDay: 20 },
-  starter: { perMinute: 20, perDay: 100 },
-  pro: { perMinute: 50, perDay: 500 },
-  enterprise: { perMinute: 200, perDay: 5000 }
+  free: { perMinute: 3, perDay: 3 },       // 3 analyses per day - creates urgency
+  starter: { perMinute: 20, perDay: 100 },  // $29/mo - serious investors
+  pro: { perMinute: 50, perDay: 500 },      // $79/mo - power users
+  enterprise: { perMinute: 200, perDay: 5000 } // Custom - brokers/consultants
 };
 
 // ========================================
@@ -447,17 +447,20 @@ router.post("/analyze", async (req: Request, res: Response) => {
     
     if (!rateCheck.allowed) {
       const limitMessage = rateCheck.limitType === "daily" 
-        ? `Daily limit reached (${TIER_RATE_LIMITS[tier]?.perDay || 20}/day for ${tier} tier)`
-        : `Too many requests (${TIER_RATE_LIMITS[tier]?.perMinute || 5}/minute for ${tier} tier)`;
+        ? `Daily limit reached (${TIER_RATE_LIMITS[tier]?.perDay || 3}/day for ${tier} tier)`
+        : `Too many requests (${TIER_RATE_LIMITS[tier]?.perMinute || 3}/minute for ${tier} tier)`;
       
-      return res.status(429).json({
+      // Return 200 with rateLimited flag for graceful frontend handling
+      return res.json({
         success: false,
+        rateLimited: true,
         error: limitMessage,
         limitType: rateCheck.limitType,
         remainingMinute: rateCheck.remainingMinute,
         remainingDaily: rateCheck.remainingDaily,
         retryAfter: rateCheck.resetAt,
-        upgradeUrl: "/pricing"
+        upgradeUrl: "/pricing",
+        tier
       });
     }
 

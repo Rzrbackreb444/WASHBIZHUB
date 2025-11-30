@@ -255,6 +255,7 @@ export default function CleanBIExplorer() {
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([]);
   const [showStreetView, setShowStreetView] = useState(false);
   const [showAerialView, setShowAerialView] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [historyExpanded, setHistoryExpanded] = useState(true);
@@ -421,6 +422,18 @@ export default function CleanBIExplorer() {
       });
 
       const data = await response.json();
+      
+      // Handle rate limit (3 free analyses per day)
+      if (data.rateLimited) {
+        toast({ 
+          title: "Daily Limit Reached", 
+          description: `You've used all 3 free analyses today. Upgrade for unlimited access!`,
+          variant: "destructive"
+        });
+        setShowUpgradePrompt(true);
+        setIsAnalyzing(false);
+        return;
+      }
       
       if (data.success) {
         const result = data.analysis;
@@ -1112,6 +1125,63 @@ export default function CleanBIExplorer() {
                     Grade {analysisResult?.grade}
                   </Badge>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upgrade Prompt Modal */}
+        {showUpgradePrompt && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+            <div className="relative w-full max-w-md bg-[#12121f] rounded-2xl overflow-hidden border border-[#C8A661]/30 shadow-2xl">
+              <button
+                onClick={() => setShowUpgradePrompt(false)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20"
+                data-testid="button-close-upgrade"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center">
+                  <Zap className="w-10 h-10 text-white" />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-white mb-2">You've Hit Your Daily Limit</h2>
+                <p className="text-white/60 mb-6">
+                  Free users get 3 location analyses per day. Upgrade to unlock unlimited analyses, 3D Aerial Views, and premium insights.
+                </p>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-3 text-left bg-white/5 rounded-lg p-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <span className="text-white/80 text-sm">Unlimited CLEANBI™ analyses</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-left bg-white/5 rounded-lg p-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <span className="text-white/80 text-sm">3D Aerial View flyovers</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-left bg-white/5 rounded-lg p-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <span className="text-white/80 text-sm">Detailed competitor intelligence</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-left bg-white/5 rounded-lg p-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <span className="text-white/80 text-sm">Export PDF reports</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-lg font-medium mb-3"
+                  onClick={() => window.location.href = "/pricing"}
+                  data-testid="button-upgrade-now"
+                >
+                  Upgrade to Starter - $29/mo
+                </Button>
+                
+                <p className="text-white/40 text-xs">
+                  Your saved analyses are still accessible. Come back tomorrow for 3 more free analyses!
+                </p>
               </div>
             </div>
           </div>
