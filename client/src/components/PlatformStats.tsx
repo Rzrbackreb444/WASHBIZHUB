@@ -162,7 +162,7 @@ export function EnterpriseFeatures() {
   const features = [
     {
       title: "CLEANBI™ Universal Scoring",
-      description: "AI-powered location analysis for any address in 220+ countries. Get instant 0-100 scores with A-F grades.",
+      description: "AI-powered location analysis for any address in 220+ countries. Get instant 0-100 scores with A/B/C grades.",
       icon: Globe,
       stats: "2.8M+ scores generated",
       color: "from-[#39CCCC] to-teal-600"

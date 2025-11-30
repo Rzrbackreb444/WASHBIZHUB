@@ -365,7 +365,7 @@ export const CLEANBI_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "How do I get a CLEANBI score?",
-    answer: "Simply visit washbizhub.com/cleanbi-auto, enter any address (business or residential), and click 'Calculate CLEANBI Score'. You'll receive an instant 0-100 score with A-F grade, breakdown by category, and AI recommendations in seconds. No login required."
+    answer: "Simply visit washbizhub.com/cleanbi-auto, enter any address (business or residential), and click 'Calculate CLEANBI Score'. You'll receive an instant 0-100 score with A/B/C grade (no D or F grades - everything below C is 'Needs Work'), breakdown by category, and AI recommendations in seconds. No login required."
   },
   {
     question: "What is the CLEANBI Chrome extension?",
