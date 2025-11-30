@@ -42,7 +42,10 @@ import {
   CheckCircle2,
   Brain,
   FileText,
-  Download
+  Download,
+  Lock,
+  Crown,
+  Unlock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -257,6 +260,8 @@ export default function CleanBIExplorer() {
   const [showAerialView, setShowAerialView] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
+  const [userTier, setUserTier] = useState<"free" | "starter" | "pro" | "enterprise">("free");
+  const [remainingAnalyses, setRemainingAnalyses] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
@@ -440,6 +445,10 @@ export default function CleanBIExplorer() {
         setAnalysisResult(result);
         setCompetitors(data.competitors || []);
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        
+        // Track tier and remaining analyses for premium indicators
+        if (data.tier) setUserTier(data.tier);
+        if (typeof data.remainingDaily === "number") setRemainingAnalyses(data.remainingDaily);
         
         const saved = saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -688,7 +697,10 @@ export default function CleanBIExplorer() {
                     <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Overview</TabsTrigger>
                     <TabsTrigger value="score" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Score</TabsTrigger>
                     <TabsTrigger value="compete" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Compete</TabsTrigger>
-                    <TabsTrigger value="insights" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">AI</TabsTrigger>
+                    <TabsTrigger value="insights" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white flex items-center gap-1">
+                      AI
+                      {userTier === "free" && <Crown className="w-3 h-3 text-[#C8A661]" />}
+                    </TabsTrigger>
                   </TabsList>
 
                   {/* Overview Tab */}
@@ -743,12 +755,22 @@ export default function CleanBIExplorer() {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={fetchAerialView}
-                        className="flex-1 border-white/20 text-white hover:bg-white/10"
+                        onClick={userTier === "free" ? () => setShowUpgradePrompt(true) : fetchAerialView}
+                        className={`flex-1 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#C8A661]/50" : ""}`}
                         data-testid="button-aerial-view"
                       >
-                        <Video className="w-4 h-4 mr-1" />
-                        3D Flyover
+                        {userTier === "free" ? (
+                          <>
+                            <Lock className="w-4 h-4 mr-1 text-[#C8A661]" />
+                            3D Flyover
+                            <Crown className="w-3 h-3 ml-1 text-[#C8A661]" />
+                          </>
+                        ) : (
+                          <>
+                            <Video className="w-4 h-4 mr-1" />
+                            3D Flyover
+                          </>
+                        )}
                       </Button>
                       <Button 
                         size="sm" 
@@ -982,6 +1004,40 @@ export default function CleanBIExplorer() {
 
             {/* Search Section - At Bottom */}
             <div className="p-4">
+              {/* Free Tier Usage Indicator */}
+              {userTier === "free" && (
+                <div className="mb-3 bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <Zap className="w-4 h-4 text-[#C8A661]" />
+                      <span>Daily Analyses</span>
+                    </div>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#C8A661]/50 text-[#C8A661]"}`}
+                    >
+                      {remainingAnalyses !== null ? `${remainingAnalyses} left` : "3 free/day"}
+                    </Badge>
+                  </div>
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] transition-all duration-300"
+                      style={{ width: `${((remainingAnalyses ?? 3) / 3) * 100}%` }}
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowUpgradePrompt(true)}
+                    className="w-full text-[#C8A661] hover:text-white hover:bg-[#C8A661]/20 text-xs h-8"
+                    data-testid="button-upgrade-sidebar"
+                  >
+                    <Crown className="w-3.5 h-3.5 mr-1.5" />
+                    Upgrade for Unlimited Analyses
+                  </Button>
+                </div>
+              )}
+
               <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#8B7355]/20 rounded-xl p-4 border border-[#C8A661]/30">
                 <div className="text-sm font-medium text-white mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#C8A661]" />
