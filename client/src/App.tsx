@@ -73,7 +73,7 @@ const websiteSchema = {
 // ============================================================================
 // STATIC IMPORTS - Only absolute critical path (minimal main bundle)
 // ============================================================================
-import Home from "@/pages/home-new";
+import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 
 // ============================================================================
