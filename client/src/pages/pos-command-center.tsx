@@ -83,6 +83,7 @@ import {
   Droplets,
   Wind,
   Info,
+  Bot,
   Shirt,
   UserCheck,
   ListChecks,
@@ -124,7 +125,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Tooltip,
   TooltipContent,
@@ -201,6 +202,7 @@ const NAV_ITEMS = [
   { id: "routes", icon: Truck, label: "Routes" },
   { id: "inventory", icon: Package, label: "Inventory" },
   { id: "analytics", icon: BarChart3, label: "Analytics" },
+  { id: "ai-council", icon: Bot, label: "AI Council", href: "/ai-consultation" },
   { id: "calculators", icon: Calculator, label: "Calculators" },
   { id: "templates", icon: FileText, label: "Templates" },
   { id: "doctrine", icon: Book, label: "Learn" },
@@ -363,6 +365,7 @@ function GlobalSearchResults({
 }
 
 export default function POSCommandCenter() {
+  const [, navigate] = useLocation();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedTimeframe, setSelectedTimeframe] = useState("today");
   const [newOrderOpen, setNewOrderOpen] = useState(false);
@@ -2093,7 +2096,13 @@ export default function POSCommandCenter() {
             <Tooltip key={item.id}>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    if ('href' in item && item.href) {
+                      navigate(item.href);
+                    } else {
+                      setActiveSection(item.id);
+                    }
+                  }}
                   className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
                     activeSection === item.id 
                       ? "bg-[#b8860b] text-white" 
