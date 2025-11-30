@@ -22,11 +22,11 @@ interface ScoreResult {
   };
 }
 
-const GRADE_COLORS = {
-  'A': { bg: 'bg-green-500', text: 'text-green-500', border: 'border-green-500' },
-  'B': { bg: 'bg-lime-500', text: 'text-lime-500', border: 'border-lime-500' },
-  'C': { bg: 'bg-amber-500', text: 'text-amber-500', border: 'border-amber-500' },
-  'Needs Work': { bg: 'bg-yellow-600', text: 'text-yellow-600', border: 'border-yellow-600' }
+const GRADE_STYLES = {
+  'A': { bg: '#22C55E', text: '#22C55E', border: '#22C55E' },
+  'B': { bg: '#A3E635', text: '#A3E635', border: '#A3E635' },
+  'C': { bg: '#FBBF24', text: '#FBBF24', border: '#FBBF24' },
+  'Needs Work': { bg: '#C8A661', text: '#C8A661', border: '#C8A661' }
 };
 
 const DEMO_ADDRESSES = [
@@ -158,7 +158,10 @@ export function CLEANBIQuickScoreDemo() {
                         >
                           <MapPin className="w-4 h-4 text-teal-400" />
                           <span>{suggestion.address}</span>
-                          <Badge className={`ml-auto ${GRADE_COLORS[suggestion.grade].bg} text-white`}>
+                          <Badge 
+                            className="ml-auto text-white"
+                            style={{ backgroundColor: GRADE_STYLES[suggestion.grade].bg }}
+                          >
                             {suggestion.grade}
                           </Badge>
                         </button>
@@ -228,22 +231,37 @@ export function CLEANBIQuickScoreDemo() {
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-6">
                 <div className="relative">
-                  <div className={`w-32 h-32 rounded-full ${GRADE_COLORS[result.grade].border} border-4 flex items-center justify-center bg-white/5`}>
+                  <div 
+                    className="w-32 h-32 rounded-full border-4 flex items-center justify-center bg-white/5"
+                    style={{ borderColor: GRADE_STYLES[result.grade].border }}
+                  >
                     <div className="text-center">
-                      <span className={`text-4xl font-black ${GRADE_COLORS[result.grade].text}`} data-testid="text-demo-score">
+                      <span 
+                        className="text-4xl font-black" 
+                        style={{ color: GRADE_STYLES[result.grade].text }}
+                        data-testid="text-demo-score"
+                      >
                         {animatedScore}
                       </span>
                       <span className="text-white/60 text-lg">/100</span>
                     </div>
                   </div>
-                  <div className={`absolute -top-2 -right-2 ${GRADE_COLORS[result.grade].bg} text-white text-xl font-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg`} data-testid="badge-demo-grade">
+                  <div 
+                    className="absolute -top-2 -right-2 text-white text-xl font-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                    style={{ backgroundColor: GRADE_STYLES[result.grade].bg }}
+                    data-testid="badge-demo-grade"
+                  >
                     {result.grade === 'Needs Work' ? 'NW' : result.grade}
                   </div>
                 </div>
                 
                 <div className="text-center sm:text-left">
                   <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Opportunity Level</p>
-                  <h4 className={`text-2xl font-bold ${GRADE_COLORS[result.grade].text}`} data-testid="text-demo-opportunity">
+                  <h4 
+                    className="text-2xl font-bold"
+                    style={{ color: GRADE_STYLES[result.grade].text }}
+                    data-testid="text-demo-opportunity"
+                  >
                     {result.opportunity}
                   </h4>
                   <p className="text-white/70 text-sm mt-2 max-w-xs">

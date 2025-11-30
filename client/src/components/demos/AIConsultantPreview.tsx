@@ -151,7 +151,7 @@ export function AIConsultantPreview() {
                 readOnly
                 data-testid="input-demo-chat"
               />
-              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white shrink-0">
+              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white shrink-0" data-testid="button-demo-send">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
