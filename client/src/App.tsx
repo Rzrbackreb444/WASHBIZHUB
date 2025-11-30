@@ -1199,13 +1199,13 @@ function AppContent() {
           <DeferredAnalytics />
         </Suspense>
         <NavigationMenu />
-        <div className="flex-1">
+        <main id="main-content" role="main" className="flex-1">
           <RouteErrorBoundary>
             <Suspense fallback={<LoadingFallback />}>
               <Router />
             </Suspense>
           </RouteErrorBoundary>
-        </div>
+        </main>
         <Footer />
       </div>
       <DeferredAIChatWidget />

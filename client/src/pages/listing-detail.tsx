@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,143 @@ import {
 import { SEO } from '@/components/SEO';
 import ReactMarkdown from 'react-markdown';
 import type { Listing, ListingMedia } from '@shared/schema';
+
+function generateListingStructuredData(listing: Listing, baseUrl: string) {
+  if (!listing) return null;
+
+  const price = listing.priceInUSD ? parseFloat(listing.priceInUSD) : undefined;
+  const originalPrice = listing.priceOriginal ? parseFloat(listing.priceOriginal) : undefined;
+  const displayPrice = originalPrice || price;
+  const currency = listing.currency || 'USD';
+
+  const addressLocality = listing.city || listing.generalLocation || undefined;
+  const addressRegion = listing.region || undefined;
+  const addressCountry = listing.country || 'US';
+  const hasAddress = addressLocality || addressRegion;
+
+  const listingUrl = `${baseUrl}/listing/${listing.slug || listing.id}`;
+  const isLaundromat = listing.businessType === 'laundromat';
+
+  const localBusinessSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": isLaundromat ? ["LocalBusiness", "Laundromat"] : "LocalBusiness",
+    "@id": listingUrl,
+    "name": listing.title,
+    "description": listing.tagline || listing.description?.substring(0, 300) || `${listing.businessType} business for sale`,
+    "url": listingUrl,
+    "image": listing.featuredImage || `${baseUrl}/washbizhub-logo.png`,
+    ...(hasAddress ? {
+      "address": {
+        "@type": "PostalAddress",
+        ...(addressLocality && { "addressLocality": addressLocality }),
+        ...(addressRegion && { "addressRegion": addressRegion }),
+        "addressCountry": addressCountry
+      }
+    } : {}),
+    ...(listing.latitude && listing.longitude ? {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": parseFloat(listing.latitude as string),
+        "longitude": parseFloat(listing.longitude as string)
+      }
+    } : {}),
+    ...(displayPrice ? {
+      "priceRange": displayPrice >= 1000000 ? "$$$$$" : displayPrice >= 500000 ? "$$$$" : displayPrice >= 250000 ? "$$$" : "$$"
+    } : {}),
+    "potentialAction": {
+      "@type": "ViewAction",
+      "target": listingUrl
+    }
+  };
+
+  const productSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": listing.title,
+    "description": listing.tagline || listing.description?.substring(0, 300) || `${listing.businessType} business for sale`,
+    "url": listingUrl,
+    "image": listing.featuredImage || `${baseUrl}/washbizhub-logo.png`,
+    "category": listing.businessType,
+    "brand": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    ...(displayPrice ? {
+      "offers": listing.ownerFinancing ? {
+        "@type": "AggregateOffer",
+        "priceCurrency": currency,
+        "lowPrice": listing.downPaymentPercent 
+          ? Math.round(displayPrice * (listing.downPaymentPercent / 100)) 
+          : displayPrice,
+        "highPrice": displayPrice,
+        "offerCount": 2,
+        "availability": listing.status === 'active' ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+        "seller": {
+          "@type": "Organization",
+          "name": "WashBizHub",
+          "url": baseUrl
+        }
+      } : {
+        "@type": "Offer",
+        "price": displayPrice,
+        "priceCurrency": currency,
+        "availability": listing.status === 'active' ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+        "priceValidUntil": listing.expiresAt 
+          ? new Date(listing.expiresAt).toISOString().split('T')[0] 
+          : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        "seller": {
+          "@type": "Organization",
+          "name": "WashBizHub",
+          "url": baseUrl
+        }
+      }
+    } : {})
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": baseUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Listings",
+        "item": `${baseUrl}/listings-hub`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": listing.title,
+        "item": listingUrl
+      }
+    ]
+  };
+
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": listing.title,
+    "description": listing.tagline || listing.description?.substring(0, 160) || '',
+    "url": listingUrl,
+    "mainEntity": {
+      "@id": listingUrl
+    },
+    ...(listing.listedAt ? {
+      "datePublished": new Date(listing.listedAt).toISOString()
+    } : {}),
+    "breadcrumb": {
+      "@id": `${listingUrl}#breadcrumb`
+    }
+  };
+
+  return [localBusinessSchema, productSchema, breadcrumbSchema, webPageSchema];
+}
 
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -78,6 +215,12 @@ export default function ListingDetail() {
 
   const defaultImage = 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=1200&h=800&fit=crop';
 
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com';
+  const structuredData = useMemo(() => 
+    listing ? generateListingStructuredData(listing, baseUrl) : null, 
+    [listing, baseUrl]
+  );
+
   if (loadingListing) {
     return (
       <div className="min-h-screen bg-background">
@@ -132,6 +275,17 @@ export default function ListingDetail() {
         title={`${listing.title} | ${formatPrice(listing.priceOriginal || listing.priceInUSD)} | WashBizHub`}
         description={listing.tagline || listing.description?.substring(0, 160) || ''}
         canonicalUrl={`/listing/${listing.slug || listing.id}`}
+        ogType="product"
+        ogImage={listing.featuredImage || undefined}
+        keywords={[
+          listing.businessType,
+          'business for sale',
+          listing.city || '',
+          listing.region || '',
+          'laundromat investment',
+          listing.ownerFinancing ? 'owner financing' : ''
+        ].filter(Boolean)}
+        structuredData={structuredData || undefined}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-[#0a0f1a] to-background">
