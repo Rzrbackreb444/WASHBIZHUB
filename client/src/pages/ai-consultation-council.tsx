@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
+import { useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,12 +116,18 @@ const VERDICT_COLORS: Record<string, string> = {
   "AVOID": "bg-red-500",
 };
 
+const FORM_STORAGE_KEY = "consultation_form_data";
+const TIER_STORAGE_KEY = "consultation_selected_tier";
+
 export default function AIConsultationCouncil() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
+  const searchString = useSearch();
   const [selectedTier, setSelectedTier] = useState<string>("professional");
   const [step, setStep] = useState<"select" | "input" | "processing" | "results">("select");
   const [consultationResult, setConsultationResult] = useState<ConsultationResult | null>(null);
   const [processingProgress, setProcessingProgress] = useState(0);
+  const [paymentVerified, setPaymentVerified] = useState(false);
 
   const [formData, setFormData] = useState({
     address: "",
@@ -149,6 +156,68 @@ export default function AIConsultationCouncil() {
   const { data: tiers, isLoading: tiersLoading } = useQuery<ConsultationTier[]>({
     queryKey: ["/api/consultation-council/tiers"],
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const sessionId = params.get("session_id");
+    const success = params.get("success");
+
+    if (sessionId && success === "true" && !paymentVerified) {
+      setPaymentVerified(true);
+
+      const savedFormData = sessionStorage.getItem(FORM_STORAGE_KEY);
+      const savedTier = sessionStorage.getItem(TIER_STORAGE_KEY);
+
+      if (savedFormData && savedTier) {
+        const parsedFormData = JSON.parse(savedFormData);
+        setFormData(parsedFormData);
+        setSelectedTier(savedTier);
+        setStep("processing");
+        setProcessingProgress(0);
+
+        toast({
+          title: "Payment Successful",
+          description: "Starting your AI Consultation Council analysis...",
+        });
+
+        const progressInterval = setInterval(() => {
+          setProcessingProgress((prev) => {
+            if (prev >= 90) {
+              clearInterval(progressInterval);
+              return 90;
+            }
+            return prev + Math.random() * 15;
+          });
+        }, 500);
+
+        consultationMutation.mutate({ ...parsedFormData, tier: savedTier });
+
+        sessionStorage.removeItem(FORM_STORAGE_KEY);
+        sessionStorage.removeItem(TIER_STORAGE_KEY);
+
+        navigate("/ai-consultation", { replace: true });
+      } else {
+        toast({
+          title: "Session Expired",
+          description: "Please fill in your property details again.",
+          variant: "destructive",
+        });
+        setStep("select");
+      }
+    }
+
+    if (params.get("canceled") === "true") {
+      toast({
+        title: "Payment Canceled",
+        description: "Your consultation was not purchased.",
+        variant: "destructive",
+      });
+      const savedTier = sessionStorage.getItem(TIER_STORAGE_KEY);
+      if (savedTier) setSelectedTier(savedTier);
+      setStep("input");
+      navigate("/ai-consultation", { replace: true });
+    }
+  }, [searchString, paymentVerified, navigate, toast]);
 
   const consultationMutation = useMutation({
     mutationFn: async (data: typeof formData & { tier: string }) => {
@@ -214,6 +283,12 @@ export default function AIConsultationCouncil() {
           if (error) {
             toast({ title: "Payment Error", description: error.message, variant: "destructive" });
           }
+        } else {
+          toast({
+            title: "Payment Configuration Error",
+            description: "Stripe is not configured correctly. Please contact support.",
+            variant: "destructive",
+          });
         }
       }
     },
@@ -261,6 +336,8 @@ export default function AIConsultationCouncil() {
 
     const tier = tiers?.find(t => t.id === selectedTier);
     if (tier && tier.price > 0) {
+      sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+      sessionStorage.setItem(TIER_STORAGE_KEY, selectedTier);
       checkoutMutation.mutate(selectedTier);
     } else {
       handleStartAnalysis();
@@ -730,14 +807,14 @@ export default function AIConsultationCouncil() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6 mb-8">
-              <Card className={`${VERDICT_COLORS[consultationResult.finalRecommendation.verdict]} text-white`}>
+              <Card className={`${VERDICT_COLORS[consultationResult.finalRecommendation?.verdict ?? "HOLD"]} text-white`}>
                 <CardContent className="py-8 text-center">
                   <h2 className="text-lg font-medium opacity-90">AI Council Verdict</h2>
                   <p className="text-4xl font-bold my-2" data-testid="text-verdict">
-                    {consultationResult.finalRecommendation.verdict}
+                    {consultationResult.finalRecommendation?.verdict ?? "Analyzing..."}
                   </p>
                   <p className="text-lg opacity-90">
-                    {consultationResult.finalRecommendation.confidence}% Confidence
+                    {consultationResult.finalRecommendation?.confidence ?? 0}% Confidence
                   </p>
                 </CardContent>
               </Card>
@@ -746,10 +823,10 @@ export default function AIConsultationCouncil() {
                 <CardContent className="py-8 text-center">
                   <h2 className="text-lg font-medium text-muted-foreground">CLEANBI Score</h2>
                   <p className="text-4xl font-bold my-2" data-testid="text-cleanbi-score">
-                    {consultationResult.calculatorResults.cleanbi.score}/100
+                    {consultationResult.calculatorResults?.cleanbi?.score ?? "N/A"}/100
                   </p>
                   <Badge variant="secondary" className="text-lg px-4 py-1">
-                    Grade: {consultationResult.calculatorResults.cleanbi.grade}
+                    Grade: {consultationResult.calculatorResults?.cleanbi?.grade ?? "N/A"}
                   </Badge>
                 </CardContent>
               </Card>
@@ -758,10 +835,10 @@ export default function AIConsultationCouncil() {
                 <CardContent className="py-8 text-center">
                   <h2 className="text-lg font-medium text-muted-foreground">Projected ROI</h2>
                   <p className="text-4xl font-bold my-2" data-testid="text-roi">
-                    {consultationResult.calculatorResults.roi.annualROI.toFixed(1)}%
+                    {consultationResult.calculatorResults?.roi?.annualROI?.toFixed(1) ?? "N/A"}%
                   </p>
                   <p className="text-muted-foreground">
-                    Breakeven: {consultationResult.calculatorResults.breakeven.months} months
+                    Breakeven: {consultationResult.calculatorResults?.breakeven?.months ?? "N/A"} months
                   </p>
                 </CardContent>
               </Card>
@@ -770,7 +847,7 @@ export default function AIConsultationCouncil() {
             <div className="bg-muted/50 border rounded-lg p-6 mb-8">
               <h3 className="text-xl font-bold mb-4">Executive Summary</h3>
               <p className="text-muted-foreground mb-6">
-                {consultationResult.finalRecommendation.summary}
+                {consultationResult.finalRecommendation?.summary ?? "Analysis in progress..."}
               </p>
 
               <div className="grid md:grid-cols-3 gap-6">
@@ -780,7 +857,7 @@ export default function AIConsultationCouncil() {
                     Key Strengths
                   </h4>
                   <ul className="space-y-2">
-                    {consultationResult.finalRecommendation.keyStrengths.map((strength, i) => (
+                    {(consultationResult.finalRecommendation?.keyStrengths ?? []).map((strength, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                         <span className="text-green-500">+</span>
                         {strength}
@@ -795,7 +872,7 @@ export default function AIConsultationCouncil() {
                     Key Risks
                   </h4>
                   <ul className="space-y-2">
-                    {consultationResult.finalRecommendation.keyRisks.map((risk, i) => (
+                    {(consultationResult.finalRecommendation?.keyRisks ?? []).map((risk, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                         <span className="text-orange-500">!</span>
                         {risk}
@@ -810,7 +887,7 @@ export default function AIConsultationCouncil() {
                     Action Items
                   </h4>
                   <ol className="space-y-2">
-                    {consultationResult.finalRecommendation.actionItems.map((item, i) => (
+                    {(consultationResult.finalRecommendation?.actionItems ?? []).map((item, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                         <span className="font-medium text-accent">{i + 1}.</span>
                         {item}
