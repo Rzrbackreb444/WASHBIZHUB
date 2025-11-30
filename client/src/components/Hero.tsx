@@ -92,7 +92,6 @@ export function Hero() {
           className="w-full h-full object-cover opacity-20"
           loading="eager"
           decoding="async"
-          fetchPriority="high"
           width={1920}
           height={1080}
           data-testid="img-hero-background"
