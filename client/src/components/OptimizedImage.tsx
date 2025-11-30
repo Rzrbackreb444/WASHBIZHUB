@@ -8,6 +8,7 @@ interface OptimizedImageProps {
   height?: number | string;
   priority?: boolean;
   sizes?: string;
+  srcSet?: string;
   "data-testid"?: string;
   onLoad?: () => void;
   onError?: () => void;
@@ -25,6 +26,7 @@ function OptimizedImageComponent({
   height,
   priority = false,
   sizes = "100vw",
+  srcSet,
   "data-testid": testId,
   onLoad,
   onError,
@@ -33,6 +35,22 @@ function OptimizedImageComponent({
   const [isInView, setIsInView] = useState(priority);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (!alt || alt.trim() === "") {
+      console.warn(
+        `[OptimizedImage] Missing or empty alt text for image: ${src}. Please provide descriptive alt text for accessibility.`
+      );
+    }
+  }, [alt, src]);
+
+  useEffect(() => {
+    if (!width || !height) {
+      console.warn(
+        `[OptimizedImage] Missing width or height for image: ${src}. Providing explicit dimensions prevents layout shift.`
+      );
+    }
+  }, [width, height, src]);
 
   useEffect(() => {
     if (priority) {
@@ -70,6 +88,20 @@ function OptimizedImageComponent({
     onError?.();
   };
 
+  const generateSrcSet = (imageSrc: string): string | undefined => {
+    if (srcSet) return srcSet;
+    
+    if (!imageSrc || imageSrc.startsWith("data:")) return undefined;
+    
+    if (imageSrc.includes("unsplash.com")) {
+      return `${imageSrc}&w=400 400w, ${imageSrc}&w=800 800w, ${imageSrc}&w=1200 1200w`;
+    }
+    
+    return undefined;
+  };
+
+  const computedSrcSet = isInView ? generateSrcSet(src) : undefined;
+
   if (hasError) {
     return (
       <div
@@ -77,6 +109,8 @@ function OptimizedImageComponent({
         className={`${className} flex items-center justify-center bg-slate-800 text-slate-400 text-sm`}
         style={{ width, height }}
         data-testid={testId}
+        role="img"
+        aria-label={alt || "Image unavailable"}
       >
         <span>Image unavailable</span>
       </div>
@@ -87,7 +121,8 @@ function OptimizedImageComponent({
     <img
       ref={imgRef}
       src={isInView ? src : PLACEHOLDER_SVG}
-      alt={alt}
+      srcSet={computedSrcSet}
+      alt={alt || ""}
       className={`${className} transition-opacity duration-300 ${
         isLoaded ? "opacity-100" : "opacity-0"
       }`}
@@ -123,6 +158,14 @@ export function OptimizedBackgroundImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!alt || alt.trim() === "") {
+      console.warn(
+        `[OptimizedBackgroundImage] Missing or empty alt text for image: ${src}. Please provide descriptive alt text for accessibility.`
+      );
+    }
+  }, [alt, src]);
 
   useEffect(() => {
     if (priority) {
@@ -168,7 +211,7 @@ export function OptimizedBackgroundImage({
         backgroundPosition: "center",
       }}
       role="img"
-      aria-label={alt}
+      aria-label={alt || "Background image"}
       data-testid={testId}
     >
       {children}
