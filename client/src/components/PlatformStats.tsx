@@ -199,7 +199,7 @@ export function EnterpriseFeatures() {
         <div className="text-center mb-12">
           <Badge className="mb-4 bg-[#001F3F]/10 text-[#001F3F] dark:bg-white/10 dark:text-white border-[#001F3F]/20 dark:border-white/20">
             <Award className="w-3 h-3 mr-1" />
-            Enterprise-Grade Platform
+            Professional Tools
           </Badge>
           <h2 
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4"
