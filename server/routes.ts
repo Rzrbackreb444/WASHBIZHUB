@@ -9,6 +9,7 @@ import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import adminRoutes from "./admin-routes";
 import calculatorRoutes from "./calculator-routes";
+import cleanbiExplorerRoutes from "./cleanbi-explorer-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -238,6 +239,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== ADMIN DASHBOARD ====================
   app.use("/api/admin", adminRoutes);
   app.use("/api/calculators", calculatorRoutes);
+  app.use("/api/cleanbi-explorer", cleanbiExplorerRoutes);
   
   // ==================== AUTH ====================
   
