@@ -1040,6 +1040,14 @@ export const courses = pgTable("courses", {
   totalEnrollments: integer("total_enrollments").default(0).notNull(),
   averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  // Academy tier fields
+  tierLevel: integer("tier_level"), // 1=FREE, 2=$199, 3=$399, 4=$799
+  prerequisiteCourseId: varchar("prerequisite_course_id"), // Must complete before enrolling
+  bundleGroupId: text("bundle_group_id"), // Group courses for bundle pricing
+  isFree: boolean("is_free").default(false).notNull(), // Free course (no payment)
+  autoEnroll: boolean("auto_enroll").default(false).notNull(), // Auto-enroll on signup
+  certificateEnabled: boolean("certificate_enabled").default(false).notNull(), // Issue certificate on completion
+  certificateTitle: text("certificate_title"), // "Certified Laundry Technician" etc.
 });
 
 export const insertCourseSchema = createInsertSchema(courses).omit({
@@ -1049,6 +1057,13 @@ export const insertCourseSchema = createInsertSchema(courses).omit({
   createdAt: true,
 }).extend({
   price: z.string(),
+  tierLevel: z.number().optional(),
+  prerequisiteCourseId: z.string().optional(),
+  bundleGroupId: z.string().optional(),
+  isFree: z.boolean().optional(),
+  autoEnroll: z.boolean().optional(),
+  certificateEnabled: z.boolean().optional(),
+  certificateTitle: z.string().optional(),
 });
 
 export type InsertCourse = z.infer<typeof insertCourseSchema>;
