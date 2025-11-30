@@ -637,7 +637,7 @@ export default function CleanBIExplorer() {
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
         {/* Left Sidebar */}
         <div 
-          className={`absolute top-52 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-96" : "w-0 overflow-hidden"}`}
+          className={`absolute top-52 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-[400px]" : "w-0 overflow-hidden"}`}
         >
           <ScrollArea className="flex-1">
 
@@ -1016,14 +1016,14 @@ export default function CleanBIExplorer() {
         {/* Sidebar Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-56 z-30 w-6 h-12 bg-[#12121f] border border-white/10 rounded-r-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all ${sidebarOpen ? "left-96" : "left-0"}`}
+          className={`absolute top-56 z-30 w-6 h-12 bg-[#12121f] border border-white/10 rounded-r-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all ${sidebarOpen ? "left-[400px]" : "left-0"}`}
           data-testid="button-toggle-sidebar"
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
 
         {/* Main Map Area */}
-        <div className={`flex-1 relative transition-all duration-300 ${sidebarOpen ? "ml-96" : "ml-0"}`}>
+        <div className={`flex-1 relative transition-all duration-300 ${sidebarOpen ? "ml-[400px]" : "ml-0"}`}>
           <div 
             ref={mapRef}
             className="absolute inset-0"
