@@ -203,6 +203,7 @@ const AcquisitionsFunding = lazy(() => import("@/pages/acquisitions-funding"));
 // Listings & Vendors
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
 const VendorsHub = lazy(() => import("@/pages/vendors-hub"));
+const AddListing = lazy(() => import("@/pages/add-listing"));
 const ListingForm = lazy(() => import("@/pages/listing-form"));
 const VendorForm = lazy(() => import("@/pages/vendor-form"));
 const ListingDetail = lazy(() => import("@/pages/listing-detail"));
@@ -828,6 +829,11 @@ function Router() {
       <Route path="/listings/:listingId">
         <Suspense fallback={<LoadingFallback />}>
           <ListingDetail />
+        </Suspense>
+      </Route>
+      <Route path="/add-listing">
+        <Suspense fallback={<LoadingFallback />}>
+          <AddListing />
         </Suspense>
       </Route>
       <Route path="/listing-form">

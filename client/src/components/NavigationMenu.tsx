@@ -101,8 +101,9 @@ const OPERATE_LINKS = [
 ];
 
 const PARTNER_LINKS = [
-  { href: "/listing-form", label: "List Your Laundromat", icon: Store, description: "Sell your laundromat business", highlight: true, badge: "FREE", featured: true },
-  { href: "/list-equipment", label: "List Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
+  { href: "/add-listing", label: "Add a Listing", icon: Store, description: "List laundromats, equipment, services or products", highlight: true, badge: "NEW", featured: true },
+  { href: "/listing-form", label: "Sell Your Laundromat", icon: Store, description: "Sell your laundromat business", badge: "FREE" },
+  { href: "/list-equipment", label: "Sell Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
   { href: "/list-supplies", label: "List Supplies", icon: Package, description: "Sell detergents, chemicals & products" },
   { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us as a supplier" },
   { href: "/advertise", label: "Advertise With Us", icon: TrendingUp, description: "Reach 72,000+ laundromat professionals" },
@@ -143,7 +144,8 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
   "/partner": {
     label: "Partner With Us",
     links: [
-      { href: "/listing-form", label: "List Business" },
+      { href: "/add-listing", label: "Add a Listing" },
+      { href: "/listing-form", label: "Sell Laundromat" },
       { href: "/vendor-form", label: "Become Vendor" },
       { href: "/advertise", label: "Advertise" },
     ],
