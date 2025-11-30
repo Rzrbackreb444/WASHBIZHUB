@@ -2679,7 +2679,15 @@ Create engaging, well-researched content that provides value to laundromat owner
     try {
       const status = req.query.status as string | undefined;
       const state = req.query.state as string | undefined;
+      const slug = req.query.slug as string | undefined;
+      
       const listings = await storage.getListings(status, state);
+      
+      if (slug) {
+        const filtered = listings.filter(l => l.slug === slug);
+        return res.json(filtered);
+      }
+      
       res.json(listings);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2901,6 +2909,39 @@ Create engaging, well-researched content that provides value to laundromat owner
 
       await storage.deleteListingMedia(req.params.mediaId);
       res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/listings/:id/media/:mediaId", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only update media for your own listings" });
+      }
+
+      const media = await storage.getListingMediaItem(req.params.mediaId);
+      if (!media) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+
+      if (media.listingId !== req.params.id) {
+        return res.status(400).json({ message: "Media does not belong to this listing" });
+      }
+
+      const updates = req.body;
+      const updated = await storage.updateListingMedia(req.params.mediaId, updates);
+      res.json(updated);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
