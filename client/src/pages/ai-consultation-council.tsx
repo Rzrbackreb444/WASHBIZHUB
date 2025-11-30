@@ -933,7 +933,7 @@ export default function AIConsultationCouncil() {
 
               <TabsContent value="experts">
                 <div className="grid md:grid-cols-2 gap-4">
-                  {consultationResult.expertAnalyses.map((expert, i) => (
+                  {(consultationResult.expertAnalyses ?? []).map((expert, i) => (
                     <Card key={i}>
                       <CardHeader className="pb-2">
                         <div className="flex items-center gap-3">
@@ -982,10 +982,10 @@ export default function AIConsultationCouncil() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-2xl font-bold">
-                        ${consultationResult.calculatorResults.valuation.estimatedValue.toLocaleString()}
+                        ${(consultationResult.calculatorResults?.valuation?.estimatedValue ?? 0).toLocaleString()}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {consultationResult.calculatorResults.valuation.multiple.toFixed(1)}x Multiple
+                        {(consultationResult.calculatorResults?.valuation?.multiple ?? 0).toFixed(1)}x Multiple
                       </p>
                     </CardContent>
                   </Card>
@@ -999,10 +999,10 @@ export default function AIConsultationCouncil() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-2xl font-bold">
-                        {consultationResult.calculatorResults.roi.annualROI.toFixed(1)}% Annual
+                        {(consultationResult.calculatorResults?.roi?.annualROI ?? 0).toFixed(1)}% Annual
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {consultationResult.calculatorResults.roi.monthlyROI.toFixed(2)}% Monthly
+                        {(consultationResult.calculatorResults?.roi?.monthlyROI ?? 0).toFixed(2)}% Monthly
                       </p>
                     </CardContent>
                   </Card>
@@ -1016,10 +1016,10 @@ export default function AIConsultationCouncil() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-2xl font-bold">
-                        {consultationResult.calculatorResults.breakeven.months} months
+                        {consultationResult.calculatorResults?.breakeven?.months ?? "N/A"} months
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {consultationResult.calculatorResults.breakeven.years.toFixed(1)} years
+                        {(consultationResult.calculatorResults?.breakeven?.years ?? 0).toFixed(1)} years
                       </p>
                     </CardContent>
                   </Card>
@@ -1033,14 +1033,14 @@ export default function AIConsultationCouncil() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
-                        {Object.entries(consultationResult.calculatorResults.cleanbi.factors || {})
+                        {Object.entries(consultationResult.calculatorResults?.cleanbi?.factors || {})
                           .slice(0, 4)
                           .map(([key, value]) => (
                             <div key={key} className="flex justify-between text-sm">
                               <span className="text-muted-foreground capitalize">
                                 {key.replace(/([A-Z])/g, " $1").trim()}
                               </span>
-                              <span>{(value as number).toFixed(0)}</span>
+                              <span>{(value as number)?.toFixed?.(0) ?? value}</span>
                             </div>
                           ))}
                       </div>
@@ -1096,11 +1096,11 @@ export default function AIConsultationCouncil() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
-                          {consultationResult.pricingStrategy.recommendations?.slice(0, 3).map((rec: any, i: number) => (
+                          {(consultationResult.pricingStrategy?.recommendations ?? []).slice(0, 3).map((rec: any, i: number) => (
                             <div key={i} className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{rec.machineType}</span>
+                              <span className="text-muted-foreground">{rec?.machineType ?? "N/A"}</span>
                               <span>
-                                ${rec.recommendedBase} (Peak: ${rec.peakPrice})
+                                ${rec?.recommendedBase ?? 0} (Peak: ${rec?.peakPrice ?? 0})
                               </span>
                             </div>
                           ))}
@@ -1114,8 +1114,8 @@ export default function AIConsultationCouncil() {
 
             <div className="text-center text-sm text-muted-foreground">
               <p>
-                AI Processing Cost: ${consultationResult.totalCost.toFixed(4)} |
-                Generated: {new Date(consultationResult.timestamp).toLocaleString()}
+                AI Processing Cost: ${(consultationResult.totalCost ?? 0).toFixed(4)} |
+                Generated: {consultationResult.timestamp ? new Date(consultationResult.timestamp).toLocaleString() : "Just now"}
               </p>
             </div>
           </div>
