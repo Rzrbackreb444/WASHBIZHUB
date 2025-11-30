@@ -75,7 +75,7 @@ const solutionCards = [
   {
     title: 'Evaluate an Investment',
     subtitle: 'Before You Buy',
-    metrics: ['17-factor CLEANBI scoring', '$1.2B+ deals analyzed', '5-min due diligence reports'],
+    metrics: ['17-factor CLEANBI scoring', '220+ countries supported', '5-min due diligence reports'],
     cta: 'Run Free Analysis',
     link: '/cleanbi-auto',
     featured: true
@@ -84,7 +84,7 @@ const solutionCards = [
     title: 'Operate & Optimize',
     subtitle: 'For Current Owners',
     metrics: ['AI predictive maintenance', 'Dynamic pricing engine', 'Real-time POS analytics'],
-    cta: 'Start Free Trial',
+    cta: 'Try Limited Demo',
     link: '/pos-command-center',
     featured: false
   },
@@ -107,9 +107,9 @@ const solutionCards = [
 ];
 
 const stats = [
-  { value: '72,000+', label: 'Laundromat Owners' },
-  { value: '$1.2B+', label: 'In Deals Analyzed' },
-  { value: '41%', label: 'Average ROI Boost' },
+  { value: '72,000+', label: 'Community Members' },
+  { value: '220+', label: 'Countries Covered' },
+  { value: '80+', label: 'Calculators & Tools' },
   { value: '2,200+', label: 'Error Codes' }
 ];
 
