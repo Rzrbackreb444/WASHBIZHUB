@@ -1,0 +1,106 @@
+import { useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Grid, PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { Radar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import html2pdf from 'html2pdf.js';
+
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+
+function App() {
+  const [machines, setMachines] = useState([]);
+  const [revenue, setRevenue] = useState(0);
+  const [cleanbi, setCleanbi] = useState(0);
+  const [price, setPrice] = useState(3.5);
+
+  const addMachine = (brand, capacity) => {
+    const newMachine = { brand, capacity, pos: [Math.random() * 10, 0, Math.random() * 10] };
+    setMachines([...machines, newMachine]);
+    setRevenue(prev => prev + (capacity * 400)); // Fake calc
+    setCleanbi(prev => Math.min(100, prev + (capacity / 10))); // Fake boost
+  };
+
+  const optimizePricing = () => {
+    const newPrice = price * 1.25;
+    setPrice(newPrice);
+    setRevenue(prev => prev * 1.25);
+  };
+
+  const exportPDF = () => {
+    html2pdf().from(document.getElementById('export-area')).save('washbizhub-design.pdf');
+  };
+
+  const radarData = {
+    labels: ['Capacity', 'Revenue', 'CLEANBI', 'Pricing', 'ROI'],
+    datasets: [{
+      label: 'Your Store',
+      data: [machines.length * 10, revenue / 10000, cleanbi, price * 10, revenue / 10000 * 1.2],
+      backgroundColor: 'rgba(57,204,204,0.2)',
+      borderColor: '#39CCCC',
+      borderWidth: 4,
+    }],
+  };
+
+  const radarOptions = { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } };
+
+  return (
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-navy-900/95 backdrop-blur border-b border-teal-400/30">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-teal-400 font-bebas">WashBizHub Design Studio</h1>
+          <div className="flex gap-6">
+            <button onClick={optimizePricing} className="text-white hover:text-teal-400">Optimize Pricing</button>
+            <button onClick={exportPDF} className="text-white hover:text-teal-400">Export PDF</button>
+            <a href="/trial" className="bg-teal-400 text-navy-900 px-8 py-3 rounded-lg font-bold">Launch in POS</a>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex h-screen pt-20">
+        {/* 3D Canvas */}
+        <div className="flex-1">
+          <Canvas>
+            <PerspectiveCamera makeDefault position={[20, 20, 20]} />
+            <OrbitControls />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[10, 10, 5]} />
+            <Grid infiniteGrid fadeDistance={50} />
+            {machines.map((m, i) => {
+              const { scene } = useGLTF(`/${m.brand}-${m.capacity}.glb`);
+              return <primitive key={i} object={scene} position={m.pos} />;
+            })}
+          </Canvas>
+        </div>
+
+        {/* Sidebar */}
+        <div className="w-96 bg-navy-800 p-8 overflow-y-auto">
+          <h2 className="text-3xl font-bebas text-teal-400 mb-8">Drag Machines In</h2>
+          <div className="grid grid-cols-1 gap-6">
+            <button onClick={() => addMachine('speedqueen', 60)} className="bg-teal-400/20 p-6 rounded-xl hover:bg-teal-400/40 transition">
+              Speed Queen 60 lb · +$18,400/mo
+            </button>
+            <button onClick={() => addMachine('dexter', 900)} className="bg-teal-400/20 p-6 rounded-xl hover:bg-teal-400/40 transition">
+              Dexter T-900 · +$24,000/mo
+            </button>
+            <!-- Add 40+ more -->
+          </div>
+
+          <div className="mt-12 bg-teal-400/10 rounded-2xl p-8 text-center" id="export-area">
+            <h3 className="text-4xl font-bold">Revenue: ${revenue.toLocaleString()}/mo</h3>
+            <p className="text-2xl mt-4">CLEANBI: {cleanbi}/100</p>
+            <p className="text-2xl mt-4">Optimal Price: ${price}</p>
+            <Radar data={radarData} options={radarOptions} className="mt-8" />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
