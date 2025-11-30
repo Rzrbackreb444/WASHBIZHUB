@@ -247,6 +247,7 @@ const Consultation = lazy(() => import("@/pages/consultation"));
 const AIConsultationCouncil = lazy(() => import("@/pages/ai-consultation-council"));
 const ConsultationLanding = lazy(() => import("@/pages/consultation-landing"));
 const InsurancePartners = lazy(() => import("@/pages/insurance-partners"));
+const LarryLarsen = lazy(() => import("@/pages/larry-larsen"));
 
 // Order & Londr
 const LaundryOrderPortal = lazy(() => import("@/pages/laundry-order-portal"));
@@ -836,6 +837,11 @@ function Router() {
       <Route path="/ai-consultation">
         <Suspense fallback={<LoadingFallback />}>
           <AIConsultationCouncil />
+        </Suspense>
+      </Route>
+      <Route path="/larry-larsen">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarryLarsen />
         </Suspense>
       </Route>
 

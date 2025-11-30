@@ -69,14 +69,13 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
-  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts + Larry Larsen analyze your deal from $49", featured: true, highlight: true, badge: "HOT" },
+  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts analyze your deal from $49", featured: true, highlight: true, badge: "HOT" },
+  { href: "/larry-larsen", label: "Larry Larsen", icon: Users, description: "50+ year industry veteran consultant", highlight: true },
   { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
-  { href: "/calculators", label: "Startup Costs Calculator", icon: Receipt, description: "Estimate total startup costs & equipment needs" },
   { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
-  { href: "/academy", label: "Laundry Tech Academy", icon: GraduationCap, description: "4-tier certification from FREE to Master Tech", highlight: true, badge: "NEW" },
+  { href: "/academy", label: "Laundry Tech Academy", icon: GraduationCap, description: "4-tier certification from FREE to Master Tech", badge: "NEW" },
   { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide from experts" },
   { href: "/blog", label: "Blog & Education", icon: Lightbulb, description: "Articles, guides, and industry insights" },
-  { href: "/consultation", label: "Book Consultation", icon: Phone, description: "1-on-1 expert guidance for your journey" },
 ];
 
 const EVALUATE_LINKS = [
