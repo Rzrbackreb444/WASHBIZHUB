@@ -82,13 +82,13 @@ function AnimatedCounter({ end, duration, suffix }: CounterProps) {
 
 export function AnimatedStatsCounter() {
   return (
-    <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 border-y border-white/10" data-testid="section-animated-stats">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-16 sm:py-20 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 border-y border-gold-500/20" data-testid="section-animated-stats">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
             Trusted by the Industry's Best
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
+          <p className="text-gold-100/80 max-w-2xl mx-auto">
             Join thousands of laundromat owners, investors, and industry professionals 
             who rely on WashBizHub for data-driven decisions.
           </p>
@@ -100,10 +100,10 @@ export function AnimatedStatsCounter() {
             return (
               <div 
                 key={idx}
-                className="text-center group bg-white/5 rounded-xl p-4 border border-white/10"
+                className="text-center group bg-white/5 rounded-xl p-4 border border-gold-500/10 hover-elevate transition-all"
                 data-testid={`stat-item-${idx}`}
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-black/30 mb-3">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-navy-950/50 mb-3 border border-gold-500/10">
                   <Icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
                 <div className={`text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}>
@@ -113,7 +113,7 @@ export function AnimatedStatsCounter() {
                     suffix={stat.suffix}
                   />
                 </div>
-                <p className="text-gray-400 text-xs font-medium">
+                <p className="text-gold-100/60 text-xs font-medium">
                   {stat.label}
                 </p>
               </div>

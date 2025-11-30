@@ -119,19 +119,77 @@ export function Hero() {
     };
   };
 
-  const runDemo = (inputAddress?: string) => {
+  const runDemo = async (inputAddress?: string) => {
     const targetAddress = inputAddress || address;
     if (!targetAddress.trim()) return;
     if (inputAddress) setAddress(inputAddress);
     setStep('analyzing');
     setShowPredictions(false);
     
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/cleanbi-explorer/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: targetAddress, radius: 5 })
+      });
+      
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.analysis) {
+        const { analysis, competitors } = data;
+        const addressType = detectAddressType(targetAddress);
+        const gradeInfo = getGradeInfo(analysis.cleanbiScore);
+        
+        // Calculate revenue projections based on actual demographics
+        const washerCount = addressType === 'laundromat' ? 20 : 18;
+        const competitorFactor = Math.max(0.7, 1 - (competitors?.length || 0) * 0.03);
+        const incomeFactor = Math.min(1.3, (analysis.medianIncome || 50000) / 60000);
+        const densityFactor = Math.min(1.2, (analysis.populationDensity || 3000) / 4000);
+        
+        const tpd = analysis.cleanbiScore >= 85 ? 5.5 : analysis.cleanbiScore >= 70 ? 4.5 : analysis.cleanbiScore >= 55 ? 3.8 : 3.0;
+        const vend = 4.25;
+        const revenueBase = washerCount * tpd * vend * 360 * competitorFactor * incomeFactor * densityFactor;
+        
+        const demoResult: DemoResult = {
+          score: analysis.cleanbiScore,
+          grade: gradeInfo.grade,
+          opportunity: gradeInfo.opportunity,
+          addressType,
+          projections: addressType !== 'residential' ? {
+            revenueMin: Math.round(revenueBase * 0.85),
+            revenueMax: Math.round(revenueBase * 1.15),
+            valuationMin: Math.round(revenueBase * 0.22 * 4.5),
+            valuationMax: Math.round(revenueBase * 0.28 * 5.5)
+          } : null,
+          propertyMetrics: addressType === 'residential' ? {
+            estimatedValue: Math.round(analysis.medianIncome * 4),
+            monthlyRent: Math.round(analysis.medianIncome * 4 * 0.007),
+            capRate: 5 + Math.random() * 3
+          } : null
+        };
+        
+        setResult(demoResult);
+        setStep('results');
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error('CLEANBI API error:', error);
+      // Fallback to demo mode if API fails - notify user
+      toast({ 
+        title: "Using demo mode", 
+        description: "Live analysis unavailable. Showing estimated projections.",
+        variant: "default"
+      });
       const addressType = detectAddressType(targetAddress);
       const demoResult = generateRealisticScore(addressType);
       setResult(demoResult);
       setStep('results');
-    }, 2500);
+    }
   };
 
   const handleEmailCapture = async (action: 'trial' | 'report') => {

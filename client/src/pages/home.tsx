@@ -116,7 +116,7 @@ export default function Home() {
         
         {/* 2. TRUST PROOF - Compact social proof bar */}
         <section className="py-8 border-b border-border/50 bg-muted/30" data-testid="section-trust-proof">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {stats.map((stat, idx) => (
                 <div key={idx} className="text-center" data-testid={`stat-${idx}`}>
@@ -190,7 +190,7 @@ export default function Home() {
 
         {/* 4. SINGLE SPOTLIGHT CTA - CLEANBI + Platform value */}
         <section className="py-20 md:py-28 bg-gradient-to-b from-muted/20 to-background border-t border-border/50" data-testid="section-spotlight-cta">
-          <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
               <MapPin className="w-4 h-4" />
               Powered by Google Maps API
@@ -248,7 +248,7 @@ export default function Home() {
 
         {/* 5. SIMPLE FOOTER CTA */}
         <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
-          <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Ready to Make Smarter Decisions?
             </h2>

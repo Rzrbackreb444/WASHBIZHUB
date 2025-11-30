@@ -542,7 +542,7 @@ export function NavigationMenu() {
                 <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto p-0">
                   <SheetHeader className="p-4 border-b bg-navy-900 text-white">
                     <SheetTitle className="text-white flex items-center gap-2">
-                      <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" />
+                      <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" width={80} height={32} />
                     </SheetTitle>
                   </SheetHeader>
                   
