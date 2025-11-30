@@ -223,47 +223,49 @@ export default function Home() {
         <AnimatedStatsCounter />
 
         {/* Featured Expert: Larry Larsen */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900" data-testid="section-featured-expert">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-10">
+        <section className="py-20 bg-gradient-to-b from-slate-900 to-black border-y border-amber-500/20" data-testid="section-featured-expert">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
               <Badge className="mb-4 bg-amber-500/20 text-amber-400 border-amber-500/30">
                 <Award className="w-3 h-3 mr-1" />
                 Industry Partner
               </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
                 Work With a Proven Expert
               </h2>
-              <p className="text-white/60 max-w-2xl mx-auto">
+              <p className="text-gray-400 max-w-xl mx-auto">
                 Get personalized guidance from one of the most experienced professionals in the laundromat industry
               </p>
             </div>
             
-            <Card className="bg-gradient-to-r from-white/5 to-amber-500/10 border border-white/10 p-6 md:p-8 hover:border-amber-500/30 transition-all" data-testid="card-featured-expert">
-              <div className="flex flex-col lg:flex-row gap-8 items-center">
-                <div className="flex-shrink-0 text-center lg:text-left">
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center mx-auto lg:mx-0 mb-4">
-                    <span className="text-4xl md:text-5xl font-bold text-white">LL</span>
+            <div className="bg-black/50 border-2 border-amber-500/30 rounded-2xl p-8 md:p-10" data-testid="card-featured-expert">
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                {/* Avatar Section */}
+                <div className="flex-shrink-0 text-center">
+                  <div className="w-36 h-36 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/30">
+                    <span className="text-5xl font-bold text-white drop-shadow-lg">LL</span>
                   </div>
-                  <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-sm font-semibold">
-                    <Award className="w-4 h-4" />
-                    50+ Years Experience
-                  </div>
+                  <Badge className="bg-amber-500 text-black font-bold px-4 py-1">
+                    <Award className="w-4 h-4 mr-1" />
+                    50+ Years
+                  </Badge>
                 </div>
                 
-                <div className="flex-1 text-center lg:text-left">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                {/* Content Section */}
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-1">
                     Larry "Laundromat Larry" Larsen
                   </h3>
-                  <p className="text-accent font-semibold mb-4">
+                  <p className="text-amber-400 font-semibold text-lg mb-4">
                     WashBizHub Featured Consultant
                   </p>
-                  <p className="text-white/70 mb-6 max-w-2xl">
-                    With over five decades in the laundromat industry, Larry provides expert guidance on due diligence, store acquisitions, 
-                    equipment evaluation, lease analysis, and insurance. Based in Orange County, California, he's helped hundreds of 
-                    owners make smarter business decisions.
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    With over five decades in the laundromat industry, Larry provides expert guidance on due diligence, 
+                    store acquisitions, equipment evaluation, lease analysis, and insurance. Based in Orange County, California.
                   </p>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  {/* Services Grid */}
+                  <div className="grid grid-cols-2 gap-2 mb-6">
                     {[
                       'Due Diligence',
                       'Buyer Consulting',
@@ -274,29 +276,30 @@ export default function Home() {
                       'Expert Witness',
                       'Broker Services'
                     ].map((service, i) => (
-                      <div key={i} className="flex items-center gap-2 text-white/80 text-sm">
-                        <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-gray-200 text-sm bg-white/5 rounded-lg px-3 py-2">
+                        <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                         {service}
                       </div>
                     ))}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                     <Link href="/consultation">
-                      <Button className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold" data-testid="button-book-larry-consultation">
+                      <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold px-6" data-testid="button-book-larry-consultation">
                         <MessageCircle className="w-5 h-5 mr-2" />
                         Book Free Consultation
                       </Button>
                     </Link>
                     <Link href="/ai-consultation">
-                      <Button variant="outline" className="w-full sm:w-auto border-accent text-accent hover:bg-accent/10" data-testid="button-view-services">
+                      <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10" data-testid="button-view-services">
                         View All Services
                       </Button>
                     </Link>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
