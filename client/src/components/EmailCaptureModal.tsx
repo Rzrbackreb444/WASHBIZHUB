@@ -263,8 +263,8 @@ export function FloatingCTA() {
 
   return (
     <>
-      <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-4">
-        <div className="bg-white rounded-xl shadow-2xl border border-slate-200 p-4 max-w-xs">
+      <div className="hidden sm:block fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 max-w-xs">
           <button 
             onClick={() => setDismissed(true)}
             className="absolute top-2 right-2 text-slate-400 hover:text-slate-600"
@@ -276,8 +276,8 @@ export function FloatingCTA() {
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-slate-900 text-sm">Free Buyer's Guide</p>
-              <p className="text-xs text-slate-500 mb-2">50+ pages of expert advice</p>
+              <p className="font-semibold text-slate-900 dark:text-white text-sm">Free Buyer's Guide</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">50+ pages of expert advice</p>
               <Button 
                 size="sm" 
                 className="bg-[#b8860b] hover:bg-[#a07609] text-white w-full"
