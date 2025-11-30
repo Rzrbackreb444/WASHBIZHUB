@@ -133,10 +133,152 @@ export default function Courses() {
   return (
     <>
       <SEO 
-        title="WashBizHub Academy | Professional Laundromat Courses" 
-        description="Master laundromat operations with expert-led courses on business management, profitability, growth strategies, and industry best practices." 
-        keywords={["laundromat courses", "laundromat training", "business education", "industry certification"]} 
-        canonicalUrl="/courses" 
+        title="Laundromat Business Courses & Training | Learn How to Run a Laundromat | WashBizHub Academy" 
+        description="Master laundromat operations with expert-led courses. Learn business management, maximize profits, and grow your laundry business. Self-paced training with certification." 
+        canonicalUrl="/courses"
+        ogType="website"
+        keywords={[
+          "laundromat business course",
+          "how to run a laundromat",
+          "laundromat training program",
+          "laundry business management",
+          "laundromat owner education",
+          "coin laundry business course",
+          "laundromat profit training",
+          "laundry industry certification",
+          "laundromat operations course",
+          "how to start a laundromat",
+          "laundromat management training",
+          "commercial laundry education",
+          "laundromat business plan course",
+          "laundry business success training",
+          "self-service laundry course"
+        ]}
+        faqs={[
+          {
+            question: "What courses are available for laundromat owners?",
+            answer: "WashBizHub Academy offers courses in Operations (day-to-day management), Finance (profitability, pricing, bookkeeping), Marketing (customer acquisition, retention), and Management (hiring, training, multi-location expansion). Courses range from beginner fundamentals to advanced strategies."
+          },
+          {
+            question: "Are the laundromat courses self-paced?",
+            answer: "Yes, all WashBizHub Academy courses are 100% self-paced. Learn on your schedule from any device. Video lessons, downloadable resources, and quizzes are available 24/7. Most courses include lifetime access after purchase."
+          },
+          {
+            question: "Do I get a certificate after completing a course?",
+            answer: "Yes, upon successful completion of any course, you receive a WashBizHub Academy Certificate of Completion. This certificate demonstrates your expertise to lenders, partners, and customers. Display it in your store or on your website."
+          },
+          {
+            question: "How long does it take to complete a laundromat course?",
+            answer: "Course length varies: Beginner courses take 4-6 hours, Intermediate courses 6-8 hours, and Advanced courses 8-12 hours. Most students complete courses within 1-2 weeks studying 30-60 minutes daily."
+          },
+          {
+            question: "Are these courses good for first-time laundromat buyers?",
+            answer: "Absolutely! Our Beginner courses cover laundromat fundamentals from scratch: industry overview, location analysis, equipment selection, financing, and operations setup. Perfect preparation before buying your first laundromat."
+          },
+          {
+            question: "What topics are covered in laundromat business courses?",
+            answer: "Topics include store operations, equipment maintenance, pricing strategies, customer service, marketing, financial management, employee training, multi-location expansion, technology adoption, and industry trends. Each course focuses on specific skills."
+          },
+          {
+            question: "How much do laundromat training courses cost?",
+            answer: "Individual courses range from $147-$497 depending on depth and content. Bundle packages offer significant savings. WashBizHub Pro subscribers get access to select courses included with their subscription."
+          },
+          {
+            question: "Can I access courses on mobile devices?",
+            answer: "Yes, all courses are mobile-responsive. Watch video lessons, complete quizzes, and download resources from your smartphone or tablet. The learning platform works on iOS, Android, and all web browsers."
+          }
+        ]}
+        howTo={{
+          name: "How to Start Learning Laundromat Operations on WashBizHub",
+          description: "Step-by-step guide to enrolling in WashBizHub Academy courses and mastering laundromat business skills.",
+          steps: [
+            {
+              name: "Browse Available Courses",
+              text: "Explore our course catalog organized by category (Operations, Finance, Marketing, Management) and skill level (Beginner, Intermediate, Advanced). Read course descriptions and preview content."
+            },
+            {
+              name: "Select Your Learning Path",
+              text: "Choose courses that match your goals. New owners should start with beginner courses covering fundamentals. Experienced operators can skip to intermediate or advanced courses for specific skills."
+            },
+            {
+              name: "Enroll and Create Your Account",
+              text: "Click 'Enroll' on your chosen course. Create a free WashBizHub account if you haven't already. Complete payment securely through Stripe. Access your course immediately after purchase."
+            },
+            {
+              name: "Complete Lessons at Your Pace",
+              text: "Watch video lessons, read materials, and complete knowledge checks. Track your progress through the dashboard. Take notes and download resources for future reference."
+            },
+            {
+              name: "Earn Your Certificate",
+              text: "After completing all lessons and passing the final assessment, receive your WashBizHub Academy Certificate. Share your achievement and apply your new skills to grow your business."
+            }
+          ],
+          totalTime: "P14D"
+        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Course",
+            "name": "Laundromat Business Fundamentals",
+            "description": "Complete guide to starting and running a profitable laundromat business",
+            "provider": {
+              "@type": "Organization",
+              "name": "WashBizHub Academy",
+              "url": "https://washbizhub.com"
+            },
+            "educationalLevel": "Beginner",
+            "courseMode": "online",
+            "hasCourseInstance": {
+              "@type": "CourseInstance",
+              "courseMode": "online",
+              "courseWorkload": "PT8H"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "WashBizHub Academy Course Catalog",
+            "description": "Professional laundromat business courses for owners and operators",
+            "url": "https://washbizhub.com/courses",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                  "@type": "Course",
+                  "name": "Laundromat Operations 101",
+                  "description": "Learn fundamentals of running a successful laundromat",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "item": {
+                  "@type": "Course",
+                  "name": "Financial Management for Laundromats",
+                  "description": "Master profit margins, pricing, and cash flow management",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "item": {
+                  "@type": "Course",
+                  "name": "Laundromat Marketing Mastery",
+                  "description": "Attract and retain customers effectively",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              }
+            ]
+          }
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Academy", url: "/courses" }
+        ]}
+        speakableSelectors={["h1", "h2", ".speakable"]}
       />
 
       <div className="min-h-screen bg-background">

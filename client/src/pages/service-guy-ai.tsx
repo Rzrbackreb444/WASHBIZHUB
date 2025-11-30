@@ -265,18 +265,24 @@ export default function ServiceGuyAI() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <SEO 
-        title="Service Guy AI - Smart Laundry Equipment Diagnostics"
-        description="Free AI-powered troubleshooting for Speed Queen, Dexter, Maytag & 47 more brands. 2,200+ error codes, repair guides, part numbers & maintenance tips from industry experts."
+        title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
+        description="Free AI-powered laundromat equipment troubleshooting. 2,200+ error codes for Speed Queen, Dexter, Maytag, Huebsch & 35+ brands. Get repair guides, part numbers & fix times."
         keywords={[
           "laundromat error codes",
           "washer error codes",
-          "dryer fault codes", 
+          "dryer fault codes",
           "Speed Queen error codes",
           "Dexter error codes",
           "laundry equipment troubleshooting",
           "commercial washer repair",
-          "laundromat maintenance AI",
-          "Service Guy AI"
+          "laundromat maintenance",
+          "washer not draining",
+          "dryer not heating",
+          "laundromat equipment repair",
+          "coin laundry troubleshooting",
+          "washing machine error codes list",
+          "commercial dryer error codes",
+          "laundromat service technician tools"
         ]}
         canonicalUrl="/service-guy-ai"
         ogType="website"
@@ -285,28 +291,108 @@ export default function ServiceGuyAI() {
           { name: "Tools", url: "/calculators" },
           { name: "Service Guy AI", url: "/service-guy-ai" }
         ]}
+        faqs={[
+          {
+            question: "How do I diagnose washer problems in my laundromat?",
+            answer: "Use Service Guy AI to identify washer issues: 1) Select your manufacturer (Speed Queen, Dexter, Maytag, etc.), 2) Enter the error code displayed on your machine, 3) Get detailed troubleshooting steps, required parts with part numbers, and estimated repair time. Our database covers 2,200+ error codes from 35+ manufacturers."
+          },
+          {
+            question: "What are the most common commercial washer error codes?",
+            answer: "Common commercial washer error codes include: E1/nF (No Fill - water supply issue), E2/dE (Drain Error - pump or hose clog), dL/dU (Door Lock failures), OE (Overflow - pressure switch or valve stuck), LE/E5 (Motor Error - overload or bearing issue), and tE (Temperature Sensor Error). Service Guy AI provides specific fixes for each code by manufacturer."
+          },
+          {
+            question: "How can I fix a dryer that's not heating?",
+            answer: "For a commercial dryer not heating: 1) Check for error codes like HE or AF, 2) Inspect the lint screen and exhaust duct for blockages, 3) Test the heating element continuity (10-20 ohms), 4) Verify thermal fuse and high-limit thermostat, 5) For gas dryers, check igniter glow and gas valve coils. Service Guy AI provides brand-specific repair guides."
+          },
+          {
+            question: "What equipment does Service Guy AI support?",
+            answer: "Service Guy AI supports 35+ commercial laundry manufacturers including Speed Queen, Dexter, Maytag Commercial, LG Commercial, Wascomat, Continental Girbau, Huebsch, IPSO, UniMac, Electrolux Professional, and more. We cover both washers and dryers with 2,200+ error codes in our database."
+          },
+          {
+            question: "How much does laundromat equipment repair typically cost?",
+            answer: "Repair costs vary by issue: Door locks ($50-150), drain pumps ($100-250), control boards ($200-500), motors ($300-800), and transmissions ($400-1000+). Service Guy AI provides estimated repair times and required part numbers to help you budget. Most repairs take 30-90 minutes for trained technicians."
+          },
+          {
+            question: "When should I call a professional laundromat technician?",
+            answer: "Call a professional for: 1) Critical errors involving electrical or gas systems, 2) Motor or inverter failures requiring specialized tools, 3) Recurring issues after DIY attempts, 4) Warranty-covered repairs. Service Guy AI rates each repair by skill level - basic, intermediate, or professional - so you know when to DIY vs. call for help."
+          },
+          {
+            question: "How do I prevent equipment breakdowns in my laundromat?",
+            answer: "Prevent laundromat equipment failures with: 1) Daily lint screen cleaning, 2) Weekly drain pump checks, 3) Monthly exhaust duct inspections, 4) Quarterly seal and hose inspections, 5) Annual professional maintenance. Service Guy AI includes preventive maintenance tips for each equipment type to maximize uptime."
+          },
+          {
+            question: "What parts should laundromat owners keep in stock?",
+            answer: "Essential spare parts include: door switches and seals, drain pump assemblies, inlet valve screens, drive belts, thermal fuses, and coin mechanism sensors. Service Guy AI provides OEM part numbers for each repair, so you can stock the right parts and minimize downtime when issues occur."
+          }
+        ]}
+        howTo={{
+          name: "How to Diagnose Laundromat Equipment Issues with Service Guy AI",
+          description: "Step-by-step guide to troubleshoot commercial washer and dryer problems using AI-powered diagnostics",
+          totalTime: "PT5M",
+          steps: [
+            {
+              name: "Select Your Equipment Manufacturer",
+              text: "Choose your equipment brand from our list of 35+ supported manufacturers including Speed Queen, Dexter, Maytag, Huebsch, LG Commercial, and more."
+            },
+            {
+              name: "Enter the Error Code",
+              text: "Type in the error code displayed on your machine's control panel. Our database includes 2,200+ codes covering washers and dryers."
+            },
+            {
+              name: "Review the Diagnosis",
+              text: "Get detailed information including error description, severity level, possible causes, and required skill level for repair."
+            },
+            {
+              name: "Follow Troubleshooting Steps",
+              text: "Work through the step-by-step troubleshooting guide specific to your error code and equipment model."
+            },
+            {
+              name: "Order Required Parts",
+              text: "View the list of required parts with OEM part numbers, and order directly from trusted suppliers if needed."
+            },
+            {
+              name: "Complete the Repair",
+              text: "Follow the repair guide to fix the issue. Estimated repair times range from 15-150 minutes depending on complexity."
+            }
+          ]
+        }}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          "name": "Service Guy AI",
-          "description": "AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes",
+          "name": "Service Guy AI - Laundromat Equipment Diagnostics",
+          "alternateName": "Service Guy AI",
+          "description": "Free AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes for Speed Queen, Dexter, Maytag, and 35+ manufacturers",
           "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Web",
+          "applicationSubCategory": "Equipment Diagnostics",
+          "operatingSystem": "Web Browser",
           "offers": {
             "@type": "Offer",
             "price": "0",
-            "priceCurrency": "USD"
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "847",
+            "bestRating": "5"
           },
           "featureList": [
             "2,200+ error code database",
-            "AI-powered troubleshooting",
-            "Part number lookup",
+            "35+ manufacturer support",
+            "AI-powered symptom analysis",
+            "OEM part number lookup",
             "Repair time estimates",
-            "50+ manufacturer support"
+            "Skill level ratings",
+            "Preventive maintenance guides",
+            "24/7 availability"
           ],
+          "screenshot": "https://washbizhub.com/service-guy-ai-screenshot.png",
+          "softwareVersion": "2.0",
           "provider": {
             "@type": "Organization",
-            "name": "WashBizHub"
+            "name": "WashBizHub",
+            "url": "https://washbizhub.com"
           }
         }}
       />

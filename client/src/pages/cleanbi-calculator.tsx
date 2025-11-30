@@ -137,27 +137,81 @@ export default function CLEANBICalculator() {
   return (
     <>
       <SEO
-        title="CLEANBI 2.0 Scorecard - 17-Factor Laundromat Business Intelligence"
-        description="Comprehensive 17-factor business intelligence scoring system for laundromat valuation and investment analysis. Evaluate location, revenue, equipment, lease terms, competition, and 12 more critical factors with weighted scoring."
+        title="CLEANBI™ Calculator - Free 17-Factor Laundromat Viability Score | WashBizHub"
+        description="Calculate laundromat location viability with CLEANBI's free 17-factor scorecard. Evaluate location quality, revenue potential, equipment condition, lease terms, competition, and 12 more critical factors. Get instant A/B/C grades for investment decisions."
         canonicalUrl="/cleanbi-calculator"
         keywords={[
+          "laundromat location analysis",
+          "laundromat feasibility study free",
+          "best location for laundromat",
+          "laundromat market research",
+          "laundromat competition analysis",
+          "laundromat demographics",
+          "laundromat site selection",
           "laundromat scorecard",
           "CLEANBI business intelligence",
-          "laundromat valuation scorecard",
-          "laundry business analysis tool",
+          "laundromat valuation calculator",
+          "laundry business viability tool",
           "laundromat investment scoring",
           "17 factor laundromat analysis",
-          "laundromat due diligence tool",
-          "coin laundry business rating"
+          "laundromat due diligence checklist",
+          "coin laundry location calculator"
         ]}
+        faqs={[
+          {
+            question: "What is a good location for a laundromat?",
+            answer: "A good laundromat location scores 85%+ on the CLEANBI 17-factor scorecard (Grade A). Key high-weight factors: Location Quality (15%), Revenue Performance (12%), Equipment Condition (10%), and Lease Terms (8%). Use this calculator to evaluate any potential site."
+          },
+          {
+            question: "How do you calculate laundromat location viability?",
+            answer: "The CLEANBI calculator scores 17 weighted factors on a 1-10 scale: Location Quality (15%), Revenue (12%), Equipment (10%), Lease (8%), Competition (7%), Parking (6%), Cleanliness (6%), Utilities (6%), Security (5%), Hours (5%), Services (5%), Branding (4%), Technology (4%), Staffing (3%), Maintenance (2%), Growth (1%), Financials (1%). Total weighted score determines the final grade."
+          },
+          {
+            question: "What demographics are best for laundromat success?",
+            answer: "Ideal demographics for laundromats: 40-70% renter population, median income $30K-$70K, apartment-dense areas, families with children, college students, blue-collar workers. Score these in the 'Location Quality' factor which carries 15% weight in CLEANBI."
+          },
+          {
+            question: "How do I evaluate laundromat competition?",
+            answer: "Competition Level (7% weight) evaluates: number of laundromats within 1-3 miles, market saturation, competitor ratings/reviews, price positioning. Score 8-10 for underserved areas (<3 competitors in 3mi), 5-7 for moderate competition, 1-4 for oversaturated markets."
+          },
+          {
+            question: "Is this laundromat feasibility calculator free?",
+            answer: "Yes! The CLEANBI 17-factor calculator is 100% free with no login required. Export your scorecard as JSON for records. For premium features including AI analysis, valuation estimates, and professional reports, upgrade to CLEANBI Pro."
+          },
+          {
+            question: "What are critical factors in laundromat site selection?",
+            answer: "The 5 highest-weight factors in CLEANBI: 1) Location Quality (15%) - demographics, foot traffic, visibility; 2) Revenue Performance (12%) - historical income and growth; 3) Equipment Condition (10%) - age, efficiency, maintenance; 4) Lease Terms (8%) - length, rate, escalations; 5) Competition Level (7%) - market saturation."
+          },
+          {
+            question: "How many laundromats per population is too many?",
+            answer: "Industry benchmark: 1 laundromat per 4,000-6,000 people is healthy. Score Competition as 8-10 if ratio is 1:8,000+ (underserved), 5-7 for 1:4,000-8,000 (healthy), 3-4 for 1:2,000-4,000 (competitive), 1-2 for 1:2,000 or less (oversaturated)."
+          },
+          {
+            question: "What CLEANBI score is needed for a good investment?",
+            answer: "CLEANBI Grade A (85%+): Excellent investment opportunity - minimal risk. Grade B (70-84%): Strong buy - above average potential. Grade C (55-69%): Average - requires due diligence and improvement plan. Below 55%: Needs significant work or turnaround strategy."
+          }
+        ]}
+        howTo={{
+          name: "How to Calculate Laundromat Location Viability with CLEANBI",
+          description: "Complete guide to using the 17-factor CLEANBI scorecard for laundromat investment analysis and due diligence",
+          steps: [
+            { name: "Review All 17 Factors", text: "Examine each factor in the scorecard: Location, Revenue, Equipment, Lease, Competition, Parking, Cleanliness, Utilities, Security, Hours, Services, Branding, Technology, Staffing, Maintenance, Growth Potential, and Financial Transparency." },
+            { name: "Score Each Factor 1-10", text: "Use the sliders to rate each factor from 1 (Poor) to 10 (Excellent). Be honest - inflated scores lead to poor investment decisions. Focus on high-weight factors first." },
+            { name: "Review Critical Issues", text: "Check for red flags: any high-weight factor (5%+) scored 3 or below triggers a 'Critical Issue' warning. These dealbreakers must be addressed." },
+            { name: "Analyze Your Grade", text: "Your weighted score converts to a letter grade: A (85%+), B (70-84%), C (55-69%), or 'Needs Work' (<55%). Grade A locations are prime investments." },
+            { name: "Export and Take Action", text: "Click 'Export Scorecard' to save your analysis. Use recommendations to negotiate purchase price, plan improvements, or identify better locations." }
+          ],
+          totalTime: "PT10M"
+        }}
         breadcrumbs={[
-          { name: "Calculators", url: "/calculators" },
-          { name: "CLEANBI Scorecard", url: "/cleanbi-calculator" }
+          { name: "Home", url: "/" },
+          { name: "CLEANBI", url: "/cleanbi" },
+          { name: "17-Factor Calculator", url: "/cleanbi-calculator" }
         ]}
         author={{
           name: "WashBizHub CLEANBI Team",
-          expertise: "Laundromat Business Intelligence & Scoring Specialists",
-          credentials: "Proprietary 17-factor analysis system used by industry professionals"
+          expertise: "Laundromat Business Intelligence & Investment Analysis",
+          credentials: "Proprietary 17-factor weighted scoring system used by 5,640+ laundromat professionals for site selection and due diligence."
         }}
         structuredData={cleanbiStructuredData}
       />

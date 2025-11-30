@@ -32,7 +32,130 @@ export default function ForumPage() {
 
   return (
     <>
-      <SEO title="WashBizHub Community Forum | Laundromat Owner Discussions" description="Join 72,000+ laundromat owners in our community forum. Share experiences, ask questions, discuss operations, pricing strategies, and network with industry peers." keywords={["laundromat forum", "laundromat community", "laundromat owners network", "industry discussions"]} canonicalUrl="/forum" />
+      <SEO 
+        title="Laundromat Owner Forum - 72,000+ Members | Free Community | WashBizHub" 
+        description="Join 72,000+ laundromat owners in the #1 industry forum. Get advice on pricing, operations, equipment, and more. Free to join. Ask questions, share experiences."
+        keywords={[
+          "laundromat forum",
+          "laundromat owner community",
+          "coin laundry forum",
+          "laundromat advice",
+          "laundromat owners group",
+          "laundry business forum",
+          "laundromat questions",
+          "laundromat help",
+          "laundromat discussion board",
+          "commercial laundry forum",
+          "laundromat networking",
+          "laundromat tips",
+          "laundromat owner support",
+          "laundry industry community",
+          "laundromat business advice"
+        ]}
+        canonicalUrl="/forum"
+        ogType="website"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Community", url: "/forum" }
+        ]}
+        faqs={[
+          {
+            question: "Where can I find a laundromat owner community or forum?",
+            answer: "WashBizHub hosts the largest laundromat owner community with 72,000+ members. Our free forum covers topics like pricing strategies, equipment selection, operations, marketing, and buying/selling laundromats. Join discussions, ask questions, and network with experienced owners and industry experts."
+          },
+          {
+            question: "How do I get advice from experienced laundromat owners?",
+            answer: "Post your question in the WashBizHub Community Forum. Our active community of 72,000+ laundromat owners and industry professionals responds to most questions within 24 hours. Categories include Operations, Equipment & Maintenance, Buying & Selling, Marketing, and more."
+          },
+          {
+            question: "What topics are discussed in laundromat forums?",
+            answer: "Popular forum topics include: vend pricing strategies, equipment recommendations (Speed Queen vs Dexter), attendant vs unattended operations, utility cost reduction, marketing ideas, dealing with problem customers, buying/selling laundromats, financing options, and new technology like card/app payment systems."
+          },
+          {
+            question: "Is the WashBizHub forum free to join?",
+            answer: "Yes, the WashBizHub Community Forum is completely free. Create a topic, reply to discussions, and connect with other laundromat owners at no cost. Premium members get additional features like priority support and expert consultations, but forum access is free for everyone."
+          },
+          {
+            question: "How do I start a new topic in the laundromat forum?",
+            answer: "Click the 'New Topic' button at the top of the forum page. Choose the appropriate category (Operations, Equipment, Buying & Selling, etc.), write a clear title, and describe your question or discussion topic. The community typically responds within hours."
+          },
+          {
+            question: "Can I ask questions about buying a laundromat?",
+            answer: "Absolutely! Our Buying & Selling category is perfect for due diligence questions, valuation help, and advice on negotiating deals. Many forum members are experienced buyers and sellers who share insights on evaluating laundromats, financing, and avoiding common pitfalls."
+          },
+          {
+            question: "How active is the WashBizHub laundromat forum?",
+            answer: "Very active! With 72,000+ members, new topics and replies are posted daily. Trending topics are displayed on the sidebar, and you can sort by newest or most popular discussions. Most questions receive helpful responses within 24 hours."
+          },
+          {
+            question: "Do industry experts participate in the forum?",
+            answer: "Yes! WashBizHub forum includes equipment distributors, service technicians, brokers, lenders, and multi-store owners. Look for verified badges on expert profiles. Many manufacturers also monitor discussions to provide official support and product information."
+          }
+        ]}
+        howTo={{
+          name: "How to Get Help from Laundromat Experts in the WashBizHub Forum",
+          description: "Step-by-step guide to asking questions and getting advice from the laundromat owner community",
+          totalTime: "PT5M",
+          steps: [
+            {
+              name: "Browse Existing Topics",
+              text: "Search or browse forum categories to see if your question has already been answered. Use the search bar or click on relevant categories like Operations, Equipment, or Buying & Selling."
+            },
+            {
+              name: "Create a New Topic",
+              text: "Click the 'New Topic' button. Choose the most relevant category for your question to reach the right audience."
+            },
+            {
+              name: "Write a Clear Title",
+              text: "Create a specific, descriptive title that summarizes your question. For example: 'Speed Queen vs Dexter for 2,000 sq ft store' is better than 'Equipment advice needed'."
+            },
+            {
+              name: "Provide Context",
+              text: "Include relevant details: your location, store size, equipment age, specific challenges, and what you've already tried. The more context, the better advice you'll receive."
+            },
+            {
+              name: "Engage with Responses",
+              text: "Check back regularly for replies. Respond to follow-up questions and thank helpful members. Upvote useful answers to help others find good advice."
+            },
+            {
+              name: "Share Your Experience",
+              text: "Once you've solved your problem, update the topic with your results. This helps future owners who face similar challenges."
+            }
+          ]
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "DiscussionForumPosting",
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://washbizhub.com/forum"
+          },
+          "headline": "WashBizHub Community Forum - Laundromat Owner Discussions",
+          "description": "The largest online community for laundromat owners with 72,000+ members discussing operations, equipment, pricing, and business strategies.",
+          "author": {
+            "@type": "Organization",
+            "name": "WashBizHub"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "WashBizHub",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://washbizhub.com/washbizhub-logo.png"
+            }
+          },
+          "about": [
+            { "@type": "Thing", "name": "Laundromat Operations" },
+            { "@type": "Thing", "name": "Commercial Laundry Equipment" },
+            { "@type": "Thing", "name": "Laundromat Business" }
+          ],
+          "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/CommentAction",
+            "userInteractionCount": "72000"
+          }
+        }}
+      />
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
