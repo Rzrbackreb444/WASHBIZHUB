@@ -531,20 +531,25 @@ export default function CleanBIExplorer() {
   };
 
   const initStreetView = () => {
-    if (!analysisResult || !streetViewRef.current || !window.google) return;
-    
-    streetViewInstance.current = new window.google.maps.StreetViewPanorama(
-      streetViewRef.current,
-      {
-        position: { lat: analysisResult.lat, lng: analysisResult.lng },
-        pov: { heading: 165, pitch: 0 },
-        zoom: 1,
-        addressControl: false,
-        showRoadLabels: false
-      }
-    );
+    if (!analysisResult) return;
     setShowStreetView(true);
   };
+
+  // Initialize Street View when modal opens
+  useEffect(() => {
+    if (showStreetView && analysisResult && streetViewRef.current && window.google) {
+      streetViewInstance.current = new window.google.maps.StreetViewPanorama(
+        streetViewRef.current,
+        {
+          position: { lat: analysisResult.lat, lng: analysisResult.lng },
+          pov: { heading: 165, pitch: 0 },
+          zoom: 1,
+          addressControl: false,
+          showRoadLabels: false
+        }
+      );
+    }
+  }, [showStreetView, analysisResult]);
 
   const fetchAerialView = async () => {
     if (!analysisResult) return;
