@@ -127,7 +127,7 @@ export default function HomeNew() {
       </Suspense>
       <SEO 
         title="WashBizHub - The #1 Laundromat Platform | CLEANBI Score + POS + AI"
-        description="AI predicts failures, dynamic pricing adds $24k/year, marketplace gives you cash back. Join 72,000+ laundromat owners already winning with CLEANBI and professional tools."
+        description="AI predicts failures, dynamic pricing adds $24k/year, marketplace gives you cash back. Join 72,000+ laundromat professionals using CLEANBI and enterprise-grade tools."
         keywords={["laundromat pos", "cleanbi score", "laundromat calculator", "laundromat roi", "laundromat software", "laundromat business"]}
       />
 
@@ -164,7 +164,7 @@ export default function HomeNew() {
                 </Link>
               </div>
               <p className="text-white/60">
-                Join 72,000+ owners already winning →
+                Join 72,000+ industry professionals →
               </p>
             </div>
 
@@ -249,11 +249,12 @@ export default function HomeNew() {
         <section className="py-16 md:py-20 bg-[#001F3F]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-12">
+              <p className="text-[#b8860b] font-semibold text-sm tracking-wider uppercase mb-3">Professional Tools</p>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                Everything You Need to Dominate
+                Built for Serious Operators
               </h2>
               <p className="text-white/70 max-w-2xl mx-auto">
-                Enterprise-grade tools that were only available to big chains — now in your hands
+                Enterprise-grade analytics and automation previously only available to multi-location chains
               </p>
             </div>
 
