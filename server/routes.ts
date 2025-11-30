@@ -6246,6 +6246,79 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // ==================== LAUNDROMAT CONSULTATION COUNCIL ====================
+  
+  // POST /api/consultation-council - Full expert consultation with multiple AI analysts
+  app.post("/api/consultation-council", rateLimiter("/api/consultation-council", 5, 60), async (req, res) => {
+    try {
+      const { runConsultationCouncil } = await import("./consultation-council");
+      
+      const {
+        address,
+        population,
+        medianIncome,
+        competitors,
+        rentPerSqFt,
+        squareFootage,
+        walkScore,
+        trafficCount,
+        monthlyRevenue,
+        monthlyRent,
+        monthlyExpenses,
+        askingPrice,
+        downPaymentPercent,
+        loanRate,
+        loanTerm,
+        washers,
+        dryers,
+        equipmentAge,
+        additionalContext
+      } = req.body;
+
+      if (!address) {
+        return res.status(400).json({ error: "Address is required" });
+      }
+
+      const result = await runConsultationCouncil({
+        address,
+        population,
+        medianIncome,
+        competitors,
+        rentPerSqFt,
+        squareFootage,
+        walkScore,
+        trafficCount,
+        monthlyRevenue,
+        monthlyRent,
+        monthlyExpenses,
+        askingPrice,
+        downPaymentPercent,
+        loanRate,
+        loanTerm,
+        washers,
+        dryers,
+        equipmentAge,
+        additionalContext
+      });
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Consultation Council error:", error);
+      res.status(500).json({ error: error.message || "Consultation failed" });
+    }
+  });
+
+  // GET /api/consultation-council/experts - Get list of expert personas
+  app.get("/api/consultation-council/experts", async (req, res) => {
+    try {
+      const { EXPERT_PERSONAS } = await import("./consultation-council");
+      res.json(EXPERT_PERSONAS);
+    } catch (error: any) {
+      console.error("Consultation Council experts error:", error);
+      res.status(500).json({ error: error.message || "Failed to get experts" });
+    }
+  });
+
   // ==================== GEOCODING & LOCATION SERVICES ====================
   
   // Simple rate limiter: Track requests per IP
