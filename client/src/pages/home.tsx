@@ -7,7 +7,7 @@ import { Hero } from "@/components/Hero";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, MapPin, TrendingUp, Shield, Zap,
-  CheckCircle, Star
+  CheckCircle, Star, Calculator, Calendar
 } from "lucide-react";
 
 const journeyPaths = [
@@ -154,6 +154,30 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         {/* 1. HERO - Primary value prop + CLEANBI demo */}
         <Hero />
+
+        {/* Trust Indicators - Professional trust signals */}
+        <section className="py-4 border-b border-border/30" data-testid="section-trust-indicators">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Users className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">Trusted by 72,000+ owners</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Calculator className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">50+ professional calculators</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Sparkles className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">AI-powered insights</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Calendar className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">Since 2024</span>
+              </div>
+            </div>
+          </div>
+        </section>
         
         {/* 2. TRUST PROOF - Compact social proof bar */}
         <section className="py-8 border-b border-border/50 bg-muted/30" data-testid="section-trust-proof">
