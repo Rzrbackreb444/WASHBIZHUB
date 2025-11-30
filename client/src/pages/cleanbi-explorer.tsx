@@ -637,60 +637,9 @@ export default function CleanBIExplorer() {
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
         {/* Left Sidebar */}
         <div 
-          className={`absolute top-0 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-96" : "w-0 overflow-hidden"}`}
+          className={`absolute top-14 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-96" : "w-0 overflow-hidden"}`}
         >
           <ScrollArea className="flex-1">
-            {/* Header */}
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="font-bold text-white text-lg">CLEANBI™ Explorer</h1>
-                  <p className="text-xs text-white/50">AI-Powered Location Intelligence</p>
-                </div>
-              </div>
-
-              {/* Search Section - Prominent */}
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <div className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#C8A661]" />
-                  Analyze Any Location
-                </div>
-                
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <Input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
-                    placeholder="Enter address, city, or zip code..."
-                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base"
-                    data-testid="input-explorer-address"
-                  />
-                </div>
-
-                <Button 
-                  onClick={analyzeLocation}
-                  disabled={isAnalyzing}
-                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-base font-medium"
-                  data-testid="button-analyze-location"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-5 h-5 mr-2" />
-                      Analyze Location
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
 
             {/* Analysis Result */}
             {analysisResult && (
@@ -961,7 +910,7 @@ export default function CleanBIExplorer() {
             </div>
 
             {/* Saved Analyses History */}
-            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="p-4">
+            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="p-4 border-b border-white/10">
               <CollapsibleTrigger className="flex items-center justify-between w-full mb-3">
                 <div className="flex items-center gap-2">
                   <History className="w-4 h-4 text-[#C8A661]" />
@@ -1013,6 +962,47 @@ export default function CleanBIExplorer() {
               </CollapsibleContent>
             </Collapsible>
 
+            {/* Search Section - At Bottom */}
+            <div className="p-4">
+              <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#8B7355]/20 rounded-xl p-4 border border-[#C8A661]/30">
+                <div className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#C8A661]" />
+                  Analyze Any Location
+                </div>
+                
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
+                    placeholder="Enter address, city, or zip code..."
+                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base"
+                    data-testid="input-explorer-address"
+                  />
+                </div>
+
+                <Button 
+                  onClick={analyzeLocation}
+                  disabled={isAnalyzing}
+                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-base font-medium"
+                  data-testid="button-analyze-location"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 mr-2" />
+                      Analyze Location
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
             {/* Footer */}
             <div className="p-4 border-t border-white/10 mt-auto">
               <div className="flex items-center gap-2 text-xs text-white/30">
@@ -1026,7 +1016,7 @@ export default function CleanBIExplorer() {
         {/* Sidebar Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-1/2 -translate-y-1/2 z-30 w-6 h-12 bg-[#12121f] border border-white/10 rounded-r-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all ${sidebarOpen ? "left-96" : "left-0"}`}
+          className={`absolute top-20 z-30 w-6 h-12 bg-[#12121f] border border-white/10 rounded-r-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all ${sidebarOpen ? "left-96" : "left-0"}`}
           data-testid="button-toggle-sidebar"
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
