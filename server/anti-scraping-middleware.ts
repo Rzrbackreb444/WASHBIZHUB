@@ -20,8 +20,39 @@ const BLOCK_DURATION_MS = 15 * 60 * 1000;
 const MAX_PAGE_SIZE = 20;
 const SUSPICION_THRESHOLD = 5;
 
+// ============================================================================
+// WHITELISTED SEARCH ENGINE BOTS - Never block these for SEO!
+// ============================================================================
+const WHITELISTED_BOTS = [
+  'googlebot', 'google-inspectiontool', 'googleother', 'google-extended',
+  'bingbot', 'msnbot', 'bingpreview',
+  'slurp', 'yahoo',
+  'duckduckbot',
+  'baiduspider',
+  'yandexbot', 'yandexmobilebot',
+  'facebookexternalhit', 'facebot',
+  'twitterbot',
+  'linkedinbot',
+  'pinterestbot',
+  'discordbot',
+  'telegrambot',
+  'whatsapp',
+  'slackbot',
+  'applebot',
+  'petalbot',
+  'semrushbot',
+  'ahrefsbot',
+  'mj12bot',
+  'dotbot',
+];
+
+function isWhitelistedBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  return WHITELISTED_BOTS.some(bot => ua.includes(bot));
+}
+
 const BOT_USER_AGENTS = [
-  'bot', 'crawler', 'spider', 'scraper', 'curl', 'wget', 'python-requests',
+  'scraper', 'curl', 'wget', 'python-requests',
   'httpie', 'postman', 'insomnia', 'axios', 'node-fetch', 'go-http-client',
   'java/', 'libwww', 'lwp-trivial', 'scrapy', 'beautifulsoup', 'selenium',
   'phantomjs', 'headless', 'puppeteer', 'playwright'
@@ -85,6 +116,16 @@ function calculateSuspicionScore(req: Request, entry: RateLimitEntry): number {
 }
 
 export function antiScrapingMiddleware(req: Request, res: Response, next: NextFunction) {
+  const userAgent = String(req.headers['user-agent'] || '');
+  
+  // ============================================================================
+  // CRITICAL: Allow all whitelisted search engine bots through immediately
+  // This ensures Google, Bing, etc. can index ALL 3000+ pages
+  // ============================================================================
+  if (isWhitelistedBot(userAgent)) {
+    return next();
+  }
+  
   const clientIP = getClientIP(req);
   
   if (blockedIPs.has(clientIP)) {
