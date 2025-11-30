@@ -17,6 +17,17 @@ Branding Guidelines:
 - WashBizHub is the #1 laundromat resource and educational hub
 - CLEANBI is the universal property intelligence scoring system
 
+**CLEANBI™ Grading System (MANDATORY - Chrome Web Store Style):**
+- ONLY A, B, C are positive grades. NEVER use D or F grades.
+- Everything below C is labeled "Needs Work" (encouraging, not negative)
+- Grade thresholds:
+  - A = 85+ (Excellent opportunity)
+  - B = 70-84 (Good opportunity)
+  - C = 55-69 (Fair opportunity)
+  - Needs Work = Below 55 (Requires strategic improvements)
+- Colors: A=#22C55E (green), B=#A3E635 (lime), C=#FBBF24 (amber), Needs Work=#C8A661 (gold)
+- Opportunity levels should also be positive: "Gold Mine Zone", "High Opportunity", "Good Potential", "Room to Grow", "Strategic Location"
+
 Owner Contact & Notifications:
 - Owner phone: 479-883-4314 (AT&T)
 - SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
@@ -49,7 +60,7 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
     - **CLEANBI Optimization Infrastructure:** Includes a shared metrics service, tiered subscription system with Stripe webhook synchronization, Redis caching, Redis rate limiter, and a batched API pipeline.
     - **CLEANBI Explorer (`/cleanbi-explorer`):** Full-screen immersive map experience with 3D aerial views, competition heatmaps, and proprietary AI scoring. Features include:
         - Google Maps integration with dark-theme styling
-        - Real-time CLEANBI™ scoring with A-F grades
+        - Real-time CLEANBI™ scoring with A-C grades (Chrome Web Store style)
         - Competitor mapping with Google Places API
         - Street View integration
         - Shareable analysis links for viral distribution

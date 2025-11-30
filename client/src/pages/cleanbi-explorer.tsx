@@ -81,16 +81,15 @@ const GRADE_COLORS: Record<string, string> = {
   "B": "#A3E635",
   "C+": "#FCD34D",
   "C": "#FBBF24",
-  "D": "#F97316",
-  "F": "#EF4444"
+  "Needs Work": "#C8A661"
 };
 
 const OPPORTUNITY_COLORS: Record<string, { bg: string; text: string; pulse: boolean }> = {
-  "goldmine": { bg: "bg-yellow-500", text: "Gold Mine Zone", pulse: true },
-  "promising": { bg: "bg-green-500", text: "High Opportunity", pulse: false },
-  "moderate": { bg: "bg-blue-500", text: "Moderate Potential", pulse: false },
-  "saturated": { bg: "bg-orange-500", text: "Competitive Market", pulse: false },
-  "oversaturated": { bg: "bg-red-500", text: "Oversaturated", pulse: false }
+  "goldmine": { bg: "bg-yellow-500", text: "Gold Mine Zone!", pulse: true },
+  "promising": { bg: "bg-green-500", text: "High Opportunity!", pulse: false },
+  "moderate": { bg: "bg-blue-500", text: "Good Potential", pulse: false },
+  "saturated": { bg: "bg-amber-500", text: "Room to Grow", pulse: false },
+  "oversaturated": { bg: "bg-amber-600", text: "Strategic Location", pulse: false }
 };
 
 export default function CleanBIExplorer() {
