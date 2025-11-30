@@ -1,17 +1,35 @@
 # WashBizHub - #1 Laundromat Resource & Education Hub
 # https://washbizhub.com
+# Total indexed content: 807+ blog posts, 120+ calculators & tools, 2000+ error codes
 
 User-agent: *
 Allow: /
 Crawl-delay: 1
 
-# Main Sitemap
-Sitemap: https://washbizhub.com/sitemap.xml
+# ============================================================================
+# SITEMAP INDEX - Contains ALL content sitemaps (807+ blog posts, listings, etc.)
+# ============================================================================
+Sitemap: https://washbizhub.com/sitemap_index.xml
 
-# Specific rules for major search engines
+# Individual sitemaps for faster discovery
+Sitemap: https://washbizhub.com/sitemap.xml
+Sitemap: https://washbizhub.com/sitemap-blogs.xml
+Sitemap: https://washbizhub.com/sitemap-listings.xml
+Sitemap: https://washbizhub.com/sitemap-error-codes.xml
+Sitemap: https://washbizhub.com/sitemap-resources.xml
+Sitemap: https://washbizhub.com/sitemap-courses.xml
+Sitemap: https://washbizhub.com/sitemap-forum.xml
+Sitemap: https://washbizhub.com/sitemap-vendors.xml
+
+# ============================================================================
+# SEARCH ENGINE SPECIFIC RULES
+# ============================================================================
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
 
 User-agent: Bingbot
 Allow: /
@@ -22,10 +40,23 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-# Block sensitive areas
+User-agent: Yandex
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# ============================================================================
+# BLOCK SENSITIVE AREAS
+# ============================================================================
 Disallow: /api/
 Disallow: /admin/
-Disallow: /pos/
 Disallow: /_next/
 Disallow: /private/
-Disallow: /auth/
+Disallow: /auth/callback
