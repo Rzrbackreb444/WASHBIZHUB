@@ -132,15 +132,20 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
 ];
 
 const equipmentCategories = [
-  { id: "all", name: "All" },
-  { id: "washer", name: "Washers" },
-  { id: "dryer", name: "Dryers" },
-  { id: "atm", name: "ATM" },
-  { id: "changer", name: "Changers" },
-  { id: "vending", name: "Vending" },
-  { id: "dogwash", name: "Dog Wash" },
-  { id: "furniture", name: "Furniture" },
+  { id: "all", name: "All", types: [] as string[] },
+  { id: "washers", name: "Washers", types: ["washer"] },
+  { id: "dryers", name: "Dryers", types: ["dryer"] },
+  { id: "financial", name: "Financial", types: ["atm", "changer"] },
+  { id: "services", name: "Services", types: ["vending", "dogwash"] },
+  { id: "furniture", name: "Furniture", types: ["table", "furniture", "cart", "seating-bench"] },
+  { id: "entertainment", name: "Games", types: ["arcade"] },
 ];
+
+const getCategoryTypes = (categoryId: string): string[] => {
+  if (categoryId === "all") return [];
+  const category = equipmentCategories.find(c => c.id === categoryId);
+  return category?.types || [];
+};
 
 function EquipmentThumbnail({ equipment, size = "md" }: { equipment: typeof equipmentLibrary[number]; size?: "sm" | "md" }) {
   const sizeClasses = size === "sm" ? "w-6 h-6" : "w-10 h-10";
@@ -667,7 +672,8 @@ export default function DesignStudio() {
   const filteredEquipment = equipmentLibrary.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          e.capacity.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || e.type === categoryFilter;
+    const categoryTypes = getCategoryTypes(categoryFilter);
+    const matchesCategory = categoryFilter === "all" || categoryTypes.includes(e.type);
     return matchesSearch && matchesCategory;
   });
 
