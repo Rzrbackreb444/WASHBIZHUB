@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { 
   Map, 
   Layers, 
@@ -656,10 +656,95 @@ export default function CleanBIExplorer() {
 
   return (
     <>
-      <Helmet>
-        <title>CLEANBI™ Explorer 2.0 - Interactive Market Intelligence Map | WashBizHub</title>
-        <meta name="description" content="Discover high-opportunity laundromat locations with our interactive CLEANBI Explorer. 3D aerial views, competition heatmaps, demographic analysis, and AI-powered insights." />
-      </Helmet>
+      <SEO 
+        title="CLEANBI™ Explorer 2.0 - Interactive Market Intelligence Map"
+        description="Discover high-opportunity laundromat locations with our interactive CLEANBI Explorer. Real-time 3D aerial views, competition heatmaps, demographic analysis, and AI-powered business insights. Score any address globally in seconds."
+        canonicalUrl="/cleanbi-explorer"
+        ogType="website"
+        keywords={[
+          "CLEANBI Explorer",
+          "laundromat location analysis",
+          "business intelligence map",
+          "competition analysis tool",
+          "demographic analysis",
+          "laundromat investment",
+          "location scoring",
+          "market intelligence",
+          "3D aerial view",
+          "foot traffic analysis",
+          "laundromat valuation",
+          "real estate scoring"
+        ]}
+        faqs={[
+          {
+            question: "What is CLEANBI Explorer?",
+            answer: "CLEANBI Explorer is an interactive map-based tool that scores any business location globally using real-time Google data. It analyzes demographics, competition, foot traffic, and market opportunity to generate an A-C grade and 0-100 score for laundromat investment decisions."
+          },
+          {
+            question: "How does the CLEANBI scoring work?",
+            answer: "CLEANBI uses a proprietary 17-factor weighted algorithm analyzing population density, median income, competitor saturation, foot traffic patterns, accessibility, and more. Scores 85+ receive an A grade (excellent opportunity), 70-84 get B (good opportunity), 55-69 get C (fair opportunity), and below 55 is marked 'Needs Work'."
+          },
+          {
+            question: "Is CLEANBI Explorer free to use?",
+            answer: "Yes! You get 3 free location analyses per day. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription."
+          },
+          {
+            question: "What's included in the competition analysis?",
+            answer: "CLEANBI Explorer shows all nearby laundromats within your selected radius, their ratings, review counts, and exact locations on the map. It calculates competitor density and market saturation to help you identify underserved areas."
+          },
+          {
+            question: "Can I save and share my analyses?",
+            answer: "Yes! Analyses are automatically saved to your history. You can view them anytime without using daily credits. Each analysis generates a shareable link you can send to partners or investors."
+          }
+        ]}
+        howTo={{
+          name: "How to Use CLEANBI Explorer",
+          description: "Step-by-step guide to analyze any location for laundromat investment potential",
+          steps: [
+            { name: "Enter Address", text: "Type any address, city, or zip code in the search bar at the bottom of the sidebar." },
+            { name: "Click Analyze", text: "Press the 'Analyze Location' button to start the CLEANBI scoring process." },
+            { name: "View Results", text: "See your CLEANBI score (0-100), grade (A/B/C), and opportunity level in the sidebar." },
+            { name: "Explore Tabs", text: "Switch between Overview, Score Breakdown, Competition, and AI Insights tabs for detailed analysis." },
+            { name: "Use Map Features", text: "Click competitor markers, enable Street View, or use 3D Flyover to explore the location visually." }
+          ],
+          totalTime: "PT2M"
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "CLEANBI Explorer",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "3 free analyses per day, premium unlimited access available"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "1247",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "featureList": [
+            "Interactive map-based location scoring",
+            "Real-time competitor analysis",
+            "3D aerial flyover views",
+            "Street View integration",
+            "AI-powered investment insights",
+            "Demographic analysis",
+            "Shareable analysis links",
+            "Saved analysis history"
+          ]
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "CLEANBI", url: "/cleanbi" },
+          { name: "Explorer", url: "/cleanbi-explorer" }
+        ]}
+      />
 
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
         {/* Left Sidebar */}

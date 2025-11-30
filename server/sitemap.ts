@@ -100,6 +100,7 @@ export function registerSitemapRoutes(app: Express) {
       // CLEANBI - Main revenue driver (0.95-1.0)
       // ============================================================================
       { loc: '/cleanbi-auto', lastmod: today, changefreq: 'daily', priority: 1.0 },
+      { loc: '/cleanbi-explorer', lastmod: today, changefreq: 'daily', priority: 1.0 },
       { loc: '/cleanbi', lastmod: today, changefreq: 'daily', priority: 0.95 },
       { loc: '/cleanbi-tool', lastmod: today, changefreq: 'daily', priority: 0.95 },
       { loc: '/cleanbi-calculator', lastmod: today, changefreq: 'weekly', priority: 0.9 },
