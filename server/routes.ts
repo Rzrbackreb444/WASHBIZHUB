@@ -1781,10 +1781,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // CRITICAL: Force userId from authenticated user
+      // CRITICAL: Force userId from authenticated user (schema expects userId, not ownerId)
       const validated = insertLaundromatSchema.parse({
         ...req.body,
-        ownerId: currentUser.userId,
+        userId: currentUser.userId,
       });
       const laundromat = await storage.createLaundromat(validated);
       res.json(laundromat);

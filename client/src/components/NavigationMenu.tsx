@@ -82,8 +82,9 @@ const EVALUATE_LINKS = [
   { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis", featured: true },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
   { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },
+  { href: "/distributor-locator", label: "Equipment Distributors", icon: MapPin, description: "Find authorized distributors for 11+ brands", highlight: true },
+  { href: "/laundromat-locator", label: "Find Laundromats", icon: MapPin, description: "Search or list your laundromat business" },
   { href: "/resources", label: "Due Diligence Guide", icon: ClipboardCheck, description: "What to check before buying" },
-  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: ShoppingCart, description: "Browse new & used equipment" },
 ];
 
 const OPERATE_LINKS = [
@@ -119,6 +120,8 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
       { href: "/cleanbi-auto", label: "CLEANBI" },
       { href: "/laundromat-listings", label: "Listings" },
       { href: "/valuation-calculator", label: "Valuation" },
+      { href: "/distributor-locator", label: "Distributors" },
+      { href: "/laundromat-locator", label: "Find Laundromats" },
     ],
   },
   "/operate": {
@@ -161,7 +164,7 @@ function getContextualSection(pathname: string): string | null {
   if (pathname.startsWith("/calculator") || pathname.startsWith("/startup") || pathname.startsWith("/book") || pathname.startsWith("/blog") || pathname.startsWith("/consultation")) {
     return "/plan";
   }
-  if (pathname.startsWith("/cleanbi") || pathname.startsWith("/laundromat-listing") || pathname.startsWith("/valuation") || pathname.startsWith("/resources")) {
+  if (pathname.startsWith("/cleanbi") || pathname.startsWith("/laundromat-listing") || pathname.startsWith("/valuation") || pathname.startsWith("/resources") || pathname.startsWith("/distributor-locator") || pathname.startsWith("/laundromat-locator")) {
     return "/evaluate";
   }
   if (pathname.startsWith("/pos") || pathname.startsWith("/service") || pathname.startsWith("/equipment") || pathname.startsWith("/design")) {
