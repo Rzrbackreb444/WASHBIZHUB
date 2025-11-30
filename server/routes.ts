@@ -6330,6 +6330,70 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // POST /api/consultation-council/checkout - Create Stripe checkout for consultation purchase
+  app.post("/api/consultation-council/checkout", async (req, res) => {
+    try {
+      const { tierId, address } = req.body;
+      
+      if (!tierId) {
+        return res.status(400).json({ error: "Tier ID is required" });
+      }
+
+      const { CONSULTATION_TIERS } = await import("./consultation-council");
+      const tier = CONSULTATION_TIERS.find((t: any) => t.id === tierId);
+      
+      if (!tier) {
+        return res.status(400).json({ error: "Invalid tier" });
+      }
+
+      if (tier.price === 0) {
+        return res.json({ freeAnalysis: true, tierId });
+      }
+
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+
+      const Stripe = (await import("stripe")).default;
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2025-10-29.clover" as any
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [{
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `AI Consultation Council - ${tier.name}`,
+              description: tier.features.slice(0, 3).join(" | "),
+              metadata: {
+                tierId: tier.id,
+                address: address || "Not provided"
+              }
+            },
+            unit_amount: tier.price * 100,
+          },
+          quantity: 1,
+        }],
+        mode: "payment",
+        success_url: `${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : process.env.BASE_URL || "http://localhost:5000"}/ai-consultation?success=true&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : process.env.BASE_URL || "http://localhost:5000"}/ai-consultation?cancelled=true`,
+        metadata: {
+          type: "consultation_council",
+          tierId: tier.id,
+          tierName: tier.name,
+          address: address || "Not provided"
+        }
+      });
+
+      res.json({ checkoutUrl: session.url, sessionId: session.id });
+    } catch (error: any) {
+      console.error("Consultation checkout error:", error);
+      res.status(500).json({ error: error.message || "Checkout failed" });
+    }
+  });
+
   // POST /api/consultation-council/tiered - Run tiered consultation with selected package
   app.post("/api/consultation-council/tiered", rateLimiter("/api/consultation-council/tiered", 3, 60), async (req, res) => {
     try {
