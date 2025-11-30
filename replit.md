@@ -52,7 +52,15 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
 -   **GLOBAL EMAIL CAPTURE SUITE:** Industry-segmented newsletter system with Resend integration for automated campaigns, tracking engagement, lead scoring, and conversion attribution.
 -   **GLOBAL SEO/AEO TRACKING:** Comprehensive system for tracking keyword rankings (SERP API), organic traffic, Answer Engine Optimization performance, and competitor analysis, linking blog performance to conversions.
 -   **REGIONAL PRICING SYSTEM:** PPP-adjusted pricing for 220+ countries with multi-currency support, tracking Stripe price IDs and supporting phased market rollouts.
--   **CLEANBI Intelligence System:** A Google-powered tool for scoring any address globally (businesses and residential properties), including an auto-calculator and a Chrome extension for viral distribution.
+-   **CLEANBI Intelligence System:** A multi-source property intelligence tool for scoring any address globally (businesses and residential properties), including an auto-calculator and a Chrome extension for viral distribution.
+-   **CLEANBI Multi-Source Data Enrichment:** Production data enrichment pipeline (November 2025):
+    *   **Census Bureau Integration:** County-level ACS demographics (income, renter %, population density) via ZIP-to-FIPS resolution with 70+ major metro ZIP prefix mappings
+    *   **ATTOM API Integration:** Property values, permits, market trends (when API key available, graceful fallback otherwise)
+    *   **Google Places Integration:** Geocoding, competitor search, place details, reviews
+    *   **Master Formulas Scoring:** 6-factor weighted system - Market (25%), Financial (25%), Lease (20%), Equipment (15%), Utilities (10%), Growth (5%)
+    *   **Tiered Access Control:** Free (Google + basic Census) → Starter (full Census + property) → Pro (ATTOM + growth) → Enterprise (premium insights)
+    *   **Confidence Scoring:** Weighted by data source (Google 0.25, Census 0.25, ATTOM 0.20, lease docs 0.15, manufacturer lookups 0.15) with fallback penalties
+    *   **API Endpoint:** POST /api/cleanbi/enriched with optional financial/lease/equipment/utilities inputs
 -   **CLEANBI Optimization Infrastructure:** Production-grade optimization stack including:
     *   **Shared Metrics Service:** Regional baselines with PPP-adjusted normalization and reusable calculations.
     *   **Tiered Subscription System:** Seven revenue tiers with Stripe webhook synchronization, usage tracking, quota enforcement, and overage billing.
