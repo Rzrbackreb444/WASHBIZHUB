@@ -642,46 +642,54 @@ export default function CleanBIExplorer() {
           <ScrollArea className="flex-1">
             {/* Header */}
             <div className="p-4 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg">
-                  <Globe className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg">
+                  <Globe className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="font-bold text-white text-xl">CLEANBI™ Explorer</h1>
-                  <p className="text-xs text-white/50">Market Intelligence Platform</p>
+                  <h1 className="font-bold text-white text-lg">CLEANBI™ Explorer</h1>
+                  <p className="text-xs text-white/50">AI-Powered Location Intelligence</p>
                 </div>
               </div>
 
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
-                  placeholder="Enter any address to analyze..."
-                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 h-11"
-                  data-testid="input-explorer-address"
-                />
-              </div>
+              {/* Search Section - Prominent */}
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#C8A661]" />
+                  Analyze Any Location
+                </div>
+                
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
+                    placeholder="Enter address, city, or zip code..."
+                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base"
+                    data-testid="input-explorer-address"
+                  />
+                </div>
 
-              <Button 
-                onClick={analyzeLocation}
-                disabled={isAnalyzing}
-                className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-11"
-                data-testid="button-analyze-location"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Analyzing Location...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Analyze Location
-                  </>
-                )}
-              </Button>
+                <Button 
+                  onClick={analyzeLocation}
+                  disabled={isAnalyzing}
+                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-base font-medium"
+                  data-testid="button-analyze-location"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 mr-2" />
+                      Analyze Location
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             {/* Analysis Result */}
@@ -1032,69 +1040,6 @@ export default function CleanBIExplorer() {
             data-testid="explorer-map"
           />
 
-          {/* Floating Search Bar - Always visible on map */}
-          <div className="absolute top-4 left-4 right-4 z-10">
-            <div className="bg-black/80 backdrop-blur-md rounded-2xl p-4 max-w-2xl mx-auto border border-white/20 shadow-2xl">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">CLEANBI™ Explorer</h2>
-                  <p className="text-white/50 text-xs">AI-Powered Location Intelligence</p>
-                </div>
-              </div>
-              
-              {/* Search Input - Always Visible */}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <Input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
-                    placeholder="Enter any address to analyze..."
-                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base rounded-xl"
-                    data-testid="input-map-search"
-                  />
-                </div>
-                <Button 
-                  onClick={analyzeLocation}
-                  disabled={isAnalyzing}
-                  className="bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 px-6 rounded-xl"
-                  data-testid="button-analyze-map"
-                >
-                  {isAnalyzing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Zap className="w-5 h-5 mr-2" />
-                      Analyze
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {/* Saved locations quick access */}
-              {savedAnalyses.length > 0 && !analysisResult && (
-                <div className="mt-3 pt-3 border-t border-white/10">
-                  <div className="text-xs text-white/40 mb-2">Recent analyses:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {savedAnalyses.slice(0, 4).map((saved) => (
-                      <Badge 
-                        key={saved.id}
-                        className="cursor-pointer hover:opacity-80 text-xs"
-                        style={{ backgroundColor: GRADE_COLORS[saved.grade] + "33", color: GRADE_COLORS[saved.grade] }}
-                        onClick={() => loadSavedAnalysis(saved)}
-                      >
-                        {saved.grade} · {saved.address.split(",")[0]}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Street View Modal */}
