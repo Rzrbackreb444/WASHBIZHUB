@@ -529,6 +529,29 @@ export const CLEANBI_EXTENSION_HOWTO_SCHEMA = generateHowToSchema(
 );
 
 // ============================================
+// SPEAKABLE SPECIFICATION GENERATOR
+// ============================================
+
+export function generateSpeakableSchema(
+  pageName: string,
+  pageUrl: string,
+  description: string,
+  cssSelectors: string[] = ["h1", "h2", ".speakable"]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": pageName,
+    "url": pageUrl.startsWith('http') ? pageUrl : `${BASE_URL}${pageUrl}`,
+    "description": description,
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": cssSelectors
+    }
+  };
+}
+
+// ============================================
 // HOMEPAGE COMPREHENSIVE SCHEMAS
 // ============================================
 
@@ -555,6 +578,136 @@ export const HOMEPAGE_FAQ_SCHEMA = generateFAQSchema([
   }
 ]);
 
+// ============================================
+// LAUNDROMAT INDUSTRY FAQ SCHEMAS
+// ============================================
+
+export const LAUNDROMAT_INDUSTRY_FAQ_SCHEMA = generateFAQSchema([
+  {
+    question: "How much does it cost to open a laundromat?",
+    answer: "Opening a laundromat typically costs between $200,000 to $1,000,000+ depending on location, size, and whether you're building new or retrofitting existing space. Key costs include: equipment ($100K-$500K), build-out/renovation ($50K-$300K), permits and licenses ($5K-$15K), initial inventory and supplies ($5K-$10K), and working capital. Use WashBizHub's ROI calculator to estimate costs for your specific situation."
+  },
+  {
+    question: "What is the average ROI for a laundromat?",
+    answer: "Laundromats typically generate 20-35% cash-on-cash returns, making them one of the most profitable small business investments. Average net operating margins range from 15-35%, with well-run operations achieving higher margins. Factors affecting ROI include location, machine efficiency, pricing strategy, and operating costs. WashBizHub's valuation tools can help estimate potential returns."
+  },
+  {
+    question: "How do I value a laundromat for purchase?",
+    answer: "Laundromats are typically valued at 2.5x to 4x annual net operating income (NOI). Key valuation factors include: gross revenue, net income, equipment age and condition, lease terms, location demographics, and competition. Premium valuations (3.5x-4x+) apply to turnkey operations with newer equipment. WashBizHub's valuation calculator uses these industry-standard multiples."
+  },
+  {
+    question: "What equipment do I need for a laundromat?",
+    answer: "Essential laundromat equipment includes: front-load washers (20-80lb capacity), top-load washers (20-40lb capacity), stacked or single dryers, coin/card payment systems, change machines, folding tables, seating, and utility carts. Top brands include Speed Queen, Dexter, Continental, and Huebsch. Equipment costs range from $5,000-$30,000 per machine depending on capacity and features."
+  },
+  {
+    question: "How much revenue does a laundromat generate?",
+    answer: "Laundromat revenue varies widely based on size and location. A typical 2,000-3,000 sq ft laundromat generates $200,000-$500,000 annually. High-performing locations in urban areas can exceed $750,000+. Revenue depends on turns per day (TPD), pricing strategy, and ancillary services like wash-dry-fold. Industry average is $300-$500 revenue per square foot annually."
+  },
+  {
+    question: "What is Turns Per Day (TPD) for laundromats?",
+    answer: "Turns Per Day (TPD) measures how many times each machine is used daily on average. Industry benchmarks: 4-5 TPD is average, 6-7 TPD is good, 8+ TPD is excellent. Higher TPD indicates better location and demand. TPD directly impacts revenue and ROI. Use WashBizHub's TPD calculator to analyze potential or existing locations."
+  },
+  {
+    question: "How do I find a good location for a laundromat?",
+    answer: "Key factors for laundromat location include: high renter population (40%+ ideal), population density (5,000+ within 1-mile radius), visible storefront with parking, limited competition, household income $30K-$75K, proximity to apartments/multi-family housing, and good foot traffic. CLEANBI scores help analyze these factors for any address globally."
+  },
+  {
+    question: "What are the ongoing costs of operating a laundromat?",
+    answer: "Monthly operating costs typically include: utilities (water, gas, electric) $1,500-$5,000, rent $2,000-$8,000, insurance $300-$600, maintenance/repairs $500-$2,000, supplies $200-$500, and staff wages if attended. Total monthly expenses range from $5,000-$20,000 depending on size and location. Aim for 30-40% of gross revenue for total operating costs."
+  }
+]);
+
+// ============================================
+// PRICING PAGE FAQ SCHEMA
+// ============================================
+
+export const PRICING_FAQ_SCHEMA = generateFAQSchema([
+  {
+    question: "Is the WashBizHub 14-day trial really free?",
+    answer: "Yes! Start your 14-day full POS trial with no credit card required. Experience unlimited machines, AI predictive alerts, and dynamic pricing with zero commitment. You keep access to AI maintenance alerts even if you don't continue after the trial."
+  },
+  {
+    question: "What's included in the free forever plan?",
+    answer: "The free plan includes CLEANBI Score (unlimited), Service Guy AI (2 messages), 50+ business calculators, Design Studio 2D, Marketplace Cash-Back (5-15%), access to the 2,200+ error code database, community forum with 72K+ members, and educational content."
+  },
+  {
+    question: "What happens after the 14-day trial ends?",
+    answer: "After your trial, choose between $149/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI predictive maintenance alerts even if you cancel the paid subscription."
+  },
+  {
+    question: "How much can I save with WashBizPOS?",
+    answer: "Owners typically save $2,000-$12,000 in the first year through AI predictive maintenance alerts (preventing costly breakdowns), dynamic pricing (+22% revenue boost), and reduced transaction fees compared to competitors who charge 6-8% per transaction."
+  },
+  {
+    question: "What payment options are available after the trial?",
+    answer: "WashBizPOS Pro offers two payment models: $149/month flat rate for unlimited transactions with predictable costs, or $0/month base + 1.9% per transaction (pay only when you earn). Both options include all premium features like AI alerts, dynamic pricing, and IoT monitoring."
+  },
+  {
+    question: "Can I upgrade or downgrade my plan anytime?",
+    answer: "Yes! You can upgrade, downgrade, or switch between payment models (flat vs. transaction-based) at any time. There are no long-term contracts or cancellation fees. The free tier is always available as a fallback with essential tools."
+  }
+]);
+
+// ============================================
+// CALCULATOR HOWTO SCHEMAS
+// ============================================
+
+export const ROI_CALCULATOR_HOWTO_SCHEMA = generateHowToSchema(
+  "How to Calculate Laundromat ROI",
+  "Step-by-step guide to calculate return on investment for a laundromat purchase or startup using WashBizHub's free ROI calculator",
+  [
+    {
+      name: "Enter Purchase Price",
+      text: "Input the total acquisition cost including equipment, build-out, and any renovation expenses. For existing laundromats, use the asking price."
+    },
+    {
+      name: "Input Monthly Revenue",
+      text: "Enter the monthly gross revenue from all sources: coin/card machines, wash-dry-fold services, and any vending or ancillary income."
+    },
+    {
+      name: "Add Operating Expenses",
+      text: "Include all monthly costs: utilities (water, gas, electric), rent, insurance, maintenance, supplies, and any staff wages."
+    },
+    {
+      name: "Review ROI Results",
+      text: "The calculator displays your cash-on-cash return, net operating income, cap rate, and payback period. Industry benchmark is 20-35% ROI."
+    },
+    {
+      name: "Compare Scenarios",
+      text: "Adjust variables to see how changes in pricing, expenses, or revenue affect your ROI. Save scenarios for comparison."
+    }
+  ],
+  "PT5M"
+);
+
+export const VALUATION_CALCULATOR_HOWTO_SCHEMA = generateHowToSchema(
+  "How to Value a Laundromat",
+  "Professional guide to valuing a laundromat business using industry-standard multiples and the WashBizHub valuation calculator",
+  [
+    {
+      name: "Gather Financial Data",
+      text: "Collect the laundromat's annual gross revenue, operating expenses, and calculate net operating income (NOI). Request P&L statements for the past 2-3 years."
+    },
+    {
+      name: "Enter Revenue and Expenses",
+      text: "Input annual gross revenue and itemized operating expenses into the WashBizHub valuation calculator."
+    },
+    {
+      name: "Assess Equipment Condition",
+      text: "Rate equipment age and condition. Newer equipment (0-5 years) commands premium multiples; older equipment (10+ years) may require discounts."
+    },
+    {
+      name: "Apply Industry Multiples",
+      text: "Standard laundromat valuation uses 2.5x-4x annual NOI. Premium locations with newer equipment and strong leases achieve higher multiples."
+    },
+    {
+      name: "Review Comprehensive Valuation",
+      text: "Get your estimated value range, suggested offer price, and detailed breakdown of value drivers and risk factors."
+    }
+  ],
+  "PT10M"
+);
+
 // Export all schemas for easy access
 export const AEO_SCHEMAS = {
   CLEANBI_FAQ_SCHEMA,
@@ -564,6 +717,10 @@ export const AEO_SCHEMAS = {
   CLEANBI_EXTENSION_FAQ_SCHEMA,
   CLEANBI_EXTENSION_HOWTO_SCHEMA,
   HOMEPAGE_FAQ_SCHEMA,
+  LAUNDROMAT_INDUSTRY_FAQ_SCHEMA,
+  PRICING_FAQ_SCHEMA,
+  ROI_CALCULATOR_HOWTO_SCHEMA,
+  VALUATION_CALCULATOR_HOWTO_SCHEMA,
   generateFAQSchema,
   generateHowToSchema,
   generateArticleSchema,
@@ -573,4 +730,5 @@ export const AEO_SCHEMAS = {
   generateBreadcrumbSchema,
   generateCourseSchema,
   generateProductSchema,
+  generateSpeakableSchema,
 };

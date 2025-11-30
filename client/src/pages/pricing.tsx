@@ -36,71 +36,62 @@ import {
 export default function Pricing() {
   const pricingFaqs = [
     {
-      question: "Is there really no credit card required for the trial?",
-      answer: "Correct! Start your 14-day full POS trial with no credit card required. Experience unlimited machines, AI predictive alerts, and dynamic pricing with zero commitment."
+      question: "Is the WashBizHub 14-day trial really free?",
+      answer: "Yes! Start your 14-day full POS trial with no credit card required. Experience unlimited machines, AI predictive alerts, and dynamic pricing with zero commitment. You keep access to AI maintenance alerts even if you don't continue after the trial."
     },
     {
       question: "What's included in the free forever plan?",
-      answer: "The free plan includes CLEANBI Score (unlimited), 50+ business calculators, Design Studio 2D, Marketplace Cash-Back (5-15%), access to the 2,200+ error code database, community forum, and educational content."
+      answer: "The free plan includes CLEANBI Score (unlimited), Service Guy AI (2 messages), 50+ business calculators, Design Studio 2D, Marketplace Cash-Back (5-15%), access to the 2,200+ error code database, community forum with 72K+ members, and educational content."
     },
     {
       question: "What happens after the 14-day trial ends?",
-      answer: "After your trial, choose between $149/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI alerts even if you cancel."
+      answer: "After your trial, choose between $149/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI predictive maintenance alerts even if you cancel the paid subscription."
     },
     {
       question: "How much can I save with WashBizPOS?",
-      answer: "Owners typically save $2,000-$12,000 in the first year through AI predictive maintenance alerts (preventing costly breakdowns), dynamic pricing (+22% revenue boost), and reduced transaction fees compared to competitors."
+      answer: "Owners typically save $2,000-$12,000 in the first year through AI predictive maintenance alerts (preventing costly breakdowns), dynamic pricing (+22% revenue boost), and reduced transaction fees compared to competitors who charge 6-8% per transaction."
+    },
+    {
+      question: "What payment options are available after the trial?",
+      answer: "WashBizPOS Pro offers two payment models: $149/month flat rate for unlimited transactions with predictable costs, or $0/month base + 1.9% per transaction (pay only when you earn). Both options include all premium features like AI alerts, dynamic pricing, and IoT monitoring."
+    },
+    {
+      question: "Can I upgrade or downgrade my plan anytime?",
+      answer: "Yes! You can upgrade, downgrade, or switch between payment models (flat vs. transaction-based) at any time. There are no long-term contracts or cancellation fees. The free tier is always available as a fallback with essential tools."
     }
   ];
 
-  const pricingSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "WashBizPOS Pro",
-    "description": "Complete laundromat POS system with AI predictive maintenance, dynamic pricing, and IoT monitoring",
-    "brand": {
-      "@type": "Brand",
-      "name": "WashBizHub"
+  const productOffers = [
+    {
+      name: "Free Forever Plan",
+      description: "Essential laundromat tools at no cost: CLEANBI Score, 50+ calculators, Design Studio 2D, community forum, and educational content.",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "InStock" as const
     },
-    "offers": [
-      {
-        "@type": "Offer",
-        "name": "Free Forever",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
-      },
-      {
-        "@type": "Offer",
-        "name": "14-Day Full Trial",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock",
-        "priceValidUntil": "2025-12-31"
-      },
-      {
-        "@type": "Offer",
-        "name": "WashBizPOS Pro Flat",
-        "price": "149",
-        "priceCurrency": "USD",
-        "billingIncrement": "P1M",
-        "availability": "https://schema.org/InStock"
-      }
-    ]
-  };
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": pricingFaqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
-  };
+    {
+      name: "14-Day Full Trial",
+      description: "Complete POS experience with unlimited machines, AI predictive alerts, dynamic pricing, and full analytics. No credit card required.",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "InStock" as const,
+      priceValidUntil: "2025-12-31"
+    },
+    {
+      name: "WashBizPOS Pro - Flat Rate",
+      description: "Unlimited transactions with predictable monthly cost. Includes AI predictive maintenance, dynamic pricing, IoT monitoring, and priority support.",
+      price: "149",
+      priceCurrency: "USD",
+      availability: "InStock" as const
+    },
+    {
+      name: "WashBizPOS Pro - Transaction Based",
+      description: "Pay only when you earn with 1.9% per transaction. All Pro features included: AI alerts, dynamic pricing, unlimited machines, and full analytics.",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "InStock" as const
+    }
+  ];
   const [pricingModel, setPricingModel] = useState<"flat" | "transaction">("flat");
 
   // New 2025 winning pricing strategy
@@ -416,7 +407,7 @@ export default function Pricing() {
     <>
       <SEO 
         title="Pricing - 14-Day Free Trial | $149/mo or 1.9% Transaction Fee"
-        description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $149/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year. 68% trial-to-paid conversion."
+        description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $149/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year with AI predictive maintenance. 68% trial-to-paid conversion."
         canonicalUrl="/pricing"
         keywords={[
           "laundromat POS pricing",
@@ -425,9 +416,13 @@ export default function Pricing() {
           "WashBizPOS pricing",
           "laundromat management software",
           "coin laundry POS system",
-          "dynamic pricing laundromat"
+          "dynamic pricing laundromat",
+          "laundromat payment system",
+          "best laundromat software 2025"
         ]}
-        structuredData={[pricingSchema, faqSchema]}
+        faqs={pricingFaqs}
+        productOffers={productOffers}
+        speakableSelectors={["h1", "h2", ".speakable", "[data-testid='text-pricing-title']", "[data-testid='text-pricing-subtitle']"]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Pricing", url: "/pricing" }
