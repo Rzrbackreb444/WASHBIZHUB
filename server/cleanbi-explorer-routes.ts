@@ -479,7 +479,8 @@ router.post("/analyze", async (req: Request, res: Response) => {
         analysis: cached,
         competitors,
         heatmapData,
-        tier
+        tier,
+        remainingDaily: rateCheck.remainingDaily
       });
     }
 
@@ -547,6 +548,7 @@ router.post("/analyze", async (req: Request, res: Response) => {
       competitors,
       heatmapData,
       tier,
+      remainingDaily: rateCheck.remainingDaily,
       dataQuality: enrichedData.dataQuality
     });
 
