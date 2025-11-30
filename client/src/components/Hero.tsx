@@ -596,6 +596,9 @@ export function Hero() {
               </Button>
             </Link>
           </div>
+          <p className="mt-4 text-sm text-gray-300/80" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+            <span className="text-teal-400 font-medium">3 free analyses/day</span> · Unlimited with Pro
+          </p>
         </div>
       </div>
     </section>
