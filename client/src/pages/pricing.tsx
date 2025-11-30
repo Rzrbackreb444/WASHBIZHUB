@@ -45,7 +45,7 @@ export default function Pricing() {
     },
     {
       question: "What happens after the 14-day trial ends?",
-      answer: "After your trial, choose between $99/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI alerts even if you cancel."
+      answer: "After your trial, choose between $149/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI alerts even if you cancel."
     },
     {
       question: "How much can I save with WashBizPOS?",
@@ -81,7 +81,7 @@ export default function Pricing() {
       {
         "@type": "Offer",
         "name": "WashBizPOS Pro Flat",
-        "price": "99",
+        "price": "149",
         "priceCurrency": "USD",
         "billingIncrement": "P1M",
         "availability": "https://schema.org/InStock"
@@ -149,7 +149,7 @@ export default function Pricing() {
     },
     {
       name: "WashBizPOS Pro",
-      price: pricingModel === "flat" ? 99 : 0,
+      price: pricingModel === "flat" ? 149 : 0,
       transactionFee: pricingModel === "transaction" ? "1.9%" : null,
       icon: Crown,
       iconBg: "bg-purple-100 dark:bg-purple-900/30",
@@ -176,7 +176,7 @@ export default function Pricing() {
   const tiers = [
     {
       name: "Accelerate",
-      price: 249,
+      price: 349,
       icon: Zap,
       iconBg: "bg-blue-100 dark:bg-blue-900/30",
       iconColor: "text-blue-600 dark:text-blue-400",
@@ -203,7 +203,7 @@ export default function Pricing() {
     },
     {
       name: "Scale",
-      price: 499,
+      price: 699,
       icon: TrendingUp,
       iconBg: "bg-accent/10",
       iconColor: "text-accent",
@@ -233,7 +233,7 @@ export default function Pricing() {
     },
     {
       name: "Summit",
-      price: 899,
+      price: 1199,
       icon: Crown,
       iconBg: "bg-purple-100 dark:bg-purple-900/30",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -415,8 +415,8 @@ export default function Pricing() {
   return (
     <>
       <SEO 
-        title="Pricing - 14-Day Free Trial | $99/mo or 1.9% Transaction Fee"
-        description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $99/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year. 68% trial-to-paid conversion."
+        title="Pricing - 14-Day Free Trial | $149/mo or 1.9% Transaction Fee"
+        description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $149/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year. 68% trial-to-paid conversion."
         canonicalUrl="/pricing"
         keywords={[
           "laundromat POS pricing",
@@ -569,7 +569,7 @@ export default function Pricing() {
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="flat" data-testid="tab-flat-pricing">
                     <DollarSign className="h-4 w-4 mr-1" />
-                    $99/mo Flat
+                    $149/mo Flat
                   </TabsTrigger>
                   <TabsTrigger value="transaction" data-testid="tab-transaction-pricing">
                     <TrendingUp className="h-4 w-4 mr-1" />

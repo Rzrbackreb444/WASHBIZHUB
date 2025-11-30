@@ -79,7 +79,7 @@ export default function Consultation() {
         userId: null, // Optional - user might not be logged in
         status: "new",
         priority: "normal",
-        consultationFee: "297.00", // $297 consultation fee
+        consultationFee: "397.00", // $397 consultation fee
         paid: false,
       });
       return response.json();
@@ -154,7 +154,7 @@ export default function Consultation() {
           </p>
           <div className="flex items-center justify-center gap-2 text-accent font-semibold">
             <DollarSign className="w-5 h-5" />
-            <span>$297 per 60-minute session</span>
+            <span>$397 per 60-minute session</span>
           </div>
         </div>
 
@@ -402,7 +402,7 @@ export default function Consultation() {
                   <li>• Confirmation call within 24 hours</li>
                   <li>• Calendar invite with video link</li>
                   <li>• Pre-consultation questionnaire</li>
-                  <li>• Payment link ($297)</li>
+                  <li>• Payment link ($397)</li>
                 </ul>
               </div>
               <div>
