@@ -84,10 +84,10 @@ export function Footer() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-[hsl(45,38%,42%)] hover:bg-[hsl(45,38%,35%)] text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg border border-[hsl(45,38%,50%)]"
             data-testid="link-footer-startup-funding"
-            aria-label="Apply for startup funding - personal credit $5K to $150K"
+            aria-label="Apply for startup funding - up to $500K"
           >
             <DollarSign className="h-5 w-5" />
-            <span>Get Startup Funding — $5K-$150K Personal Credit</span>
+            <span>Get Startup Funding — Up to $500K</span>
           </a>
         </div>
 
