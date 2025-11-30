@@ -62,6 +62,8 @@ export function Footer() {
             src={logoUrl} 
             alt="WashBizHub - The #1 Laundromat Resource" 
             className="h-40 sm:h-48 md:h-56 lg:h-60 w-auto mx-auto mb-6" 
+            width={400}
+            height={240}
             data-testid="img-footer-logo"
           />
           <p className="text-[hsl(45,38%,59%)] text-lg sm:text-xl font-semibold tracking-wider">
@@ -380,6 +382,8 @@ export function Footer() {
                     src={serviceGuyAiLogoUrl} 
                     alt="Service Guy AI - Premium Commercial Laundry Equipment Diagnostics" 
                     className="h-24 md:h-32 w-auto object-contain cursor-pointer hover:scale-105 transition-transform"
+                    width={200}
+                    height={128}
                     data-testid="img-footer-service-guy-ai"
                   />
                 </Link>

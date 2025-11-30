@@ -805,7 +805,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-2xl">
-              <img src={serviceGuyAILogo} alt="Service Guy AI" className="h-10 w-10 rounded-full" />
+              <img src={serviceGuyAILogo} alt="Service Guy AI" className="h-10 w-10 rounded-full" width={40} height={40} />
               Service Guy AI Pricing
             </DialogTitle>
             <DialogDescription>
