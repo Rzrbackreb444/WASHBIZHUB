@@ -16,6 +16,15 @@ export function Header() {
 
   return (
     <>
+      {/* Skip to Content Link - Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-primary-foreground focus:ring-offset-2"
+        data-testid="link-skip-to-content"
+      >
+        Skip to main content
+      </a>
+      
       {/* Enterprise Trust Bar - Navy/Teal Theme */}
       <div className="bg-navy-900 border-b border-teal-400/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -50,8 +59,8 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between py-3">
           {/* Logo - Responsive sizing */}
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer hover-elevate active-elevate-2 rounded-md px-2" data-testid="link-logo">
+          <Link href="/" aria-label="WashBizHub Home">
+            <div className="flex items-center gap-2 cursor-pointer hover-elevate active-elevate-2 rounded-md px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" data-testid="link-logo">
               <img 
                 src={logoUrl} 
                 alt="WashBizHub" 
@@ -61,17 +70,20 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation - Mega Menu Trigger - Hidden on mobile/tablet */}
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-2" role="navigation" aria-label="Main navigation">
             <Button
               variant="default"
               size="lg"
-              className="text-base font-bold bg-primary text-primary-foreground"
+              className="text-base font-bold bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-offset-2"
               onMouseEnter={() => setMegaMenuOpen(true)}
               onMouseLeave={() => setMegaMenuOpen(false)}
               onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+              aria-expanded={megaMenuOpen}
+              aria-haspopup="true"
+              aria-label="Explore Platform - Open navigation menu"
               data-testid="button-mega-menu"
             >
-              Explore Platform <ChevronDown className={`ml-2 h-5 w-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} />
+              Explore Platform <ChevronDown className={`ml-2 h-5 w-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
             </Button>
           </nav>
 
@@ -94,9 +106,10 @@ export function Header() {
                       <Button 
                         variant="ghost"
                         size="icon"
+                        aria-label="Settings"
                         data-testid="button-settings"
                       >
-                        <SettingsIcon className="h-4 w-4" />
+                        <SettingsIcon className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     </Link>
                     
@@ -126,9 +139,10 @@ export function Header() {
                       variant="ghost"
                       size="icon"
                       className="sm:hidden"
+                      aria-label="Logout"
                       data-testid="button-logout-mobile"
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </>
                 ) : (
@@ -150,9 +164,10 @@ export function Header() {
                       variant="ghost"
                       size="icon"
                       className="sm:hidden"
+                      aria-label="Login"
                       data-testid="button-login-mobile"
                     >
-                      <LogIn className="h-4 w-4" />
+                      <LogIn className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </>
                 )}
@@ -190,9 +205,12 @@ export function Header() {
               size="icon"
               className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-controls="mobile-navigation"
               data-testid="button-mobile-menu"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
             </Button>
           </div>
         </div>
@@ -435,7 +453,13 @@ export function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-border max-h-[80vh] overflow-y-auto" data-testid="nav-mobile-menu">
+          <nav 
+            id="mobile-navigation"
+            className="lg:hidden py-4 border-t border-border max-h-[80vh] overflow-y-auto" 
+            role="navigation"
+            aria-label="Mobile navigation"
+            data-testid="nav-mobile-menu"
+          >
             <div className="space-y-4">
               {/* Platform Section */}
               <div>

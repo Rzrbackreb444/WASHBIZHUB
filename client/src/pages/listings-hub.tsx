@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +9,151 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Building2, MapPin, DollarSign, TrendingUp, Search, 
   Star, Eye, Clock, ArrowRight, Plus, Crown, Sparkles,
-  Image as ImageIcon
+  Image as ImageIcon, Gem
 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import type { Listing } from '@shared/schema';
+
+function generateListingsStructuredData(listings: Listing[], baseUrl: string) {
+  if (!listings || listings.length === 0) return null;
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Laundromat and Business Listings For Sale",
+    "description": "Browse premium laundromat business opportunities with CLEANBI™ scoring, owner financing options, and professional broker support.",
+    "numberOfItems": listings.length,
+    "itemListElement": listings.map((listing, index) => {
+      const locationParts = [];
+      if (listing.city) locationParts.push(listing.city);
+      if (listing.region) locationParts.push(listing.region);
+      if (listing.country) locationParts.push(listing.country);
+      
+      const addressLocality = listing.city || listing.generalLocation || undefined;
+      const addressRegion = listing.region || undefined;
+      const addressCountry = listing.country || 'US';
+
+      const price = listing.priceInUSD ? parseFloat(listing.priceInUSD) : undefined;
+
+      const listItem: Record<string, unknown> = {
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "LocalBusiness",
+          "@id": `${baseUrl}/listing/${listing.slug || listing.id}`,
+          "name": listing.title,
+          "description": listing.tagline || listing.description?.substring(0, 160) || `${listing.businessType} business opportunity`,
+          "url": `${baseUrl}/listing/${listing.slug || listing.id}`,
+          "image": listing.featuredImage || `${baseUrl}/washbizhub-logo.png`,
+          ...(addressLocality || addressRegion ? {
+            "address": {
+              "@type": "PostalAddress",
+              ...(addressLocality && { "addressLocality": addressLocality }),
+              ...(addressRegion && { "addressRegion": addressRegion }),
+              "addressCountry": addressCountry
+            }
+          } : {}),
+          ...(listing.latitude && listing.longitude ? {
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": parseFloat(listing.latitude as string),
+              "longitude": parseFloat(listing.longitude as string)
+            }
+          } : {}),
+          "additionalType": `https://schema.org/${listing.businessType === 'laundromat' ? 'Laundromat' : 'LocalBusiness'}`,
+          ...(price ? {
+            "priceRange": price >= 1000000 ? "$$$$$" : price >= 500000 ? "$$$$" : price >= 250000 ? "$$$" : "$$",
+            "makesOffer": {
+              "@type": "Offer",
+              "price": price,
+              "priceCurrency": listing.currency || "USD",
+              "availability": listing.status === 'active' ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+              "itemOffered": {
+                "@type": "Product",
+                "name": listing.title,
+                "category": listing.businessType
+              }
+            }
+          } : {})
+        }
+      };
+
+      return listItem;
+    })
+  };
+
+  const collectionPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Laundromats For Sale | Premium Business Listings",
+    "description": "Discover vetted laundromat opportunities with CLEANBI™ scoring. Browse premium listings from $60K to $650K+ with owner financing, NDA protection, and professional broker support.",
+    "url": `${baseUrl}/listings-hub`,
+    "mainEntity": {
+      "@id": `${baseUrl}/listings-hub#itemlist`
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": baseUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Listings",
+          "item": `${baseUrl}/listings-hub`
+        }
+      ]
+    }
+  };
+
+  return [itemListSchema, collectionPageSchema];
+}
+
+type SubscriptionTier = 'free' | 'basic' | 'showcase' | 'diamond';
+
+const tierOrder: Record<SubscriptionTier, number> = {
+  diamond: 0,
+  showcase: 1,
+  basic: 2,
+  free: 3,
+};
+
+function TierBadge({ tier }: { tier: SubscriptionTier }) {
+  if (tier === 'free') return null;
+  
+  if (tier === 'diamond') {
+    return (
+      <Badge className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-lg shadow-amber-500/20 border-0 gap-1">
+        <Crown className="w-3 h-3" />
+        Diamond
+      </Badge>
+    );
+  }
+  
+  if (tier === 'showcase') {
+    return (
+      <Badge className="bg-gradient-to-r from-slate-400 to-slate-500 text-white border-0 gap-1">
+        <Star className="w-3 h-3" />
+        Showcase
+      </Badge>
+    );
+  }
+  
+  if (tier === 'basic') {
+    return (
+      <Badge className="bg-primary/10 text-primary border border-primary/20 gap-1">
+        <Gem className="w-3 h-3" />
+        Basic
+      </Badge>
+    );
+  }
+  
+  return null;
+}
 
 export default function ListingsHub() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,8 +202,24 @@ export default function ListingsHub() {
     return true;
   });
 
-  const featuredListings = filteredListings.filter(l => l.featured);
-  const regularListings = filteredListings.filter(l => !l.featured);
+  const sortedListings = [...filteredListings].sort((a, b) => {
+    const tierA = (a.subscriptionTier as SubscriptionTier) || 'free';
+    const tierB = (b.subscriptionTier as SubscriptionTier) || 'free';
+    
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    
+    return tierOrder[tierA] - tierOrder[tierB];
+  });
+
+  const featuredListings = sortedListings.filter(l => l.featured);
+  const regularListings = sortedListings.filter(l => !l.featured);
+
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com';
+  const structuredData = useMemo(() => 
+    generateListingsStructuredData(listings, baseUrl), 
+    [listings, baseUrl]
+  );
 
   return (
     <>
@@ -71,6 +228,7 @@ export default function ListingsHub() {
         description="Discover vetted laundromat opportunities with CLEANBI™ scoring. Browse premium listings from $60K to $650K+ with owner financing, NDA protection, and professional broker support."
         canonicalUrl="/listings-hub"
         keywords={['laundromat for sale', 'buy laundromat', 'laundromat listings', 'CLEANBI score', 'laundry business opportunity', 'coin laundry for sale']}
+        structuredData={structuredData || undefined}
       />
       
       <div className="min-h-screen bg-gradient-to-b from-[#0a0f1a] to-background">
@@ -164,7 +322,7 @@ export default function ListingsHub() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                {filteredListings.length} {filteredListings.length === 1 ? 'Listing' : 'Listings'} Available
+                {sortedListings.length} {sortedListings.length === 1 ? 'Listing' : 'Listings'} Available
               </h2>
               <p className="text-muted-foreground">
                 {featuredListings.length > 0 && `${featuredListings.length} featured • `}
@@ -200,7 +358,7 @@ export default function ListingsHub() {
                 </Card>
               ))}
             </div>
-          ) : filteredListings.length === 0 ? (
+          ) : sortedListings.length === 0 ? (
             <Card className="bg-muted/50">
               <CardContent className="pt-12 pb-12 text-center">
                 <Building2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -288,6 +446,10 @@ export default function ListingsHub() {
 }
 
 function ListingCard({ listing, featured = false }: { listing: Listing; featured?: boolean }) {
+  const tier = (listing.subscriptionTier as SubscriptionTier) || 'free';
+  const isDiamond = tier === 'diamond';
+  const isShowcase = tier === 'showcase';
+  
   const formatPrice = (price: string | null | undefined): string => {
     if (!price) return 'Call for Price';
     const num = parseFloat(price);
@@ -305,13 +467,38 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
 
   const defaultImage = 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=600&h=400&fit=crop';
 
+  const getCardClasses = () => {
+    const baseClasses = 'overflow-hidden flex flex-col transition-all duration-300 group relative';
+    
+    if (isDiamond) {
+      return `${baseClasses} ring-2 ring-amber-500/40 shadow-lg shadow-amber-500/10 hover:shadow-xl hover:shadow-amber-500/20 hover:-translate-y-1`;
+    }
+    
+    if (isShowcase) {
+      return `${baseClasses} ring-1 ring-slate-400/30 hover:shadow-xl hover:-translate-y-1`;
+    }
+    
+    if (featured) {
+      return `${baseClasses} ring-2 ring-[#D4AF37]/50 bg-gradient-to-br from-[#D4AF37]/5 to-transparent hover:shadow-xl hover:-translate-y-1`;
+    }
+    
+    return `${baseClasses} hover:shadow-lg hover:-translate-y-0.5`;
+  };
+
   return (
     <Card 
-      className={`overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl group ${
-        featured ? 'ring-2 ring-[#D4AF37]/50 bg-gradient-to-br from-[#D4AF37]/5 to-transparent' : ''
-      }`}
+      className={getCardClasses()}
       data-testid={`card-listing-${listing.id}`}
     >
+      {featured && (
+        <div className="absolute top-0 right-0 z-20">
+          <div className="bg-gradient-to-r from-[#D4AF37] to-amber-500 text-[#001F3F] text-xs font-bold px-3 py-1.5 rounded-bl-lg shadow-lg flex items-center gap-1">
+            <Sparkles className="w-3 h-3" />
+            FEATURED
+          </div>
+        </div>
+      )}
+      
       <div className="relative">
         <div 
           className="h-48 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
@@ -319,13 +506,12 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
-        <div className="absolute top-3 left-3 flex gap-2">
-          {featured && (
-            <Badge className="bg-[#D4AF37] text-[#001F3F] border-0 shadow-lg">
-              <Crown className="w-3 h-3 mr-1" />
-              Featured
-            </Badge>
-          )}
+        {isDiamond && (
+          <div className="absolute inset-0 bg-gradient-to-t from-amber-500/10 via-transparent to-amber-500/5 pointer-events-none" />
+        )}
+        
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+          <TierBadge tier={tier} />
           {listing.ownerFinancing && (
             <Badge className="bg-green-500 text-white border-0 shadow-lg">
               Owner Financing
@@ -350,7 +536,7 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
         </div>
       </div>
 
-      <CardHeader className="flex-1 pb-3">
+      <CardHeader className="flex-1 pb-3 pt-4">
         <CardTitle className="line-clamp-2 text-lg leading-tight group-hover:text-[#39CCCC] transition-colors">
           {listing.title}
         </CardTitle>
@@ -360,7 +546,7 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 pb-5">
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
           {listing.tagline || listing.description?.slice(0, 120) + '...'}
         </p>
@@ -378,7 +564,11 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
 
         <Link href={`/listing/${listing.slug || listing.id}`}>
           <Button 
-            className="w-full bg-[#001F3F] hover:bg-[#002B5C] text-white group/btn"
+            className={`w-full group/btn ${
+              isDiamond 
+                ? 'bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white' 
+                : 'bg-[#001F3F] hover:bg-[#002B5C] text-white'
+            }`}
             data-testid={`button-view-${listing.id}`}
           >
             View Details
