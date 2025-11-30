@@ -499,10 +499,16 @@ function ListingCard({ listing, featured = false }: { listing: Listing; featured
         </div>
       )}
       
-      <div className="relative">
-        <div 
-          className="h-48 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-          style={{ backgroundImage: `url(${listing.featuredImage || defaultImage})` }}
+      <div className="relative overflow-hidden">
+        <img
+          src={listing.featuredImage || defaultImage}
+          alt={`${listing.title} - ${listing.businessType} listing in ${listing.city || listing.generalLocation || 'available location'}`}
+          className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          width={600}
+          height={192}
+          data-testid={`img-listing-${listing.id}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         

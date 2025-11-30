@@ -1,4 +1,8 @@
-/* Font loaded via preload in index.html for better performance */
+/* 
+ * Critical Fonts: Inter (UI) and Bebas Neue (headings) are preloaded in index.html
+ * with font-display: swap to prevent Flash of Invisible Text (FOIT).
+ * The preload hints ensure fonts load as early as possible in the critical rendering path.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

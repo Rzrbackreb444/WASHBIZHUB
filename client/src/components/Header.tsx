@@ -63,8 +63,13 @@ export function Header() {
             <div className="flex items-center gap-2 cursor-pointer hover-elevate active-elevate-2 rounded-md px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" data-testid="link-logo">
               <img 
                 src={logoUrl} 
-                alt="WashBizHub" 
+                alt="WashBizHub - Laundromat Business Hub" 
                 className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto" 
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                width={128}
+                height={128}
               />
             </div>
           </Link>
