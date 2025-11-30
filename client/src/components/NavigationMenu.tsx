@@ -34,78 +34,67 @@ import {
   Settings,
   Users,
   Calculator,
-  Receipt,
   DollarSign,
   BookOpen,
   GraduationCap,
-  Phone,
   BarChart3,
   Store,
   ClipboardCheck,
-  ShoppingCart,
   Monitor,
   Bot,
   Activity,
   Palette,
   Wrench,
   Library,
-  Package,
   Building2,
   TrendingUp,
-  Download,
   Mail,
-  ChevronRight,
   Search,
-  Sparkles,
-  Star,
-  ArrowRight,
-  X,
   MapPin,
+  ChevronRight,
+  X,
 } from "lucide-react";
-import { SiFacebook, SiLinkedin, SiX } from "react-icons/si";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
-  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts analyze your deal from $49", featured: true, highlight: true, badge: "HOT" },
-  { href: "/larry-larsen", label: "Larry Larsen", icon: Users, description: "50+ year industry veteran consultant", highlight: true },
-  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate your potential return on investment" },
-  { href: "/startup-funding", label: "Get Funding", icon: DollarSign, description: "Access capital for your laundromat business", highlight: true },
-  { href: "/academy", label: "Laundry Tech Academy", icon: GraduationCap, description: "4-tier certification from FREE to Master Tech", badge: "NEW" },
-  { href: "/book", label: "The Laundromat Bible", icon: BookOpen, description: "Comprehensive industry guide from experts" },
-  { href: "/blog", label: "Blog & Education", icon: Lightbulb, description: "Articles, guides, and industry insights" },
+  { href: "/ai-consultation", label: "AI Consultation", icon: Bot, description: "Expert AI analysis for your deal" },
+  { href: "/larry-larsen", label: "Expert Consulting", icon: Users, description: "50+ year industry veteran" },
+  { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate potential returns" },
+  { href: "/startup-funding", label: "Funding Options", icon: DollarSign, description: "Access capital for your business" },
+  { href: "/academy", label: "Tech Academy", icon: GraduationCap, description: "Professional certification programs" },
+  { href: "/book", label: "Industry Guide", icon: BookOpen, description: "Comprehensive laundromat resource" },
+  { href: "/blog", label: "Insights", icon: Lightbulb, description: "Articles and industry news" },
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/ai-consultation", label: "AI Consultation Council", icon: Bot, description: "6 AI experts + Larry Larsen analyze any deal from $49", featured: true, highlight: true, badge: "HOT" },
-  { href: "/cleanbi-auto", label: "CLEANBI Score Tool", icon: BarChart3, description: "AI-powered location & business analysis" },
-  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Store, description: "Browse businesses currently on the market" },
-  { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "Determine fair market value of any laundromat" },
-  { href: "/distributor-locator", label: "Equipment Distributors", icon: MapPin, description: "Find authorized distributors for 11+ brands", highlight: true },
-  { href: "/laundromat-locator", label: "Find Laundromats", icon: MapPin, description: "Search or list your laundromat business" },
-  { href: "/resources", label: "Due Diligence Guide", icon: ClipboardCheck, description: "What to check before buying" },
+  { href: "/cleanbi-auto", label: "CLEANBI Score", icon: BarChart3, description: "Location & business analysis" },
+  { href: "/laundromat-listings", label: "Listings", icon: Store, description: "Browse available businesses" },
+  { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, description: "Fair market value calculator" },
+  { href: "/distributor-locator", label: "Distributors", icon: MapPin, description: "Find authorized dealers" },
+  { href: "/laundromat-locator", label: "Locator", icon: MapPin, description: "Search laundromat database" },
+  { href: "/resources", label: "Due Diligence", icon: ClipboardCheck, description: "Pre-purchase checklist" },
 ];
 
 const OPERATE_LINKS = [
-  { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, description: "Manage payments, loyalty & operations", featured: true },
-  { href: "/equipment-wizard", label: "Equipment Wizard", icon: Sparkles, description: "Find the perfect machines for your store", highlight: true, badge: "NEW" },
-  { href: "/equipment-guides", label: "Equipment Guides", icon: BookOpen, description: "Brand comparisons, pros & cons", highlight: true },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, description: "AI-powered equipment troubleshooting" },
-  { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Activity, description: "Diagnose machine issues instantly" },
-  { href: "/design-studio-pro", label: "Design Studio Pro", icon: Palette, description: "Plan your floor layout in 3D" },
-  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Wrench, description: "Shop equipment, parts & supplies" },
-  { href: "/resources", label: "Resources Hub", icon: Library, description: "Guides, templates & downloads" },
+  { href: "/pos-command-center", label: "POS System", icon: Monitor, description: "Payment & operations management" },
+  { href: "/equipment-wizard", label: "Equipment Wizard", icon: Settings, description: "Machine selection tool" },
+  { href: "/equipment-guides", label: "Equipment Guides", icon: BookOpen, description: "Brand comparisons" },
+  { href: "/service-guy-ai", label: "Service AI", icon: Bot, description: "Equipment troubleshooting" },
+  { href: "/equipment-diagnostics", label: "Diagnostics", icon: Activity, description: "Machine issue diagnosis" },
+  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "Floor layout planning" },
+  { href: "/equipment-marketplace", label: "Marketplace", icon: Wrench, description: "Equipment & parts" },
+  { href: "/resources", label: "Resources", icon: Library, description: "Guides & templates" },
 ];
 
 const PARTNER_LINKS = [
-  { href: "/add-listing", label: "Add a Listing", icon: Store, description: "List laundromats, equipment, services or products", highlight: true, badge: "NEW", featured: true },
-  { href: "/listing-form", label: "Sell Your Laundromat", icon: Store, description: "Sell your laundromat business", badge: "FREE" },
-  { href: "/list-equipment", label: "Sell Equipment", icon: Wrench, description: "Sell washers, dryers & parts" },
-  { href: "/list-supplies", label: "List Supplies", icon: Package, description: "Sell detergents, chemicals & products" },
-  { href: "/vendor-form", label: "Become a Vendor", icon: Building2, description: "Partner with us as a supplier" },
-  { href: "/advertise", label: "Advertise With Us", icon: TrendingUp, description: "Reach 72,000+ laundromat professionals" },
+  { href: "/add-listing", label: "Add Listing", icon: Store, description: "List your business or service" },
+  { href: "/listing-form", label: "Sell Business", icon: Store, description: "List your laundromat" },
+  { href: "/list-equipment", label: "Sell Equipment", icon: Wrench, description: "List machines & parts" },
+  { href: "/vendor-form", label: "Vendor Partnership", icon: Building2, description: "Become a supplier" },
+  { href: "/advertise", label: "Advertising", icon: TrendingUp, description: "Reach industry professionals" },
 ];
 
 const SECTION_NAV: Record<string, { label: string; links: { href: string; label: string }[] }> = {
@@ -190,50 +179,23 @@ interface MegamenuItemProps {
   label: string;
   icon: React.ElementType;
   description: string;
-  highlight?: boolean;
-  badge?: string;
-  featured?: boolean;
   onClick?: () => void;
 }
 
-function MegamenuItem({ href, label, icon: Icon, description, highlight, badge, featured, onClick }: MegamenuItemProps) {
+function MegamenuItem({ href, label, icon: Icon, description, onClick }: MegamenuItemProps) {
   return (
     <NavigationMenuLink asChild>
       <Link
         href={href}
         onClick={onClick}
-        className={`group flex items-start gap-3 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-200 hover:bg-muted/80 focus:bg-muted ${
-          highlight ? "bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30" : ""
-        } ${featured ? "col-span-2 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border border-primary/20" : ""}`}
+        className="group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-none no-underline outline-none transition-colors hover:bg-muted focus:bg-muted"
         data-testid={`link-megamenu-${label.toLowerCase().replace(/\s+/g, '-')}`}
       >
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
-          featured 
-            ? "bg-primary text-primary-foreground" 
-            : highlight 
-              ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" 
-              : "bg-muted group-hover:bg-primary/10"
-        }`}>
-          <Icon className="h-5 w-5" />
-        </div>
+        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold leading-none group-hover:text-primary transition-colors">{label}</span>
-            {badge && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30">{badge}</Badge>
-            )}
-            {highlight && !badge && (
-              <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4">Popular</Badge>
-            )}
-            {featured && (
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-            )}
-          </div>
-          <p className="mt-1 text-xs leading-snug text-muted-foreground line-clamp-2">
-            {description}
-          </p>
+          <span className="font-medium text-foreground">{label}</span>
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{description}</p>
         </div>
-        <ArrowRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100" />
       </Link>
     </NavigationMenuLink>
   );
@@ -264,90 +226,43 @@ export function NavigationMenu() {
       </a>
       
     <header className="sticky top-0 z-50">
-      {/* TIER 1: Brand Bar - Premium styling */}
-      <div className="bg-gradient-to-r from-[#001428] via-[#001F3F] to-[#002B5C] text-white/90 border-b border-white/5 shadow-lg">
+      {/* TIER 1: Utility Bar - Clean minimal */}
+      <div className="bg-[#0a1628] text-white/80 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-9 flex items-center justify-between gap-4 text-xs">
-            {/* Left: Social Proof */}
-            <div className="hidden sm:flex items-center gap-2">
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-              <span className="font-medium">Serving 72,000+ Laundromat Professionals</span>
-            </div>
-            <div className="flex sm:hidden items-center gap-2">
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-              <span className="font-medium">72K+ Professionals</span>
-            </div>
+          <div className="h-8 flex items-center justify-between text-xs">
+            {/* Left: Contact */}
+            <a 
+              href="mailto:nick@washbizhub.com" 
+              className="hidden sm:flex items-center gap-1.5 hover:text-white transition-colors"
+              data-testid="link-contact-email"
+            >
+              <Mail className="w-3 h-3" />
+              <span>nick@washbizhub.com</span>
+            </a>
+            <span className="sm:hidden text-white/60">WashBizHub</span>
 
-            {/* Right: Contact, Social, Theme, Auth */}
-            <div className="flex items-center gap-1 sm:gap-3">
-              {/* Contact */}
-              <a 
-                href="mailto:nick@washbizhub.com" 
-                className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/10 transition-colors"
-                data-testid="link-contact-email"
-              >
-                <Mail className="w-3 h-3" />
-                <span>Contact</span>
-              </a>
-
-              {/* Social Links */}
-              <div className="flex items-center gap-0.5">
-                <a
-                  href={FB_GROUP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-1.5 rounded hover:bg-white/10 transition-colors"
-                  aria-label="Facebook Group"
-                  data-testid="link-social-facebook"
-                >
-                  <SiFacebook className="w-3.5 h-3.5" />
-                </a>
-                <a
-                  href="https://twitter.com/washbizhub"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-1.5 rounded hover:bg-white/10 transition-colors"
-                  aria-label="Twitter"
-                  data-testid="link-social-twitter"
-                >
-                  <SiX className="w-3.5 h-3.5" />
-                </a>
-                <a
-                  href="https://linkedin.com/company/washbizhub"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden sm:block p-1.5 rounded hover:bg-white/10 transition-colors"
-                  aria-label="LinkedIn"
-                  data-testid="link-social-linkedin"
-                >
-                  <SiLinkedin className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              <div className="w-px h-4 bg-white/20 mx-1" />
-
-              {/* Theme Toggle */}
+            {/* Right: Theme, Auth */}
+            <div className="flex items-center gap-3">
               <ThemeToggle />
-
-              {/* Auth */}
+              
               {isLoading ? (
-                <div className="w-6 h-6 bg-white/20 rounded animate-pulse" data-testid="skeleton-auth" />
+                <div className="w-12 h-4 bg-white/10 rounded animate-pulse" data-testid="skeleton-auth" />
               ) : isAuthenticated && user ? (
                 <button
                   onClick={() => logout()}
-                  className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-1 hover:text-white transition-colors"
                   data-testid="button-logout"
                 >
                   <LogOut className="w-3 h-3" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">Sign Out</span>
                 </button>
               ) : (
                 <a 
                   href="/api/login"
-                  className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                  className="hover:text-white transition-colors"
                   data-testid="link-login"
                 >
-                  <span>Login</span>
+                  Sign In
                 </a>
               )}
             </div>
@@ -355,54 +270,42 @@ export function NavigationMenu() {
         </div>
       </div>
 
-      {/* TIER 2: Main Product Navigation - Refined */}
-      <div className="bg-white dark:bg-[#0a1628] border-b border-gray-100 dark:border-white/10 shadow-sm">
+      {/* TIER 2: Main Navigation */}
+      <div className="bg-white dark:bg-[#0f1a2b] border-b border-gray-200 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-[100px] md:h-[120px] flex items-center justify-between gap-4">
-            {/* Logo - Optimized for LCP */}
+          <div className="h-16 flex items-center justify-between gap-6">
+            {/* Logo */}
             <Link href="/" data-testid="link-logo" aria-label="WashBizHub Home">
-              <div className="flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer shrink-0">
-                <img 
-                  src={logoUrl} 
-                  alt="WashBizHub - The #1 Laundromat Resource" 
-                  className="h-20 sm:h-24 md:h-28 w-auto" 
-                  loading="eager"
-                  decoding="async"
-                  {...{ fetchpriority: "high" }}
-                  width={112}
-                  height={112}
-                  data-testid="img-logo"
-                />
-              </div>
+              <img 
+                src={logoUrl} 
+                alt="WashBizHub" 
+                className="h-10 w-auto" 
+                loading="eager"
+                decoding="async"
+                {...{ fetchpriority: "high" }}
+                width={40}
+                height={40}
+                data-testid="img-logo"
+              />
             </Link>
 
-            {/* Desktop Navigation - Megamenus */}
-            <nav className="hidden lg:flex items-center flex-1 justify-center">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
               <NavMenu>
-                <NavigationMenuList className="gap-1">
-                  {/* PLAN Megamenu */}
+                <NavigationMenuList className="gap-0">
+                  {/* Plan */}
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
-                      className="h-10 text-sm font-semibold tracking-wide"
+                      className="h-9 px-3 text-sm font-medium bg-transparent"
                       data-testid="dropdown-plan"
                     >
-                      <Lightbulb className="w-4 h-4 mr-1.5" />
-                      PLAN
+                      Plan
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
-                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
-                          <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Dreamers</span>
-                            <p className="text-sm text-muted-foreground mt-0.5">Thinking about buying a laundromat?</p>
-                          </div>
-                          <Link href="/plan" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
-                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                          </Link>
-                        </div>
-                        <ul className="grid grid-cols-2 gap-2">
+                      <div className="w-[320px] p-3 bg-popover">
+                        <ul className="space-y-0.5">
                           {PLAN_LINKS.map((link) => (
-                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                            <li key={link.href + link.label}>
                               <MegamenuItem {...link} />
                             </li>
                           ))}
@@ -411,29 +314,19 @@ export function NavigationMenu() {
                     </NavigationMenuContent>
                   </NavigationMenuItem>
 
-                  {/* EVALUATE Megamenu */}
+                  {/* Evaluate */}
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
-                      className="h-10 text-sm font-semibold tracking-wide"
+                      className="h-9 px-3 text-sm font-medium bg-transparent"
                       data-testid="dropdown-evaluate"
                     >
-                      <Target className="w-4 h-4 mr-1.5" />
-                      EVALUATE
+                      Evaluate
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
-                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
-                          <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Buyers</span>
-                            <p className="text-sm text-muted-foreground mt-0.5">Actively searching for a laundromat?</p>
-                          </div>
-                          <Link href="/evaluate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
-                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                          </Link>
-                        </div>
-                        <ul className="grid grid-cols-2 gap-2">
+                      <div className="w-[320px] p-3 bg-popover">
+                        <ul className="space-y-0.5">
                           {EVALUATE_LINKS.map((link) => (
-                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                            <li key={link.href + link.label}>
                               <MegamenuItem {...link} />
                             </li>
                           ))}
@@ -442,29 +335,19 @@ export function NavigationMenu() {
                     </NavigationMenuContent>
                   </NavigationMenuItem>
 
-                  {/* OPERATE Megamenu */}
+                  {/* Operate */}
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
-                      className="h-10 text-sm font-semibold tracking-wide"
+                      className="h-9 px-3 text-sm font-medium bg-transparent"
                       data-testid="dropdown-operate"
                     >
-                      <Settings className="w-4 h-4 mr-1.5" />
-                      OPERATE
+                      Operate
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
-                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
-                          <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Owners</span>
-                            <p className="text-sm text-muted-foreground mt-0.5">Running your laundromat business?</p>
-                          </div>
-                          <Link href="/operate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
-                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                          </Link>
-                        </div>
-                        <ul className="grid grid-cols-2 gap-2">
+                      <div className="w-[320px] p-3 bg-popover">
+                        <ul className="space-y-0.5">
                           {OPERATE_LINKS.map((link) => (
-                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                            <li key={link.href + link.label}>
                               <MegamenuItem {...link} />
                             </li>
                           ))}
@@ -473,29 +356,19 @@ export function NavigationMenu() {
                     </NavigationMenuContent>
                   </NavigationMenuItem>
 
-                  {/* PARTNER Megamenu */}
+                  {/* Partner */}
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
-                      className="h-10 text-sm font-semibold tracking-wide"
+                      className="h-9 px-3 text-sm font-medium bg-transparent"
                       data-testid="dropdown-partner"
                     >
-                      <Users className="w-4 h-4 mr-1.5" />
-                      PARTNER
+                      Partner
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
-                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
-                          <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Vendors & Brokers</span>
-                            <p className="text-sm text-muted-foreground mt-0.5">Service providers & sellers welcome</p>
-                          </div>
-                          <Link href="/partner" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
-                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                          </Link>
-                        </div>
-                        <ul className="grid grid-cols-2 gap-2">
+                      <div className="w-[280px] p-3 bg-popover">
+                        <ul className="space-y-0.5">
                           {PARTNER_LINKS.map((link) => (
-                            <li key={link.href + link.label} className={link.featured ? "col-span-2" : ""}>
+                            <li key={link.href + link.label}>
                               <MegamenuItem {...link} />
                             </li>
                           ))}
@@ -508,41 +381,41 @@ export function NavigationMenu() {
             </nav>
 
             {/* Right Section */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {/* Search Button - Desktop */}
+            <div className="flex items-center gap-3 shrink-0">
+              {/* Search */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden md:flex"
+                className="hidden md:flex h-9 w-9"
                 onClick={() => setSearchOpen(!searchOpen)}
                 data-testid="button-search"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4" />
               </Button>
 
-              {/* Start Free Trial - Premium Gold CTA */}
+              {/* Get Started */}
               <Link href="/pricing">
                 <Button 
-                  className="hidden sm:flex bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-black font-bold shadow-lg shadow-amber-500/25 transition-all duration-200"
+                  size="sm"
+                  className="hidden sm:flex"
                   data-testid="button-start-trial"
                 >
-                  <Sparkles className="w-4 h-4 mr-1.5" />
-                  <span className="hidden md:inline">Start Free Trial</span>
-                  <span className="md:hidden">Free Trial</span>
+                  Get Started
                 </Button>
               </Link>
 
-              {/* Mobile Menu Button */}
+              {/* Mobile Menu */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="lg:hidden" data-testid="button-mobile-menu" aria-label="Open menu">
+                  <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9" data-testid="button-mobile-menu" aria-label="Menu">
                     <Menu className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto p-0">
-                  <SheetHeader className="p-4 border-b bg-navy-900 text-white">
-                    <SheetTitle className="text-white flex items-center gap-2">
-                      <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" width={80} height={32} />
+                <SheetContent side="right" className="w-72 overflow-y-auto p-0">
+                  <SheetHeader className="p-4 border-b">
+                    <SheetTitle className="flex items-center gap-2">
+                      <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" width={32} height={32} />
+                      <span className="font-semibold">WashBizHub</span>
                     </SheetTitle>
                   </SheetHeader>
                   
@@ -551,96 +424,53 @@ export function NavigationMenu() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
-                        placeholder="Search tools & resources..." 
-                        className="pl-9"
+                        placeholder="Search..." 
+                        className="pl-9 h-9"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         data-testid="input-mobile-search"
                       />
                     </div>
 
-                    {/* Quick CTAs */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <Link href="/ai-consultation" onClick={() => setMobileOpen(false)}>
-                        <div className="flex flex-col items-center gap-1 p-3 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black rounded-lg transition-colors text-center cursor-pointer h-full justify-center shadow-lg"
-                        data-testid="link-ai-council-mobile"
-                        >
-                          <Bot className="w-5 h-5" />
-                          <span className="text-[10px] font-bold">AI Council</span>
-                        </div>
+                    {/* Quick Links */}
+                    <div className="flex gap-2">
+                      <Link href="/cleanbi-auto" onClick={() => setMobileOpen(false)} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full" data-testid="link-cleanbi-mobile">
+                          CLEANBI
+                        </Button>
                       </Link>
-                      <Link href="/cleanbi-auto" onClick={() => setMobileOpen(false)}>
-                        <div className="flex flex-col items-center gap-1 p-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-center cursor-pointer h-full justify-center"
-                        data-testid="link-cleanbi-mobile"
-                        >
-                          <MapPin className="w-5 h-5" />
-                          <span className="text-[10px] font-medium">CLEANBI</span>
-                        </div>
-                      </Link>
-                      <Link href="/pricing" onClick={() => setMobileOpen(false)}>
-                        <div className="flex flex-col items-center gap-1 p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors text-center cursor-pointer h-full justify-center">
-                          <Sparkles className="w-5 h-5" />
-                          <span className="text-[10px] font-semibold">Free Trial</span>
-                        </div>
+                      <Link href="/pricing" onClick={() => setMobileOpen(false)} className="flex-1">
+                        <Button size="sm" className="w-full" data-testid="link-pricing-mobile">
+                          Get Started
+                        </Button>
                       </Link>
                     </div>
-
-                    {/* FB Group Banner */}
-                    <a
-                      href={FB_GROUP_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                      data-testid="link-fb-group-mobile"
-                    >
-                      <SiFacebook className="w-6 h-6" />
-                      <div>
-                        <div className="font-semibold">Join 72K+ Professionals</div>
-                        <div className="text-xs opacity-90">The Laundromat FB Group</div>
-                      </div>
-                    </a>
 
                     {/* Navigation Accordion */}
                     <Accordion type="multiple" className="w-full" defaultValue={["plan"]}>
                       {/* PLAN Section */}
-                      <AccordionItem value="plan" className="border-none">
+                      <AccordionItem value="plan" className="border-b">
                         <AccordionTrigger 
-                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          className="text-sm font-medium hover:no-underline py-3"
                           data-testid="accordion-plan"
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                              <Lightbulb className="w-4 h-4 text-primary" />
-                            </div>
-                            PLAN
-                          </div>
+                          Plan
                         </AccordionTrigger>
-                        <AccordionContent className="pb-2">
-                          <div className="ml-10 space-y-1">
+                        <AccordionContent className="pb-3">
+                          <div className="space-y-1">
                             {PLAN_LINKS.map((link) => {
                               const Icon = link.icon;
                               return (
                                 <Link key={link.href + link.label} href={link.href}>
                                   <div
-                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                                      link.highlight
-                                        ? "bg-amber-500/10 border border-amber-500/30"
-                                        : isActive(link.href)
-                                        ? "bg-primary/10"
-                                        : "hover:bg-muted"
+                                    className={`flex items-center gap-2 px-2 py-2 rounded text-sm transition-colors ${
+                                      isActive(link.href) ? "bg-muted" : "hover:bg-muted"
                                     }`}
                                     onClick={() => setMobileOpen(false)}
                                     data-testid={`link-mobile-plan-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                                   >
                                     <Icon className="w-4 h-4 text-muted-foreground" />
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium">{link.label}</span>
-                                        {link.highlight && (
-                                          <Badge variant="default" className="text-[10px] h-4">Popular</Badge>
-                                        )}
-                                      </div>
-                                    </div>
+                                    <span>{link.label}</span>
                                   </div>
                                 </Link>
                               );
@@ -650,35 +480,28 @@ export function NavigationMenu() {
                       </AccordionItem>
 
                       {/* EVALUATE Section */}
-                      <AccordionItem value="evaluate" className="border-none">
+                      <AccordionItem value="evaluate" className="border-b">
                         <AccordionTrigger 
-                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          className="text-sm font-medium hover:no-underline py-3"
                           data-testid="accordion-evaluate"
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                              <Target className="w-4 h-4 text-primary" />
-                            </div>
-                            EVALUATE
-                          </div>
+                          Evaluate
                         </AccordionTrigger>
-                        <AccordionContent className="pb-2">
-                          <div className="ml-10 space-y-1">
+                        <AccordionContent className="pb-3">
+                          <div className="space-y-1">
                             {EVALUATE_LINKS.map((link) => {
                               const Icon = link.icon;
                               return (
                                 <Link key={link.href + link.label} href={link.href}>
                                   <div
-                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                                      isActive(link.href)
-                                        ? "bg-primary/10"
-                                        : "hover:bg-muted"
+                                    className={`flex items-center gap-2 px-2 py-2 rounded text-sm transition-colors ${
+                                      isActive(link.href) ? "bg-muted" : "hover:bg-muted"
                                     }`}
                                     onClick={() => setMobileOpen(false)}
                                     data-testid={`link-mobile-evaluate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                                   >
                                     <Icon className="w-4 h-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">{link.label}</span>
+                                    <span>{link.label}</span>
                                   </div>
                                 </Link>
                               );
@@ -688,35 +511,28 @@ export function NavigationMenu() {
                       </AccordionItem>
 
                       {/* OPERATE Section */}
-                      <AccordionItem value="operate" className="border-none">
+                      <AccordionItem value="operate" className="border-b">
                         <AccordionTrigger 
-                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          className="text-sm font-medium hover:no-underline py-3"
                           data-testid="accordion-operate"
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                              <Settings className="w-4 h-4 text-primary" />
-                            </div>
-                            OPERATE
-                          </div>
+                          Operate
                         </AccordionTrigger>
-                        <AccordionContent className="pb-2">
-                          <div className="ml-10 space-y-1">
+                        <AccordionContent className="pb-3">
+                          <div className="space-y-1">
                             {OPERATE_LINKS.map((link) => {
                               const Icon = link.icon;
                               return (
                                 <Link key={link.href + link.label} href={link.href}>
                                   <div
-                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                                      isActive(link.href)
-                                        ? "bg-primary/10"
-                                        : "hover:bg-muted"
+                                    className={`flex items-center gap-2 px-2 py-2 rounded text-sm transition-colors ${
+                                      isActive(link.href) ? "bg-muted" : "hover:bg-muted"
                                     }`}
                                     onClick={() => setMobileOpen(false)}
                                     data-testid={`link-mobile-operate-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                                   >
                                     <Icon className="w-4 h-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">{link.label}</span>
+                                    <span>{link.label}</span>
                                   </div>
                                 </Link>
                               );
@@ -726,44 +542,28 @@ export function NavigationMenu() {
                       </AccordionItem>
 
                       {/* PARTNER Section */}
-                      <AccordionItem value="partner" className="border-none">
+                      <AccordionItem value="partner" className="border-b">
                         <AccordionTrigger 
-                          className="font-semibold text-base hover:no-underline py-3 px-2 rounded-lg hover:bg-muted"
+                          className="text-sm font-medium hover:no-underline py-3"
                           data-testid="accordion-partner"
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                              <Users className="w-4 h-4 text-primary" />
-                            </div>
-                            PARTNER
-                          </div>
+                          Partner
                         </AccordionTrigger>
-                        <AccordionContent className="pb-2">
-                          <div className="ml-10 space-y-1">
+                        <AccordionContent className="pb-3">
+                          <div className="space-y-1">
                             {PARTNER_LINKS.map((link) => {
                               const Icon = link.icon;
                               return (
                                 <Link key={link.href + link.label} href={link.href}>
                                   <div
-                                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                                      link.highlight
-                                        ? "bg-amber-500/10 border border-amber-500/30"
-                                        : isActive(link.href)
-                                        ? "bg-primary/10"
-                                        : "hover:bg-muted"
+                                    className={`flex items-center gap-2 px-2 py-2 rounded text-sm transition-colors ${
+                                      isActive(link.href) ? "bg-muted" : "hover:bg-muted"
                                     }`}
                                     onClick={() => setMobileOpen(false)}
                                     data-testid={`link-mobile-partner-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                                   >
                                     <Icon className="w-4 h-4 text-muted-foreground" />
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium">{link.label}</span>
-                                        {link.badge && (
-                                          <Badge variant="secondary" className="text-[10px] h-4">{link.badge}</Badge>
-                                        )}
-                                      </div>
-                                    </div>
+                                    <span>{link.label}</span>
                                   </div>
                                 </Link>
                               );
