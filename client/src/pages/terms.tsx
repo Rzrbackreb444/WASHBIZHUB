@@ -107,11 +107,46 @@ export default function TermsOfService() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">9. Intellectual Property</h2>
+              <h2 className="text-2xl font-bold mb-4">9. Intellectual Property & Trade Secrets</h2>
+              <p className="mb-4">
+                All content, trademarks, and technology on WashBizHub.com are owned by WashBizHub, LLC or 
+                its licensors. "WashBizHub" and "CLEANBI" are trademarks of WashBizHub, LLC.
+              </p>
+              
+              <h3 className="text-xl font-semibold mb-2">9.1 Proprietary Technology</h3>
+              <p className="mb-4">
+                The CLEANBI™ scoring system, including but not limited to its 17-factor weighted algorithm, 
+                valuation methodologies, data processing techniques, scoring formulas, weighting systems, 
+                and proprietary calculations, constitutes <strong>trade secret information</strong> owned 
+                exclusively by WashBizHub, LLC. This proprietary technology is protected under the Defend 
+                Trade Secrets Act (18 U.S.C. § 1836), the Arkansas Trade Secrets Act, and other applicable 
+                federal and state trade secret laws.
+              </p>
+              
+              <h3 className="text-xl font-semibold mb-2">9.2 Prohibited Activities</h3>
+              <p className="mb-2">You expressly agree NOT to:</p>
+              <ul className="list-disc pl-6 space-y-2 mb-4">
+                <li>Reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code, algorithms, or proprietary formulas of our scoring system</li>
+                <li>Use automated tools, bots, scrapers, or data mining techniques to extract data, scores, or methodologies</li>
+                <li>Copy, reproduce, or create derivative works based on our proprietary scoring systems</li>
+                <li>Share, sell, license, or distribute any proprietary information obtained from our Services</li>
+                <li>Attempt to circumvent security measures, rate limiting, or access controls</li>
+                <li>Use our Services to develop a competing product or service</li>
+                <li>Access our APIs or backend systems without explicit authorization</li>
+              </ul>
+              
+              <h3 className="text-xl font-semibold mb-2">9.3 Legal Remedies</h3>
+              <p className="mb-4">
+                Any unauthorized access, reverse engineering, or misappropriation of our trade secrets 
+                may result in immediate termination of your account and legal action. We reserve the right 
+                to seek injunctive relief, monetary damages (including treble damages for willful violations), 
+                and attorney's fees to the fullest extent permitted by law.
+              </p>
+              
+              <h3 className="text-xl font-semibold mb-2">9.4 Copyright</h3>
               <p>
-                All content, trademarks, and technology on WashBizHub.com are owned by WashBizHub or 
-                its licensors. You may not copy, modify, distribute, or create derivative works without 
-                our written permission.
+                All website content, documentation, user interfaces, code, and materials are protected by 
+                copyright. © 2025 WashBizHub, LLC. All rights reserved.
               </p>
             </section>
 

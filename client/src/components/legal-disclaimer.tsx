@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Shield } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function LegalDisclaimer() {
@@ -8,7 +8,7 @@ export function LegalDisclaimer() {
       <AlertDescription className="text-muted-foreground space-y-2">
         <p className="font-semibold text-foreground">Important Disclaimer</p>
         <p>
-          This CLEANBI score is for <strong>informational and educational purposes only</strong>. 
+          This CLEANBI™ score is for <strong>informational and educational purposes only</strong>. 
           It does NOT constitute professional business valuation, appraisal services, financial advice, 
           investment advice, legal advice, tax advice, or accounting advice.
         </p>
@@ -24,7 +24,11 @@ export function LegalDisclaimer() {
         </p>
         <p>
           <strong>Liability:</strong> WashBizHub and its affiliates are not liable for any financial 
-          losses or consequences arising from reliance on CLEANBI scores or reports.
+          losses or consequences arising from reliance on CLEANBI™ scores or reports.
+        </p>
+        <p className="flex items-center gap-1 text-xs border-t border-yellow-600/30 pt-2 mt-2">
+          <Shield className="h-3 w-3" />
+          <span>CLEANBI™ is proprietary technology protected under trade secret law. © 2025 WashBizHub, LLC.</span>
         </p>
       </AlertDescription>
     </Alert>
