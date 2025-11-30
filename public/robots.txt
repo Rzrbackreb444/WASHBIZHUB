@@ -1,18 +1,17 @@
-# WashBizHub - The Bloomberg of Laundromats
+# WashBizHub - #1 Laundromat Resource & Education Hub
 # https://washbizhub.com
 
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://washbizhub.com/sitemap.xml
-
-# Crawl-delay for respectful bots
 Crawl-delay: 1
+
+# Main Sitemap
+Sitemap: https://washbizhub.com/sitemap.xml
 
 # Specific rules for major search engines
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
@@ -20,11 +19,13 @@ Allow: /
 User-agent: Slurp
 Allow: /
 
+User-agent: DuckDuckBot
+Allow: /
+
 # Block sensitive areas
 Disallow: /api/
 Disallow: /admin/
+Disallow: /pos/
 Disallow: /_next/
 Disallow: /private/
-
-# Sitemap
-Sitemap: https://washbizhub.com/sitemap.xml
+Disallow: /auth/

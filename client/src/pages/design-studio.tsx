@@ -144,22 +144,77 @@ const equipmentCategories = [
 
 function EquipmentThumbnail({ equipment, size = "md" }: { equipment: typeof equipmentLibrary[number]; size?: "sm" | "md" }) {
   const sizeClasses = size === "sm" ? "w-6 h-6" : "w-10 h-10";
-  const isWasher = equipment.type === "washer";
+  const { type } = equipment;
+  
+  const renderIcon = () => {
+    switch(type) {
+      case "washer":
+        return (
+          <div className="w-3/4 h-3/4 rounded-full border-2 border-white/30 flex items-center justify-center">
+            <div className="w-1/2 h-1/2 rounded-full bg-white/20" />
+          </div>
+        );
+      case "dryer":
+        return (
+          <div className="w-3/4 h-3/4 rounded-full border-2 border-white/30 flex items-center justify-center">
+            <div className="w-1/3 h-1/3 rounded-full border border-white/40" />
+          </div>
+        );
+      case "atm":
+        return (
+          <div className="w-3/4 h-3/4 flex items-center justify-center text-white/80 text-[8px] font-bold">
+            ATM
+          </div>
+        );
+      case "changer":
+        return (
+          <div className="w-3/4 h-3/4 flex items-center justify-center text-white/80 text-[7px] font-bold">
+            $
+          </div>
+        );
+      case "vending":
+        return (
+          <div className="w-3/4 h-3/4 border border-white/30 rounded flex flex-col items-center justify-center gap-0.5">
+            <div className="w-2/3 h-1/4 bg-white/20 rounded-sm" />
+            <div className="w-2/3 h-1/4 bg-white/20 rounded-sm" />
+          </div>
+        );
+      case "dogwash":
+        return (
+          <div className="w-3/4 h-3/4 flex items-center justify-center text-white/80 text-[7px] font-bold">
+            DOG
+          </div>
+        );
+      case "table":
+      case "furniture":
+        return (
+          <div className="w-3/4 h-1/3 bg-white/30 rounded-sm border-t-2 border-white/40" />
+        );
+      case "cart":
+        return (
+          <div className="w-3/4 h-3/4 border border-white/30 rounded flex items-center justify-center">
+            <div className="w-1/2 h-1/2 border border-white/40 rounded" />
+          </div>
+        );
+      case "arcade":
+        return (
+          <div className="w-3/4 h-3/4 flex items-center justify-center text-white/80 text-[8px] font-bold">
+            PLAY
+          </div>
+        );
+      default:
+        return (
+          <div className="w-3/4 h-3/4 rounded border border-white/30" />
+        );
+    }
+  };
   
   return (
     <div 
       className={`${sizeClasses} rounded-md flex items-center justify-center relative overflow-hidden`}
       style={{ backgroundColor: equipment.color }}
     >
-      {isWasher ? (
-        <div className="w-3/4 h-3/4 rounded-full border-2 border-white/30 flex items-center justify-center">
-          <div className="w-1/2 h-1/2 rounded-full bg-white/20" />
-        </div>
-      ) : (
-        <div className="w-3/4 h-3/4 rounded-full border-2 border-white/30 flex items-center justify-center">
-          <div className="w-1/3 h-1/3 rounded-full border border-white/40" />
-        </div>
-      )}
+      {renderIcon()}
     </div>
   );
 }
