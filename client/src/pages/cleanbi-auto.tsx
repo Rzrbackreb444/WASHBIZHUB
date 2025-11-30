@@ -39,7 +39,7 @@ const cleanbiAutoStructuredData = {
     "Universal Address Scoring - Works for ANY business type or residential property",
     "Global Coverage - 220+ countries including USA, UK, EU, Asia, Africa, Americas",
     "Real-Time Google Data - Foot traffic, reviews, competition analysis",
-    "Instant A-F Grades - Professional investment-grade scoring",
+    "Instant A/B/C Grades - Professional investment-grade scoring (no D or F grades)",
     "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
     "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
     "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",

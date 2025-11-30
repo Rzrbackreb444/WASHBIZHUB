@@ -1,24 +1,135 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Chrome, ArrowRight, Download, CheckCircle, Loader2, Mail } from "lucide-react";
+import { Chrome, ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 import { LazyRadarChart } from "./LazyRadarChart";
+import { getGradeInfo } from "@shared/cleanbi-grades";
 
 type DemoStep = 'address' | 'analyzing' | 'results' | 'capture' | 'success';
+type AddressType = 'laundromat' | 'commercial' | 'residential';
+
+interface DemoResult {
+  score: number;
+  grade: string;
+  opportunity: string;
+  addressType: AddressType;
+  projections: {
+    revenueMin: number;
+    revenueMax: number;
+    valuationMin: number;
+    valuationMax: number;
+  } | null;
+  propertyMetrics: {
+    estimatedValue: number;
+    monthlyRent: number;
+    capRate: number;
+  } | null;
+}
 
 export function Hero() {
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [step, setStep] = useState<DemoStep>('address');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState<DemoResult | null>(null);
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [showPredictions, setShowPredictions] = useState(false);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (window.google?.maps?.places) {
+      autocompleteService.current = new window.google.maps.places.AutocompleteService();
+    }
+  }, []);
+
+  const fetchPredictions = useCallback((input: string) => {
+    if (!autocompleteService.current || input.length < 3) {
+      setPredictions([]);
+      return;
+    }
+    autocompleteService.current.getPlacePredictions(
+      { input, componentRestrictions: { country: 'us' }, types: ['address'] },
+      (results) => {
+        setPredictions(results || []);
+        setShowPredictions(true);
+      }
+    );
+  }, []);
+
+  const detectAddressType = (addr: string): AddressType => {
+    const lower = addr.toLowerCase();
+    if (lower.includes('laundry') || lower.includes('laundromat') || lower.includes('wash') || lower.includes('cleaners')) {
+      return 'laundromat';
+    }
+    if (lower.includes('plaza') || lower.includes('center') || lower.includes('mall') || lower.includes('suite') || lower.includes('ste')) {
+      return 'commercial';
+    }
+    const hasResidentialPattern = /^\d+\s+[a-z]/i.test(addr) && 
+      (lower.includes('st') || lower.includes('ave') || lower.includes('rd') || lower.includes('dr') || lower.includes('ln') || lower.includes('ct'));
+    if (hasResidentialPattern && !lower.includes('#') && !lower.includes('unit')) {
+      return 'residential';
+    }
+    return 'commercial';
+  };
+
+  const generateRealisticScore = (addressType: AddressType): DemoResult => {
+    const baseScore = addressType === 'laundromat' ? 70 + Math.random() * 20 : 
+                      addressType === 'commercial' ? 55 + Math.random() * 30 : 
+                      45 + Math.random() * 25;
+    const score = Math.round(baseScore);
+    const gradeInfo = getGradeInfo(score);
+    
+    if (addressType === 'residential') {
+      const estimatedValue = 150000 + Math.random() * 350000;
+      return {
+        score,
+        grade: gradeInfo.grade,
+        opportunity: gradeInfo.opportunity,
+        addressType,
+        projections: null,
+        propertyMetrics: {
+          estimatedValue: Math.round(estimatedValue),
+          monthlyRent: Math.round(estimatedValue * 0.007),
+          capRate: 4 + Math.random() * 4
+        }
+      };
+    }
+
+    const washerCount = addressType === 'laundromat' ? 18 + Math.floor(Math.random() * 12) : 15 + Math.floor(Math.random() * 10);
+    const tpd = score >= 85 ? 5.2 : score >= 70 ? 4.3 : score >= 55 ? 3.5 : 2.8;
+    const vend = 4.25;
+    const revenueBase = washerCount * tpd * vend * 360;
+    const revenueMultiplier = addressType === 'laundromat' ? 1.0 : 0.85;
+    
+    return {
+      score,
+      grade: gradeInfo.grade,
+      opportunity: gradeInfo.opportunity,
+      addressType,
+      projections: {
+        revenueMin: Math.round(revenueBase * 0.85 * revenueMultiplier),
+        revenueMax: Math.round(revenueBase * 1.15 * revenueMultiplier),
+        valuationMin: Math.round(revenueBase * 0.22 * 4.5),
+        valuationMax: Math.round(revenueBase * 0.28 * 5.5)
+      },
+      propertyMetrics: null
+    };
+  };
 
   const runDemo = () => {
     if (!address.trim()) return;
     setStep('analyzing');
-    setTimeout(() => setStep('results'), 2000);
+    setShowPredictions(false);
+    
+    setTimeout(() => {
+      const addressType = detectAddressType(address);
+      const demoResult = generateRealisticScore(addressType);
+      setResult(demoResult);
+      setStep('results');
+    }, 2500);
   };
 
   const handleEmailCapture = async (action: 'trial' | 'report') => {
@@ -37,8 +148,8 @@ export function Hero() {
           address, 
           source: 'cleanbi_demo',
           action,
-          score: 94,
-          projectedRevenue: '$842,000 – $918,000'
+          score: result?.score,
+          addressType: result?.addressType
         })
       });
       
@@ -56,11 +167,35 @@ export function Hero() {
     }
   };
 
+  const formatCurrency = (val: number) => {
+    if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `$${Math.round(val / 1000)}K`;
+    return `$${val.toLocaleString()}`;
+  };
+
   const radarData = {
     labels: ['Population', 'Income', 'Renters', 'Age', 'Competition', 'Traffic', 'Visibility', 'Sq Ft', 'Machines', 'Parking', 'Equip Age', 'Cleanliness', 'Pricing', 'Hours', 'Drop-Off', 'Card System', 'Reviews'],
     datasets: [{
       label: 'Your Store',
-      data: [10, 9, 10, 8, 10, 9, 10, 9, 9, 8, 9, 10, 9, 10, 8, 10, 10],
+      data: result ? [
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 11)),
+        Math.min(10, Math.round(result.score / 10.5)),
+        Math.min(10, Math.round(result.score / 12)),
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 11)),
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 11)),
+        Math.min(10, Math.round(result.score / 10.5)),
+        Math.min(10, Math.round(result.score / 12)),
+        Math.min(10, Math.round(result.score / 11)),
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 11)),
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 12)),
+        Math.min(10, Math.round(result.score / 10)),
+        Math.min(10, Math.round(result.score / 10.5))
+      ] : Array(17).fill(7),
       backgroundColor: 'rgba(57,204,204,0.2)',
       borderColor: '#39CCCC',
       borderWidth: 4,
@@ -117,28 +252,79 @@ export function Hero() {
 
           <div 
             id="cleanbi" 
-            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 sm:p-10 max-w-4xl mx-auto border border-teal-400/20"
+            className="bg-navy-900 rounded-3xl p-8 sm:p-10 max-w-4xl mx-auto border-2 border-teal-400/50 shadow-2xl"
             data-testid="section-cleanbi-demo"
           >
             {step === 'address' && (
               <div className="animate-in">
-                <h2 className="text-3xl sm:text-4xl font-bebas mb-8 text-white">
-                  Enter Any Address &rarr; See Revenue in 8 Seconds
+                <h2 className="text-3xl sm:text-4xl font-bebas mb-6 text-white">
+                  Try a Real Laundromat Address
                 </h2>
-                <input
-                  type="text"
-                  placeholder="e.g. 1234 Main St, Dallas, TX"
-                  className="w-full max-w-2xl px-6 py-5 text-lg sm:text-xl text-navy-900 rounded-xl mb-6 focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && runDemo()}
-                  data-testid="input-cleanbi-address"
-                />
+                <p className="text-gray-300 mb-6 text-lg">Enter any address or select a sample laundromat below</p>
+                
+                <div className="relative max-w-2xl mx-auto mb-4">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Enter address, city, state, zip..."
+                    className="w-full pl-12 pr-6 py-5 text-lg sm:text-xl text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      fetchPredictions(e.target.value);
+                    }}
+                    onKeyPress={(e) => e.key === 'Enter' && runDemo()}
+                    onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
+                    data-testid="input-cleanbi-address"
+                  />
+                  
+                  {showPredictions && predictions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                      {predictions.map((pred) => (
+                        <button
+                          key={pred.place_id}
+                          onClick={() => {
+                            setAddress(pred.description);
+                            setShowPredictions(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-navy-900 hover:bg-teal-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                          data-testid={`prediction-${pred.place_id}`}
+                        >
+                          <MapPin className="w-4 h-4 text-teal-600" />
+                          <span className="text-sm">{pred.description}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-2 mb-6">
+                  <span className="text-gray-400 text-sm">Try:</span>
+                  {[
+                    { name: "Spin City Laundry", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
+                    { name: "WaveMax Laundry", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
+                    { name: "Suds Factory", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
+                  ].map((sample) => (
+                    <button
+                      key={sample.name}
+                      onClick={() => {
+                        setAddress(sample.addr);
+                        runDemo();
+                      }}
+                      className="px-3 py-1.5 bg-teal-400/20 text-teal-300 rounded-full text-sm hover:bg-teal-400/30 transition flex items-center gap-1"
+                    >
+                      <Building2 className="w-3 h-3" />
+                      {sample.name}
+                    </button>
+                  ))}
+                </div>
+                
                 <div>
                   <Button 
                     onClick={runDemo} 
                     size="lg"
-                    className="bg-teal-400 hover:bg-teal-300 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105"
+                    disabled={!address.trim()}
+                    className="bg-teal-400 hover:bg-teal-300 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     data-testid="button-cleanbi-run-demo"
                   >
                     Run My Free CLEANBI Score
@@ -170,15 +356,81 @@ export function Hero() {
               </div>
             )}
 
-            {step === 'results' && (
+            {step === 'results' && result && (
               <div className="animate-in">
-                <h2 className="text-7xl sm:text-9xl font-bold text-teal-400 mb-4" data-testid="text-cleanbi-score">
-                  94/100
-                </h2>
-                <p className="text-2xl sm:text-4xl text-gray-200 mb-2">Projected Annual Revenue</p>
-                <p className="text-5xl sm:text-7xl font-bold text-teal-400 mb-6" data-testid="text-cleanbi-revenue">
-                  $842,000 – $918,000
-                </p>
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  {result.addressType === 'residential' ? (
+                    <HomeIcon className="w-8 h-8 text-amber-400" />
+                  ) : (
+                    <Building2 className="w-8 h-8 text-teal-400" />
+                  )}
+                  <span className="text-lg text-gray-300 capitalize">
+                    {result.addressType === 'laundromat' ? 'Laundromat Location' : 
+                     result.addressType === 'commercial' ? 'Commercial Property' : 'Residential Property'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <span 
+                    className="text-7xl sm:text-9xl font-bold"
+                    style={{ color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#A3E635' : result.grade === 'C' ? '#FBBF24' : '#C8A661' }}
+                    data-testid="text-cleanbi-score"
+                  >
+                    {result.score}/100
+                  </span>
+                  <span 
+                    className="text-4xl sm:text-6xl font-bold px-4 py-2 rounded-xl"
+                    style={{ 
+                      backgroundColor: result.grade === 'A' ? '#22C55E20' : result.grade === 'B' ? '#A3E63520' : result.grade === 'C' ? '#FBBF2420' : '#C8A66120',
+                      color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#A3E635' : result.grade === 'C' ? '#FBBF24' : '#C8A661'
+                    }}
+                  >
+                    {result.grade}
+                  </span>
+                </div>
+                
+                <p className="text-xl text-gray-300 mb-6">{result.opportunity}</p>
+                
+                {result.addressType === 'residential' && result.propertyMetrics ? (
+                  <div className="bg-navy-900/50 rounded-2xl p-6 mb-6">
+                    <p className="text-gray-400 text-sm mb-2">Residential Property Analysis</p>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{formatCurrency(result.propertyMetrics.estimatedValue)}</p>
+                        <p className="text-gray-400 text-sm">Est. Value</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{formatCurrency(result.propertyMetrics.monthlyRent)}/mo</p>
+                        <p className="text-gray-400 text-sm">Rental Potential</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{result.propertyMetrics.capRate.toFixed(1)}%</p>
+                        <p className="text-gray-400 text-sm">Cap Rate</p>
+                      </div>
+                    </div>
+                    <p className="text-amber-400/80 text-sm mt-4 italic">
+                      This is a residential property. For laundromat business projections, enter a commercial address.
+                    </p>
+                  </div>
+                ) : result.projections ? (
+                  <div className="bg-navy-900/50 rounded-2xl p-6 mb-6">
+                    <p className="text-gray-400 text-sm mb-2">Laundromat Business Projections</p>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-3xl sm:text-4xl font-bold text-teal-400" data-testid="text-cleanbi-revenue">
+                          {formatCurrency(result.projections.revenueMin)} – {formatCurrency(result.projections.revenueMax)}
+                        </p>
+                        <p className="text-gray-400 text-sm">Annual Revenue Potential</p>
+                      </div>
+                      <div>
+                        <p className="text-3xl sm:text-4xl font-bold text-teal-400">
+                          {formatCurrency(result.projections.valuationMin)} – {formatCurrency(result.projections.valuationMax)}
+                        </p>
+                        <p className="text-gray-400 text-sm">Est. Business Valuation</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
                 
                 <div className="bg-navy-900/50 rounded-3xl p-4 sm:p-8 mb-8">
                   <div className="max-w-lg mx-auto">
