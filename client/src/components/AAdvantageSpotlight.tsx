@@ -196,20 +196,24 @@ export function AAdvantageSpotlight() {
         ) : (
           <div className="text-center py-12 bg-white/5 rounded-xl mb-10">
             <Wrench className="w-12 h-12 mx-auto text-white/30 mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Equipment Guides Coming Soon</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Explore Equipment Resources</h3>
             <p className="text-white/60 mb-6">
-              Ultra SEO-optimized content for laundromat equipment across Texas, Louisiana, Oklahoma, and Arkansas.
+              Browse our comprehensive equipment guides and interactive wizard to find the perfect machines for your laundromat.
             </p>
-            <a 
-              href={AFFILIATE_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90">
-                Get Equipment Quotes Now
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/equipment-guides">
+                <Button className="bg-white/10 border border-white/20 text-white hover:bg-white/20">
+                  Equipment Guides
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/equipment-wizard">
+                <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90">
+                  Equipment Wizard
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 
