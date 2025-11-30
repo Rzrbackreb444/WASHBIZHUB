@@ -1,5 +1,12 @@
 import { Helmet } from "react-helmet-async";
 
+function sanitizeObject<T extends object>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj, (_, value) => 
+    value === undefined || value === null || value === '' || 
+    (Array.isArray(value) && value.length === 0) ? undefined : value
+  ));
+}
+
 interface BreadcrumbItem {
   name: string;
   url: string;
@@ -265,48 +272,48 @@ export function SEO({
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="googlebot" content="index, follow" />
 
-      {/* Structured Data (JSON-LD) */}
+      {/* Structured Data (JSON-LD) - All sanitized to remove undefined/null/empty values */}
       <script type="application/ld+json">
-        {JSON.stringify(organizationData)}
+        {JSON.stringify(sanitizeObject(organizationData))}
       </script>
       <script type="application/ld+json">
-        {JSON.stringify(websiteData)}
+        {JSON.stringify(sanitizeObject(websiteData))}
       </script>
       {breadcrumbData && (
         <script type="application/ld+json">
-          {JSON.stringify(breadcrumbData)}
+          {JSON.stringify(sanitizeObject(breadcrumbData))}
         </script>
       )}
       {faqData && (
         <script type="application/ld+json">
-          {JSON.stringify(faqData)}
+          {JSON.stringify(sanitizeObject(faqData))}
         </script>
       )}
       {howToData && (
         <script type="application/ld+json">
-          {JSON.stringify(howToData)}
+          {JSON.stringify(sanitizeObject(howToData))}
         </script>
       )}
       {productData && (
         <script type="application/ld+json">
-          {JSON.stringify(productData)}
+          {JSON.stringify(sanitizeObject(productData))}
         </script>
       )}
       {speakableData && (
         <script type="application/ld+json">
-          {JSON.stringify(speakableData)}
+          {JSON.stringify(sanitizeObject(speakableData))}
         </script>
       )}
       {structuredData && (
         Array.isArray(structuredData) 
           ? structuredData.map((data, index) => (
               <script key={`structured-data-${index}`} type="application/ld+json">
-                {JSON.stringify(data)}
+                {JSON.stringify(sanitizeObject(data as object))}
               </script>
             ))
           : (
               <script type="application/ld+json">
-                {JSON.stringify(structuredData)}
+                {JSON.stringify(sanitizeObject(structuredData as object))}
               </script>
             )
       )}
