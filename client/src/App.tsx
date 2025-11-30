@@ -14,6 +14,7 @@ import { usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { PageTransition } from "@/components/PageTransition";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -1189,9 +1190,11 @@ function AppContent() {
           <DeferredAnalytics />
         </Suspense>
         <RouteErrorBoundary>
-          <Suspense fallback={<FullPageLoadingFallback />}>
-            <Router />
-          </Suspense>
+          <PageTransition>
+            <Suspense fallback={<FullPageLoadingFallback />}>
+              <Router />
+            </Suspense>
+          </PageTransition>
         </RouteErrorBoundary>
       </>
     );
@@ -1215,9 +1218,11 @@ function AppContent() {
         <NavigationMenu />
         <main id="main-content" role="main" className="flex-1">
           <RouteErrorBoundary>
-            <Suspense fallback={<LoadingFallback />}>
-              <Router />
-            </Suspense>
+            <PageTransition>
+              <Suspense fallback={<LoadingFallback />}>
+                <Router />
+              </Suspense>
+            </PageTransition>
           </RouteErrorBoundary>
         </main>
         <Footer />

@@ -16,6 +16,28 @@ interface FAQItem {
   answer: string;
 }
 
+interface HowToStep {
+  name: string;
+  text: string;
+  image?: string;
+}
+
+interface HowToData {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string;
+}
+
+interface ProductOffer {
+  name: string;
+  description: string;
+  price: string;
+  priceCurrency?: string;
+  availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
+  priceValidUntil?: string;
+}
+
 interface SEOProps {
   title: string;
   description: string;
@@ -29,7 +51,10 @@ interface SEOProps {
   twitterHandle?: string;
   fbAppId?: string;
   faqs?: FAQItem[];
+  howTo?: HowToData;
+  productOffers?: ProductOffer[];
   speakableSelectors?: string[];
+  speakableContent?: string[];
   datePublished?: string;
   dateModified?: string;
   articleSection?: string;
@@ -49,7 +74,10 @@ export function SEO({
   twitterHandle = "@washbizhub",
   fbAppId = "557248372195",
   faqs = [],
+  howTo,
+  productOffers = [],
   speakableSelectors = ["h1", "h2", ".speakable"],
+  speakableContent = [],
   datePublished,
   dateModified,
   articleSection,
@@ -122,6 +150,72 @@ export function SEO({
     }))
   } : null;
 
+  // FAQPage structured data for AEO (Answer Engine Optimization)
+  const faqData = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  } : null;
+
+  // HowTo structured data for step-by-step guides
+  const howToData = howTo ? {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": howTo.name,
+    "description": howTo.description,
+    "step": howTo.steps.map((step, index) => ({
+      "@type": "HowToStep",
+      "position": index + 1,
+      "name": step.name,
+      "text": step.text,
+      ...(step.image && { "image": step.image })
+    })),
+    ...(howTo.totalTime && { "totalTime": howTo.totalTime })
+  } : null;
+
+  // Product/Offer structured data for pricing tiers
+  const productData = productOffers.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "WashBizHub Platform",
+    "description": "Complete laundromat management platform with CLEANBI scoring, POS system, AI consulting, and business tools.",
+    "brand": {
+      "@type": "Brand",
+      "name": "WashBizHub"
+    },
+    "offers": productOffers.map(offer => ({
+      "@type": "Offer",
+      "name": offer.name,
+      "description": offer.description,
+      "price": offer.price,
+      "priceCurrency": offer.priceCurrency || "USD",
+      "availability": `https://schema.org/${offer.availability || 'InStock'}`,
+      ...(offer.priceValidUntil && { "priceValidUntil": offer.priceValidUntil }),
+      "url": canonical
+    }))
+  } : null;
+
+  // SpeakableSpecification for voice search optimization (Google Assistant, Alexa, etc.)
+  const speakableData = (speakableContent.length > 0 || speakableSelectors.length > 0) ? {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": fullTitle,
+    "url": canonical,
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      ...(speakableSelectors.length > 0 && { "cssSelector": speakableSelectors }),
+      ...(speakableContent.length > 0 && { "xpath": speakableContent.map((_, i) => `//*[@data-speakable='${i}']`) })
+    },
+    "description": description
+  } : null;
+
   return (
     <Helmet>
       {/* Primary Meta Tags */}
@@ -181,6 +275,26 @@ export function SEO({
       {breadcrumbData && (
         <script type="application/ld+json">
           {JSON.stringify(breadcrumbData)}
+        </script>
+      )}
+      {faqData && (
+        <script type="application/ld+json">
+          {JSON.stringify(faqData)}
+        </script>
+      )}
+      {howToData && (
+        <script type="application/ld+json">
+          {JSON.stringify(howToData)}
+        </script>
+      )}
+      {productData && (
+        <script type="application/ld+json">
+          {JSON.stringify(productData)}
+        </script>
+      )}
+      {speakableData && (
+        <script type="application/ld+json">
+          {JSON.stringify(speakableData)}
         </script>
       )}
       {structuredData && (

@@ -89,8 +89,43 @@ export default function Home() {
     "url": baseUrl,
     "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide.",
     "foundingDate": "2024",
-    "sameAs": ["https://www.facebook.com/washbizhub1"]
+    "sameAs": ["https://www.facebook.com/washbizhub1", "https://twitter.com/washbizhub", "https://www.linkedin.com/company/washbizhub"]
   };
+
+  const homepageFaqs = [
+    {
+      question: "What is WashBizHub?",
+      answer: "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI™ universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors."
+    },
+    {
+      question: "What is the CLEANBI score?",
+      answer: "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for any business type (restaurants, retail, laundromats, etc.) or residential property in 220+ countries. Premium $97 reports provide deep analysis and valuations."
+    },
+    {
+      question: "How much does it cost to open a laundromat?",
+      answer: "Opening a laundromat typically costs between $200,000 to $1,000,000+ depending on location, size, and whether you're building new or retrofitting existing space. Key costs include: equipment ($100K-$500K), build-out/renovation ($50K-$300K), permits and licenses ($5K-$15K), initial inventory and supplies ($5K-$10K), and working capital. Use WashBizHub's ROI calculator to estimate costs for your specific situation."
+    },
+    {
+      question: "What is the average ROI for a laundromat?",
+      answer: "Laundromats typically generate 20-35% cash-on-cash returns, making them one of the most profitable small business investments. Average net operating margins range from 15-35%, with well-run operations achieving higher margins. Factors affecting ROI include location, machine efficiency, pricing strategy, and operating costs."
+    },
+    {
+      question: "How do I value a laundromat for purchase?",
+      answer: "Laundromats are typically valued at 2.5x to 4x annual net operating income (NOI). Key valuation factors include: gross revenue, net income, equipment age and condition, lease terms, location demographics, and competition. Premium valuations (3.5x-4x+) apply to turnkey operations with newer equipment."
+    },
+    {
+      question: "Is WashBizHub free to use?",
+      answer: "Many WashBizHub features are free including basic CLEANBI scores, marketplace browsing, blog content, and resource access. Premium features like detailed reports ($97), advanced calculators, courses, and consulting services have associated fees. Free users get unlimited basic CLEANBI scores with no login required."
+    },
+    {
+      question: "How do I find a good location for a laundromat?",
+      answer: "Key factors for laundromat location include: high renter population (40%+ ideal), population density (5,000+ within 1-mile radius), visible storefront with parking, limited competition, household income $30K-$75K, proximity to apartments/multi-family housing, and good foot traffic. CLEANBI scores help analyze these factors for any address globally."
+    },
+    {
+      question: "What is Turns Per Day (TPD) for laundromats?",
+      answer: "Turns Per Day (TPD) measures how many times each machine is used daily on average. Industry benchmarks: 4-5 TPD is average, 6-7 TPD is good, 8+ TPD is excellent. Higher TPD indicates better location and demand. TPD directly impacts revenue and ROI."
+    }
+  ];
 
   const structuredData = [websiteSchema, organizationSchema];
   
@@ -98,16 +133,22 @@ export default function Home() {
     <>
       <SEO
         title="WashBizHub - The #1 Laundromat Resource Hub"
-        description="Professional laundromat platform with CLEANBI scoring, marketplace, AI consulting, POS systems, and 50+ business tools. Serving 72,000+ industry professionals worldwide."
+        description="The #1 laundromat resource for owners, investors & operators. Free CLEANBI location scoring, ROI calculators, marketplace listings, AI consulting, and 50+ business tools. Serving 72,000+ professionals in 220+ countries."
         canonicalUrl="/"
         keywords={[
           "laundromat management software",
           "laundromat marketplace",
           "CLEANBI business scoring",
           "laundromat investment calculator",
-          "coin laundry business"
+          "coin laundry business",
+          "laundromat for sale",
+          "laundromat ROI",
+          "how to buy a laundromat"
         ]}
         structuredData={structuredData}
+        faqs={homepageFaqs}
+        speakableSelectors={["h1", "h2", ".speakable", "[data-testid='text-choose-path-heading']"]}
+        breadcrumbs={[{ name: "Home", url: "/" }]}
       />
       
       <div className="min-h-screen bg-background">
