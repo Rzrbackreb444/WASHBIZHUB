@@ -921,56 +921,90 @@ export const insertLaundromatSchema = createInsertSchema(laundromats).omit({
 export type InsertLaundromat = z.infer<typeof insertLaundromatSchema>;
 export type Laundromat = typeof laundromats.$inferSelect;
 
-// Equipment Library (reference data)
+// Equipment Library (reference data) - 60+ machines from 15+ brands
 export const equipmentLibrary = [
-  {
-    id: "dexter-t900",
-    name: "Dexter T-900",
-    type: "washer",
-    capacity: "20lb",
-    width: 27,
-    depth: 31.5,
-    height: 43,
-    cost: 3500,
-    tpdContribution: 8,
-    color: "#4a90e2",
-  },
-  {
-    id: "dexter-t1200",
-    name: "Dexter T-1200",
-    type: "washer",
-    capacity: "30lb",
-    width: 30,
-    depth: 33,
-    height: 45,
-    cost: 4200,
-    tpdContribution: 10,
-    color: "#5ba3f5",
-  },
-  {
-    id: "speed-queen-sfn",
-    name: "Speed Queen SFN",
-    type: "washer",
-    capacity: "27lb",
-    width: 27,
-    depth: 32.25,
-    height: 42.5,
-    cost: 3800,
-    tpdContribution: 9,
-    color: "#e74c3c",
-  },
-  {
-    id: "speed-queen-stack",
-    name: "Speed Queen Stack",
-    type: "dryer",
-    capacity: "30lb",
-    width: 27,
-    depth: 31,
-    height: 75,
-    cost: 4500,
-    tpdContribution: 12,
-    color: "#c0392b",
-  },
+  // DEXTER WASHERS
+  { id: "dexter-t300", name: "Dexter T-300", type: "washer", capacity: "20lb", width: 26, depth: 27, height: 42, cost: 5500, tpdContribution: 7, color: "#4a90e2" },
+  { id: "dexter-t400", name: "Dexter T-400", type: "washer", capacity: "30lb", width: 28, depth: 30, height: 45, cost: 6500, tpdContribution: 8, color: "#3b82f6" },
+  { id: "dexter-t600", name: "Dexter T-600", type: "washer", capacity: "40lb", width: 30, depth: 33, height: 48, cost: 8000, tpdContribution: 9, color: "#2563eb" },
+  { id: "dexter-t900", name: "Dexter T-900", type: "washer", capacity: "60lb", width: 34, depth: 38, height: 52, cost: 10500, tpdContribution: 11, color: "#1d4ed8" },
+  { id: "dexter-t1200", name: "Dexter T-1200", type: "washer", capacity: "100lb", width: 48, depth: 54, height: 78, cost: 15000, tpdContribution: 15, color: "#1e40af" },
+  // DEXTER DRYERS
+  { id: "dexter-dct030", name: "Dexter DCT030", type: "dryer", capacity: "30lb", width: 30, depth: 42, height: 70, cost: 4500, tpdContribution: 8, color: "#0891b2" },
+  { id: "dexter-dct050", name: "Dexter DCT050", type: "dryer", capacity: "50lb", width: 35, depth: 47, height: 76, cost: 6500, tpdContribution: 10, color: "#0e7490" },
+  { id: "dexter-dct080", name: "Dexter DCT080", type: "dryer", capacity: "80lb", width: 40, depth: 52, height: 82, cost: 9000, tpdContribution: 13, color: "#155e75" },
+  { id: "dexter-stack-55", name: "Dexter Stack 55", type: "dryer", capacity: "55lb", width: 32, depth: 42, height: 80, cost: 7500, tpdContribution: 12, color: "#164e63" },
+  // SPEED QUEEN WASHERS
+  { id: "speed-queen-ff7005", name: "Speed Queen FF7005", type: "washer", capacity: "22lb", width: 27, depth: 28, height: 44, cost: 5000, tpdContribution: 8, color: "#1e40af" },
+  { id: "speed-queen-sfn", name: "Speed Queen SFN", type: "washer", capacity: "27lb", width: 27, depth: 32, height: 43, cost: 3800, tpdContribution: 9, color: "#e74c3c" },
+  { id: "speed-queen-sc60", name: "Speed Queen SC60", type: "washer", capacity: "60lb", width: 35, depth: 43, height: 56, cost: 11500, tpdContribution: 12, color: "#1e3a8a" },
+  { id: "speed-queen-sc80", name: "Speed Queen SC80", type: "washer", capacity: "80lb", width: 38, depth: 48, height: 60, cost: 14500, tpdContribution: 14, color: "#1e3a8a" },
+  // SPEED QUEEN DRYERS
+  { id: "speed-queen-dr7", name: "Speed Queen DR7", type: "dryer", capacity: "50lb", width: 28, depth: 28, height: 43, cost: 4800, tpdContribution: 10, color: "#b91c1c" },
+  { id: "speed-queen-stack", name: "Speed Queen Stack", type: "dryer", capacity: "30lb", width: 27, depth: 31, height: 75, cost: 4500, tpdContribution: 12, color: "#c0392b" },
+  { id: "speed-queen-st075", name: "Speed Queen ST075", type: "dryer", capacity: "75lb", width: 28, depth: 32, height: 78, cost: 6800, tpdContribution: 14, color: "#991b1b" },
+  // MAYTAG WASHERS
+  { id: "maytag-mfr25", name: "Maytag MFR25", type: "washer", capacity: "25lb", width: 27, depth: 30, height: 46, cost: 5000, tpdContribution: 8, color: "#dc2626" },
+  { id: "maytag-mfr40", name: "Maytag MFR40", type: "washer", capacity: "40lb", width: 31, depth: 38, height: 54, cost: 7500, tpdContribution: 10, color: "#b91c1c" },
+  { id: "maytag-mfr65", name: "Maytag MFR65", type: "washer", capacity: "65lb", width: 36, depth: 44, height: 58, cost: 11000, tpdContribution: 12, color: "#991b1b" },
+  // MAYTAG DRYERS
+  { id: "maytag-mdg50", name: "Maytag MDG50", type: "dryer", capacity: "50lb", width: 32, depth: 44, height: 72, cost: 5500, tpdContribution: 9, color: "#ef4444" },
+  { id: "maytag-mdg75", name: "Maytag MDG75", type: "dryer", capacity: "75lb", width: 38, depth: 53, height: 85, cost: 8500, tpdContribution: 12, color: "#dc2626" },
+  // ELECTROLUX WASHERS
+  { id: "electrolux-wh620", name: "Electrolux WH6-20", type: "washer", capacity: "20lb", width: 27, depth: 30, height: 44, cost: 6500, tpdContribution: 8, color: "#7c3aed" },
+  { id: "electrolux-wh633", name: "Electrolux WH6-33", type: "washer", capacity: "33lb", width: 32, depth: 36, height: 52, cost: 10500, tpdContribution: 10, color: "#6d28d9" },
+  { id: "electrolux-wh655", name: "Electrolux WH6-55", type: "washer", capacity: "55lb", width: 36, depth: 42, height: 56, cost: 14000, tpdContribution: 12, color: "#5b21b6" },
+  // ELECTROLUX DRYERS
+  { id: "electrolux-t5350", name: "Electrolux T5350", type: "dryer", capacity: "50lb", width: 34, depth: 44, height: 75, cost: 6500, tpdContribution: 10, color: "#8b5cf6" },
+  { id: "electrolux-t5675", name: "Electrolux T5675", type: "dryer", capacity: "75lb", width: 38, depth: 49, height: 83, cost: 8500, tpdContribution: 12, color: "#7c3aed" },
+  // MIELE WASHERS
+  { id: "miele-pw818", name: "Miele PW818", type: "washer", capacity: "18lb", width: 28, depth: 35, height: 53, cost: 6500, tpdContribution: 7, color: "#059669" },
+  { id: "miele-pw6080", name: "Miele PW6080", type: "washer", capacity: "80lb", width: 40, depth: 50, height: 62, cost: 18000, tpdContribution: 14, color: "#047857" },
+  // MIELE DRYERS
+  { id: "miele-pt8333", name: "Miele PT8333", type: "dryer", capacity: "33lb", width: 30, depth: 40, height: 55, cost: 7500, tpdContribution: 9, color: "#10b981" },
+  // LG WASHERS
+  { id: "lg-gcwp1069", name: "LG GCWP1069", type: "washer", capacity: "22lb", width: 27, depth: 28, height: 40, cost: 4200, tpdContribution: 7, color: "#a21caf" },
+  { id: "lg-gcwp3500", name: "LG GCWP3500", type: "washer", capacity: "35lb", width: 30, depth: 34, height: 48, cost: 6500, tpdContribution: 9, color: "#86198f" },
+  // CONTINENTAL GIRBAU WASHERS
+  { id: "girbau-hs6008", name: "Girbau HS-6008", type: "washer", capacity: "20lb", width: 28, depth: 30, height: 45, cost: 6000, tpdContribution: 8, color: "#0d9488" },
+  { id: "girbau-hs6018", name: "Girbau HS-6018", type: "washer", capacity: "40lb", width: 32, depth: 38, height: 52, cost: 9500, tpdContribution: 10, color: "#0f766e" },
+  { id: "girbau-hs6028", name: "Girbau HS-6028", type: "washer", capacity: "65lb", width: 38, depth: 46, height: 58, cost: 13500, tpdContribution: 12, color: "#115e59" },
+  // WASCOMAT WASHERS
+  { id: "wascomat-su025", name: "Wascomat SU025", type: "washer", capacity: "25lb", width: 28, depth: 32, height: 46, cost: 5500, tpdContribution: 8, color: "#ea580c" },
+  { id: "wascomat-su035", name: "Wascomat SU035", type: "washer", capacity: "35lb", width: 32, depth: 36, height: 52, cost: 7500, tpdContribution: 9, color: "#c2410c" },
+  { id: "wascomat-su055", name: "Wascomat SU055", type: "washer", capacity: "55lb", width: 36, depth: 42, height: 56, cost: 10500, tpdContribution: 11, color: "#9a3412" },
+  // UNIMAC WASHERS
+  { id: "unimac-uw35", name: "UniMac UW35", type: "washer", capacity: "35lb", width: 30, depth: 35, height: 50, cost: 6500, tpdContribution: 9, color: "#ca8a04" },
+  { id: "unimac-uw60", name: "UniMac UW60", type: "washer", capacity: "60lb", width: 36, depth: 42, height: 56, cost: 10500, tpdContribution: 11, color: "#a16207" },
+  { id: "unimac-uw80", name: "UniMac UW80", type: "washer", capacity: "80lb", width: 36, depth: 42, height: 60, cost: 12500, tpdContribution: 13, color: "#854d0e" },
+  // IPSO WASHERS
+  { id: "ipso-hf234", name: "IPSO HF234", type: "washer", capacity: "23lb", width: 27, depth: 31, height: 45, cost: 5200, tpdContribution: 8, color: "#0284c7" },
+  { id: "ipso-hf455", name: "IPSO HF455", type: "washer", capacity: "45lb", width: 32, depth: 38, height: 55, cost: 8500, tpdContribution: 10, color: "#0369a1" },
+  { id: "ipso-hf665", name: "IPSO HF665", type: "washer", capacity: "65lb", width: 38, depth: 45, height: 58, cost: 12000, tpdContribution: 12, color: "#075985" },
+  // HUEBSCH WASHERS
+  { id: "huebsch-hf234", name: "Huebsch HF234", type: "washer", capacity: "23lb", width: 27, depth: 31, height: 45, cost: 4800, tpdContribution: 8, color: "#16a34a" },
+  { id: "huebsch-hf455", name: "Huebsch HF455", type: "washer", capacity: "45lb", width: 32, depth: 38, height: 55, cost: 7800, tpdContribution: 10, color: "#15803d" },
+  { id: "huebsch-hf665", name: "Huebsch HF665", type: "washer", capacity: "65lb", width: 38, depth: 45, height: 58, cost: 11000, tpdContribution: 12, color: "#166534" },
+  // ADC DRYERS
+  { id: "adc-ad25", name: "ADC AD-25", type: "dryer", capacity: "25lb", width: 28, depth: 38, height: 68, cost: 3800, tpdContribution: 7, color: "#f97316" },
+  { id: "adc-ad50", name: "ADC AD-50", type: "dryer", capacity: "50lb", width: 34, depth: 46, height: 76, cost: 6500, tpdContribution: 10, color: "#ea580c" },
+  { id: "adc-ad75", name: "ADC AD-75", type: "dryer", capacity: "75lb", width: 40, depth: 52, height: 82, cost: 9500, tpdContribution: 12, color: "#c2410c" },
+  { id: "adc-ad120", name: "ADC AD-120", type: "dryer", capacity: "120lb", width: 48, depth: 58, height: 88, cost: 14000, tpdContribution: 15, color: "#9a3412" },
+  // CHICAGO DRYERS
+  { id: "chicago-king50", name: "Chicago King 50", type: "dryer", capacity: "50lb", width: 35, depth: 45, height: 74, cost: 8000, tpdContribution: 10, color: "#4f46e5" },
+  { id: "chicago-king100", name: "Chicago King 100", type: "dryer", capacity: "100lb", width: 45, depth: 55, height: 80, cost: 15000, tpdContribution: 14, color: "#4338ca" },
+  { id: "chicago-king170", name: "Chicago King 170", type: "dryer", capacity: "170lb", width: 52, depth: 62, height: 86, cost: 22000, tpdContribution: 17, color: "#3730a3" },
+  // SPECIALTY EQUIPMENT
+  { id: "hyosung-atm", name: "Hyosung 2700T ATM", type: "atm", capacity: "N/A", width: 16, depth: 18, height: 52, cost: 2420, tpdContribution: 0, color: "#1f2937" },
+  { id: "american-changer", name: "American Changer BCX", type: "changer", capacity: "N/A", width: 18, depth: 18, height: 36, cost: 2500, tpdContribution: 0, color: "#fbbf24" },
+  { id: "iclean-dogwash", name: "iClean Dog Wash", type: "dogwash", capacity: "N/A", width: 81, depth: 35, height: 73, cost: 14995, tpdContribution: 0, color: "#22c55e" },
+  { id: "vending-dual", name: "Vend-Rite Dual", type: "vending", capacity: "N/A", width: 24, depth: 28, height: 72, cost: 1800, tpdContribution: 0, color: "#0ea5e9" },
+  { id: "snack-vending", name: "Snack Vending", type: "vending", capacity: "N/A", width: 38, depth: 32, height: 72, cost: 3500, tpdContribution: 0, color: "#0369a1" },
+  { id: "folding-table-48", name: "Folding Table 48\"", type: "table", capacity: "N/A", width: 48, depth: 30, height: 30, cost: 209, tpdContribution: 0, color: "#a8a29e" },
+  { id: "folding-table-72", name: "Folding Table 72\"", type: "table", capacity: "N/A", width: 72, depth: 30, height: 30, cost: 289, tpdContribution: 0, color: "#d6d3d1" },
+  { id: "laundry-cart-400", name: "Laundry Cart 400lb", type: "cart", capacity: "400lb", width: 24, depth: 36, height: 48, cost: 249, tpdContribution: 0, color: "#6b7280" },
+  { id: "seating-bench", name: "Seating Bench", type: "furniture", capacity: "N/A", width: 60, depth: 18, height: 18, cost: 229, tpdContribution: 0, color: "#78716c" },
+  { id: "arcade-bigbuck", name: "Big Buck Hunter", type: "arcade", capacity: "N/A", width: 30, depth: 30, height: 72, cost: 3000, tpdContribution: 0, color: "#a855f7" },
 ] as const;
 
 export type EquipmentItem = typeof equipmentLibrary[number];
