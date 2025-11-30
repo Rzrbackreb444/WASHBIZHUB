@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   BarChart3, Monitor, Users, X, ChevronDown, Sparkles,
-  ArrowRight, Zap, ExternalLink
+  ArrowRight, Zap, ExternalLink, Store, TrendingUp
 } from "lucide-react";
 import { SiFacebook } from "react-icons/si";
 
@@ -49,23 +49,34 @@ export function StickyActionBar() {
                   data-testid="button-sticky-cleanbi"
                 >
                   <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden xs:inline">Free</span> CLEANBI Score
+                  <span className="hidden xs:inline">Free</span> CLEANBI
                 </Button>
               </Link>
               
-              <Link href="/pos-command-center">
+              <Link href="/listing-form">
+                <Button 
+                  size="sm" 
+                  className="bg-green-500 text-white hover:bg-green-600 font-semibold text-xs sm:text-sm"
+                  data-testid="button-sticky-list"
+                >
+                  <Store className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  List <span className="hidden sm:inline">FREE</span>
+                </Button>
+              </Link>
+              
+              <Link href="/advertise">
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 text-xs sm:text-sm"
-                  data-testid="button-sticky-pos"
+                  className="border-orange-400/50 text-orange-400 hover:bg-orange-500/20 text-xs sm:text-sm"
+                  data-testid="button-sticky-advertise"
                 >
-                  <Monitor className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Demo</span> POS
+                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Advertise</span>
                 </Button>
               </Link>
               
-              <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer">
+              <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer" className="hidden md:block">
                 <Button 
                   size="sm" 
                   variant="outline"
@@ -73,7 +84,7 @@ export function StickyActionBar() {
                   data-testid="button-sticky-facebook"
                 >
                   <SiFacebook className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Join</span> Group
+                  Group
                 </Button>
               </a>
             </div>
@@ -115,7 +126,10 @@ export function FloatingCTAButton() {
     >
       {isExpanded && (
         <div className="absolute bottom-16 right-0 mb-2 animate-in slide-in-from-bottom-2 fade-in duration-200">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border p-3 space-y-2 min-w-[200px]">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border p-3 space-y-2 min-w-[220px]">
+            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Quick Actions
+            </div>
             <Link href="/cleanbi-auto">
               <Button 
                 size="sm" 
@@ -137,7 +151,22 @@ export function FloatingCTAButton() {
                 AI Consultation
               </Button>
             </Link>
-            <Link href="/equipment-wizard">
+            
+            <div className="border-t my-2" />
+            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Sell & Advertise
+            </div>
+            <Link href="/listing-form">
+              <Button 
+                size="sm" 
+                className="w-full justify-start bg-green-500 text-white hover:bg-green-600"
+                onClick={() => setIsExpanded(false)}
+              >
+                <Store className="w-4 h-4 mr-2" />
+                List Laundromat FREE
+              </Button>
+            </Link>
+            <Link href="/list-equipment">
               <Button 
                 size="sm" 
                 variant="outline"
@@ -145,9 +174,22 @@ export function FloatingCTAButton() {
                 onClick={() => setIsExpanded(false)}
               >
                 <Zap className="w-4 h-4 mr-2" />
-                Equipment Wizard
+                Sell Equipment
               </Button>
             </Link>
+            <Link href="/advertise">
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="w-full justify-start text-orange-600"
+                onClick={() => setIsExpanded(false)}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Advertise With Us
+              </Button>
+            </Link>
+            
+            <div className="border-t my-2" />
             <a href={FB_GROUP_URL} target="_blank" rel="noopener noreferrer">
               <Button 
                 size="sm" 
@@ -156,7 +198,7 @@ export function FloatingCTAButton() {
                 onClick={() => setIsExpanded(false)}
               >
                 <SiFacebook className="w-4 h-4 mr-2" />
-                Join Community
+                Join 72K+ Community
                 <ExternalLink className="w-3 h-3 ml-auto" />
               </Button>
             </a>

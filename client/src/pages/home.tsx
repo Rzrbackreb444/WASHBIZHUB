@@ -8,6 +8,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { FeaturedListings } from "@/components/FeaturedListings";
 import { StickyActionBar, FloatingCTAButton } from "@/components/StickyActionBar";
 import { PlatformStats, TrustBadges, EnterpriseFeatures } from "@/components/PlatformStats";
+import { PartnerActionsSection, QuickListBanner } from "@/components/PartnerActions";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Chrome, MessageCircle, Sparkles
@@ -326,6 +327,10 @@ export default function Home() {
         </section>
 
         <FeaturedListings />
+
+        <PartnerActionsSection />
+
+        <QuickListBanner />
 
         {/* Newsletter Signup */}
         <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
