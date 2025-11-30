@@ -10,9 +10,13 @@
  * 3. Operations Expert - Equipment efficiency, layout optimization
  * 4. Risk Assessor - Market saturation, economic factors, threats
  * 5. Strategic Advisor - Final synthesis and recommendations
+ * 6. Dave Menz (Laundromat123.com) - 30+ years industry expertise
  */
 
 import { askCouncil, consultCouncil } from './ai-council';
+import { CONSULTATION_TIERS, DAVE_MENZ_PERSONA, ConsultationTier } from './consultation-tiers';
+import { analyzeCompetition, generateHeatmapPoints } from './competition-analyzer';
+import { generatePricingStrategy, analyzeFootTraffic, projectOptimizedRevenue, analyzeEquipmentCapacity } from './pricing-optimizer';
 
 // Expert persona definitions
 const EXPERT_PERSONAS = {
@@ -50,6 +54,15 @@ const EXPERT_PERSONAS = {
     expertise: "Business Strategy, Investment Decisions, Growth Planning",
     style: "Big-picture thinker, synthesizes all inputs, provides actionable recommendations",
     icon: "🎯"
+  },
+  daveMenz: {
+    name: "Dave Menz",
+    title: "Industry Expert",
+    company: "Laundromat123.com",
+    expertise: "30+ years ownership, 500+ acquisitions consulted, Due Diligence Expert",
+    style: "Tells it like it is, practical real-world experience, focuses on avoiding costly mistakes",
+    icon: "👔",
+    knowledgeBase: DAVE_MENZ_PERSONA.knowledgeBase
   }
 };
 
@@ -269,6 +282,9 @@ interface BreakevenResult {
 
 interface ConsultationInput {
   address: string;
+  // Coordinates (for heatmaps)
+  lat?: number;
+  lng?: number;
   // Location data
   population?: number;
   medianIncome?: number;
@@ -725,4 +741,171 @@ function parseFinalRecommendation(text: string): ConsultationResult['finalRecomm
   };
 }
 
-export { EXPERT_PERSONAS };
+/**
+ * Run tiered consultation based on selected package
+ */
+export async function runTieredConsultation(
+  input: ConsultationInput,
+  tierId: string = "professional"
+): Promise<ConsultationResult & {
+  tier: ConsultationTier;
+  competitionHeatmap?: any;
+  pricingStrategy?: any;
+  footTraffic?: any;
+  equipmentAnalysis?: any;
+  daveMenzReview?: any;
+}> {
+  const tier = CONSULTATION_TIERS.find(t => t.id === tierId);
+  if (!tier) {
+    throw new Error(`Invalid tier: ${tierId}`);
+  }
+
+  console.log(`[Consultation Council] Running ${tier.name} (${tierId}) consultation`);
+
+  // Run base consultation
+  const baseResult = await runConsultationCouncil(input);
+  
+  // For basic tier, just return base with limited experts
+  if (tierId === "basic") {
+    return {
+      ...baseResult,
+      tier,
+      expertAnalyses: baseResult.expertAnalyses.slice(0, 1) // Just market analyst
+    };
+  }
+
+  // For professional tier, return full base result
+  if (tierId === "professional") {
+    return {
+      ...baseResult,
+      tier
+    };
+  }
+
+  // Enterprise and Premium tiers get enhanced features
+  const lat = input.lat || 34.7465; // Default coordinates if not provided
+  const lng = input.lng || -92.2896;
+
+  // Competition Heatmap (Enterprise+)
+  let competitionHeatmap = null;
+  if (tier.includes.competitionHeatmap) {
+    const competition = await analyzeCompetition(lat, lng, 3);
+    const heatmapPoints = generateHeatmapPoints(lat, lng, competition.competitors);
+    competitionHeatmap = {
+      ...competition,
+      heatmapPoints
+    };
+  }
+
+  // Pricing Strategy (Enterprise+)
+  let pricingStrategy = null;
+  if (tier.includes.pricingOptimizer && input.washers && input.dryers) {
+    pricingStrategy = generatePricingStrategy({
+      machines: [
+        { type: "frontLoad20lb", count: Math.floor(input.washers * 0.5) },
+        { type: "frontLoad40lb", count: Math.floor(input.washers * 0.3) },
+        { type: "frontLoad60lb", count: Math.floor(input.washers * 0.2) },
+        { type: "dryer30lb", count: Math.floor(input.dryers * 0.6) },
+        { type: "dryer50lb", count: Math.floor(input.dryers * 0.4) }
+      ],
+      location: {
+        lat,
+        lng,
+        medianIncome: input.medianIncome || 50000,
+        population: input.population || 30000
+      },
+      competition: {
+        count: input.competitors || 2
+      }
+    });
+  }
+
+  // Foot Traffic Analysis (Enterprise+)
+  let footTraffic = null;
+  if (tier.includes.footTrafficAnalysis && input.trafficCount) {
+    footTraffic = analyzeFootTraffic({ lat, lng }, input.trafficCount);
+  }
+
+  // Equipment Analysis (Enterprise+)
+  let equipmentAnalysis = null;
+  if (tier.includes.pricingOptimizer && input.washers && input.dryers && input.monthlyRevenue) {
+    equipmentAnalysis = analyzeEquipmentCapacity(
+      input.washers,
+      input.dryers,
+      input.monthlyRevenue,
+      footTraffic || { hourlyPattern: [], dailyPattern: [], peakHours: [], slowHours: [], estimatedDailyVisitors: 0, estimatedMonthlyCustomers: 0, conversionRate: 0 }
+    );
+  }
+
+  // Dave Menz Review (Enterprise+)
+  let daveMenzReview = null;
+  if (tier.includes.daveMenzReview) {
+    const daveMenzPrompt = `You are ${EXPERT_PERSONAS.daveMenz.name}, founder of Laundromat123.com with 30+ years of experience.
+
+YOUR EXPERTISE:
+- Consulted on 500+ laundromat acquisitions
+- Former multi-store owner and operator
+- Known for practical, no-nonsense advice
+
+YOUR KNOWLEDGE BASE:
+RED FLAGS TO WATCH FOR:
+${DAVE_MENZ_PERSONA.knowledgeBase.redFlags.map(f => `- ${f}`).join('\n')}
+
+GREEN FLAGS (GOOD SIGNS):
+${DAVE_MENZ_PERSONA.knowledgeBase.greenFlags.map(f => `- ${f}`).join('\n')}
+
+VALUATION RULES:
+${DAVE_MENZ_PERSONA.knowledgeBase.valuationRules.map(r => `- ${r}`).join('\n')}
+
+NEGOTIATION TIPS:
+${DAVE_MENZ_PERSONA.knowledgeBase.negotiationTips.map(t => `- ${t}`).join('\n')}
+
+OPERATIONAL BEST PRACTICES:
+${DAVE_MENZ_PERSONA.knowledgeBase.operationalBestPractices.map(p => `- ${p}`).join('\n')}
+
+DEAL UNDER REVIEW:
+Address: ${input.address}
+Asking Price: $${input.askingPrice?.toLocaleString() || 'Unknown'}
+Monthly Revenue: $${input.monthlyRevenue?.toLocaleString() || 'Unknown'}
+Equipment: ${input.washers || '?'} washers, ${input.dryers || '?'} dryers (${input.equipmentAge || '?'} years old)
+Competitors: ${input.competitors || '?'} within 1 mile
+Additional Context: ${input.additionalContext || 'None provided'}
+
+Based on your 30+ years of experience, provide:
+1. DAVE'S VERDICT (1-2 sentences - would you pursue this deal?)
+2. RED FLAGS I SEE (list any concerns)
+3. GREEN FLAGS I SEE (list any positives)
+4. MY TOP NEGOTIATION TIPS for this specific deal
+5. DUE DILIGENCE CHECKLIST (3-5 items the buyer MUST verify)
+6. CONFIDENCE LEVEL (percentage)
+
+Be direct and practical - this is a real investment decision.`;
+
+    const daveMenzResult = await askCouncil({ prompt: daveMenzPrompt, taskType: "analysis" });
+    daveMenzReview = {
+      expert: EXPERT_PERSONAS.daveMenz,
+      analysis: daveMenzResult.result,
+      cost: daveMenzResult.cost
+    };
+    baseResult.totalCost += daveMenzResult.cost;
+  }
+
+  // Revenue projection with optimized pricing (Enterprise+)
+  let revenueProjection = null;
+  if (pricingStrategy && footTraffic && input.monthlyRevenue) {
+    revenueProjection = projectOptimizedRevenue(input.monthlyRevenue, pricingStrategy, footTraffic);
+  }
+
+  return {
+    ...baseResult,
+    tier,
+    competitionHeatmap,
+    pricingStrategy,
+    footTraffic,
+    equipmentAnalysis,
+    daveMenzReview,
+    revenueProjection
+  };
+}
+
+export { EXPERT_PERSONAS, CONSULTATION_TIERS, DAVE_MENZ_PERSONA };
