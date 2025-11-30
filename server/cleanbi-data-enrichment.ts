@@ -374,7 +374,8 @@ export async function enrichCLEANBIData(
   address: string,
   options: EnrichmentOptions = { tier: 'free' }
 ): Promise<EnrichedCLEANBIData> {
-  const tierFeatures = TIER_FEATURES[options.tier];
+  const normalizedTier = (options.tier || 'free').toLowerCase() as SubscriptionTier;
+  const tierFeatures = TIER_FEATURES[normalizedTier] || TIER_FEATURES.free;
   const sourcesUsed: string[] = [];
   const fallbacksApplied: string[] = [];
 

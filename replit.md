@@ -47,6 +47,14 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
 - **CLEANBI Intelligence System:** A multi-source property intelligence tool for scoring any address globally (businesses and residential properties), including an auto-calculator and a Chrome extension.
     - **CLEANBI Multi-Source Data Enrichment:** Production data pipeline integrating Census Bureau (ACS demographics), ATTOM API (property values), and Google Places (geocoding, competitor search). Features a 6-factor weighted scoring system, tiered access control, and confidence scoring.
     - **CLEANBI Optimization Infrastructure:** Includes a shared metrics service, tiered subscription system with Stripe webhook synchronization, Redis caching, Redis rate limiter, and a batched API pipeline.
+    - **CLEANBI Explorer (`/cleanbi-explorer`):** Full-screen immersive map experience with 3D aerial views, competition heatmaps, and proprietary AI scoring. Features include:
+        - Google Maps integration with dark-theme styling
+        - Real-time CLEANBI™ scoring with A-F grades
+        - Competitor mapping with Google Places API
+        - Street View integration
+        - Shareable analysis links for viral distribution
+        - Multi-tier rate limiting (free: 5/min, 20/day; starter: 20/min, 100/day; pro: 50/min, 500/day; enterprise: 200/min, 5000/day)
+        - Aggressive caching strategy (80%+ cost reduction target)
 - **Affiliate Blog Systems:** Bulk generation systems for SEO-optimized blogs featuring affiliate links for financing.
 - **Business Directory System:** Freemium vendor/service provider directory with tiered subscriptions.
 
