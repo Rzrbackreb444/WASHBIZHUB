@@ -369,7 +369,7 @@ export function NavigationMenu() {
                   className="h-20 sm:h-24 md:h-28 w-auto" 
                   loading="eager"
                   decoding="async"
-                  fetchPriority="high"
+                  {...{ fetchpriority: "high" }}
                   width={112}
                   height={112}
                   data-testid="img-logo"
