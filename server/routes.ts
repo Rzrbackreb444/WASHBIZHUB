@@ -6319,6 +6319,82 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // GET /api/consultation-council/tiers - Get available consultation tiers
+  app.get("/api/consultation-council/tiers", async (req, res) => {
+    try {
+      const { CONSULTATION_TIERS } = await import("./consultation-council");
+      res.json(CONSULTATION_TIERS);
+    } catch (error: any) {
+      console.error("Consultation Council tiers error:", error);
+      res.status(500).json({ error: error.message || "Failed to get tiers" });
+    }
+  });
+
+  // POST /api/consultation-council/tiered - Run tiered consultation with selected package
+  app.post("/api/consultation-council/tiered", rateLimiter("/api/consultation-council/tiered", 3, 60), async (req, res) => {
+    try {
+      const { runTieredConsultation } = await import("./consultation-council");
+      
+      const {
+        tier = "professional",
+        address,
+        lat,
+        lng,
+        population,
+        medianIncome,
+        competitors,
+        rentPerSqFt,
+        squareFootage,
+        walkScore,
+        trafficCount,
+        monthlyRevenue,
+        monthlyRent,
+        monthlyExpenses,
+        askingPrice,
+        downPaymentPercent,
+        loanRate,
+        loanTerm,
+        washers,
+        dryers,
+        equipmentAge,
+        additionalContext
+      } = req.body;
+
+      if (!address) {
+        return res.status(400).json({ error: "Address is required" });
+      }
+
+      const result = await runTieredConsultation({
+        address,
+        lat,
+        lng,
+        population,
+        medianIncome,
+        competitors,
+        rentPerSqFt,
+        squareFootage,
+        walkScore,
+        trafficCount,
+        monthlyRevenue,
+        monthlyRent,
+        monthlyExpenses,
+        askingPrice,
+        downPaymentPercent,
+        loanRate,
+        loanTerm,
+        washers,
+        dryers,
+        equipmentAge,
+        additionalContext
+      }, tier);
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Tiered Consultation Council error:", error);
+      res.status(500).json({ error: error.message || "Tiered consultation failed" });
+    }
+  });
+
   // ==================== GEOCODING & LOCATION SERVICES ====================
   
   // Simple rate limiter: Track requests per IP
