@@ -7342,6 +7342,121 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  /**
+   * POST /api/cleanbi/enriched - Get enriched CLEANBI score with Master Formulas
+   * 
+   * Uses multi-source data enrichment:
+   * - Google Maps/Places API (geocoding, competition, reviews)
+   * - US Census Bureau (demographics, income, renter %)
+   * - ATTOM API (property values, permits when available)
+   * 
+   * Tier-gated features:
+   * - FREE: Basic score with Google + Census estimates
+   * - STARTER ($49): Full Census + property data
+   * - PRO ($149): Full ATTOM + growth signals
+   * - ENTERPRISE ($699): Premium insights + API access
+   */
+  app.post("/api/cleanbi/enriched", async (req: any, res) => {
+    try {
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({ 
+          error: "Rate limit exceeded. Try again in a minute.",
+          code: 'RATE_LIMIT_EXCEEDED'
+        });
+      }
+
+      const { address, financialInputs, leaseInputs, equipmentInputs, utilitiesInputs } = req.body;
+      
+      if (!address || typeof address !== 'string') {
+        return res.status(400).json({ error: "Address is required" });
+      }
+      
+      if (address.length > 500) {
+        return res.status(400).json({ error: "Address too long" });
+      }
+
+      const { enrichCLEANBIData, getEnrichmentTierFromUser } = await import('./cleanbi-data-enrichment');
+      const { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } = await import('./cleanbi-master-formulas');
+      
+      const currentUser = await getCurrentUser(req).catch(() => null);
+      const tier = getEnrichmentTierFromUser(currentUser);
+      
+      console.log(`🔍 Enriched CLEANBI request: ${address} (tier: ${tier})`);
+      
+      const enrichedData = await enrichCLEANBIData(address, { tier });
+      
+      let scoreResult;
+      if (financialInputs || leaseInputs || equipmentInputs || utilitiesInputs) {
+        scoreResult = calculateCLEANBIMasterScore(
+          enrichedData,
+          financialInputs || {},
+          leaseInputs || {},
+          equipmentInputs || {},
+          utilitiesInputs || {}
+        );
+      } else {
+        const quickScore = calculateQuickCLEANBIScore(enrichedData);
+        scoreResult = {
+          cleanbiScore: quickScore.score,
+          grade: quickScore.grade,
+          confidence: quickScore.confidence,
+          subscores: {
+            marketScore: enrichedData.marketScores.demographicPowerScore,
+            financialScore: 0,
+            leaseScore: 0,
+            equipmentScore: 0,
+            utilitiesScore: 0,
+            growthScore: enrichedData.growthSignals?.growthScore || 0
+          },
+          breakdown: {
+            renterScore: enrichedData.marketScores.renterScore,
+            incomeScore: enrichedData.marketScores.incomeScore,
+            densityScore: enrichedData.marketScores.densityScore,
+            competitionScore: enrichedData.marketScores.competitionScore
+          },
+          recommendations: [],
+          calculators: {
+            demographicPowerScore: enrichedData.marketScores.demographicPowerScore,
+            laundryDemandIndex: enrichedData.demographics.laundryDemandIndex
+          }
+        };
+      }
+      
+      res.json({
+        success: true,
+        address: enrichedData.formattedAddress,
+        coordinates: enrichedData.coordinates,
+        addressType: enrichedData.addressType,
+        
+        score: scoreResult.cleanbiScore,
+        grade: scoreResult.grade,
+        confidence: scoreResult.confidence,
+        
+        subscores: scoreResult.subscores,
+        breakdown: scoreResult.breakdown,
+        recommendations: scoreResult.recommendations || [],
+        calculators: scoreResult.calculators,
+        
+        demographics: enrichedData.demographics,
+        competition: enrichedData.competition,
+        placeDetails: enrichedData.placeDetails,
+        property: tier !== 'free' ? enrichedData.property : null,
+        growthSignals: tier === 'pro' || tier === 'enterprise' ? enrichedData.growthSignals : null,
+        insights: enrichedData.insights,
+        
+        dataQuality: enrichedData.dataQuality,
+        tier
+      });
+    } catch (error: any) {
+      console.error('Enriched CLEANBI error:', error);
+      res.status(500).json({ 
+        error: error.message || "Failed to calculate enriched score",
+        hint: "Verify the address is correct"
+      });
+    }
+  });
+
   // ========== GAMIFICATION & BADGES ROUTES ==========
   // POST /api/badges - Award badge to user
   app.post("/api/badges", isAuthenticated, async (req: any, res) => {
