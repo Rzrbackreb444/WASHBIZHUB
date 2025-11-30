@@ -43,7 +43,7 @@ const cleanbiAutoStructuredData = {
     "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
     "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
     "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",
-    "$97 Premium Reports - Deep analysis, valuations, AI-powered recommendations"
+    "$197 Premium Reports - Deep analysis, valuations, AI-powered recommendations. $497 Pro Reports with competitive intelligence. $997 Premium + Expert Call."
   ],
   "screenshot": "https://washbizhub.com/cleanbi-screenshot.png",
   "softwareVersion": "2.1.0",
@@ -80,7 +80,7 @@ const cleanbiFAQStructuredData = {
       "name": "Is CLEANBI free to use?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium $97 reports are available for deeper analysis, valuations, and AI-powered investment recommendations."
+        "text": "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium reports start at $197 for deeper analysis, valuations, and AI-powered investment recommendations."
       }
     },
     {
@@ -131,7 +131,7 @@ const cleanbiHowToStructuredData = {
       "@type": "HowToStep",
       "position": 4,
       "name": "Get Full Report (Optional)",
-      "text": "Upgrade to the $97 premium report for deep analysis, business valuations, competitor intelligence, and investment recommendations."
+      "text": "Upgrade to the $197 Standard report for deep analysis and valuations, $497 Pro report for competitor intelligence, or $997 Premium + Expert Call for personalized consultation."
     }
   ],
   "totalTime": "PT30S"
@@ -348,7 +348,7 @@ export default function CleanbiAuto() {
     <>
       <SEO
         title="CLEANBI Score Calculator | Score ANY Business or Property Address Globally - FREE Tool"
-        description="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties. 100% automatic, 100% FREE. A/B/C grades with foot traffic, competition, reviews analysis. Premium $97 reports available."
+        description="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties. 100% automatic, 100% FREE. A/B/C grades with foot traffic, competition, reviews analysis. Premium reports from $197."
         canonicalUrl="/cleanbi-auto"
         ogType="website"
         keywords={[
@@ -932,7 +932,7 @@ export default function CleanbiAuto() {
                               Redirecting to Checkout...
                             </>
                           ) : (
-                            "Get Full CLEANBI Report - $97"
+                            "Get Full CLEANBI Report - $197"
                           )}
                         </Button>
                         <p className="text-xs text-muted-foreground">

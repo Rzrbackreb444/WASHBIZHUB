@@ -31,7 +31,7 @@ export default function Subscribe() {
     {
       id: 'starter',
       name: 'Starter',
-      price: 29,
+      price: 49,
       description: 'Perfect for first-time buyers',
       icon: Star,
       features: [
@@ -45,7 +45,7 @@ export default function Subscribe() {
     {
       id: 'pro',
       name: 'Pro',
-      price: 97,
+      price: 149,
       description: 'For serious investors',
       icon: Zap,
       popular: true,
@@ -61,7 +61,7 @@ export default function Subscribe() {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 499,
+      price: 699,
       description: 'For portfolios & brokers',
       icon: Crown,
       features: [
@@ -76,7 +76,7 @@ export default function Subscribe() {
     {
       id: 'pos_flat',
       name: 'WashBizPOS Pro',
-      price: 99,
+      price: 149,
       description: 'Complete POS system',
       icon: Rocket,
       features: [
