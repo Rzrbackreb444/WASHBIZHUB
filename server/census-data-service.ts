@@ -43,7 +43,97 @@ const ACS_DATASET = 'acs/acs5';
 const censusCache: Map<string, { data: CensusData; timestamp: number }> = new Map();
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 
-const ZIP_TO_FIPS: Record<string, { state: string; county: string }> = {};
+const zipToFipsCache: Map<string, { state: string; county: string } | null> = new Map();
+
+const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = {
+  '100': { state: '36', county: '061' },
+  '101': { state: '36', county: '061' },
+  '102': { state: '36', county: '061' },
+  '103': { state: '36', county: '005' },
+  '104': { state: '36', county: '047' },
+  '112': { state: '36', county: '047' },
+  '113': { state: '36', county: '081' },
+  '114': { state: '36', county: '081' },
+  '200': { state: '11', county: '001' },
+  '201': { state: '11', county: '001' },
+  '202': { state: '11', county: '001' },
+  '203': { state: '11', county: '001' },
+  '204': { state: '11', county: '001' },
+  '205': { state: '11', county: '001' },
+  '206': { state: '11', county: '001' },
+  '207': { state: '11', county: '001' },
+  '208': { state: '11', county: '001' },
+  '209': { state: '11', county: '001' },
+  '900': { state: '06', county: '037' },
+  '901': { state: '06', county: '037' },
+  '902': { state: '06', county: '037' },
+  '903': { state: '06', county: '037' },
+  '904': { state: '06', county: '037' },
+  '905': { state: '06', county: '037' },
+  '906': { state: '06', county: '037' },
+  '907': { state: '06', county: '037' },
+  '908': { state: '06', county: '037' },
+  '909': { state: '06', county: '071' },
+  '910': { state: '06', county: '037' },
+  '911': { state: '06', county: '037' },
+  '912': { state: '06', county: '037' },
+  '913': { state: '06', county: '037' },
+  '914': { state: '06', county: '037' },
+  '915': { state: '06', county: '037' },
+  '916': { state: '06', county: '037' },
+  '917': { state: '06', county: '037' },
+  '918': { state: '06', county: '037' },
+  '919': { state: '06', county: '059' },
+  '920': { state: '06', county: '073' },
+  '921': { state: '06', county: '073' },
+  '922': { state: '06', county: '073' },
+  '923': { state: '06', county: '073' },
+  '924': { state: '06', county: '071' },
+  '925': { state: '06', county: '071' },
+  '926': { state: '06', county: '059' },
+  '927': { state: '06', county: '059' },
+  '928': { state: '06', county: '059' },
+  '606': { state: '17', county: '031' },
+  '607': { state: '17', county: '031' },
+  '608': { state: '17', county: '031' },
+  '330': { state: '12', county: '086' },
+  '331': { state: '12', county: '086' },
+  '332': { state: '12', county: '086' },
+  '333': { state: '12', county: '011' },
+  '770': { state: '48', county: '201' },
+  '771': { state: '48', county: '201' },
+  '772': { state: '48', county: '201' },
+  '773': { state: '48', county: '201' },
+  '774': { state: '48', county: '201' },
+  '775': { state: '48', county: '201' },
+  '303': { state: '13', county: '121' },
+  '304': { state: '13', county: '121' },
+  '305': { state: '13', county: '121' },
+  '306': { state: '13', county: '121' },
+  '850': { state: '04', county: '013' },
+  '851': { state: '04', county: '013' },
+  '852': { state: '04', county: '013' },
+  '853': { state: '04', county: '013' },
+  '750': { state: '48', county: '113' },
+  '751': { state: '48', county: '113' },
+  '752': { state: '48', county: '113' },
+  '753': { state: '48', county: '113' },
+  '980': { state: '53', county: '033' },
+  '981': { state: '53', county: '033' },
+  '982': { state: '53', county: '033' },
+  '983': { state: '53', county: '033' },
+  '984': { state: '53', county: '033' },
+  '190': { state: '42', county: '101' },
+  '191': { state: '42', county: '101' },
+  '192': { state: '42', county: '101' },
+  '193': { state: '42', county: '045' },
+  '194': { state: '42', county: '045' },
+  '021': { state: '25', county: '025' },
+  '022': { state: '25', county: '025' },
+  '023': { state: '25', county: '025' },
+  '941': { state: '06', county: '075' },
+  '940': { state: '06', county: '075' },
+};
 
 const DEFAULT_DEMOGRAPHICS: CensusData = {
   population: 25000,
@@ -168,19 +258,43 @@ function parseCensusResponse(data: any[], geoLevel: 'tract' | 'county' | 'state'
 }
 
 async function getStateCountyFromZip(zipCode: string): Promise<{ state: string; county: string } | null> {
-  if (ZIP_TO_FIPS[zipCode]) {
-    return ZIP_TO_FIPS[zipCode];
+  if (zipToFipsCache.has(zipCode)) {
+    return zipToFipsCache.get(zipCode) || null;
+  }
+
+  const prefix = zipCode.substring(0, 3);
+  
+  if (ZIP_PREFIX_TO_COUNTY[prefix]) {
+    const fips = ZIP_PREFIX_TO_COUNTY[prefix];
+    zipToFipsCache.set(zipCode, fips);
+    console.log(`📍 ZIP ${zipCode} → State ${fips.state}, County ${fips.county}`);
+    return fips;
   }
 
   try {
-    const url = `https://api.census.gov/data/2020/dec/pl?get=NAME&for=zip%20code%20tabulation%20area:${zipCode}`;
-    const response = await fetch(url);
-    if (!response.ok) return null;
+    const url = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(zipCode)}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     
-    return null;
-  } catch {
-    return null;
+    if (response.ok) {
+      const data = await response.json();
+      const match = data?.result?.addressMatches?.[0];
+      if (match?.geographies?.['Census Tracts']?.[0]) {
+        const tract = match.geographies['Census Tracts'][0];
+        const fips = {
+          state: tract.STATE,
+          county: tract.COUNTY
+        };
+        zipToFipsCache.set(zipCode, fips);
+        console.log(`📍 Census Geocoder: ZIP ${zipCode} → State ${fips.state}, County ${fips.county}`);
+        return fips;
+      }
+    }
+  } catch (err) {
+    console.debug('Census geocoder timeout/error, using fallback');
   }
+
+  zipToFipsCache.set(zipCode, null);
+  return null;
 }
 
 const STATE_CODES: Record<string, string> = {
@@ -224,6 +338,30 @@ export async function enrichWithCensusData(
   }
 
   try {
+    if (zipCode) {
+      const fips = await getStateCountyFromZip(zipCode);
+      
+      if (fips) {
+        try {
+          const censusResponse = await fetchCensusData(fips.state, fips.county);
+          const data = parseCensusResponse(censusResponse, 'county');
+          
+          if (ZIP_DEMOGRAPHICS[zipCode]) {
+            Object.assign(data, ZIP_DEMOGRAPHICS[zipCode]);
+            data.confidence = 90;
+            data.geoLevel = 'zip';
+          }
+          
+          censusCache.set(cacheKey, { data, timestamp: Date.now() });
+          console.log(`✅ Census COUNTY data enriched for ${zipCode}: income=$${data.medianHouseholdIncome}, renters=${data.renterPercentage}%, confidence=${data.confidence}%`);
+          
+          return { success: true, data, source: 'census_api' };
+        } catch (countyError) {
+          console.warn('County-level Census API failed, trying state-level:', countyError);
+        }
+      }
+    }
+
     if (stateAbbr && STATE_CODES[stateAbbr.toUpperCase()]) {
       const stateCode = STATE_CODES[stateAbbr.toUpperCase()];
       
@@ -238,7 +376,7 @@ export async function enrichWithCensusData(
         }
         
         censusCache.set(cacheKey, { data, timestamp: Date.now() });
-        console.log(`✅ Census data enriched for ${stateAbbr}: income=$${data.medianHouseholdIncome}, renters=${data.renterPercentage}%`);
+        console.log(`✅ Census STATE data enriched for ${stateAbbr}: income=$${data.medianHouseholdIncome}, renters=${data.renterPercentage}%`);
         
         return { success: true, data, source: 'census_api' };
       } catch (apiError) {
