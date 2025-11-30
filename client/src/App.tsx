@@ -831,6 +831,11 @@ function Router() {
           <ListingDetail />
         </Suspense>
       </Route>
+      <Route path="/listing/:listingId">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListingDetail />
+        </Suspense>
+      </Route>
       <Route path="/add-listing">
         <Suspense fallback={<LoadingFallback />}>
           <AddListing />
