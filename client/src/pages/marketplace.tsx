@@ -216,10 +216,147 @@ export default function Marketplace() {
   return (
     <>
       <SEO 
-        title="Laundromat Marketplace | Equipment, Parts & Supplies | WashBizHub" 
-        description="Shop commercial laundromat equipment through authorized distributors, AAdvantage partner products, and supplies with Amazon affiliate links." 
-        keywords={["laundromat equipment", "commercial washer", "laundromat supplies", "laundromat parts", "dog wash supplies", "coin laundry supplies"]} 
-        canonicalUrl="/marketplace" 
+        title="Laundromat Equipment & Supplies Marketplace | Commercial Washers & Dryers For Sale | WashBizHub" 
+        description="Shop commercial laundromat equipment, parts & supplies. Speed Queen, Dexter, Continental Girbau washers/dryers. Authorized distributors, best prices. Free quotes." 
+        canonicalUrl="/marketplace"
+        ogType="website"
+        keywords={[
+          "laundromat equipment for sale",
+          "commercial washer dryer",
+          "laundromat supplies wholesale",
+          "coin laundry equipment",
+          "laundromat parts distributor",
+          "Speed Queen commercial washer",
+          "Dexter laundry equipment",
+          "Continental Girbau washer",
+          "commercial laundry machines",
+          "laundromat startup equipment",
+          "used laundromat equipment",
+          "dog wash station commercial",
+          "laundry payment systems",
+          "coin changer laundromat",
+          "commercial dryer for sale"
+        ]}
+        faqs={[
+          {
+            question: "How much does laundromat equipment cost?",
+            answer: "Commercial washers range from $7,500-$15,000, dryers from $6,500-$12,000, and payment systems from $2,500-$4,500. A full store equipment package typically costs $150,000-$500,000 depending on size and machine count."
+          },
+          {
+            question: "What equipment do I need to start a laundromat?",
+            answer: "Essential equipment includes commercial washers (various sizes), stack dryers, bill changers, folding tables, carts, seating, and a payment system. Most startups need 20-40 machines total. Consider dog wash stations for additional revenue streams."
+          },
+          {
+            question: "Should I buy new or used laundromat equipment?",
+            answer: "New equipment offers warranties (typically 3-5 years), energy efficiency, and reliability. Used equipment costs 40-60% less but may have higher maintenance costs. For startups, a mix of new and quality refurbished equipment balances cost and reliability."
+          },
+          {
+            question: "Who are the best commercial laundry equipment manufacturers?",
+            answer: "Top manufacturers include Speed Queen (known for durability), Dexter (innovative technology), Continental Girbau (energy efficiency), Huebsch (value), and Maytag Commercial. Each brand offers different advantages depending on your needs and budget."
+          },
+          {
+            question: "How do I find authorized laundromat equipment distributors?",
+            answer: "WashBizHub connects you with authorized distributors nationwide. Use our distributor locator or submit an inquiry through our marketplace. Authorized distributors provide genuine parts, proper warranties, installation support, and financing options."
+          },
+          {
+            question: "What supplies do laundromats need to stock?",
+            answer: "Essential supplies include commercial detergent, fabric softener, dryer sheets, laundry bags, coin wrappers, cleaning supplies, and vending machine products. For dog wash services, stock professional pet shampoo, conditioner, and dryers."
+          },
+          {
+            question: "Can I finance laundromat equipment?",
+            answer: "Yes, most distributors offer equipment financing with terms from 3-7 years. Options include equipment loans, leases, and SBA-backed financing. Down payments typically range from 10-20%. Visit our Funding page for lender partners."
+          },
+          {
+            question: "What is the lifespan of commercial laundry equipment?",
+            answer: "Quality commercial washers last 10-15 years with proper maintenance, while dryers can last 15-20 years. Speed Queen equipment is known for 25+ year lifespans. Regular maintenance and using genuine parts extends equipment life significantly."
+          }
+        ]}
+        howTo={{
+          name: "How to Buy Laundromat Equipment on WashBizHub",
+          description: "Complete guide to purchasing commercial laundry equipment through WashBizHub's authorized distributor network and marketplace.",
+          steps: [
+            {
+              name: "Browse Equipment Categories",
+              text: "Explore our marketplace tabs: Supplies for immediate Amazon purchases, AAdvantage for Continental Girbau equipment, and Equipment for commercial washers, dryers, and payment systems from all major brands."
+            },
+            {
+              name: "Select Your Equipment Needs",
+              text: "Review equipment specifications, features, and price ranges. Consider your store size, target market, and budget. Our CLEANBI calculator can help determine optimal machine mix."
+            },
+            {
+              name: "Request Distributor Quotes",
+              text: "Click 'Request Distributor Quote' on any equipment. We'll connect you with authorized distributors in your area who can provide competitive pricing, financing options, and installation support."
+            },
+            {
+              name: "Compare Offers and Financing",
+              text: "Review quotes from multiple distributors. Compare total cost including installation, warranties, and financing terms. Use our loan calculator to estimate monthly payments."
+            },
+            {
+              name: "Complete Purchase and Installation",
+              text: "Finalize your order with the selected distributor. Schedule delivery and professional installation. Authorized distributors provide training, warranty registration, and ongoing support."
+            }
+          ],
+          totalTime: "P7D"
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Commercial Laundromat Equipment Marketplace",
+          "description": "Shop commercial washers, dryers, payment systems, parts, and supplies for laundromats",
+          "url": "https://washbizhub.com/marketplace",
+          "numberOfItems": 15,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "item": {
+                "@type": "Product",
+                "name": "Continental Girbau Commercial Washer",
+                "description": "High-efficiency 60lb commercial washer with programmable controls",
+                "brand": { "@type": "Brand", "name": "Continental Girbau" },
+                "offers": { "@type": "AggregateOffer", "lowPrice": "8000", "highPrice": "15000", "priceCurrency": "USD" }
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "item": {
+                "@type": "Product",
+                "name": "Dexter Stack Dryer T-50x2",
+                "description": "Double-stack commercial dryer with reversing drum technology",
+                "brand": { "@type": "Brand", "name": "Dexter" },
+                "offers": { "@type": "AggregateOffer", "lowPrice": "6500", "highPrice": "12000", "priceCurrency": "USD" }
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "item": {
+                "@type": "Product",
+                "name": "Speed Queen Hardmount Washer",
+                "description": "Commercial washer built for toughest environments with quantum controls",
+                "brand": { "@type": "Brand", "name": "Speed Queen" },
+                "offers": { "@type": "AggregateOffer", "lowPrice": "7500", "highPrice": "14000", "priceCurrency": "USD" }
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "item": {
+                "@type": "Product",
+                "name": "Hamilton Bill Changer",
+                "description": "High-capacity bill changer with anti-theft features",
+                "brand": { "@type": "Brand", "name": "Hamilton" },
+                "offers": { "@type": "AggregateOffer", "lowPrice": "2500", "highPrice": "4500", "priceCurrency": "USD" }
+              }
+            }
+          ]
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Marketplace", url: "/marketplace" }
+        ]}
+        speakableSelectors={["h1", "h2", ".speakable"]}
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 md:py-20">
         <div className="max-w-7xl mx-auto px-4">

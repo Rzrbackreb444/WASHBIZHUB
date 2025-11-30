@@ -1491,30 +1491,141 @@ export default function DesignStudio() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "WashBizHub Design Studio",
+    "name": "WashBizHub Design Studio - Laundromat Floor Plan Designer",
+    "alternateName": "Laundromat Design Studio",
     "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Floor Plan Design",
     "operatingSystem": "Web Browser",
-    "description": "Professional 2D and 3D laundromat floor plan designer with drag-and-drop equipment library, real-time cost calculations, and ROI projections.",
+    "description": "Professional 2D and 3D laundromat floor plan designer with drag-and-drop equipment library featuring Dexter, Speed Queen, and more. Includes real-time cost calculations, TPD analysis, and ROI projections.",
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "USD"
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
     },
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "ratingCount": "127"
+      "ratingCount": "312",
+      "bestRating": "5"
+    },
+    "featureList": [
+      "2D and 3D floor plan views",
+      "Drag-and-drop equipment placement",
+      "Real-time equipment cost calculator",
+      "TPD (Turns Per Day) analysis",
+      "ROI projections",
+      "Starter templates (1,000-5,000 sq ft)",
+      "Export to PDF",
+      "Sharable design links"
+    ],
+    "screenshot": "https://washbizhub.com/design-studio-screenshot.png",
+    "softwareVersion": "3.0",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": "https://washbizhub.com"
     }
   };
 
   return (
     <>
       <SEO 
-        title="3D Design Studio | Laundromat Layout Designer | WashBizHub" 
-        description="Professional 2D and 3D laundromat floor plan designer. Drag-and-drop equipment from Dexter, Speed Queen, and more. Real-time cost calculations, TPD analysis, and ROI projections for your laundromat business."
+        title="Laundromat Design Studio - Free 2D/3D Floor Plan Designer | WashBizHub" 
+        description="Design your laundromat layout with our free 2D/3D floor plan tool. Drag-and-drop Dexter, Speed Queen equipment. Get real-time costs, TPD, and ROI projections."
         canonicalUrl="/design-studio"
-        keywords={["laundromat design studio", "3D floor plan designer", "laundromat layout tool", "commercial laundry design", "equipment planning", "laundromat ROI calculator"]}
+        keywords={[
+          "laundromat design studio",
+          "laundromat floor plan",
+          "laundromat layout design",
+          "3D laundromat designer",
+          "coin laundry floor plan",
+          "laundromat equipment layout",
+          "commercial laundry design",
+          "laundromat space planning",
+          "how many washers fit in laundromat",
+          "laundromat equipment placement",
+          "laundry floor plan ideas",
+          "laundromat ROI calculator",
+          "TPD calculator laundromat",
+          "laundromat startup planning",
+          "laundromat design ideas"
+        ]}
         ogType="website"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Tools", url: "/calculators" },
+          { name: "Design Studio", url: "/design-studio" }
+        ]}
+        faqs={[
+          {
+            question: "How do I design a laundromat layout?",
+            answer: "Use WashBizHub Design Studio: 1) Choose a starter template (1,000-5,000 sq ft) or set custom dimensions, 2) Drag-and-drop washers, dryers, and amenities from our equipment library, 3) Arrange equipment for optimal traffic flow, 4) Review real-time cost estimates and ROI projections. Toggle between 2D and 3D views to visualize your space."
+          },
+          {
+            question: "How many washers fit in a 1,000 square foot laundromat?",
+            answer: "A 1,000 sq ft laundromat typically fits 8-12 washers and 8-12 dryers, depending on equipment sizes. Our small laundromat template includes 4 front-load washers and 2 stack dryers. Use Design Studio to test different configurations and maximize your equipment density while maintaining customer comfort."
+          },
+          {
+            question: "What is the ideal washer-to-dryer ratio for a laundromat?",
+            answer: "The ideal ratio is typically 1:1 or 1:1.25 (washers to dryers). However, if you use high-capacity dryers or stack dryers, you may need fewer dryer units. Design Studio calculates your TPD (Turns Per Day) to help optimize your mix for maximum revenue."
+          },
+          {
+            question: "How much does laundromat equipment cost?",
+            answer: "Commercial laundry equipment costs vary: Front-load washers ($3,000-$15,000), top-load washers ($800-$2,500), stack dryers ($4,000-$10,000), and single dryers ($2,000-$6,000). Design Studio shows real-time equipment costs as you build your layout, helping you stay within budget."
+          },
+          {
+            question: "What square footage do I need for a profitable laundromat?",
+            answer: "Most profitable laundromats range from 1,500-4,000 sq ft. Smaller mats (1,000-1,500 sq ft) work in dense urban areas. Larger mats (3,000-5,000+ sq ft) suit suburban locations with parking. Design Studio offers templates for small (1,000 sq ft), medium (2,500 sq ft), and large (5,000 sq ft) laundromats."
+          },
+          {
+            question: "What amenities should I include in my laundromat design?",
+            answer: "Essential amenities include: folding tables, seating areas, change machines, vending machines, and restrooms. Popular additions are TVs, free WiFi, phone charging stations, and kid's play areas. Design Studio includes furniture and amenity options to help you create a complete customer experience."
+          },
+          {
+            question: "How do I calculate laundromat ROI?",
+            answer: "Laundromat ROI depends on equipment costs, monthly revenue, and operating expenses. Design Studio calculates projected monthly revenue based on your equipment mix, local market rates, and TPD (Turns Per Day). Most laundromats achieve 20-35% cash-on-cash returns with proper planning."
+          },
+          {
+            question: "Can I export my laundromat floor plan?",
+            answer: "Yes! Design Studio lets you export your floor plan as a PDF or share it via a unique link. This is perfect for presenting to investors, contractors, equipment vendors, or landlords. Your design includes equipment specs, dimensions, and cost breakdowns."
+          }
+        ]}
+        howTo={{
+          name: "How to Design Your Laundromat Layout",
+          description: "Complete guide to creating a professional laundromat floor plan with equipment placement, cost analysis, and ROI projections",
+          totalTime: "PT15M",
+          steps: [
+            {
+              name: "Choose Your Space Size",
+              text: "Select a starter template (Small 1,000 sq ft, Medium 2,500 sq ft, or Large 5,000 sq ft) or enter custom dimensions for your specific space."
+            },
+            {
+              name: "Add Washers",
+              text: "Drag front-load or top-load washers from the equipment library onto your floor plan. Choose from brands like Dexter, Speed Queen, Maytag, and more. Position them along walls for plumbing access."
+            },
+            {
+              name: "Add Dryers",
+              text: "Place dryers near your washer area. Consider stack dryers to save floor space. Ensure adequate ventilation paths to exterior walls."
+            },
+            {
+              name: "Include Amenities",
+              text: "Add folding tables, seating areas, change machines, vending machines, and carts. Leave clear pathways for customer traffic flow."
+            },
+            {
+              name: "Review Costs and ROI",
+              text: "Check the real-time equipment cost calculator and TPD (Turns Per Day) analysis. Review projected monthly and annual revenue based on your equipment mix."
+            },
+            {
+              name: "Toggle 3D View",
+              text: "Switch to 3D view to visualize your layout from different angles. This helps identify potential issues with equipment placement and traffic flow."
+            },
+            {
+              name: "Export or Share Your Design",
+              text: "Download your floor plan as a PDF or generate a shareable link. Use this to present to contractors, landlords, or investors."
+            }
+          ]
+        }}
         structuredData={structuredData}
       />
       

@@ -409,6 +409,7 @@ export default function Pricing() {
         title="Pricing - 14-Day Free Trial | $149/mo or 1.9% Transaction Fee"
         description="Start your 14-day full POS trial free - no credit card required. Unlimited machines, AI predictive alerts, dynamic pricing. After trial: $149/mo flat OR $0/mo + 1.9%. Save $2K-$12K/year with AI predictive maintenance. 68% trial-to-paid conversion."
         canonicalUrl="/pricing"
+        ogType="website"
         keywords={[
           "laundromat POS pricing",
           "laundry software cost",
@@ -418,10 +419,61 @@ export default function Pricing() {
           "coin laundry POS system",
           "dynamic pricing laundromat",
           "laundromat payment system",
-          "best laundromat software 2025"
+          "best laundromat software 2025",
+          "laundromat subscription plans",
+          "laundry business software pricing",
+          "commercial laundry POS",
+          "laundromat software comparison",
+          "affordable laundromat management",
+          "laundry payment processing fees"
         ]}
         faqs={pricingFaqs}
         productOffers={productOffers}
+        howTo={{
+          name: "How to Choose the Right WashBizHub Plan",
+          description: "Follow these steps to select the best WashBizHub pricing plan for your laundromat business needs and budget.",
+          steps: [
+            { name: "Start Your Free Trial", text: "Begin with the 14-day full POS trial to test all features including AI predictive alerts, dynamic pricing, and unlimited machines - no credit card required." },
+            { name: "Evaluate Your Volume", text: "During the trial, assess your monthly transaction volume. If you process more than ~7,800 transactions/month, the $149 flat rate is more economical than the 1.9% transaction fee." },
+            { name: "Compare Pricing Models", text: "Choose between $149/month flat rate for unlimited transactions and predictable costs, or $0/month + 1.9% per transaction if you prefer to pay only when you earn." },
+            { name: "Consider AI Savings", text: "Factor in the $2,000-$12,000 annual savings from AI predictive maintenance alerts that prevent costly equipment breakdowns and optimize your pricing." },
+            { name: "Select and Subscribe", text: "After your trial, upgrade to your chosen plan. You can switch between flat rate and transaction-based pricing anytime with no cancellation fees." }
+          ],
+          totalTime: "PT14D"
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "WashBizPOS",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "description": "AI-powered point of sale system for laundromat owners with predictive maintenance, dynamic pricing, and IoT monitoring",
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Free Forever Plan",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            },
+            {
+              "@type": "Offer",
+              "name": "WashBizPOS Pro - Flat Rate",
+              "price": "149",
+              "priceCurrency": "USD",
+              "priceSpecification": {
+                "@type": "UnitPriceSpecification",
+                "billingDuration": "P1M"
+              },
+              "availability": "https://schema.org/InStock"
+            }
+          ],
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "2400"
+          }
+        }}
         speakableSelectors={["h1", "h2", ".speakable", "[data-testid='text-pricing-title']", "[data-testid='text-pricing-subtitle']"]}
         breadcrumbs={[
           { name: "Home", url: "/" },

@@ -142,21 +142,148 @@ export default function ResourcesPage() {
   return (
     <>
       <SEO
-        title="Industry Resources Library - 100+ Calculators, Guides & Tools"
-        description="Access 100+ enterprise-grade laundromat resources including ROI calculators, business valuation tools, financial templates, due diligence checklists, equipment guides, and marketing playbooks. Free and premium resources for owners, investors, and operators."
+        title="Laundromat Resources Library - 100+ Free Calculators, Guides & Templates | WashBizHub"
+        description="Access 100+ free laundromat resources: ROI calculators, valuation tools, business plans, checklists, equipment guides. For owners, investors, brokers, and operators."
         canonicalUrl="/resources"
+        ogType="website"
         keywords={[
           "laundromat calculator",
-          "laundromat ROI",
+          "laundromat ROI calculator",
           "laundromat valuation",
-          "laundry business tools",
-          "coin laundry resources",
-          "laundromat templates",
           "laundromat business plan",
           "laundromat guides",
-          "laundromat investment calculator"
+          "laundromat templates",
+          "coin laundry resources",
+          "laundromat investment calculator",
+          "laundromat due diligence checklist",
+          "laundromat startup guide",
+          "how to start a laundromat",
+          "laundromat financial analysis",
+          "laundromat equipment guide",
+          "laundromat marketing templates",
+          "laundry business resources"
         ]}
-        structuredData={structuredData}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Resources", url: "/resources" }
+        ]}
+        faqs={[
+          {
+            question: "How do I start a laundromat business?",
+            answer: "Starting a laundromat involves: 1) Market research using tools like CLEANBI, 2) Creating a business plan with financial projections, 3) Securing financing ($200K-$1M+ depending on size), 4) Finding the right location, 5) Designing your layout, 6) Purchasing equipment, and 7) Setting up operations. WashBizHub offers free guides and calculators for each step."
+          },
+          {
+            question: "What resources do laundromat owners need?",
+            answer: "Essential laundromat resources include: ROI calculators, business valuation tools, due diligence checklists, equipment guides, marketing templates, financial projections spreadsheets, operations manuals, and industry benchmarks. WashBizHub provides 100+ free and premium resources for every role in the industry."
+          },
+          {
+            question: "How do I calculate laundromat ROI?",
+            answer: "Calculate laundromat ROI using: (Annual Net Operating Income / Total Investment) × 100. Our ROI Calculator factors in equipment costs, lease expenses, utilities, labor, and projected revenue based on your location's demographics. Most laundromats target 15-35% cash-on-cash returns."
+          },
+          {
+            question: "What is the best laundromat valuation calculator?",
+            answer: "WashBizHub's Valuation Calculator uses industry-standard methods: multiple of monthly gross (15-40x), SDE multiple (2.5-4x), and cap rate analysis (8-15%). Our calculator compares all methods and provides a valuation range based on your specific financials and market data."
+          },
+          {
+            question: "Where can I find laundromat business plan templates?",
+            answer: "WashBizHub offers free laundromat business plan templates that include: executive summary, market analysis, financial projections, equipment specifications, marketing strategy, and operational plans. Download customizable templates in our Resources Library."
+          },
+          {
+            question: "What checklists do I need for buying a laundromat?",
+            answer: "Essential due diligence checklists include: financial document review (P&L, tax returns, utilities), equipment inspection, lease analysis, competition assessment, demographic analysis, and environmental review. Our Resources Library has comprehensive checklists for each phase of acquisition."
+          },
+          {
+            question: "How do I use the laundromat calculators?",
+            answer: "WashBizHub calculators are designed to be intuitive: 1) Select the calculator type (ROI, Valuation, TPD, etc.), 2) Enter your data (revenue, costs, equipment mix), 3) Get instant results with industry benchmarks, 4) Download or share your analysis. Most calculations take under 5 minutes."
+          },
+          {
+            question: "Are the laundromat resources free?",
+            answer: "Many WashBizHub resources are completely free, including basic calculators, starter guides, and checklists. Premium resources with advanced features, detailed templates, and expert analysis are available to Pro members. The Resources Library clearly labels free vs premium content."
+          }
+        ]}
+        howTo={{
+          name: "How to Use WashBizHub Resources to Plan Your Laundromat",
+          description: "Step-by-step guide to finding and using the right calculators, guides, and templates for your laundromat business",
+          totalTime: "PT10M",
+          steps: [
+            {
+              name: "Define Your Goal",
+              text: "Determine what you're trying to accomplish: starting a laundromat, buying an existing one, optimizing operations, or evaluating an investment. This helps you find the right resources."
+            },
+            {
+              name: "Filter by Industry Segment",
+              text: "Use the segment filters to find resources for your role: Owner/Operator, Investor, Broker, Technician, or other. Each segment has tailored tools and guides."
+            },
+            {
+              name: "Choose Resource Type",
+              text: "Select the type of resource you need: Calculators for financial analysis, Guides for step-by-step instructions, Checklists for due diligence, or Templates for documents."
+            },
+            {
+              name: "Search for Specific Topics",
+              text: "Use the search bar to find resources on specific topics like 'ROI', 'valuation', 'equipment', or 'marketing'. Results are sorted by relevance."
+            },
+            {
+              name: "Access the Resource",
+              text: "Click on any resource to view details, then access the tool or download the document. Free resources are available immediately; premium content requires a Pro subscription."
+            },
+            {
+              name: "Apply Insights to Your Business",
+              text: "Use the calculator results, guide recommendations, or checklist items to make informed decisions about your laundromat business."
+            }
+          ]
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Laundromat Industry Resources Library",
+          "description": "Comprehensive collection of 100+ calculators, guides, templates, and tools for laundromat owners, investors, brokers, and operators.",
+          "numberOfItems": 100,
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "ROI Calculator",
+                "description": "Calculate return on investment for laundromat purchases",
+                "url": "https://washbizhub.com/roi-calculator"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Valuation Calculator",
+                "description": "Determine fair market value for laundromat businesses",
+                "url": "https://washbizhub.com/valuation-calculator"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "TPD Calculator",
+                "description": "Calculate Turns Per Day for equipment optimization",
+                "url": "https://washbizhub.com/tpd-calculator"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "Due Diligence Checklists",
+                "description": "Comprehensive checklists for buying laundromats",
+                "url": "https://washbizhub.com/resources"
+              },
+              {
+                "@type": "ListItem",
+                "position": 5,
+                "name": "Business Plan Templates",
+                "description": "Professional laundromat business plan templates",
+                "url": "https://washbizhub.com/resources"
+              }
+            ]
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "WashBizHub",
+            "url": "https://washbizhub.com"
+          }
+        }}
       />
       <div className="min-h-screen bg-background">
         {/* Breadcrumb */}

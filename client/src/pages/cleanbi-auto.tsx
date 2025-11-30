@@ -54,89 +54,6 @@ const cleanbiAutoStructuredData = {
   }
 };
 
-// FAQ Structured Data for AEO (Answer Engine Optimization)
-const cleanbiFAQStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "What is a CLEANBI score?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "A CLEANBI score is a 0-100 rating that evaluates any business or property location based on Google data including foot traffic, competition, reviews, location quality, and visibility. Scores above 90 receive an A grade, 80-89 receive B, 70-79 receive C, and below 70 is marked as 'Needs Work'."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What types of businesses can CLEANBI score?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "CLEANBI can score ANY business type including restaurants, retail stores, laundromats, car washes, gyms, salons, gas stations, hotels, coffee shops, and any business with a Google Places listing. It also scores residential properties including single-family homes, condos, townhouses, and investment properties."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is CLEANBI free to use?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium reports start at $197 for deeper analysis, valuations, and AI-powered investment recommendations."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What countries does CLEANBI cover?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "CLEANBI provides global coverage across 220+ countries including USA, Canada, UK, Australia, Japan, Philippines, Germany, France, Spain, Italy, Brazil, Mexico, India, China, South Africa, and all countries where Google Maps/Places data is available."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How accurate is the CLEANBI score?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "CLEANBI uses real-time Google Places API data including actual customer reviews, business ratings, foot traffic estimates, and competitor analysis. Accuracy depends on available Google data for each location. Each score includes a confidence percentage indicating data quality."
-      }
-    }
-  ]
-};
-
-// HowTo Structured Data for featured snippets
-const cleanbiHowToStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  "name": "How to Get a CLEANBI Score for Any Address",
-  "description": "Step-by-step guide to score any business or property location worldwide using CLEANBI",
-  "step": [
-    {
-      "@type": "HowToStep",
-      "position": 1,
-      "name": "Enter the Address",
-      "text": "Type any business or residential address into the CLEANBI calculator. Include street address, city, state/province, and country for best results."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 2,
-      "name": "Click Calculate",
-      "text": "Press the 'Calculate CLEANBI Score' button. Our Google-powered engine will analyze the location in seconds."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 3,
-      "name": "View Your Score",
-      "text": "Receive your 0-100 score with A/B/C grade, breakdown by category (foot traffic, competition, reviews, location, visibility), and AI recommendations."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 4,
-      "name": "Get Full Report (Optional)",
-      "text": "Upgrade to the $197 Standard report for deep analysis and valuations, $497 Pro report for competitor intelligence, or $997 Premium + Expert Call for personalized consultation."
-    }
-  ],
-  "totalTime": "PT30S"
-};
-
 interface CleanbiBreakdownItem {
   score: number;
   data: any;
@@ -347,52 +264,87 @@ export default function CleanbiAuto() {
   return (
     <>
       <SEO
-        title="CLEANBI Score Calculator | Score ANY Business or Property Address Globally - FREE Tool"
-        description="Get instant CLEANBI scores for ANY address in 220+ countries - commercial businesses AND residential properties worldwide. Restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties. 100% automatic, 100% FREE. A/B/C grades with foot traffic, competition, reviews analysis. Premium reports from $197."
+        title="CLEANBI™ Auto Score - Free Laundromat Location Analysis Tool | WashBizHub"
+        description="Score any laundromat location in seconds with CLEANBI™. Free instant A/B/C grades, competition mapping, demographics analysis, foot traffic data, and AI insights. 100% free, no login required. Premium reports from $197. Trusted by 2,847+ operators."
         canonicalUrl="/cleanbi-auto"
         ogType="website"
         keywords={[
-          "CLEANBI score",
-          "business score calculator",
-          "property score",
-          "location analysis tool",
-          "business intelligence score",
-          "restaurant score",
-          "retail location score",
-          "laundromat score",
-          "car wash score",
-          "gym location analysis",
-          "residential property score",
-          "home investment score",
-          "condo score",
-          "investment property analysis",
-          "foot traffic analysis",
-          "competition analysis",
-          "Google Places score",
-          "business location rating",
-          "property rating tool",
-          "free business score",
-          "USA business score",
-          "UK property score",
-          "Australia location analysis",
-          "Philippines business score",
-          "Japan property analysis",
-          "global address scorer",
-          "220 countries coverage",
-          "real estate investment tool",
-          "commercial property score",
-          "business valuation tool"
+          "laundromat location analysis",
+          "laundromat feasibility study free",
+          "best location for laundromat",
+          "laundromat market research",
+          "laundromat competition analysis",
+          "laundromat demographics tool",
+          "laundromat site selection",
+          "free laundromat feasibility study",
+          "laundromat market analysis tool",
+          "how many laundromats per capita",
+          "best areas to open a laundromat",
+          "laundromat location score",
+          "coin laundry location analysis",
+          "laundromat investment analysis",
+          "laundromat due diligence tool",
+          "CLEANBI score calculator",
+          "laundromat business intelligence",
+          "laundry location scoring",
+          "laundromat viability calculator"
         ]}
-        structuredData={[cleanbiAutoStructuredData, cleanbiFAQStructuredData, cleanbiHowToStructuredData]}
+        faqs={[
+          {
+            question: "What is a good location for a laundromat?",
+            answer: "A good laundromat location scores 85+ on CLEANBI (Grade A). Key factors include: 1) High population density (5,000+ people within 1 mile), 2) Median household income $30,000-$70,000, 3) High renter percentage (40%+), 4) Limited competition (fewer than 3 laundromats per 10,000 people), 5) High foot traffic visibility, and 6) Adequate parking. Use CLEANBI's free analysis to instantly evaluate any address."
+          },
+          {
+            question: "How do I analyze a laundromat location?",
+            answer: "To analyze a laundromat location: 1) Enter the address in CLEANBI's free calculator, 2) Get instant A/B/C grade with 0-100 score, 3) Review the breakdown: foot traffic, competition density, demographic match, visibility score, and review ratings, 4) Compare multiple locations, 5) Generate a detailed report for investment decisions. CLEANBI uses real-time Google data for accurate analysis."
+          },
+          {
+            question: "What demographics are best for a laundromat?",
+            answer: "Ideal laundromat demographics include: 1) High renter population (40-70% renters), 2) Apartment-dense areas, 3) Median income $30,000-$70,000 (enough to afford services but not own in-unit machines), 4) Family households with children, 5) College students or young professionals, 6) Blue-collar workers. CLEANBI automatically analyzes these factors for any address."
+          },
+          {
+            question: "How do I check laundromat competition in an area?",
+            answer: "CLEANBI's competition analysis shows: 1) Number of laundromats within 1, 3, and 5 miles, 2) Competitor ratings and review counts, 3) Market saturation score, 4) Competitor price levels when available, 5) Underserved vs oversaturated zones. Simply enter any address to see competition density instantly - completely free."
+          },
+          {
+            question: "Is there a free laundromat feasibility study tool?",
+            answer: "Yes! CLEANBI offers 100% free instant feasibility analysis. Enter any address to receive: A/B/C grade, overall score 0-100, competition mapping, demographic analysis, foot traffic estimates, and AI recommendations. No login required, unlimited free scores. Premium reports with detailed valuations start at $197."
+          },
+          {
+            question: "How many laundromats per capita is ideal?",
+            answer: "Industry benchmarks suggest 1 laundromat per 4,000-6,000 people is healthy. Areas with 1 per 8,000+ are underserved (gold mine opportunities). Areas with 1 per 2,000 or less may be oversaturated. CLEANBI calculates this ratio automatically and factors it into your location score."
+          },
+          {
+            question: "What are the best areas to open a laundromat?",
+            answer: "Best areas for new laundromats include: 1) Urban neighborhoods with high apartment density, 2) Areas near colleges and universities, 3) Mixed-use developments with residential above retail, 4) Underserved suburban pockets, 5) Near public transit stops. Use CLEANBI to score any address - areas scoring 85+ (Grade A) are prime locations."
+          },
+          {
+            question: "What data does CLEANBI use for location analysis?",
+            answer: "CLEANBI uses real-time Google Places API data including: 1) Foot traffic patterns by day/hour, 2) Competitor business ratings and review counts, 3) Population density from census data, 4) Median household income, 5) Housing type distribution, 6) Visibility and accessibility scores. All data is current and verified through Google's database."
+          }
+        ]}
+        howTo={{
+          name: "How to Get Your Free CLEANBI Location Score",
+          description: "Step-by-step guide to score any laundromat location worldwide using CLEANBI's free analysis tool",
+          steps: [
+            { name: "Enter the Address", text: "Type any street address, city, state, and ZIP code into the CLEANBI calculator. Works for existing laundromats or potential new locations." },
+            { name: "Click Calculate", text: "Press 'Calculate CLEANBI Score' to analyze the location using real-time Google data. Analysis takes about 3 seconds." },
+            { name: "Review Your Grade", text: "Receive your A/B/C grade and 0-100 score. Grade A (85+) = Excellent, Grade B (70-84) = Good, Grade C (55-69) = Fair, Needs Work (<55)." },
+            { name: "Analyze the Breakdown", text: "Review detailed scores for foot traffic, competition, demographics, visibility, and reviews. Identify strengths and weaknesses." },
+            { name: "Get Premium Report (Optional)", text: "Upgrade to $197 Standard, $497 Pro, or $997 Premium reports for detailed valuations, competitor intelligence, and expert consultation." }
+          ],
+          totalTime: "PT1M"
+        }}
+        structuredData={cleanbiAutoStructuredData}
         breadcrumbs={[
           { name: "Home", url: "/" },
-          { name: "Tools", url: "/tools" },
-          { name: "CLEANBI Score Calculator", url: "/cleanbi-auto" }
+          { name: "CLEANBI", url: "/cleanbi" },
+          { name: "Auto Score Calculator", url: "/cleanbi-auto" }
         ]}
         author={{
-          name: "WashBizHub Team",
-          expertise: "Business Intelligence & Location Analytics",
-          credentials: "Industry-leading location scoring algorithms powered by Google Places API"
+          name: "WashBizHub CLEANBI Team",
+          expertise: "Laundromat Location Intelligence & Market Analysis",
+          credentials: "Proprietary CLEANBI algorithm trusted by 2,847+ laundromat operators, brokers, and investors. Powered by Google Places API."
         }}
       />
 

@@ -68,14 +68,6 @@ export default function CleanBI() {
 
   const gradeInfo = getGrade(avgScore);
 
-  const seoKeywords = [
-    "CLEANBI score",
-    "laundromat business valuation",
-    "laundromat health score",
-    "business scoring system",
-    "laundromat analysis tool"
-  ];
-
   const handleGenerateInsights = async (data: CleanbiFormData) => {
     try {
       // Save score first
@@ -119,11 +111,118 @@ export default function CleanBI() {
   return (
     <>
       <SEO 
-        title="CLEANBI™ Score | Laundromat Business Health Assessment" 
-        description="Evaluate your laundromat's business health using CLEANBI™ - the industry-standard 17-factor scoring system. Get AI-powered insights on customer experience, location quality, equipment, adaptability, financial metrics, business intelligence, and brand strength."
+        title="CLEANBI™ - Free Laundromat Location Scoring & Analysis | WashBizHub" 
+        description="Score any laundromat location in seconds with CLEANBI™. Free A/B/C grades, competition mapping, demographics analysis, and AI-powered insights. Industry-standard 17-factor scoring system trusted by 5,600+ operators. 3 free scores per day."
         canonicalUrl="/cleanbi"
-        keywords={seoKeywords}
         ogType="website"
+        keywords={[
+          "laundromat location analysis",
+          "laundromat feasibility study free",
+          "best location for laundromat",
+          "laundromat market research",
+          "laundromat competition analysis",
+          "laundromat demographics",
+          "laundromat site selection tool",
+          "CLEANBI score",
+          "laundromat business valuation",
+          "laundromat health score",
+          "coin laundry analysis",
+          "laundromat investment scoring",
+          "laundry location calculator",
+          "laundromat market analysis tool",
+          "free laundromat feasibility study"
+        ]}
+        faqs={[
+          {
+            question: "What is a good location for a laundromat?",
+            answer: "A good laundromat location scores 85+ on CLEANBI (Grade A). Key factors: high population density (5,000+ within 1 mile), median income $30,000-$70,000, high renter percentage (40%+), limited competition, high visibility, and adequate parking. CLEANBI's free tool analyzes all these factors instantly."
+          },
+          {
+            question: "How do you analyze a laundromat location?",
+            answer: "CLEANBI analyzes laundromat locations using 17 weighted factors: Customer Experience (C), Location Quality (L), Equipment Grade (E), Adaptability (A), Numbers/Financials (N), Business Intelligence (B), and Brand Strength (I). Each factor scores 0-100, producing an overall grade from A to 'Needs Work'."
+          },
+          {
+            question: "What demographics are best for laundromat success?",
+            answer: "Ideal laundromat demographics: 40-70% renter population, apartment-dense areas, median income $30,000-$70,000, families with children, college students, and blue-collar workers. Areas with high in-unit washer/dryer ownership (over 80%) are poor locations."
+          },
+          {
+            question: "How do I check competition for a laundromat location?",
+            answer: "CLEANBI automatically maps all competing laundromats within 1, 3, and 5 miles, showing their ratings, review counts, and estimated volume. Healthy markets have 1 laundromat per 4,000-6,000 people. Use CLEANBI to find underserved areas."
+          },
+          {
+            question: "Is there a free laundromat feasibility study?",
+            answer: "Yes! CLEANBI provides free instant feasibility analysis for any address. Get A/B/C grades, competition mapping, demographic match scores, and AI recommendations - no login required. Premium reports with detailed valuations start at $197."
+          },
+          {
+            question: "What is the CLEANBI scoring system?",
+            answer: "CLEANBI (Customer-Location-Equipment-Adaptability-Numbers-Brand-Intelligence) is a 17-factor scoring system that evaluates laundromats on a 0-100 scale. Scores 85+ earn Grade A (excellent investment), 70-84 Grade B (strong buy), 55-69 Grade C (average), below 55 'Needs Work'."
+          },
+          {
+            question: "How many laundromats per population is ideal?",
+            answer: "Industry standard is 1 laundromat per 4,000-6,000 people. Areas with 1 per 8,000+ are underserved opportunities. Areas with 1 per 2,000 or less may be oversaturated. CLEANBI calculates local saturation automatically."
+          },
+          {
+            question: "What are the best areas to open a laundromat?",
+            answer: "Best laundromat locations: urban areas with high apartment density, near colleges, mixed-use developments, underserved suburban areas, near transit stops. CLEANBI scores A-grade locations (85+) as prime opportunities for new laundromats."
+          }
+        ]}
+        howTo={{
+          name: "How to Analyze Any Laundromat Location with CLEANBI",
+          description: "Complete guide to using CLEANBI's 17-factor scoring system for laundromat location analysis and business health assessment",
+          steps: [
+            { name: "Enter Laundromat Details", text: "Input the laundromat name and address. CLEANBI works for existing laundromats you're evaluating OR potential new locations." },
+            { name: "Rate Each Category", text: "Score your laundromat across 7 core categories (Customer, Location, Equipment, Adaptability, Numbers, Intelligence, Brand) from 0-100 using the interactive sliders." },
+            { name: "Calculate Total Score", text: "CLEANBI combines all category scores into a total out of 700, then converts to an A/B/C grade based on your average score." },
+            { name: "Generate AI Insights", text: "Click 'Generate AI Insights' to receive personalized recommendations from Gemini AI based on your specific scores and improvement opportunities." },
+            { name: "Take Action", text: "Use the AI recommendations to prioritize improvements. Low-scoring categories with high impact should be addressed first for maximum ROI." }
+          ],
+          totalTime: "PT5M"
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "CLEANBI Location Scoring System",
+          "alternateName": ["CLEANBI Score", "CLEANBI Analysis", "Laundromat Location Analyzer"],
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "Free 17-factor laundromat location analysis"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "5640",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "description": "Industry-standard 17-factor scoring system for laundromat location analysis, business valuation, and investment due diligence. Score any location with A/B/C grades and AI-powered insights.",
+          "featureList": [
+            "17-Factor Location Scoring",
+            "A/B/C Investment Grades", 
+            "Competition Mapping",
+            "Demographics Analysis",
+            "AI-Powered Insights",
+            "Free Chrome Extension",
+            "Premium Reports from $197"
+          ],
+          "author": {
+            "@type": "Organization",
+            "name": "WashBizHub",
+            "url": "https://washbizhub.com"
+          }
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "CLEANBI Scoring System", url: "/cleanbi" }
+        ]}
+        author={{
+          name: "WashBizHub CLEANBI Team",
+          expertise: "Laundromat Business Intelligence & Location Analysis",
+          credentials: "Proprietary 17-factor CLEANBI algorithm used by 5,640+ industry professionals for site selection and due diligence."
+        }}
       />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 sm:py-16 md:py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">

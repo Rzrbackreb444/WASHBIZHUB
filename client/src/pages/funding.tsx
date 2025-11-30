@@ -144,10 +144,166 @@ export default function Funding() {
   return (
     <>
       <SEO
-        title="Laundromat Funding & Business Financing | Commercial Real Estate Loans"
-        description="Access to $5M+ in funding through our network of specialized lenders. Equipment financing, commercial real estate loans, and working capital for laundromat owners."
+        title="Laundromat Financing & Business Loans | SBA Loans, Equipment Financing | How to Finance a Laundromat | WashBizHub"
+        description="Get laundromat financing: SBA loans, equipment financing, working capital. $5K-$5M available. Fast approval, competitive rates. Connect with 5+ specialized lenders."
         canonicalUrl="/funding"
-        keywords={['laundromat financing', 'business loans', 'equipment financing', 'commercial real estate', 'funding options', 'SBA loans', 'business capital']}
+        ogType="website"
+        keywords={[
+          "laundromat financing",
+          "SBA loan for laundromat",
+          "laundromat equipment financing",
+          "how to finance a laundromat",
+          "laundromat business loan",
+          "commercial laundry financing",
+          "laundromat startup funding",
+          "equipment lease laundromat",
+          "laundromat acquisition loan",
+          "working capital laundromat",
+          "coin laundry financing",
+          "laundromat real estate loan",
+          "small business loan laundromat",
+          "laundromat expansion financing",
+          "laundry equipment loan rates"
+        ]}
+        faqs={[
+          {
+            question: "How do I finance a laundromat purchase?",
+            answer: "Laundromat financing options include SBA loans (7a, 504), conventional bank loans, equipment financing, seller financing, and private lending. SBA loans offer the best rates (6-10%) with 10-25 year terms. Most lenders require 10-20% down payment, 680+ credit score, and 2 years business experience."
+          },
+          {
+            question: "What are SBA loan requirements for a laundromat?",
+            answer: "SBA laundromat loan requirements: 680+ personal credit score, 10-20% down payment, 2+ years industry or management experience, profitable business plan, and collateral. SBA 7(a) loans go up to $5M with 10-25 year terms. SBA 504 loans are ideal for real estate purchases."
+          },
+          {
+            question: "What credit score do I need to finance laundromat equipment?",
+            answer: "Equipment financing typically requires 650+ credit for approval, with best rates at 700+. Lenders also consider business revenue, time in business, and equipment value. New equipment may qualify for 100% financing while used equipment typically requires 10-20% down."
+          },
+          {
+            question: "How much money do I need to buy a laundromat?",
+            answer: "Typical laundromat acquisitions require 10-30% down payment. For a $300,000 laundromat, expect $30,000-$90,000 down. Additional costs include working capital ($20,000-$50,000), closing costs (2-5% of price), and renovation reserves. Total startup capital typically ranges $75,000-$200,000."
+          },
+          {
+            question: "What are typical laundromat equipment financing rates?",
+            answer: "Equipment financing rates range from 6-15% depending on credit, equipment age, and lender. New equipment: 6-10% APR. Used equipment: 8-15% APR. Terms typically 3-7 years. Some manufacturers offer promotional 0% financing for qualified buyers."
+          },
+          {
+            question: "Can I get financing for a laundromat with no experience?",
+            answer: "Yes, but options are limited. First-time buyers can qualify through seller financing, partnership with experienced operators, or franchise programs. Some lenders accept relevant management experience. Taking laundromat courses and having a strong business plan improves approval chances."
+          },
+          {
+            question: "How long does laundromat loan approval take?",
+            answer: "Timeline varies by loan type: Equipment financing: 24-72 hours. Alternative lenders: 1-5 business days. Conventional bank loans: 2-4 weeks. SBA loans: 30-90 days. Having documents ready (tax returns, bank statements, business plan) speeds approval significantly."
+          },
+          {
+            question: "What documents do I need for laundromat financing?",
+            answer: "Required documents typically include: 2 years personal and business tax returns, 6 months bank statements, profit & loss statements, personal financial statement, business plan, equipment list with values, property lease or purchase agreement, and government-issued ID."
+          }
+        ]}
+        howTo={{
+          name: "How to Get Funding for Your Laundromat",
+          description: "Complete guide to securing financing for laundromat acquisition, equipment purchase, or business expansion through WashBizHub's lending partner network.",
+          steps: [
+            {
+              name: "Determine Your Funding Needs",
+              text: "Calculate total capital required: acquisition cost, equipment, renovations, working capital, and reserves. Use our loan calculator to estimate monthly payments at different amounts and terms. Most laundromat purchases require $100,000-$500,000 in financing."
+            },
+            {
+              name: "Gather Required Documents",
+              text: "Prepare 2 years tax returns (personal and business), 6 months bank statements, profit & loss statements, personal financial statement, equipment list, and property lease. Complete documentation speeds approval significantly."
+            },
+            {
+              name: "Check Your Qualification",
+              text: "Review minimum requirements: 650+ credit score for equipment financing, 680+ for SBA loans. Most lenders want 2+ years business experience, $5,000+ monthly revenue, and 10-20% down payment. Our partners work with various credit profiles."
+            },
+            {
+              name: "Submit Applications to Partners",
+              text: "Apply through WashBizHub's lending partner network. Submit to multiple lenders simultaneously to compare offers. Our featured partners specialize in laundromat financing and understand industry-specific needs."
+            },
+            {
+              name: "Review Offers and Close",
+              text: "Compare interest rates, terms, fees, and repayment schedules. Negotiate if possible. Once approved, review final documents carefully before signing. Funds typically arrive within 3-7 business days after closing."
+            }
+          ],
+          totalTime: "P14D"
+        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "FinancialService",
+            "name": "WashBizHub Laundromat Funding Network",
+            "description": "Connect with specialized lenders for laundromat financing including SBA loans, equipment financing, working capital, and commercial real estate loans.",
+            "url": "https://washbizhub.com/funding",
+            "areaServed": "United States",
+            "serviceType": ["Equipment Financing", "Business Loans", "SBA Loans", "Commercial Real Estate Loans", "Working Capital"],
+            "provider": {
+              "@type": "Organization",
+              "name": "WashBizHub"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Laundromat Funding Partners",
+            "description": "Network of specialized lenders for laundromat business financing",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                  "@type": "FinancialProduct",
+                  "name": "Startup Funding",
+                  "description": "Launch your first laundromat with $5K-$250K in financing",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Partner Network" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "item": {
+                  "@type": "FinancialProduct",
+                  "name": "Equipment Financing",
+                  "description": "Finance commercial washers, dryers, and payment systems $5K-$500K",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Partner Network" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "item": {
+                  "@type": "FinancialProduct",
+                  "name": "Real Estate Financing",
+                  "description": "Commercial property purchase and refinance $50K-$2M+",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Partner Network" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "item": {
+                  "@type": "FinancialProduct",
+                  "name": "Working Capital",
+                  "description": "Operations and growth funding $10K-$500K",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Partner Network" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 5,
+                "item": {
+                  "@type": "FinancialProduct",
+                  "name": "Acquisition Financing",
+                  "description": "Multi-unit expansion and portfolio growth $100K-$5M+",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Partner Network" }
+                }
+              }
+            ]
+          }
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding & Financing", url: "/funding" }
+        ]}
+        speakableSelectors={["h1", "h2", ".speakable"]}
       />
 
       <div className="min-h-screen bg-background">

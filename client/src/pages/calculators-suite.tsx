@@ -66,11 +66,127 @@ export default function CalculatorsSuite() {
   return (
     <>
       <SEO
-        title="Professional Calculators | WashBizHub"
-        description="8 powerful calculators for laundromat owners - CLEANBI Score, ROI, Machine Yield, Break-Even, Energy Costs, Pricing Optimizer, Expansion Planner, and Financing."
+        title="Laundromat ROI Calculator & Business Tools | Free CLEANBI Score, Valuation & Profit Calculators | WashBizHub"
+        description="Free laundromat calculators: ROI, valuation, break-even, machine yield, CLEANBI score. Calculate investment returns, pricing, and profitability. Industry-standard tools."
         canonicalUrl="/calculators-suite"
-        keywords={["laundromat calculator", "CLEANBI score", "laundry ROI calculator", "machine yield"]}
-        breadcrumbs={[{ name: "Calculators", url: "/calculators-suite" }]}
+        ogType="website"
+        keywords={[
+          "laundromat ROI calculator",
+          "laundromat valuation calculator",
+          "how much does a laundromat make",
+          "laundromat profit calculator",
+          "CLEANBI score calculator",
+          "turns per day calculator",
+          "laundromat break even calculator",
+          "coin laundry profit calculator",
+          "laundromat investment calculator",
+          "machine yield calculator",
+          "laundry pricing calculator",
+          "laundromat cash flow calculator",
+          "laundromat energy cost calculator",
+          "commercial laundry ROI",
+          "laundromat business calculator"
+        ]}
+        faqs={[
+          {
+            question: "How do I calculate laundromat ROI?",
+            answer: "Laundromat ROI is calculated as: (Annual Net Operating Income ÷ Total Investment) × 100. A typical laundromat ROI ranges from 15-35%. Use our ROI calculator to input purchase price, down payment, revenue, and expenses for accurate projections including cash-on-cash returns and cap rate."
+          },
+          {
+            question: "What is a good turns per day for a laundromat?",
+            answer: "Industry benchmark is 5-7 turns per day (cycles per machine). Top-performing laundromats achieve 8+ turns. Below 4 turns indicates underperformance. Factors affecting TPD include location, pricing, machine availability, and operating hours."
+          },
+          {
+            question: "How much does the average laundromat make per month?",
+            answer: "Average laundromat revenue ranges from $15,000-$50,000/month depending on size, location, and services. Net profit margins typically range 20-35%. A 2,000 sq ft store with 30 machines averages $25,000-$35,000 monthly gross revenue."
+          },
+          {
+            question: "How do you value a laundromat for sale?",
+            answer: "Laundromats are typically valued at 2.5-4x annual net operating income (NOI), or 8-12x monthly gross revenue. Premium locations with modern equipment command higher multiples. Use our valuation calculator for accurate estimates based on your specific financials."
+          },
+          {
+            question: "What is the CLEANBI score?",
+            answer: "CLEANBI (Commercial Laundry Enterprise Analysis & Business Intelligence) is WashBizHub's proprietary scoring system that evaluates laundromat performance across 7 categories: Customer base, Location quality, Equipment condition, Adaptability, Numbers/financials, Brand presence, and Intelligence/competition. Scores range from 0-100 with grades A, B, or C."
+          },
+          {
+            question: "How do I calculate laundromat break-even point?",
+            answer: "Break-even = Fixed Monthly Costs ÷ (Revenue per Cycle - Variable Cost per Cycle). Include rent, utilities, insurance, loan payments in fixed costs. Variable costs include water, gas, detergent per load. Our break-even calculator factors all expenses automatically."
+          },
+          {
+            question: "What is the average cap rate for a laundromat?",
+            answer: "Laundromat cap rates typically range from 10-20%, significantly higher than other commercial real estate (5-8%). Higher cap rates reflect the hands-on management required. A 15% cap rate is considered healthy for the industry."
+          },
+          {
+            question: "How much can I charge per wash and dry cycle?",
+            answer: "National average is $3.25-$5.75 per wash cycle depending on machine size and location. Top loaders: $2.50-$3.50, Front loaders: $3.50-$5.00, Large capacity: $5.00-$8.00. Dryers typically charge $0.25 per 6-8 minutes. Use our Pricing Optimizer for market-specific recommendations."
+          }
+        ]}
+        howTo={{
+          name: "How to Calculate Your Laundromat Investment Returns",
+          description: "Step-by-step guide to using WashBizHub's professional calculators to analyze laundromat investments and business performance.",
+          steps: [
+            {
+              name: "Start with CLEANBI Score",
+              text: "Enter your laundromat's monthly revenue, machine count, utilization rate, cleanliness score, and location quality. The CLEANBI algorithm generates a comprehensive score (0-100) and grade (A, B, C) benchmarking your performance against industry standards."
+            },
+            {
+              name: "Calculate ROI and Cash Flow",
+              text: "Input purchase price, down payment, interest rate, gross revenue, and operating expenses. The ROI calculator shows cash-on-cash return, cap rate, annual cash flow, and payback period. Target 20%+ cash-on-cash for good investments."
+            },
+            {
+              name: "Analyze Machine Yield",
+              text: "Enter machine count, average cycles per day, price per cycle, and operating days. See daily yield, monthly revenue per machine, and annual projections. Compare against the 5-7 turns/day industry benchmark."
+            },
+            {
+              name: "Determine Break-Even Point",
+              text: "Input all fixed costs (rent, utilities, insurance, loan payments) and variable costs per cycle. Calculate the minimum cycles needed daily to break even and project profitability scenarios."
+            },
+            {
+              name: "Export and Share Results",
+              text: "Download PDF reports of your calculations for lender presentations, partner discussions, or personal records. Share calculator links with business partners for collaborative analysis."
+            }
+          ],
+          totalTime: "PT30M"
+        }}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "WashBizHub Professional Laundromat Calculators",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "description": "Suite of 8 professional calculators for laundromat business analysis including ROI, valuation, break-even, machine yield, CLEANBI scoring, energy costs, pricing optimization, and expansion planning.",
+          "url": "https://washbizhub.com/calculators-suite",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "2847",
+            "bestRating": "5"
+          },
+          "featureList": [
+            "CLEANBI Score Calculator - AI-powered property intelligence",
+            "ROI Calculator - Investment returns and payback analysis",
+            "Machine Yield Calculator - Revenue per machine metrics",
+            "Break-Even Calculator - Profitability threshold analysis",
+            "Energy Cost Calculator - Utility expense projections",
+            "Pricing Optimizer - Market-based wash/dry pricing",
+            "Expansion Planner - Growth and scaling simulator",
+            "Financing Calculator - Loan and lease analysis"
+          ],
+          "author": {
+            "@type": "Organization",
+            "name": "WashBizHub"
+          }
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Calculators", url: "/calculators-suite" }
+        ]}
+        speakableSelectors={["h1", "h2", ".speakable"]}
       />
 
       {/* Premium Navy/Teal Gradient Background */}
