@@ -152,8 +152,8 @@ export default function LessonPage() {
               <div className="aspect-video bg-slate-800 rounded-lg flex items-center justify-center">
                 <div className="text-center">
                   <PlayCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Video Player Coming Soon</p>
-                  <p className="text-sm text-muted-foreground mt-2">{currentLesson.duration} minutes</p>
+                  <p className="text-muted-foreground">Video content for this lesson</p>
+                  <p className="text-sm text-muted-foreground mt-2">Duration: {currentLesson.duration} minutes</p>
                 </div>
               </div>
             </CardContent>
