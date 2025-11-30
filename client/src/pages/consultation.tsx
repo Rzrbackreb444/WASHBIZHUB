@@ -23,13 +23,13 @@ import { Calendar, Clock, DollarSign, CheckCircle, MessageSquare, TrendingUp } f
 const consultationSchema = z.object({
   consultationType: z.string().min(1, "Please select a consultation type"),
   businessStage: z.string().min(1, "Please select your business stage"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  name: z.string().min(2, "Please enter your full name (at least 2 characters)"),
+  email: z.string().min(1, "Please enter your email address").email("Please enter a valid email address (e.g., name@example.com)"),
   phone: z.string().optional(),
   location: z.string().optional(),
   budget: z.string().optional(),
   timeline: z.string().optional(),
-  message: z.string().min(10, "Please provide more details (at least 10 characters)"),
+  message: z.string().min(10, "Please tell us more about your needs (at least 10 characters)"),
   preferredDate: z.string().optional(),
 });
 
@@ -70,6 +70,7 @@ export default function Consultation() {
       message: "",
       preferredDate: "",
     },
+    mode: "onTouched",
   });
 
   const submitMutation = useMutation({

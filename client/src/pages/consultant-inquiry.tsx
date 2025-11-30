@@ -15,13 +15,13 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 
 const inquirySchema = z.object({
-  firstName: z.string().min(2, 'First name required'),
-  lastName: z.string().min(2, 'Last name required'),
-  email: z.string().email('Valid email required'),
-  phone: z.string().min(10, 'Valid phone required'),
-  businessName: z.string().min(3, 'Business name required'),
+  firstName: z.string().min(2, 'Please enter your first name (at least 2 characters)'),
+  lastName: z.string().min(2, 'Please enter your last name (at least 2 characters)'),
+  email: z.string().min(1, 'Please enter your email address').email('Please enter a valid email address (e.g., name@example.com)'),
+  phone: z.string().min(10, 'Please enter a valid phone number (at least 10 digits)'),
+  businessName: z.string().min(3, 'Please enter your business name (at least 3 characters)'),
   inquiryType: z.enum(['new-business', 'expansion', 'optimization', 'troubleshooting', 'financing', 'other']),
-  message: z.string().min(20, 'Please provide details (min 20 characters)'),
+  message: z.string().min(20, 'Please tell us more about your situation (at least 20 characters)'),
   budget: z.string().optional(),
   timeline: z.string().optional(),
 });
@@ -35,8 +35,17 @@ export default function ConsultantInquiry() {
   const form = useForm<InquiryData>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      businessName: '',
       inquiryType: 'optimization',
+      message: '',
+      budget: '',
+      timeline: '',
     },
+    mode: "onTouched",
   });
 
   const mutation = useMutation({

@@ -1,16 +1,26 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Brain, Sparkles, Loader2 } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Brain, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { useCreateCleanbiScore, useGenerateInsights } from "@/hooks/use-cleanbi";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 
+const cleanbiFormSchema = z.object({
+  laundromatName: z.string()
+    .min(2, "Please enter the laundromat name (at least 2 characters)")
+    .max(100, "Name is too long (maximum 100 characters)"),
+});
+
+type CleanbiFormData = z.infer<typeof cleanbiFormSchema>;
+
 export default function CleanBI() {
-  const [laundromatName, setLaundromatName] = useState("");
   const [scores, setScores] = useState({
     customer: 50,
     location: 50,
@@ -22,10 +32,19 @@ export default function CleanBI() {
   });
   const [aiInsights, setAiInsights] = useState<string>("");
   const [currentScoreId, setCurrentScoreId] = useState<string>("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const { toast } = useToast();
   const createScore = useCreateCleanbiScore();
   const generateInsights = useGenerateInsights();
+
+  const form = useForm<CleanbiFormData>({
+    resolver: zodResolver(cleanbiFormSchema),
+    defaultValues: {
+      laundromatName: "",
+    },
+    mode: "onTouched",
+  });
 
   const categories = [
     { key: "customer", label: "Customer Experience", description: "Service quality, cleanliness, amenities" },
@@ -57,20 +76,11 @@ export default function CleanBI() {
     "laundromat analysis tool"
   ];
 
-  const handleGenerateInsights = async () => {
-    if (!laundromatName.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter a laundromat name",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleGenerateInsights = async (data: CleanbiFormData) => {
     try {
       // Save score first
       const scoreResult = await createScore.mutateAsync({
-        laundromatName,
+        laundromatName: data.laundromatName,
         userId: null,
         customerScore: scores.customer,
         locationScore: scores.location,
@@ -89,15 +99,18 @@ export default function CleanBI() {
       // Generate AI insights
       const insightsResult = await generateInsights.mutateAsync(scoreResult.id);
       setAiInsights(insightsResult.insights);
+      setShowSuccess(true);
 
       toast({
-        title: "Success!",
-        description: "AI insights generated successfully",
+        title: "Insights generated successfully!",
+        description: `CLEANBI analysis complete for ${data.laundromatName}`,
       });
+
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to generate insights",
+        title: "Unable to generate insights",
+        description: error.message || "Please try again in a moment.",
         variant: "destructive",
       });
     }
@@ -132,58 +145,75 @@ export default function CleanBI() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 sm:space-y-8 px-4 sm:px-6">
-            <div>
-              <Label htmlFor="name" className="text-white/90 font-medium">Laundromat Name</Label>
-              <Input
-                id="name"
-                value={laundromatName}
-                onChange={(e) => setLaundromatName(e.target.value)}
-                placeholder="Enter your laundromat name"
-                className="bg-white/20 border-white/30 text-white placeholder-white/50 mt-2"
-                data-testid="input-laundromat-name"
-              />
-            </div>
-
-            {categories.map((category) => (
-              <div key={category.key}>
-                <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
-                  <div className="min-w-0 flex-1">
-                    <Label className="text-white/90 font-medium text-sm sm:text-base">{category.label}</Label>
-                    <p className="text-xs sm:text-sm text-white/60 mt-0.5 sm:mt-1">{category.description}</p>
-                  </div>
-                  <div className="text-xl sm:text-2xl font-black text-accent min-w-[50px] sm:min-w-[60px] text-right flex-shrink-0" data-testid={`score-${category.key}`}>
-                    {scores[category.key as keyof typeof scores]}
-                  </div>
-                </div>
-                <Slider
-                  value={[scores[category.key as keyof typeof scores]]}
-                  onValueChange={([value]) => setScores({ ...scores, [category.key]: value })}
-                  max={100}
-                  step={1}
-                  className="w-full"
-                  data-testid={`slider-${category.key}`}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleGenerateInsights)} className="space-y-6 sm:space-y-8">
+                <FormField
+                  control={form.control}
+                  name="laundromatName"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90 font-medium">Laundromat Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your laundromat name"
+                          className={`bg-white/20 border-white/30 text-white placeholder-white/50 ${fieldState.error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+                          data-testid="input-laundromat-name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-300" />
+                      {showSuccess && !fieldState.error && field.value && (
+                        <div className="flex items-center gap-2 text-green-400 text-sm mt-1">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>Assessment saved successfully</span>
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
                 />
-              </div>
-            ))}
 
-            <Button 
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-6"
-              data-testid="button-generate-insights"
-              onClick={handleGenerateInsights}
-              disabled={generateInsights.isPending || createScore.isPending}
-            >
-              {generateInsights.isPending || createScore.isPending ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Generate AI Insights
-                </>
-              )}
-            </Button>
+                {categories.map((category) => (
+                  <div key={category.key}>
+                    <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
+                      <div className="min-w-0 flex-1">
+                        <FormLabel className="text-white/90 font-medium text-sm sm:text-base">{category.label}</FormLabel>
+                        <p className="text-xs sm:text-sm text-white/60 mt-0.5 sm:mt-1">{category.description}</p>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-black text-accent min-w-[50px] sm:min-w-[60px] text-right flex-shrink-0" data-testid={`score-${category.key}`}>
+                        {scores[category.key as keyof typeof scores]}
+                      </div>
+                    </div>
+                    <Slider
+                      value={[scores[category.key as keyof typeof scores]]}
+                      onValueChange={([value]) => setScores({ ...scores, [category.key]: value })}
+                      max={100}
+                      step={1}
+                      className="w-full"
+                      data-testid={`slider-${category.key}`}
+                    />
+                  </div>
+                ))}
+
+                <Button 
+                  type="submit"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-6"
+                  data-testid="button-generate-insights"
+                  disabled={generateInsights.isPending || createScore.isPending}
+                >
+                  {generateInsights.isPending || createScore.isPending ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Generating insights...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5 mr-2" />
+                      Generate AI Insights
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
