@@ -73,6 +73,7 @@ const CleanBI = lazy(() => import("@/pages/cleanbi"));
 const Pricing = lazy(() => import("@/pages/pricing"));
 const Blog = lazy(() => import("@/pages/blog"));
 const CoursesHub = lazy(() => import("@/pages/courses-hub"));
+const Academy = lazy(() => import("@/pages/academy"));
 const AboutUs = lazy(() => import("@/pages/about-us"));
 const WhyWashBizHub = lazy(() => import("@/pages/why-washbizhub"));
 
@@ -275,6 +276,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/blog" component={Blog} />
       <Route path="/courses" component={CoursesHub} />
+      <Route path="/academy" component={Academy} />
       <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />

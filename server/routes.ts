@@ -12,8 +12,8 @@ import calculatorRoutes from "./calculator-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, diagnosticCodes } from "@shared/schema";
-import { eq, or, isNull, sql, desc, and } from "drizzle-orm";
+import { listings, diagnosticCodes, courses, lessons } from "@shared/schema";
+import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
@@ -1996,6 +1996,209 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ checkoutUrl: session.url });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== LAUNDRY TECH ACADEMY ====================
+
+  // Get all Academy courses (tier-ordered)
+  app.get("/api/academy", async (req, res) => {
+    try {
+      const academyCourses = await db.query.courses.findMany({
+        where: eq(courses.bundleGroupId, 'laundry-tech-academy'),
+        orderBy: [asc(courses.tierLevel)],
+      });
+      res.json(academyCourses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create bundle checkout for all 4 Academy courses ($999)
+  app.post("/api/academy/bundle/checkout", async (req, res) => {
+    try {
+      const { userId } = req.body;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID required" });
+      }
+
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Laundry Tech Academy - Complete Bundle",
+                description: "All 4 certification levels: Attendant Essentials, Certified Tech, Advanced Tech, and Master Tech. Save $598!",
+              },
+              unit_amount: 99900, // $999.00
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.headers.origin}/academy?success=true`,
+        cancel_url: `${req.headers.origin}/academy?canceled=true`,
+        metadata: {
+          userId,
+          type: "academy_bundle",
+          courseIds: "academy-level-1,academy-level-2,academy-level-3,academy-level-4",
+        },
+      });
+
+      res.json({ checkoutUrl: session.url });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Auto-populate Academy lessons from diagnostic codes
+  app.post("/api/academy/populate-lessons", isAdmin, async (req, res) => {
+    try {
+      const { tierLevel } = req.body;
+      
+      // Map tier to skill levels
+      const tierSkillMap: { [key: number]: string[] } = {
+        1: ['basic'], // Level 1: Basic codes
+        2: ['intermediate'], // Level 2: Intermediate codes
+        3: ['advanced', 'professional'], // Level 3: Advanced & Professional
+        4: ['basic', 'intermediate', 'advanced', 'professional'], // Level 4: All codes (master)
+      };
+
+      const courseIds: { [key: number]: string } = {
+        1: 'academy-level-1',
+        2: 'academy-level-2',
+        3: 'academy-level-3',
+        4: 'academy-level-4',
+      };
+
+      const tiersToProcess = tierLevel ? [tierLevel] : [1, 2, 3, 4];
+      const results: any[] = [];
+
+      for (const tier of tiersToProcess) {
+        const courseId = courseIds[tier];
+        const skillLevels = tierSkillMap[tier];
+
+        // Check if lessons already exist for this course
+        const existingLessons = await db.query.lessons.findMany({
+          where: eq(lessons.courseId, courseId),
+        });
+
+        if (existingLessons.length > 0) {
+          results.push({ 
+            tier, 
+            courseId, 
+            status: 'skipped', 
+            message: `Already has ${existingLessons.length} lessons`,
+            existingCount: existingLessons.length
+          });
+          continue;
+        }
+
+        // Get diagnostic codes for this tier
+        const diagnosticCodes = await db.query.diagnosticCodes.findMany({
+          where: inArray(diagnosticCodes.skillLevel, skillLevels),
+          orderBy: [asc(diagnosticCodes.manufacturer), asc(diagnosticCodes.code)],
+        });
+
+        // Group by manufacturer for organized modules
+        const byManufacturer: { [key: string]: typeof diagnosticCodes } = {};
+        for (const code of diagnosticCodes) {
+          const mfr = code.manufacturer || 'General';
+          if (!byManufacturer[mfr]) byManufacturer[mfr] = [];
+          byManufacturer[mfr].push(code);
+        }
+
+        // Create lessons grouped by manufacturer
+        let lessonOrder = 1;
+        let createdCount = 0;
+
+        for (const [manufacturer, codes] of Object.entries(byManufacturer)) {
+          // Create a module lesson for each manufacturer
+          const moduleTitle = `${manufacturer} Error Codes`;
+          
+          // Build lesson content from codes
+          const lessonContent = codes.slice(0, 20).map((code: any) => {
+            const parts = code.partsWithPricing ? 
+              (code.partsWithPricing as any[]).map((p: any) => `${p.name}: $${p.price}`).join(', ') : 
+              'No parts data';
+            
+            return `
+## ${code.code}: ${code.title}
+
+**Severity:** ${code.severity || 'Medium'}
+**Machine Type:** ${code.machineType || 'Unknown'}
+**Estimated Repair Time:** ${code.estimatedRepairTime || 30} minutes
+
+### Description
+${code.description || 'No description available'}
+
+### Possible Causes
+${(code.possibleCauses as string[] || []).map((c: string) => `- ${c}`).join('\n')}
+
+### Troubleshooting Steps
+${(code.troubleshootingSteps as string[] || []).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
+
+### Parts & Pricing
+${parts}
+
+${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
+`;
+          }).join('\n---\n');
+
+          // Generate quiz questions from the codes
+          const quizQuestions = codes.slice(0, 5).map((code: any, idx: number) => ({
+            id: `q${idx + 1}`,
+            question: `What is the primary cause of error code ${code.code} on ${manufacturer} equipment?`,
+            options: [
+              (code.possibleCauses as string[])?.[0] || 'Component failure',
+              'Power supply issue',
+              'User error',
+              'Software glitch',
+            ],
+            correctAnswer: 0,
+            explanation: code.quickFix || `The primary fix for ${code.code} involves addressing ${(code.possibleCauses as string[])?.[0] || 'the component failure'}.`
+          }));
+
+          await storage.createLesson({
+            courseId,
+            title: moduleTitle,
+            description: `Learn to diagnose and repair ${codes.length} ${manufacturer} error codes`,
+            order: lessonOrder++,
+            duration: Math.min(codes.length * 3, 45), // 3 min per code, max 45 min
+            content: lessonContent,
+            quizData: {
+              questions: quizQuestions,
+              passingScore: 70,
+            },
+            isFree: tier === 1, // All Level 1 lessons are free
+          });
+          createdCount++;
+        }
+
+        results.push({
+          tier,
+          courseId,
+          status: 'created',
+          lessonsCreated: createdCount,
+          totalCodes: diagnosticCodes.length,
+          manufacturers: Object.keys(byManufacturer).length,
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        message: 'Academy lessons populated from diagnostic codes',
+        results 
+      });
+    } catch (error: any) {
+      console.error('Academy populate error:', error);
       res.status(500).json({ message: error.message });
     }
   });
