@@ -6,6 +6,8 @@ import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { FeaturedListings } from "@/components/FeaturedListings";
+import { StickyActionBar, FloatingCTAButton } from "@/components/StickyActionBar";
+import { PlatformStats, TrustBadges, EnterpriseFeatures } from "@/components/PlatformStats";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Chrome, MessageCircle, Sparkles
@@ -165,8 +167,12 @@ export default function Home() {
         ]}
         structuredData={structuredData}
       />
+      <StickyActionBar />
+      <FloatingCTAButton />
       <div className="min-h-screen bg-background">
         <Hero />
+        
+        <TrustBadges />
 
         {/* Choose Your Path Section */}
         <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black" data-testid="section-choose-path">
@@ -258,6 +264,10 @@ export default function Home() {
             </a>
           </div>
         </section>
+
+        <PlatformStats />
+        
+        <EnterpriseFeatures />
 
         {/* Social Proof Section */}
         <section className="py-12 bg-background" data-testid="section-social-proof">
