@@ -132,9 +132,14 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
 ];
 
 const equipmentCategories = [
-  { id: "all", name: "All Equipment" },
+  { id: "all", name: "All" },
   { id: "washer", name: "Washers" },
   { id: "dryer", name: "Dryers" },
+  { id: "atm", name: "ATM" },
+  { id: "changer", name: "Changers" },
+  { id: "vending", name: "Vending" },
+  { id: "dogwash", name: "Dog Wash" },
+  { id: "furniture", name: "Furniture" },
 ];
 
 function EquipmentThumbnail({ equipment, size = "md" }: { equipment: typeof equipmentLibrary[number]; size?: "sm" | "md" }) {
