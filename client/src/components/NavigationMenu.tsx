@@ -254,6 +254,16 @@ export function NavigationMenu() {
   const showUtilityRail = !isHomePage && (breadcrumbs.length > 1 || contextSection);
 
   return (
+    <>
+      {/* Skip to Content Link - Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-primary-foreground focus:ring-offset-2"
+        data-testid="link-skip-to-content"
+      >
+        Skip to main content
+      </a>
+      
     <header className="sticky top-0 z-50">
       {/* TIER 1: Brand Bar - Premium styling */}
       <div className="bg-gradient-to-r from-[#001428] via-[#001F3F] to-[#002B5C] text-white/90 border-b border-white/5 shadow-lg">
@@ -350,14 +360,18 @@ export function NavigationMenu() {
       <div className="bg-white dark:bg-[#0a1628] border-b border-gray-100 dark:border-white/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-[100px] md:h-[120px] flex items-center justify-between gap-4">
-            {/* Logo */}
-            <Link href="/" data-testid="link-logo">
+            {/* Logo - Optimized for LCP */}
+            <Link href="/" data-testid="link-logo" aria-label="WashBizHub Home">
               <div className="flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer shrink-0">
                 <img 
                   src={logoUrl} 
                   alt="WashBizHub - The #1 Laundromat Resource" 
                   className="h-20 sm:h-24 md:h-28 w-auto" 
-                  loading="lazy"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  width={112}
+                  height={112}
                   data-testid="img-logo"
                 />
               </div>
@@ -838,5 +852,6 @@ export function NavigationMenu() {
         </div>
       )}
     </header>
+    </>
   );
 }
