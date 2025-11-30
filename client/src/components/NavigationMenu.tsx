@@ -249,10 +249,10 @@ export function NavigationMenu() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* TIER 1: Brand Bar */}
-      <div className="bg-navy-900 text-white/90 border-b border-white/10">
+      {/* TIER 1: Brand Bar - Premium styling */}
+      <div className="bg-gradient-to-r from-[#001428] via-[#001F3F] to-[#002B5C] text-white/90 border-b border-white/5 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-8 flex items-center justify-between gap-4 text-xs">
+          <div className="h-9 flex items-center justify-between gap-4 text-xs">
             {/* Left: Social Proof */}
             <div className="hidden sm:flex items-center gap-2">
               <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
@@ -340,17 +340,17 @@ export function NavigationMenu() {
         </div>
       </div>
 
-      {/* TIER 2: Main Product Navigation */}
-      <div className="bg-white dark:bg-gray-900 border-b shadow-sm">
+      {/* TIER 2: Main Product Navigation - Refined */}
+      <div className="bg-white dark:bg-[#0a1628] border-b border-gray-100 dark:border-white/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-[140px] md:h-[160px] flex items-center justify-between gap-4">
+          <div className="h-[100px] md:h-[120px] flex items-center justify-between gap-4">
             {/* Logo */}
             <Link href="/" data-testid="link-logo">
               <div className="flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer shrink-0">
                 <img 
                   src={logoUrl} 
                   alt="WashBizHub - The #1 Laundromat Resource" 
-                  className="h-32 sm:h-40 md:h-48 w-auto" 
+                  className="h-20 sm:h-24 md:h-28 w-auto" 
                   loading="lazy"
                   data-testid="img-logo"
                 />
@@ -371,14 +371,14 @@ export function NavigationMenu() {
                       PLAN
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5">
-                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
+                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
                           <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Dreamers</span>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Dreamers</span>
                             <p className="text-sm text-muted-foreground mt-0.5">Thinking about buying a laundromat?</p>
                           </div>
-                          <Link href="/plan" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-                            View All <ChevronRight className="w-3 h-3" />
+                          <Link href="/plan" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
+                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
                         </div>
                         <ul className="grid grid-cols-2 gap-2">
@@ -402,14 +402,14 @@ export function NavigationMenu() {
                       EVALUATE
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5">
-                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
+                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
                           <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Buyers</span>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Buyers</span>
                             <p className="text-sm text-muted-foreground mt-0.5">Actively searching for a laundromat?</p>
                           </div>
-                          <Link href="/evaluate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-                            View All <ChevronRight className="w-3 h-3" />
+                          <Link href="/evaluate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
+                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
                         </div>
                         <ul className="grid grid-cols-2 gap-2">
@@ -433,14 +433,14 @@ export function NavigationMenu() {
                       OPERATE
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5">
-                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
+                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
                           <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Owners</span>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Owners</span>
                             <p className="text-sm text-muted-foreground mt-0.5">Running your laundromat business?</p>
                           </div>
-                          <Link href="/operate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-                            View All <ChevronRight className="w-3 h-3" />
+                          <Link href="/operate" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
+                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
                         </div>
                         <ul className="grid grid-cols-2 gap-2">
@@ -464,14 +464,14 @@ export function NavigationMenu() {
                       PARTNER
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[580px] p-5">
-                        <div className="mb-4 pb-3 border-b flex items-center justify-between">
+                      <div className="w-[580px] p-5 bg-gradient-to-br from-background to-muted/30 dark:from-[#0a1628] dark:to-[#0a1628]/80">
+                        <div className="mb-4 pb-3 border-b border-border/50 flex items-center justify-between">
                           <div>
-                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">For Vendors & Brokers</span>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-widest">For Vendors & Brokers</span>
                             <p className="text-sm text-muted-foreground mt-0.5">Service providers & sellers welcome</p>
                           </div>
-                          <Link href="/partner" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-                            View All <ChevronRight className="w-3 h-3" />
+                          <Link href="/partner" className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group">
+                            View All <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
                         </div>
                         <ul className="grid grid-cols-2 gap-2">
@@ -501,12 +501,13 @@ export function NavigationMenu() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              {/* Start Free Trial - Gold CTA */}
+              {/* Start Free Trial - Premium Gold CTA */}
               <Link href="/pricing">
                 <Button 
-                  className="hidden sm:flex bg-amber-500 hover:bg-amber-600 text-black font-semibold shadow-md"
+                  className="hidden sm:flex bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-black font-bold shadow-lg shadow-amber-500/25 transition-all duration-200"
                   data-testid="button-start-trial"
                 >
+                  <Sparkles className="w-4 h-4 mr-1.5" />
                   <span className="hidden md:inline">Start Free Trial</span>
                   <span className="md:hidden">Free Trial</span>
                 </Button>
