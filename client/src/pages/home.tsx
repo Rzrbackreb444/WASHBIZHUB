@@ -4,27 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
-import { FeaturedListings } from "@/components/FeaturedListings";
-import { StickyActionBar, FloatingCTAButton } from "@/components/StickyActionBar";
-import { PlatformStats, TrustBadges, EnterpriseFeatures } from "@/components/PlatformStats";
-import { PartnerActionsSection, QuickListBanner } from "@/components/PartnerActions";
-import { 
-  InteractiveCalculatorDemo, 
-  AIConsultantPreview,
-  AnimatedStatsCounter,
-  FeaturedMarketScores
-} from "@/components/demos";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
-  Chrome, MessageCircle, Sparkles, MapPin, Calculator, Bot,
-  Award, CheckCircle
+  Sparkles, MapPin, TrendingUp, Shield, Zap,
+  CheckCircle, Star
 } from "lucide-react";
-import aadvantageLogoUrl from "@assets/als_logo_1763778178009.png";
-import londrLogoUrl from "@assets/Londr_1763778448894.png";
-import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
-import laundromatInterior2 from "@assets/AdobeStock_561067303_1764520189991.jpeg";
-import laundromatDexter from "@assets/Dexter Laundromat Stock photo_1764520273177.jpg";
 
 const journeyPaths = [
   {
@@ -32,47 +16,51 @@ const journeyPaths = [
     icon: Lightbulb,
     headline: "Thinking About It?",
     description: "Learn if owning a laundromat is right for you",
-    features: "ROI Calculator • Funding Options • Industry Guides",
+    features: ["ROI Calculator", "Funding Options", "Industry Guides"],
     link: "/startup-funding",
-    colorClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    hoverBg: "hover:border-blue-500/50",
-    testId: "plan"
+    color: "blue"
   },
   {
     id: "evaluate",
     icon: Target,
-    headline: "Ready to Buy or Sell?",
-    description: "Browse active listings or list your own",
-    features: "Marketplace • CLEANBI Score • Valuations",
+    headline: "Ready to Buy?",
+    description: "Find and analyze laundromat opportunities",
+    features: ["Marketplace Listings", "CLEANBI Scoring", "Valuations"],
     link: "/listings",
-    secondaryLink: "/add-listing",
-    secondaryText: "Add a Listing",
-    colorClass: "bg-green-500/20 text-green-400 border-green-500/30",
-    hoverBg: "hover:border-green-500/50",
-    testId: "evaluate"
+    color: "green"
   },
   {
     id: "operate",
     icon: Settings,
     headline: "Already Own One?",
-    description: "Run your laundromat like a pro",
-    features: "POS System • Diagnostics • Design Studio",
+    description: "Optimize operations and grow revenue",
+    features: ["POS System", "AI Diagnostics", "Design Studio"],
     link: "/pos-command-center",
-    colorClass: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    hoverBg: "hover:border-orange-500/50",
-    testId: "operate"
+    color: "orange"
   },
   {
     id: "partner",
     icon: Users,
-    headline: "Sell or Serve?",
+    headline: "Industry Partner?",
     description: "Connect with laundromat owners",
-    features: "List Equipment • Advertise • Affiliates",
-    link: "/listing-form",
-    colorClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    hoverBg: "hover:border-purple-500/50",
-    testId: "partner"
+    features: ["List Products", "Advertise", "Affiliates"],
+    link: "/directory",
+    color: "purple"
   }
+];
+
+const colorClasses: Record<string, { bg: string; border: string; text: string; hover: string }> = {
+  blue: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" },
+  green: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" },
+  orange: { bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-500", hover: "hover:border-amber-500/40" },
+  purple: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" }
+};
+
+const stats = [
+  { value: "72,000+", label: "Industry Professionals" },
+  { value: "220+", label: "Countries Covered" },
+  { value: "50+", label: "Business Tools" },
+  { value: "4.9", label: "User Rating", icon: Star }
 ];
 
 export default function Home() {
@@ -84,13 +72,8 @@ export default function Home() {
     "name": "WashBizHub",
     "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub", "CLEANBI"],
     "url": baseUrl,
-    "description": "The #1 laundromat resource and educational hub. Enterprise-grade SaaS with CLEANBI universal scoring, POS Command Center, AI consulting, marketplace, courses, 50+ calculators, and industry resources for 72,000+ professionals.",
+    "description": "The #1 laundromat resource and educational hub with CLEANBI scoring, marketplace, AI consulting, and professional tools.",
     "potentialAction": [
-      {
-        "@type": "SearchAction",
-        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/resources?searchQuery={search_term_string}` },
-        "query-input": "required name=search_term_string"
-      },
       {
         "@type": "SearchAction",
         "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/cleanbi-auto?address={address_string}` },
@@ -103,255 +86,99 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub"],
     "url": baseUrl,
-    "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "The #1 laundromat resource and educational hub serving 72,000+ industry professionals worldwide with CLEANBI universal scoring, AI-powered business intelligence, marketplace, courses, and professional tools.",
+    "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide.",
     "foundingDate": "2024",
-    "sameAs": ["https://www.facebook.com/washbizhub1", "https://twitter.com/washbizhub", "https://www.linkedin.com/company/washbizhub"],
-    "contactPoint": { "@type": "ContactPoint", "contactType": "Customer Service", "email": "support@washbizhub.com", "areaServed": "Worldwide" }
+    "sameAs": ["https://www.facebook.com/washbizhub1"]
   };
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "What is WashBizHub?", "acceptedAnswer": { "@type": "Answer", "text": "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors." } },
-      { "@type": "Question", "name": "What is CLEANBI and how does it work?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for ANY business type (restaurants, retail, laundromats, car washes, gyms, etc.) or residential property in 220+ countries. Scores 85+ = A grade, 70-84 = B, 55-69 = C, below 55 = Needs Work. Premium $97 reports available for deep analysis." } },
-      { "@type": "Question", "name": "Is CLEANBI free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! The basic CLEANBI score is 100% free with unlimited searches for any address globally. No login required. Premium $97 reports are available for deeper analysis, business valuations, AI-powered investment recommendations, and comprehensive market data." } },
-      { "@type": "Question", "name": "What business types can CLEANBI score?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI scores ANY business type including restaurants, retail stores, laundromats, car washes, gyms, salons, gas stations, hotels, coffee shops, convenience stores, and any business with a Google Places listing. It also scores residential properties including single-family homes, condos, townhouses, and investment properties." } },
-      { "@type": "Question", "name": "What countries does CLEANBI cover?", "acceptedAnswer": { "@type": "Answer", "text": "CLEANBI provides global coverage across 220+ countries including USA, Canada, UK, Australia, Japan, Philippines, Germany, France, Spain, Italy, Brazil, Mexico, India, China, South Africa, Singapore, UAE, and everywhere Google Maps/Places data is available." } },
-      { "@type": "Question", "name": "How can WashBizHub help me buy a laundromat?", "acceptedAnswer": { "@type": "Answer", "text": "WashBizHub provides comprehensive tools for laundromat buyers including CLEANBI location scoring, ROI calculators, valuation tools, marketplace listings, due diligence guides, funding options through AAdvantage and partner lenders, and AI-powered consulting. Our platform helps you analyze opportunities and make data-driven investment decisions." } }
-    ]
-  };
-
-  const softwareSchema = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "CLEANBI Universal Business & Property Score Calculator",
-    "alternateName": ["CLEANBI Score", "CLEANBI Anywhere", "Universal Address Scorer"],
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web Browser",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "2847", "bestRating": "5", "worstRating": "1" },
-    "description": "Score ANY business or residential property worldwide in seconds. Uses Google Places API to analyze foot traffic, competition, reviews, location quality. Works for all business types in 220+ countries. 100% free basic scores.",
-    "featureList": ["Universal Address Scoring for ANY business type", "Global Coverage - 220+ countries", "Real-Time Google Data", "Instant A-C Grades", "Free Chrome Extension", "$97 Premium Reports"]
-  };
-
-  const howToSchema = {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to Get a CLEANBI Score for Any Business or Property",
-    "description": "Step-by-step guide to score any business or property location worldwide using the free CLEANBI tool",
-    "step": [
-      { "@type": "HowToStep", "position": 1, "name": "Visit CLEANBI", "text": "Go to washbizhub.com/cleanbi-auto to access the free universal address scoring tool" },
-      { "@type": "HowToStep", "position": 2, "name": "Enter Address", "text": "Type any business or residential address including street, city, state, and country" },
-      { "@type": "HowToStep", "position": 3, "name": "Click Calculate", "text": "Press 'Calculate CLEANBI Score' to analyze the location with Google Places data in seconds" },
-      { "@type": "HowToStep", "position": 4, "name": "View Results", "text": "Receive your 0-100 score with A-C grade, category breakdown, and AI recommendations" },
-      { "@type": "HowToStep", "position": 5, "name": "Get Premium Report", "text": "Optionally upgrade to $97 premium report for deep analysis, valuations, and investment recommendations" }
-    ],
-    "totalTime": "PT30S"
-  };
-
-  const structuredData = [websiteSchema, organizationSchema, faqSchema, softwareSchema, howToSchema];
+  const structuredData = [websiteSchema, organizationSchema];
   
   return (
     <>
       <SEO
-        title="WashBizHub - Enterprise Laundromat Management Software & Marketplace"
-        description="Professional laundromat business management platform with POS systems, IoT monitoring, AI consulting, marketplace, CLEANBI™ scoring, design studio, ROI calculators, and industry resources. Serving 72,000+ laundromat owners, investors, and operators worldwide with enterprise-grade coin laundry solutions."
+        title="WashBizHub - The #1 Laundromat Resource Hub"
+        description="Professional laundromat platform with CLEANBI scoring, marketplace, AI consulting, POS systems, and 50+ business tools. Serving 72,000+ industry professionals worldwide."
         canonicalUrl="/"
         keywords={[
           "laundromat management software",
-          "coin laundry business platform",
-          "laundromat POS system",
-          "commercial laundry equipment marketplace",
+          "laundromat marketplace",
+          "CLEANBI business scoring",
           "laundromat investment calculator",
-          "CLEANBI business valuation",
-          "laundromat IoT monitoring",
-          "self-service laundry management",
-          "coin-operated laundry software",
-          "laundromat design studio",
-          "commercial washing machine business",
-          "laundromat ROI calculator",
-          "coin laundry consulting",
-          "laundromat ROI calculator"
+          "coin laundry business"
         ]}
         structuredData={structuredData}
       />
-      <StickyActionBar />
-      <FloatingCTAButton />
+      
       <div className="min-h-screen bg-background">
+        {/* 1. HERO - Primary value prop + CLEANBI demo */}
         <Hero />
         
-        <TrustBadges />
-
-        {/* Interactive Tools Demo Section */}
-        <section className="relative py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden" data-testid="section-tools-demo">
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={laundromatDexter}
-              alt="Professional laundromat equipment"
-              className="w-full h-full object-cover opacity-5"
-              loading="lazy"
-            />
-          </div>
-          
-          <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
-                <Calculator className="w-3 h-3 mr-1" />
-                Interactive Tools
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4" data-testid="text-tools-demo-heading">
-                Professional-Grade Business Tools
-              </h2>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                From revenue calculators to AI consulting — everything you need to make 
-                data-driven decisions for your laundromat business.
-              </p>
-            </div>
-            
-            <div className="grid lg:grid-cols-2 gap-8">
-              <InteractiveCalculatorDemo />
-              <AIConsultantPreview />
+        {/* 2. TRUST PROOF - Compact social proof bar */}
+        <section className="py-8 border-b border-border/50 bg-muted/30" data-testid="section-trust-proof">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              {stats.map((stat, idx) => (
+                <div key={idx} className="text-center" data-testid={`stat-${idx}`}>
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-2xl md:text-3xl font-bold text-foreground">
+                      {stat.value}
+                    </span>
+                    {stat.icon && <Star className="w-5 h-5 text-amber-400 fill-amber-400" />}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Animated Stats Counter */}
-        <AnimatedStatsCounter />
-
-        {/* Featured Expert: Larry Larsen */}
-        <section className="py-20 bg-gradient-to-b from-slate-900 to-black border-y border-amber-500/20" data-testid="section-featured-expert">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <Badge className="mb-4 bg-amber-500/20 text-amber-400 border-amber-500/30">
-                <Award className="w-3 h-3 mr-1" />
-                Industry Partner
+        {/* 3. CHOOSE YOUR PATH - Route visitors to deeper pages */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/20" data-testid="section-choose-path">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
+                <Sparkles className="w-3 h-3 mr-1.5" />
+                Get Started
               </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-                Work With a Proven Expert
-              </h2>
-              <p className="text-gray-400 max-w-xl mx-auto">
-                Get personalized guidance from one of the most experienced professionals in the laundromat industry
-              </p>
-            </div>
-            
-            <div className="bg-black/50 border-2 border-amber-500/30 rounded-2xl p-8 md:p-10" data-testid="card-featured-expert">
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                {/* Avatar Section */}
-                <div className="flex-shrink-0 text-center">
-                  <div className="w-36 h-36 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/30">
-                    <span className="text-5xl font-bold text-white drop-shadow-lg">LL</span>
-                  </div>
-                  <Badge className="bg-amber-500 text-black font-bold px-4 py-1">
-                    <Award className="w-4 h-4 mr-1" />
-                    50+ Years
-                  </Badge>
-                </div>
-                
-                {/* Content Section */}
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-1">
-                    Larry "Laundromat Larry" Larsen
-                  </h3>
-                  <p className="text-amber-400 font-semibold text-lg mb-4">
-                    WashBizHub Featured Consultant
-                  </p>
-                  <p className="text-gray-300 mb-6 leading-relaxed">
-                    With over five decades in the laundromat industry, Larry provides expert guidance on due diligence, 
-                    store acquisitions, equipment evaluation, lease analysis, and insurance. Based in Orange County, California.
-                  </p>
-                  
-                  {/* Services Grid */}
-                  <div className="grid grid-cols-2 gap-2 mb-6">
-                    {[
-                      'Due Diligence',
-                      'Buyer Consulting',
-                      'Store Design',
-                      'Lease Analysis',
-                      'Equipment Evaluation',
-                      'Insurance Education',
-                      'Expert Witness',
-                      'Broker Services'
-                    ].map((service, i) => (
-                      <div key={i} className="flex items-center gap-2 text-gray-200 text-sm bg-white/5 rounded-lg px-3 py-2">
-                        <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        {service}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                    <Link href="/consultation">
-                      <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold px-6" data-testid="button-book-larry-consultation">
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        Book Free Consultation
-                      </Button>
-                    </Link>
-                    <Link href="/ai-consultation">
-                      <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10" data-testid="button-view-services">
-                        View All Services
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Choose Your Path Section */}
-        <section className="py-16 sm:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black" data-testid="section-choose-path">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mb-12 text-center">
-              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Choose Your Path
-              </Badge>
-              <h2 
-                className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4"
-                data-testid="text-choose-path-heading"
-              >
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4" data-testid="text-choose-path-heading">
                 Where Are You On Your Journey?
               </h2>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                Select your path and we'll show you the tools and resources designed just for you
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Select your path to access tailored tools and resources
               </p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
               {journeyPaths.map((path) => {
                 const Icon = path.icon;
+                const colors = colorClasses[path.color];
                 return (
                   <Link key={path.id} href={path.link}>
                     <Card 
-                      className={`p-6 h-full bg-white/5 border-2 border-white/10 hover-elevate active-elevate-2 transition-all cursor-pointer group ${path.hoverBg}`}
-                      data-testid={`card-path-${path.testId}`}
+                      className={`p-6 h-full border-2 ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group bg-card`}
+                      data-testid={`card-path-${path.id}`}
                     >
-                      <div className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl ${path.colorClass}`}>
-                        <Icon className="h-7 w-7" />
+                      <div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg}`}>
+                        <Icon className={`h-6 w-6 ${colors.text}`} />
                       </div>
-                      <h3 
-                        className="mb-2 text-xl font-bold text-white"
-                        data-testid={`text-path-title-${path.testId}`}
-                      >
+                      <h3 className="text-lg font-bold text-foreground mb-2" data-testid={`text-path-title-${path.id}`}>
                         {path.headline}
                       </h3>
-                      <p 
-                        className="text-sm text-white/70 mb-4 leading-relaxed"
-                        data-testid={`text-path-desc-${path.testId}`}
-                      >
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                         {path.description}
                       </p>
-                      <p className="text-xs text-white/50 mb-4">
-                        {path.features}
-                      </p>
-                      <div className="flex items-center text-accent text-sm font-semibold group-hover:translate-x-1 transition-transform">
-                        Get Started
-                        <ArrowRight className="ml-1 h-4 w-4" />
+                      <ul className="space-y-2 mb-5">
+                        {path.features.map((feature, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <CheckCircle className={`w-4 h-4 ${colors.text} flex-shrink-0`} />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className={`flex items-center ${colors.text} text-sm font-semibold group-hover:translate-x-1 transition-transform`}>
+                        Explore
+                        <ArrowRight className="ml-1.5 h-4 w-4" />
                       </div>
                     </Card>
                   </Link>
@@ -361,151 +188,85 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Market Scores */}
-        <FeaturedMarketScores />
-
-        {/* CLEANBI Chrome Extension Banner */}
-        <section className="py-12 sm:py-16 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 border-y border-accent/20" data-testid="section-chrome-extension">
-          <div className="mx-auto max-w-5xl px-6 lg:px-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <Chrome className="w-10 h-10 text-accent mr-3" />
-              <h2 
-                className="text-2xl sm:text-3xl font-bold text-foreground"
-                data-testid="text-extension-heading"
-              >
-                Score Any Address in Seconds — Free
-              </h2>
+        {/* 4. SINGLE SPOTLIGHT CTA - CLEANBI + Platform value */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/20 to-background border-t border-border/50" data-testid="section-spotlight-cta">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <MapPin className="w-4 h-4" />
+              Powered by Google Maps API
             </div>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Works on BizBuySell, LoopNet, Zillow, and anywhere online. Get instant CLEANBI scores 
-              for any business or property listing you're browsing.
+            
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Score Any Location Instantly
+            </h2>
+            <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              CLEANBI analyzes demographics, competition, traffic, and market potential for any address worldwide. 
+              Free basic scores, premium reports from $97.
             </p>
-            <a 
-              href="https://chrome.google.com/webstore/detail/cleanbi-anywhere" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <Button 
-                size="lg"
-                className="bg-accent text-accent-foreground hover-elevate active-elevate-2 font-bold shadow-lg shadow-accent/20"
-                data-testid="button-install-extension"
-              >
-                <Chrome className="mr-2 h-5 w-5" />
-                Install CLEANBI Anywhere Extension
-              </Button>
-            </a>
-          </div>
-        </section>
-
-        <PlatformStats />
-        
-        <EnterpriseFeatures />
-
-        {/* Social Proof Section */}
-        <section className="relative py-12 overflow-hidden" data-testid="section-social-proof">
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={laundromatInterior2}
-              alt="Laundromat facility"
-              className="w-full h-full object-cover opacity-5"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/98 to-background" />
-          </div>
-          
-          <div className="relative z-10 mx-auto max-w-6xl px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <p 
-                className="text-sm font-bold tracking-wider text-muted-foreground uppercase"
-                data-testid="text-trusted-by"
-              >
-                Serving 72,000+ laundromat owners, investors & operators
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-8">
-              <a 
-                href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="h-14 flex items-center opacity-70 hover:opacity-100 transition-all hover:scale-105"
-                data-testid="brand-logo-aadvantage"
-              >
-                <img 
-                  src={aadvantageLogoUrl} 
-                  alt="AAdvantage Laundry Systems" 
-                  className="h-full w-auto object-contain"
-                />
-              </a>
-              
-              <a 
-                href="https://londr.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="h-14 flex items-center opacity-70 hover:opacity-100 transition-all hover:scale-105"
-                data-testid="brand-logo-londr"
-              >
-                <img 
-                  src={londrLogoUrl} 
-                  alt="LONDR" 
-                  className="h-full w-auto object-contain"
-                />
-              </a>
-              
-              <Link href="/service-guy-ai">
-                <div
-                  className="h-24 flex items-center opacity-70 hover:opacity-100 transition-all hover:scale-105 cursor-pointer"
-                  data-testid="brand-logo-service-guy-ai"
-                >
-                  <img 
-                    src={serviceGuyAiLogoUrl} 
-                    alt="Service Guy AI - AI-Powered Equipment Diagnostics" 
-                    className="h-full w-auto object-contain"
-                  />
-                </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Link href="/cleanbi-auto">
+                <Button size="lg" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-try-cleanbi">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Try CLEANBI Free
+                </Button>
+              </Link>
+              <Link href="/cleanbi-explorer">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8" data-testid="button-explore-map">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Open Map Explorer
+                </Button>
               </Link>
             </div>
-          </div>
-        </section>
 
-        <FeaturedListings />
-
-        <PartnerActionsSection />
-
-        <QuickListBanner />
-
-        {/* Newsletter Signup */}
-        <section className="py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-          <div className="mx-auto max-w-5xl px-6 lg:px-8">
-            <NewsletterSignup variant="hero" source="home_page" />
-          </div>
-        </section>
-
-        {/* Final CTA - AI Consultant */}
-        <section className="py-16 sm:py-24 bg-muted/30" data-testid="section-final-cta">
-          <div className="mx-auto max-w-4xl px-6 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/20 mb-6">
-              <MessageCircle className="w-8 h-8 text-accent" />
+            {/* Key benefits */}
+            <div className="grid sm:grid-cols-3 gap-6 pt-8 border-t border-border/50">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                </div>
+                <span className="text-sm font-medium text-foreground">Data-Driven Decisions</span>
+                <span className="text-xs text-muted-foreground">Real market intelligence</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-blue-500" />
+                </div>
+                <span className="text-sm font-medium text-foreground">Reduce Risk</span>
+                <span className="text-xs text-muted-foreground">Before you invest</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                </div>
+                <span className="text-sm font-medium text-foreground">AI-Powered</span>
+                <span className="text-xs text-muted-foreground">Smart recommendations</span>
+              </div>
             </div>
-            <h2 
-              className="text-3xl font-bold tracking-tight text-foreground mb-4"
-              data-testid="text-final-cta-heading"
-            >
-              Not Sure Where to Start?
+          </div>
+        </section>
+
+        {/* 5. SIMPLE FOOTER CTA */}
+        <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Ready to Make Smarter Decisions?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Our AI Consultant can help you figure out the best path forward based on your goals, 
-              budget, and experience level.
+            <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+              Join 72,000+ laundromat professionals using WashBizHub to grow their business.
             </p>
-            <Link href="/consultant-inquiry">
-              <Button 
-                size="lg"
-                className="bg-accent text-accent-foreground hover-elevate active-elevate-2 font-bold"
-                data-testid="button-chat-ai-consultant"
-              >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Chat with AI Consultant
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/subscribe">
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-get-started">
+                  Get Started Free
+                </Button>
+              </Link>
+              <Link href="/larry-larsen">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" data-testid="button-talk-expert">
+                  Talk to an Expert
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </div>
