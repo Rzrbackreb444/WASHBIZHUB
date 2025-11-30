@@ -17,11 +17,11 @@ interface MarketScore {
   image: string;
 }
 
-const GRADE_COLORS = {
-  'A': { bg: 'bg-green-500', text: 'text-green-500', border: 'border-green-500', glow: 'shadow-green-500/20' },
-  'B': { bg: 'bg-lime-500', text: 'text-lime-500', border: 'border-lime-500', glow: 'shadow-lime-500/20' },
-  'C': { bg: 'bg-amber-500', text: 'text-amber-500', border: 'border-amber-500', glow: 'shadow-amber-500/20' },
-  'Needs Work': { bg: 'bg-yellow-600', text: 'text-yellow-600', border: 'border-yellow-600', glow: 'shadow-yellow-600/20' }
+const GRADE_STYLES = {
+  'A': { bg: '#22C55E', text: '#22C55E' },
+  'B': { bg: '#A3E635', text: '#A3E635' },
+  'C': { bg: '#FBBF24', text: '#FBBF24' },
+  'Needs Work': { bg: '#C8A661', text: '#C8A661' }
 };
 
 const FEATURED_MARKETS: MarketScore[] = [
@@ -95,11 +95,11 @@ export function FeaturedMarketScores() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {FEATURED_MARKETS.map((market, idx) => {
-            const gradeStyle = GRADE_COLORS[market.grade];
+            const gradeStyle = GRADE_STYLES[market.grade];
             return (
               <Card 
                 key={idx}
-                className={`relative overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all group ${gradeStyle.glow} shadow-xl`}
+                className="relative overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all group shadow-xl"
                 data-testid={`card-market-${idx}`}
               >
                 <div className="relative h-32 overflow-hidden">
@@ -111,28 +111,40 @@ export function FeaturedMarketScores() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <div className="absolute top-3 right-3">
-                    <div className={`${gradeStyle.bg} text-white text-lg font-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg`}>
+                    <div 
+                      className="text-white text-lg font-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+                      style={{ backgroundColor: gradeStyle.bg }}
+                      data-testid={`badge-market-grade-${idx}`}
+                    >
                       {market.grade === 'Needs Work' ? 'NW' : market.grade}
                     </div>
                   </div>
                   <div className="absolute bottom-3 left-3">
-                    <h3 className="text-white font-bold text-lg">
+                    <h3 className="text-white font-bold text-lg" data-testid={`text-market-city-${idx}`}>
                       {market.city}, {market.state}
                     </h3>
                   </div>
                 </div>
 
                 <div className="p-4 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-white/60 text-xs uppercase tracking-wider">Score</p>
-                      <p className={`text-2xl font-black ${gradeStyle.text}`}>
+                      <p 
+                        className="text-2xl font-black"
+                        style={{ color: gradeStyle.text }}
+                        data-testid={`text-market-score-${idx}`}
+                      >
                         {market.score}/100
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-white/60 text-xs uppercase tracking-wider">Opportunity</p>
-                      <p className={`font-semibold ${gradeStyle.text}`}>
+                      <p 
+                        className="font-semibold"
+                        style={{ color: gradeStyle.text }}
+                        data-testid={`text-market-opportunity-${idx}`}
+                      >
                         {market.opportunity}
                       </p>
                     </div>
