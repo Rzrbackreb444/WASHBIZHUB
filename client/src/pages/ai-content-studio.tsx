@@ -1851,7 +1851,7 @@ export default function AIContentStudio() {
                   </Button>
                   <Button size="sm" disabled data-testid="button-send-newsletter">
                     <Send className="h-4 w-4 mr-2" />
-                    Send (Coming Soon)
+                    Send via Email
                   </Button>
                 </div>
               </CardHeader>

@@ -624,9 +624,12 @@ export default function SeoCommandCenter() {
             <CardContent>
               <div className="text-center py-12 text-muted-foreground">
                 <Globe className="h-16 w-16 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Domain Purchasing Coming Soon</h3>
-                <p className="text-sm">
-                  Buy .com, .net, .org domains directly through WashBizHub with integrated SEO setup
+                <h3 className="text-lg font-semibold mb-2">Domain Management</h3>
+                <p className="text-sm max-w-md mx-auto">
+                  Purchase and manage .com, .net, .org domains directly through WashBizHub with integrated SEO configuration.
+                </p>
+                <p className="text-xs mt-4 text-muted-foreground/70">
+                  Contact support for domain purchasing assistance
                 </p>
               </div>
             </CardContent>

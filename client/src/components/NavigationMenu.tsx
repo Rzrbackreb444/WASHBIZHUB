@@ -91,6 +91,8 @@ const EVALUATE_LINKS = [
 
 const OPERATE_LINKS = [
   { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, description: "Manage payments, loyalty & operations", featured: true },
+  { href: "/equipment-wizard", label: "Equipment Wizard", icon: Sparkles, description: "Find the perfect machines for your store", highlight: true, badge: "NEW" },
+  { href: "/equipment-guides", label: "Equipment Guides", icon: BookOpen, description: "Brand comparisons, pros & cons", highlight: true },
   { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, description: "AI-powered equipment troubleshooting" },
   { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Activity, description: "Diagnose machine issues instantly" },
   { href: "/design-studio-pro", label: "Design Studio Pro", icon: Palette, description: "Plan your floor layout in 3D" },
@@ -132,6 +134,8 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
     label: "Operations",
     links: [
       { href: "/pos-command-center", label: "POS" },
+      { href: "/equipment-wizard", label: "Equipment Wizard" },
+      { href: "/equipment-guides", label: "Guides" },
       { href: "/service-guy-ai", label: "Service AI" },
       { href: "/equipment-diagnostics", label: "Diagnostics" },
     ],

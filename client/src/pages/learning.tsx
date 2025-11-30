@@ -47,9 +47,17 @@ export default function LearningPage() {
           {/* Progress Tab */}
           <TabsContent value="progress" className="space-y-6 mt-6" data-testid="tabcontent-progress">
             <Card className="p-6">
-              <p className="text-muted-foreground text-center py-12" data-testid="text-progress-placeholder">
-                Detailed progress analytics coming soon
-              </p>
+              <div className="text-center py-8" data-testid="text-progress-placeholder">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Progress Analytics</h3>
+                <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                  Track your learning milestones, course completions, and skill development over time.
+                </p>
+              </div>
             </Card>
           </TabsContent>
         </Tabs>
