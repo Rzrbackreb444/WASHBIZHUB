@@ -313,9 +313,23 @@ export function Header() {
                   </div>
                   <ul className="space-y-2.5">
                     <li>
-                      <Link href="/marketplace">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-marketplace">
-                          Buy/Sell Laundromats
+                      <Link href="/listings">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-listings">
+                          Browse Listings
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/add-listing">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-add-listing">
+                          Add a Listing
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/seller-dashboard">
+                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-seller-dashboard">
+                          Seller Dashboard
                         </div>
                       </Link>
                     </li>
@@ -323,13 +337,6 @@ export function Header() {
                       <Link href="/superstore">
                         <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-superstore">
                           Equipment Superstore
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/parts">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-parts">
-                          Parts Marketplace
                         </div>
                       </Link>
                     </li>
@@ -432,48 +439,69 @@ export function Header() {
             <div className="space-y-4">
               {/* Platform Section */}
               <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Platform</div>
-                <Link href="/design-studio"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Design Studio 2D/3D</div></Link>
-                <Link href="/cleanbi"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>CLEANBI™ Analysis</div></Link>
-                <Link href="/repair-guide"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Service Guy AI</div></Link>
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <Building2 className="w-3.5 h-3.5" />
+                  Platform
+                </div>
+                <Link href="/design-studio"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-design-studio">Design Studio 2D/3D</div></Link>
+                <Link href="/cleanbi"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-cleanbi">CLEANBI™ Analysis</div></Link>
+                <Link href="/repair-guide"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-service-guy">Service Guy AI</div></Link>
               </div>
               
               {/* Resources Section */}
               <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Resources</div>
-                <Link href="/resources"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Resource Hub</div></Link>
-                <Link href="/roi-calculator"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>ROI Calculator</div></Link>
-                <Link href="/funding-matcher"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Funding Matcher</div></Link>
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <Calculator className="w-3.5 h-3.5" />
+                  Resources
+                </div>
+                <Link href="/resources"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-resources">Resource Hub</div></Link>
+                <Link href="/roi-calculator"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-roi">ROI Calculator</div></Link>
+                <Link href="/funding-matcher"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-funding">Funding Matcher</div></Link>
               </div>
               
               {/* Marketplace Section */}
               <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marketplace</div>
-                <Link href="/marketplace"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Buy/Sell Laundromats</div></Link>
-                <Link href="/superstore"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Equipment Superstore</div></Link>
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  Marketplace
+                </div>
+                <Link href="/listings"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-listings">Browse Listings</div></Link>
+                <Link href="/add-listing"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-add-listing">Add a Listing</div></Link>
+                <Link href="/seller-dashboard"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-seller-dashboard">Seller Dashboard</div></Link>
+                <Link href="/superstore"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-superstore">Equipment Superstore</div></Link>
               </div>
               
               {/* Learn Section */}
               <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Learn</div>
-                <Link href="/courses"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Premium Courses</div></Link>
-                <Link href="/book"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>The Laundromat Bible</div></Link>
-                <Link href="/blog"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Industry Blog</div></Link>
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  Learn
+                </div>
+                <Link href="/courses"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-courses">Premium Courses</div></Link>
+                <Link href="/book"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-book">The Laundromat Bible</div></Link>
+                <Link href="/blog"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-blog">Industry Blog</div></Link>
               </div>
               
               {/* Community Section */}
               <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">Community</div>
-                <Link href="/forum"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Discussion Forum</div></Link>
-                <Link href="/consultation"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Book Consultation</div></Link>
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5" />
+                  Community
+                </div>
+                <Link href="/forum"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-forum">Discussion Forum</div></Link>
+                <Link href="/consultation"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-consultation">Book Consultation</div></Link>
               </div>
               
               {/* Pricing/About Section */}
-              <div className="border-t border-border pt-4">
-                <Link href="/pricing"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>Pricing</div></Link>
-                <Link href="/about"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md" onClick={() => setMobileMenuOpen(false)}>About Us</div></Link>
+              <div className="border-t border-border pt-4 mt-2">
+                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5" />
+                  Quick Links
+                </div>
+                <Link href="/pricing"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-pricing">Pricing</div></Link>
+                <Link href="/about"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-about">About Us</div></Link>
                 {isAuthenticated && (
-                  <Link href="/settings"><div className="block px-3 py-2 text-foreground/80 hover:bg-muted/50 cursor-pointer rounded-md sm:hidden" onClick={() => setMobileMenuOpen(false)}>Settings</div></Link>
+                  <Link href="/settings"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors sm:hidden" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-settings">Settings</div></Link>
                 )}
               </div>
             </div>
