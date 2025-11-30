@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Download, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { getGradeInfo } from "@shared/cleanbi-grades";
 
 const cleanbiStructuredData = {
   "@context": "https://schema.org",
@@ -68,17 +69,18 @@ export default function CLEANBICalculator() {
   const maxScore = factors.reduce((sum, f) => sum + (10 * f.weight), 0);
   const percentageScore = (totalScore / maxScore) * 100;
   
-  // Grade calculation
-  const getGrade = (pct: number): { letter: string; color: string; description: string } => {
-    if (pct >= 90) return { letter: "A+", color: "text-green-600", description: "Excellent - Prime Investment" };
-    if (pct >= 80) return { letter: "A", color: "text-green-600", description: "Very Good - Strong Buy" };
-    if (pct >= 70) return { letter: "B", color: "text-blue-600", description: "Good - Solid Investment" };
-    if (pct >= 60) return { letter: "C", color: "text-yellow-600", description: "Average - Proceed with Caution" };
-    if (pct >= 50) return { letter: "D", color: "text-orange-600", description: "Below Average - High Risk" };
-    return { letter: "F", color: "text-red-600", description: "Poor - Avoid Investment" };
-  };
-
-  const grade = getGrade(percentageScore);
+  // Use canonical CLEANBI grading: A (85+), B (70-84), C (55-69), Needs Work (<55)
+  // Uses shared grading from @shared/cleanbi-grades
+  const grade = useMemo(() => {
+    const gradeInfo = getGradeInfo(percentageScore);
+    return {
+      letter: gradeInfo.grade,
+      color: gradeInfo.grade === 'A' ? 'text-green-600' : 
+             gradeInfo.grade === 'B' ? 'text-lime-600' : 
+             gradeInfo.grade === 'C' ? 'text-amber-600' : 'text-yellow-700',
+      description: gradeInfo.opportunity
+    };
+  }, [percentageScore]);
 
   // Risk assessment
   const lowScoreFactors = factors.filter(f => f.score < 5);
@@ -248,7 +250,7 @@ export default function CLEANBICalculator() {
                     </div>
                   )}
 
-                  {percentageScore >= 80 && (
+                  {percentageScore >= 85 && (
                     <div className="p-4 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />

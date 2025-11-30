@@ -9,10 +9,11 @@
  * - Utilities Score (10%) - Gas/water efficiency
  * - Growth Score (5%) - Permits, trends, competition building
  * 
- * Grade: A (90-100), B (80-89), C (70-79), Needs Work (<70)
+ * Uses shared CLEANBI grading: A (85+), B (70-84), C (55-69), Needs Work (<55)
  */
 
 import { EnrichedCLEANBIData } from './cleanbi-data-enrichment';
+import { getGrade, type CLEANBIGrade } from '../shared/cleanbi-grades';
 
 export interface FinancialInputs {
   grossRevenue?: number;
@@ -316,20 +317,16 @@ function calculateBreakEvenTPD(
 /**
  * CLEANBI™ Grading System (Chrome Web Store Style)
  * 
+ * Uses the shared canonical grading system from shared/cleanbi-grades.ts
  * ONLY A, B, C are positive grades. Everything below is "Needs Work".
- * This is intentionally encouraging - we NEVER show D or F grades.
  * 
  * A  = 85+ (Excellent opportunity)
  * B  = 70-84 (Good opportunity)  
  * C  = 55-69 (Fair opportunity)
  * Needs Work = Below 55 (Requires strategic improvements)
+ * 
+ * Note: getGrade function is now imported from shared/cleanbi-grades.ts
  */
-function getGrade(score: number): 'A' | 'B' | 'C' | 'Needs Work' {
-  if (score >= 85) return 'A';
-  if (score >= 70) return 'B';
-  if (score >= 55) return 'C';
-  return 'Needs Work';
-}
 
 function generateRecommendations(
   subscores: CLEANBIMasterScore['subscores'],
