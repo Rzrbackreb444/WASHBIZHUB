@@ -75,7 +75,7 @@ export function Footer() {
             For owners, operators, brokers, investors, buyers, sellers, vendors — anyone in the industry. US & Global listings.
           </p>
           <p className="text-white/60 text-xs sm:text-sm max-w-2xl mx-auto mb-4">
-            CLEANBI analyzer · Valuations · Competition · Courses · Calculators · Funding · Vendors
+            CLEANBI™ analyzer · Valuations · Competition · Courses · Calculators · Funding · Vendors
           </p>
           <a 
             href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" 
@@ -171,7 +171,7 @@ export function Footer() {
             <div className="space-y-2">
               <Link href="/cleanbi">
                 <span className="block text-white/70 hover:text-accent transition-colors cursor-pointer text-sm" data-testid="link-footer-cleanbi-analysis">
-                  CLEANBI Analysis
+                  CLEANBI™ Analysis
                 </span>
               </Link>
               <Link href="/design-studio">
@@ -479,6 +479,35 @@ export function Footer() {
                 </div>
               </div>
             </div>
+            
+            {/* Intellectual Property Notice */}
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-r from-[hsl(45,38%,59%)]/20 to-primary/20 p-2 rounded-lg">
+                    <Scale className="h-5 w-5 text-[hsl(45,38%,59%)]" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">CLEANBI™ Proprietary Technology</p>
+                    <p className="text-white/50 text-xs">Trade Secret Protected · All Rights Reserved</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 text-xs">
+                    <Lock className="h-3 w-3 mr-1" />
+                    Trade Secret
+                  </Badge>
+                  <Badge className="bg-purple-600/20 text-purple-400 border-purple-500/30 text-xs">
+                    <FileCheck className="h-3 w-3 mr-1" />
+                    Copyright © 2025
+                  </Badge>
+                  <Badge className="bg-amber-600/20 text-amber-400 border-amber-500/30 text-xs">
+                    <Award className="h-3 w-3 mr-1" />
+                    17-Factor Algorithm
+                  </Badge>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -571,10 +600,15 @@ export function Footer() {
               <br className="md:hidden" />
               <span className="text-[hsl(45,38%,59%)] font-semibold">STRATEGY • FUNDING • GROWTH • AUTOMATION</span>
             </p>
+            <p className="text-white/40 text-xs max-w-3xl mx-auto leading-relaxed mb-2">
+              WashBizHub™ and CLEANBI™ are trademarks of WashBizHub, LLC. The CLEANBI™ scoring system, including its 17-factor weighted algorithm, 
+              valuation methodologies, and proprietary formulas, constitutes trade secret information protected under the Defend Trade Secrets Act (18 U.S.C. § 1836) 
+              and applicable state trade secret laws. Unauthorized access, reverse engineering, or misappropriation is strictly prohibited.
+            </p>
             <p className="text-white/40 text-xs max-w-3xl mx-auto leading-relaxed">
-              WashBizHub is a registered trademark of WashBizHub, LLC. All trademarks, logos, and brand names are the property of their respective owners. 
-              All company, product, and service names used on this website are for identification purposes only. Use of these names, trademarks, and brands does not imply endorsement.
+              All company, product, and service names used on this website are for identification purposes only. 
               Information provided is for educational and informational purposes only and should not be construed as professional financial, legal, or business advice.
+              By using this platform, you agree to our <Link href="/terms"><span className="text-[hsl(45,38%,59%)] hover:underline cursor-pointer">Terms of Service</span></Link> and <Link href="/privacy"><span className="text-[hsl(45,38%,59%)] hover:underline cursor-pointer">Privacy Policy</span></Link>.
             </p>
             <p className="text-white/30 text-xs mt-3 flex items-center justify-center gap-2">
               <Clock className="h-3 w-3" />
