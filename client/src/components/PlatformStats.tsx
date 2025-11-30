@@ -125,7 +125,7 @@ export function PlatformStats() {
 
 export function TrustBadges() {
   const badges = [
-    { icon: Shield, label: "Bank-Level Security", description: "256-bit SSL encryption" },
+    { icon: Shield, label: "Secure Platform", description: "Protected transactions" },
     { icon: Award, label: "Industry Trusted", description: "Serving since 2024" },
     { icon: Star, label: "4.9★ Rated", description: "By 2,800+ users" },
     { icon: CheckCircle, label: "Verified Data", description: "Real-time accuracy" },

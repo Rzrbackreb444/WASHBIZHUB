@@ -44,7 +44,7 @@ export function TrustBadges() {
       <div className="flex flex-col items-center text-center p-4 bg-primary/5 rounded-lg">
         <Shield className="h-8 w-8 text-primary mb-2" />
         <p className="font-semibold text-sm">Secure Checkout</p>
-        <p className="text-xs text-muted-foreground">256-bit SSL</p>
+        <p className="text-xs text-muted-foreground">Protected payments</p>
       </div>
       <div className="flex flex-col items-center text-center p-4 bg-accent/5 rounded-lg">
         <Award className="h-8 w-8 text-accent mb-2" />

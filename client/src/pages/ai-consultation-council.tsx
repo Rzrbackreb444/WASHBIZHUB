@@ -905,8 +905,8 @@ export default function AIConsultationCouncil() {
                     <div className="w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center mb-4">
                       <Shield className="w-8 h-8 text-teal-400" />
                     </div>
-                    <h3 className="text-white font-bold mb-2">Bank-Level Security</h3>
-                    <p className="text-white/50 text-sm">256-bit SSL encryption protects all your data and transactions</p>
+                    <h3 className="text-white font-bold mb-2">Secure Platform</h3>
+                    <p className="text-white/50 text-sm">Your data and transactions are protected with industry-standard security</p>
                   </div>
 
                   {/* Secure Payments */}

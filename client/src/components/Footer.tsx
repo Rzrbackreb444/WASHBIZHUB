@@ -11,7 +11,6 @@ import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 const trustBadges = [
-  { icon: Lock, label: "256-bit SSL", description: "Secure encryption" },
   { icon: Shield, label: "Stripe Payments", description: "PCI compliant processing" },
   { icon: Users, label: "72,000+ Community", description: "Facebook group members" },
 ];
@@ -465,16 +464,12 @@ export function Footer() {
                 </h4>
                 <div className="text-white/60 text-xs space-y-1">
                   <p className="flex items-center gap-1">
-                    <Lock className="h-3 w-3 text-blue-400" />
-                    256-bit SSL Encryption
-                  </p>
-                  <p className="flex items-center gap-1">
                     <Shield className="h-3 w-3 text-blue-400" />
                     Stripe PCI-Compliant Payments
                   </p>
                   <p className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3 text-blue-400" />
-                    Secure Cloud Hosting (Replit)
+                    Secure Cloud Hosting
                   </p>
                 </div>
               </div>
