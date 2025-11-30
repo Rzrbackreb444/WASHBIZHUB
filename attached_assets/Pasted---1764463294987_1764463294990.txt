@@ -1,0 +1,207 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                    WASHBIZHUB COMPLETE FORMULA & CALCULATOR LIST                   ║
+║                              9 Calculators • 20+ Formulas                          ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+══════════════════════════════════════════════════════════════════════════════════════
+                              STANDALONE CALCULATORS (9)
+══════════════════════════════════════════════════════════════════════════════════════
+
+1. TPD CALCULATOR (Turns Per Day)
+   File: client/src/pages/calculators/TPDCalculator.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Max Turns/Day = (Operating Hours × 60) / Avg Cycle Time
+   • Actual TPD = Max TPD × (Occupancy Rate / 100)
+   • Daily Revenue = (Washers × TPD × Wash Price) + (Dryers × TPD × Dry Price)
+   • Monthly Revenue = Daily Revenue × 30
+   • Yearly Revenue = Daily Revenue × 365
+   • Monthly Expenses = (Daily Expenses × 30) + Rent + Utilities
+   • Break-Even TPD = Monthly Expenses / (Avg Vend Price × Machine Count × 30)
+
+2. ROI ANALYZER
+   File: client/src/pages/calculators/ROIAnalyzer.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Monthly Payment = PMT(rate, term, loan_amount)
+   • Year Revenue = Monthly Revenue × 12 × (1 + Growth Rate)^(year-1)
+   • Year Expenses = Monthly Expenses × 12 × (1.02)^(year-1)
+   • Year Cash Flow = Revenue - Expenses - Debt Service
+   • NPV = Σ(Cash Flow / (1 + Discount Rate)^year)
+   • IRR = Newton-Raphson iteration for NPV = 0
+   • Cash-on-Cash Return = (Annual Cash Flow / Down Payment) × 100
+   • Payback Period = First year where cumulative > 0
+
+3. EQUIPMENT PAYBACK CALCULATOR
+   File: client/src/pages/calculators/EquipmentPayback.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Total Cost = Equipment Cost + Installation + Shipping
+   • Monthly Payment = PMT(rate/12, months, loan_amount)
+   • Monthly Cash Flow = Revenue - Payment - (Annual Maintenance / 12)
+   • Payback Months = First month where cumulative ≥ 0
+   • Total Interest = (Monthly Payment × Payments) - Loan Amount
+   • Equipment ROI = ((Annual Revenue - Maintenance - Payments) / Total Cost) × 100
+
+4. FINANCING CALCULATOR PRO
+   File: client/src/pages/FinancingCalculator.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Monthly Payment = P × [r(1+r)^n] / [(1+r)^n - 1]
+   • Total Interest = (Payment × Months) - Principal
+   • Total Cost of Ownership = Principal + Interest + Fees
+   • Effective APR = (Total Interest / Principal) / Years × 100
+   • DSCR Required = NOI / Annual Debt Service ≥ 1.25
+
+5. WATER USAGE INCOME VERIFIER
+   File: client/src/pages/calculators/WaterUsageVerifier.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Estimated Gallons = Water Bill Amount / Cost Per Gallon
+   • Loads Per Month = Gallons / Gallons Per Load
+   • Calculated Revenue = Loads × Average Vend Price
+   • Variance = ((Claimed - Calculated) / Claimed) × 100
+   • Turns Per Day = Loads / (Machine Count × 30)
+   • Utilization Rate = (Actual TPD / Max TPD) × 100
+   • Fraud Risk = HIGH if variance > 30%, LOW if < 15%
+
+6. REVENUE FORECASTER PRO
+   File: client/src/pages/calculators/RevenueForecaster.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Base Monthly = Machine Count × TPD × Avg Vend × 30
+   • Seasonal Adjustment = Base × Seasonal Factor (0.85-1.15)
+   • Growth Projection = Current × (1 + Growth Rate)^months
+   • Best Case = Projection × 1.15
+   • Worst Case = Projection × 0.85
+
+7. PRICING OPTIMIZER
+   File: client/src/pages/calculators/PricingOptimizer.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Optimal Price = Cost + (Market Rate × Elasticity Factor)
+   • Revenue Impact = (New Price - Current) × Volume × (1 - Elasticity)
+   • Competitive Position = Your Price / Market Average
+   • Margin = (Price - Variable Cost) / Price × 100
+
+8. ROI CALCULATOR PRO
+   File: client/src/pages/calculators/ROICalculatorPro.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • 5-Year ROI = ((Total Returns - Investment) / Investment) × 100
+   • Annualized Return = ((1 + Total ROI)^(1/years) - 1) × 100
+   • Break-Even Point = Investment / Annual Net Income
+
+9. TURNS PER DAY CALCULATOR
+   File: client/src/pages/calculators/TurnsPerDay.tsx
+   ─────────────────────────────────────────────────────
+   Formulas:
+   • Theoretical Max TPD = Operating Hours / Cycle Time
+   • Realistic TPD = Max × Utilization Factor
+   • Revenue Per Turn = Avg Vend Price
+   • Daily Capacity Revenue = Machines × TPD × Vend Price
+
+══════════════════════════════════════════════════════════════════════════════════════
+                           CORE ALGORITHM LIBRARY (algorithms.ts)
+══════════════════════════════════════════════════════════════════════════════════════
+
+CLEANBI™ SCORE CALCULATION (17 weighted factors)
+   File: client/src/lib/algorithms.ts
+   ─────────────────────────────────────────────────────
+   Weights:
+   • Rent (10%) = 100 - normalize(rent%, 10-40%)
+   • EBITDA (10%) = normalize(margin, 10-35%)
+   • Turns/Day (10%) = normalize(TPD, 2-6)
+   • Saturation (8%) = 100 - normalize(competitors/density)
+   • DSCR (8%) = normalize(ratio, 1.1-2.0)
+   • Renters (6%) = normalize(%, 20-70%)
+   • Density (6%) = normalize(HH/sqmi, 500-5000)
+   • Traffic (6%) = direct score 0-100
+   • Equipment Mix (6%) = direct score 0-100
+   • Income (5%) = 100 - normalize(|income - $55K|)
+   • Utilities (5%) = 100 - normalize(%, 8-20%)
+   • Parking (4%) = direct score 0-100
+   • Cashless (4%) = 100 if yes, 40 if no
+   • WDF Space (4%) = normalize(sqft, 0-500)
+   • Household Size (3%) = normalize(size, 2.2-3.6)
+   • Delivery Ready (3%) = 100 if yes, 50 if no
+   • Curbside Ready (2%) = 100 if yes, 50 if no
+
+   Letter Grade:
+   • A = 90+, B = 80-89, C = 70-79, D = 60-69, F = <60
+
+FINANCE FORMULAS
+   ─────────────────────────────────────────────────────
+   • ROI % = (Net Profit / Invested) × 100
+   • Payback Years = Invested / Annual Net (or null if <0)
+   • DSCR = EBITDA / Debt Service
+   • EBITDA Margin = (EBITDA / Revenue) × 100
+
+SENSITIVITY ANALYSIS (1D Sweeps)
+   ─────────────────────────────────────────────────────
+   • Tests ±10% changes on any single input
+   • Returns CLEANBI score impact for each scenario
+
+WHAT-IF SIMULATOR (Multi-Variable)
+   ─────────────────────────────────────────────────────
+   • Applies multiple deltas simultaneously
+   • Shock Presets:
+     - Utility Spike: +20% utilities
+     - Competitor Opens: +50% competition
+     - Machine Downtime: -10% TPD
+     - Rent Increase: +8% rent
+     - Price Cut: -5% EBITDA
+     - Vend Increase: +3% EBITDA
+
+DELTA ATTRIBUTION (Shapley-Lite)
+   ─────────────────────────────────────────────────────
+   • Identifies which factor moved score most
+   • One-at-a-time contribution analysis
+   • Normalized to total delta
+
+MONTE CARLO SIMULATION
+   ─────────────────────────────────────────────────────
+   • 500 random draws (configurable)
+   • Uniform distribution within specified ranges
+   • Returns: min, p10, p25, median, p75, p90, max, mean
+
+REPAIR OR REPLACE DECISION
+   ─────────────────────────────────────────────────────
+   • Formula: If (Repair Cost + Lost Revenue) < (40% × New Machine Cost)
+   • Then "Repair", else "Replace"
+   • Lost Revenue = (Annual Profit / 365) × Downtime Days
+
+SATURATION SCORE
+   ─────────────────────────────────────────────────────
+   • Saturation Raw = Competitors / (HH Density / 1000)
+   • Score = 100 - normalize(raw, 0.1-2.0)
+
+══════════════════════════════════════════════════════════════════════════════════════
+                              FUNDING ELIGIBILITY (funding.ts)
+══════════════════════════════════════════════════════════════════════════════════════
+
+SBA LOAN ELIGIBILITY
+   ─────────────────────────────────────────────────────
+   Requirements:
+   • DSCR ≥ 1.25
+   • EBITDA Margin ≥ 15%
+   • Business Age ≥ 12 months
+   • CLEANBI Score ≥ 70
+
+PARTNER MATCHING
+   ─────────────────────────────────────────────────────
+   Partners by Risk Level:
+   • LOW: South End Capital (SBA), Live Oak Bank (SBA)
+   • MEDIUM: AAdvantage, Dexter Financial, ROK, PFG
+   • HIGH: David Allen Capital, Advance Funds Network
+
+══════════════════════════════════════════════════════════════════════════════════════
+                                    SUMMARY
+══════════════════════════════════════════════════════════════════════════════════════
+
+CALCULATORS: 9 standalone tools
+CORE FORMULAS: 20+ financial/operational calculations
+SCORING ALGORITHMS: CLEANBI (17 factors) + Monte Carlo + Sensitivity
+FUNDING LOGIC: SBA eligibility + partner matching
+
+All formulas are production-ready and integrated into the platform.

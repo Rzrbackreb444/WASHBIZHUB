@@ -1,0 +1,198 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                    WASHBIZHUB API-POWERED FORMULAS & SERVICES                      ║
+║                           External Data + AI Calculations                          ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+══════════════════════════════════════════════════════════════════════════════════════
+                              AI / MACHINE LEARNING (4 APIs)
+══════════════════════════════════════════════════════════════════════════════════════
+
+1. OPENAI (GPT-4o / GPT-4o-mini)
+   API Key: OPENAI_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Nick AI Consultant - Natural language Q&A
+   • AI Deal Scorer - Investment analysis with reasoning
+   • Blog Content Generator - SEO content creation
+   • Video Script Generation - Marketing scripts
+   • RAG Embeddings - Document search (text-embedding-3-small)
+   • Diagnostics Triage - Error code interpretation
+   
+   Formulas:
+   • Intelligent Model Routing: Simple queries → GPT-4o-mini (90% of traffic)
+   • Complex queries → GPT-4o (10% of traffic)
+   • Cost optimization: ~$0.15/1M tokens vs $5/1M tokens
+
+2. ANTHROPIC (Claude)
+   API Key: ANTHROPIC_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Fallback AI provider when OpenAI is down
+   • Complex reasoning tasks
+   • Long-form content generation
+
+3. GOOGLE GEMINI (Vision AI)
+   API Key: GEMINI_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Equipment Condition Appraisal - Photo analysis
+   • Visual inspection scoring
+   
+   Formulas:
+   • FMV = MSRP × Age Depreciation × Condition Factor
+   • Condition Factor from AI: Excellent (0.9), Good (0.75), Fair (0.6), Poor (0.4)
+
+4. GOOGLE VISION AI
+   API Key: GOOGLE_VISION_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Image analysis for property verification
+   • Equipment brand/model detection
+   • Photo quality scoring
+
+══════════════════════════════════════════════════════════════════════════════════════
+                         PROPERTY & LOCATION INTELLIGENCE (5 APIs)
+══════════════════════════════════════════════════════════════════════════════════════
+
+5. ATTOM DATA SOLUTIONS
+   API Key: ATTOM_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Property AVM (Automated Valuation Model)
+   • Tax Assessment History
+   • Sale History & Comparable Sales
+   • Property Characteristics (sqft, year built, lot size)
+   • Market Trends
+   
+   Formulas:
+   • AVM Confidence Score = f(data completeness, recency, comps quality)
+   • Property Value Range = AVM ± (100 - Confidence)%
+
+6. US CENSUS BUREAU (ACS 5-Year)
+   API Key: CENSUS_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Population Density (people per sq mile)
+   • Renter Percentage (key laundromat metric)
+   • Median Household Income
+   • Household Size
+   • Age Distribution
+   
+   Formulas:
+   • Renter % = Renter Occupied / Total Occupied
+   • HH Density = Total Households / Land Area (sq mi)
+   • 30-day caching for cost optimization
+
+7. GOOGLE MAPS PLATFORM
+   API Keys: GOOGLE_MAPS_API_KEY, GOOGLE_PLACES_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Geocoding (address → lat/lng)
+   • Static Maps (aerial imagery)
+   • Street View imagery
+   • Places API (competitor search)
+   • Directions API (drive time analysis)
+   
+   Formulas:
+   • Traffic Score = f(nearby POIs, road density, accessibility)
+   • Competitor Saturation = Laundromats within radius / Population
+   • Parking Score = f(lot presence, street parking, handicap access)
+
+8. GOOGLE AERIAL VIEW
+   API Key: GOOGLE_AERIAL_VIEW_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • High-res aerial/satellite imagery
+   • Property boundary visualization
+   • Parking lot analysis
+
+9. MAPBOX
+   API Key: MAPBOX_API_KEY ✓ Configured
+   ─────────────────────────────────────────────────────
+   Services:
+   • Geocoding fallback
+   • Interactive map rendering
+   • Address autocomplete
+
+══════════════════════════════════════════════════════════════════════════════════════
+                              PAYMENT & BILLING (3 APIs)
+══════════════════════════════════════════════════════════════════════════════════════
+
+10. STRIPE
+    API Key: STRIPE_SECRET_KEY ✓ Configured
+    ─────────────────────────────────────────────────────
+    Services:
+    • Subscription billing (Power Pass, POS, Diagnostics Pro)
+    • One-time payments (Property Analysis, Templates)
+    • Payment intent creation
+    • Customer management
+    • Webhook processing
+    
+    Formulas:
+    • Proration = (Remaining Days / Total Days) × Plan Price
+    • Annual Discount = Monthly × 12 × 0.83 (2 months free)
+
+11. PAYPAL
+    API Keys: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET ✓ Configured
+    ─────────────────────────────────────────────────────
+    Services:
+    • Alternative payment processing
+    • Badge purchases
+    • International payments
+
+12. STRIPE TEST MODE
+    API Key: STRIPE_TEST_SECRET_KEY ✓ Configured
+    ─────────────────────────────────────────────────────
+    Services:
+    • Development/testing payments
+    • Sandbox transactions
+
+══════════════════════════════════════════════════════════════════════════════════════
+                                 EMAIL & DOCUMENTS (2 APIs)
+══════════════════════════════════════════════════════════════════════════════════════
+
+13. SENDGRID
+    API Key: SENDGRID_API_KEY ✓ Configured
+    ─────────────────────────────────────────────────────
+    Services:
+    • Welcome emails
+    • Analysis completion notifications
+    • Financing lead notifications
+    • Organization invitations
+    • Support ticket escalations
+    • Badge purchase confirmations
+
+14. PDF GENERATOR
+    API Keys: PDF_GENERATOR_API_KEY, PDF_GENERATOR_API_SECRET ✓ Configured
+    ─────────────────────────────────────────────────────
+    Services:
+    • Professional PDF report generation
+    • Property analysis exports
+    • Certificate generation
+
+══════════════════════════════════════════════════════════════════════════════════════
+                                    SUMMARY
+══════════════════════════════════════════════════════════════════════════════════════
+
+TOTAL EXTERNAL APIs: 14 services
+ALL CONFIGURED: ✓ Yes
+
+BY CATEGORY:
+├── AI/ML: 4 (OpenAI, Anthropic, Gemini, Vision AI)
+├── Property Data: 5 (ATTOM, Census, Google Maps, Aerial, Mapbox)
+├── Payments: 3 (Stripe, PayPal, Stripe Test)
+└── Email/Docs: 2 (SendGrid, PDF Generator)
+
+COST OPTIMIZATION STRATEGIES:
+• OpenAI: Intelligent routing saves 90% on simple queries
+• Census: 30-day caching reduces API calls
+• ATTOM: Results cached per property
+• Maps: Static images cached, rate-limited requests
+
+MISSING APIs (Optional Enhancements):
+• AMAZON_ACCESS_KEY - For affiliate product data
+• AMAZON_SECRET_KEY - For affiliate product data
+• AMAZON_ASSOCIATE_TAG - Already set (nkreme-20)
+• DID_API_KEY - For AI video avatars
+
+══════════════════════════════════════════════════════════════════════════════════════
