@@ -177,6 +177,21 @@ const SUBSCRIPTION_TIER_LEVELS: Record<string, number> = {
   summit: 3,
 };
 
+// Listing premium subscription tier benefits
+const LISTING_TIER_BENEFITS = {
+  free: { mediaLimit: 5, videoLimit: 0, featured: false, prioritySearch: false, analytics: false },
+  basic: { mediaLimit: 15, videoLimit: 2, featured: false, prioritySearch: false, analytics: true },
+  showcase: { mediaLimit: 30, videoLimit: 5, featured: true, prioritySearch: true, analytics: true },
+  diamond: { mediaLimit: 999, videoLimit: 20, featured: true, prioritySearch: true, analytics: true, homepageCarousel: true }
+};
+
+// Listing subscription tier pricing (in cents)
+const LISTING_TIER_PRICING: Record<string, { name: string; amount: number; priceId?: string }> = {
+  basic: { name: 'Basic Listing', amount: 6500, priceId: process.env.STRIPE_LISTING_BASIC_PRICE_ID },
+  showcase: { name: 'Showcase Listing', amount: 8900, priceId: process.env.STRIPE_LISTING_SHOWCASE_PRICE_ID },
+  diamond: { name: 'Diamond Listing', amount: 19900, priceId: process.env.STRIPE_LISTING_DIAMOND_PRICE_ID },
+};
+
 // Middleware to check subscription tier access
 export function requiresSubscriptionTier(minTier: "free" | "accelerate" | "scale" | "summit") {
   return async (req: any, res: any, next: any) => {
@@ -2675,6 +2690,11 @@ Create engaging, well-researched content that provides value to laundromat owner
 
   // ==================== LISTINGS (MARKETPLACE) ====================
   
+  // Get listing tier benefits (MUST be before :id route)
+  app.get("/api/listings/tier-benefits", (_req, res) => {
+    res.json(LISTING_TIER_BENEFITS);
+  });
+  
   app.get("/api/listings", async (req, res) => {
     try {
       const status = req.query.status as string | undefined;
@@ -2772,6 +2792,119 @@ Create engaging, well-researched content that provides value to laundromat owner
 
       await storage.deleteListing(req.params.id);
       res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== LISTING SUBSCRIPTION TIERS ====================
+  
+  // Create Stripe checkout session for listing subscription
+  app.post("/api/listings/:id/subscribe", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only subscribe to your own listings" });
+      }
+      
+      const { tierId } = req.body;
+      
+      if (!tierId || !['basic', 'showcase', 'diamond'].includes(tierId)) {
+        return res.status(400).json({ message: "Invalid tier. Must be one of: basic, showcase, diamond" });
+      }
+      
+      const tier = LISTING_TIER_PRICING[tierId];
+      if (!tier) {
+        return res.status(400).json({ message: "Tier not found" });
+      }
+      
+      const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+      
+      // Create Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [
+          tier.priceId ? 
+            { price: tier.priceId, quantity: 1 } :
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: tier.name,
+                  description: `Monthly subscription to ${tier.name} for listing "${listing.title}"`,
+                },
+                recurring: { interval: 'month' },
+                unit_amount: tier.amount,
+              },
+              quantity: 1,
+            },
+        ],
+        success_url: `${baseUrl}/listing/${listing.slug || listing.id}?subscription_success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/listing/${listing.slug || listing.id}?subscription_cancelled=true`,
+        metadata: {
+          listingId: listing.id,
+          tierId,
+          userId: currentUser.userId,
+          type: 'listing_subscription',
+        },
+        allow_promotion_codes: true,
+      });
+      
+      res.json({ 
+        checkoutUrl: session.url,
+        sessionId: session.id 
+      });
+    } catch (error: any) {
+      console.error('Listing subscription checkout error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Get listing subscription status
+  app.get("/api/listings/:id/subscription", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only view subscriptions for your own listings" });
+      }
+      
+      const tier = (listing.subscriptionTier as keyof typeof LISTING_TIER_BENEFITS) || 'free';
+      const benefits = LISTING_TIER_BENEFITS[tier] || LISTING_TIER_BENEFITS.free;
+      
+      res.json({
+        listingId: listing.id,
+        currentTier: tier,
+        stripeSubscriptionId: listing.stripeSubscriptionId,
+        subscriptionStartDate: listing.subscriptionStartDate,
+        subscriptionEndDate: listing.subscriptionEndDate,
+        mediaLimit: listing.mediaLimit,
+        videoLimit: listing.videoLimit,
+        benefits,
+        isActive: tier !== 'free' && listing.stripeSubscriptionId !== null,
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -5447,6 +5580,66 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
         recentActivity
       });
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/dashboard/my-listings - Get user's own marketplace listings with stats
+  app.get("/api/dashboard/my-listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const userListings = await db
+        .select()
+        .from(listings)
+        .where(eq(listings.userId, currentUser.userId))
+        .orderBy(desc(listings.createdAt));
+
+      // Calculate analytics summary
+      const totalViews = userListings.reduce((sum, l) => sum + (l.viewCount || 0), 0);
+      const totalInquiries = userListings.reduce((sum, l) => sum + (l.inquiryCount || 0), 0);
+      const totalNdaRequests = userListings.reduce((sum, l) => sum + (l.ndaRequestCount || 0), 0);
+
+      // Find the highest tier among all listings (for display)
+      const tierOrder = ['free', 'basic', 'showcase', 'diamond'];
+      let highestTier = 'free';
+      for (const listing of userListings) {
+        const currentTierIndex = tierOrder.indexOf(listing.subscriptionTier || 'free');
+        const highestTierIndex = tierOrder.indexOf(highestTier);
+        if (currentTierIndex > highestTierIndex) {
+          highestTier = listing.subscriptionTier || 'free';
+        }
+      }
+
+      // Top performing listings (sorted by views + inquiries)
+      const topPerforming = [...userListings]
+        .sort((a, b) => {
+          const aScore = (a.viewCount || 0) + (a.inquiryCount || 0) * 10;
+          const bScore = (b.viewCount || 0) + (b.inquiryCount || 0) * 10;
+          return bScore - aScore;
+        })
+        .slice(0, 5);
+
+      res.json({
+        listings: userListings,
+        summary: {
+          totalListings: userListings.length,
+          activeListings: userListings.filter(l => l.status === 'active').length,
+          draftListings: userListings.filter(l => l.status === 'draft').length,
+          soldListings: userListings.filter(l => l.status === 'sold').length,
+          totalViews,
+          totalInquiries,
+          totalNdaRequests,
+          highestTier,
+        },
+        topPerforming,
+        tierBenefits: LISTING_TIER_BENEFITS,
+      });
+    } catch (error: any) {
+      console.error("Error fetching user listings:", error);
       res.status(500).json({ error: error.message });
     }
   });
