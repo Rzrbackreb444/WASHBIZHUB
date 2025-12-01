@@ -22,28 +22,28 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, authResolved } = useAuth();
   const [, setLocation] = useLocation();
   
-  // Fetch stats only when we know user is admin
+  // Fetch stats only when we KNOW user is admin (authResolved ensures definitive state)
   const { data: stats, refetch, isFetching } = useQuery({
     queryKey: ['/api/admin/stats'],
-    enabled: !isLoading && isAuthenticated && user?.isAdmin === true,
+    enabled: authResolved && isAuthenticated && user?.isAdmin === true,
   });
 
-  // Handle redirect in useEffect - only redirect when we're CERTAIN user is not admin
-  // Wait for auth to fully load and user to be determined
+  // Handle redirect ONLY when we have a DEFINITIVE answer
+  // authResolved ensures we've completed the auth check successfully
   useEffect(() => {
-    // Only redirect if:
-    // 1. Auth is done loading AND
-    // 2. Either not authenticated OR user exists but is NOT admin
-    if (!isLoading && (!isAuthenticated || (user && !user.isAdmin))) {
+    // Only redirect when:
+    // 1. Auth has fully resolved (not just stopped loading)
+    // 2. AND user is confirmed NOT an admin
+    if (authResolved && (!user || !user.isAdmin)) {
       setLocation('/');
     }
-  }, [isLoading, isAuthenticated, user, setLocation]);
+  }, [authResolved, user, setLocation]);
 
-  // Show loading while auth is being determined
-  if (isLoading) {
+  // Show loading while auth is being determined OR while still fetching
+  if (!authResolved) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -54,20 +54,8 @@ export default function AdminDashboard() {
     );
   }
 
-  // Show loading while waiting for user data after auth check
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-          <p>Checking permissions...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If user exists but is not admin, show redirecting message
-  if (!user.isAdmin) {
+  // If auth resolved but no user or not admin, show redirecting (the useEffect will handle actual redirect)
+  if (!user || !user.isAdmin) {
     return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
   }
 
