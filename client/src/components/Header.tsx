@@ -333,7 +333,7 @@ export function Header() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/add-listing">
+                      <Link href="/listing-form">
                         <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-add-listing">
                           Add a Listing
                         </div>
@@ -485,7 +485,7 @@ export function Header() {
                   Marketplace
                 </div>
                 <Link href="/listings"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-listings">Browse Listings</div></Link>
-                <Link href="/add-listing"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-add-listing">Add a Listing</div></Link>
+                <Link href="/listing-form"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-add-listing">Add a Listing</div></Link>
                 <Link href="/seller-dashboard"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-seller-dashboard">Seller Dashboard</div></Link>
                 <Link href="/superstore"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-superstore">Equipment Superstore</div></Link>
               </div>

@@ -73,7 +73,7 @@ export function SEO({
   description,
   canonicalUrl,
   ogType = "website",
-  ogImage = "/washbizhub-logo.png",
+  ogImage = "/washbizhub-og-image.png",
   keywords = [],
   structuredData,
   breadcrumbs = [],
