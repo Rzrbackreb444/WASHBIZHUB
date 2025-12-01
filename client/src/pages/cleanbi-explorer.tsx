@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
+import { AuthGuard } from "@/components/AuthGuard";
 import { 
   Map, 
   Layers, 
@@ -1218,7 +1219,10 @@ export default function CleanBIExplorer() {
   };
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access CLEANBI Explorer"
+      description="Create a free account to analyze any location. Free tier includes 1 analysis per day!"
+    >
       <SEO 
         title="CLEANBI™ Explorer 2.0 - Interactive Market Intelligence Map"
         description="Discover high-opportunity laundromat locations with our interactive CLEANBI Explorer. Real-time 3D aerial views, competition heatmaps, demographic analysis, and AI-powered business insights. Score any address globally in seconds."
@@ -2909,6 +2913,6 @@ export default function CleanBIExplorer() {
           </SheetContent>
         </Sheet>
       </div>
-    </>
+    </AuthGuard>
   );
 }
