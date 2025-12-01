@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
@@ -16,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   MapPin, DollarSign, Building2, ArrowRight, ArrowLeft, 
-  Check, FileText, Camera, Sparkles, Crown, Lock
+  Check, FileText, Camera, Sparkles, Crown, Lock, Zap, Star, Rocket
 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useToast } from '@/hooks/use-toast';
@@ -24,10 +23,12 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { ListingMediaUpload } from '@/components/ListingMediaUpload';
 import type { Listing } from '@shared/schema';
 
+type DetailLevel = 'quick' | 'standard' | 'premium';
+
 const listingFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
-  tagline: z.string().max(200).optional(),
-  description: z.string().min(50, 'Description must be at least 50 characters').max(10000),
+  tagline: z.string().min(50, 'Teaser must be at least 50 characters').max(300),
+  description: z.string().max(10000).optional(),
   businessType: z.enum(['laundromat', 'car_wash', 'dry_cleaner']),
   listingType: z.enum(['owner', 'broker']),
   
@@ -46,17 +47,42 @@ const listingFormSchema = z.object({
   
   includesRealEstate: z.boolean().default(false),
   requiresNDA: z.boolean().default(false),
+  
+  detailLevel: z.enum(['quick', 'standard', 'premium']).default('quick'),
 });
 
 type ListingFormData = z.infer<typeof listingFormSchema>;
 
-const STEPS = ['basic', 'description', 'location', 'pricing', 'media'] as const;
-type Step = typeof STEPS[number];
+const DEPTH_OPTIONS: { value: DetailLevel; label: string; description: string; icon: typeof Zap; features: string[]; recommended?: boolean }[] = [
+  {
+    value: 'quick',
+    label: 'Quick Listing',
+    description: 'Perfect for brokers - get listed in under 2 minutes',
+    icon: Zap,
+    features: ['Title & teaser', 'Location (city/region)', 'Business type', 'NDA protection'],
+  },
+  {
+    value: 'standard',
+    label: 'Standard Listing',
+    description: 'Include pricing details and financing options',
+    icon: Star,
+    features: ['Everything in Quick', 'Asking price', 'Financing options', 'Real estate inclusion'],
+    recommended: true,
+  },
+  {
+    value: 'premium',
+    label: 'Premium Listing',
+    description: 'Full details with photos and extended description',
+    icon: Rocket,
+    features: ['Everything in Standard', 'Photo gallery', 'Detailed description', 'Maximum buyer engagement'],
+  },
+];
 
 export default function ListingForm() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [currentStep, setCurrentStep] = useState<Step>('basic');
+  const [detailLevel, setDetailLevel] = useState<DetailLevel | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const [createdListing, setCreatedListing] = useState<Listing | null>(null);
   
   const form = useForm<ListingFormData>({
@@ -71,8 +97,22 @@ export default function ListingForm() {
       ownerFinancing: false,
       includesRealEstate: false,
       requiresNDA: false,
+      tagline: '',
+      description: '',
+      detailLevel: 'quick',
     },
   });
+
+  const getSteps = (level: DetailLevel) => {
+    const base = ['essentials'];
+    if (level === 'standard' || level === 'premium') base.push('pricing');
+    if (level === 'premium') base.push('details');
+    base.push('media');
+    return base;
+  };
+
+  const steps = detailLevel ? getSteps(detailLevel) : [];
+  const progress = steps.length > 0 ? ((currentStep + 1) / steps.length) * 100 : 0;
 
   const createMutation = useMutation({
     mutationFn: async (data: ListingFormData) => {
@@ -82,17 +122,20 @@ export default function ListingForm() {
           ...data,
           priceInUSD: data.priceOriginal,
           status: 'draft',
+          detailLevel: detailLevel,
         }),
       });
       return response as Listing;
     },
     onSuccess: (listing) => {
       setCreatedListing(listing);
-      setCurrentStep('media');
+      setCurrentStep(steps.length - 1);
       queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
       toast({
         title: 'Listing Created',
-        description: 'Now add photos and documents to complete your listing.',
+        description: detailLevel === 'premium' 
+          ? 'Now add photos to complete your listing.'
+          : 'Your listing is ready. Add photos or publish now.',
       });
     },
     onError: (error: Error) => {
@@ -132,19 +175,16 @@ export default function ListingForm() {
     createMutation.mutate(data);
   };
 
-  const getStepIndex = (step: Step) => STEPS.indexOf(step);
-  const progress = ((getStepIndex(currentStep) + 1) / STEPS.length) * 100;
-
-  const canProceed = (step: Step) => {
+  const canProceed = () => {
     const values = form.getValues();
+    const step = steps[currentStep];
+    
     switch (step) {
-      case 'basic':
-        return values.title?.length >= 5 && values.businessType && values.listingType;
-      case 'description':
-        return values.description?.length >= 50;
-      case 'location':
-        return values.region && values.city;
+      case 'essentials':
+        return values.title?.length >= 5 && values.tagline?.length >= 50 && values.region && values.city;
       case 'pricing':
+        return true;
+      case 'details':
         return true;
       default:
         return true;
@@ -152,21 +192,124 @@ export default function ListingForm() {
   };
 
   const goNext = () => {
-    const idx = getStepIndex(currentStep);
-    if (idx < STEPS.length - 1) {
-      if (currentStep === 'pricing' && !createdListing) {
+    if (currentStep < steps.length - 1) {
+      const isLastFormStep = currentStep === steps.length - 2;
+      if (isLastFormStep && !createdListing) {
         form.handleSubmit(onSubmit)();
       } else {
-        setCurrentStep(STEPS[idx + 1]);
+        setCurrentStep(currentStep + 1);
       }
     }
   };
 
   const goPrev = () => {
-    const idx = getStepIndex(currentStep);
-    if (idx > 0 && currentStep !== 'media') {
-      setCurrentStep(STEPS[idx - 1]);
+    if (currentStep > 0 && !createdListing) {
+      setCurrentStep(currentStep - 1);
     }
+  };
+
+  const selectDepth = (level: DetailLevel) => {
+    setDetailLevel(level);
+    form.setValue('detailLevel', level);
+    setCurrentStep(0);
+  };
+
+  if (!detailLevel) {
+    return (
+      <>
+        <SEO
+          title="Create Listing | Sell Your Laundromat | WashBizHub"
+          description="List your laundromat, equipment, or business. Reach 72,000+ qualified buyers on the #1 laundromat marketplace."
+          canonicalUrl="/listing-form"
+        />
+
+        <div className="min-h-screen bg-gradient-to-b from-[#0a0f1a] to-background">
+          <div className="relative py-16 bg-gradient-to-br from-[#001F3F] via-[#002B5C] to-[#001F3F] overflow-hidden border-b border-[#39CCCC]/20">
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-[#D4AF37] rounded-full blur-3xl" />
+            </div>
+
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+              <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30 px-3 py-1 mb-4">
+                <Crown className="w-3.5 h-3.5 mr-1" />
+                Seller Portal
+              </Badge>
+              <h1 className="text-3xl sm:text-4xl font-black text-white mb-3">
+                Create Your Listing
+              </h1>
+              <p className="text-white/70 text-lg max-w-xl mx-auto">
+                Choose how much detail you want to include. You can always upgrade later.
+              </p>
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+            <div className="grid gap-6 md:grid-cols-3">
+              {DEPTH_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <Card 
+                    key={option.value}
+                    className={`relative cursor-pointer transition-all hover-elevate ${
+                      option.recommended ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]/50' : ''
+                    }`}
+                    onClick={() => selectDepth(option.value)}
+                    data-testid={`card-depth-${option.value}`}
+                  >
+                    {option.recommended && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-[#D4AF37] text-[#001F3F]">
+                          Recommended
+                        </Badge>
+                      </div>
+                    )}
+                    <CardHeader className="text-center pb-3">
+                      <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 ${
+                        option.value === 'quick' ? 'bg-blue-500/20 text-blue-400' :
+                        option.value === 'standard' ? 'bg-[#D4AF37]/20 text-[#D4AF37]' :
+                        'bg-purple-500/20 text-purple-400'
+                      }`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <CardTitle className="text-lg">{option.label}</CardTitle>
+                      <CardDescription className="text-sm">{option.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {option.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Check className="w-4 h-4 text-green-500 shrink-0" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <Button 
+                        className={`w-full mt-6 ${
+                          option.value === 'standard' 
+                            ? 'bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#001F3F]' 
+                            : ''
+                        }`}
+                        variant={option.value === 'standard' ? 'default' : 'outline'}
+                      >
+                        Select {option.label.split(' ')[0]}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const stepLabels: Record<string, { label: string; icon: typeof Building2 }> = {
+    essentials: { label: 'Essentials', icon: Building2 },
+    pricing: { label: 'Pricing', icon: DollarSign },
+    details: { label: 'Details', icon: FileText },
+    media: { label: 'Photos', icon: Camera },
   };
 
   return (
@@ -178,19 +321,28 @@ export default function ListingForm() {
       />
 
       <div className="min-h-screen bg-gradient-to-b from-[#0a0f1a] to-background">
-        <div 
-          className="relative py-12 bg-gradient-to-br from-[#001F3F] via-[#002B5C] to-[#001F3F] overflow-hidden border-b border-[#39CCCC]/20"
-        >
+        <div className="relative py-12 bg-gradient-to-br from-[#001F3F] via-[#002B5C] to-[#001F3F] overflow-hidden border-b border-[#39CCCC]/20">
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-[#D4AF37] rounded-full blur-3xl" />
           </div>
 
           <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30 px-3 py-1">
-                <Crown className="w-3.5 h-3.5 mr-1" />
-                Seller Portal
-              </Badge>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30 px-3 py-1">
+                  <Crown className="w-3.5 h-3.5 mr-1" />
+                  {DEPTH_OPTIONS.find(o => o.value === detailLevel)?.label}
+                </Badge>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-white/60 hover:text-white"
+                onClick={() => { setDetailLevel(null); setCurrentStep(0); setCreatedListing(null); }}
+                data-testid="button-change-depth"
+              >
+                Change
+              </Button>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">
               Create Your Listing
@@ -201,23 +353,17 @@ export default function ListingForm() {
             
             <div className="max-w-md">
               <div className="flex items-center justify-between text-sm text-white/60 mb-2">
-                <span>Step {getStepIndex(currentStep) + 1} of {STEPS.length}</span>
+                <span>Step {currentStep + 1} of {steps.length}</span>
                 <span>{Math.round(progress)}% Complete</span>
               </div>
               <Progress value={progress} className="h-2 bg-white/10" />
             </div>
 
             <div className="flex gap-2 mt-6 overflow-x-auto pb-2">
-              {STEPS.map((step, idx) => {
-                const isActive = step === currentStep;
-                const isCompleted = getStepIndex(currentStep) > idx;
-                const stepLabels = {
-                  basic: 'Basic Info',
-                  description: 'Description',
-                  location: 'Location',
-                  pricing: 'Pricing',
-                  media: 'Photos',
-                };
+              {steps.map((step, idx) => {
+                const isActive = idx === currentStep;
+                const isCompleted = currentStep > idx || (createdListing && idx < steps.length - 1);
+                const StepIcon = stepLabels[step]?.icon || Building2;
                 return (
                   <Badge 
                     key={step}
@@ -230,8 +376,8 @@ export default function ListingForm() {
                           : 'border-white/30 text-white/60'
                     }`}
                   >
-                    {isCompleted && <Check className="w-3 h-3 mr-1" />}
-                    {stepLabels[step]}
+                    {isCompleted ? <Check className="w-3 h-3 mr-1" /> : <StepIcon className="w-3 h-3 mr-1" />}
+                    {stepLabels[step]?.label || step}
                   </Badge>
                 );
               })}
@@ -240,7 +386,7 @@ export default function ListingForm() {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-          {currentStep === 'media' && createdListing ? (
+          {steps[currentStep] === 'media' && createdListing ? (
             <div className="space-y-6">
               <Card className="border-green-500/30 bg-green-500/5">
                 <CardContent className="py-6">
@@ -265,6 +411,7 @@ export default function ListingForm() {
                   variant="outline" 
                   onClick={() => setLocation(`/listing/${createdListing.slug || createdListing.id}`)}
                   className="flex-1"
+                  data-testid="button-preview"
                 >
                   Preview Listing
                 </Button>
@@ -272,6 +419,7 @@ export default function ListingForm() {
                   onClick={() => publishMutation.mutate(createdListing.id)}
                   className="flex-1 bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#001F3F]"
                   disabled={publishMutation.isPending}
+                  data-testid="button-publish"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   {publishMutation.isPending ? 'Publishing...' : 'Publish Listing'}
@@ -281,60 +429,62 @@ export default function ListingForm() {
           ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {currentStep === 'basic' && (
+                {steps[currentStep] === 'essentials' && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Building2 className="w-5 h-5" />
-                        Basic Information
+                        Essential Information
                       </CardTitle>
-                      <CardDescription>Tell us what you're listing</CardDescription>
+                      <CardDescription>The basics buyers need to know</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="businessType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-business-type">
-                                  <SelectValue placeholder="Select business type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="laundromat">Laundromat / Coin Laundry</SelectItem>
-                                <SelectItem value="car_wash">Car Wash</SelectItem>
-                                <SelectItem value="dry_cleaner">Dry Cleaner</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="businessType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Business Type</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-business-type">
+                                    <SelectValue placeholder="Select business type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="laundromat">Laundromat / Coin Laundry</SelectItem>
+                                  <SelectItem value="car_wash">Car Wash</SelectItem>
+                                  <SelectItem value="dry_cleaner">Dry Cleaner</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="listingType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Who is listing?</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-listing-type">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="owner">Owner (FSBO)</SelectItem>
-                                <SelectItem value="broker">Broker / Agent</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name="listingType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Who is listing?</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-listing-type">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="owner">Owner (FSBO)</SelectItem>
+                                  <SelectItem value="broker">Broker / Agent</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
                       <FormField
                         control={form.control}
@@ -362,86 +512,127 @@ export default function ListingForm() {
                         name="tagline"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Short Tagline (Optional)</FormLabel>
+                            <FormLabel>Teaser Description</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="e.g., Turnkey operation with strong cash flow" 
+                              <Textarea 
+                                placeholder="Brief overview to capture buyer interest. Highlight key opportunities without giving away too much..."
+                                className="min-h-[100px]"
                                 {...field} 
                                 data-testid="input-tagline"
                               />
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-
-                {currentStep === 'description' && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Description
-                      </CardTitle>
-                      <CardDescription>Describe your listing in detail</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Description</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Describe the business, equipment, location, financials, and why it's a great opportunity..."
-                                className="min-h-[300px]"
-                                {...field}
-                                data-testid="textarea-description"
-                              />
-                            </FormControl>
                             <FormDescription>
-                              Include equipment inventory, lease terms, monthly revenue, and any unique selling points. 
-                              Use markdown formatting for better readability.
+                              50-300 characters. This appears in search results and listings.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </CardContent>
-                  </Card>
-                )}
 
-                {currentStep === 'location' && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5" />
-                        Location
-                      </CardTitle>
-                      <CardDescription>Where is the business located?</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="border-t pt-6">
+                        <h4 className="font-medium mb-4 flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Location
+                        </h4>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <FormField
+                            control={form.control}
+                            name="country"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Country</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-country">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="US">United States</SelectItem>
+                                    <SelectItem value="CA">Canada</SelectItem>
+                                    <SelectItem value="GB">United Kingdom</SelectItem>
+                                    <SelectItem value="AU">Australia</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="region"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>State / Region</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="e.g., California" 
+                                    {...field} 
+                                    data-testid="input-region"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="city"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>City</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="e.g., Los Angeles" 
+                                    {...field} 
+                                    data-testid="input-city"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="generalLocation"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>General Area (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="e.g., Downtown, Near UCLA" 
+                                    {...field} 
+                                    data-testid="input-general-location"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="border-t pt-6 space-y-4">
                         <FormField
                           control={form.control}
-                          name="country"
+                          name="addressVisibility"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Country</FormLabel>
+                              <FormLabel>Address Visibility</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                  <SelectTrigger data-testid="select-country">
+                                  <SelectTrigger data-testid="select-address-visibility">
                                     <SelectValue />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="US">United States</SelectItem>
-                                  <SelectItem value="CA">Canada</SelectItem>
-                                  <SelectItem value="GB">United Kingdom</SelectItem>
-                                  <SelectItem value="AU">Australia</SelectItem>
+                                  <SelectItem value="public">Show full address publicly</SelectItem>
+                                  <SelectItem value="general">Show city/region only (recommended)</SelectItem>
+                                  <SelectItem value="authenticated">Show to logged-in users only</SelectItem>
+                                  <SelectItem value="hidden">Hide until inquiry</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -451,89 +642,28 @@ export default function ListingForm() {
 
                         <FormField
                           control={form.control}
-                          name="region"
+                          name="requiresNDA"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>State / Region</FormLabel>
+                            <FormItem className="flex items-center justify-between border rounded-lg p-4">
+                              <div>
+                                <FormLabel className="text-base flex items-center gap-2">
+                                  <Lock className="w-4 h-4" />
+                                  Require NDA for Sensitive Info
+                                </FormLabel>
+                                <FormDescription>Protect financials and exact address with NDA</FormDescription>
+                              </div>
                               <FormControl>
-                                <Input 
-                                  placeholder="e.g., California" 
-                                  {...field} 
-                                  data-testid="input-region"
-                                />
+                                <Switch checked={field.value} onCheckedChange={field.onChange} data-testid="switch-nda" />
                               </FormControl>
-                              <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="e.g., Los Angeles" 
-                                  {...field} 
-                                  data-testid="input-city"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="generalLocation"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>General Area (Optional)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="e.g., Downtown, Near UCLA" 
-                                  {...field} 
-                                  data-testid="input-general-location"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="addressVisibility"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address Visibility</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-address-visibility">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="public">Show full address publicly</SelectItem>
-                                <SelectItem value="general">Show city/region only (recommended)</SelectItem>
-                                <SelectItem value="authenticated">Show to logged-in users only</SelectItem>
-                                <SelectItem value="hidden">Hide until inquiry</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </CardContent>
                   </Card>
                 )}
 
-                {currentStep === 'pricing' && (
+                {steps[currentStep] === 'pricing' && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -666,22 +796,38 @@ export default function ListingForm() {
                           </FormItem>
                         )}
                       />
+                    </CardContent>
+                  </Card>
+                )}
 
+                {steps[currentStep] === 'details' && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        Detailed Description
+                      </CardTitle>
+                      <CardDescription>Provide a comprehensive overview for serious buyers</CardDescription>
+                    </CardHeader>
+                    <CardContent>
                       <FormField
                         control={form.control}
-                        name="requiresNDA"
+                        name="description"
                         render={({ field }) => (
-                          <FormItem className="flex items-center justify-between border rounded-lg p-4">
-                            <div>
-                              <FormLabel className="text-base flex items-center gap-2">
-                                <Lock className="w-4 h-4" />
-                                Require NDA for Sensitive Info
-                              </FormLabel>
-                              <FormDescription>Protect financials and exact address with NDA</FormDescription>
-                            </div>
+                          <FormItem>
+                            <FormLabel>Full Description</FormLabel>
                             <FormControl>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} data-testid="switch-nda" />
+                              <Textarea 
+                                placeholder="Describe the business, equipment, location, financials, and why it's a great opportunity..."
+                                className="min-h-[300px]"
+                                {...field}
+                                data-testid="textarea-description"
+                              />
                             </FormControl>
+                            <FormDescription>
+                              Include equipment inventory, lease terms, monthly revenue, and any unique selling points. 
+                            </FormDescription>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -690,7 +836,7 @@ export default function ListingForm() {
                 )}
 
                 <div className="flex gap-3">
-                  {currentStep !== 'basic' && (
+                  {currentStep > 0 && (
                     <Button 
                       type="button"
                       onClick={goPrev} 
@@ -703,11 +849,11 @@ export default function ListingForm() {
                     </Button>
                   )}
                   
-                  {currentStep === 'pricing' ? (
+                  {currentStep === steps.length - 2 ? (
                     <Button 
                       type="submit"
                       className="flex-1 bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#001F3F]"
-                      disabled={createMutation.isPending}
+                      disabled={createMutation.isPending || !canProceed()}
                       data-testid="button-create-listing"
                     >
                       <Camera className="w-4 h-4 mr-2" />
@@ -717,7 +863,7 @@ export default function ListingForm() {
                     <Button 
                       type="button"
                       onClick={goNext}
-                      disabled={!canProceed(currentStep)}
+                      disabled={!canProceed()}
                       className="flex-1"
                       data-testid="button-next"
                     >
