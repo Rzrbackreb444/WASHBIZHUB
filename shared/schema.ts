@@ -7663,6 +7663,40 @@ export type InsertPromoCodeRedemption = z.infer<typeof insertPromoCodeRedemption
 export type PromoCodeRedemption = typeof promoCodeRedemptions.$inferSelect;
 
 // ============================================================================
+// ADMIN ACTIVITY LOG
+// Tracks all important events for the admin dashboard analytics
+// ============================================================================
+
+export const adminActivityLog = pgTable("admin_activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Event Classification
+  type: varchar("type").notNull(), // "user_signup", "purchase", "subscription", "cleanbi_analysis", "promo_redemption"
+  description: text("description").notNull(), // Human-readable description
+  
+  // User Reference (optional - some events are anonymous)
+  userId: varchar("user_id"),
+  email: varchar("email"),
+  
+  // Event Metadata (flexible JSON for different event types)
+  metadata: jsonb("metadata").default(sql`'{}'::jsonb`), // { amount, productName, tier, address, etc. }
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  typeIdx: index("activity_type_idx").on(table.type),
+  createdAtIdx: index("activity_created_at_idx").on(table.createdAt),
+  userIdIdx: index("activity_user_id_idx").on(table.userId),
+}));
+
+export const insertAdminActivityLogSchema = createInsertSchema(adminActivityLog).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertAdminActivityLog = z.infer<typeof insertAdminActivityLogSchema>;
+export type AdminActivityLog = typeof adminActivityLog.$inferSelect;
+
+// ============================================================================
 // MULTI-TENANT PLATFORM ARCHITECTURE
 // Powers both WashBizHub.com AND StrokeRecoveryAcademy.com with shared infra
 // ============================================================================

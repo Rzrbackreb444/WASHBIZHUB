@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -7,22 +8,77 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, Users, DollarSign, Eye, BarChart3, Download, 
   ShoppingCart, CreditCard, ArrowUpRight, ArrowDownRight,
-  Globe, Activity, Clock, Zap, Target, PieChart, RefreshCw
+  Globe, Activity, Clock, Zap, Target, PieChart, RefreshCw,
+  UserPlus, MapPin, FileCheck, Tag
 } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   StatCard, MetricCard, DonutChart, MiniBarChart, ProgressBar,
   DashboardGrid, SectionHeader, Gauge
 } from "@/components/dashboard/DashboardComponents";
+import { formatDistanceToNow } from "date-fns";
 
 export default function AdminAnalytics() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: stats, refetch, isFetching } = useQuery({
-    queryKey: ['/api/admin/stats'],
+  // Fetch comprehensive analytics data
+  const { data: analytics, refetch, isFetching } = useQuery<{
+    revenue: {
+      total: number;
+      mrr: number;
+      thisMonth: number;
+      lastMonth: number;
+      changePercent: number;
+      byProduct: { name: string; amount: number; count: number }[];
+      monthlyTrend: { month: string; amount: number }[];
+    };
+    users: {
+      total: number;
+      newThisWeek: number;
+      newThisMonth: number;
+      activeThisMonth: number;
+      growthPercent: number;
+    };
+    subscriptions: {
+      free: number;
+      starter: number;
+      pro: number;
+      enterprise: number;
+      churnRate: number;
+    };
+    cleanbi: {
+      totalAnalyses: number;
+      thisMonth: number;
+      uniqueUsers: number;
+    };
+    activity: {
+      id: number;
+      type: string;
+      description: string;
+      email: string | null;
+      metadata: any;
+      createdAt: string;
+    }[];
+    transactions: {
+      id: string;
+      type: string;
+      amount: number;
+      email: string;
+      status: string;
+      createdAt: string;
+    }[];
+  }>({
+    queryKey: ['/api/admin/analytics'],
     enabled: isAuthenticated && user?.isAdmin,
   });
+
+  // Handle redirect in useEffect
+  useEffect(() => {
+    if (!authLoading && (!isAuthenticated || !user?.isAdmin)) {
+      setLocation('/');
+    }
+  }, [authLoading, isAuthenticated, user?.isAdmin, setLocation]);
 
   if (authLoading) {
     return (
@@ -33,50 +89,45 @@ export default function AdminAnalytics() {
   }
 
   if (!isAuthenticated || !user?.isAdmin) {
-    setLocation('/');
-    return null;
+    return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
   }
 
-  const revenueData = [
-    { label: 'Jan', value: 12500 },
-    { label: 'Feb', value: 15800 },
-    { label: 'Mar', value: 18200 },
-    { label: 'Apr', value: 22100 },
-    { label: 'May', value: 19800 },
-    { label: 'Jun', value: 25400 },
-    { label: 'Jul', value: 28900 },
-  ];
+  // Build chart data from live analytics
+  const revenueData = analytics?.revenue?.monthlyTrend?.map(m => ({
+    label: m.month,
+    value: m.amount
+  })) || [];
 
   const subscriptionData = [
-    { label: 'Free', value: 2450, color: '#6b7280' },
-    { label: 'Starter', value: 890, color: '#10b981' },
-    { label: 'Pro', value: 420, color: '#3b82f6' },
-    { label: 'Enterprise', value: 85, color: '#8b5cf6' },
+    { label: 'Free', value: analytics?.subscriptions?.free || 0, color: '#6b7280' },
+    { label: 'Starter', value: analytics?.subscriptions?.starter || 0, color: '#10b981' },
+    { label: 'Pro', value: analytics?.subscriptions?.pro || 0, color: '#3b82f6' },
+    { label: 'Enterprise', value: analytics?.subscriptions?.enterprise || 0, color: '#8b5cf6' },
   ];
 
-  const trafficSourceData = [
-    { label: 'Organic Search', value: 45, color: '#10b981' },
-    { label: 'Direct', value: 25, color: '#3b82f6' },
-    { label: 'Referral', value: 15, color: '#f59e0b' },
-    { label: 'Social', value: 10, color: '#ec4899' },
-    { label: 'Paid', value: 5, color: '#8b5cf6' },
-  ];
+  const totalSubscribers = subscriptionData.reduce((a, b) => a + b.value, 0);
+  
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'user_signup': return UserPlus;
+      case 'cleanbi_analysis': return MapPin;
+      case 'purchase': return ShoppingCart;
+      case 'subscription': return CreditCard;
+      case 'promo_redemption': return Tag;
+      default: return Activity;
+    }
+  };
 
-  const topPages = [
-    { name: 'CLEANBI Calculator', views: 12840, change: 24.5 },
-    { name: 'Laundromat Valuation', views: 8920, change: 18.2 },
-    { name: 'ROI Calculator', views: 7650, change: 12.8 },
-    { name: 'Business Plan Templates', views: 5430, change: -3.2 },
-    { name: 'Due Diligence Guide', views: 4210, change: 8.7 },
-  ];
-
-  const recentTransactions = [
-    { id: 1, type: 'Pro Subscription', amount: 97, user: 'john@example.com', status: 'completed' },
-    { id: 2, type: 'CLEANBI Report', amount: 97, user: 'sarah@laundry.co', status: 'completed' },
-    { id: 3, type: 'Enterprise Plan', amount: 297, user: 'mike@enterprise.com', status: 'pending' },
-    { id: 4, type: 'Starter Plan', amount: 47, user: 'anna@startup.io', status: 'completed' },
-    { id: 5, type: 'CLEANBI Report', amount: 97, user: 'david@invest.com', status: 'completed' },
-  ];
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case 'user_signup': return 'text-blue-500 bg-blue-500/10';
+      case 'cleanbi_analysis': return 'text-green-500 bg-green-500/10';
+      case 'purchase': return 'text-purple-500 bg-purple-500/10';
+      case 'subscription': return 'text-indigo-500 bg-indigo-500/10';
+      case 'promo_redemption': return 'text-amber-500 bg-amber-500/10';
+      default: return 'text-gray-500 bg-gray-500/10';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,8 +150,8 @@ export default function AdminAnalytics() {
                 <BarChart3 className="w-8 h-8 text-indigo-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
-                <p className="text-indigo-200">Platform metrics and business insights</p>
+                <h1 className="text-3xl font-bold text-white">Live Analytics Dashboard</h1>
+                <p className="text-indigo-200">Real-time metrics from Stripe & database</p>
               </div>
             </div>
             <Button
@@ -109,44 +160,43 @@ export default function AdminAnalytics() {
               onClick={() => refetch()}
               disabled={isFetching}
               className="border-white/20 text-white hover:bg-white/10"
+              data-testid="button-refresh-analytics"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-              Refresh
+              {isFetching ? 'Loading...' : 'Refresh'}
             </Button>
           </div>
 
           <DashboardGrid cols={4}>
             <StatCard
               title="Total Revenue"
-              value={isFetching ? "..." : stats?.revenue ? `$${stats.revenue.toLocaleString()}` : "$0"}
-              subtitle={stats?.revenueChange ? `${stats.revenueChange > 0 ? '+' : ''}${stats.revenueChange}% from last month` : "This month"}
+              value={isFetching ? "..." : analytics?.revenue?.total ? `$${analytics.revenue.total.toLocaleString()}` : "$0"}
+              subtitle={analytics?.revenue?.changePercent ? `${analytics.revenue.changePercent > 0 ? '+' : ''}${analytics.revenue.changePercent.toFixed(1)}% from last month` : "All time"}
               icon={DollarSign}
               variant="green"
-              trend={stats?.revenueChange ? { value: stats.revenueChange, isPositive: stats.revenueChange > 0 } : undefined}
+              trend={analytics?.revenue?.changePercent ? { value: analytics.revenue.changePercent, isPositive: analytics.revenue.changePercent > 0 } : undefined}
             />
             <StatCard
-              title="Active Users"
-              value={isFetching ? "..." : stats?.activeUsers?.toLocaleString() ?? "0"}
-              subtitle={stats?.newUsersThisWeek ? `+${stats.newUsersThisWeek} this week` : "Total registered"}
+              title="Total Users"
+              value={isFetching ? "..." : analytics?.users?.total?.toLocaleString() ?? "0"}
+              subtitle={analytics?.users?.newThisWeek ? `+${analytics.users.newThisWeek} this week` : "Registered users"}
               icon={Users}
               variant="blue"
-              trend={stats?.userGrowth ? { value: stats.userGrowth, isPositive: stats.userGrowth > 0 } : undefined}
+              trend={analytics?.users?.growthPercent ? { value: analytics.users.growthPercent, isPositive: analytics.users.growthPercent > 0 } : undefined}
             />
             <StatCard
-              title="Page Views"
-              value={isFetching ? "..." : stats?.pageViews ? `${(stats.pageViews / 1000).toFixed(1)}K` : "0"}
-              subtitle="This month"
-              icon={Eye}
+              title="CLEANBI Analyses"
+              value={isFetching ? "..." : analytics?.cleanbi?.totalAnalyses?.toLocaleString() ?? "0"}
+              subtitle={analytics?.cleanbi?.thisMonth ? `${analytics.cleanbi.thisMonth} this month` : "Total runs"}
+              icon={MapPin}
               variant="purple"
-              trend={stats?.pageViewsChange ? { value: stats.pageViewsChange, isPositive: stats.pageViewsChange > 0 } : undefined}
             />
             <StatCard
-              title="Conversion Rate"
-              value={isFetching ? "..." : stats?.conversionRate ? `${stats.conversionRate}%` : "0%"}
-              subtitle="Free to Pro"
+              title="Monthly Revenue"
+              value={isFetching ? "..." : analytics?.revenue?.mrr ? `$${analytics.revenue.mrr.toLocaleString()}` : "$0"}
+              subtitle="MRR from subscriptions"
               icon={TrendingUp}
               variant="pink"
-              trend={stats?.conversionChange ? { value: stats.conversionChange, isPositive: stats.conversionChange > 0 } : undefined}
             />
           </DashboardGrid>
         </div>
@@ -158,26 +208,38 @@ export default function AdminAnalytics() {
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
           {/* Revenue Trend Chart */}
           <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
               <CardTitle className="text-lg font-semibold">Revenue Trend</CardTitle>
-              <Badge variant="secondary">Last 7 Months</Badge>
+              <Badge variant="secondary">Live from Stripe</Badge>
             </CardHeader>
             <CardContent>
-              <div className="h-[280px]">
-                <MiniBarChart data={revenueData} height={260} showLabels={true} color="#10b981" />
-              </div>
+              {revenueData.length > 0 ? (
+                <div className="h-[280px]">
+                  <MiniBarChart data={revenueData} height={260} showLabels={true} color="#10b981" />
+                </div>
+              ) : (
+                <div className="h-[280px] flex items-center justify-center text-muted-foreground">
+                  {isFetching ? 'Loading revenue data...' : 'No revenue data yet'}
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold">$142.7K</p>
+                  <p className="text-2xl font-bold" data-testid="text-total-revenue">
+                    ${(analytics?.revenue?.total || 0).toLocaleString()}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Avg Monthly</p>
-                  <p className="text-2xl font-bold">$20.4K</p>
+                  <p className="text-sm text-muted-foreground">This Month</p>
+                  <p className="text-2xl font-bold" data-testid="text-this-month-revenue">
+                    ${(analytics?.revenue?.thisMonth || 0).toLocaleString()}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Growth Rate</p>
-                  <p className="text-2xl font-bold text-green-500">+18.2%</p>
+                  <p className={`text-2xl font-bold ${(analytics?.revenue?.changePercent || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {(analytics?.revenue?.changePercent || 0) >= 0 ? '+' : ''}{(analytics?.revenue?.changePercent || 0).toFixed(1)}%
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -186,167 +248,167 @@ export default function AdminAnalytics() {
           {/* Subscription Distribution */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold">Subscriptions</CardTitle>
+              <CardTitle className="text-lg font-semibold">Subscriptions by Tier</CardTitle>
             </CardHeader>
             <CardContent>
               <DonutChart
                 data={subscriptionData}
                 size={160}
                 thickness={24}
-                centerValue={subscriptionData.reduce((a, b) => a + b.value, 0).toLocaleString()}
+                centerValue={totalSubscribers.toLocaleString()}
                 centerLabel="Total"
                 showLegend={true}
               />
               <div className="mt-4 pt-4 border-t">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">MRR</span>
-                  <span className="font-bold">$47,890</span>
+                  <span className="font-bold" data-testid="text-mrr">
+                    ${(analytics?.revenue?.mrr || 0).toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-2">
                   <span className="text-muted-foreground">Churn Rate</span>
-                  <span className="font-bold text-amber-500">2.3%</span>
+                  <span className="font-bold text-amber-500">
+                    {(analytics?.subscriptions?.churnRate || 0).toFixed(1)}%
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Traffic & Performance Row */}
+        {/* Activity & Products Row */}
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Traffic Sources */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Globe className="w-5 h-5 text-blue-500" />
-                Traffic Sources
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {trafficSourceData.map((source, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span>{source.label}</span>
-                    <span className="font-semibold">{source.value}%</span>
-                  </div>
-                  <ProgressBar value={source.value} color={source.color.replace('#', '')} size="sm" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Top Pages */}
+          {/* Recent Activity Feed */}
           <Card className="lg:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Activity className="w-5 h-5 text-purple-500" />
-                Top Pages
+                Live Activity Feed
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {topPages.map((page, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                        {i + 1}
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                {analytics?.activity && analytics.activity.length > 0 ? (
+                  analytics.activity.map((item) => {
+                    const IconComponent = getActivityIcon(item.type);
+                    const colorClass = getActivityColor(item.type);
+                    return (
+                      <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
+                            <IconComponent className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{item.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {item.email || 'Anonymous'} • {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <span className="font-medium">{page.name}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-muted-foreground">{page.views.toLocaleString()} views</span>
-                      <Badge variant={page.change >= 0 ? "default" : "destructive"} className="min-w-[60px] justify-center">
-                        {page.change >= 0 ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-                        {Math.abs(page.change)}%
-                      </Badge>
-                    </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    {isFetching ? 'Loading activity...' : 'No recent activity'}
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Metrics & Transactions Row */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Key Metrics */}
+          {/* Revenue by Product */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Target className="w-5 h-5 text-green-500" />
-                Key Metrics
+                Revenue by Product
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center">
-                <Gauge value={78} maxValue={100} label="Health Score" size="lg" color="green" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <MetricCard
-                  label="Avg Session"
-                  value="4m 32s"
-                  icon={Clock}
-                  iconColor="#f59e0b"
-                />
-                <MetricCard
-                  label="Bounce Rate"
-                  value="32.4%"
-                  icon={Zap}
-                  iconColor="#ef4444"
-                />
-                <MetricCard
-                  label="Downloads"
-                  value="2,847"
-                  icon={Download}
-                  iconColor="#8b5cf6"
-                />
-                <MetricCard
-                  label="Reports"
-                  value="1,245"
-                  icon={PieChart}
-                  iconColor="#ec4899"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Transactions */}
-          <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-indigo-500" />
-                Recent Transactions
-              </CardTitle>
-              <Button variant="ghost" size="sm">View All</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentTransactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        tx.status === 'completed' ? 'bg-green-500/10' : 'bg-amber-500/10'
-                      }`}>
-                        <ShoppingCart className={`w-5 h-5 ${
-                          tx.status === 'completed' ? 'text-green-500' : 'text-amber-500'
-                        }`} />
-                      </div>
-                      <div>
-                        <p className="font-medium">{tx.type}</p>
-                        <p className="text-sm text-muted-foreground">{tx.user}</p>
-                      </div>
+            <CardContent className="space-y-4">
+              {analytics?.revenue?.byProduct && analytics.revenue.byProduct.length > 0 ? (
+                analytics.revenue.byProduct.map((product, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-muted/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">{product.name}</span>
+                      <span className="font-bold">${product.amount.toLocaleString()}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">${tx.amount}</p>
-                      <Badge variant={tx.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
-                        {tx.status}
-                      </Badge>
-                    </div>
+                    <p className="text-sm text-muted-foreground">{product.count} sales</p>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  {isFetching ? 'Loading...' : 'No product data yet'}
+                </div>
+              )}
+              
+              {/* CLEANBI Stats */}
+              <div className="pt-4 border-t mt-4">
+                <h4 className="font-semibold mb-3">CLEANBI Usage</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <MetricCard
+                    label="Total Analyses"
+                    value={(analytics?.cleanbi?.totalAnalyses || 0).toLocaleString()}
+                    icon={MapPin}
+                    iconColor="#22c55e"
+                  />
+                  <MetricCard
+                    label="Unique Users"
+                    value={(analytics?.cleanbi?.uniqueUsers || 0).toLocaleString()}
+                    icon={Users}
+                    iconColor="#3b82f6"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Recent Transactions */}
+        <Card className="mb-8">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-indigo-500" />
+              Recent Transactions (Live from Stripe)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analytics?.transactions && analytics.transactions.length > 0 ? (
+                analytics.transactions.map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        tx.status === 'paid' || tx.status === 'complete' ? 'bg-green-500/10' : 'bg-amber-500/10'
+                      }`}>
+                        <ShoppingCart className={`w-5 h-5 ${
+                          tx.status === 'paid' || tx.status === 'complete' ? 'text-green-500' : 'text-amber-500'
+                        }`} />
+                      </div>
+                      <div>
+                        <p className="font-medium">{tx.type}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {tx.email} • {formatDistanceToNow(new Date(tx.createdAt), { addSuffix: true })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">${(tx.amount / 100).toFixed(2)}</p>
+                      <Badge variant={tx.status === 'paid' || tx.status === 'complete' ? 'default' : 'secondary'} className="text-xs">
+                        {tx.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  {isFetching ? 'Loading transactions...' : 'No recent transactions'}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick Actions */}
         <Card>
@@ -355,22 +417,30 @@ export default function AdminAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                <Download className="w-5 h-5" />
-                <span>Export Reports</span>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                <Users className="w-5 h-5" />
-                <span>Manage Users</span>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                <DollarSign className="w-5 h-5" />
-                <span>View Payments</span>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                <BarChart3 className="w-5 h-5" />
-                <span>SEO Analytics</span>
-              </Button>
+              <a href="/admin/users">
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2 w-full">
+                  <Users className="w-5 h-5" />
+                  <span>Manage Users</span>
+                </Button>
+              </a>
+              <a href="/admin/promo-codes">
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2 w-full">
+                  <Tag className="w-5 h-5" />
+                  <span>Promo Codes</span>
+                </Button>
+              </a>
+              <a href="/admin/ads">
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2 w-full">
+                  <DollarSign className="w-5 h-5" />
+                  <span>Ad Invoices</span>
+                </Button>
+              </a>
+              <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2 w-full">
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Stripe Dashboard</span>
+                </Button>
+              </a>
             </div>
           </CardContent>
         </Card>

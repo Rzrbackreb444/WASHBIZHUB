@@ -61,6 +61,13 @@ The frontend uses Vite for development, TanStack Query for state management, and
 - **Deal Flow & Funding:** Features a "Deal Flow Dashboard" (`/laundromat-listings`) and a "Funding Marketplace" (`/funding-matcher`) with 7 integrated partners.
 - **Business Directory:** A "Verified Directory" (`/directory`) for service providers with tiered subscriptions.
 - **Advertising & Promotions:** Includes a Facebook Group Advertising System with various ad products and a Stripe-powered invoice generator, plus a Promo Code System for campaigns.
+- **Admin Analytics Dashboard:** Live analytics dashboard (`/admin/analytics`) pulling real data from Stripe API and database. Features:
+  - Revenue metrics: Total, MRR, monthly trends, product breakdown
+  - User metrics: Total users, signups, tier distribution (Free/Starter/Pro/Enterprise)
+  - CLEANBI usage stats: Total analyses, monthly count, unique users
+  - Activity feed: Real-time logging of signups, purchases, subscriptions, promo redemptions
+  - Endpoints: `/api/admin/stats` (quick stats), `/api/admin/analytics` (comprehensive)
+  - Activity logging via `admin_activity_log` table tracking: user_signup, purchase, subscription_created, subscription_canceled, promo_redemption, advertising_payment
 - **Revenue Funnel Tools:** "SBA Loan Readiness Checker" (`/sba-readiness`) and an "AI Business Plan Generator" (`/business-plan-generator`) with Stripe integration for payment verification.
 - **Calculator & Formula Ecosystem:** Over 80 unique formulas across standalone pages and integrated within CLEANBI, covering valuation, financial analysis, operations, real estate, and more. Includes a core algorithm library for advanced simulations.
 

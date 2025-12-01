@@ -9,6 +9,8 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { db } from "./db";
+import { adminActivityLog } from "@shared/schema";
 
 const getOidcConfig = memoize(
   async () => {
@@ -53,6 +55,10 @@ function updateUserSession(
 }
 
 async function upsertUser(claims: any) {
+  // Check if user already exists (to log new signups)
+  const existingUser = await storage.getUser(claims["sub"]);
+  const isNewUser = !existingUser;
+  
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -60,6 +66,25 @@ async function upsertUser(claims: any) {
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  
+  // Log new user signups
+  if (isNewUser) {
+    try {
+      await db.insert(adminActivityLog).values({
+        type: 'user_signup',
+        description: `New user registered: ${claims["email"]}`,
+        email: claims["email"] || null,
+        metadata: {
+          userId: claims["sub"],
+          firstName: claims["first_name"],
+          lastName: claims["last_name"],
+        },
+        tenant: 'washbizhub.com',
+      });
+    } catch (e) {
+      console.error('Failed to log user signup:', e);
+    }
+  }
 }
 
 export async function setupAuth(app: Express) {

@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { 
   LayoutGrid,
   DollarSign, 
@@ -14,7 +16,8 @@ import {
   Settings,
   Monitor,
   Search,
-  Ticket
+  Ticket,
+  RefreshCw
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -23,18 +26,24 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   
   // Fetch stats
-  const { data: stats } = useQuery({
+  const { data: stats, refetch, isFetching } = useQuery({
     queryKey: ['/api/admin/stats'],
     enabled: isAuthenticated && user?.isAdmin,
   });
+
+  // Handle redirect in useEffect to avoid render-time state updates
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !user?.isAdmin)) {
+      setLocation('/');
+    }
+  }, [isLoading, isAuthenticated, user?.isAdmin, setLocation]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   if (!isAuthenticated || !user?.isAdmin) {
-    setLocation('/');
-    return null;
+    return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
   }
 
   const modules = [
@@ -139,13 +148,25 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2" style={{ color: '#C8A661' }}>
-          Admin Control Center
-        </h1>
-        <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
-          Full control over every aspect of WashBizHub
-        </p>
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2" style={{ color: '#C8A661' }}>
+            Admin Control Center
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
+            Full control over every aspect of WashBizHub
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          data-testid="button-refresh-stats"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* Quick Stats */}
