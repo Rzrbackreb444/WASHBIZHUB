@@ -428,26 +428,55 @@ export default function CalculatorsSuite() {
                 </Card>
               </div>
 
-              {/* Pro Upgrade Panel */}
+              {/* Quick Valuation Report CTA */}
               <div className="space-y-6">
+                <Card className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 border-green-500/30 backdrop-blur-xl">
+                  <CardContent className="pt-6">
+                    <Badge className="mb-3 bg-green-500/20 text-green-400 border-green-500/30">
+                      Best Value
+                    </Badge>
+                    <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-green-400" />
+                      Quick Valuation Report
+                    </h3>
+                    <p className="text-white/70 text-sm mb-4">
+                      Get a professional PDF report with CLEANBI score, estimated business value, and location analysis.
+                    </p>
+                    <ul className="space-y-2 mb-4">
+                      {["CLEANBI Score & Grade", "Estimated Value Range", "Location Overview", "PDF Download"].map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-white/80 text-sm">
+                          <Check className="w-4 h-4 text-green-400" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link href="/cleanbi-reports">
+                      <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold" data-testid="button-valuation-report">
+                        <Target className="w-4 h-4 mr-2" />
+                        Get Report - $99
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+                
                 <Card className="bg-gradient-to-br from-[#39CCCC]/20 to-cyan-600/20 border-[#39CCCC]/30 backdrop-blur-xl">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-2 mb-3">
                       <Crown className="w-5 h-5 text-[#39CCCC]" />
-                      <span className="text-white font-semibold">Upgrade to Pro</span>
+                      <span className="text-white font-semibold">CLEANBI Pro - Unlimited Reports</span>
                     </div>
                     <ul className="space-y-2 mb-4">
-                      {["AI-powered forecasts", "Custom branding", "API access", "Priority support"].map((feature) => (
+                      {["50 reports/month", "Detailed breakdowns", "Competitor analysis", "Priority support"].map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-white/80 text-sm">
                           <Check className="w-4 h-4 text-[#39CCCC]" />
                           {feature}
                         </li>
                       ))}
                     </ul>
-                    <Link href="/subscribe">
+                    <Link href="/pricing?upgrade=cleanbi-pro">
                       <Button className="w-full bg-[#39CCCC] hover:bg-[#39CCCC]/80 text-[#001F3F] font-bold" data-testid="button-upgrade">
                         <Sparkles className="w-4 h-4 mr-2" />
-                        $9/month
+                        $29/month
                       </Button>
                     </Link>
                   </CardContent>

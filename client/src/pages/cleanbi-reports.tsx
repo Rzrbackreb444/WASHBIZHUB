@@ -55,13 +55,14 @@ declare global {
 }
 
 interface ReportTier {
-  id: "standard" | "pro" | "enterprise";
+  id: "quick" | "standard" | "pro" | "enterprise";
   name: string;
   price: number;
   icon: any;
   iconBg: string;
   iconColor: string;
   popular?: boolean;
+  bestValue?: boolean;
   description: string;
   features: string[];
   excluded?: string[];
@@ -70,7 +71,7 @@ interface ReportTier {
 interface PurchasedReport {
   id: string;
   address: string;
-  tier: "standard" | "pro" | "enterprise";
+  tier: "quick" | "standard" | "pro" | "enterprise";
   status: "pending" | "processing" | "completed" | "failed";
   cleanbiScore?: number;
   grade?: string;
@@ -80,6 +81,30 @@ interface PurchasedReport {
 }
 
 const reportTiers: ReportTier[] = [
+  {
+    id: "quick",
+    name: "Quick Valuation",
+    price: 99,
+    icon: DollarSign,
+    iconBg: "bg-green-100 dark:bg-green-900/30",
+    iconColor: "text-green-600 dark:text-green-400",
+    bestValue: true,
+    description: "Fast valuation estimate for quick decisions",
+    features: [
+      "17-Factor CLEANBI Score",
+      "A/B/C Grade Assessment",
+      "Estimated Business Value Range",
+      "Location Overview",
+      "3-Page PDF Report",
+      "Email Delivery"
+    ],
+    excluded: [
+      "Competitor Analysis",
+      "Demographic Data",
+      "Vision AI Analysis",
+      "AI Recommendations"
+    ]
+  },
   {
     id: "standard",
     name: "Standard",
@@ -157,21 +182,22 @@ const reportTiers: ReportTier[] = [
 ];
 
 const featureComparison = [
-  { feature: "17-Factor CLEANBI Score", standard: true, pro: true, enterprise: true },
-  { feature: "A/B/C Grade Assessment", standard: true, pro: true, enterprise: true },
-  { feature: "Population & Demographics", standard: true, pro: true, enterprise: true },
-  { feature: "Median Income Analysis", standard: true, pro: true, enterprise: true },
-  { feature: "Competitor Count (3-mile)", standard: true, pro: true, enterprise: true },
-  { feature: "PDF Report Download", standard: true, pro: true, enterprise: true },
-  { feature: "Vision AI Photo Analysis", standard: false, pro: true, enterprise: true },
-  { feature: "Street View Imagery", standard: false, pro: true, enterprise: true },
-  { feature: "Parking & Visibility Score", standard: false, pro: true, enterprise: true },
-  { feature: "AI Recommendations", standard: false, pro: true, enterprise: true },
-  { feature: "Competitor Deep Dive", standard: false, pro: true, enterprise: true },
-  { feature: "Aerial View 3D Flyover", standard: false, pro: false, enterprise: true },
-  { feature: "Investment ROI Projections", standard: false, pro: false, enterprise: true },
-  { feature: "Phone Consultation", standard: false, pro: false, enterprise: true },
-  { feature: "White-Label Report", standard: false, pro: false, enterprise: true },
+  { feature: "17-Factor CLEANBI Score", quick: true, standard: true, pro: true, enterprise: true },
+  { feature: "A/B/C Grade Assessment", quick: true, standard: true, pro: true, enterprise: true },
+  { feature: "Estimated Business Value", quick: true, standard: false, pro: true, enterprise: true },
+  { feature: "Population & Demographics", quick: false, standard: true, pro: true, enterprise: true },
+  { feature: "Median Income Analysis", quick: false, standard: true, pro: true, enterprise: true },
+  { feature: "Competitor Count (3-mile)", quick: false, standard: true, pro: true, enterprise: true },
+  { feature: "PDF Report Download", quick: true, standard: true, pro: true, enterprise: true },
+  { feature: "Vision AI Photo Analysis", quick: false, standard: false, pro: true, enterprise: true },
+  { feature: "Street View Imagery", quick: false, standard: false, pro: true, enterprise: true },
+  { feature: "Parking & Visibility Score", quick: false, standard: false, pro: true, enterprise: true },
+  { feature: "AI Recommendations", quick: false, standard: false, pro: true, enterprise: true },
+  { feature: "Competitor Deep Dive", quick: false, standard: false, pro: true, enterprise: true },
+  { feature: "Aerial View 3D Flyover", quick: false, standard: false, pro: false, enterprise: true },
+  { feature: "Investment ROI Projections", quick: false, standard: false, pro: false, enterprise: true },
+  { feature: "Phone Consultation", quick: false, standard: false, pro: false, enterprise: true },
+  { feature: "White-Label Report", quick: false, standard: false, pro: false, enterprise: true },
 ];
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; icon: any }> = {
@@ -188,7 +214,7 @@ export default function CleanbiReports() {
   const autocompleteRef = useRef<any>(null);
 
   const [address, setAddress] = useState("");
-  const [selectedTier, setSelectedTier] = useState<"standard" | "pro" | "enterprise">("pro");
+  const [selectedTier, setSelectedTier] = useState<"quick" | "standard" | "pro" | "enterprise">("quick");
   const [activeTab, setActiveTab] = useState("order");
 
   const { data: myReports, isLoading: reportsLoading } = useQuery<PurchasedReport[]>({
@@ -198,7 +224,7 @@ export default function CleanbiReports() {
 
   const checkoutMutation = useMutation({
     mutationFn: async (data: { address: string; tier: string }) => {
-      const response = await apiRequest("POST", "/api/cleanbi/reports/checkout", data);
+      const response = await apiRequest("POST", "/api/cleanbi/checkout", data);
       return response.json();
     },
     onSuccess: (data: any) => {
@@ -521,7 +547,7 @@ export default function CleanbiReports() {
                 </Card>
 
                 {/* Pricing Tiers */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {reportTiers.map((tier) => {
                     const Icon = tier.icon;
                     const isSelected = selectedTier === tier.id;
@@ -541,6 +567,12 @@ export default function CleanbiReports() {
                           <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-primary">
                             <Star className="h-3 w-3 mr-1" />
                             Recommended
+                          </Badge>
+                        )}
+                        {tier.bestValue && (
+                          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white">
+                            <DollarSign className="h-3 w-3 mr-1" />
+                            Best Value
                           </Badge>
                         )}
 
@@ -591,6 +623,8 @@ export default function CleanbiReports() {
                                 ? "bg-accent text-primary"
                                 : tier.popular
                                 ? "bg-accent/20 text-accent border border-accent"
+                                : tier.bestValue
+                                ? "bg-green-600/20 text-green-600 border border-green-600"
                                 : ""
                             }`}
                             variant={isSelected ? "default" : "outline"}

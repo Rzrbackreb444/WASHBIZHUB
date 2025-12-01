@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift, BarChart3, Crown, Zap, Shield, ArrowRight, Sparkles, ArrowUpRight } from "lucide-react";
+import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift, BarChart3, Crown, Zap, Shield, ArrowRight, Sparkles, ArrowUpRight, Target, FileText } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { LegalDisclaimer } from "@/components/legal-disclaimer";
@@ -792,6 +792,28 @@ export default function CleanbiAuto() {
                   </CardContent>
                 </Card>
 
+                {/* Quick Valuation Report CTA */}
+                <Card className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 border-green-500/30">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-5 h-5 text-green-500" />
+                      <span className="font-bold text-green-600 dark:text-green-400">Get Full Valuation Report</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Get a professional PDF with estimated business value, detailed analysis, and actionable recommendations.
+                    </p>
+                    <Link href="/cleanbi-reports">
+                      <Button 
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-bold"
+                        data-testid="button-get-valuation-report"
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Get Report - $99
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+                
                 {/* Warnings */}
                 {result.warnings && result.warnings.length > 0 && (
                   <Card className="border-orange-200 dark:border-orange-800">

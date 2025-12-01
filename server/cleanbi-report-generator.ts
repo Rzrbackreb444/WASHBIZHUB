@@ -18,6 +18,22 @@ import { CleanbiReport } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export const REPORT_TIERS = {
+  quick: {
+    id: "quick",
+    name: "Quick Valuation Report",
+    price: 9900, // $99.00 in cents - Entry-level product
+    features: [
+      "CLEANBI Score & Grade",
+      "Location Overview",
+      "Estimated Business Value Range",
+      "3-Page PDF Report",
+      "Email Delivery"
+    ],
+    includesVision: false,
+    includesAiInsights: false,
+    includesDeepCompetitor: false,
+    includesValuation: true,
+  },
   standard: {
     id: "standard",
     name: "Standard Report",
@@ -32,6 +48,7 @@ export const REPORT_TIERS = {
     includesVision: false,
     includesAiInsights: false,
     includesDeepCompetitor: false,
+    includesValuation: false,
   },
   pro: {
     id: "pro",
@@ -47,6 +64,7 @@ export const REPORT_TIERS = {
     includesVision: true,
     includesAiInsights: false,
     includesDeepCompetitor: true,
+    includesValuation: true,
   },
   enterprise: {
     id: "enterprise",
@@ -63,6 +81,7 @@ export const REPORT_TIERS = {
     includesVision: true,
     includesAiInsights: true,
     includesDeepCompetitor: true,
+    includesValuation: true,
   }
 } as const;
 
