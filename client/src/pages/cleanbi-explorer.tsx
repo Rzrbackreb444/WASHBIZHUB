@@ -1153,7 +1153,7 @@ export default function CleanBIExplorer() {
                         <FileSpreadsheet className="w-3 h-3 mr-1.5" />
                         Export to Google Sheets
                       </Button>
-                    ) : userTier === "free" ? (
+                    ) : (
                       <Button 
                         variant="outline" 
                         className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
@@ -1333,7 +1333,7 @@ export default function CleanBIExplorer() {
                           <Download className="w-3 h-3 mr-1.5" />
                           Export Full Report (PDF)
                         </Button>
-                      ) : userTier === "free" ? (
+                      ) : (
                         <Button 
                           variant="outline"
                           className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
