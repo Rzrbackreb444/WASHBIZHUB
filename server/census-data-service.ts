@@ -45,107 +45,914 @@ const CACHE_TTL = 24 * 60 * 60 * 1000;
 
 const zipToFipsCache: Map<string, { state: string; county: string } | null> = new Map();
 
+// COMPREHENSIVE US ZIP PREFIX TO FIPS COUNTY MAPPING
+// Covers all 50 states + DC, major metros, and population centers
+// Format: { state: 'FIPS_STATE_CODE', county: 'FIPS_COUNTY_CODE' }
 const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = {
-  // New York City area
-  '100': { state: '36', county: '061' },
-  '101': { state: '36', county: '061' },
-  '102': { state: '36', county: '061' },
-  '103': { state: '36', county: '005' },
-  '104': { state: '36', county: '047' },
-  '112': { state: '36', county: '047' },
-  '113': { state: '36', county: '081' },
-  '114': { state: '36', county: '081' },
-  // Washington DC
+  // ═══════════════════════════════════════════════════════════════
+  // ALABAMA (01) - Birmingham, Mobile, Montgomery, Huntsville
+  // ═══════════════════════════════════════════════════════════════
+  '350': { state: '01', county: '073' }, // Birmingham/Jefferson
+  '351': { state: '01', county: '073' },
+  '352': { state: '01', county: '073' },
+  '353': { state: '01', county: '073' },
+  '354': { state: '01', county: '117' }, // Shelby
+  '355': { state: '01', county: '073' },
+  '356': { state: '01', county: '043' }, // Cullman
+  '357': { state: '01', county: '089' }, // Madison/Huntsville
+  '358': { state: '01', county: '089' },
+  '359': { state: '01', county: '083' }, // Limestone
+  '360': { state: '01', county: '101' }, // Montgomery
+  '361': { state: '01', county: '101' },
+  '362': { state: '01', county: '005' }, // Barbour
+  '363': { state: '01', county: '081' }, // Lee/Auburn
+  '364': { state: '01', county: '113' }, // Russell
+  '365': { state: '01', county: '041' }, // Crenshaw
+  '366': { state: '01', county: '097' }, // Mobile
+  '367': { state: '01', county: '003' }, // Baldwin
+  
+  // ═══════════════════════════════════════════════════════════════
+  // ALASKA (02) - Anchorage, Fairbanks
+  // ═══════════════════════════════════════════════════════════════
+  '995': { state: '02', county: '020' }, // Anchorage
+  '996': { state: '02', county: '020' },
+  '997': { state: '02', county: '090' }, // Fairbanks North Star
+  '998': { state: '02', county: '110' }, // Juneau
+  '999': { state: '02', county: '170' }, // Matanuska-Susitna
+
+  // ═══════════════════════════════════════════════════════════════
+  // ARIZONA (04) - Phoenix, Tucson, Mesa, Scottsdale
+  // ═══════════════════════════════════════════════════════════════
+  '850': { state: '04', county: '013' }, // Phoenix/Maricopa
+  '851': { state: '04', county: '013' },
+  '852': { state: '04', county: '013' },
+  '853': { state: '04', county: '013' },
+  '854': { state: '04', county: '013' },
+  '855': { state: '04', county: '013' },
+  '856': { state: '04', county: '013' }, // Mesa
+  '857': { state: '04', county: '019' }, // Pima/Tucson
+  '858': { state: '04', county: '019' },
+  '859': { state: '04', county: '013' }, // Glendale
+  '860': { state: '04', county: '005' }, // Coconino/Flagstaff
+  '863': { state: '04', county: '027' }, // Yuma
+  '864': { state: '04', county: '015' }, // Mohave
+  '865': { state: '04', county: '013' }, // Scottsdale
+
+  // ═══════════════════════════════════════════════════════════════
+  // ARKANSAS (05) - Little Rock, Fort Smith, Fayetteville, Bentonville
+  // ═══════════════════════════════════════════════════════════════
+  '716': { state: '05', county: '091' }, // Miller
+  '717': { state: '05', county: '057' }, // Hempstead
+  '718': { state: '05', county: '027' }, // Columbia
+  '719': { state: '05', county: '099' }, // Nevada
+  '720': { state: '05', county: '119' }, // Little Rock/Pulaski
+  '721': { state: '05', county: '119' },
+  '722': { state: '05', county: '119' },
+  '723': { state: '05', county: '119' },
+  '724': { state: '05', county: '031' }, // Jonesboro/Craighead
+  '725': { state: '05', county: '143' }, // Washington
+  '726': { state: '05', county: '007' }, // Bentonville/Benton
+  '727': { state: '05', county: '143' }, // Fayetteville/Washington
+  '728': { state: '05', county: '131' }, // Fort Smith/Sebastian
+  '729': { state: '05', county: '131' }, // Fort Smith/Sebastian (THE WASHROOM)
+
+  // ═══════════════════════════════════════════════════════════════
+  // CALIFORNIA (06) - LA, SF, San Diego, Sacramento, San Jose
+  // ═══════════════════════════════════════════════════════════════
+  // Los Angeles Area (LA County 037)
+  '900': { state: '06', county: '037' }, // Los Angeles
+  '901': { state: '06', county: '037' },
+  '902': { state: '06', county: '037' }, // Inglewood
+  '903': { state: '06', county: '037' },
+  '904': { state: '06', county: '037' },
+  '905': { state: '06', county: '037' }, // Torrance
+  '906': { state: '06', county: '037' },
+  '907': { state: '06', county: '037' },
+  '908': { state: '06', county: '037' },
+  '910': { state: '06', county: '037' }, // Pasadena
+  '911': { state: '06', county: '037' },
+  '912': { state: '06', county: '037' }, // Glendale
+  '913': { state: '06', county: '037' },
+  '914': { state: '06', county: '037' }, // Van Nuys
+  '915': { state: '06', county: '037' }, // Burbank
+  '916': { state: '06', county: '037' },
+  '917': { state: '06', county: '037' }, // Industry
+  '918': { state: '06', county: '037' },
+  // San Bernardino/Riverside (Inland Empire)
+  '909': { state: '06', county: '071' }, // San Bernardino
+  '917': { state: '06', county: '071' },
+  '923': { state: '06', county: '071' },
+  '924': { state: '06', county: '071' },
+  '925': { state: '06', county: '065' }, // Riverside
+  // Orange County (059)
+  '926': { state: '06', county: '059' }, // Santa Ana
+  '927': { state: '06', county: '059' },
+  '928': { state: '06', county: '059' }, // Anaheim
+  '919': { state: '06', county: '059' }, // Irvine
+  // San Diego (073)
+  '920': { state: '06', county: '073' },
+  '921': { state: '06', county: '073' },
+  '922': { state: '06', county: '073' },
+  // San Francisco Bay Area
+  '940': { state: '06', county: '075' }, // San Francisco
+  '941': { state: '06', county: '075' },
+  '943': { state: '06', county: '081' }, // San Mateo
+  '944': { state: '06', county: '075' },
+  '945': { state: '06', county: '001' }, // Alameda/Oakland
+  '946': { state: '06', county: '001' },
+  '947': { state: '06', county: '001' }, // Berkeley
+  '948': { state: '06', county: '013' }, // Contra Costa
+  '949': { state: '06', county: '075' },
+  '950': { state: '06', county: '085' }, // San Jose/Santa Clara
+  '951': { state: '06', county: '085' },
+  '952': { state: '06', county: '085' }, // Stockton (San Joaquin 077)
+  '953': { state: '06', county: '077' },
+  '954': { state: '06', county: '085' },
+  '955': { state: '06', county: '097' }, // Sonoma
+  '956': { state: '06', county: '067' }, // Sacramento
+  '957': { state: '06', county: '067' },
+  '958': { state: '06', county: '067' },
+  '959': { state: '06', county: '067' },
+  // Fresno/Central Valley
+  '935': { state: '06', county: '019' }, // Fresno
+  '936': { state: '06', county: '019' },
+  '937': { state: '06', county: '019' },
+  '930': { state: '06', county: '083' }, // Santa Barbara
+  '931': { state: '06', county: '111' }, // Ventura
+  '932': { state: '06', county: '029' }, // Kern/Bakersfield
+  '933': { state: '06', county: '029' },
+  '934': { state: '06', county: '107' }, // Tulare
+
+  // ═══════════════════════════════════════════════════════════════
+  // COLORADO (08) - Denver, Colorado Springs, Aurora, Fort Collins
+  // ═══════════════════════════════════════════════════════════════
+  '800': { state: '08', county: '031' }, // Denver
+  '801': { state: '08', county: '031' },
+  '802': { state: '08', county: '031' },
+  '803': { state: '08', county: '005' }, // Arapahoe/Aurora
+  '804': { state: '08', county: '005' },
+  '805': { state: '08', county: '069' }, // Larimer/Fort Collins
+  '806': { state: '08', county: '123' }, // Weld/Greeley
+  '807': { state: '08', county: '013' }, // Boulder
+  '808': { state: '08', county: '041' }, // El Paso/Colorado Springs
+  '809': { state: '08', county: '041' },
+  '810': { state: '08', county: '101' }, // Pueblo
+
+  // ═══════════════════════════════════════════════════════════════
+  // CONNECTICUT (09) - Hartford, New Haven, Bridgeport, Stamford
+  // ═══════════════════════════════════════════════════════════════
+  '060': { state: '09', county: '001' }, // Fairfield/Bridgeport
+  '061': { state: '09', county: '001' },
+  '062': { state: '09', county: '001' }, // Stamford
+  '063': { state: '09', county: '001' },
+  '064': { state: '09', county: '001' },
+  '065': { state: '09', county: '009' }, // New Haven
+  '066': { state: '09', county: '009' },
+  '067': { state: '09', county: '011' }, // Waterbury/New London
+  '068': { state: '09', county: '009' },
+  '069': { state: '09', county: '003' }, // Hartford
+
+  // ═══════════════════════════════════════════════════════════════
+  // DELAWARE (10) - Wilmington, Dover
+  // ═══════════════════════════════════════════════════════════════
+  '197': { state: '10', county: '003' }, // Wilmington/New Castle
+  '198': { state: '10', county: '003' },
+  '199': { state: '10', county: '001' }, // Dover/Kent
+
+  // ═══════════════════════════════════════════════════════════════
+  // WASHINGTON DC (11)
+  // ═══════════════════════════════════════════════════════════════
   '200': { state: '11', county: '001' },
-  // Arkansas - Fort Smith (Sebastian County 131)
-  '729': { state: '05', county: '131' }, // Fort Smith (THE WASHROOM location)
-  '728': { state: '05', county: '131' }, // Fort Smith area
-  // Arkansas - Little Rock (Pulaski County 119)
-  '721': { state: '05', county: '119' }, // Little Rock
-  '722': { state: '05', county: '119' }, // Little Rock area
-  // Arkansas - Northwest (Washington County 143, Benton County 007)
-  '727': { state: '05', county: '143' }, // Fayetteville/Washington Co
-  '726': { state: '05', county: '007' }, // Bentonville/Benton Co
-  // Arkansas - Northeast (Craighead County 031)
-  '724': { state: '05', county: '031' }, // Jonesboro
   '201': { state: '11', county: '001' },
   '202': { state: '11', county: '001' },
   '203': { state: '11', county: '001' },
   '204': { state: '11', county: '001' },
   '205': { state: '11', county: '001' },
-  '206': { state: '11', county: '001' },
-  '207': { state: '11', county: '001' },
-  '208': { state: '11', county: '001' },
-  '209': { state: '11', county: '001' },
-  '900': { state: '06', county: '037' },
-  '901': { state: '06', county: '037' },
-  '902': { state: '06', county: '037' },
-  '903': { state: '06', county: '037' },
-  '904': { state: '06', county: '037' },
-  '905': { state: '06', county: '037' },
-  '906': { state: '06', county: '037' },
-  '907': { state: '06', county: '037' },
-  '908': { state: '06', county: '037' },
-  '909': { state: '06', county: '071' },
-  '910': { state: '06', county: '037' },
-  '911': { state: '06', county: '037' },
-  '912': { state: '06', county: '037' },
-  '913': { state: '06', county: '037' },
-  '914': { state: '06', county: '037' },
-  '915': { state: '06', county: '037' },
-  '916': { state: '06', county: '037' },
-  '917': { state: '06', county: '037' },
-  '918': { state: '06', county: '037' },
-  '919': { state: '06', county: '059' },
-  '920': { state: '06', county: '073' },
-  '921': { state: '06', county: '073' },
-  '922': { state: '06', county: '073' },
-  '923': { state: '06', county: '073' },
-  '924': { state: '06', county: '071' },
-  '925': { state: '06', county: '071' },
-  '926': { state: '06', county: '059' },
-  '927': { state: '06', county: '059' },
-  '928': { state: '06', county: '059' },
-  '606': { state: '17', county: '031' },
-  '607': { state: '17', county: '031' },
-  '608': { state: '17', county: '031' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // FLORIDA (12) - Miami, Tampa, Orlando, Jacksonville
+  // ═══════════════════════════════════════════════════════════════
+  // Miami-Dade (086)
   '330': { state: '12', county: '086' },
   '331': { state: '12', county: '086' },
   '332': { state: '12', county: '086' },
-  '333': { state: '12', county: '011' },
+  '333': { state: '12', county: '011' }, // Broward/Ft Lauderdale
+  '334': { state: '12', county: '099' }, // Palm Beach
+  '335': { state: '12', county: '086' },
+  // Tampa Bay
+  '336': { state: '12', county: '057' }, // Hillsborough/Tampa
+  '337': { state: '12', county: '103' }, // Pinellas/St Petersburg
+  '338': { state: '12', county: '081' }, // Manatee
+  '339': { state: '12', county: '115' }, // Sarasota
+  // Orlando
+  '327': { state: '12', county: '095' }, // Orange/Orlando
+  '328': { state: '12', county: '095' },
+  '347': { state: '12', county: '095' },
+  '348': { state: '12', county: '117' }, // Seminole
+  // Jacksonville
+  '320': { state: '12', county: '031' }, // Duval
+  '321': { state: '12', county: '031' },
+  '322': { state: '12', county: '031' },
+  // Other Florida
+  '323': { state: '12', county: '001' }, // Alachua/Gainesville
+  '324': { state: '12', county: '019' }, // Clay
+  '325': { state: '12', county: '009' }, // Brevard
+  '326': { state: '12', county: '127' }, // Volusia/Daytona
+  '340': { state: '12', county: '071' }, // Lee/Fort Myers
+  '341': { state: '12', county: '021' }, // Collier/Naples
+
+  // ═══════════════════════════════════════════════════════════════
+  // GEORGIA (13) - Atlanta, Savannah, Augusta, Columbus
+  // ═══════════════════════════════════════════════════════════════
+  '300': { state: '13', county: '121' }, // Atlanta/Fulton
+  '301': { state: '13', county: '121' },
+  '302': { state: '13', county: '121' },
+  '303': { state: '13', county: '121' },
+  '304': { state: '13', county: '089' }, // DeKalb
+  '305': { state: '13', county: '121' },
+  '306': { state: '13', county: '067' }, // Cobb/Marietta
+  '307': { state: '13', county: '097' }, // Douglas
+  '308': { state: '13', county: '063' }, // Clayton
+  '309': { state: '13', county: '135' }, // Gwinnett
+  '310': { state: '13', county: '135' },
+  '311': { state: '13', county: '051' }, // Chatham/Savannah
+  '312': { state: '13', county: '051' },
+  '313': { state: '13', county: '245' }, // Richmond/Augusta
+  '314': { state: '13', county: '215' }, // Muscogee/Columbus
+  '315': { state: '13', county: '021' }, // Bibb/Macon
+
+  // ═══════════════════════════════════════════════════════════════
+  // HAWAII (15) - Honolulu
+  // ═══════════════════════════════════════════════════════════════
+  '967': { state: '15', county: '003' }, // Honolulu
+  '968': { state: '15', county: '003' },
+  '969': { state: '15', county: '001' }, // Hawaii (Big Island)
+
+  // ═══════════════════════════════════════════════════════════════
+  // IDAHO (16) - Boise
+  // ═══════════════════════════════════════════════════════════════
+  '836': { state: '16', county: '001' }, // Ada/Boise
+  '837': { state: '16', county: '001' },
+  '838': { state: '16', county: '027' }, // Canyon
+
+  // ═══════════════════════════════════════════════════════════════
+  // ILLINOIS (17) - Chicago, Aurora, Rockford, Naperville
+  // ═══════════════════════════════════════════════════════════════
+  '606': { state: '17', county: '031' }, // Chicago/Cook
+  '607': { state: '17', county: '031' },
+  '608': { state: '17', county: '031' },
+  '609': { state: '17', county: '031' },
+  '600': { state: '17', county: '031' },
+  '601': { state: '17', county: '031' },
+  '602': { state: '17', county: '031' }, // Evanston
+  '603': { state: '17', county: '031' }, // Oak Park
+  '604': { state: '17', county: '043' }, // DuPage/Aurora
+  '605': { state: '17', county: '043' }, // Naperville
+  '610': { state: '17', county: '111' }, // McHenry
+  '611': { state: '17', county: '089' }, // Kane
+  '612': { state: '17', county: '097' }, // Lake
+  '613': { state: '17', county: '197' }, // Will
+  '614': { state: '17', county: '093' }, // Kendall
+  '615': { state: '17', county: '091' }, // Kankakee
+  '617': { state: '17', county: '019' }, // Champaign
+  '618': { state: '17', county: '167' }, // Sangamon/Springfield
+  '619': { state: '17', county: '167' },
+  '620': { state: '17', county: '143' }, // Peoria
+  '611': { state: '17', county: '201' }, // Winnebago/Rockford
+
+  // ═══════════════════════════════════════════════════════════════
+  // INDIANA (18) - Indianapolis, Fort Wayne, Evansville
+  // ═══════════════════════════════════════════════════════════════
+  '460': { state: '18', county: '097' }, // Indianapolis/Marion
+  '461': { state: '18', county: '097' },
+  '462': { state: '18', county: '097' },
+  '463': { state: '18', county: '097' },
+  '464': { state: '18', county: '057' }, // Hamilton
+  '465': { state: '18', county: '057' },
+  '466': { state: '18', county: '003' }, // Allen/Fort Wayne
+  '467': { state: '18', county: '003' },
+  '468': { state: '18', county: '003' },
+  '469': { state: '18', county: '089' }, // Lake/Gary
+  '470': { state: '18', county: '163' }, // Vanderburgh/Evansville
+  '471': { state: '18', county: '141' }, // St. Joseph/South Bend
+  '472': { state: '18', county: '141' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // IOWA (19) - Des Moines, Cedar Rapids, Davenport
+  // ═══════════════════════════════════════════════════════════════
+  '500': { state: '19', county: '153' }, // Des Moines/Polk
+  '501': { state: '19', county: '153' },
+  '502': { state: '19', county: '153' },
+  '503': { state: '19', county: '153' },
+  '520': { state: '19', county: '163' }, // Scott/Davenport
+  '521': { state: '19', county: '163' },
+  '522': { state: '19', county: '057' }, // Linn/Cedar Rapids
+  '523': { state: '19', county: '057' },
+  '524': { state: '19', county: '113' }, // Linn
+
+  // ═══════════════════════════════════════════════════════════════
+  // KANSAS (20) - Wichita, Kansas City, Overland Park
+  // ═══════════════════════════════════════════════════════════════
+  '670': { state: '20', county: '173' }, // Wichita/Sedgwick
+  '671': { state: '20', county: '173' },
+  '672': { state: '20', county: '173' },
+  '660': { state: '20', county: '209' }, // Kansas City/Wyandotte
+  '661': { state: '20', county: '209' },
+  '662': { state: '20', county: '091' }, // Johnson/Overland Park
+  '663': { state: '20', county: '091' },
+  '664': { state: '20', county: '177' }, // Shawnee/Topeka
+  '665': { state: '20', county: '177' },
+  '666': { state: '20', county: '177' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // KENTUCKY (21) - Louisville, Lexington
+  // ═══════════════════════════════════════════════════════════════
+  '400': { state: '21', county: '111' }, // Louisville/Jefferson
+  '401': { state: '21', county: '111' },
+  '402': { state: '21', county: '111' },
+  '403': { state: '21', county: '111' },
+  '404': { state: '21', county: '111' },
+  '405': { state: '21', county: '067' }, // Fayette/Lexington
+  '406': { state: '21', county: '067' },
+  '410': { state: '21', county: '117' }, // Kenton
+  '411': { state: '21', county: '015' }, // Boone
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOUISIANA (22) - New Orleans, Baton Rouge, Shreveport
+  // ═══════════════════════════════════════════════════════════════
+  '700': { state: '22', county: '071' }, // New Orleans/Orleans
+  '701': { state: '22', county: '071' },
+  '702': { state: '22', county: '051' }, // Jefferson
+  '703': { state: '22', county: '051' },
+  '704': { state: '22', county: '103' }, // St. Tammany
+  '707': { state: '22', county: '033' }, // East Baton Rouge
+  '708': { state: '22', county: '033' },
+  '710': { state: '22', county: '055' }, // Lafayette
+  '711': { state: '22', county: '017' }, // Caddo/Shreveport
+  '712': { state: '22', county: '017' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAINE (23) - Portland
+  // ═══════════════════════════════════════════════════════════════
+  '040': { state: '23', county: '005' }, // Cumberland/Portland
+  '041': { state: '23', county: '005' },
+  '042': { state: '23', county: '005' },
+  '043': { state: '23', county: '001' }, // Androscoggin
+  '044': { state: '23', county: '019' }, // Penobscot
+  '045': { state: '23', county: '011' }, // Kennebec
+
+  // ═══════════════════════════════════════════════════════════════
+  // MARYLAND (24) - Baltimore, Frederick
+  // ═══════════════════════════════════════════════════════════════
+  '210': { state: '24', county: '005' }, // Baltimore County
+  '211': { state: '24', county: '005' },
+  '212': { state: '24', county: '510' }, // Baltimore City
+  '214': { state: '24', county: '003' }, // Anne Arundel
+  '215': { state: '24', county: '510' },
+  '217': { state: '24', county: '021' }, // Frederick
+  '206': { state: '24', county: '031' }, // Montgomery
+  '207': { state: '24', county: '033' }, // Prince George's
+  '208': { state: '24', county: '033' },
+  '209': { state: '24', county: '043' }, // Washington
+
+  // ═══════════════════════════════════════════════════════════════
+  // MASSACHUSETTS (25) - Boston, Worcester, Springfield
+  // ═══════════════════════════════════════════════════════════════
+  '021': { state: '25', county: '025' }, // Boston/Suffolk
+  '022': { state: '25', county: '025' },
+  '023': { state: '25', county: '017' }, // Middlesex
+  '024': { state: '25', county: '017' },
+  '025': { state: '25', county: '021' }, // Norfolk
+  '026': { state: '25', county: '021' },
+  '027': { state: '25', county: '017' }, // Middlesex
+  '010': { state: '25', county: '013' }, // Hampden/Springfield
+  '011': { state: '25', county: '013' },
+  '012': { state: '25', county: '015' }, // Hampshire
+  '013': { state: '25', county: '027' }, // Worcester
+  '014': { state: '25', county: '027' },
+  '015': { state: '25', county: '027' },
+  '016': { state: '25', county: '027' },
+  '017': { state: '25', county: '017' },
+  '018': { state: '25', county: '017' },
+  '019': { state: '25', county: '017' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // MICHIGAN (26) - Detroit, Grand Rapids, Ann Arbor
+  // ═══════════════════════════════════════════════════════════════
+  '480': { state: '26', county: '163' }, // Detroit/Wayne
+  '481': { state: '26', county: '163' },
+  '482': { state: '26', county: '163' },
+  '483': { state: '26', county: '125' }, // Oakland
+  '484': { state: '26', county: '125' },
+  '485': { state: '26', county: '099' }, // Macomb
+  '486': { state: '26', county: '161' }, // Washtenaw/Ann Arbor
+  '487': { state: '26', county: '065' }, // Ingham/Lansing
+  '488': { state: '26', county: '065' },
+  '489': { state: '26', county: '077' }, // Kalamazoo
+  '490': { state: '26', county: '015' }, // Barry
+  '491': { state: '26', county: '081' }, // Kent/Grand Rapids
+  '492': { state: '26', county: '081' },
+  '493': { state: '26', county: '081' },
+  '494': { state: '26', county: '139' }, // Ottawa
+  '495': { state: '26', county: '049' }, // Genesee/Flint
+  '496': { state: '26', county: '049' },
+  '497': { state: '26', county: '145' }, // Saginaw
+
+  // ═══════════════════════════════════════════════════════════════
+  // MINNESOTA (27) - Minneapolis, St. Paul, Rochester
+  // ═══════════════════════════════════════════════════════════════
+  '550': { state: '27', county: '053' }, // Minneapolis/Hennepin
+  '551': { state: '27', county: '053' },
+  '553': { state: '27', county: '053' },
+  '554': { state: '27', county: '123' }, // St. Paul/Ramsey
+  '555': { state: '27', county: '123' },
+  '556': { state: '27', county: '037' }, // Dakota
+  '557': { state: '27', county: '037' },
+  '558': { state: '27', county: '109' }, // Olmsted/Rochester
+  '559': { state: '27', county: '109' },
+  '560': { state: '27', county: '003' }, // Anoka
+  '561': { state: '27', county: '163' }, // Washington
+  '562': { state: '27', county: '019' }, // Carver
+  '563': { state: '27', county: '139' }, // Scott
+  '564': { state: '27', county: '137' }, // St. Louis/Duluth
+
+  // ═══════════════════════════════════════════════════════════════
+  // MISSISSIPPI (28) - Jackson, Gulfport
+  // ═══════════════════════════════════════════════════════════════
+  '390': { state: '28', county: '049' }, // Jackson/Hinds
+  '391': { state: '28', county: '049' },
+  '392': { state: '28', county: '121' }, // Rankin
+  '393': { state: '28', county: '047' }, // Harrison/Gulfport
+  '394': { state: '28', county: '047' },
+  '395': { state: '28', county: '059' }, // Jackson County
+
+  // ═══════════════════════════════════════════════════════════════
+  // MISSOURI (29) - St. Louis, Kansas City, Springfield
+  // ═══════════════════════════════════════════════════════════════
+  '630': { state: '29', county: '189' }, // St. Louis County
+  '631': { state: '29', county: '189' },
+  '632': { state: '29', county: '189' },
+  '633': { state: '29', county: '189' },
+  '634': { state: '29', county: '510' }, // St. Louis City
+  '635': { state: '29', county: '510' },
+  '636': { state: '29', county: '183' }, // St. Charles
+  '640': { state: '29', county: '095' }, // Jackson/Kansas City
+  '641': { state: '29', county: '095' },
+  '644': { state: '29', county: '095' },
+  '645': { state: '29', county: '037' }, // Cass
+  '646': { state: '29', county: '047' }, // Clay
+  '647': { state: '29', county: '165' }, // Platte
+  '650': { state: '29', county: '019' }, // Boone/Columbia
+  '651': { state: '29', county: '027' }, // Callaway
+  '656': { state: '29', county: '077' }, // Greene/Springfield
+  '657': { state: '29', county: '077' },
+  '658': { state: '29', county: '077' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // MONTANA (30) - Billings, Missoula
+  // ═══════════════════════════════════════════════════════════════
+  '590': { state: '30', county: '111' }, // Billings/Yellowstone
+  '591': { state: '30', county: '111' },
+  '598': { state: '30', county: '063' }, // Missoula
+  '599': { state: '30', county: '063' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEBRASKA (31) - Omaha, Lincoln
+  // ═══════════════════════════════════════════════════════════════
+  '680': { state: '31', county: '055' }, // Omaha/Douglas
+  '681': { state: '31', county: '055' },
+  '682': { state: '31', county: '055' },
+  '683': { state: '31', county: '153' }, // Sarpy
+  '684': { state: '31', county: '109' }, // Lancaster/Lincoln
+  '685': { state: '31', county: '109' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEVADA (32) - Las Vegas, Reno
+  // ═══════════════════════════════════════════════════════════════
+  '889': { state: '32', county: '003' }, // Las Vegas/Clark
+  '890': { state: '32', county: '003' },
+  '891': { state: '32', county: '003' },
+  '893': { state: '32', county: '003' },
+  '894': { state: '32', county: '003' },
+  '895': { state: '32', county: '003' },
+  '897': { state: '32', county: '031' }, // Reno/Washoe
+  '898': { state: '32', county: '031' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEW HAMPSHIRE (33) - Manchester, Nashua
+  // ═══════════════════════════════════════════════════════════════
+  '030': { state: '33', county: '011' }, // Hillsborough/Manchester
+  '031': { state: '33', county: '011' },
+  '032': { state: '33', county: '011' },
+  '033': { state: '33', county: '015' }, // Rockingham
+  '034': { state: '33', county: '013' }, // Merrimack
+  '035': { state: '33', county: '009' }, // Grafton
+  '036': { state: '33', county: '001' }, // Belknap
+  '037': { state: '33', county: '005' }, // Cheshire
+  '038': { state: '33', county: '017' }, // Strafford
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEW JERSEY (34) - Newark, Jersey City, Trenton
+  // ═══════════════════════════════════════════════════════════════
+  '070': { state: '34', county: '013' }, // Essex/Newark
+  '071': { state: '34', county: '013' },
+  '072': { state: '34', county: '039' }, // Union
+  '073': { state: '34', county: '031' }, // Passaic
+  '074': { state: '34', county: '031' },
+  '075': { state: '34', county: '031' },
+  '076': { state: '34', county: '013' },
+  '077': { state: '34', county: '023' }, // Middlesex
+  '078': { state: '34', county: '039' },
+  '079': { state: '34', county: '027' }, // Morris
+  '080': { state: '34', county: '007' }, // Camden
+  '081': { state: '34', county: '007' },
+  '082': { state: '34', county: '001' }, // Atlantic City
+  '083': { state: '34', county: '005' }, // Burlington
+  '084': { state: '34', county: '015' }, // Gloucester
+  '085': { state: '34', county: '021' }, // Mercer/Trenton
+  '086': { state: '34', county: '021' },
+  '087': { state: '34', county: '029' }, // Ocean
+  '088': { state: '34', county: '025' }, // Monmouth
+  '089': { state: '34', county: '035' }, // Somerset
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEW MEXICO (35) - Albuquerque, Santa Fe
+  // ═══════════════════════════════════════════════════════════════
+  '870': { state: '35', county: '001' }, // Albuquerque/Bernalillo
+  '871': { state: '35', county: '001' },
+  '873': { state: '35', county: '001' },
+  '874': { state: '35', county: '001' },
+  '875': { state: '35', county: '049' }, // Santa Fe
+  '876': { state: '35', county: '043' }, // Sandoval
+  '877': { state: '35', county: '061' }, // Valencia
+  '880': { state: '35', county: '013' }, // Dona Ana/Las Cruces
+  '881': { state: '35', county: '013' },
+  '882': { state: '35', county: '015' }, // Eddy
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEW YORK (36) - NYC, Buffalo, Rochester, Albany
+  // ═══════════════════════════════════════════════════════════════
+  // NYC - Manhattan (061)
+  '100': { state: '36', county: '061' },
+  '101': { state: '36', county: '061' },
+  '102': { state: '36', county: '061' },
+  // NYC - Bronx (005)
+  '103': { state: '36', county: '005' },
+  '104': { state: '36', county: '005' },
+  // NYC - Brooklyn (047)
+  '112': { state: '36', county: '047' },
+  '113': { state: '36', county: '081' }, // Queens
+  '114': { state: '36', county: '081' },
+  '115': { state: '36', county: '081' },
+  '116': { state: '36', county: '081' },
+  // NYC - Staten Island (085)
+  '103': { state: '36', county: '085' },
+  // Long Island
+  '110': { state: '36', county: '059' }, // Nassau
+  '111': { state: '36', county: '059' },
+  '117': { state: '36', county: '103' }, // Suffolk
+  '118': { state: '36', county: '103' },
+  '119': { state: '36', county: '103' },
+  // Westchester
+  '105': { state: '36', county: '119' },
+  '106': { state: '36', county: '119' },
+  '107': { state: '36', county: '119' },
+  '108': { state: '36', county: '119' },
+  '109': { state: '36', county: '119' },
+  // Upstate
+  '120': { state: '36', county: '001' }, // Albany
+  '121': { state: '36', county: '001' },
+  '122': { state: '36', county: '001' },
+  '123': { state: '36', county: '083' }, // Rensselaer
+  '130': { state: '36', county: '067' }, // Onondaga/Syracuse
+  '131': { state: '36', county: '067' },
+  '132': { state: '36', county: '067' },
+  '140': { state: '36', county: '029' }, // Erie/Buffalo
+  '141': { state: '36', county: '029' },
+  '142': { state: '36', county: '029' },
+  '143': { state: '36', county: '063' }, // Niagara
+  '144': { state: '36', county: '055' }, // Monroe/Rochester
+  '145': { state: '36', county: '055' },
+  '146': { state: '36', county: '055' },
+  '147': { state: '36', county: '055' },
+  '148': { state: '36', county: '055' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // NORTH CAROLINA (37) - Charlotte, Raleigh, Durham
+  // ═══════════════════════════════════════════════════════════════
+  '280': { state: '37', county: '119' }, // Charlotte/Mecklenburg
+  '281': { state: '37', county: '119' },
+  '282': { state: '37', county: '119' },
+  '283': { state: '37', county: '119' },
+  '270': { state: '37', county: '183' }, // Raleigh/Wake
+  '271': { state: '37', county: '183' },
+  '272': { state: '37', county: '183' },
+  '273': { state: '37', county: '063' }, // Durham
+  '274': { state: '37', county: '081' }, // Guilford/Greensboro
+  '275': { state: '37', county: '067' }, // Forsyth/Winston-Salem
+  '276': { state: '37', county: '067' },
+  '277': { state: '37', county: '067' },
+  '278': { state: '37', county: '129' }, // New Hanover/Wilmington
+  '284': { state: '37', county: '025' }, // Cabarrus
+
+  // ═══════════════════════════════════════════════════════════════
+  // NORTH DAKOTA (38) - Fargo, Bismarck
+  // ═══════════════════════════════════════════════════════════════
+  '580': { state: '38', county: '017' }, // Fargo/Cass
+  '581': { state: '38', county: '017' },
+  '585': { state: '38', county: '015' }, // Bismarck/Burleigh
+  '586': { state: '38', county: '015' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // OHIO (39) - Columbus, Cleveland, Cincinnati
+  // ═══════════════════════════════════════════════════════════════
+  '430': { state: '39', county: '049' }, // Columbus/Franklin
+  '431': { state: '39', county: '049' },
+  '432': { state: '39', county: '049' },
+  '433': { state: '39', county: '049' },
+  '440': { state: '39', county: '035' }, // Cleveland/Cuyahoga
+  '441': { state: '39', county: '035' },
+  '442': { state: '39', county: '035' },
+  '443': { state: '39', county: '035' },
+  '444': { state: '39', county: '035' },
+  '450': { state: '39', county: '061' }, // Cincinnati/Hamilton
+  '451': { state: '39', county: '061' },
+  '452': { state: '39', county: '061' },
+  '453': { state: '39', county: '113' }, // Montgomery/Dayton
+  '454': { state: '39', county: '113' },
+  '455': { state: '39', county: '113' },
+  '456': { state: '39', county: '113' },
+  '457': { state: '39', county: '057' }, // Greene
+  '443': { state: '39', county: '093' }, // Lorain
+  '444': { state: '39', county: '085' }, // Lake
+  '445': { state: '39', county: '153' }, // Summit/Akron
+  '446': { state: '39', county: '153' },
+  '447': { state: '39', county: '099' }, // Mahoning/Youngstown
+  '448': { state: '39', county: '151' }, // Stark/Canton
+
+  // ═══════════════════════════════════════════════════════════════
+  // OKLAHOMA (40) - Oklahoma City, Tulsa
+  // ═══════════════════════════════════════════════════════════════
+  '730': { state: '40', county: '109' }, // Oklahoma City/Oklahoma
+  '731': { state: '40', county: '109' },
+  '732': { state: '40', county: '109' },
+  '733': { state: '40', county: '109' },
+  '734': { state: '40', county: '027' }, // Cleveland
+  '740': { state: '40', county: '143' }, // Tulsa
+  '741': { state: '40', county: '143' },
+  '743': { state: '40', county: '143' },
+  '744': { state: '40', county: '113' }, // Osage
+
+  // ═══════════════════════════════════════════════════════════════
+  // OREGON (41) - Portland, Salem, Eugene
+  // ═══════════════════════════════════════════════════════════════
+  '970': { state: '41', county: '051' }, // Portland/Multnomah
+  '971': { state: '41', county: '051' },
+  '972': { state: '41', county: '051' },
+  '973': { state: '41', county: '005' }, // Clackamas
+  '974': { state: '41', county: '067' }, // Washington
+  '975': { state: '41', county: '047' }, // Marion/Salem
+  '976': { state: '41', county: '047' },
+  '977': { state: '41', county: '039' }, // Lane/Eugene
+  '978': { state: '41', county: '039' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // PENNSYLVANIA (42) - Philadelphia, Pittsburgh, Allentown
+  // ═══════════════════════════════════════════════════════════════
+  '190': { state: '42', county: '101' }, // Philadelphia
+  '191': { state: '42', county: '101' },
+  '192': { state: '42', county: '101' },
+  '193': { state: '42', county: '045' }, // Delaware
+  '194': { state: '42', county: '045' },
+  '195': { state: '42', county: '029' }, // Chester
+  '196': { state: '42', county: '091' }, // Montgomery
+  '180': { state: '42', county: '077' }, // Lehigh/Allentown
+  '181': { state: '42', county: '095' }, // Northampton
+  '182': { state: '42', county: '025' }, // Carbon
+  '150': { state: '42', county: '003' }, // Pittsburgh/Allegheny
+  '151': { state: '42', county: '003' },
+  '152': { state: '42', county: '003' },
+  '153': { state: '42', county: '125' }, // Washington
+  '154': { state: '42', county: '129' }, // Westmoreland
+  '155': { state: '42', county: '007' }, // Beaver
+  '156': { state: '42', county: '019' }, // Butler
+  '157': { state: '42', county: '063' }, // Indiana
+  '160': { state: '42', county: '027' }, // Centre
+  '161': { state: '42', county: '043' }, // Dauphin/Harrisburg
+  '162': { state: '42', county: '043' },
+  '170': { state: '42', county: '043' },
+  '171': { state: '42', county: '133' }, // York
+  '172': { state: '42', county: '071' }, // Lancaster
+
+  // ═══════════════════════════════════════════════════════════════
+  // RHODE ISLAND (44) - Providence
+  // ═══════════════════════════════════════════════════════════════
+  '028': { state: '44', county: '007' }, // Providence
+  '029': { state: '44', county: '007' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // SOUTH CAROLINA (45) - Columbia, Charleston, Greenville
+  // ═══════════════════════════════════════════════════════════════
+  '290': { state: '45', county: '079' }, // Columbia/Richland
+  '291': { state: '45', county: '079' },
+  '292': { state: '45', county: '079' },
+  '293': { state: '45', county: '083' }, // Spartanburg
+  '294': { state: '45', county: '019' }, // Charleston
+  '295': { state: '45', county: '019' },
+  '296': { state: '45', county: '045' }, // Greenville
+  '297': { state: '45', county: '063' }, // Lexington
+  '298': { state: '45', county: '051' }, // Horry/Myrtle Beach
+
+  // ═══════════════════════════════════════════════════════════════
+  // SOUTH DAKOTA (46) - Sioux Falls, Rapid City
+  // ═══════════════════════════════════════════════════════════════
+  '570': { state: '46', county: '099' }, // Sioux Falls/Minnehaha
+  '571': { state: '46', county: '099' },
+  '572': { state: '46', county: '083' }, // Lincoln
+  '577': { state: '46', county: '103' }, // Rapid City/Pennington
+
+  // ═══════════════════════════════════════════════════════════════
+  // TENNESSEE (47) - Nashville, Memphis, Knoxville
+  // ═══════════════════════════════════════════════════════════════
+  '370': { state: '47', county: '037' }, // Nashville/Davidson
+  '371': { state: '47', county: '037' },
+  '372': { state: '47', county: '037' },
+  '373': { state: '47', county: '187' }, // Williamson
+  '374': { state: '47', county: '149' }, // Rutherford
+  '375': { state: '47', county: '165' }, // Sumner
+  '376': { state: '47', county: '189' }, // Wilson
+  '377': { state: '47', county: '119' }, // Maury
+  '378': { state: '47', county: '157' }, // Shelby/Memphis
+  '379': { state: '47', county: '093' }, // Knox/Knoxville
+  '380': { state: '47', county: '157' },
+  '381': { state: '47', county: '157' },
+  '382': { state: '47', county: '157' },
+  '383': { state: '47', county: '065' }, // Hamilton/Chattanooga
+
+  // ═══════════════════════════════════════════════════════════════
+  // TEXAS (48) - Houston, Dallas, San Antonio, Austin
+  // ═══════════════════════════════════════════════════════════════
+  // Houston Area (Harris 201)
   '770': { state: '48', county: '201' },
   '771': { state: '48', county: '201' },
   '772': { state: '48', county: '201' },
   '773': { state: '48', county: '201' },
   '774': { state: '48', county: '201' },
   '775': { state: '48', county: '201' },
-  '303': { state: '13', county: '121' },
-  '304': { state: '13', county: '121' },
-  '305': { state: '13', county: '121' },
-  '306': { state: '13', county: '121' },
-  '850': { state: '04', county: '013' },
-  '851': { state: '04', county: '013' },
-  '852': { state: '04', county: '013' },
-  '853': { state: '04', county: '013' },
+  '776': { state: '48', county: '201' },
+  '777': { state: '48', county: '157' }, // Fort Bend
+  '778': { state: '48', county: '291' }, // Montgomery
+  '779': { state: '48', county: '039' }, // Brazoria
+  // Dallas Area (Dallas 113)
   '750': { state: '48', county: '113' },
   '751': { state: '48', county: '113' },
   '752': { state: '48', county: '113' },
   '753': { state: '48', county: '113' },
-  '980': { state: '53', county: '033' },
+  '754': { state: '48', county: '113' },
+  '755': { state: '48', county: '113' },
+  '760': { state: '48', county: '439' }, // Tarrant/Fort Worth
+  '761': { state: '48', county: '439' },
+  '762': { state: '48', county: '439' },
+  '763': { state: '48', county: '085' }, // Collin/Plano
+  '764': { state: '48', county: '085' },
+  '765': { state: '48', county: '121' }, // Denton
+  '756': { state: '48', county: '121' },
+  // San Antonio (Bexar 029)
+  '780': { state: '48', county: '029' },
+  '781': { state: '48', county: '029' },
+  '782': { state: '48', county: '029' },
+  '783': { state: '48', county: '091' }, // Comal
+  '784': { state: '48', county: '187' }, // Guadalupe
+  // Austin (Travis 453)
+  '786': { state: '48', county: '453' },
+  '787': { state: '48', county: '453' },
+  '788': { state: '48', county: '453' },
+  '789': { state: '48', county: '491' }, // Williamson
+  // El Paso (El Paso 141)
+  '798': { state: '48', county: '141' },
+  '799': { state: '48', county: '141' },
+  // Corpus Christi (Nueces 355)
+  '783': { state: '48', county: '355' },
+  '784': { state: '48', county: '355' },
+  // Other Texas
+  '790': { state: '48', county: '303' }, // Lubbock
+  '791': { state: '48', county: '303' },
+  '792': { state: '48', county: '375' }, // Potter/Amarillo
+  '793': { state: '48', county: '375' },
+  '794': { state: '48', county: '441' }, // Taylor/Abilene
+  '795': { state: '48', county: '441' },
+  '796': { state: '48', county: '441' },
+  '797': { state: '48', county: '309' }, // McLennan/Waco
+
+  // ═══════════════════════════════════════════════════════════════
+  // UTAH (49) - Salt Lake City, Provo
+  // ═══════════════════════════════════════════════════════════════
+  '840': { state: '49', county: '035' }, // Salt Lake
+  '841': { state: '49', county: '035' },
+  '842': { state: '49', county: '035' },
+  '843': { state: '49', county: '049' }, // Utah/Provo
+  '844': { state: '49', county: '057' }, // Weber/Ogden
+  '845': { state: '49', county: '011' }, // Davis
+
+  // ═══════════════════════════════════════════════════════════════
+  // VERMONT (50) - Burlington
+  // ═══════════════════════════════════════════════════════════════
+  '054': { state: '50', county: '007' }, // Chittenden/Burlington
+  '055': { state: '50', county: '007' },
+  '056': { state: '50', county: '021' }, // Rutland
+  '057': { state: '50', county: '023' }, // Washington
+
+  // ═══════════════════════════════════════════════════════════════
+  // VIRGINIA (51) - Virginia Beach, Norfolk, Richmond
+  // ═══════════════════════════════════════════════════════════════
+  '230': { state: '51', county: '760' }, // Richmond City
+  '231': { state: '51', county: '760' },
+  '232': { state: '51', county: '041' }, // Chesterfield
+  '233': { state: '51', county: '087' }, // Henrico
+  '234': { state: '51', county: '087' },
+  '235': { state: '51', county: '810' }, // Norfolk City
+  '236': { state: '51', county: '810' },
+  '237': { state: '51', county: '550' }, // Chesapeake City
+  '238': { state: '51', county: '740' }, // Portsmouth City
+  '239': { state: '51', county: '710' }, // Newport News City
+  '220': { state: '51', county: '013' }, // Arlington
+  '221': { state: '51', county: '059' }, // Fairfax
+  '222': { state: '51', county: '059' },
+  '223': { state: '51', county: '059' },
+  '224': { state: '51', county: '107' }, // Loudoun
+  '225': { state: '51', county: '153' }, // Prince William
+  '226': { state: '51', county: '830' }, // Williamsburg
+  '240': { state: '51', county: '163' }, // Roanoke County
+  '241': { state: '51', county: '770' }, // Roanoke City
+  '242': { state: '51', county: '165' }, // Rockingham
+
+  // ═══════════════════════════════════════════════════════════════
+  // WASHINGTON (53) - Seattle, Spokane, Tacoma
+  // ═══════════════════════════════════════════════════════════════
+  '980': { state: '53', county: '033' }, // Seattle/King
   '981': { state: '53', county: '033' },
   '982': { state: '53', county: '033' },
   '983': { state: '53', county: '033' },
   '984': { state: '53', county: '033' },
-  '190': { state: '42', county: '101' },
-  '191': { state: '42', county: '101' },
-  '192': { state: '42', county: '101' },
-  '193': { state: '42', county: '045' },
-  '194': { state: '42', county: '045' },
-  '021': { state: '25', county: '025' },
-  '022': { state: '25', county: '025' },
-  '023': { state: '25', county: '025' },
-  '941': { state: '06', county: '075' },
-  '940': { state: '06', county: '075' },
+  '985': { state: '53', county: '033' },
+  '986': { state: '53', county: '033' },
+  '980': { state: '53', county: '033' },
+  '983': { state: '53', county: '053' }, // Pierce/Tacoma
+  '984': { state: '53', county: '053' },
+  '980': { state: '53', county: '061' }, // Snohomish
+  '982': { state: '53', county: '061' },
+  '990': { state: '53', county: '063' }, // Spokane
+  '991': { state: '53', county: '063' },
+  '992': { state: '53', county: '063' },
+  '993': { state: '53', county: '077' }, // Yakima
+  '986': { state: '53', county: '067' }, // Thurston/Olympia
+  '985': { state: '53', county: '073' }, // Whatcom/Bellingham
+  '987': { state: '53', county: '015' }, // Cowlitz
+
+  // ═══════════════════════════════════════════════════════════════
+  // WEST VIRGINIA (54) - Charleston, Huntington
+  // ═══════════════════════════════════════════════════════════════
+  '250': { state: '54', county: '039' }, // Charleston/Kanawha
+  '251': { state: '54', county: '039' },
+  '252': { state: '54', county: '039' },
+  '253': { state: '54', county: '011' }, // Cabell/Huntington
+  '254': { state: '54', county: '011' },
+  '255': { state: '54', county: '107' }, // Wood/Parkersburg
+  '256': { state: '54', county: '051' }, // Marion
+  '257': { state: '54', county: '061' }, // Monongalia/Morgantown
+
+  // ═══════════════════════════════════════════════════════════════
+  // WISCONSIN (55) - Milwaukee, Madison, Green Bay
+  // ═══════════════════════════════════════════════════════════════
+  '530': { state: '55', county: '079' }, // Milwaukee
+  '531': { state: '55', county: '079' },
+  '532': { state: '55', county: '079' },
+  '533': { state: '55', county: '079' },
+  '534': { state: '55', county: '101' }, // Racine
+  '535': { state: '55', county: '025' }, // Dane/Madison
+  '536': { state: '55', county: '025' },
+  '537': { state: '55', county: '025' },
+  '538': { state: '55', county: '025' },
+  '539': { state: '55', county: '063' }, // La Crosse
+  '540': { state: '55', county: '133' }, // Waukesha
+  '541': { state: '55', county: '131' }, // Washington
+  '542': { state: '55', county: '087' }, // Outagamie/Appleton
+  '543': { state: '55', county: '009' }, // Brown/Green Bay
+  '544': { state: '55', county: '009' },
+  '545': { state: '55', county: '009' },
+  '546': { state: '55', county: '073' }, // Marathon/Wausau
+  '547': { state: '55', county: '017' }, // Chippewa/Eau Claire
+
+  // ═══════════════════════════════════════════════════════════════
+  // WYOMING (56) - Cheyenne, Casper
+  // ═══════════════════════════════════════════════════════════════
+  '820': { state: '56', county: '021' }, // Laramie/Cheyenne
+  '821': { state: '56', county: '021' },
+  '822': { state: '56', county: '005' }, // Campbell
+  '823': { state: '56', county: '025' }, // Natrona/Casper
+  '824': { state: '56', county: '025' },
+  '825': { state: '56', county: '013' }, // Fremont
+  '826': { state: '56', county: '039' }, // Teton
 };
 
 const DEFAULT_DEMOGRAPHICS: CensusData = {
