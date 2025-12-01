@@ -92,7 +92,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '856': { state: '04', county: '013' }, // Mesa
   '857': { state: '04', county: '019' }, // Pima/Tucson
   '858': { state: '04', county: '019' },
-  '859': { state: '04', county: '013' }, // Glendale
+  '859': { state: '04', county: '019' }, // Pima/Tucson (extended)
   '860': { state: '04', county: '005' }, // Coconino/Flagstaff
   '863': { state: '04', county: '027' }, // Yuma
   '864': { state: '04', county: '015' }, // Mohave
@@ -165,8 +165,8 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '949': { state: '06', county: '075' },
   '950': { state: '06', county: '085' }, // San Jose/Santa Clara
   '951': { state: '06', county: '085' },
-  '952': { state: '06', county: '085' }, // Stockton (San Joaquin 077)
-  '953': { state: '06', county: '077' },
+  '952': { state: '06', county: '077' }, // Stockton/San Joaquin
+  '953': { state: '06', county: '077' }, // Stockton/San Joaquin
   '954': { state: '06', county: '085' },
   '955': { state: '06', county: '097' }, // Sonoma
   '956': { state: '06', county: '067' }, // Sacramento
@@ -254,7 +254,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '328': { state: '12', county: '095' }, // Orange/Orlando
   '347': { state: '12', county: '095' }, // Orange/Orlando
   '348': { state: '12', county: '117' }, // Seminole/Sanford
-  '349': { state: '12', county: '069' }, // Lake
+  '349': { state: '12', county: '111' }, // St. Lucie/Port Saint Lucie
   '344': { state: '12', county: '097' }, // Osceola/Kissimmee
   '345': { state: '12', county: '097' }, // Osceola
   // Jacksonville Metro
@@ -279,7 +279,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   // ═══════════════════════════════════════════════════════════════
   // GEORGIA (13) - Atlanta, Savannah, Augusta, Columbus
   // ═══════════════════════════════════════════════════════════════
-  '300': { state: '13', county: '121' }, // Atlanta/Fulton
+  '300': { state: '13', county: '135' }, // Lawrenceville/Gwinnett
   '301': { state: '13', county: '121' },
   '302': { state: '13', county: '121' },
   '303': { state: '13', county: '121' },
@@ -295,6 +295,8 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '313': { state: '13', county: '245' }, // Richmond/Augusta
   '314': { state: '13', county: '215' }, // Muscogee/Columbus
   '315': { state: '13', county: '021' }, // Bibb/Macon
+  '318': { state: '13', county: '215' }, // Columbus/Muscogee
+  '319': { state: '13', county: '215' }, // Columbus/Muscogee
 
   // ═══════════════════════════════════════════════════════════════
   // HAWAII (15) - Honolulu
@@ -419,8 +421,8 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   // ═══════════════════════════════════════════════════════════════
   // MARYLAND (24) - Baltimore, Frederick
   // ═══════════════════════════════════════════════════════════════
-  '210': { state: '24', county: '005' }, // Baltimore County
-  '211': { state: '24', county: '005' },
+  '210': { state: '24', county: '510' }, // Baltimore City
+  '211': { state: '24', county: '510' }, // Baltimore City
   '212': { state: '24', county: '510' }, // Baltimore City
   '214': { state: '24', county: '003' }, // Anne Arundel
   '215': { state: '24', county: '510' },
@@ -576,7 +578,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '070': { state: '34', county: '013' }, // Essex/Newark
   '071': { state: '34', county: '013' }, // Essex/Orange
   '072': { state: '34', county: '039' }, // Union/Elizabeth
-  '073': { state: '34', county: '031' }, // Passaic/Paterson
+  '073': { state: '34', county: '017' }, // Hudson/Jersey City
   '074': { state: '34', county: '031' }, // Passaic/Clifton
   '075': { state: '34', county: '031' }, // Passaic
   '076': { state: '34', county: '017' }, // Hudson/Jersey City
@@ -591,7 +593,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '085': { state: '34', county: '021' }, // Mercer/Trenton
   '086': { state: '34', county: '021' }, // Mercer/Princeton
   '087': { state: '34', county: '029' }, // Ocean/Toms River
-  '088': { state: '34', county: '025' }, // Monmouth/Freehold
+  '088': { state: '34', county: '023' }, // Middlesex/Edison
   '089': { state: '34', county: '035' }, // Somerset/Bridgewater
   // Bergen County (003) - North Jersey suburbs
   '074': { state: '34', county: '003' }, // Bergen/Hackensack
@@ -678,9 +680,8 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '273': { state: '37', county: '063' }, // Durham
   '274': { state: '37', county: '081' }, // Greensboro/Guilford
   '275': { state: '37', county: '067' }, // Winston-Salem/Forsyth
-  '276': { state: '37', county: '067' }, // Winston-Salem/Forsyth
+  '276': { state: '37', county: '183' }, // Raleigh/Wake
   '277': { state: '37', county: '067' }, // Winston-Salem/Forsyth
-  '276': { state: '37', county: '101' }, // Johnston
   // Coastal NC
   '278': { state: '37', county: '129' }, // Wilmington/New Hanover
   '279': { state: '37', county: '129' }, // Wilmington/New Hanover
@@ -945,10 +946,10 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   // VIRGINIA (51) - Virginia Beach, Norfolk, Richmond
   // ═══════════════════════════════════════════════════════════════
   '230': { state: '51', county: '760' }, // Richmond City
-  '231': { state: '51', county: '760' },
-  '232': { state: '51', county: '041' }, // Chesterfield
+  '231': { state: '51', county: '760' }, // Richmond City
+  '232': { state: '51', county: '760' }, // Richmond City
   '233': { state: '51', county: '087' }, // Henrico
-  '234': { state: '51', county: '087' },
+  '234': { state: '51', county: '810' }, // Virginia Beach City
   '235': { state: '51', county: '810' }, // Norfolk City
   '236': { state: '51', county: '810' },
   '237': { state: '51', county: '550' }, // Chesapeake City
