@@ -217,6 +217,7 @@ const BusinessPlanGenerator = lazy(() => import("@/pages/business-plan-generator
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
 const VendorsHub = lazy(() => import("@/pages/vendors-hub"));
 const AddListing = lazy(() => import("@/pages/add-listing"));
+const SellYourLaundromat = lazy(() => import("@/pages/sell-your-laundromat"));
 const ListingForm = lazy(() => import("@/pages/listing-form"));
 const VendorForm = lazy(() => import("@/pages/vendor-form"));
 const ListingDetail = lazy(() => import("@/pages/listing-detail"));
@@ -923,6 +924,16 @@ function Router() {
       <Route path="/add-listing">
         <Suspense fallback={<LoadingFallback />}>
           <AddListing />
+        </Suspense>
+      </Route>
+      <Route path="/sell">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellYourLaundromat />
+        </Suspense>
+      </Route>
+      <Route path="/sell-your-laundromat">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellYourLaundromat />
         </Suspense>
       </Route>
       <Route path="/listing-form">
