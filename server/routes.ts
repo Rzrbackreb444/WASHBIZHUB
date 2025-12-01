@@ -5840,6 +5840,102 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
+  // POST /api/subscriptions/pause - Pause subscription
+  app.post("/api/subscriptions/pause", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      if (!currentUser.user.stripeSubscriptionId) {
+        return res.status(400).json({ error: "No active subscription" });
+      }
+
+      const subscription = await stripe.subscriptions.update(
+        currentUser.user.stripeSubscriptionId,
+        {
+          pause_collection: {
+            behavior: 'keep_as_draft',
+          }
+        }
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Subscription paused. Resume anytime from settings.",
+        status: subscription.status
+      });
+    } catch (error: any) {
+      console.error("Pause subscription error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/subscriptions/resume - Resume paused subscription
+  app.post("/api/subscriptions/resume", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      if (!currentUser.user.stripeSubscriptionId) {
+        return res.status(400).json({ error: "No active subscription" });
+      }
+
+      const subscription = await stripe.subscriptions.update(
+        currentUser.user.stripeSubscriptionId,
+        {
+          pause_collection: null
+        }
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Subscription resumed successfully!",
+        status: subscription.status
+      });
+    } catch (error: any) {
+      console.error("Resume subscription error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/users/profile - Update user profile
+  app.patch("/api/users/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { firstName, lastName, phone, tagline, bio, username } = req.body;
+
+      const updatedUser = await storage.updateUser(currentUser.user.id, {
+        firstName: firstName !== undefined ? firstName : currentUser.user.firstName,
+        lastName: lastName !== undefined ? lastName : currentUser.user.lastName,
+        phone: phone !== undefined ? phone : currentUser.user.phone,
+        tagline: tagline !== undefined ? tagline : currentUser.user.tagline,
+        bio: bio !== undefined ? bio : currentUser.user.bio,
+        username: username !== undefined ? username : currentUser.user.username,
+      });
+
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error("Update profile error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // POST /api/subscriptions/billing-portal - Open Stripe billing portal
   app.post("/api/subscriptions/billing-portal", isAuthenticated, async (req: any, res) => {
     try {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   CreditCard,
   Crown,
@@ -20,11 +22,30 @@ import {
   Bell,
   User,
   Building2,
+  LogOut,
+  Pause,
+  Play,
+  XCircle,
+  Mail,
+  AtSign,
+  FileText,
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const { toast } = useToast();
+  
+  // Profile editing state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    username: user?.username || "",
+    phone: user?.phone || "",
+    bio: user?.bio || "",
+    tagline: user?.tagline || "",
+  });
+  
   const [cancelReason, setCancelReason] = useState("");
 
   const tiers = [
@@ -58,6 +79,29 @@ export default function SettingsPage() {
   const currentTier = user?.subscriptionTier || "basic";
   const currentTierData = tiers.find(t => t.name.toLowerCase() === currentTier.toLowerCase());
 
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("PATCH", "/api/users/profile", profileData);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setIsEditingProfile(false);
+      toast({
+        title: "Profile updated!",
+        description: "Your profile information has been saved.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
+  });
+
   const upgradeMutation = useMutation({
     mutationFn: async (priceId: string) => {
       const res = await apiRequest("POST", "/api/subscriptions/upgrade", { priceId });
@@ -83,12 +127,55 @@ export default function SettingsPage() {
     },
   });
 
+  const pauseMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/subscriptions/pause", {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Subscription paused",
+        description: "Your subscription has been paused. You can resume anytime.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to pause subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resumeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/subscriptions/resume", {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Subscription resumed",
+        description: "Your subscription is now active again.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resume subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
   const cancelMutation = useMutation({
     mutationFn: async (reason: string) => {
       await apiRequest("POST", "/api/subscriptions/cancel", { reason });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setCancelReason("");
       toast({
         title: "Subscription cancelled",
         description: "Your subscription will remain active until the end of the billing period.",
@@ -146,28 +233,34 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Settings</h1>
-          <p className="text-muted-foreground">Manage your account, subscription, and preferences</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Settings</h1>
+            <p className="text-muted-foreground">Manage your account, subscription, and preferences</p>
+          </div>
         </div>
 
         <Tabs defaultValue="subscription" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
             <TabsTrigger value="subscription" data-testid="tab-subscription">
               <CreditCard className="w-4 h-4 mr-2" />
-              Subscription
+              <span className="hidden sm:inline">Subscription</span>
             </TabsTrigger>
             <TabsTrigger value="profile" data-testid="tab-profile">
               <User className="w-4 h-4 mr-2" />
-              Profile
+              <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="business" data-testid="tab-business">
+            <TabsTrigger value="account" data-testid="tab-account">
               <Building2 className="w-4 h-4 mr-2" />
-              Business
+              <span className="hidden sm:inline">Account</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" data-testid="tab-notifications">
               <Bell className="w-4 h-4 mr-2" />
-              Notifications
+              <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
+            <TabsTrigger value="billing" data-testid="tab-billing">
+              <FileText className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Billing</span>
             </TabsTrigger>
           </TabsList>
 
@@ -183,7 +276,7 @@ export default function SettingsPage() {
                       {currentTierData && <currentTierData.icon className="w-5 h-5 text-primary" />}
                     </CardTitle>
                     <CardDescription>
-                      {user.stripeSubscriptionId ? "Active subscription" : "No active subscription"}
+                      {user.stripeSubscriptionId ? "Active subscription" : "Free account - upgrade to unlock premium features"}
                     </CardDescription>
                   </div>
                   {user.stripeCustomerId && (
@@ -234,9 +327,52 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
+            {/* Subscription Actions */}
+            {user.stripeSubscriptionId && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscription Management</CardTitle>
+                  <CardDescription>Pause, resume, or manage your subscription</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      onClick={() => pauseMutation.mutate()}
+                      disabled={pauseMutation.isPending}
+                      data-testid="button-pause-subscription"
+                    >
+                      {pauseMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Pause className="w-4 h-4 mr-2" />
+                      )}
+                      Pause Subscription
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => resumeMutation.mutate()}
+                      disabled={resumeMutation.isPending}
+                      data-testid="button-resume-subscription"
+                    >
+                      {resumeMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Play className="w-4 h-4 mr-2" />
+                      )}
+                      Resume Subscription
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Pause your subscription to temporarily stop billing. You can resume anytime without losing your data.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Upgrade Options */}
             <div>
-              <h2 className="text-2xl font-bold mb-4">Upgrade Your Plan</h2>
+              <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {tiers.map((tier) => {
                   const isCurrent = tier.name.toLowerCase() === currentTier.toLowerCase();
@@ -308,18 +444,18 @@ export default function SettingsPage() {
                     Cancel Subscription
                   </CardTitle>
                   <CardDescription>
-                    Cancel your subscription. You'll retain access until the end of your billing period.
+                    Cancel your subscription. You'll retain access until the end of your billing period. Consider pausing instead if you just need a break.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Reason for cancelling (optional)</label>
-                    <textarea
-                      className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      placeholder="Let us know why you're cancelling..."
+                    <Textarea
+                      placeholder="Your feedback helps us improve. Let us know why you're cancelling..."
                       value={cancelReason}
                       onChange={(e) => setCancelReason(e.target.value)}
                       data-testid="input-cancel-reason"
+                      className="min-h-[100px]"
                     />
                   </div>
                   <Button
@@ -343,54 +479,207 @@ export default function SettingsPage() {
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your personal information and preferences</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Profile Information</CardTitle>
+                  <CardDescription>Update your personal information and how you appear on the platform</CardDescription>
+                </div>
+                <Button
+                  variant={isEditingProfile ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => isEditingProfile ? setIsEditingProfile(false) : setIsEditingProfile(true)}
+                  data-testid="button-edit-profile"
+                >
+                  {isEditingProfile ? "Cancel" : "Edit Profile"}
+                </Button>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">First Name</label>
-                    <p className="text-lg">{user.firstName || "Not set"}</p>
+              <CardContent className="space-y-6">
+                {isEditingProfile ? (
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">First Name</label>
+                        <Input
+                          value={profileData.firstName}
+                          onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                          placeholder="John"
+                          data-testid="input-first-name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Last Name</label>
+                        <Input
+                          value={profileData.lastName}
+                          onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                          placeholder="Doe"
+                          data-testid="input-last-name"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2">
+                        <AtSign className="w-4 h-4" />
+                        Username <span className="text-xs text-muted-foreground">(used in forums and profile)</span>
+                      </label>
+                      <Input
+                        value={profileData.username}
+                        onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                        placeholder="john_doe"
+                        data-testid="input-username"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Phone Number</label>
+                      <Input
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        placeholder="+1 (555) 123-4567"
+                        type="tel"
+                        data-testid="input-phone"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Tagline <span className="text-xs text-muted-foreground">(short bio for forum posts)</span></label>
+                      <Input
+                        value={profileData.tagline}
+                        onChange={(e) => setProfileData({ ...profileData, tagline: e.target.value })}
+                        placeholder="Laundromat investor & coffee enthusiast"
+                        maxLength={100}
+                        data-testid="input-tagline"
+                      />
+                      <p className="text-xs text-muted-foreground">{profileData.tagline.length}/100</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Bio <span className="text-xs text-muted-foreground">(tell us about yourself)</span></label>
+                      <Textarea
+                        value={profileData.bio}
+                        onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                        placeholder="I've been in the laundromat business for 5 years and love helping others succeed in the industry..."
+                        maxLength={500}
+                        data-testid="input-bio"
+                        className="min-h-[120px]"
+                      />
+                      <p className="text-xs text-muted-foreground">{profileData.bio.length}/500</p>
+                    </div>
+
+                    <Button
+                      onClick={() => updateProfileMutation.mutate()}
+                      disabled={updateProfileMutation.isPending}
+                      data-testid="button-save-profile"
+                      className="w-full"
+                    >
+                      {updateProfileMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                      )}
+                      Save Profile Changes
+                    </Button>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium">Last Name</label>
-                    <p className="text-lg">{user.lastName || "Not set"}</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">First Name</label>
+                        <p className="text-lg font-medium">{profileData.firstName || "Not set"}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Last Name</label>
+                        <p className="text-lg font-medium">{profileData.lastName || "Not set"}</p>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Email Address
+                      </label>
+                      <p className="text-lg font-medium">{user.email}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Email is managed through your account settings</p>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                        <AtSign className="w-4 h-4" />
+                        Username
+                      </label>
+                      <p className="text-lg font-medium">{profileData.username || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                      <p className="text-lg font-medium">{profileData.phone || "Not set"}</p>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Tagline</label>
+                      <p className="text-base">{profileData.tagline || "No tagline set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Bio</label>
+                      <p className="text-base text-muted-foreground">{profileData.bio || "No bio set"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <p className="text-lg">{user.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Username</label>
-                    <p className="text-lg">{user.username || "Not set"}</p>
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium">Tagline</label>
-                  <p className="text-muted-foreground">{user.tagline || "No tagline set"}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Bio</label>
-                  <p className="text-muted-foreground">{user.bio || "No bio set"}</p>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Business Tab */}
-          <TabsContent value="business" className="space-y-6">
+          {/* Account Tab */}
+          <TabsContent value="account" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Business Information</CardTitle>
-                <CardDescription>Manage your business details and preferences</CardDescription>
+                <CardTitle>Account Settings</CardTitle>
+                <CardDescription>Manage your account and security</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg hover-elevate">
+                  <div>
+                    <h3 className="font-medium">Account ID</h3>
+                    <p className="text-sm text-muted-foreground">{user.id}</p>
+                  </div>
+                  <Badge variant="secondary">Verified</Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-4 border rounded-lg hover-elevate">
+                  <div>
+                    <h3 className="font-medium">Member Since</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Sign Out Section */}
+            <Card className="border-amber-200 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </CardTitle>
+                <CardDescription>Sign out of your account on this device</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Business settings will be available soon</p>
-                </div>
+                <Button
+                  variant="outline"
+                  onClick={logout}
+                  data-testid="button-sign-out"
+                  className="w-full"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -407,6 +696,39 @@ export default function SettingsPage() {
                   <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Notification settings will be available soon</p>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Billing Tab */}
+          <TabsContent value="billing" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing & Invoices</CardTitle>
+                <CardDescription>View and manage your billing information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {user.stripeCustomerId ? (
+                  <Button
+                    onClick={() => billingPortalMutation.mutate()}
+                    disabled={billingPortalMutation.isPending}
+                    data-testid="button-billing-portal"
+                    className="w-full"
+                  >
+                    {billingPortalMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    Open Stripe Billing Portal
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No billing information yet. Upgrade your plan to get started.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
