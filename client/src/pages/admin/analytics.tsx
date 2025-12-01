@@ -22,7 +22,7 @@ export default function AdminAnalytics() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Fetch comprehensive analytics data
+  // Fetch comprehensive analytics data - only when user is confirmed admin
   const { data: analytics, refetch, isFetching } = useQuery<{
     revenue: {
       total: number;
@@ -70,25 +70,42 @@ export default function AdminAnalytics() {
     }[];
   }>({
     queryKey: ['/api/admin/analytics'],
-    enabled: isAuthenticated && user?.isAdmin,
+    enabled: !authLoading && isAuthenticated && user?.isAdmin === true,
   });
 
-  // Handle redirect in useEffect
+  // Handle redirect in useEffect - only redirect when we're CERTAIN user is not admin
   useEffect(() => {
-    if (!authLoading && (!isAuthenticated || !user?.isAdmin)) {
+    if (!authLoading && (!isAuthenticated || (user && !user.isAdmin))) {
       setLocation('/');
     }
-  }, [authLoading, isAuthenticated, user?.isAdmin, setLocation]);
+  }, [authLoading, isAuthenticated, user, setLocation]);
 
+  // Show loading while auth is being determined
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
+          <p>Loading...</p>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated || !user?.isAdmin) {
+  // Show loading while waiting for user data
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
+          <p>Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user exists but is not admin, show redirecting message
+  if (!user.isAdmin) {
     return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
   }
 
