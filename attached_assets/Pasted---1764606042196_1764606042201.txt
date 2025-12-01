@@ -1,0 +1,183 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║            WASHBIZHUB MASTER ALGORITHMS & FORMULAS REFERENCE                       ║
+║                         COMPLETE DOCUMENTATION                                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════════
+                           14 EXTERNAL API INTEGRATIONS
+═══════════════════════════════════════════════════════════════════════════════════
+
+AI/ML:
+├── OPENAI_API_KEY         → Nick AI, embeddings, deal scoring, blog generation
+├── ANTHROPIC_API_KEY      → Fallback AI, complex reasoning
+├── GEMINI_API_KEY         → Equipment condition analysis (Vision)
+└── GOOGLE_VISION_API_KEY  → Property verification, brand detection
+
+Property Intelligence:
+├── ATTOM_API_KEY          → Property AVM, tax assessment, sale history (~$1.50/property)
+├── CENSUS_API_KEY         → Demographics, renters %, income (FREE, 30-day cache)
+├── GOOGLE_MAPS_API_KEY    → Aerial view, street view, geocoding
+├── GOOGLE_PLACES_API_KEY  → Competitor search, POI data
+├── GOOGLE_DIRECTIONS_API  → Drive time analysis
+├── GOOGLE_AERIAL_VIEW_API_KEY → High-res satellite imagery
+└── MAPBOX_API_KEY         → Geocoding fallback
+
+Payments:
+├── STRIPE_SECRET_KEY      → Subscriptions, one-time payments
+├── STRIPE_TEST_SECRET_KEY → Development testing
+└── PAYPAL_CLIENT_ID/SECRET → Alternative payments
+
+Email/Docs:
+├── SENDGRID_API_KEY       → Transactional emails
+└── PDF_GENERATOR_API_KEY  → Report generation
+
+═══════════════════════════════════════════════════════════════════════════════════
+                          CLEANBI 2.0 (17 Weighted Factors)
+═══════════════════════════════════════════════════════════════════════════════════
+
+Weight | Factor               | Scoring Method
+-------|----------------------|------------------------
+ 10%   | Rent % of Revenue    | Inverse (lower = better)
+ 10%   | EBITDA Margin        | Linear (20-35% optimal)
+ 10%   | Turns Per Day        | Linear (4-6 TPD optimal)
+  8%   | Market Saturation    | Inverse competition density
+  8%   | DSCR                 | Linear (1.25-2.0 optimal)
+  6%   | Renter Percentage    | Linear (40-70% optimal)
+  6%   | Population Density   | Linear (2000-5000/sq mi)
+  6%   | Traffic Score        | Direct 0-100
+  6%   | Equipment Mix        | Direct 0-100
+  5%   | Median Income        | Bell curve to $55K
+  5%   | Utilities % Revenue  | Inverse (8-12% optimal)
+  4%   | Parking Score        | Direct 0-100
+  4%   | Cashless Enabled     | Boolean (100/40)
+  4%   | WDF Space            | Linear (0-500 sqft)
+  3%   | Household Size       | Linear (2.5-3.5)
+  3%   | Delivery Ready       | Boolean (100/50)
+  2%   | Curbside Ready       | Boolean (100/50)
+
+Grade: A+ (95+), A (90-94), B (75-84), C (60-74), D (50-59), F (<50)
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              MONTE CARLO SIMULATION
+═══════════════════════════════════════════════════════════════════════════════════
+
+• 500 random scenarios per analysis
+• Applies uniform distribution within specified ranges
+• Returns: min, p10, p25, median, p75, p90, max, mean
+• Quantifies investment risk and score volatility
+
+═══════════════════════════════════════════════════════════════════════════════════
+                           BUSINESS VALUATION ENGINE
+═══════════════════════════════════════════════════════════════════════════════════
+
+EBITDA Multiples by Grade:
+• A+ = 4.5-5.5x (avg 5.0x)
+• A  = 4.0-4.8x (avg 4.4x)
+• B  = 2.8-3.4x (avg 3.1x)
+• C  = 1.6-2.2x (avg 1.9x)
+• F  = 0.5-1.0x (avg 0.75x)
+
+Weighted Valuation Formula:
+• Profitable: 60% EBITDA + 30% Revenue + 10% Assets
+• Unprofitable: 60% Revenue + 40% Assets
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              EQUIPMENT VALUATOR
+═══════════════════════════════════════════════════════════════════════════════════
+
+Depreciation Curves (% of MSRP):
+Brand         | 5yr | 10yr | 15yr | 20yr
+--------------|-----|------|------|------
+Speed Queen   | 70% | 45%  | 25%  | 10%
+Dexter        | 65% | 40%  | 20%  |  8%
+Maytag        | 60% | 35%  | 18%  |  5%
+Electrolux    | 68% | 43%  | 23%  |  9%
+Huebsch       | 66% | 41%  | 21%  |  8%
+
+Condition Multipliers:
+• Excellent = 1.15x
+• Good = 1.00x
+• Fair = 0.85x
+• Poor = 0.60x
+
+Formula: FMV = MSRP × Depreciation Factor × Condition Multiplier × Quantity
+
+═══════════════════════════════════════════════════════════════════════════════════
+                           COMPETITION INTELLIGENCE
+═══════════════════════════════════════════════════════════════════════════════════
+
+Saturation Score = 100 - normalize((competitors × 1000) / household_density)
+
+Uses Google Places API to find laundromats within 3km radius
+Returns: count, closest distance, competitor ratings
+
+═══════════════════════════════════════════════════════════════════════════════════
+                            CENSUS DEMOGRAPHICS
+═══════════════════════════════════════════════════════════════════════════════════
+
+Variables Retrieved:
+• B01003_001E = Total Population
+• B25003_003E = Renter-Occupied Units
+• B19013_001E = Median Household Income
+• B25077_001E = Median Home Value
+• B23025_005E = Unemployed
+
+Laundromat Market Score (0-100):
+• Renter % ≥60% → +30 points
+• Population Density ≥8000 → +30 points
+• Income $30K-$70K → +25 points
+• Unemployment <5% → +15 points
+
+═══════════════════════════════════════════════════════════════════════════════════
+                        8 PROPERTY SCORING ALGORITHMS
+═══════════════════════════════════════════════════════════════════════════════════
+
+1. CLEANBI™ (Laundromats) - 17 factors
+2. WASHBI™ (Car Wash) - 5 factors: Traffic 30%, Accessibility 25%, Competition 20%, Site 15%, Demographics 10%
+3. SPACEBI™ (Self-Storage) - 5 factors: Catchment 35%, Saturation 25%, Access 20%, Demographics 15%, Risk 5%
+4. SHOPBI™ (Retail) - 5 factors: Foot Traffic 30%, Access 25%, Exposure 20%, Competition 15%, Co-Tenancy 10%
+5. WORKBI™ (Industrial) - 5 factors: Logistics 35%, Labor 25%, Site 20%, Infrastructure 15%, Risk 5%
+6. DINEBI™ (Restaurant) - 5 factors: Foot Traffic 30%, Demographics 25%, Visibility 20%, Competition 15%, Parking 10%
+7. HEALTHBI™ (Medical) - 5 factors: Patient Demographics 35%, Access 25%, Saturation 20%, Site 15%, Risk 5%
+8. LOGISBI™ (Logistics) - 5 factors
+
+═══════════════════════════════════════════════════════════════════════════════════
+                           9 STANDALONE CALCULATORS
+═══════════════════════════════════════════════════════════════════════════════════
+
+1. TPD Calculator - Turns per day, revenue projections
+2. ROI Analyzer - NPV, IRR, payback period, cash-on-cash
+3. Equipment Payback - Break-even timeline
+4. Financing Calculator - Loan payments, total interest
+5. Water Usage Verifier - Income fraud detection
+6. Revenue Forecaster - Seasonal projections
+7. Pricing Optimizer - Optimal vend pricing
+8. ROI Calculator Pro - 5-year projections
+9. Turns Per Day Calculator - Capacity analysis
+
+═══════════════════════════════════════════════════════════════════════════════════
+                         INTERNATIONAL LOCALIZATION
+═══════════════════════════════════════════════════════════════════════════════════
+
+14 Countries Supported: US, CA, GB, DE, FR, ES, IT, AU, JP, KR, CN, MX, BR, NZ
+
+Each with localized:
+• Currency and symbols
+• Rent/utility benchmarks
+• Income targets
+• Density units (sq mi vs sq km)
+• Equipment cost multipliers
+
+═══════════════════════════════════════════════════════════════════════════════════
+                                SUMMARY
+═══════════════════════════════════════════════════════════════════════════════════
+
+Total APIs: 14
+Total Calculators: 9
+Scoring Algorithms: 8
+Financial Formulas: 20+
+Countries Supported: 14
+Equipment Brands: 6 depreciation curves
+Valuation Methods: 3
+
+Cost per full analysis: ~$1.55
