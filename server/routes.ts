@@ -11,6 +11,8 @@ import adminRoutes from "./admin-routes";
 import calculatorRoutes from "./calculator-routes";
 import cleanbiExplorerRoutes from "./cleanbi-explorer-routes";
 import cleanbiReportsRoutes from "./cleanbi-reports-routes";
+import expansionPlannerRoutes from "./expansion-planner-routes";
+import bulkAnalysisRoutes from "./bulk-analysis-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -242,6 +244,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/calculators", calculatorRoutes);
   app.use("/api/cleanbi-explorer", cleanbiExplorerRoutes);
   app.use("/api/cleanbi/reports", cleanbiReportsRoutes);
+  app.use("/api/expansion-planner", expansionPlannerRoutes);
+  app.use("/api/bulk-analysis", bulkAnalysisRoutes);
   
   // ==================== AUTH ====================
   

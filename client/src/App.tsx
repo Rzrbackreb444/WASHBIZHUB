@@ -139,6 +139,9 @@ const CalculatorMarketplace = lazy(() => import("@/pages/calculator-marketplace"
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
 const CleanBIReports = lazy(() => import("@/pages/cleanbi-reports"));
+const ExpansionPlanner = lazy(() => import("@/pages/expansion-planner"));
+const CompetitorDashboard = lazy(() => import("@/pages/competitor-dashboard"));
+const BulkAnalysis = lazy(() => import("@/pages/bulk-analysis"));
 
 // Forum Pages
 const Forum = lazy(() => import("@/pages/forum"));
@@ -302,6 +305,21 @@ function Router() {
       <Route path="/cleanbi-reports">
         <Suspense fallback={<LoadingFallback />}>
           <CleanBIReports />
+        </Suspense>
+      </Route>
+      <Route path="/expansion-planner">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <ExpansionPlanner />
+        </Suspense>
+      </Route>
+      <Route path="/competitor-dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <CompetitorDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/bulk-analysis">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <BulkAnalysis />
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
