@@ -4512,6 +4512,200 @@ Disallow: /private/`;
     }
   });
 
+  // POST /api/business-plan/create-checkout - Create Stripe checkout for business plan
+  app.post("/api/business-plan/create-checkout", async (req, res) => {
+    try {
+      const { businessName, email } = req.body;
+      
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2025-04-30.basil",
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "AI Business Plan Generator",
+                description: `SBA-Ready Business Plan${businessName ? ` for ${businessName}` : ""}`,
+              },
+              unit_amount: 29900, // $299.00
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.protocol}://${req.get("host")}/business-plan-generator?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.protocol}://${req.get("host")}/business-plan-generator?payment=cancelled`,
+        metadata: {
+          product: "business_plan_generator",
+          businessName: businessName || "",
+        },
+      });
+
+      console.log(`💳 BUSINESS PLAN CHECKOUT: Session ${session.id} created for ${businessName || "unknown"}`);
+      
+      // Return both sessionId and the checkout URL for direct redirect
+      res.json({ sessionId: session.id, url: session.url });
+    } catch (error: any) {
+      console.error("Checkout session error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/business-plan/verify-payment - Verify Stripe payment before generating plan
+  app.post("/api/business-plan/verify-payment", async (req, res) => {
+    try {
+      const { sessionId } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: "Session ID required", verified: false });
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2025-04-30.basil",
+      });
+
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      
+      if (session.payment_status === "paid") {
+        console.log(`✅ PAYMENT VERIFIED: Session ${sessionId} - Customer: ${session.customer_email}`);
+        res.json({ 
+          verified: true, 
+          email: session.customer_email,
+          metadata: session.metadata 
+        });
+      } else {
+        console.log(`❌ PAYMENT NOT COMPLETE: Session ${sessionId} - Status: ${session.payment_status}`);
+        res.json({ verified: false, status: session.payment_status });
+      }
+    } catch (error: any) {
+      console.error("Payment verification error:", error);
+      res.status(500).json({ error: error.message, verified: false });
+    }
+  });
+
+  // POST /api/business-plan/generate - AI Business Plan Generator (requires verified payment)
+  app.post("/api/business-plan/generate", async (req, res) => {
+    try {
+      const {
+        businessName,
+        address,
+        purchasePrice,
+        downPayment,
+        monthlyRevenue,
+        monthlyExpenses,
+        numWashers,
+        numDryers,
+        squareFeet,
+        loanType,
+        ownerExperience,
+        businessDescription,
+        sessionId, // Required for payment verification
+      } = req.body;
+
+      // Verify payment before generating plan
+      if (!sessionId) {
+        return res.status(403).json({ error: "Payment required. Please complete checkout first." });
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2025-04-30.basil",
+      });
+
+      try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        if (session.payment_status !== "paid") {
+          return res.status(403).json({ error: "Payment not completed. Please complete checkout." });
+        }
+        console.log(`✅ GENERATING PLAN: Payment verified for session ${sessionId}`);
+      } catch (stripeError: any) {
+        console.error("Stripe session verification failed:", stripeError);
+        return res.status(403).json({ error: "Invalid payment session. Please try again." });
+      }
+
+      // Calculate key financial metrics
+      const purchasePriceNum = parseFloat(purchasePrice) || 0;
+      const downPaymentNum = parseFloat(downPayment) || 0;
+      const monthlyRevenueNum = parseFloat(monthlyRevenue) || 0;
+      const monthlyExpensesNum = parseFloat(monthlyExpenses) || 0;
+      const annualRevenue = monthlyRevenueNum * 12;
+      const annualExpenses = monthlyExpensesNum * 12;
+      const annualProfit = annualRevenue - annualExpenses;
+      const loanAmount = purchasePriceNum - downPaymentNum;
+      const cashOnCash = downPaymentNum > 0 ? ((annualProfit / downPaymentNum) * 100).toFixed(1) : 0;
+      const capRate = purchasePriceNum > 0 ? ((annualProfit / purchasePriceNum) * 100).toFixed(1) : 0;
+
+      // Generate business plan sections
+      const businessPlan = {
+        executiveSummary: {
+          businessName: businessName || "Laundromat Acquisition",
+          location: address,
+          purchasePrice: purchasePriceNum,
+          loanRequested: loanAmount,
+          projectedAnnualRevenue: annualRevenue,
+          projectedAnnualProfit: annualProfit,
+        },
+        financialProjections: {
+          yearOne: {
+            revenue: annualRevenue,
+            expenses: annualExpenses,
+            netIncome: annualProfit,
+          },
+          yearTwo: {
+            revenue: annualRevenue * 1.05,
+            expenses: annualExpenses * 1.02,
+            netIncome: (annualRevenue * 1.05) - (annualExpenses * 1.02),
+          },
+          yearThree: {
+            revenue: annualRevenue * 1.10,
+            expenses: annualExpenses * 1.04,
+            netIncome: (annualRevenue * 1.10) - (annualExpenses * 1.04),
+          },
+          yearFour: {
+            revenue: annualRevenue * 1.15,
+            expenses: annualExpenses * 1.06,
+            netIncome: (annualRevenue * 1.15) - (annualExpenses * 1.06),
+          },
+          yearFive: {
+            revenue: annualRevenue * 1.20,
+            expenses: annualExpenses * 1.08,
+            netIncome: (annualRevenue * 1.20) - (annualExpenses * 1.08),
+          },
+        },
+        keyMetrics: {
+          cashOnCashReturn: cashOnCash,
+          capRate: capRate,
+          debtServiceCoverageRatio: annualProfit > 0 ? (annualProfit / (loanAmount * 0.08)).toFixed(2) : 0,
+        },
+        equipmentProfile: {
+          washers: parseInt(numWashers) || 0,
+          dryers: parseInt(numDryers) || 0,
+          squareFeet: parseInt(squareFeet) || 0,
+        },
+        loanDetails: {
+          type: loanType,
+          amount: loanAmount,
+          downPayment: downPaymentNum,
+          downPaymentPercent: ((downPaymentNum / purchasePriceNum) * 100).toFixed(1),
+        },
+      };
+
+      console.log(`📄 BUSINESS PLAN GENERATED: ${businessName} | Purchase: $${purchasePriceNum} | Annual Profit: $${annualProfit}`);
+
+      res.json({ 
+        success: true, 
+        plan: businessPlan,
+        message: "Business plan generated successfully"
+      });
+    } catch (error: any) {
+      console.error('Business plan generation error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // POST /api/gokapital-inquiry - GoKapital Real Estate Financing Form
   app.post("/api/gokapital-inquiry", async (req, res) => {
     try {

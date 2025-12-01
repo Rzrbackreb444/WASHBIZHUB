@@ -370,6 +370,126 @@ export default function ProductsHub() {
         </div>
       </section>
 
+      {/* Funding & Business Plan Section - Conversion Funnel */}
+      <section className="py-16 border-b border-white/10" id="funding-tools">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <Badge variant="outline" className="border-green-500/50 text-green-500 mb-4">
+              <DollarSign className="w-3 h-3 mr-1" />
+              Get Funded
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Ready to Secure Funding?
+            </h2>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              Start with our free SBA Readiness Check, then get an AI-generated business plan that lenders love.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* SBA Readiness Checker */}
+            <GlassCard className="p-6 hover-elevate">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <Target className="w-7 h-7 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold text-white">SBA Readiness Check</h3>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">FREE</Badge>
+                  </div>
+                  <p className="text-slate-400 mb-4">
+                    2-minute quiz to see if you qualify for SBA financing. Get your readiness score and personalized recommendations.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> 2 min
+                    </span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Instant results
+                    </span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <Shield className="w-3 h-3" /> No credit check
+                    </span>
+                  </div>
+                  <Button
+                    onClick={() => setLocation("/sba-readiness")}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600"
+                    data-testid="button-sba-readiness"
+                  >
+                    Check My Readiness
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </GlassCard>
+
+            {/* Business Plan Generator */}
+            <GlassCard className="p-6 hover-elevate" highlight>
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-7 h-7 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold text-white">AI Business Plan</h3>
+                    <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">$299</Badge>
+                  </div>
+                  <p className="text-slate-400 mb-4">
+                    Generate a complete, SBA-ready business plan in minutes. Professional financial projections lenders require.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> AI-Powered
+                    </span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <FileText className="w-3 h-3" /> PDF & Word
+                    </span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <BarChart3 className="w-3 h-3" /> 5-Year Projections
+                    </span>
+                  </div>
+                  <Button
+                    onClick={() => setLocation("/business-plan-generator")}
+                    className="bg-gradient-to-r from-amber-500 to-amber-600"
+                    data-testid="button-business-plan"
+                  >
+                    Generate Business Plan
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Funnel Flow Indicator */}
+          <div className="flex items-center justify-center gap-4 mt-8 text-slate-500">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                <span className="text-green-400 text-sm font-bold">1</span>
+              </div>
+              <span className="text-sm">Check Readiness</span>
+            </div>
+            <ChevronRight className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <span className="text-amber-400 text-sm font-bold">2</span>
+              </div>
+              <span className="text-sm">Get Business Plan</span>
+            </div>
+            <ChevronRight className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <span className="text-blue-400 text-sm font-bold">3</span>
+              </div>
+              <Link href="/larry-larsen" className="text-sm text-blue-400 hover:text-blue-300">
+                Expert Consultation
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Products Showcase */}
       <section className="py-20" id="products">
         <div className="max-w-7xl mx-auto px-4">

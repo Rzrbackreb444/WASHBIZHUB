@@ -68,6 +68,9 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
         - Aggressive caching strategy (80%+ cost reduction target)
 - **Affiliate Blog Systems:** Bulk generation systems for SEO-optimized blogs featuring affiliate links for financing.
 - **Business Directory System:** Freemium vendor/service provider directory with tiered subscriptions.
+- **Revenue Conversion Funnel Tools:**
+    - **SBA Loan Readiness Checker (`/sba-readiness`):** Free 2-minute lead magnet quiz with 5 questions about credit score, down payment, experience, collateral, and business plan readiness. Uses CLEANBI grading system (A≥85, B=70-84, C=55-69, Needs Work<55). Captures email before showing results, with upsells to Business Plan Generator and Larry Larsen consultation.
+    - **AI Business Plan Generator (`/business-plan-generator`):** $299 premium tool with 3-step wizard form. Generates SBA-ready business plans with 5-year financial projections. Integrates Stripe hosted checkout with server-side payment verification before plan generation. Backend verifies payment status before allowing generation.
 
 ### Calculator & Formula Ecosystem (80+ Unique Formulas)
 - **Standalone Calculator Pages:** 9 interactive tools including TPD, ROI Analyzer, Equipment Payback, Financing Pro, Water Usage Verifier, Revenue Forecaster Pro, Pricing Optimizer, ROI Pro, and Turns Per Day.
