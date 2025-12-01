@@ -67,7 +67,7 @@ const cleanbiAutoStructuredData = {
     "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
     "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
     "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",
-    "$197 Premium Reports - Deep analysis, valuations, AI-powered recommendations. $497 Pro Reports with competitive intelligence. $997 Premium + Expert Call."
+    "$99 Quick Valuation, $199 Standard Report, $349 Pro Report with Vision AI, $499 Enterprise Report with Expert Consultation."
   ],
   "screenshot": "https://washbizhub.com/cleanbi-screenshot.png",
   "softwareVersion": "2.1.0",
@@ -360,7 +360,7 @@ export default function CleanbiAuto() {
     <>
       <SEO
         title="CLEANBI™ Auto Score - Free Laundromat Location Analysis Tool | WashBizHub"
-        description="Score any laundromat location in seconds with CLEANBI™. Free instant A/B/C grades, competition mapping, demographics analysis, foot traffic data, and AI insights. 100% free, no login required. Premium reports from $197. Trusted by 2,847+ operators."
+        description="Score any laundromat location in seconds with CLEANBI™. Free instant A/B/C grades, competition mapping, demographics analysis, foot traffic data, and AI insights. 100% free, no login required. Premium reports from $99. Trusted by 2,847+ operators."
         canonicalUrl="/cleanbi-auto"
         ogType="website"
         keywords={[
@@ -403,7 +403,7 @@ export default function CleanbiAuto() {
           },
           {
             question: "Is there a free laundromat feasibility study tool?",
-            answer: "Yes! CLEANBI offers 100% free instant feasibility analysis. Enter any address to receive: A/B/C grade, overall score 0-100, competition mapping, demographic analysis, foot traffic estimates, and AI recommendations. No login required, unlimited free scores. Premium reports with detailed valuations start at $197."
+            answer: "Yes! CLEANBI offers 100% free instant feasibility analysis. Enter any address to receive: A/B/C grade, overall score 0-100, competition mapping, demographic analysis, foot traffic estimates, and AI recommendations. No login required, unlimited free scores. Premium reports with detailed valuations start at $99."
           },
           {
             question: "How many laundromats per capita is ideal?",
@@ -426,7 +426,7 @@ export default function CleanbiAuto() {
             { name: "Click Calculate", text: "Press 'Calculate CLEANBI Score' to analyze the location using real-time Google data. Analysis takes about 3 seconds." },
             { name: "Review Your Grade", text: "Receive your A/B/C grade and 0-100 score. Grade A (85+) = Excellent, Grade B (70-84) = Good, Grade C (55-69) = Fair, Needs Work (<55)." },
             { name: "Analyze the Breakdown", text: "Review detailed scores for foot traffic, competition, demographics, visibility, and reviews. Identify strengths and weaknesses." },
-            { name: "Get Premium Report (Optional)", text: "Upgrade to $197 Standard, $497 Pro, or $997 Premium reports for detailed valuations, competitor intelligence, and expert consultation." }
+            { name: "Get Premium Report (Optional)", text: "Upgrade to $99 Quick Valuation, $199 Standard, $349 Pro, or $499 Enterprise reports for detailed valuations, competitor intelligence, and expert consultation." }
           ],
           totalTime: "PT1M"
         }}
@@ -1137,7 +1137,7 @@ export default function CleanbiAuto() {
                               Redirecting to Checkout...
                             </>
                           ) : (
-                            "Get Full CLEANBI Report - $197"
+                            "Get Full CLEANBI Report - $99"
                           )}
                         </Button>
                         <p className="text-xs text-muted-foreground">

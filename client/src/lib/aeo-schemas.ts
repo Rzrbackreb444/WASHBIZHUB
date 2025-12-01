@@ -353,7 +353,7 @@ export const CLEANBI_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "Is CLEANBI free to use?",
-    answer: "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium $97 reports are available for deeper analysis, valuations, AI-powered investment recommendations, and comprehensive market data."
+    answer: "Yes! The basic CLEANBI score is 100% free with no login required. You can score unlimited addresses globally. Premium reports starting at $99 are available for deeper analysis, valuations, AI-powered investment recommendations, and comprehensive market data."
   },
   {
     question: "What countries does CLEANBI cover?",
@@ -372,8 +372,8 @@ export const CLEANBI_FAQ_SCHEMA = generateFAQSchema([
     answer: "CLEANBI Anywhere is a free Chrome extension that lets you score any address while browsing Google Maps, LoopNet, BizBuySell, Realtor.com, and other sites. Simply click the extension icon to get instant CLEANBI scores for the address you're viewing."
   },
   {
-    question: "What's included in the $97 CLEANBI premium report?",
-    answer: "The premium report includes deep analysis with business valuation, comprehensive competitor intelligence, detailed foot traffic patterns, demographic analysis, AI-powered investment recommendations, risk assessment, opportunity scoring, and actionable improvement strategies."
+    question: "What's included in the $99 CLEANBI Quick Valuation report?",
+    answer: "The Quick Valuation report ($99) includes estimated business value, market analysis summary, and key recommendations. Higher tiers ($199 Standard, $349 Pro, $499 Enterprise) add deeper analysis, Vision AI, competitor intelligence, and expert consultation."
   }
 ]);
 
@@ -399,7 +399,7 @@ export const CLEANBI_HOWTO_SCHEMA = generateHowToSchema(
     },
     {
       name: "Get Full Report (Optional)",
-      text: "Upgrade to the $97 premium report for deep analysis, business valuations, competitor intelligence, and investment recommendations."
+      text: "Upgrade to premium reports starting at $99 for deep analysis, business valuations, competitor intelligence, and investment recommendations."
     }
   ],
   "PT30S"
@@ -408,7 +408,7 @@ export const CLEANBI_HOWTO_SCHEMA = generateHowToSchema(
 export const CLEANBI_SOFTWARE_SCHEMA = generateSoftwareSchema({
   name: "CLEANBI Universal Business & Property Score Calculator",
   alternateName: ["CLEANBI Score", "CLEANBI Anywhere", "Universal Address Scorer", "Business Intelligence Score", "Property Investment Score"],
-  description: "Score ANY business or residential property worldwide in seconds. Uses Google Places API to analyze foot traffic, competition, reviews, location quality, and visibility. Works for restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties in 220+ countries. 100% free basic scores, premium $97 reports available.",
+  description: "Score ANY business or residential property worldwide in seconds. Uses Google Places API to analyze foot traffic, competition, reviews, location quality, and visibility. Works for restaurants, retail, laundromats, car washes, gyms, homes, condos, investment properties in 220+ countries. 100% free basic scores, premium reports from $99.",
   features: [
     "Universal Address Scoring - Works for ANY business type or residential property",
     "Global Coverage - 220+ countries including USA, UK, EU, Asia, Africa, Americas",
@@ -417,7 +417,7 @@ export const CLEANBI_SOFTWARE_SCHEMA = generateSoftwareSchema({
     "Free Chrome Extension - Score addresses while browsing Google Maps, LoopNet, BizBuySell",
     "Business Types: Restaurants, Retail, Gyms, Salons, Car Washes, Laundromats, Gas Stations, Hotels",
     "Property Types: Single-Family Homes, Condos, Townhouses, Investment Properties, Rental Properties",
-    "$97 Premium Reports - Deep analysis, valuations, AI-powered recommendations"
+    "Premium Reports from $99 - Quick Valuation, Standard, Pro, and Enterprise tiers"
   ],
   price: "0",
   rating: 4.9,
@@ -455,7 +455,7 @@ export const CLEANBI_EXTENSION_SCHEMA = {
     "Scores businesses AND residential properties",
     "220+ countries supported globally",
     "No signup required - works immediately after install",
-    "Upgrade to $97 Full Report for deep analysis and valuations"
+    "Upgrade to Full Report from $99 for deep analysis and valuations"
   ],
   "aggregateRating": {
     "@type": "AggregateRating",

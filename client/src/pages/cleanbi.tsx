@@ -151,7 +151,7 @@ export default function CleanBI() {
           },
           {
             question: "Is there a free laundromat feasibility study?",
-            answer: "Yes! CLEANBI provides free instant feasibility analysis for any address. Get A/B/C grades, competition mapping, demographic match scores, and AI recommendations - no login required. Premium reports with detailed valuations start at $197."
+            answer: "Yes! CLEANBI provides free instant feasibility analysis for any address. Get A/B/C grades, competition mapping, demographic match scores, and AI recommendations - no login required. Premium reports with detailed valuations start at $99."
           },
           {
             question: "What is the CLEANBI scoring system?",
@@ -206,7 +206,7 @@ export default function CleanBI() {
             "Demographics Analysis",
             "AI-Powered Insights",
             "Free Chrome Extension",
-            "Premium Reports from $197"
+            "Premium Reports from $99"
           ],
           "author": {
             "@type": "Organization",
