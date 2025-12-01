@@ -8221,7 +8221,16 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       .min(5, "Address must be at least 5 characters")
       .max(500, "Address must be less than 500 characters")
       .trim(),
+    tier: z.enum(['quick', 'standard', 'pro', 'enterprise']).optional().default('quick'),
   });
+  
+  // Report tier pricing (in cents)
+  const REPORT_TIER_PRICING: Record<string, { price: number; name: string; description: string }> = {
+    quick: { price: 9900, name: 'Quick Valuation Report', description: 'Fast valuation estimate with CLEANBI score' },
+    standard: { price: 19900, name: 'Standard Report', description: 'Essential location analysis with competitor data' },
+    pro: { price: 34900, name: 'Pro Report', description: 'Comprehensive analysis with Vision AI insights' },
+    enterprise: { price: 49900, name: 'Enterprise Report', description: 'Full analysis with aerial views & consultation' },
+  };
 
   // Consistent API error response structure
   interface ApiErrorResponse {
@@ -8380,7 +8389,15 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         );
       }
       
-      const { address } = validationResult.data;
+      const { address, tier } = validationResult.data;
+      
+      // Get tier pricing
+      const tierConfig = REPORT_TIER_PRICING[tier];
+      if (!tierConfig) {
+        return res.status(400).json(
+          createErrorResponse('INVALID_TIER', 'Invalid report tier selected.')
+        );
+      }
       
       // GUEST CHECKOUT PATTERN: Intentional for e-commerce
       const userEmail = req.user?.claims?.email || req.user?.email || undefined;
@@ -8397,21 +8414,22 @@ IMPORTANT DISCLAIMER TO INCLUDE:
           price_data: {
             currency: "usd",
             product_data: {
-              name: "CLEANBI Professional Report",
-              description: `17-factor property intelligence analysis for: ${address}`,
+              name: `CLEANBI ${tierConfig.name}`,
+              description: `${tierConfig.description} for: ${address}`,
             },
-            unit_amount: 9700, // $97
+            unit_amount: tierConfig.price,
           },
           quantity: 1,
         }],
         mode: "payment",
-        success_url: `${baseUrl}/cleanbi?success=true&address=${encodeURIComponent(address)}`,
-        cancel_url: `${baseUrl}/cleanbi`,
+        success_url: `${baseUrl}/cleanbi-reports?success=true&tier=${tier}&address=${encodeURIComponent(address)}`,
+        cancel_url: `${baseUrl}/cleanbi-reports`,
         customer_email: userEmail,
         metadata: { 
           userId,
           isGuest: isGuest ? 'true' : 'false',
           type: 'cleanbi-report',
+          tier,
           address
         },
       });
