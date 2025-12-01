@@ -132,7 +132,7 @@ export default function Home() {
     },
     {
       question: "What is the CLEANBI score?",
-      answer: "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for any business type (restaurants, retail, laundromats, etc.) or residential property in 220+ countries. Premium $97 reports provide deep analysis and valuations."
+      answer: "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for any business type (restaurants, retail, laundromats, etc.) or residential property in 220+ countries. Premium reports from $99 provide deep analysis and valuations."
     },
     {
       question: "How much does it cost to open a laundromat?",
@@ -298,7 +298,7 @@ export default function Home() {
             </h2>
             <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
               CLEANBI analyzes demographics, competition, traffic, and market potential for any address worldwide. 
-              Free basic scores, premium reports from $97.
+              Free basic scores, premium reports from $99.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
