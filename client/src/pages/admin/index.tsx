@@ -25,24 +25,49 @@ export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   
-  // Fetch stats
+  // Fetch stats only when we know user is admin
   const { data: stats, refetch, isFetching } = useQuery({
     queryKey: ['/api/admin/stats'],
-    enabled: isAuthenticated && user?.isAdmin,
+    enabled: !isLoading && isAuthenticated && user?.isAdmin === true,
   });
 
-  // Handle redirect in useEffect to avoid render-time state updates
+  // Handle redirect in useEffect - only redirect when we're CERTAIN user is not admin
+  // Wait for auth to fully load and user to be determined
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || !user?.isAdmin)) {
+    // Only redirect if:
+    // 1. Auth is done loading AND
+    // 2. Either not authenticated OR user exists but is NOT admin
+    if (!isLoading && (!isAuthenticated || (user && !user.isAdmin))) {
       setLocation('/');
     }
-  }, [isLoading, isAuthenticated, user?.isAdmin, setLocation]);
+  }, [isLoading, isAuthenticated, user, setLocation]);
 
+  // Show loading while auth is being determined
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!isAuthenticated || !user?.isAdmin) {
+  // Show loading while waiting for user data after auth check
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
+          <p>Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user exists but is not admin, show redirecting message
+  if (!user.isAdmin) {
     return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
   }
 
