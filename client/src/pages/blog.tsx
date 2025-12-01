@@ -25,7 +25,106 @@ export default function Blog() {
   const createPost = useCreateBlogPost();
   const generateContent = useGenerateBlogContent();
 
-  const seoKeywords = ["laundromat business tips", "laundromat industry blog", "laundromat profitability", "laundromat operations guide", "coin laundry management", "self-service laundry advice"];
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
+
+  const seoKeywords = [
+    "laundromat industry news",
+    "laundromat business tips",
+    "how to run a laundromat blog",
+    "coin laundry tips",
+    "laundromat operations guide",
+    "laundromat profitability strategies",
+    "coin laundry management",
+    "self-service laundry advice",
+    "laundromat marketing ideas",
+    "laundromat maintenance tips",
+    "laundromat industry trends",
+    "laundromat business articles",
+    "commercial laundry blog",
+    "laundromat owner resources",
+    "laundry business insights"
+  ];
+
+  const blogFaqs = [
+    {
+      question: "Where can I find laundromat industry news?",
+      answer: "WashBizHub's blog publishes regular laundromat industry news covering equipment innovations, market trends, regulatory updates, and business strategies. We aggregate insights from 72,000+ professionals and industry experts to keep you informed about the latest developments in the coin laundry sector."
+    },
+    {
+      question: "How do I run a successful laundromat blog?",
+      answer: "Running a successful laundromat blog involves sharing practical operations tips, industry news, success stories, and educational content. Focus on SEO optimization, consistent publishing, and addressing common pain points like equipment maintenance, customer acquisition, and profitability optimization. WashBizHub offers AI-powered content generation to help you create professional articles quickly."
+    },
+    {
+      question: "What are the best coin laundry tips for beginners?",
+      answer: "Top coin laundry tips for beginners: 1) Focus on high-traffic locations with 40%+ renters, 2) Invest in efficient equipment to reduce utility costs, 3) Price based on local competition and costs, 4) Maintain clean, safe facilities, 5) Implement card payment systems, 6) Use IoT monitoring for predictive maintenance, and 7) Join community forums like WashBizHub to learn from experienced operators."
+    },
+    {
+      question: "What topics does the WashBizHub blog cover?",
+      answer: "The WashBizHub blog covers comprehensive laundromat topics including: operations optimization, marketing strategies, equipment maintenance, financial management, growth tactics, industry trends, technology adoption (IoT, AI), regulatory compliance, customer service best practices, and success stories from top-performing laundromats."
+    },
+    {
+      question: "How often is new laundromat content published?",
+      answer: "WashBizHub publishes fresh laundromat content weekly, including expert articles, industry analysis, how-to guides, and case studies. Premium members get access to exclusive deep-dive content, while free users can browse all published blog posts and community contributions."
+    },
+    {
+      question: "Can I contribute articles to WashBizHub's blog?",
+      answer: "Yes, WashBizHub welcomes contributions from laundromat professionals. You can create and publish blog posts directly through our platform. Our AI content generation tool helps you draft professional articles, and your contributions reach our community of 72,000+ laundromat owners and operators."
+    },
+    {
+      question: "What makes WashBizHub different from other laundromat blogs?",
+      answer: "WashBizHub combines expert-written content with AI-powered tools, data-driven insights from 72,000+ members, and practical resources like calculators, CLEANBI scoring, and equipment databases. Unlike generic blogs, we provide actionable intelligence backed by real industry data and professional expertise."
+    },
+    {
+      question: "How can I stay updated on laundromat industry trends?",
+      answer: "Stay updated by: 1) Following the WashBizHub blog for weekly articles, 2) Joining our 72,000+ member community forum, 3) Subscribing to our newsletter for curated insights, 4) Using CLEANBI to track market conditions in your area, and 5) Connecting with industry vendors and experts through our directory."
+    }
+  ];
+
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "WashBizHub Laundromat Blog",
+    "description": "Expert articles on laundromat profitability, operations, maintenance, growth strategies, and industry trends from the #1 laundromat resource hub.",
+    "url": `${baseUrl}/blog`,
+    "publisher": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "logo": { "@type": "ImageObject", "url": `${baseUrl}/washbizhub-logo.png` }
+    },
+    "inLanguage": "en-US",
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Laundromat owners, operators, investors"
+    }
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Latest Laundromat Articles",
+    "description": "Recent blog posts from WashBizHub covering laundromat operations, profitability, and industry trends",
+    "numberOfItems": posts.length,
+    "itemListElement": posts.slice(0, 10).map((post, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.content.substring(0, 150),
+        "url": `${baseUrl}/blog/${post.id}`,
+        "author": { "@type": "Organization", "name": "WashBizHub" },
+        "publisher": {
+          "@type": "Organization",
+          "name": "WashBizHub",
+          "logo": { "@type": "ImageObject", "url": `${baseUrl}/washbizhub-logo.png` }
+        },
+        "articleSection": post.category,
+        "datePublished": new Date().toISOString()
+      }
+    }))
+  };
+
+  const structuredData = [blogSchema, itemListSchema];
 
   const handleGenerateContent = async () => {
     if (!newPost.title.trim()) {
@@ -95,7 +194,19 @@ export default function Blog() {
 
   return (
     <>
-      <SEO title="WashBizHub Blog | Laundromat Business Tips & Industry Insights" description="Read expert articles on laundromat profitability, operations, maintenance, growth strategies, and industry trends. Learn from successful laundromat owners." keywords={seoKeywords} canonicalUrl="/blog" />
+      <SEO 
+        title="WashBizHub Blog | Laundromat Industry News, Tips & Expert Articles" 
+        description="Expert laundromat articles: operations, profitability, maintenance, marketing. Industry news from 72,000+ professionals. Free tips and guides."
+        keywords={seoKeywords} 
+        canonicalUrl="/blog"
+        structuredData={structuredData}
+        faqs={blogFaqs}
+        speakableSelectors={["h1", ".blog-post-title", "[data-testid='text-blog-title']"]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blog" }
+        ]}
+      />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">

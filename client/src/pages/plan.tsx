@@ -6,8 +6,14 @@ import { SEO } from "@/components/SEO";
 import { 
   Lightbulb, ArrowRight, Chrome, Calculator, DollarSign, 
   TrendingUp, BookOpen, MessageSquare, Users, Shield,
-  Clock, Percent
+  Clock, Percent, HelpCircle, ChevronDown
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const whyLaundromatStats = [
   {
@@ -85,20 +91,105 @@ const educationalResources = [
   }
 ];
 
+const planningFaqs = [
+  {
+    question: "How do I plan a laundromat business from scratch?",
+    answer: "Planning a laundromat business involves 7 key steps: 1) Research your target market and competition, 2) Create a detailed business plan with financial projections, 3) Secure financing through SBA loans, equipment financing, or investors, 4) Find the right location with high foot traffic and demographics, 5) Choose between buying existing or building new, 6) Select equipment (washers, dryers, payment systems), and 7) Plan your grand opening marketing strategy. Use our ROI Calculator and CLEANBI Score tools to validate your business plan with real data."
+  },
+  {
+    question: "What are the typical laundromat startup costs in 2024?",
+    answer: "Laundromat startup costs typically range from $200,000 to $500,000 for a new build, and $100,000 to $300,000 for acquiring an existing business. Key costs include: equipment ($100K-$300K), leasehold improvements ($50K-$150K), initial working capital ($20K-$50K), licenses and permits ($2K-$10K), and marketing ($5K-$15K). Location, size, and equipment quality significantly impact total investment. Use our Startup Costs Calculator for a personalized estimate."
+  },
+  {
+    question: "How do I write a laundromat business plan?",
+    answer: "A comprehensive laundromat business plan includes: Executive Summary, Market Analysis (demographics, competition, demand), Location Analysis, Equipment Plan, Financial Projections (5-year P&L, cash flow, break-even), Marketing Strategy, Operations Plan, and Funding Requirements. Include specific metrics like turns per day (TPD), average ticket size, and operating costs. Download our free business plan template in the Resources section."
+  },
+  {
+    question: "What is the average ROI for a laundromat investment?",
+    answer: "Well-run laundromats typically generate 20-30% cash-on-cash returns annually, making them one of the most profitable small business investments. Factors affecting ROI include location quality, equipment efficiency, operational costs, and pricing strategy. A $300,000 laundromat investment can generate $60,000-$90,000 in annual cash flow. Use our ROI Calculator to project returns based on your specific situation."
+  },
+  {
+    question: "How do I finance a laundromat purchase?",
+    answer: "Common laundromat financing options include: SBA 7(a) loans (up to $5M, 10-25 year terms), SBA 504 loans (for real estate/equipment), equipment financing (80-100% of equipment cost), conventional bank loans, and seller financing. Most lenders require 10-30% down payment and good credit (680+). Our Funding Matcher connects you with lenders specializing in laundromat acquisitions."
+  },
+  {
+    question: "Is owning a laundromat a good investment in 2024?",
+    answer: "Yes, laundromats remain excellent investments in 2024 due to: recession-resistant demand, high cash flow potential (20-30% ROI), relatively passive income model, tax advantages (depreciation), and growing population in urban areas. The $5 billion U.S. laundromat industry grows 5% annually. Key success factors include location selection, equipment quality, and operational efficiency."
+  },
+  {
+    question: "What should I research before buying a laundromat?",
+    answer: "Essential research before buying includes: market demographics (population density, renter ratio, income levels), competition analysis (within 1-3 mile radius), location foot traffic, lease terms and rent trends, equipment age and condition, utility costs, historical financials (3+ years), and growth potential. Our CLEANBI Score tool instantly analyzes all these factors for any address."
+  },
+  {
+    question: "How long does it take to open a laundromat?",
+    answer: "Opening a new laundromat typically takes 6-12 months from planning to grand opening. Timeline includes: business planning (1-2 months), site selection and lease negotiation (1-3 months), permits and approvals (1-3 months), construction/renovation (2-4 months), equipment installation (2-4 weeks), and soft opening (2-4 weeks). Buying an existing laundromat can close in 30-90 days."
+  }
+];
+
+const planningHowTo = {
+  name: "How to Plan a Laundromat Business",
+  description: "Step-by-step guide to planning your laundromat investment, from initial research to securing funding and finding the perfect location.",
+  totalTime: "PT30D",
+  steps: [
+    {
+      name: "Research the Laundromat Industry",
+      text: "Study the laundromat industry fundamentals including average ROI (20-30%), typical operating costs, and market trends. Read The Laundromat Bible for comprehensive insights from industry experts."
+    },
+    {
+      name: "Define Your Investment Goals",
+      text: "Determine your budget ($100K-$500K typical), desired income level, and whether you want to buy an existing business or build new. Consider passive vs. active ownership models."
+    },
+    {
+      name: "Calculate Startup Costs and ROI",
+      text: "Use our Startup Costs Calculator to estimate total investment needed. Input equipment costs, lease expenses, and working capital requirements to project your return on investment."
+    },
+    {
+      name: "Analyze Target Markets with CLEANBI",
+      text: "Use the CLEANBI Score tool to analyze potential locations. Get AI-powered insights on competition, demographics, foot traffic, and market saturation for any address."
+    },
+    {
+      name: "Create Your Business Plan",
+      text: "Develop a comprehensive business plan including market analysis, financial projections, equipment specifications, and operational strategy. Download our free template from Resources."
+    },
+    {
+      name: "Secure Financing",
+      text: "Apply for financing through SBA loans, equipment financing, or our Funding Matcher to connect with lenders specializing in laundromat investments. Most require 10-30% down payment."
+    },
+    {
+      name: "Book a Consultation",
+      text: "Schedule a consultation with our laundromat industry experts for personalized advice on your business plan, location selection, and investment strategy."
+    }
+  ]
+};
+
 export default function PlanPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Plan Your Laundromat Investment",
     "description": "Everything you need to decide if owning a laundromat is right for you. ROI calculators, funding options, and educational resources.",
-    "url": "https://washbizhub.com/plan"
+    "url": "https://washbizhub.com/plan",
+    "mainEntity": {
+      "@type": "Article",
+      "headline": "How to Plan a Laundromat Business Investment",
+      "description": "Complete guide to planning your laundromat investment with ROI calculators, startup cost estimates, funding options, and expert resources.",
+      "author": {
+        "@type": "Organization",
+        "name": "WashBizHub"
+      }
+    }
   };
+
+  const breadcrumbs = [
+    { name: "Home", url: "/" },
+    { name: "Plan Your Investment", url: "/plan" }
+  ];
 
   return (
     <>
       <SEO
-        title="Plan Your Laundromat Investment - ROI Calculators & Funding"
-        description="Planning to buy a laundromat? Access ROI calculators, startup cost estimators, funding options, and educational resources. Learn if laundromat ownership is right for you with 20-30% average returns."
+        title="Plan Your Laundromat Investment - ROI Calculators, Startup Costs & Funding Guide"
+        description="Planning to buy a laundromat? Access ROI calculators, startup cost estimators, funding options, and educational resources. Learn if laundromat ownership is right for you with 20-30% average returns. Free business plan templates and expert guidance."
         canonicalUrl="/plan"
         keywords={[
           "laundromat investment planning",
@@ -108,9 +199,24 @@ export default function PlanPage() {
           "buy a laundromat",
           "laundromat business plan",
           "coin laundry investment",
-          "laundromat ownership"
+          "laundromat ownership",
+          "how to start a laundromat",
+          "laundromat feasibility study",
+          "laundromat financing options",
+          "laundromat capital requirements",
+          "self-service laundry business",
+          "coin operated laundry investment",
+          "laundromat market research"
         ]}
         structuredData={structuredData}
+        breadcrumbs={breadcrumbs}
+        faqs={planningFaqs}
+        howTo={planningHowTo}
+        author={{
+          name: "WashBizHub Team",
+          expertise: "Laundromat Industry Experts",
+          credentials: "Combined 50+ years of laundromat ownership, brokerage, and consulting experience"
+        }}
       />
 
       <div className="min-h-screen bg-background" data-testid="page-plan">
@@ -292,6 +398,40 @@ export default function PlanPage() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <section className="py-16 sm:py-24 bg-background" data-testid="section-faqs">
+          <div className="mx-auto max-w-4xl px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-blue-500/20 text-blue-500 border-blue-500/30">
+                <HelpCircle className="w-3 h-3 mr-1" />
+                Frequently Asked Questions
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4" data-testid="text-faq-heading">
+                Laundromat Planning FAQs
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Get answers to the most common questions about planning your laundromat investment
+              </p>
+            </div>
+
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {planningFaqs.map((faq, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`faq-${index}`}
+                  className="border border-border rounded-lg px-6 data-[state=open]:bg-muted/30"
+                >
+                  <AccordionTrigger className="text-left font-semibold hover:no-underline py-4">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-4 leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </section>
 

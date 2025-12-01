@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, ShoppingCart, Package, Zap, DollarSign, TrendingUp } from 'lucide-react';
+import { Search, ShoppingCart, Package, Zap, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { Breadcrumb } from '@/components/Breadcrumb';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const PARTS_CATEGORIES = [
   {
@@ -73,6 +75,77 @@ const PARTS_CATEGORIES = [
   },
 ];
 
+const PARTS_FAQS = [
+  {
+    question: "Where can I find laundromat parts?",
+    answer: "Laundromat parts are available through multiple channels: 1) Manufacturer distributors like Alliance Laundry Systems (Speed Queen/Huebsch), Dexter Laundry, and Maytag Commercial, 2) Online marketplaces including Amazon and specialized sites like WashBizHub Parts Catalogue, 3) Local appliance parts suppliers, 4) Used equipment dealers for discontinued parts. For genuine OEM parts, always verify the part number matches your machine's model and serial number."
+  },
+  {
+    question: "What are the most common washer and dryer replacement parts?",
+    answer: "The most frequently replaced laundromat parts include: bearings and seals (typically $50-200), door latches and locks ($25-75), belts ($15-50), drain pumps ($75-200), heating elements for dryers ($50-150), coin mechanisms and acceptors ($100-300), control boards ($200-600), and water inlet valves ($30-80). Regular maintenance can extend the life of these components significantly."
+  },
+  {
+    question: "Where can I buy Speed Queen parts?",
+    answer: "Speed Queen parts are available through: 1) Authorized Alliance Laundry Systems distributors (the official channel), 2) Online retailers like Amazon with the 'nicholaskreme-20' affiliate tag for discounts, 3) Parts warehouses specializing in commercial laundry, 4) WashBizHub Parts Catalogue for curated selection. For warranty coverage, purchase from authorized distributors. Common Speed Queen parts include door locks, coin slides, bearings, and control boards."
+  },
+  {
+    question: "How do I find the right replacement parts for my commercial washer?",
+    answer: "To find correct replacement parts: 1) Locate your machine's model and serial number (usually on a plate inside the door or on the back), 2) Use the manufacturer's parts lookup tool or call their parts department, 3) Cross-reference with your maintenance manual, 4) Consult with a qualified technician if unsure. Never use residential parts in commercial machines as they won't withstand the usage demands."
+  },
+  {
+    question: "What Dexter laundry parts are available?",
+    answer: "Dexter Laundry offers a full range of OEM parts including: T-Series washer and dryer components, door assemblies and seals, control boards and touchpads, heating elements, motors and bearings, coin mechanisms, and Express technology components. Parts are available through Dexter distributors, authorized service providers, and online marketplaces. Dexter also offers DexterLive diagnostics to help identify failing parts."
+  },
+  {
+    question: "How much do laundromat equipment parts typically cost?",
+    answer: "Laundromat parts pricing varies by type: Simple components (belts, hoses, door parts): $15-75. Medium repairs (pumps, valves, heating elements): $50-200. Major components (motors, bearings, drums): $150-500. Control systems (boards, touchpads): $200-800. Complete coin mechanisms: $200-500. Budget 2-5% of equipment value annually for parts and maintenance to keep machines running optimally."
+  },
+  {
+    question: "Can I use aftermarket parts in my commercial laundry equipment?",
+    answer: "While aftermarket parts are often cheaper (30-50% less than OEM), consider: 1) Warranty implications - using non-OEM parts may void equipment warranty, 2) Quality concerns - aftermarket parts may fail sooner, 3) Compatibility issues - not all aftermarket parts fit correctly, 4) Safety - electrical and heating components should be OEM or UL-listed. For critical components like control boards and safety switches, OEM parts are recommended."
+  },
+  {
+    question: "What laundromat maintenance supplies do I need?",
+    answer: "Essential laundromat maintenance supplies include: cleaning agents (stainless steel cleaner, descaler, drum cleaner), lubricants (bearing grease, door hinge oil), replacement consumables (lint screens, drain filters), tools (coin mechanism keys, specialty wrenches), and diagnostic equipment. Stock commonly needed parts like door handles, coin slides, and drain pump screens for quick repairs that minimize downtime."
+  }
+];
+
+const PARTS_HOWTO = {
+  name: "How to Find and Order Laundromat Replacement Parts",
+  description: "Step-by-step guide to identifying, sourcing, and ordering the correct replacement parts for your commercial laundry equipment.",
+  steps: [
+    {
+      name: "Identify the Part Needed",
+      text: "Determine exactly which part has failed by observing symptoms, checking error codes, or consulting a technician. Common failure signs include strange noises, leaks, error codes on display, or machine not completing cycles."
+    },
+    {
+      name: "Find Your Machine's Model Information",
+      text: "Locate the model and serial number plate on your equipment. For washers, check inside the door frame. For dryers, check inside the door or on the back panel. Record the full model number, serial number, and manufacture date."
+    },
+    {
+      name: "Look Up the Correct Part Number",
+      text: "Use the manufacturer's parts lookup tool, your equipment manual, or contact the manufacturer's parts department. Cross-reference the part number with your model to ensure compatibility."
+    },
+    {
+      name: "Compare Suppliers and Pricing",
+      text: "Check multiple sources: manufacturer distributors for warranty parts, Amazon for convenience (use affiliate tag nicholaskreme-20), specialized commercial laundry parts suppliers, and local distributors for same-day availability."
+    },
+    {
+      name: "Verify OEM vs Aftermarket",
+      text: "Decide between OEM (Original Equipment Manufacturer) parts that guarantee compatibility and warranty compliance, or aftermarket parts that may be cheaper but carry more risk. For safety-critical components, always use OEM."
+    },
+    {
+      name: "Place Your Order",
+      text: "Order through your chosen supplier. Consider expedited shipping if the machine is down. Keep records of part numbers and invoices for warranty claims and tax purposes. WashBizHub Parts Catalogue offers one-click Amazon ordering."
+    },
+    {
+      name: "Install or Schedule Service",
+      text: "For simple parts like door handles or lint screens, DIY installation may be appropriate. For electrical, plumbing, or complex mechanical parts, schedule a qualified technician to ensure proper installation and safety."
+    }
+  ],
+  totalTime: "PT2H"
+};
+
 export default function PartsCatalogue() {
   const [selectedCategory, setSelectedCategory] = useState('washers');
   const [searchQuery, setSearchQuery] = useState('');
@@ -84,7 +157,6 @@ export default function PartsCatalogue() {
   ) || [];
 
   const handleAmazonOrder = (product: any) => {
-    // In production: redirect to Amazon affiliate link with nicholaskreme-20 tag
     const affiliateUrl = `https://amazon.com/s?k=${encodeURIComponent(product.name)}&tag=nicholaskreme-20`;
     window.open(affiliateUrl, '_blank');
   };
@@ -92,14 +164,49 @@ export default function PartsCatalogue() {
   return (
     <>
       <SEO
-        title="Laundromat Parts & Equipment Catalogue | Washers, Dryers, Carts & More"
-        description="Complete parts catalogue with instant Amazon ordering. Washers, dryers, carts, tables, dog wash stations, soap machines, and coin changers."
+        title="Laundromat Parts & Equipment Catalogue | Commercial Washer & Dryer Parts"
+        description="Complete laundromat parts catalogue with instant ordering. Speed Queen parts, Dexter parts, commercial washer replacement parts, dryer components, coin changers, and maintenance supplies."
         canonicalUrl="/parts-catalogue"
-        keywords={['laundromat parts', 'commercial washers', 'laundry equipment', 'maintenance supplies', 'coin changers']}
+        keywords={[
+          'laundromat parts',
+          'washer dryer replacement parts',
+          'Speed Queen parts',
+          'Dexter laundry parts',
+          'commercial washer parts',
+          'coin laundry parts',
+          'laundry equipment parts',
+          'commercial dryer parts',
+          'Huebsch parts',
+          'Maytag commercial parts',
+          'laundromat maintenance supplies',
+          'coin changer parts',
+          'washer bearings',
+          'dryer heating elements',
+          'laundromat equipment catalogue'
+        ]}
+        faqs={PARTS_FAQS}
+        howTo={PARTS_HOWTO}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Parts Catalogue", url: "/parts-catalogue" }
+        ]}
+        author={{
+          name: "WashBizHub Technical Team",
+          expertise: "Commercial Laundry Equipment Specialists",
+          credentials: "25+ years combined experience in laundromat equipment maintenance and parts sourcing"
+        }}
       />
 
       <div className="min-h-screen bg-background">
-        {/* Header */}
+        <div className="bg-muted/30 border-b">
+          <div className="mx-auto max-w-7xl px-6 py-3">
+            <Breadcrumb items={[
+              { name: "Home", url: "/" },
+              { name: "Parts Catalogue", url: "/parts-catalogue" }
+            ]} />
+          </div>
+        </div>
+
         <div className="bg-background text-foreground py-12 border-b">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center gap-3 mb-4">
@@ -114,7 +221,6 @@ export default function PartsCatalogue() {
           </div>
         </div>
 
-        {/* Search */}
         <div className="bg-muted/30 border-b sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="relative">
@@ -130,7 +236,6 @@ export default function PartsCatalogue() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
             <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-8">
@@ -192,7 +297,6 @@ export default function PartsCatalogue() {
           </Tabs>
         </div>
 
-        {/* Info */}
         <div className="max-w-7xl mx-auto px-6 py-12 border-t">
           <h2 className="text-2xl font-bold mb-6">Why Our Catalogue?</h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -227,6 +331,22 @@ export default function PartsCatalogue() {
             </Card>
           </div>
         </div>
+
+        <section className="bg-muted/30 border-t">
+          <div className="mx-auto max-w-4xl px-6 py-16">
+            <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+            <Accordion type="single" collapsible className="w-full">
+              {PARTS_FAQS.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
       </div>
     </>
   );

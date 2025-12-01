@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
   CheckCircle2, AlertTriangle, Star, DollarSign, Wrench, Zap,
   Shield, Factory, Award, ArrowRight, ExternalLink, ThumbsUp, ThumbsDown
@@ -252,6 +253,77 @@ const BRAND_GUIDES: BrandGuide[] = [
   },
 ];
 
+const EQUIPMENT_FAQS = [
+  {
+    question: "What is the best laundromat equipment?",
+    answer: "The best laundromat equipment depends on your priorities: Speed Queen is the industry gold standard for 30+ year durability and highest resale value. Dexter offers the best balance of durability and modern efficiency with 25-30 year lifespan. Electrolux leads in energy efficiency and premium customer experience. For budget-conscious buyers, Maytag Commercial provides solid value. Huebsch (made in the same factory as Speed Queen) offers premium quality at 10-15% lower cost."
+  },
+  {
+    question: "What are the best commercial washer reviews?",
+    answer: "Top-rated commercial washers by category: Best Overall: Speed Queen SC Series (4.9/5) - unmatched 30+ year durability. Best Value: Huebsch HC Series (4.6/5) - Speed Queen quality at lower price. Best Efficiency: Dexter T-Series (4.8/5) - 30% faster cycles, lower utilities. Best Premium: Electrolux W4 Series (4.5/5) - quietest, most efficient. Best Budget: Maytag MHN Series (4.2/5) - reliable 15-20 year lifespan. Each brand excels in different areas depending on your operational priorities."
+  },
+  {
+    question: "Dexter vs Speed Queen: Which is better?",
+    answer: "Dexter vs Speed Queen comparison: Speed Queen pros - longest lifespan (30+ years), highest resale value, simplest service, best parts availability. Dexter pros - 30% faster cycles, better efficiency, lower utility costs, remote monitoring via DexterLive app. Speed Queen cons - higher utility costs, slower cycles. Dexter cons - slightly more complex service needs. Winner depends on priorities: Speed Queen for maximum longevity and simplicity, Dexter for modern efficiency and technology."
+  },
+  {
+    question: "How long do commercial washers and dryers last?",
+    answer: "Commercial laundry equipment lifespan by brand: Speed Queen: 30+ years (industry best). Dexter: 25-30 years. Huebsch: 25-30 years (same factory as Speed Queen). Continental Girbau: 20-25 years. Electrolux Professional: 20-25 years. Maytag Commercial: 15-20 years. Proper maintenance can extend lifespan by 20-30%. Key factors include usage volume, water quality, maintenance schedule, and operating environment."
+  },
+  {
+    question: "What is the most reliable laundromat equipment brand?",
+    answer: "Reliability rankings for laundromat equipment: 1) Speed Queen - legendary 30+ year durability, simplest technology, lowest service calls. 2) Huebsch - same factory as Speed Queen, equally reliable. 3) Dexter - proven durability with modern technology, strong track record. 4) Continental - solid European engineering with US service support. 5) Electrolux - reliable but requires specialized service. 6) Maytag - dependable but shorter overall lifespan. Speed Queen sets the industry reliability benchmark."
+  },
+  {
+    question: "How much does commercial laundry equipment cost?",
+    answer: "Commercial laundry equipment pricing ranges: Entry-level (Maytag): Washers $5,500-$8,500, Dryers $5,500-$8,000. Mid-range (Huebsch, Continental): Washers $8,000-$14,000, Dryers $6,500-$13,000. Premium (Speed Queen, Dexter): Washers $7,500-$18,000, Dryers $7,500-$18,000. Ultra-premium (Electrolux): Washers $14,000-$20,000, Dryers $12,000-$18,000. Budget for installation ($500-1,500/machine), venting, and utilities. Total store retooling typically costs $150,000-$400,000."
+  },
+  {
+    question: "What should I look for when buying commercial laundry equipment?",
+    answer: "Key factors when buying commercial laundry equipment: 1) Durability and expected lifespan - Speed Queen leads at 30+ years. 2) Warranty coverage - look for 5+ years parts, 2+ years labor. 3) Energy and water efficiency - affects long-term operating costs. 4) Service availability - ensure local techs can work on the brand. 5) Parts availability - Speed Queen and Maytag have best parts networks. 6) Extraction G-force - higher extraction reduces drying time. 7) Resale value - Speed Queen holds value best. 8) Total cost of ownership including utilities."
+  },
+  {
+    question: "Are Speed Queen washers worth the money?",
+    answer: "Yes, Speed Queen is worth the investment for most operators. While upfront costs are 15-30% higher than competitors, the value proposition includes: 30+ year lifespan (vs 15-20 for budget brands), highest resale value (often 50%+ of original price after 10 years), lowest repair frequency, parts available everywhere, any technician can service them, and industry-best 7-year warranty. The higher purchase price is offset by longer equipment life and lower lifetime service costs."
+  }
+];
+
+const EQUIPMENT_HOWTO = {
+  name: "How to Choose the Best Laundromat Equipment",
+  description: "Complete step-by-step guide to selecting commercial laundry equipment that matches your budget, location, and operational goals.",
+  steps: [
+    {
+      name: "Define Your Budget and Priorities",
+      text: "Determine your equipment budget (typically $150,000-$400,000 for a full store). Decide priorities: maximum durability (Speed Queen), efficiency and speed (Dexter), premium features (Electrolux), or budget value (Maytag). Consider financing options through equipment distributors."
+    },
+    {
+      name: "Research Brand Options",
+      text: "Study the major brands: Speed Queen (30+ year durability leader), Dexter (efficiency + durability balance), Huebsch (Speed Queen quality at lower price), Maytag (budget-friendly), Electrolux (premium features), Continental (high extraction). Read reviews and talk to operators using each brand."
+    },
+    {
+      name: "Calculate Total Cost of Ownership",
+      text: "Compare equipment based on total cost of ownership over 10-20 years, not just purchase price. Factor in: purchase cost, expected lifespan, utility costs (water, gas, electric), maintenance and repairs, parts availability, and eventual resale value. Higher-priced equipment often costs less long-term."
+    },
+    {
+      name: "Evaluate Service and Parts Availability",
+      text: "Confirm local technicians can service your chosen brand. Check parts availability - Speed Queen and Maytag have the best networks. Ask distributors about typical service response times and parts delivery. Equipment that can't be serviced quickly costs money in downtime."
+    },
+    {
+      name: "Determine Equipment Mix",
+      text: "Plan your washer and dryer mix based on customer needs. Standard ratio is 40% large (60+ lb), 40% medium (40 lb), 20% small (20 lb) for washers. Dryer capacity should be 1.5-2x washer capacity. Consider stack dryers to maximize floor space."
+    },
+    {
+      name: "Get Multiple Quotes",
+      text: "Request quotes from at least 3 distributors. Prices vary significantly for the same equipment. Compare installation costs, warranty terms, financing options, and included training. Negotiate - distributors have margin on equipment sales."
+    },
+    {
+      name: "Plan for Installation",
+      text: "Coordinate installation with your buildout timeline. Ensure adequate utilities (gas lines, electrical, water supply, drainage, venting). Budget $500-1,500 per machine for professional installation. Verify building codes and permit requirements."
+    }
+  ],
+  totalTime: "PT8H"
+};
+
 export default function EquipmentGuides() {
   const [selectedBrand, setSelectedBrand] = useState<string>(BRAND_GUIDES[0].id);
   const brand = BRAND_GUIDES.find(b => b.id === selectedBrand) || BRAND_GUIDES[0];
@@ -259,16 +331,45 @@ export default function EquipmentGuides() {
   return (
     <>
       <SEO 
-        title="Commercial Laundry Equipment Guides | Brand Comparisons | WashBizHub"
-        description="Comprehensive guides to commercial laundry equipment brands. Compare Speed Queen, Dexter, Maytag, Huebsch, Electrolux and Continental with honest pros and cons."
+        title="Commercial Laundry Equipment Guides | Speed Queen vs Dexter Reviews | WashBizHub"
+        description="Comprehensive guides to commercial laundry equipment brands. Compare Speed Queen, Dexter, Maytag, Huebsch, Electrolux and Continental. Honest reviews with pros, cons, and expert recommendations."
         canonicalUrl="/equipment-guides"
-        keywords={["Speed Queen review", "Dexter laundry", "commercial washer comparison", "laundromat equipment guide"]}
+        keywords={[
+          'best laundromat equipment',
+          'commercial washer reviews',
+          'Dexter vs Speed Queen',
+          'Speed Queen review',
+          'Dexter laundry equipment',
+          'commercial laundry equipment',
+          'laundromat washer comparison',
+          'best commercial dryer',
+          'Huebsch vs Speed Queen',
+          'Electrolux commercial laundry',
+          'Maytag commercial washer',
+          'laundromat equipment brands',
+          'commercial washer cost',
+          'laundry equipment buying guide',
+          'coin operated washer dryer'
+        ]}
+        faqs={EQUIPMENT_FAQS}
+        howTo={EQUIPMENT_HOWTO}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Resources", url: "/resources" },
+          { name: "Equipment Guides", url: "/equipment-guides" }
+        ]}
+        author={{
+          name: "WashBizHub Equipment Experts",
+          expertise: "Commercial Laundry Industry Analysts",
+          credentials: "30+ years combined experience operating and evaluating laundromat equipment from all major manufacturers"
+        }}
       />
 
       <div className="min-h-screen bg-background">
         <div className="bg-muted/30 border-b">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
             <Breadcrumb items={[
+              { name: "Home", url: "/" },
               { name: "Resources", url: "/resources" },
               { name: "Equipment Guides", url: "/equipment-guides" }
             ]} />
@@ -416,7 +517,7 @@ export default function EquipmentGuides() {
                           <div className="flex justify-between items-start">
                             <div>
                               <h4 className="font-semibold">{model.name}</h4>
-                              <p className="text-sm text-muted-foreground">{model.type} • {model.capacity}</p>
+                              <p className="text-sm text-muted-foreground">{model.type} - {model.capacity}</p>
                             </div>
                             <Badge variant="secondary">{model.price}</Badge>
                           </div>
@@ -452,6 +553,22 @@ export default function EquipmentGuides() {
             </div>
           </div>
         </div>
+
+        <section className="bg-muted/30 border-t">
+          <div className="mx-auto max-w-4xl px-6 py-16">
+            <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+            <Accordion type="single" collapsible className="w-full">
+              {EQUIPMENT_FAQS.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
       </div>
     </>
   );

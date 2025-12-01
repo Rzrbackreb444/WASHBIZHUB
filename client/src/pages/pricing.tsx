@@ -58,6 +58,14 @@ export default function Pricing() {
     {
       question: "Can I upgrade or downgrade my plan anytime?",
       answer: "Yes! You can upgrade, downgrade, or switch between payment models (flat vs. transaction-based) at any time. There are no long-term contracts or cancellation fees. The free tier is always available as a fallback with essential tools."
+    },
+    {
+      question: "How does WashBizHub compare to other laundromat software?",
+      answer: "WashBizHub offers the lowest transaction fees in the industry (1.9% vs competitors' 6-8%). We're the only platform with AI predictive maintenance saving $2K-$12K/year, CLEANBI location intelligence, and a 72,000+ member community. Plus, our free tier gives you more tools than competitors' paid plans."
+    },
+    {
+      question: "What makes the $149/month flat rate plan worth it?",
+      answer: "The $149/month flat rate is ideal if you process more than 7,800 transactions monthly. You get unlimited machines, locations, and transactions with predictable costs. The AI predictive maintenance alone saves most owners $2K-$12K annually by preventing equipment failures before they happen."
     }
   ];
 
