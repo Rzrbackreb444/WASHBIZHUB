@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, ArrowLeft, Send, FileText, Loader2, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Switch } from "@/components/ui/switch";
@@ -69,6 +69,21 @@ export default function AdminAds() {
     endDate: '',
     priority: 1,
   });
+
+  const [invoiceData, setInvoiceData] = useState({
+    email: '',
+    companyName: '',
+    contactName: '',
+    amount: '',
+    description: '',
+    dueInDays: '7',
+  });
+  
+  const [invoiceResult, setInvoiceResult] = useState<{
+    invoiceUrl?: string;
+    invoiceNumber?: string;
+    amount?: number;
+  } | null>(null);
 
   // Fetch ads
   const { data: ads, isLoading: adsLoading } = useQuery<Advertisement[]>({
@@ -117,6 +132,56 @@ export default function AdminAds() {
     onError: (error: any) => {
       toast({
         title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Invoice mutation - for sending invoices to advertisers like Londr
+  const invoiceMutation = useMutation({
+    mutationFn: async (data: typeof invoiceData) => {
+      const response = await fetch('/api/advertising/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          companyName: data.companyName,
+          contactName: data.contactName,
+          amount: parseFloat(data.amount),
+          description: data.description,
+          dueInDays: parseInt(data.dueInDays),
+          sendEmail: true,
+        }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create invoice');
+      }
+      return response.json();
+    },
+    onSuccess: (result) => {
+      toast({
+        title: "Invoice Sent!",
+        description: `Invoice #${result.invoiceNumber} emailed to ${invoiceData.email}`,
+      });
+      setInvoiceResult({
+        invoiceUrl: result.invoiceUrl,
+        invoiceNumber: result.invoiceNumber,
+        amount: result.amount,
+      });
+      setInvoiceData({
+        email: '',
+        companyName: '',
+        contactName: '',
+        amount: '',
+        description: '',
+        dueInDays: '7',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Invoice Error",
         description: error.message,
         variant: "destructive",
       });
@@ -252,6 +317,200 @@ export default function AdminAds() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Invoice Generator for Advertisers */}
+      <Card className="mb-6 sm:mb-8 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-amber-500" />
+            Send Invoice to Advertiser
+          </CardTitle>
+          <CardDescription>
+            Email a Stripe invoice for Facebook group advertising, sponsorships, or vendor partnerships
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!invoiceData.email || !invoiceData.amount || !invoiceData.description) {
+                toast({
+                  title: "Missing Fields",
+                  description: "Email, amount, and description are required",
+                  variant: "destructive",
+                });
+                return;
+              }
+              invoiceMutation.mutate(invoiceData);
+            }}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="invoice-email">Email Address *</Label>
+                <Input
+                  id="invoice-email"
+                  type="email"
+                  placeholder="benjamin@londr.com"
+                  value={invoiceData.email}
+                  onChange={(e) => setInvoiceData({ ...invoiceData, email: e.target.value })}
+                  data-testid="input-invoice-email"
+                />
+              </div>
+              <div>
+                <Label htmlFor="invoice-company">Company Name</Label>
+                <Input
+                  id="invoice-company"
+                  placeholder="Londr.com"
+                  value={invoiceData.companyName}
+                  onChange={(e) => setInvoiceData({ ...invoiceData, companyName: e.target.value })}
+                  data-testid="input-invoice-company"
+                />
+              </div>
+              <div>
+                <Label htmlFor="invoice-contact">Contact Name</Label>
+                <Input
+                  id="invoice-contact"
+                  placeholder="Benjamin Johnson"
+                  value={invoiceData.contactName}
+                  onChange={(e) => setInvoiceData({ ...invoiceData, contactName: e.target.value })}
+                  data-testid="input-invoice-contact"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="invoice-amount">Amount (USD) *</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="invoice-amount"
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    placeholder="500.00"
+                    className="pl-9"
+                    value={invoiceData.amount}
+                    onChange={(e) => setInvoiceData({ ...invoiceData, amount: e.target.value })}
+                    data-testid="input-invoice-amount"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="invoice-due">Due In (Days)</Label>
+                <Select 
+                  value={invoiceData.dueInDays} 
+                  onValueChange={(value) => setInvoiceData({ ...invoiceData, dueInDays: value })}
+                >
+                  <SelectTrigger data-testid="select-invoice-due">
+                    <SelectValue placeholder="Select due date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">7 days (1 week)</SelectItem>
+                    <SelectItem value="14">14 days (2 weeks)</SelectItem>
+                    <SelectItem value="30">30 days (1 month)</SelectItem>
+                    <SelectItem value="60">60 days (2 months)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="invoice-description">Description / Line Item *</Label>
+              <Textarea
+                id="invoice-description"
+                placeholder="Premium Sponsor - Facebook Group (1 month) + Featured Post + Homepage Logo"
+                value={invoiceData.description}
+                onChange={(e) => setInvoiceData({ ...invoiceData, description: e.target.value })}
+                rows={2}
+                data-testid="input-invoice-description"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="submit"
+                disabled={invoiceMutation.isPending}
+                data-testid="button-send-invoice"
+              >
+                {invoiceMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Invoice
+                  </>
+                )}
+              </Button>
+              
+              {invoiceResult && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Last: #{invoiceResult.invoiceNumber} (${invoiceResult.amount})</span>
+                  <a 
+                    href={invoiceResult.invoiceUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                    data-testid="link-invoice-view"
+                  >
+                    View Invoice
+                  </a>
+                </div>
+              )}
+            </div>
+          </form>
+
+          {/* Quick Templates */}
+          <div className="mt-6 pt-4 border-t">
+            <p className="text-sm font-medium mb-3">Quick Templates:</p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setInvoiceData({
+                  ...invoiceData,
+                  amount: '500',
+                  description: 'Featured Post - Facebook Group (72K+ Members) + Branded Template',
+                })}
+                data-testid="button-template-featured"
+              >
+                Featured Post ($500)
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setInvoiceData({
+                  ...invoiceData,
+                  amount: '1400',
+                  description: 'Premium Sponsor - Monthly (72K+ Members) - Featured placement, Logo on cover, Monthly spotlight, Priority response',
+                })}
+                data-testid="button-template-premium"
+              >
+                Premium Sponsor ($1,400/mo)
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setInvoiceData({
+                  ...invoiceData,
+                  amount: '499',
+                  description: 'Vendor Partner Badge - Monthly - Official status, Post promotions, Vendor directory listing',
+                })}
+                data-testid="button-template-vendor"
+              >
+                Vendor Badge ($499/mo)
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Ads Table */}
       <Card>
