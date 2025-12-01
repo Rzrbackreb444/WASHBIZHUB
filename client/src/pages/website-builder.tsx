@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { DroppableCanvas, Block } from "@/components/website-builder/DroppableCanvas";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -226,6 +227,81 @@ const CONVERSION_GOALS = [
   { value: 'time_on_page', label: 'Time on Page', icon: Timer, description: 'Track when users spend X seconds on page' },
   { value: 'scroll_depth', label: 'Scroll Depth', icon: TrendingUp, description: 'Track when users scroll to X% of page' },
 ];
+
+const WEBSITE_BUILDER_FAQS = [
+  {
+    question: "What are some laundromat website examples I can learn from?",
+    answer: "The best laundromat websites share common elements: professional photography of clean facilities, clear service pricing, easy-to-find location and hours, online ordering for wash-dry-fold, and customer reviews. Top examples include Speed Queen Laundry stores with modern branding, Tide Cleaners franchise sites, and independent laundromats using platforms like WashBizHub Website Builder. Look for sites with mobile-responsive design, Google Maps integration, and clear calls-to-action for services like pickup/delivery."
+  },
+  {
+    question: "How to make a laundromat website?",
+    answer: "Create a laundromat website in 7 steps: 1) Choose a website builder designed for laundromats like WashBizHub (includes industry templates), 2) Select your branding colors and upload your logo, 3) Add essential pages: Home, Services, Pricing, Location/Hours, and Contact, 4) Include high-quality photos of your facility, 5) Add online ordering for wash-dry-fold if you offer it, 6) Integrate an AI chatbot for 24/7 customer inquiries, 7) Optimize for local SEO with Google Business Profile connection. WashBizHub Website Builder handles all of this with drag-and-drop simplicity."
+  },
+  {
+    question: "How much does a laundromat website cost?",
+    answer: "Laundromat website costs vary widely: DIY website builders (Wix, Squarespace): $12-40/month plus your time to build and maintain. Professional custom design: $2,000-10,000 one-time plus $50-200/month hosting. Industry-specific platforms like WashBizHub: included with membership, optimized for laundromat features. Hidden costs to consider: domain registration ($12-50/year), SSL certificate (often free), professional photos ($200-500), and ongoing SEO/maintenance. The WashBizHub Website Builder includes hosting, templates, AI chatbot, and integrations at no extra cost."
+  },
+  {
+    question: "What features should a laundromat website have?",
+    answer: "Essential laundromat website features: 1) Mobile-responsive design (70%+ of traffic is mobile), 2) Location with Google Maps and clear directions, 3) Hours of operation with real-time status, 4) Service pricing (self-service, wash-dry-fold, pickup/delivery), 5) Online ordering/scheduling system, 6) AI chatbot for 24/7 customer questions, 7) Customer reviews and testimonials, 8) Photo gallery of clean facilities, 9) Contact form and phone number, 10) Email capture for promotions, 11) Local SEO optimization, 12) Fast loading speed under 3 seconds."
+  },
+  {
+    question: "Do I need a website for my laundromat?",
+    answer: "Yes, a website is essential for modern laundromats. Statistics show: 97% of consumers search online for local services, laundromats with websites see 30-40% higher customer acquisition, and online ordering increases wash-dry-fold revenue by 50-100%. A website establishes credibility, enables 24/7 customer service via chatbots, supports pickup/delivery operations, and improves local SEO rankings. Even self-service laundromats benefit from websites for hours, location, and building trust before customers visit."
+  },
+  {
+    question: "How do I add online ordering to my laundromat website?",
+    answer: "Add online ordering to your laundromat website through: 1) Built-in ordering systems in platforms like WashBizHub Website Builder (easiest), 2) Third-party integrations like CleanCloud, Cents, or Curbside Laundries, 3) Simple contact forms for manual order processing (basic but functional), 4) Custom development with payment processing (most expensive). Essential features include: service selection (wash-fold, dry clean), pickup scheduling, weight estimates, pricing calculator, and payment processing. WashBizHub includes ordering, AI chatbot, and payment integration out of the box."
+  },
+  {
+    question: "How can I improve my laundromat website SEO?",
+    answer: "Improve laundromat website SEO with these strategies: 1) Claim and optimize Google Business Profile with accurate NAP (name, address, phone), 2) Use local keywords like 'laundromat in [city]' and 'wash and fold [neighborhood]', 3) Create location-specific landing pages, 4) Get customer reviews and display them on your site, 5) Add structured data markup for local business and services, 6) Ensure mobile-friendly, fast-loading pages, 7) Build local backlinks from community sites, 8) Create helpful content about laundry tips and services. WashBizHub Website Builder includes built-in SEO tools and schema markup."
+  },
+  {
+    question: "Can I build a laundromat website myself without coding?",
+    answer: "Absolutely! No-code website builders make it easy to create professional laundromat websites. WashBizHub Website Builder is designed specifically for laundromats with drag-and-drop page building, pre-built templates, AI chatbot integration, and all essential features. Other options include Wix, Squarespace, and WordPress with themes, though they require more customization. Industry-specific platforms like WashBizHub save time by including laundromat-focused templates, service cards, pricing displays, and integrations that general website builders lack."
+  }
+];
+
+const WEBSITE_BUILDER_HOWTO = {
+  name: "How to Build a Professional Laundromat Website",
+  description: "Complete step-by-step guide to creating a professional website for your laundromat with online ordering, AI chatbot, and local SEO optimization.",
+  steps: [
+    {
+      name: "Choose Your Website Platform",
+      text: "Select an industry-specific platform like WashBizHub Website Builder that includes laundromat templates, or use general builders like Wix/Squarespace. Industry platforms save significant time with pre-built features for laundromats."
+    },
+    {
+      name: "Set Up Your Branding",
+      text: "Upload your logo (or create one), choose brand colors that match your storefront, and select fonts that are easy to read. Consistent branding builds trust and recognition with customers."
+    },
+    {
+      name: "Create Essential Pages",
+      text: "Build these core pages: Home (overview and main CTA), Services (wash-fold, self-service, pickup/delivery with pricing), Location (address, map, hours), About (your story and what makes you different), Contact (phone, email, form)."
+    },
+    {
+      name: "Add Service Cards and Pricing",
+      text: "Create clear service cards with descriptions, pricing, and calls-to-action. Display wash-dry-fold rates prominently. Include any minimum weights, rush fees, and special services. Transparent pricing builds customer trust."
+    },
+    {
+      name: "Integrate AI Chatbot",
+      text: "Add an AI-powered chatbot to answer common questions 24/7: hours, pricing, location, service availability. Configure the chatbot to take orders, schedule pickups, and provide FAQs. This reduces phone calls and captures leads when you're busy."
+    },
+    {
+      name: "Upload Quality Photos",
+      text: "Add professional photos of your clean facility, modern equipment, and friendly staff. Include before/after photos of laundry if you offer wash-fold. Visual proof of cleanliness is critical for customer trust."
+    },
+    {
+      name: "Optimize for Local SEO",
+      text: "Add your business to Google Business Profile and link it to your website. Use local keywords throughout. Add structured data markup for local business schema. Ensure your name, address, and phone (NAP) are consistent everywhere online."
+    },
+    {
+      name: "Test and Launch",
+      text: "Preview on mobile and desktop devices. Test all forms and contact methods. Check page load speed (under 3 seconds). Verify online ordering if enabled. Launch and monitor analytics to improve over time."
+    }
+  ],
+  totalTime: "PT4H"
+};
 
 export default function WebsiteBuilder() {
   const { toast } = useToast();

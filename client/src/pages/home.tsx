@@ -70,9 +70,14 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub", "CLEANBI"],
+    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub", "CLEANBI", "Laundromat Business Resources"],
     "url": baseUrl,
     "description": "The #1 laundromat resource and educational hub with CLEANBI scoring, marketplace, AI consulting, and professional tools.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "logo": { "@type": "ImageObject", "url": `${baseUrl}/washbizhub-logo.png` }
+    },
     "potentialAction": [
       {
         "@type": "SearchAction",
@@ -87,15 +92,43 @@ export default function Home() {
     "@type": "Organization",
     "name": "WashBizHub",
     "url": baseUrl,
-    "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide.",
+    "logo": `${baseUrl}/washbizhub-logo.png`,
+    "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide with free tools, calculators, and business resources.",
     "foundingDate": "2024",
+    "numberOfEmployees": { "@type": "QuantitativeValue", "value": "10-50" },
+    "slogan": "The #1 Laundromat Resource Hub",
+    "knowsAbout": ["laundromat business", "coin laundry operations", "laundromat investment", "commercial laundry equipment", "laundromat valuation"],
     "sameAs": ["https://www.facebook.com/washbizhub1", "https://twitter.com/washbizhub", "https://www.linkedin.com/company/washbizhub"]
+  };
+
+  const siteNavigationSchema = {
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": "Main Navigation",
+    "hasPart": [
+      { "@type": "SiteNavigationElement", "name": "CLEANBI Score", "url": `${baseUrl}/cleanbi-auto` },
+      { "@type": "SiteNavigationElement", "name": "Laundromat Listings", "url": `${baseUrl}/laundromat-listings` },
+      { "@type": "SiteNavigationElement", "name": "Calculators", "url": `${baseUrl}/calculators` },
+      { "@type": "SiteNavigationElement", "name": "Blog", "url": `${baseUrl}/blog` },
+      { "@type": "SiteNavigationElement", "name": "Pricing", "url": `${baseUrl}/pricing` },
+      { "@type": "SiteNavigationElement", "name": "About Us", "url": `${baseUrl}/about-us` },
+      { "@type": "SiteNavigationElement", "name": "Courses", "url": `${baseUrl}/courses` },
+      { "@type": "SiteNavigationElement", "name": "Directory", "url": `${baseUrl}/directory` }
+    ]
   };
 
   const homepageFaqs = [
     {
       question: "What is WashBizHub?",
       answer: "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI™ universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors."
+    },
+    {
+      question: "What laundromat business resources does WashBizHub offer?",
+      answer: "WashBizHub provides comprehensive laundromat business resources including: 50+ ROI and valuation calculators, CLEANBI location scoring for 220+ countries, Service Guy AI for equipment diagnostics, 2,200+ error code database, professional courses and certifications, marketplace for buying/selling businesses and equipment, design studio for floor plans, and access to 72,000+ member community forum."
+    },
+    {
+      question: "What free laundromat tools are available on WashBizHub?",
+      answer: "WashBizHub offers many free tools including: unlimited basic CLEANBI location scores, 50+ business calculators (ROI, valuation, break-even, TPD), Service Guy AI diagnostics (2 free messages), 2D Design Studio for floor planning, error code database access, community forum, blog content, and marketplace browsing. No login required for basic features."
     },
     {
       question: "What is the CLEANBI score?",
@@ -111,39 +144,38 @@ export default function Home() {
     },
     {
       question: "How do I value a laundromat for purchase?",
-      answer: "Laundromats are typically valued at 2.5x to 4x annual net operating income (NOI). Key valuation factors include: gross revenue, net income, equipment age and condition, lease terms, location demographics, and competition. Premium valuations (3.5x-4x+) apply to turnkey operations with newer equipment."
+      answer: "Laundromats are typically valued at 2.5x to 4x annual net operating income (NOI). Key valuation factors include: gross revenue, net income, equipment age and condition, lease terms, location demographics, and competition. Premium valuations (3.5x-4x+) apply to turnkey operations with newer equipment. WashBizHub's valuation calculator provides instant estimates."
     },
     {
-      question: "Is WashBizHub free to use?",
-      answer: "Many WashBizHub features are free including basic CLEANBI scores, marketplace browsing, blog content, and resource access. Premium features like detailed reports ($97), advanced calculators, courses, and consulting services have associated fees. Free users get unlimited basic CLEANBI scores with no login required."
-    },
-    {
-      question: "How do I find a good location for a laundromat?",
-      answer: "Key factors for laundromat location include: high renter population (40%+ ideal), population density (5,000+ within 1-mile radius), visible storefront with parking, limited competition, household income $30K-$75K, proximity to apartments/multi-family housing, and good foot traffic. CLEANBI scores help analyze these factors for any address globally."
-    },
-    {
-      question: "What is Turns Per Day (TPD) for laundromats?",
-      answer: "Turns Per Day (TPD) measures how many times each machine is used daily on average. Industry benchmarks: 4-5 TPD is average, 6-7 TPD is good, 8+ TPD is excellent. Higher TPD indicates better location and demand. TPD directly impacts revenue and ROI."
+      question: "What laundromat software does WashBizHub provide?",
+      answer: "WashBizHub offers enterprise-grade laundromat software including: WashBizPOS point-of-sale system with dynamic pricing, AI predictive maintenance alerts, IoT machine monitoring, route optimization for delivery, website builder with SEO, CLEANBI location intelligence, and comprehensive analytics dashboards. Start with a free 14-day trial."
     }
   ];
 
-  const structuredData = [websiteSchema, organizationSchema];
+  const structuredData = [websiteSchema, organizationSchema, siteNavigationSchema];
   
   return (
     <>
       <SEO
-        title="WashBizHub - The #1 Laundromat Resource Hub"
-        description="The #1 laundromat resource for owners, investors & operators. Free CLEANBI location scoring, ROI calculators, marketplace listings, AI consulting, and 50+ business tools. Serving 72,000+ professionals in 220+ countries."
+        title="WashBizHub - #1 Laundromat Business Resources & Software Platform"
+        description="Free laundromat tools: CLEANBI scoring, 50+ calculators, AI diagnostics. Join 72,000+ professionals. ROI calculators, marketplace, POS system."
         canonicalUrl="/"
         keywords={[
+          "laundromat business resources",
+          "laundromat software",
           "laundromat management software",
+          "free laundromat tools",
           "laundromat marketplace",
           "CLEANBI business scoring",
           "laundromat investment calculator",
           "coin laundry business",
           "laundromat for sale",
-          "laundromat ROI",
-          "how to buy a laundromat"
+          "laundromat ROI calculator",
+          "how to buy a laundromat",
+          "laundromat valuation",
+          "laundromat POS system",
+          "laundromat business plan",
+          "laundromat industry resources"
         ]}
         structuredData={structuredData}
         faqs={homepageFaqs}

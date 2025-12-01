@@ -18,6 +18,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   Star, 
   Download, 
@@ -161,6 +167,41 @@ const templateSampleContent: Record<string, { sections: string[]; features: stri
   }
 };
 
+const TEMPLATE_FAQS = [
+  {
+    question: "Where can I find a laundromat business plan template?",
+    answer: "WashBizHub offers professional laundromat business plan templates including executive summary sections, market analysis frameworks, 5-year financial projections, equipment cost breakdowns, and competitive analysis tools. Our templates are designed specifically for coin laundry businesses and include industry-specific benchmarks. Free basic templates are available, with premium versions including auto-calculating financials and investor-ready formatting."
+  },
+  {
+    question: "What should be included in a laundromat due diligence checklist?",
+    answer: "A comprehensive laundromat due diligence checklist should cover: financial verification (3 years P&L, tax returns, utility bills), equipment inventory and condition assessment, lease terms and rent escalations, competition analysis within 3-mile radius, demographic data, building inspection, environmental compliance, existing employee contracts, vendor agreements, and title search. Our templates include 100+ checkpoint items organized by category."
+  },
+  {
+    question: "How do I create a P&L statement for my laundromat?",
+    answer: "WashBizHub's laundromat P&L templates help you track revenue (coin/card income, wash-dry-fold, vending), operating expenses (utilities, rent, insurance, maintenance, supplies), and calculate gross/net margins. Our Excel templates include auto-calculating formulas, industry benchmark comparisons, and variance analysis. Track monthly performance and generate year-over-year comparisons automatically."
+  },
+  {
+    question: "What financial templates do laundromat owners need?",
+    answer: "Essential laundromat financial templates include: monthly P&L statements, cash flow projections, break-even analysis, equipment ROI calculators, revenue-per-machine tracking, utility cost analysis, employee payroll spreadsheets, and annual budget templates. Our premium package includes all templates with formulas pre-configured for laundromat-specific expense categories and revenue streams."
+  },
+  {
+    question: "Are there free laundromat operations checklists available?",
+    answer: "Yes, WashBizHub offers free laundromat operations checklists including daily opening/closing procedures, weekly machine maintenance logs, monthly deep cleaning schedules, and quarterly equipment inspections. Premium templates add staff training manuals, safety compliance documentation, inventory management systems, and customer service scripts. Download free basic versions or upgrade for complete operations packages."
+  },
+  {
+    question: "What marketing templates work best for laundromats?",
+    answer: "Effective laundromat marketing templates include: grand opening promotion flyers, loyalty program cards, social media content calendars, Google Business Profile optimization guides, Yelp response templates, referral program materials, email campaign sequences, and local SEO checklists. Our templates are designed for laundromat owners with limited marketing experience and include editable Canva designs."
+  },
+  {
+    question: "How do I value a laundromat using a valuation template?",
+    answer: "WashBizHub's laundromat valuation templates use multiple methods: income approach (2-4x net operating income), asset approach (equipment value + goodwill), and market comparables. Input your revenue, expenses, equipment age, and lease terms to generate a valuation range. Our calculators account for location quality, equipment condition, lease favorability, and growth potential using CLEANBI scoring methodology."
+  },
+  {
+    question: "What legal documents does a laundromat owner need?",
+    answer: "Essential legal documents for laundromat owners include: commercial lease agreements (or lease assignment templates), employee contracts and handbooks, customer liability waivers, privacy policies for card payment systems, vendor service agreements, insurance requirement summaries, ADA compliance checklists, and LLC operating agreements. Our legal templates are reviewed by attorneys familiar with coin laundry regulations."
+  }
+];
+
 export default function Templates() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
@@ -193,8 +234,8 @@ export default function Templates() {
   const templateListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "Business Templates for Laundromat Owners",
-    "description": "Professional templates including business plans, financial models, marketing materials, operations guides, and legal documents for laundromat businesses.",
+    "name": "Laundromat Business Templates",
+    "description": "Professional templates for laundromat owners including business plans, financial models, marketing materials, operations guides, and legal documents.",
     "url": `${baseUrl}/templates`,
     "numberOfItems": templates.length,
     "itemListElement": templates.slice(0, 10).map((template, index) => ({
@@ -217,13 +258,53 @@ export default function Templates() {
   const productCollectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Business Templates | WashBizHub",
-    "description": "Download professional business templates for laundromat owners. Business plans, financial models, marketing templates, operations guides, and legal documents.",
+    "name": "Laundromat Business Templates | WashBizHub",
+    "description": "Download professional business templates for laundromat owners. Business plans, P&L templates, due diligence checklists, marketing materials, operations guides, and legal documents.",
     "url": `${baseUrl}/templates`,
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": templates.length
     }
+  };
+
+  const howToUseTemplatesSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Use Laundromat Business Templates",
+    "description": "Step-by-step guide to downloading and customizing business templates for your laundromat.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Browse Templates",
+        "text": "Search templates by category: business plans, financial models, marketing, operations, or legal documents."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Preview Sample Content",
+        "text": "Click 'Preview Sample' to see template sections and features before downloading."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Download Template",
+        "text": "Download free templates instantly or purchase premium templates for advanced features."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 4,
+        "name": "Customize for Your Business",
+        "text": "Open in Excel, Word, or Google Docs and fill in your laundromat-specific information."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 5,
+        "name": "Apply to Your Operations",
+        "text": "Use completed templates for business planning, investor presentations, daily operations, or legal compliance."
+      }
+    ],
+    "totalTime": "PT30M"
   };
 
   const getCategoryIcon = (category: string) => {
@@ -238,35 +319,42 @@ export default function Templates() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Business Templates - Plans, Financial Models & Legal Documents"
-        description="Download professional business templates for laundromat owners. Business plans, financial projections, marketing materials, operations checklists, and legal documents. Free and premium templates available."
+        title="Laundromat Business Plan Templates | P&L, Due Diligence Checklists"
+        description="Download professional laundromat business plan templates, P&L spreadsheets, due diligence checklists, financial models, and operations guides. Free and premium templates for coin laundry owners."
         canonicalUrl="/templates"
         ogType="website"
         keywords={[
           "laundromat business plan template",
+          "laundromat P&L template",
+          "laundromat due diligence checklist",
+          "coin laundry business plan",
           "laundromat financial model",
           "laundry business templates",
-          "laundromat marketing templates",
           "laundromat operations checklist",
+          "laundromat valuation template",
+          "laundromat marketing templates",
           "laundromat legal documents",
-          "business plan templates",
-          "financial projections template"
+          "laundromat budget template",
+          "laundromat cash flow template",
+          "laundromat employee handbook",
+          "laundromat lease template",
+          "laundromat startup checklist"
         ]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Templates", url: "/templates" }
         ]}
-        structuredData={[templateListSchema, productCollectionSchema]}
+        faqs={TEMPLATE_FAQS}
+        howTo={howToUseTemplatesSchema}
+        structuredData={[templateListSchema, productCollectionSchema, howToUseTemplatesSchema]}
       />
 
-      {/* Breadcrumb */}
       <div className="bg-muted/30 border-b">
         <div className="mx-auto max-w-7xl px-6 py-3">
           <Breadcrumb items={[{ name: "Templates", url: "/templates" }]} />
         </div>
       </div>
 
-      {/* Dashboard Header with Stats */}
       <div className="bg-background border-b">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3 mb-6">
@@ -274,8 +362,8 @@ export default function Templates() {
               <FileText className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Business Templates</h1>
-              <p className="text-muted-foreground">Professional documents to run your laundromat efficiently</p>
+              <h1 className="text-3xl font-bold text-foreground">Laundromat Business Templates</h1>
+              <p className="text-muted-foreground">Business plans, P&L templates, due diligence checklists, and more</p>
             </div>
           </div>
 
@@ -318,7 +406,7 @@ export default function Templates() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search templates..."
+              placeholder="Search templates (business plan, P&L, checklist)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -569,6 +657,22 @@ export default function Templates() {
           </>
         )}
 
+        <section className="mt-16 bg-muted/30 rounded-xl p-8">
+          <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions About Laundromat Templates</h2>
+          <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
+            {TEMPLATE_FAQS.map((faq, index) => (
+              <AccordionItem key={index} value={`faq-${index}`}>
+                <AccordionTrigger className="text-left" data-testid={`accordion-template-faq-${index}`}>
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+
         <div className="mt-16 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 text-center">
           <Crown className="w-12 h-12 text-amber-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-3">Get All Templates with Pro</h2>
@@ -599,126 +703,63 @@ export default function Templates() {
                       Free Template
                     </Badge>
                   )}
-                  <Badge variant="outline">
-                    {categories.find(c => c.value === previewTemplate.category)?.label}
-                  </Badge>
                 </div>
-                <DialogTitle className="text-2xl" data-testid="text-preview-title">
-                  {previewTemplate.name}
-                </DialogTitle>
-                <DialogDescription data-testid="text-preview-description">
-                  {previewTemplate.description}
-                </DialogDescription>
+                <DialogTitle className="text-2xl">{previewTemplate.name}</DialogTitle>
+                <DialogDescription>{previewTemplate.description}</DialogDescription>
               </DialogHeader>
-
-              <div className="relative mt-6">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/95 z-10" />
-                <div className="relative bg-muted/50 rounded-lg p-6 border" style={{ filter: previewTemplate.isPremium && !user?.isPro ? 'blur(2px)' : 'none' }}>
-                  <div className="space-y-4" data-testid="preview-sample-content">
-                    <div className="flex items-center gap-2 text-lg font-semibold text-primary">
-                      <FileText className="w-5 h-5" />
-                      Template Contents
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-medium mb-3 text-sm uppercase tracking-wide text-muted-foreground">
-                          Sections Included
-                        </h4>
-                        <ul className="space-y-2">
-                          {getSampleContent(previewTemplate.category).sections.map((section, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm">
-                              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                              {section}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-3 text-sm uppercase tracking-wide text-muted-foreground">
-                          Key Features
-                        </h4>
-                        <ul className="space-y-2">
-                          {getSampleContent(previewTemplate.category).features.map((feature, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm">
-                              <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 p-4 bg-background/50 rounded border border-dashed">
-                      <p className="text-sm text-muted-foreground text-center italic">
-                        Sample content preview - Full template includes editable spreadsheets, 
-                        Word documents, and step-by-step instructions
-                      </p>
-                    </div>
-                  </div>
+              
+              <div className="space-y-6 mt-4">
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Template Sections
+                  </h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {getSampleContent(previewTemplate.category).sections.map((section, idx) => (
+                      <li key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        {section}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                {previewTemplate.isPremium && !user?.isPro && (
-                  <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <div className="bg-background/95 backdrop-blur-sm border rounded-xl p-6 text-center max-w-sm mx-4 shadow-xl">
-                      <Lock className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-                      <h3 className="font-semibold text-lg mb-2">Premium Content</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Unlock this template and 50+ more with a one-time purchase or Pro subscription
-                      </p>
-                      <div className="space-y-2">
-                        <Button className="w-full gap-2" onClick={() => setPreviewTemplate(null)} data-testid="button-purchase-single">
-                          <ShoppingCart className="w-4 h-4" />
-                          Buy for ${previewTemplate.price || "9.99"}
-                        </Button>
-                        <Button variant="outline" className="w-full gap-2" onClick={() => {
-                          setPreviewTemplate(null);
-                          setLocation("/pricing");
-                        }} data-testid="button-unlock-pro">
-                          <Crown className="w-4 h-4" />
-                          Get Pro - All Templates Included
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {(!previewTemplate.isPremium || user?.isPro) && (
-                <div className="mt-6 flex gap-3">
-                  <Button className="flex-1 gap-2" data-testid="button-download-full">
-                    <Download className="w-4 h-4" />
-                    Download Full Template
-                  </Button>
-                  <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
-                    Close
-                  </Button>
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Star className="w-4 h-4" />
+                    Key Features
+                  </h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {getSampleContent(previewTemplate.category).features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
 
-              <div className="mt-6 pt-4 border-t">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    {previewTemplate.rating && (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                        <span>{previewTemplate.rating.toFixed(1)} rating</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Download className="w-4 h-4" />
-                      <span>{previewTemplate.downloadCount} downloads</span>
-                    </div>
-                  </div>
-                  {previewTemplate.tags && (
-                    <div className="flex gap-1">
-                      {previewTemplate.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
+                <div className="border-t pt-4 flex gap-3">
+                  {previewTemplate.isPremium ? (
+                    <>
+                      <Button className="flex-1 gap-2" data-testid="button-dialog-purchase">
+                        <ShoppingCart className="w-4 h-4" />
+                        Purchase for ${previewTemplate.price || "9.99"}
+                      </Button>
+                      <Button variant="outline" onClick={() => setPreviewTemplate(null)} data-testid="button-dialog-close">
+                        Close
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button className="flex-1 gap-2" data-testid="button-dialog-download">
+                        <Download className="w-4 h-4" />
+                        Download Free
+                      </Button>
+                      <Button variant="outline" onClick={() => setPreviewTemplate(null)} data-testid="button-dialog-close">
+                        Close
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

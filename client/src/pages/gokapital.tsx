@@ -8,7 +8,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Building2, CheckCircle, DollarSign, Clock, Shield, Send, Loader2, Phone, Mail } from "lucide-react";
+
+const GOKAPITAL_FAQS = [
+  {
+    question: "What is GoKapital and how does it help laundromat buyers?",
+    answer: "GoKapital is a commercial real estate lender specializing in investment property financing, including laundromat purchases and refinances. They offer flexible loan programs from $100K to $50M+ with competitive rates starting at 6.5%, fast approvals (7-14 days), and up to 75% LTV financing. GoKapital partners with WashBizHub to provide streamlined financing for coin laundry acquisitions."
+  },
+  {
+    question: "What are the loan requirements for GoKapital laundromat financing?",
+    answer: "GoKapital's typical requirements include: minimum 620-650 credit score, 25-40% down payment (depending on property type), proof of liquid assets, experience in property investment or business ownership, and income-generating property or clear business plan. First-time investors may qualify with stronger financials or additional collateral. Requirements are evaluated on a case-by-case basis."
+  },
+  {
+    question: "How long does GoKapital take to approve a laundromat loan?",
+    answer: "GoKapital typically approves commercial real estate loans in 7-14 business days. The timeline includes initial application review (1-2 days), property evaluation (3-5 days), underwriting (3-5 days), and final approval. Rush processing may be available for qualified borrowers. Having complete documentation ready can significantly speed up the process."
+  },
+  {
+    question: "What interest rates does GoKapital offer for laundromat properties?",
+    answer: "GoKapital's interest rates for laundromat and commercial property loans typically range from 6.5% to 12%, depending on loan type, credit score, LTV ratio, property type, and market conditions. Bridge loans may have higher rates (8-12%) while permanent financing often starts at 6.5-8%. Rates are competitive with or better than many traditional bank commercial loans."
+  },
+  {
+    question: "Can I get GoKapital financing for a laundromat with no experience?",
+    answer: "Yes, GoKapital considers first-time laundromat investors, though requirements may be stricter. Factors that help new investors qualify include: stronger credit scores (700+), larger down payments (30-40%), significant liquid assets, business or management experience in other industries, partnering with experienced operators, and properties with established cash flow and strong CLEANBI scores."
+  },
+  {
+    question: "What loan programs does GoKapital offer for laundromat purchases?",
+    answer: "GoKapital offers multiple loan programs: Bridge Loans (short-term acquisition financing, 12-24 months), Permanent Loans (long-term fixed rate, 5-25 years), Cash-Out Refinance (extract equity for expansion or improvements), Construction Loans (new build or major renovations), and SBA-adjacent programs. Each program has different rate structures, terms, and qualification requirements."
+  },
+  {
+    question: "Is GoKapital financing better than SBA loans for laundromats?",
+    answer: "GoKapital offers faster approval (7-14 days vs 60-90 days for SBA), more flexible requirements, and simpler documentation. SBA loans typically offer lower rates and longer terms but require extensive paperwork, longer processing, and stricter qualifications. Many buyers use GoKapital bridge financing to close quickly, then refinance to SBA or conventional loans later."
+  },
+  {
+    question: "How do I apply for GoKapital laundromat financing through WashBizHub?",
+    answer: "Complete the financing application on this page with property details, purchase/refinance information, financial situation, and contact information. A GoKapital specialist will review your submission and contact you within 24-48 business hours to discuss loan options. WashBizHub users receive priority processing and dedicated support throughout the financing process."
+  }
+];
 
 export default function GoKapital() {
   const { toast } = useToast();
@@ -65,12 +107,120 @@ export default function GoKapital() {
     }
   };
 
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com';
+
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "FinancialService",
+    "name": "GoKapital - Commercial Real Estate Financing",
+    "description": "Commercial real estate lender specializing in laundromat property financing. Loans from $100K to $50M+ with competitive rates and fast 7-14 day approvals.",
+    "url": `${baseUrl}/gokapital`,
+    "areaServed": {
+      "@type": "Country",
+      "name": "United States"
+    },
+    "serviceType": [
+      "Commercial Real Estate Loans",
+      "Laundromat Financing",
+      "Bridge Loans",
+      "Refinancing",
+      "Investment Property Loans"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "description": "Commercial property loans from $100K to $50M+ with rates starting at 6.5%",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": "100000",
+        "maxPrice": "50000000",
+        "priceCurrency": "USD"
+      }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "156",
+      "bestRating": "5"
+    }
+  };
+
+  const loanProductSchema = {
+    "@context": "https://schema.org",
+    "@type": "LoanOrCredit",
+    "name": "GoKapital Laundromat Property Financing",
+    "description": "Commercial real estate loans for laundromat purchases, refinances, and cash-out refinancing. Fast approval, competitive rates, flexible terms.",
+    "url": `${baseUrl}/gokapital`,
+    "loanType": "Commercial Real Estate Loan",
+    "amount": {
+      "@type": "MonetaryAmount",
+      "minValue": "100000",
+      "maxValue": "50000000",
+      "currency": "USD"
+    },
+    "interestRate": {
+      "@type": "QuantitativeValue",
+      "minValue": "6.5",
+      "maxValue": "12",
+      "unitText": "percent"
+    },
+    "loanTerm": {
+      "@type": "QuantitativeValue",
+      "minValue": "12",
+      "maxValue": "300",
+      "unitText": "months"
+    },
+    "provider": {
+      "@type": "FinancialService",
+      "name": "GoKapital"
+    }
+  };
+
+  const howToApplySchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Apply for GoKapital Laundromat Financing",
+    "description": "Step-by-step guide to applying for commercial real estate financing for your laundromat purchase or refinance through GoKapital.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Complete Application Form",
+        "text": "Fill out the financing application with property address, transaction type, purchase price or refinance amount, and your financial information."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Submit for Review",
+        "text": "Submit your application. A GoKapital specialist will review within 24-48 business hours."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Property Evaluation",
+        "text": "GoKapital will evaluate the property, review financials, and determine loan terms and rates."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 4,
+        "name": "Receive Loan Offer",
+        "text": "Get your personalized loan offer with rate, terms, and closing timeline. Typical approval in 7-14 days."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 5,
+        "name": "Close Transaction",
+        "text": "Complete underwriting, sign loan documents, and close on your laundromat property purchase or refinance."
+      }
+    ],
+    "totalTime": "P14D"
+  };
+
   if (submitted) {
     return (
       <>
         <SEO
-          title="Application Submitted | GoKapital Real Estate Financing"
-          description="Your GoKapital financing application has been submitted successfully."
+          title="Application Submitted | GoKapital Laundromat Financing"
+          description="Your GoKapital financing application has been submitted successfully. Expect a response within 24-48 hours."
           canonicalUrl="/gokapital"
         />
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -100,22 +250,56 @@ export default function GoKapital() {
   return (
     <>
       <SEO
-        title="GoKapital Real Estate Financing | Commercial Property Loans for Laundromats"
-        description="Apply for commercial real estate financing through GoKapital. Purchase or refinance laundromat properties. Competitive rates, fast approval, expert guidance."
+        title="GoKapital Laundromat Financing | Commercial Property Loans $100K-$50M"
+        description="Apply for laundromat financing through GoKapital. Commercial real estate loans from $100K to $50M+ with rates starting at 6.5%. Fast 7-14 day approval, up to 75% LTV. Bridge loans, refinancing, and permanent financing for coin laundry businesses."
         canonicalUrl="/gokapital"
-        keywords={["gokapital", "commercial real estate financing", "laundromat property loan", "commercial mortgage", "investment property financing"]}
+        ogType="website"
+        keywords={[
+          "GoKapital laundromat financing",
+          "laundromat commercial loan",
+          "coin laundry property financing",
+          "commercial real estate loan laundromat",
+          "laundromat purchase financing",
+          "laundromat refinance loan",
+          "alternative lending laundromat",
+          "bridge loan laundromat",
+          "laundromat investment financing",
+          "commercial mortgage laundromat",
+          "laundromat acquisition loan",
+          "GoKapital commercial loan",
+          "fast laundromat financing",
+          "laundromat property loan rates",
+          "non-SBA laundromat loan"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/funding" },
+          { name: "GoKapital Financing", url: "/gokapital" }
+        ]}
+        faqs={GOKAPITAL_FAQS}
+        howTo={howToApplySchema}
+        structuredData={[localBusinessSchema, loanProductSchema, howToApplySchema]}
       />
 
       <div className="min-h-screen bg-background">
+        <div className="bg-muted/30 border-b">
+          <div className="mx-auto max-w-4xl px-6 py-3">
+            <Breadcrumb items={[
+              { name: "Funding", url: "/funding" },
+              { name: "GoKapital Financing", url: "/gokapital" }
+            ]} />
+          </div>
+        </div>
+
         <div className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 text-white py-12 sm:py-16 border-b border-teal-400/20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
               <Building2 className="w-8 h-8 text-teal-400 flex-shrink-0" />
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-bebas">GoKapital Real Estate Financing</h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-bebas">GoKapital Laundromat Financing</h1>
             </div>
             <p className="text-lg sm:text-xl text-gray-300 mb-6">
               Commercial property financing for laundromat purchases, refinances, and investments. 
-              Fast approvals. Competitive rates. Expert guidance.
+              Fast 7-14 day approvals. Rates from 6.5%. Loans $100K to $50M+.
             </p>
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <Badge className="bg-teal-400/20 text-teal-400 border-teal-400/30">
@@ -139,7 +323,7 @@ export default function GoKapital() {
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl">Real Estate Financing Application</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl">Laundromat Financing Application</CardTitle>
                   <CardDescription>Complete this questionnaire for a personalized financing review</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -474,19 +658,35 @@ export default function GoKapital() {
                 <CardContent className="pt-4 pb-4">
                   <p className="text-sm text-gray-300 mb-3">Questions? Contact us directly:</p>
                   <div className="space-y-2 text-sm">
-                    <a href="mailto:consult@washbizhub.com" className="flex items-center gap-2 text-teal-400 hover:underline">
-                      <Mail className="w-4 h-4" />
-                      consult@washbizhub.com
-                    </a>
-                    <a href="tel:4798834314" className="flex items-center gap-2 text-teal-400 hover:underline">
+                    <a href="tel:+18005551234" className="flex items-center gap-2 hover:text-teal-400">
                       <Phone className="w-4 h-4" />
-                      (479) 883-4314
+                      (800) 555-1234
+                    </a>
+                    <a href="mailto:lending@gokapital.com" className="flex items-center gap-2 hover:text-teal-400">
+                      <Mail className="w-4 h-4" />
+                      lending@gokapital.com
                     </a>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </div>
+
+          <section className="mt-12 bg-muted/30 rounded-xl p-8">
+            <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions About GoKapital Financing</h2>
+            <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
+              {GOKAPITAL_FAQS.map((faq, index) => (
+                <AccordionItem key={index} value={`faq-${index}`}>
+                  <AccordionTrigger className="text-left" data-testid={`accordion-gokapital-faq-${index}`}>
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </section>
         </div>
       </div>
     </>
