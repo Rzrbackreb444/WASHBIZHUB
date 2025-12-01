@@ -69,10 +69,21 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
         - **Competition Saturation Formula:** `100 - normalize((competitors × 1000) / household_density)`
         - **Trade Area:** 1-mile radius (87% of laundromat customers live within 1 mile per industry research)
         - **Census Data:** County-level with urban core density estimation for accurate local scoring
-        - **ZIP Prefix Mapping (Nationwide):** 450+ ZIP prefix mappings covering all 50 US states + DC, including:
+        - **ZIP Prefix Mapping (Nationwide):** 752 comprehensive ZIP prefix mappings covering all 50 US states + DC, including:
+            - All 100 top Facebook member cities with verified FIPS county codes
             - All top 50 metros by population (NYC, LA, Chicago, Houston, Phoenix, etc.)
             - All state capitals and major regional hubs
             - Arkansas full coverage (Fort Smith, Little Rock, Fayetteville, Bentonville, Jonesboro)
+        - **International Demographics (15.5% of members):** 40+ major international cities across top member countries:
+            - Nigeria (Lagos, Abuja, Port Harcourt, Ibadan, Kano)
+            - Philippines (Manila, Quezon City, Cebu, Davao, Makati)
+            - India (Mumbai, Delhi, Bangalore, Hyderabad, Chennai, Pune)
+            - Canada (Toronto, Vancouver, Montreal, Calgary, Edmonton, Ottawa)
+            - Australia (Sydney, Melbourne, Brisbane, Perth, Adelaide)
+            - UK (London, Birmingham, Manchester, Leeds, Glasgow)
+            - UAE (Dubai, Abu Dhabi, Sharjah)
+            - Plus South Africa, Kenya, Mexico, Ghana with PPP-adjusted income values
+        - **Country-Level Defaults:** 30+ countries with demographic fallbacks for global coverage
     - **CLEANBI Optimization Infrastructure:** Includes a shared metrics service, tiered subscription system with Stripe webhook synchronization, Redis caching, Redis rate limiter, and a batched API pipeline.
     - **CLEANBI Explorer (`/cleanbi-explorer`):** Full-screen immersive map experience with 3D aerial views, competition heatmaps, and proprietary AI scoring. Features include:
         - Google Maps integration with dark-theme styling
