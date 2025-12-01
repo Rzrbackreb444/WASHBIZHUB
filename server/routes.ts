@@ -146,7 +146,7 @@ import {
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-10-29.clover",
+    apiVersion: "2024-06-20" as any,
   });
 } else {
   console.warn("⚠️  STRIPE_SECRET_KEY not configured - payment processing disabled");
@@ -1436,7 +1436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Import Stripe
       const Stripe = await import('stripe').then(m => m.default);
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-10-29.clover' as any });
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2024-06-20' as any });
       
       // Get or create customer
       const { users } = await import('@shared/schema');
@@ -6598,7 +6598,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
       const Stripe = (await import("stripe")).default;
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: "2025-10-29.clover" as any
+        apiVersion: "2024-06-20" as any
       });
 
       const session = await stripe.checkout.sessions.create({

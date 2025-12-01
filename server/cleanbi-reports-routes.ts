@@ -16,7 +16,7 @@ import { isAuthenticated } from "./replitAuth";
 const router = Router();
 
 const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-10-29.clover" as any })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" as any })
   : null;
 
 const checkoutSchema = z.object({
@@ -81,8 +81,8 @@ router.post("/checkout", async (req: Request, res: Response) => {
         },
       ],
       mode: "payment",
-      success_url: successUrl || `${baseUrl}/cleanbi/reports/${report.id}?success=true`,
-      cancel_url: cancelUrl || `${baseUrl}/cleanbi?canceled=true`,
+      success_url: successUrl || `${baseUrl}/cleanbi-reports?session_id=${report.id}&success=true`,
+      cancel_url: cancelUrl || `${baseUrl}/cleanbi-reports?canceled=true`,
       metadata: {
         reportId: report.id,
         address,
