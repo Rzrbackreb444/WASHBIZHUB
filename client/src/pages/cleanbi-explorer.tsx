@@ -277,6 +277,16 @@ export default function CleanBIExplorer() {
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
   const [showSavedMarkers, setShowSavedMarkers] = useState(true);
   
+  // Email capture gate state
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [captureEmail, setCaptureEmail] = useState("");
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  const [emailCaptured, setEmailCaptured] = useState(() => {
+    return localStorage.getItem("cleanbi_email_captured") === "true";
+  });
+  const [pendingAnalysis, setPendingAnalysis] = useState<AnalysisResult | null>(null);
+  const [pendingCompetitors, setPendingCompetitors] = useState<Competitor[]>([]);
+  
   // Financial calculators state (auto-populated from analysis)
   const [calcValues, setCalcValues] = useState({
     askingPrice: 0,
@@ -448,6 +458,86 @@ export default function CleanBIExplorer() {
       description: saved.address
     });
   };
+  
+  // Email validation helper
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+  
+  // Email capture submission
+  const handleEmailCapture = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!captureEmail.trim() || !pendingAnalysis) return;
+    
+    // Client-side email validation
+    if (!isValidEmail(captureEmail)) {
+      toast({ 
+        title: "Invalid Email", 
+        description: "Please enter a valid email address.",
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    setEmailSubmitting(true);
+    try {
+      await apiRequest("POST", "/api/cleanbi-explorer/leads", {
+        email: captureEmail,
+        address: pendingAnalysis.address,
+        score: pendingAnalysis.cleanbiScore,
+        grade: pendingAnalysis.grade,
+        source: "cleanbi-explorer"
+      });
+      
+      // Mark email as captured (try localStorage, fallback to state only)
+      try {
+        localStorage.setItem("cleanbi_email_captured", "true");
+        localStorage.setItem("cleanbi_user_email", captureEmail);
+      } catch {}
+      setEmailCaptured(true);
+      
+      toast({
+        title: "Welcome to CLEANBI!",
+        description: "Your full analysis is now available."
+      });
+    } catch (error) {
+      // Still allow access on error - don't trap users
+      toast({ 
+        title: "Note", 
+        description: "Couldn't save your info, but your analysis is ready!",
+      });
+    }
+    
+    // Always reveal the analysis (even if lead capture failed)
+    setAnalysisResult(pendingAnalysis);
+    setCompetitors(pendingCompetitors);
+    setCategoryScores(generateCategoryScores(pendingAnalysis.cleanbiScore, pendingAnalysis));
+    
+    // Clear pending state and close modal
+    setPendingAnalysis(null);
+    setPendingCompetitors([]);
+    setShowEmailGate(false);
+    setEmailSubmitting(false);
+  };
+  
+  // Skip email capture (fallback option)
+  const skipEmailCapture = () => {
+    if (!pendingAnalysis) return;
+    
+    // Reveal analysis without capturing email
+    setAnalysisResult(pendingAnalysis);
+    setCompetitors(pendingCompetitors);
+    setCategoryScores(generateCategoryScores(pendingAnalysis.cleanbiScore, pendingAnalysis));
+    
+    setPendingAnalysis(null);
+    setPendingCompetitors([]);
+    setShowEmailGate(false);
+    
+    // Mark as skipped so we don't ask again this session
+    try {
+      sessionStorage.setItem("cleanbi_email_skipped", "true");
+    } catch {}
+  };
 
   const analyzeLocation = async () => {
     if (!address.trim()) {
@@ -480,6 +570,30 @@ export default function CleanBIExplorer() {
       
       if (data.success) {
         const result = data.analysis;
+        
+        // Check if this is a first-time user who hasn't provided email yet
+        const hasEmailCapture = emailCaptured || 
+          (typeof localStorage !== 'undefined' && localStorage.getItem("cleanbi_email_captured")) ||
+          (typeof sessionStorage !== 'undefined' && sessionStorage.getItem("cleanbi_email_skipped"));
+        
+        if (!hasEmailCapture) {
+          // Store pending results and show email gate
+          setPendingAnalysis(result);
+          setPendingCompetitors(data.competitors || []);
+          setShowEmailGate(true);
+          
+          // Still update the map to show location
+          if (mapInstance.current && result) {
+            const center = { lat: result.lat, lng: result.lng };
+            mapInstance.current.setCenter(center);
+            mapInstance.current.setZoom(14);
+          }
+          
+          setIsAnalyzing(false);
+          return;
+        }
+        
+        // Email already captured - show full results
         setAnalysisResult(result);
         setCompetitors(data.competitors || []);
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
@@ -1724,6 +1838,98 @@ export default function CleanBIExplorer() {
                 <p className="text-white/40 text-xs">
                   Your saved analyses are still accessible. Come back tomorrow for 3 more free analyses!
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Email Capture Gate Modal */}
+        {showEmailGate && pendingAnalysis && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+            <div className="relative w-full max-w-md bg-gradient-to-br from-[#12121f] to-[#1a1a2e] rounded-2xl overflow-hidden border border-[#C8A661]/30 shadow-2xl">
+              <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+              
+              <div className="relative p-8">
+                {/* Score Preview */}
+                <div className="text-center mb-6">
+                  <div 
+                    className="inline-flex items-center justify-center w-24 h-24 rounded-2xl text-4xl font-bold text-white mb-4 shadow-lg"
+                    style={{ backgroundColor: GRADE_COLORS[pendingAnalysis.grade] || "#C8A661" }}
+                  >
+                    {pendingAnalysis.grade}
+                  </div>
+                  <p className="text-white/60 text-sm">
+                    Score: {pendingAnalysis.cleanbiScore}/100
+                  </p>
+                </div>
+                
+                <h2 className="text-2xl font-bold text-white text-center mb-2">
+                  Unlock Your Full Analysis
+                </h2>
+                <p className="text-white/60 text-center mb-6 text-sm">
+                  Enter your email to see competitor details, demographic data, and investment projections for this location.
+                </p>
+                
+                <form onSubmit={handleEmailCapture} className="space-y-4">
+                  <div>
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={captureEmail}
+                      onChange={(e) => setCaptureEmail(e.target.value)}
+                      required
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12"
+                      data-testid="input-capture-email"
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={emailSubmitting || !captureEmail.trim()}
+                    className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-lg font-medium"
+                    data-testid="button-unlock-analysis"
+                  >
+                    {emailSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Unlocking...
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="w-4 h-4 mr-2" />
+                        Unlock Full Report
+                      </>
+                    )}
+                  </Button>
+                </form>
+                
+                <div className="mt-6 space-y-2">
+                  <div className="flex items-center gap-2 text-white/60 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Competitor analysis with ratings</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/60 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Demographic & income data</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/60 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>AI-powered investment insights</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={skipEmailCapture}
+                    className="text-white/50 text-xs hover:text-white/80 underline"
+                    data-testid="button-skip-email"
+                  >
+                    Skip for now
+                  </button>
+                  <span className="text-white/30 text-xs">|</span>
+                  <span className="text-white/40 text-xs">No spam, unsubscribe anytime</span>
+                </div>
               </div>
             </div>
           </div>
