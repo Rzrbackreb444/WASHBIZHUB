@@ -1265,7 +1265,7 @@ function AppContent() {
   usePageTracking();
   const [location] = useLocation();
   
-  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login'];
+  const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login', '/cleanbi-explorer'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
   
   if (isFullScreenApp) {
