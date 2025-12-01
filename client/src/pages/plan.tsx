@@ -97,7 +97,11 @@ const planningFaqs = [
     answer: "Planning a laundromat business involves 7 key steps: 1) Research your target market and competition, 2) Create a detailed business plan with financial projections, 3) Secure financing through SBA loans, equipment financing, or investors, 4) Find the right location with high foot traffic and demographics, 5) Choose between buying existing or building new, 6) Select equipment (washers, dryers, payment systems), and 7) Plan your grand opening marketing strategy. Use our ROI Calculator and CLEANBI Score tools to validate your business plan with real data."
   },
   {
-    question: "What are the typical laundromat startup costs in 2024?",
+    question: "What permits and licenses do I need to open a laundromat?",
+    answer: "To open a laundromat, you typically need: 1) Business license from your city/county, 2) Seller's permit for retail sales (soap, snacks), 3) Building permit for construction/renovation, 4) Plumbing permit for water connections, 5) Electrical permit for high-voltage equipment, 6) Health department permit in some jurisdictions, 7) Sign permit for exterior signage, 8) Fire safety inspection approval, 9) Certificate of occupancy. Requirements vary by location - contact your local city hall and county clerk for specific requirements. Most permits cost $50-$500 each, with total permitting typically $2,000-$10,000."
+  },
+  {
+    question: "How much does it cost to start a laundromat business?",
     answer: "Laundromat startup costs typically range from $200,000 to $500,000 for a new build, and $100,000 to $300,000 for acquiring an existing business. Key costs include: equipment ($100K-$300K), leasehold improvements ($50K-$150K), initial working capital ($20K-$50K), licenses and permits ($2K-$10K), and marketing ($5K-$15K). Location, size, and equipment quality significantly impact total investment. Use our Startup Costs Calculator for a personalized estimate."
   },
   {
@@ -117,18 +121,14 @@ const planningFaqs = [
     answer: "Yes, laundromats remain excellent investments in 2024 due to: recession-resistant demand, high cash flow potential (20-30% ROI), relatively passive income model, tax advantages (depreciation), and growing population in urban areas. The $5 billion U.S. laundromat industry grows 5% annually. Key success factors include location selection, equipment quality, and operational efficiency."
   },
   {
-    question: "What should I research before buying a laundromat?",
-    answer: "Essential research before buying includes: market demographics (population density, renter ratio, income levels), competition analysis (within 1-3 mile radius), location foot traffic, lease terms and rent trends, equipment age and condition, utility costs, historical financials (3+ years), and growth potential. Our CLEANBI Score tool instantly analyzes all these factors for any address."
-  },
-  {
     question: "How long does it take to open a laundromat?",
     answer: "Opening a new laundromat typically takes 6-12 months from planning to grand opening. Timeline includes: business planning (1-2 months), site selection and lease negotiation (1-3 months), permits and approvals (1-3 months), construction/renovation (2-4 months), equipment installation (2-4 weeks), and soft opening (2-4 weeks). Buying an existing laundromat can close in 30-90 days."
   }
 ];
 
 const planningHowTo = {
-  name: "How to Plan a Laundromat Business",
-  description: "Step-by-step guide to planning your laundromat investment, from initial research to securing funding and finding the perfect location.",
+  name: "How to Plan Your Laundromat Business",
+  description: "Complete step-by-step guide to planning your laundromat investment, from initial research to securing funding and finding the perfect location. Learn what permits you need, how much to invest, and create a winning business plan.",
   totalTime: "PT30D",
   steps: [
     {
@@ -192,21 +192,21 @@ export default function PlanPage() {
         description="Planning to buy a laundromat? Access ROI calculators, startup cost estimators, funding options, and educational resources. Learn if laundromat ownership is right for you with 20-30% average returns. Free business plan templates and expert guidance."
         canonicalUrl="/plan"
         keywords={[
+          "how to start a laundromat",
+          "laundromat business plan",
+          "laundromat startup guide",
+          "laundromat startup costs",
+          "laundromat permits and licenses",
           "laundromat investment planning",
           "laundromat ROI calculator",
-          "laundromat startup costs",
           "laundromat funding",
           "buy a laundromat",
-          "laundromat business plan",
           "coin laundry investment",
           "laundromat ownership",
-          "how to start a laundromat",
-          "laundromat feasibility study",
           "laundromat financing options",
-          "laundromat capital requirements",
+          "laundromat business plan template",
           "self-service laundry business",
-          "coin operated laundry investment",
-          "laundromat market research"
+          "how much to open a laundromat"
         ]}
         structuredData={structuredData}
         breadcrumbs={breadcrumbs}

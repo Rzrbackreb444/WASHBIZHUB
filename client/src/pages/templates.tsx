@@ -234,22 +234,34 @@ export default function Templates() {
   const templateListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "Laundromat Business Templates",
-    "description": "Professional templates for laundromat owners including business plans, financial models, marketing materials, operations guides, and legal documents.",
+    "name": "Laundromat Business Templates & Checklists",
+    "description": "Professional templates for laundromat owners including business plans, financial models, due diligence checklists, marketing materials, operations guides, and legal documents. Free and premium downloads.",
     "url": `${baseUrl}/templates`,
     "numberOfItems": templates.length,
     "itemListElement": templates.slice(0, 10).map((template, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "Product",
+        "@type": "CreativeWork",
         "name": template.name,
         "description": template.description,
-        "offers": {
-          "@type": "Offer",
-          "price": template.isPremium ? (template.price || 9.99) : 0,
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock"
+        "creator": {
+          "@type": "Organization",
+          "name": "WashBizHub"
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Laundromat Business",
+          "description": "Coin laundry and laundromat business operations"
+        },
+        "isAccessibleForFree": !template.isPremium,
+        "license": template.isPremium ? "https://washbizhub.com/terms" : "https://creativecommons.org/licenses/by-nc/4.0/",
+        "inLanguage": "en-US",
+        "educationalLevel": "Professional",
+        "learningResourceType": "Template",
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Laundromat Owners, Investors, Entrepreneurs"
         }
       }
     }))
