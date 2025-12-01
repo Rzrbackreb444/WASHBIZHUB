@@ -45,7 +45,17 @@ import {
   Download,
   Lock,
   Crown,
-  Unlock
+  Unlock,
+  Calculator,
+  Wallet,
+  FileSpreadsheet,
+  Gavel,
+  ThumbsUp,
+  ThumbsDown,
+  Scale,
+  Banknote,
+  PiggyBank,
+  Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -267,6 +277,34 @@ export default function CleanBIExplorer() {
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
   const [showSavedMarkers, setShowSavedMarkers] = useState(true);
   
+  // Financial calculators state (auto-populated from analysis)
+  const [calcValues, setCalcValues] = useState({
+    askingPrice: 0,
+    annualRevenue: 0,
+    operatingExpenses: 0,
+    downPayment: 0,
+    interestRate: 7.5,
+    loanTerm: 10,
+  });
+  
+  // Deal Scorer state
+  const [dealVerdict, setDealVerdict] = useState<"buy" | "negotiate" | "overpriced" | null>(null);
+  
+  // Auto-calculate deal verdict when financial values change
+  useEffect(() => {
+    if (calcValues.annualRevenue > 0 && calcValues.operatingExpenses > 0 && calcValues.askingPrice > 0) {
+      const noi = calcValues.annualRevenue - calcValues.operatingExpenses;
+      const fairValue = noi * 2.5;
+      if (calcValues.askingPrice <= fairValue * 0.85) {
+        setDealVerdict("buy");
+      } else if (calcValues.askingPrice <= fairValue * 1.1) {
+        setDealVerdict("negotiate");
+      } else {
+        setDealVerdict("overpriced");
+      }
+    }
+  }, [calcValues]);
+  
   const [layers, setLayers] = useState({
     competition: true,
     demographics: false,
@@ -445,6 +483,33 @@ export default function CleanBIExplorer() {
         setAnalysisResult(result);
         setCompetitors(data.competitors || []);
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        
+        // Auto-populate calculator values from analysis using realistic laundromat formulas
+        // Typical laundromat: $15-25 revenue per capita served annually
+        // Population served = population density * ~0.5 mile radius (~0.78 sq mi) for a typical trade area
+        const populationServed = Math.min(result.populationDensity * 0.78, 25000);
+        // Conservative revenue estimate: $18 per capita (typical for mid-tier market)
+        const baseRevenue = populationServed * 18;
+        // Adjust for median income (higher income = more premium services)
+        const incomeMultiplier = Math.max(0.7, Math.min(1.4, result.medianIncome / 70000));
+        // Adjust for competition (more competitors = lower market share)
+        const competitionFactor = 1 / Math.max(1, result.competitorCount * 0.3);
+        // Realistic annual revenue range: $150K - $600K for most laundromats
+        const estimatedRevenue = Math.max(150000, Math.min(600000, baseRevenue * incomeMultiplier * competitionFactor));
+        // Typical operating expenses: 55-65% of revenue
+        const estimatedExpenses = estimatedRevenue * 0.58;
+        const estimatedNOI = estimatedRevenue - estimatedExpenses;
+        // Fair value = 2.5x NOI for laundromats
+        const estimatedValue = estimatedNOI * 2.5;
+        
+        setCalcValues(prev => ({
+          ...prev,
+          annualRevenue: Math.round(estimatedRevenue),
+          operatingExpenses: Math.round(estimatedExpenses),
+          askingPrice: Math.round(estimatedValue),
+          downPayment: Math.round(estimatedValue * 0.25),
+        }));
+        setDealVerdict(null);
         
         // Track tier and remaining analyses for premium indicators
         if (data.tier) setUserTier(data.tier);
@@ -778,13 +843,21 @@ export default function CleanBIExplorer() {
 
                 {/* Detail Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-4 bg-white/5 mb-3">
-                    <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Overview</TabsTrigger>
-                    <TabsTrigger value="score" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Score</TabsTrigger>
-                    <TabsTrigger value="compete" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Compete</TabsTrigger>
-                    <TabsTrigger value="insights" className="text-xs data-[state=active]:bg-[#C8A661] data-[state=active]:text-white flex items-center gap-1">
+                  <TabsList className="w-full grid grid-cols-6 bg-white/5 mb-3">
+                    <TabsTrigger value="overview" className="text-[10px] px-1 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Overview</TabsTrigger>
+                    <TabsTrigger value="score" className="text-[10px] px-1 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Score</TabsTrigger>
+                    <TabsTrigger value="compete" className="text-[10px] px-1 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white">Compete</TabsTrigger>
+                    <TabsTrigger value="financials" className="text-[10px] px-1 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center gap-0.5" data-testid="tab-financials">
+                      <Calculator className="w-3 h-3" />
+                      Calc
+                    </TabsTrigger>
+                    <TabsTrigger value="deal" className="text-[10px] px-1 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center gap-0.5" data-testid="tab-deal">
+                      <Scale className="w-3 h-3" />
+                      Deal
+                    </TabsTrigger>
+                    <TabsTrigger value="insights" className="text-[10px] px-1 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white flex items-center gap-0.5">
                       AI
-                      {userTier === "free" && <Crown className="w-3 h-3 text-[#C8A661]" />}
+                      {userTier === "free" && <Crown className="w-2.5 h-2.5 text-[#C8A661]" />}
                     </TabsTrigger>
                   </TabsList>
 
@@ -943,6 +1016,236 @@ export default function CleanBIExplorer() {
                           <div className="text-[10px] text-white/30 mt-0.5">{bench.description}</div>
                         </div>
                       ))}
+                    </div>
+                  </TabsContent>
+
+                  {/* Financials Calculator Tab */}
+                  <TabsContent value="financials" className="mt-0 space-y-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 text-xs text-white/50">
+                        <Calculator className="w-4 h-4 text-green-400" />
+                        Quick Financial Analysis
+                      </div>
+                      <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Auto-populated</Badge>
+                    </div>
+                    
+                    {/* ROI Calculator Mini */}
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="w-4 h-4 text-green-400" />
+                        <span className="text-sm font-medium text-white">ROI Analysis</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                          <label className="text-[10px] text-white/50 block mb-1">Annual Revenue</label>
+                          <Input
+                            type="number"
+                            value={calcValues.annualRevenue}
+                            onChange={(e) => setCalcValues(v => ({...v, annualRevenue: Number(e.target.value)}))}
+                            className="h-8 text-sm bg-white/10 border-white/20 text-white"
+                            data-testid="input-calc-revenue"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-white/50 block mb-1">Operating Expenses</label>
+                          <Input
+                            type="number"
+                            value={calcValues.operatingExpenses}
+                            onChange={(e) => setCalcValues(v => ({...v, operatingExpenses: Number(e.target.value)}))}
+                            className="h-8 text-sm bg-white/10 border-white/20 text-white"
+                            data-testid="input-calc-expenses"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* ROI Results */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-green-500/10 rounded p-2 text-center border border-green-500/20">
+                          <div className="text-lg font-bold text-green-400">
+                            {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.downPayment, 1) * 100).toFixed(0)}%
+                          </div>
+                          <div className="text-[10px] text-white/50">Cash-on-Cash</div>
+                        </div>
+                        <div className="bg-white/5 rounded p-2 text-center">
+                          <div className="text-lg font-bold text-white">
+                            {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.askingPrice, 1) * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-[10px] text-white/50">Cap Rate</div>
+                        </div>
+                        <div className="bg-white/5 rounded p-2 text-center">
+                          <div className="text-lg font-bold text-[#C8A661]">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) / 12 / 1000).toFixed(1)}K
+                          </div>
+                          <div className="text-[10px] text-white/50">Monthly NOI</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Valuation Estimate */}
+                    <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <DollarSign className="w-4 h-4 text-[#C8A661]" />
+                        <span className="text-sm font-medium text-white">Estimated Value Range</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                          <div className="text-xs text-white/40">Low (2.0x)</div>
+                          <div className="text-base font-bold text-white">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2 / 1000).toFixed(0)}K
+                          </div>
+                        </div>
+                        <div className="bg-[#C8A661]/20 rounded py-1">
+                          <div className="text-xs text-[#C8A661]">Fair (2.5x)</div>
+                          <div className="text-lg font-bold text-[#C8A661]">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-white/40">High (3.0x)</div>
+                          <div className="text-base font-bold text-white">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 3 / 1000).toFixed(0)}K
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Export CTA */}
+                    {userTier !== "free" ? (
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
+                        onClick={() => {
+                          toast({
+                            title: "Coming Soon",
+                            description: "Google Sheets export is being finalized. Your Pro subscription includes this feature!",
+                          });
+                        }}
+                        data-testid="button-calc-export"
+                      >
+                        <FileSpreadsheet className="w-3 h-3 mr-1.5" />
+                        Export to Google Sheets
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
+                        onClick={() => setShowUpgradePrompt(true)}
+                        data-testid="button-calc-upgrade"
+                      >
+                        <Crown className="w-3 h-3 mr-1.5" />
+                        Export to Google Sheets — Pro Feature
+                      </Button>
+                    )}
+                  </TabsContent>
+
+                  {/* Deal Scorer Tab */}
+                  <TabsContent value="deal" className="mt-0 space-y-3">
+                    <div className="flex items-center gap-2 text-xs text-white/50 mb-2">
+                      <Scale className="w-4 h-4 text-blue-400" />
+                      Deal Scorer — Is This Price Fair?
+                    </div>
+                    
+                    {/* Asking Price Input */}
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <label className="text-xs text-white/60 block mb-2">Seller's Asking Price</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <Input
+                          type="number"
+                          value={calcValues.askingPrice}
+                          onChange={(e) => setCalcValues(v => ({...v, askingPrice: Number(e.target.value)}))}
+                          className="pl-8 h-12 text-xl font-bold bg-white/10 border-white/20 text-white"
+                          data-testid="input-asking-price"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Deal Verdict */}
+                    {dealVerdict && (
+                      <div className={`rounded-xl p-4 border ${
+                        dealVerdict === "buy" ? "bg-green-500/20 border-green-500/40" :
+                        dealVerdict === "negotiate" ? "bg-yellow-500/20 border-yellow-500/40" :
+                        "bg-red-500/20 border-red-500/40"
+                      }`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          {dealVerdict === "buy" && <ThumbsUp className="w-8 h-8 text-green-400" />}
+                          {dealVerdict === "negotiate" && <Scale className="w-8 h-8 text-yellow-400" />}
+                          {dealVerdict === "overpriced" && <ThumbsDown className="w-8 h-8 text-red-400" />}
+                          <div>
+                            <div className={`text-xl font-bold ${
+                              dealVerdict === "buy" ? "text-green-400" :
+                              dealVerdict === "negotiate" ? "text-yellow-400" :
+                              "text-red-400"
+                            }`}>
+                              {dealVerdict === "buy" && "Strong Buy"}
+                              {dealVerdict === "negotiate" && "Negotiate"}
+                              {dealVerdict === "overpriced" && "Overpriced"}
+                            </div>
+                            <div className="text-xs text-white/60">
+                              {dealVerdict === "buy" && "This is priced below fair value — act fast!"}
+                              {dealVerdict === "negotiate" && "Fair price range, but room to negotiate."}
+                              {dealVerdict === "overpriced" && "Price exceeds calculated fair value."}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <div className="text-white/50 text-xs">Fair Value</div>
+                              <div className="font-semibold text-white">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-white/50 text-xs">Your Offer Target</div>
+                              <div className="font-semibold text-[#C8A661]">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.2 / 1000).toFixed(0)}K
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Export & Share Actions */}
+                    <div className="space-y-2">
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-9 text-xs border-white/20 text-white hover:bg-white/10"
+                        onClick={shareAnalysis}
+                        data-testid="button-share-deal"
+                      >
+                        <Share2 className="w-3 h-3 mr-1.5" />
+                        Share Analysis Link
+                      </Button>
+                      
+                      {userTier !== "free" ? (
+                        <Button 
+                          className="w-full h-9 text-xs bg-gradient-to-r from-[#C8A661] to-[#8B7355] text-white"
+                          onClick={() => {
+                            toast({
+                              title: "Coming Soon",
+                              description: "PDF report generation is being finalized. Your Pro subscription includes this feature!",
+                            });
+                          }}
+                          data-testid="button-export-pdf"
+                        >
+                          <Download className="w-3 h-3 mr-1.5" />
+                          Export Full Report (PDF)
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline"
+                          className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
+                          onClick={() => setShowUpgradePrompt(true)}
+                          data-testid="button-export-upgrade"
+                        >
+                          <Lock className="w-3 h-3 mr-1.5" />
+                          Export Report — Pro Feature
+                        </Button>
+                      )}
                     </div>
                   </TabsContent>
 
