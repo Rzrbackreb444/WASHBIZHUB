@@ -187,6 +187,7 @@ const WebsiteTemplates = lazy(() => import("@/pages/website-templates"));
 // Dashboards
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
+const OwnerCommandCenter = lazy(() => import("@/pages/owner-command-center"));
 const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
 const BrokerDashboard = lazy(() => import("@/pages/broker-dashboard"));
@@ -471,6 +472,16 @@ function Router() {
       </Route>
 
       {/* Dashboards */}
+      <Route path="/owner">
+        <Suspense fallback={<LoadingFallback />}>
+          <OwnerCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/owner-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <OwnerCommandCenter />
+        </Suspense>
+      </Route>
       <Route path="/owner-dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <OwnerDashboard />
