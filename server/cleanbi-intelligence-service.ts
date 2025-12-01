@@ -70,6 +70,8 @@ export interface PropertyData {
   motivatedSellerScore: number; // 0-100
   status: "success" | "error" | "not_available";
   error?: string;
+  ownershipGated?: boolean;
+  liensGated?: boolean;
 }
 
 export interface DistanceMatrixData {
@@ -333,7 +335,8 @@ function estimateUtilityRates(lat: number, lng: number): UtilityRateData {
     rateClass: estimatedRate < 0.10 ? "low" : estimatedRate < 0.14 ? "medium" : "high",
     state: estimatedState,
     zipCode: "",
-    status: "success"
+    status: "not_available", // Indicate this is an estimate, not actual API data
+    error: "Utility rate data estimated from regional averages"
   };
 }
 
@@ -620,7 +623,11 @@ export async function getFullIntelligenceReport(
       yearBuilt: fullProperty.yearBuilt,
       buildingSqFt: fullProperty.buildingSqFt,
       propertyType: fullProperty.propertyType,
-      status: fullProperty.status
+      taxAssessedValue: fullProperty.taxAssessedValue,
+      status: fullProperty.status,
+      // Set gating flags for enterprise-only data
+      ownershipGated: userTier !== "enterprise",
+      liensGated: userTier !== "enterprise"
     };
     featuresUnlocked.push("propertyValue");
   } else {
