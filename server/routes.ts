@@ -10905,7 +10905,7 @@ ${pdfData.text.substring(0, 15000)}`;
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
-      const searches = await storage.getSavedSearches(user.id);
+      const searches = await storage.getSavedSearches(user.userId);
       res.json(searches);
     } catch (error: any) {
       console.error("Error fetching saved searches:", error);
@@ -10920,7 +10920,7 @@ ${pdfData.text.substring(0, 15000)}`;
       
       const { name, filters, alertFrequency } = req.body;
       const search = await storage.createSavedSearch({
-        userId: user.id,
+        userId: user.userId,
         name,
         filters,
         alertFrequency: alertFrequency || "daily",
@@ -10940,7 +10940,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const existing = await storage.getSavedSearch(req.params.id);
-      if (!existing || existing.userId !== user.id) {
+      if (!existing || existing.userId !== user.userId) {
         return res.status(404).json({ error: "Search not found" });
       }
       
@@ -10958,7 +10958,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const existing = await storage.getSavedSearch(req.params.id);
-      if (!existing || existing.userId !== user.id) {
+      if (!existing || existing.userId !== user.userId) {
         return res.status(404).json({ error: "Search not found" });
       }
       
@@ -10976,7 +10976,7 @@ ${pdfData.text.substring(0, 15000)}`;
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
-      const favorites = await storage.getFavoriteListingsWithDetails(user.id);
+      const favorites = await storage.getFavoriteListingsWithDetails(user.userId);
       res.json(favorites);
     } catch (error: any) {
       console.error("Error fetching favorites:", error);
@@ -10992,13 +10992,13 @@ ${pdfData.text.substring(0, 15000)}`;
       const { listingId } = req.params;
       const { notes } = req.body;
       
-      const isFavorited = await storage.isListingFavorited(user.id, listingId);
+      const isFavorited = await storage.isListingFavorited(user.userId, listingId);
       if (isFavorited) {
         return res.status(400).json({ error: "Already favorited" });
       }
       
       const favorite = await storage.addFavoriteListing({
-        userId: user.id,
+        userId: user.userId,
         listingId,
         notes
       });
@@ -11015,7 +11015,7 @@ ${pdfData.text.substring(0, 15000)}`;
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
-      await storage.removeFavoriteListing(user.id, req.params.listingId);
+      await storage.removeFavoriteListing(user.userId, req.params.listingId);
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error removing favorite:", error);
@@ -11028,7 +11028,7 @@ ${pdfData.text.substring(0, 15000)}`;
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
-      const isFavorited = await storage.isListingFavorited(user.id, req.params.listingId);
+      const isFavorited = await storage.isListingFavorited(user.userId, req.params.listingId);
       res.json({ isFavorited });
     } catch (error: any) {
       console.error("Error checking favorite:", error);
@@ -11042,7 +11042,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const { notes } = req.body;
-      const favorite = await storage.updateFavoriteNotes(user.id, req.params.listingId, notes);
+      const favorite = await storage.updateFavoriteNotes(user.userId, req.params.listingId, notes);
       res.json(favorite);
     } catch (error: any) {
       console.error("Error updating favorite notes:", error);
@@ -11057,7 +11057,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const role = (req.query.role as 'buyer' | 'seller') || 'buyer';
-      const threads = await storage.getMessageThreads(user.id, role);
+      const threads = await storage.getMessageThreads(user.userId, role);
       res.json(threads);
     } catch (error: any) {
       console.error("Error fetching message threads:", error);
@@ -11071,12 +11071,12 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const thread = await storage.getMessageThread(req.params.threadId);
-      if (!thread || (thread.buyerId !== user.id && thread.sellerId !== user.id)) {
+      if (!thread || (thread.buyerId !== user.userId && thread.sellerId !== user.userId)) {
         return res.status(404).json({ error: "Thread not found" });
       }
       
       const messages = await storage.getMessages(req.params.threadId);
-      await storage.markMessagesAsRead(req.params.threadId, user.id);
+      await storage.markMessagesAsRead(req.params.threadId, user.userId);
       
       res.json({ thread, messages });
     } catch (error: any) {
@@ -11097,12 +11097,12 @@ ${pdfData.text.substring(0, 15000)}`;
         return res.status(404).json({ error: "Listing not found" });
       }
       
-      let thread = await storage.getMessageThreadByListing(listingId, user.id);
+      let thread = await storage.getMessageThreadByListing(listingId, user.userId);
       
       if (!thread) {
         thread = await storage.createMessageThread({
           listingId,
-          buyerId: user.id,
+          buyerId: user.userId,
           sellerId: listing.userId,
           status: "active",
           subject
@@ -11112,7 +11112,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (initialMessage) {
         await storage.sendMessage({
           threadId: thread.id,
-          senderId: user.id,
+          senderId: user.userId,
           body: initialMessage
         });
       }
@@ -11130,14 +11130,14 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const thread = await storage.getMessageThread(req.params.threadId);
-      if (!thread || (thread.buyerId !== user.id && thread.sellerId !== user.id)) {
+      if (!thread || (thread.buyerId !== user.userId && thread.sellerId !== user.userId)) {
         return res.status(404).json({ error: "Thread not found" });
       }
       
       const { body, attachments } = req.body;
       const message = await storage.sendMessage({
         threadId: req.params.threadId,
-        senderId: user.id,
+        senderId: user.userId,
         body,
         attachments
       });
@@ -11155,7 +11155,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const role = (req.query.role as 'buyer' | 'seller') || 'buyer';
-      const count = await storage.getUnreadMessageCount(user.id, role);
+      const count = await storage.getUnreadMessageCount(user.userId, role);
       res.json({ count });
     } catch (error: any) {
       console.error("Error fetching unread count:", error);
@@ -11169,7 +11169,7 @@ ${pdfData.text.substring(0, 15000)}`;
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
-      const comparisons = await storage.getListingComparisons(user.id);
+      const comparisons = await storage.getListingComparisons(user.userId);
       res.json(comparisons);
     } catch (error: any) {
       console.error("Error fetching comparisons:", error);
@@ -11189,7 +11189,7 @@ ${pdfData.text.substring(0, 15000)}`;
       }
       
       const comparison = await storage.createListingComparison({
-        userId: user.id,
+        userId: user.userId,
         name,
         listingIds,
         notes
@@ -11208,7 +11208,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const comparison = await storage.getListingComparison(req.params.id);
-      if (!comparison || comparison.userId !== user.id) {
+      if (!comparison || comparison.userId !== user.userId) {
         return res.status(404).json({ error: "Comparison not found" });
       }
       
@@ -11229,7 +11229,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const comparison = await storage.getListingComparison(req.params.id);
-      if (!comparison || comparison.userId !== user.id) {
+      if (!comparison || comparison.userId !== user.userId) {
         return res.status(404).json({ error: "Comparison not found" });
       }
       
@@ -11248,7 +11248,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const { listingId, timeSpent } = req.body;
-      const history = await storage.trackListingView(user.id, listingId, timeSpent);
+      const history = await storage.trackListingView(user.userId, listingId, timeSpent);
       res.json(history);
     } catch (error: any) {
       console.error("Error tracking view:", error);
@@ -11262,7 +11262,7 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const limit = parseInt(req.query.limit as string) || 10;
-      const history = await storage.getRecentlyViewedListings(user.id, limit);
+      const history = await storage.getRecentlyViewedListings(user.userId, limit);
       res.json(history);
     } catch (error: any) {
       console.error("Error fetching history:", error);
@@ -11304,14 +11304,14 @@ ${pdfData.text.substring(0, 15000)}`;
       if (!user) return res.status(401).json({ error: "Not authenticated" });
       
       const [favorites, savedSearches, threads, recentViews, comparisons] = await Promise.all([
-        storage.getFavoriteListings(user.id),
-        storage.getSavedSearches(user.id),
-        storage.getMessageThreads(user.id, 'buyer'),
-        storage.getBuyerListingHistory(user.id, 5),
-        storage.getListingComparisons(user.id)
+        storage.getFavoriteListings(user.userId),
+        storage.getSavedSearches(user.userId),
+        storage.getMessageThreads(user.userId, 'buyer'),
+        storage.getBuyerListingHistory(user.userId, 5),
+        storage.getListingComparisons(user.userId)
       ]);
       
-      const unreadMessages = await storage.getUnreadMessageCount(user.id, 'buyer');
+      const unreadMessages = await storage.getUnreadMessageCount(user.userId, 'buyer');
       
       res.json({
         favoritesCount: favorites.length,
