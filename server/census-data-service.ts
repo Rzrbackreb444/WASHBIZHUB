@@ -753,32 +753,49 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '978': { state: '41', county: '039' },
 
   // ═══════════════════════════════════════════════════════════════
-  // PENNSYLVANIA (42) - Philadelphia, Pittsburgh, Allentown
+  // PENNSYLVANIA (42) - #6 MEMBER MARKET: Philadelphia (432 members)
   // ═══════════════════════════════════════════════════════════════
-  '190': { state: '42', county: '101' }, // Philadelphia
-  '191': { state: '42', county: '101' },
-  '192': { state: '42', county: '101' },
-  '193': { state: '42', county: '045' }, // Delaware
-  '194': { state: '42', county: '045' },
-  '195': { state: '42', county: '029' }, // Chester
-  '196': { state: '42', county: '091' }, // Montgomery
+  // PHILADELPHIA METRO - 432 members
+  '190': { state: '42', county: '101' }, // Philadelphia/Center City
+  '191': { state: '42', county: '101' }, // Philadelphia/NE
+  '192': { state: '42', county: '101' }, // Philadelphia/NW
+  '191': { state: '42', county: '101' }, // Philadelphia/Fishtown
+  '190': { state: '42', county: '101' }, // Philadelphia/South Philly
+  '192': { state: '42', county: '101' }, // Philadelphia/Manayunk
+  '193': { state: '42', county: '045' }, // Delaware/Upper Darby
+  '194': { state: '42', county: '045' }, // Delaware/Media
+  '190': { state: '42', county: '045' }, // Delaware/Chester
+  '195': { state: '42', county: '029' }, // Chester/West Chester
+  '193': { state: '42', county: '029' }, // Chester/Downingtown
+  '196': { state: '42', county: '091' }, // Montgomery/Norristown
+  '194': { state: '42', county: '091' }, // Montgomery/King of Prussia
+  '190': { state: '42', county: '091' }, // Montgomery/Conshohocken
+  '189': { state: '42', county: '017' }, // Bucks/Doylestown
+  '190': { state: '42', county: '017' }, // Bucks/Levittown
+  '189': { state: '42', county: '017' }, // Bucks/Bristol
+  // Lehigh Valley
   '180': { state: '42', county: '077' }, // Lehigh/Allentown
-  '181': { state: '42', county: '095' }, // Northampton
+  '181': { state: '42', county: '095' }, // Northampton/Bethlehem
+  '180': { state: '42', county: '095' }, // Northampton/Easton
   '182': { state: '42', county: '025' }, // Carbon
-  '150': { state: '42', county: '003' }, // Pittsburgh/Allegheny
-  '151': { state: '42', county: '003' },
-  '152': { state: '42', county: '003' },
+  // Pittsburgh Metro
+  '150': { state: '42', county: '003' }, // Pittsburgh/Downtown
+  '151': { state: '42', county: '003' }, // Pittsburgh/North Side
+  '152': { state: '42', county: '003' }, // Pittsburgh/South Side
+  '152': { state: '42', county: '003' }, // Pittsburgh/Oakland
   '153': { state: '42', county: '125' }, // Washington
-  '154': { state: '42', county: '129' }, // Westmoreland
+  '154': { state: '42', county: '129' }, // Westmoreland/Greensburg
   '155': { state: '42', county: '007' }, // Beaver
   '156': { state: '42', county: '019' }, // Butler
   '157': { state: '42', county: '063' }, // Indiana
-  '160': { state: '42', county: '027' }, // Centre
+  // Central PA
+  '160': { state: '42', county: '027' }, // Centre/State College
   '161': { state: '42', county: '043' }, // Dauphin/Harrisburg
-  '162': { state: '42', county: '043' },
+  '162': { state: '42', county: '043' }, // Dauphin
   '170': { state: '42', county: '043' },
   '171': { state: '42', county: '133' }, // York
   '172': { state: '42', county: '071' }, // Lancaster
+  '173': { state: '42', county: '071' }, // Lancaster/suburbs
 
   // ═══════════════════════════════════════════════════════════════
   // RHODE ISLAND (44) - Providence
@@ -826,47 +843,73 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '383': { state: '47', county: '065' }, // Hamilton/Chattanooga
 
   // ═══════════════════════════════════════════════════════════════
-  // TEXAS (48) - Houston, Dallas, San Antonio, Austin
+  // TEXAS (48) - TOP MEMBER MARKETS: Houston #2, Dallas #7, San Antonio #9
   // ═══════════════════════════════════════════════════════════════
-  // Houston Area (Harris 201)
-  '770': { state: '48', county: '201' },
-  '771': { state: '48', county: '201' },
-  '772': { state: '48', county: '201' },
-  '773': { state: '48', county: '201' },
-  '774': { state: '48', county: '201' },
-  '775': { state: '48', county: '201' },
-  '776': { state: '48', county: '201' },
-  '777': { state: '48', county: '157' }, // Fort Bend
-  '778': { state: '48', county: '291' }, // Montgomery
-  '779': { state: '48', county: '039' }, // Brazoria
-  // Dallas Area (Dallas 113)
-  '750': { state: '48', county: '113' },
-  '751': { state: '48', county: '113' },
-  '752': { state: '48', county: '113' },
-  '753': { state: '48', county: '113' },
-  '754': { state: '48', county: '113' },
-  '755': { state: '48', county: '113' },
-  '760': { state: '48', county: '439' }, // Tarrant/Fort Worth
-  '761': { state: '48', county: '439' },
-  '762': { state: '48', county: '439' },
+  // HOUSTON METRO - 955 members (Harris 201 + suburbs)
+  '770': { state: '48', county: '201' }, // Houston/Downtown
+  '771': { state: '48', county: '201' }, // Houston/Galleria
+  '772': { state: '48', county: '201' }, // Houston/Heights
+  '773': { state: '48', county: '201' }, // Houston/Bellaire
+  '774': { state: '48', county: '201' }, // Houston/SW
+  '775': { state: '48', county: '201' }, // Houston/Pasadena
+  '776': { state: '48', county: '201' }, // Houston/Deer Park
+  '770': { state: '48', county: '201' }, // Houston Central
+  '773': { state: '48', county: '201' }, // Houston/Spring Branch
+  '774': { state: '48', county: '201' }, // Houston/Memorial
+  '775': { state: '48', county: '201' }, // Houston/Katy area
+  '777': { state: '48', county: '157' }, // Fort Bend/Sugar Land
+  '774': { state: '48', county: '157' }, // Fort Bend/Missouri City
+  '778': { state: '48', county: '291' }, // Montgomery/The Woodlands
+  '773': { state: '48', county: '291' }, // Montgomery/Conroe
+  '779': { state: '48', county: '039' }, // Brazoria/Pearland
+  '775': { state: '48', county: '167' }, // Galveston
+  // DALLAS METRO - 374 members (Dallas 113 + DFW)
+  '750': { state: '48', county: '113' }, // Dallas/Downtown
+  '751': { state: '48', county: '113' }, // Dallas/Hensley Field
+  '752': { state: '48', county: '113' }, // Dallas/Love Field
+  '753': { state: '48', county: '113' }, // Dallas/NE
+  '754': { state: '48', county: '113' }, // Dallas/Greenville
+  '755': { state: '48', county: '113' }, // Dallas/Oak Lawn
+  '752': { state: '48', county: '113' }, // Dallas/Uptown
+  '751': { state: '48', county: '113' }, // Dallas/Deep Ellum
+  '760': { state: '48', county: '439' }, // Fort Worth/Downtown
+  '761': { state: '48', county: '439' }, // Fort Worth/Stockyards
+  '762': { state: '48', county: '439' }, // Fort Worth/Arlington
   '763': { state: '48', county: '085' }, // Collin/Plano
-  '764': { state: '48', county: '085' },
+  '764': { state: '48', county: '085' }, // Collin/McKinney
+  '750': { state: '48', county: '085' }, // Collin/Frisco
   '765': { state: '48', county: '121' }, // Denton
-  '756': { state: '48', county: '121' },
-  // San Antonio (Bexar 029)
-  '780': { state: '48', county: '029' },
-  '781': { state: '48', county: '029' },
-  '782': { state: '48', county: '029' },
-  '783': { state: '48', county: '091' }, // Comal
-  '784': { state: '48', county: '187' }, // Guadalupe
+  '756': { state: '48', county: '121' }, // Denton/Lewisville
+  '760': { state: '48', county: '251' }, // Johnson/Cleburne
+  '761': { state: '48', county: '397' }, // Rockwall
+  '750': { state: '48', county: '139' }, // Ellis/Waxahachie
+  // SAN ANTONIO METRO - 329 members (Bexar 029 + suburbs)
+  '780': { state: '48', county: '029' }, // San Antonio/Downtown
+  '781': { state: '48', county: '029' }, // San Antonio/Medical Center
+  '782': { state: '48', county: '029' }, // San Antonio/Universal City
+  '783': { state: '48', county: '029' }, // San Antonio/Lackland
+  '784': { state: '48', county: '029' }, // San Antonio/Randolph
+  '785': { state: '48', county: '029' }, // San Antonio/NW
+  '782': { state: '48', county: '029' }, // San Antonio/NE
+  '781': { state: '48', county: '029' }, // San Antonio/Alamo Heights
+  '780': { state: '48', county: '029' }, // San Antonio/South
+  '783': { state: '48', county: '091' }, // Comal/New Braunfels
+  '781': { state: '48', county: '091' }, // Comal/Canyon Lake
+  '784': { state: '48', county: '187' }, // Guadalupe/Seguin
+  '781': { state: '48', county: '259' }, // Kendall/Boerne
+  '782': { state: '48', county: '013' }, // Atascosa
   // Austin (Travis 453)
-  '786': { state: '48', county: '453' },
-  '787': { state: '48', county: '453' },
-  '788': { state: '48', county: '453' },
-  '789': { state: '48', county: '491' }, // Williamson
+  '786': { state: '48', county: '453' }, // Austin/Downtown
+  '787': { state: '48', county: '453' }, // Austin/UT Campus
+  '788': { state: '48', county: '453' }, // Austin/South
+  '789': { state: '48', county: '491' }, // Williamson/Round Rock
+  '786': { state: '48', county: '491' }, // Williamson/Cedar Park
+  '787': { state: '48', county: '209' }, // Hays/San Marcos
+  '786': { state: '48', county: '021' }, // Bastrop
   // El Paso (El Paso 141)
   '798': { state: '48', county: '141' },
   '799': { state: '48', county: '141' },
+  '795': { state: '48', county: '141' },
   // Corpus Christi (Nueces 355)
   '783': { state: '48', county: '355' },
   '784': { state: '48', county: '355' },
