@@ -230,36 +230,51 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '205': { state: '11', county: '001' },
 
   // ═══════════════════════════════════════════════════════════════
-  // FLORIDA (12) - Miami, Tampa, Orlando, Jacksonville
+  // FLORIDA (12) - EXPANDED FOR MEMBERS (All Major Markets)
   // ═══════════════════════════════════════════════════════════════
-  // Miami-Dade (086)
-  '330': { state: '12', county: '086' },
-  '331': { state: '12', county: '086' },
-  '332': { state: '12', county: '086' },
+  // South Florida Tri-County
+  '330': { state: '12', county: '086' }, // Miami-Dade
+  '331': { state: '12', county: '086' }, // Miami-Dade/Homestead
+  '332': { state: '12', county: '086' }, // Miami-Dade
   '333': { state: '12', county: '011' }, // Broward/Ft Lauderdale
-  '334': { state: '12', county: '099' }, // Palm Beach
-  '335': { state: '12', county: '086' },
-  // Tampa Bay
+  '334': { state: '12', county: '099' }, // Palm Beach/West Palm
+  '335': { state: '12', county: '086' }, // Miami-Dade
+  '329': { state: '12', county: '086' }, // Miami-Dade
+  '330': { state: '12', county: '011' }, // Broward/Pompano Beach
+  '331': { state: '12', county: '011' }, // Broward/Hollywood
+  // Tampa Bay Metro
   '336': { state: '12', county: '057' }, // Hillsborough/Tampa
   '337': { state: '12', county: '103' }, // Pinellas/St Petersburg
-  '338': { state: '12', county: '081' }, // Manatee
+  '338': { state: '12', county: '081' }, // Manatee/Bradenton
   '339': { state: '12', county: '115' }, // Sarasota
-  // Orlando
+  '335': { state: '12', county: '057' }, // Hillsborough/Brandon
+  '346': { state: '12', county: '057' }, // Hillsborough
+  // Orlando Metro
   '327': { state: '12', county: '095' }, // Orange/Orlando
-  '328': { state: '12', county: '095' },
-  '347': { state: '12', county: '095' },
-  '348': { state: '12', county: '117' }, // Seminole
-  // Jacksonville
-  '320': { state: '12', county: '031' }, // Duval
-  '321': { state: '12', county: '031' },
-  '322': { state: '12', county: '031' },
-  // Other Florida
+  '328': { state: '12', county: '095' }, // Orange/Orlando
+  '347': { state: '12', county: '095' }, // Orange/Orlando
+  '348': { state: '12', county: '117' }, // Seminole/Sanford
+  '349': { state: '12', county: '069' }, // Lake
+  '344': { state: '12', county: '097' }, // Osceola/Kissimmee
+  '345': { state: '12', county: '097' }, // Osceola
+  // Jacksonville Metro
+  '320': { state: '12', county: '031' }, // Duval/Jacksonville
+  '321': { state: '12', county: '031' }, // Duval
+  '322': { state: '12', county: '031' }, // Duval
+  '321': { state: '12', county: '109' }, // St. Johns
+  // Space Coast / Central FL
   '323': { state: '12', county: '001' }, // Alachua/Gainesville
-  '324': { state: '12', county: '019' }, // Clay
-  '325': { state: '12', county: '009' }, // Brevard
+  '324': { state: '12', county: '019' }, // Clay/Orange Park
+  '325': { state: '12', county: '009' }, // Brevard/Melbourne
   '326': { state: '12', county: '127' }, // Volusia/Daytona
+  '329': { state: '12', county: '009' }, // Brevard/Palm Bay
+  // Southwest Florida
   '340': { state: '12', county: '071' }, // Lee/Fort Myers
   '341': { state: '12', county: '021' }, // Collier/Naples
+  '342': { state: '12', county: '015' }, // Charlotte/Punta Gorda
+  // Panhandle
+  '324': { state: '12', county: '033' }, // Escambia/Pensacola
+  '325': { state: '12', county: '005' }, // Bay/Panama City
 
   // ═══════════════════════════════════════════════════════════════
   // GEORGIA (13) - Atlanta, Savannah, Augusta, Columbus
@@ -527,16 +542,20 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '685': { state: '31', county: '109' },
 
   // ═══════════════════════════════════════════════════════════════
-  // NEVADA (32) - Las Vegas, Reno
+  // NEVADA (32) - Las Vegas Metro (EXPANDED FOR MEMBERS)
   // ═══════════════════════════════════════════════════════════════
-  '889': { state: '32', county: '003' }, // Las Vegas/Clark
-  '890': { state: '32', county: '003' },
-  '891': { state: '32', county: '003' },
-  '893': { state: '32', county: '003' },
-  '894': { state: '32', county: '003' },
-  '895': { state: '32', county: '003' },
+  '889': { state: '32', county: '003' }, // Las Vegas/Clark - Downtown
+  '890': { state: '32', county: '003' }, // Las Vegas/Clark
+  '891': { state: '32', county: '003' }, // Las Vegas/Clark - Henderson
+  '892': { state: '32', county: '003' }, // Las Vegas/Clark - Enterprise
+  '893': { state: '32', county: '003' }, // Las Vegas/Clark - Summerlin
+  '894': { state: '32', county: '003' }, // Las Vegas/Clark - North Las Vegas
+  '895': { state: '32', county: '003' }, // Las Vegas/Clark - Spring Valley
+  '896': { state: '32', county: '003' }, // Las Vegas/Clark - Paradise
   '897': { state: '32', county: '031' }, // Reno/Washoe
-  '898': { state: '32', county: '031' },
+  '898': { state: '32', county: '031' }, // Reno/Washoe - Sparks
+  '894': { state: '32', county: '003' }, // North Las Vegas
+  '881': { state: '32', county: '003' }, // Boulder City area
 
   // ═══════════════════════════════════════════════════════════════
   // NEW HAMPSHIRE (33) - Manchester, Nashua
@@ -552,28 +571,32 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '038': { state: '33', county: '017' }, // Strafford
 
   // ═══════════════════════════════════════════════════════════════
-  // NEW JERSEY (34) - Newark, Jersey City, Trenton
+  // NEW JERSEY (34) - EXPANDED FOR MEMBERS (NYC Metro + Shore)
   // ═══════════════════════════════════════════════════════════════
   '070': { state: '34', county: '013' }, // Essex/Newark
-  '071': { state: '34', county: '013' },
-  '072': { state: '34', county: '039' }, // Union
-  '073': { state: '34', county: '031' }, // Passaic
-  '074': { state: '34', county: '031' },
-  '075': { state: '34', county: '031' },
-  '076': { state: '34', county: '013' },
-  '077': { state: '34', county: '023' }, // Middlesex
-  '078': { state: '34', county: '039' },
-  '079': { state: '34', county: '027' }, // Morris
+  '071': { state: '34', county: '013' }, // Essex/Orange
+  '072': { state: '34', county: '039' }, // Union/Elizabeth
+  '073': { state: '34', county: '031' }, // Passaic/Paterson
+  '074': { state: '34', county: '031' }, // Passaic/Clifton
+  '075': { state: '34', county: '031' }, // Passaic
+  '076': { state: '34', county: '017' }, // Hudson/Jersey City
+  '077': { state: '34', county: '023' }, // Middlesex/New Brunswick
+  '078': { state: '34', county: '039' }, // Union/Plainfield
+  '079': { state: '34', county: '027' }, // Morris/Morristown
   '080': { state: '34', county: '007' }, // Camden
-  '081': { state: '34', county: '007' },
-  '082': { state: '34', county: '001' }, // Atlantic City
-  '083': { state: '34', county: '005' }, // Burlington
+  '081': { state: '34', county: '007' }, // Camden/Cherry Hill
+  '082': { state: '34', county: '001' }, // Atlantic/Atlantic City
+  '083': { state: '34', county: '005' }, // Burlington/Mount Laurel
   '084': { state: '34', county: '015' }, // Gloucester
   '085': { state: '34', county: '021' }, // Mercer/Trenton
-  '086': { state: '34', county: '021' },
-  '087': { state: '34', county: '029' }, // Ocean
-  '088': { state: '34', county: '025' }, // Monmouth
-  '089': { state: '34', county: '035' }, // Somerset
+  '086': { state: '34', county: '021' }, // Mercer/Princeton
+  '087': { state: '34', county: '029' }, // Ocean/Toms River
+  '088': { state: '34', county: '025' }, // Monmouth/Freehold
+  '089': { state: '34', county: '035' }, // Somerset/Bridgewater
+  // Bergen County (003) - North Jersey suburbs
+  '074': { state: '34', county: '003' }, // Bergen/Hackensack
+  '076': { state: '34', county: '017' }, // Hudson/Hoboken
+  '070': { state: '34', county: '003' }, // Bergen/Fort Lee
 
   // ═══════════════════════════════════════════════════════════════
   // NEW MEXICO (35) - Albuquerque, Santa Fe
@@ -638,22 +661,35 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '148': { state: '36', county: '055' },
 
   // ═══════════════════════════════════════════════════════════════
-  // NORTH CAROLINA (37) - Charlotte, Raleigh, Durham
+  // NORTH CAROLINA (37) - EXPANDED FOR MEMBERS
   // ═══════════════════════════════════════════════════════════════
+  // Charlotte Metro
   '280': { state: '37', county: '119' }, // Charlotte/Mecklenburg
-  '281': { state: '37', county: '119' },
-  '282': { state: '37', county: '119' },
-  '283': { state: '37', county: '119' },
+  '281': { state: '37', county: '119' }, // Charlotte/Mecklenburg
+  '282': { state: '37', county: '119' }, // Charlotte/Mecklenburg
+  '283': { state: '37', county: '119' }, // Charlotte/Mecklenburg
+  '284': { state: '37', county: '025' }, // Concord/Cabarrus
+  '285': { state: '37', county: '071' }, // Gaston/Gastonia
+  '286': { state: '37', county: '179' }, // Union/Monroe
+  // Raleigh-Durham Triangle
   '270': { state: '37', county: '183' }, // Raleigh/Wake
-  '271': { state: '37', county: '183' },
-  '272': { state: '37', county: '183' },
+  '271': { state: '37', county: '183' }, // Raleigh/Wake
+  '272': { state: '37', county: '183' }, // Raleigh/Wake
   '273': { state: '37', county: '063' }, // Durham
-  '274': { state: '37', county: '081' }, // Guilford/Greensboro
-  '275': { state: '37', county: '067' }, // Forsyth/Winston-Salem
-  '276': { state: '37', county: '067' },
-  '277': { state: '37', county: '067' },
-  '278': { state: '37', county: '129' }, // New Hanover/Wilmington
-  '284': { state: '37', county: '025' }, // Cabarrus
+  '274': { state: '37', county: '081' }, // Greensboro/Guilford
+  '275': { state: '37', county: '067' }, // Winston-Salem/Forsyth
+  '276': { state: '37', county: '067' }, // Winston-Salem/Forsyth
+  '277': { state: '37', county: '067' }, // Winston-Salem/Forsyth
+  '276': { state: '37', county: '101' }, // Johnston
+  // Coastal NC
+  '278': { state: '37', county: '129' }, // Wilmington/New Hanover
+  '279': { state: '37', county: '129' }, // Wilmington/New Hanover
+  // Asheville (Mountain)
+  '287': { state: '37', county: '021' }, // Asheville/Buncombe
+  '288': { state: '37', county: '021' }, // Asheville/Buncombe
+  '289': { state: '37', county: '097' }, // Henderson
+  // Fayetteville (Military)
+  '283': { state: '37', county: '051' }, // Fayetteville/Cumberland
 
   // ═══════════════════════════════════════════════════════════════
   // NORTH DAKOTA (38) - Fargo, Bismarck
