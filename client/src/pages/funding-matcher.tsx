@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,12 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
+import { Helmet } from "react-helmet-async";
 import { 
   DollarSign, CheckCircle2, Building2, Zap, Clock, Shield, 
   ArrowRight, Star, TrendingUp, ExternalLink, Phone, Mail,
-  CreditCard, Loader2, Users, Award, Target
+  CreditCard, Loader2, Users, Award, Target, Truck, Factory,
+  Briefcase, PiggyBank, FileText, Calculator, ChevronDown,
+  HelpCircle, Wrench, Receipt, Landmark, BadgeCheck
 } from "lucide-react";
 import fundingHeroImg from "@assets/WBH FUNDING MATCHER SEARCH IMAGE_1763780009740.png";
 
@@ -43,7 +47,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     name: "GoKapital",
     type: "Commercial Real Estate & Business Loans",
     description: "Premier commercial real estate lender with fast approvals. Specializes in laundromat property purchases, bridge loans, and equipment financing.",
-    products: ["Commercial Real Estate", "Bridge Loans", "Equipment Financing", "Term Loans", "SBA Express", "Merchant Cash Advance"],
+    products: ["Commercial Real Estate Loans", "Bridge Loans", "Equipment Financing", "Term Loans", "SBA Express", "Merchant Cash Advance"],
     minLoan: 25000,
     maxLoan: 50000000,
     minCredit: 500,
@@ -56,6 +60,24 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     affiliateUrl: "gokapital-form",
     isRealEstate: true,
     specialFeatures: ["Up to 80% LTV", "All 50 states", "Investment properties", "DSCR loans available"]
+  },
+  {
+    id: "rok-financial",
+    name: "ROK Financial",
+    type: "Fast Business Lending Marketplace",
+    description: "LoanTech-powered platform with 75+ lenders. Processes 80% faster than traditional banks. Ideal for startups and established laundromats needing fast capital.",
+    products: ["Term Loans", "Lines of Credit", "Equipment Financing", "SBA Loans", "Merchant Cash Advance", "Revenue-Based Financing"],
+    minLoan: 5000,
+    maxLoan: 5000000,
+    minCredit: 550,
+    minTimeInBusiness: 6,
+    approvalSpeed: "4 hours (80% of apps)",
+    fundingSpeed: "Same day - 48 hours",
+    rates: "Starting at 5.99%",
+    bestFor: ["Startups with 6+ months", "Fast capital needs", "Lower credit scores", "Equipment purchases"],
+    loanPurposes: ["business-acquisition", "equipment", "working-capital", "startup"],
+    affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1",
+    specialFeatures: ["75+ lender network", "LoanTech AI platform", "72% approval rate", "Same-day funding available"]
   },
   {
     id: "national-business-capital",
@@ -98,7 +120,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     name: "Advance Funds Network",
     type: "Fast Business Capital",
     description: "Same-day funding specialist since 2007. Best for urgent working capital needs when speed matters more than cost. Revenue-based repayment.",
-    products: ["Merchant Cash Advance", "Working Capital Loans", "Business Term Loans", "Equipment Financing", "Lines of Credit"],
+    products: ["Merchant Cash Advance", "Working Capital Loans", "Business Term Loans", "Equipment Financing", "Lines of Credit", "Accounts Receivable Financing"],
     minLoan: 5000,
     maxLoan: 2000000,
     minCredit: 0,
@@ -107,7 +129,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     fundingSpeed: "24-48 hours",
     rates: "Factor rate 1.1-1.5 (10-50% cost)",
     bestFor: ["Emergency capital", "Cash flow gaps", "Low credit situations", "Fast funding needs"],
-    loanPurposes: ["working-capital", "equipment", "business-acquisition"],
+    loanPurposes: ["working-capital", "equipment", "business-acquisition", "ar-financing"],
     affiliateUrl: "https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3",
     specialFeatures: ["No minimum credit", "Same-day funding", "Revenue-based repayment", "15+ years experience"]
   },
@@ -116,7 +138,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     name: "David Allen Capital",
     type: "Revenue-Based Funding Platform",
     description: "BankBreezy platform connects to 20+ funders with one application. Zero-interest early payoff options and competitive rates.",
-    products: ["Revenue-Based Funding", "Equipment Financing", "Business Lines of Credit", "Select Funding"],
+    products: ["Revenue-Based Funding", "Equipment Financing", "Business Lines of Credit", "Select Funding", "Invoice Factoring"],
     minLoan: 10000,
     maxLoan: 2000000,
     minCredit: 500,
@@ -125,7 +147,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     fundingSpeed: "24-48 hours",
     rates: "50% less than competitors (claimed)",
     bestFor: ["Revenue-based funding", "Multiple offers", "Early payoff savings", "Equipment financing"],
-    loanPurposes: ["working-capital", "equipment", "business-acquisition"],
+    loanPurposes: ["working-capital", "equipment", "business-acquisition", "ar-financing"],
     affiliateUrl: "https://davidallencapital.com/nicholaskremers",
     specialFeatures: ["20+ lender network", "Zero-interest early payoff", "80% approval rate", "$500 beat-any-offer guarantee"]
   },
@@ -134,7 +156,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     name: "Preferred Funding Group",
     type: "Personal Credit-Based Financing",
     description: "Leverage strong personal credit for business funding. 0% intro rates on credit cards, no business revenue required. Perfect for startups.",
-    products: ["Personal Term Loans", "0% Business Credit Cards", "Personal Credit Cards", "Unsecured Lines"],
+    products: ["Personal Term Loans", "0% Business Credit Cards", "Personal Credit Cards", "Unsecured Lines of Credit"],
     minLoan: 50000,
     maxLoan: 500000,
     minCredit: 700,
@@ -149,6 +171,149 @@ const FUNDING_PARTNERS: FundingPartner[] = [
   }
 ];
 
+const SEO_KEYWORDS = [
+  "laundromat financing",
+  "laundromat loan",
+  "laundromat business loan",
+  "SBA loan for laundromat",
+  "SBA 7a laundromat",
+  "commercial real estate loan laundromat",
+  "laundromat equipment financing",
+  "coin laundry financing",
+  "laundromat acquisition loan",
+  "buy a laundromat loan",
+  "laundromat startup loan",
+  "small business loan laundromat",
+  "term loan laundromat",
+  "working capital laundromat",
+  "laundromat business acquisition financing",
+  "commercial washer dryer financing",
+  "laundromat equipment loan",
+  "self service laundry financing",
+  "washateria financing",
+  "laundromat bridge loan",
+  "merchant cash advance laundromat",
+  "revenue based financing laundromat",
+  "laundromat line of credit",
+  "accounts receivable financing laundromat",
+  "personal credit business loan",
+  "startup laundromat financing",
+  "laundromat refinance",
+  "DSCR loan laundromat",
+  "laundromat investor loan",
+  "coin op laundry loan"
+];
+
+const FAQ_DATA = [
+  {
+    question: "What is the best loan for buying a laundromat?",
+    answer: "The best loan for buying a laundromat is typically an SBA 7(a) loan, which offers the lowest interest rates (Prime + 2.75%) and longest terms (up to 25 years for real estate). For faster funding, conventional term loans or revenue-based financing can close in 1-14 days vs. 45-90 days for SBA loans."
+  },
+  {
+    question: "Can I get a laundromat loan with bad credit?",
+    answer: "Yes, you can get laundromat financing with credit scores as low as 500-550. Options include revenue-based financing, merchant cash advances, and some equipment financing programs. Partners like Advance Funds Network and David Allen Capital specialize in lower credit situations with same-day approvals."
+  },
+  {
+    question: "How much down payment do I need to buy a laundromat?",
+    answer: "Down payment requirements vary: SBA loans typically require 10-20% down, conventional commercial real estate loans require 20-30%, and some equipment financing requires 0-10% down. Personal credit-based financing through Preferred Funding Group requires no down payment for startups with 700+ credit scores."
+  },
+  {
+    question: "What is laundromat equipment financing?",
+    answer: "Laundromat equipment financing allows you to purchase commercial washers, dryers, and related equipment with terms of 2-7 years. Many lenders offer same-day approval with rates starting at 5.99%. Equipment serves as collateral, making it easier to qualify than unsecured loans."
+  },
+  {
+    question: "How long does it take to get a laundromat business loan?",
+    answer: "Funding timelines vary by loan type: Same-day to 48 hours for merchant cash advances and working capital loans, 3-14 days for term loans and equipment financing, and 45-90 days for SBA loans. Our partners include fast-funding specialists for urgent capital needs."
+  },
+  {
+    question: "What is an SBA 7(a) loan for laundromat business?",
+    answer: "An SBA 7(a) loan is a government-backed small business loan ideal for laundromat purchases, with up to $5 million available, 10-25 year terms, and competitive rates (Prime + 2.75%). Through 2025, loans up to $1M have $0 guarantee fees through preferred lenders like South End Capital."
+  },
+  {
+    question: "Can I finance a laundromat with no experience?",
+    answer: "Yes, several financing options are available for first-time laundromat buyers. SBA loans consider industry inexperience with strong business plans, and personal credit-based financing through Preferred Funding Group requires no business experience. Equipment financing is also available for startups."
+  },
+  {
+    question: "What is accounts receivable financing for laundromats?",
+    answer: "Accounts receivable (AR) financing allows laundromats with commercial accounts (hotels, gyms, healthcare) to borrow against unpaid invoices. This provides immediate cash flow without taking on traditional debt. Partners like David Allen Capital and Advance Funds Network offer invoice factoring solutions."
+  },
+  {
+    question: "How do I qualify for commercial real estate loan for a laundromat?",
+    answer: "Commercial real estate loans for laundromats typically require: 620+ credit score, 20-30% down payment, property as collateral, and demonstration of cash flow to cover debt payments (DSCR of 1.25+). GoKapital specializes in laundromat property financing with up to 80% LTV."
+  },
+  {
+    question: "What is revenue-based financing for laundromats?",
+    answer: "Revenue-based financing (RBF) provides capital based on your laundromat's monthly revenue rather than credit score. Repayments are a percentage of daily/weekly revenue, making it flexible for seasonal fluctuations. Funding is fast (24-48 hours) but costs more than traditional loans."
+  }
+];
+
+const FINANCING_TYPES = [
+  {
+    id: "sba-loans",
+    title: "SBA Loans for Laundromats",
+    icon: Landmark,
+    description: "Government-backed loans with the lowest rates and longest terms. SBA 7(a) loans offer up to $5M with 10-25 year terms.",
+    features: ["Prime + 2.75% rates", "Up to 25-year terms", "$0 fees up to $1M (2025)", "Low down payment"],
+    bestFor: "Established operators buying or expanding laundromats"
+  },
+  {
+    id: "equipment-financing",
+    title: "Equipment Financing",
+    icon: Wrench,
+    description: "Finance commercial washers, dryers, and laundromat equipment with the machines as collateral. Same-day approvals available.",
+    features: ["2-7 year terms", "Equipment as collateral", "Same-day approval", "Preserve working capital"],
+    bestFor: "Equipment upgrades, new machine installations"
+  },
+  {
+    id: "commercial-real-estate",
+    title: "Commercial Real Estate Loans",
+    icon: Building2,
+    description: "Purchase or refinance laundromat properties with competitive rates. DSCR and bridge loan options available.",
+    features: ["Up to $50M+", "Up to 80% LTV", "DSCR loans available", "Bridge financing"],
+    bestFor: "Property purchases, refinancing, investor portfolios"
+  },
+  {
+    id: "term-loans",
+    title: "Business Term Loans",
+    icon: FileText,
+    description: "Fixed-rate loans with predictable monthly payments. Fast funding for acquisitions and growth capital.",
+    features: ["$10K - $10M", "1-5 year terms", "Fixed payments", "Fast 1-14 day funding"],
+    bestFor: "Business acquisitions, growth capital, major purchases"
+  },
+  {
+    id: "working-capital",
+    title: "Working Capital & Lines of Credit",
+    icon: PiggyBank,
+    description: "Flexible funding for operational expenses, payroll, inventory, and cash flow management.",
+    features: ["Revolving credit", "Draw as needed", "Same-day funding", "Revenue-based options"],
+    bestFor: "Cash flow gaps, seasonal needs, operational expenses"
+  },
+  {
+    id: "startup-financing",
+    title: "Startup Laundromat Financing",
+    icon: Target,
+    description: "Funding options for first-time laundromat buyers. Personal credit-based and SBA options for new operators.",
+    features: ["No business history required", "0% intro rates", "Personal credit based", "Startup-friendly"],
+    bestFor: "First-time buyers, career changers, new investors"
+  },
+  {
+    id: "ar-financing",
+    title: "Accounts Receivable Financing",
+    icon: Receipt,
+    description: "Turn unpaid invoices from commercial accounts (hotels, gyms) into immediate cash flow.",
+    features: ["Invoice factoring", "Fast cash access", "No new debt", "Flexible terms"],
+    bestFor: "Laundromats with commercial/route accounts"
+  },
+  {
+    id: "fast-capital",
+    title: "Fast Capital & MCAs",
+    icon: Zap,
+    description: "Same-day to 48-hour funding for urgent needs. Revenue-based repayment tied to daily sales.",
+    features: ["Same-day funding", "No minimum credit", "Revenue-based", "Emergency capital"],
+    bestFor: "Emergency repairs, urgent opportunities, cash flow crises"
+  }
+];
+
 function calculateMatchScore(partner: FundingPartner, inputs: any): number {
   let score = 50;
   
@@ -159,7 +324,7 @@ function calculateMatchScore(partner: FundingPartner, inputs: any): number {
   
   if (partner.loanPurposes.includes(inputs.loanPurpose)) score += 20;
   
-  const creditMap: Record<string, number> = { excellent: 750, good: 690, fair: 650, poor: 580 };
+  const creditMap: Record<string, number> = { excellent: 750, good: 690, fair: 650, poor: 580, very_poor: 500 };
   const userCredit = creditMap[inputs.creditScore] || 600;
   if (userCredit >= partner.minCredit) score += 10;
   else score -= 15;
@@ -172,6 +337,7 @@ function calculateMatchScore(partner: FundingPartner, inputs: any): number {
   if (inputs.loanPurpose === "real-estate" && partner.isRealEstate) score += 15;
   if (inputs.urgency === "asap" && partner.fundingSpeed.includes("Same day")) score += 10;
   if (inputs.urgency === "asap" && partner.fundingSpeed.includes("24")) score += 5;
+  if (inputs.loanPurpose === "ar-financing" && partner.loanPurposes.includes("ar-financing")) score += 15;
   
   return Math.max(0, Math.min(100, score));
 }
@@ -182,6 +348,48 @@ function getGrade(score: number): { grade: string; color: string; label: string 
   if (score >= 55) return { grade: "C", color: "bg-amber-500", label: "Fair Match" };
   return { grade: "NW", color: "bg-yellow-600", label: "Needs Work" };
 }
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "FinancialService",
+  "name": "WashBizHub Laundromat Funding Matcher",
+  "description": "Find the best laundromat financing from 7 vetted lenders. Compare SBA loans, equipment financing, commercial real estate loans, term loans, and startup funding options.",
+  "url": "https://washbizhub.com/funding-matcher",
+  "areaServed": "United States",
+  "serviceType": [
+    "Small Business Loans",
+    "SBA Loans",
+    "Equipment Financing",
+    "Commercial Real Estate Loans",
+    "Working Capital Loans",
+    "Business Acquisition Financing"
+  ],
+  "provider": {
+    "@type": "Organization",
+    "name": "WashBizHub",
+    "url": "https://washbizhub.com"
+  },
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "1000",
+    "highPrice": "50000000",
+    "priceCurrency": "USD",
+    "offerCount": "7"
+  }
+};
+
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": FAQ_DATA.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
 
 export default function FundingMatcher() {
   const { toast } = useToast();
@@ -345,6 +553,7 @@ export default function FundingMatcher() {
                 <SelectItem value="equipment">Equipment Purchase / Upgrade</SelectItem>
                 <SelectItem value="working-capital">Working Capital / Operations</SelectItem>
                 <SelectItem value="startup">New Laundromat Startup</SelectItem>
+                <SelectItem value="ar-financing">Accounts Receivable / Invoice Financing</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -394,6 +603,7 @@ export default function FundingMatcher() {
                 <SelectItem value="good">Good (680-719)</SelectItem>
                 <SelectItem value="fair">Fair (640-679)</SelectItem>
                 <SelectItem value="poor">Below 640</SelectItem>
+                <SelectItem value="very_poor">Below 550 (Challenged)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -478,7 +688,7 @@ export default function FundingMatcher() {
             <Label className="text-white/90 font-medium">Email Address *</Label>
             <Input
               type="email"
-              placeholder="you@example.com"
+              placeholder="john@example.com"
               value={inputs.email}
               onChange={(e) => setInputs({ ...inputs, email: e.target.value })}
               className="bg-white/10 border-white/20 text-white placeholder-white/40 mt-2"
@@ -488,7 +698,7 @@ export default function FundingMatcher() {
           </div>
 
           <div>
-            <Label className="text-white/90 font-medium">Phone (Optional)</Label>
+            <Label className="text-white/90 font-medium">Phone Number</Label>
             <Input
               type="tel"
               placeholder="(555) 123-4567"
@@ -512,404 +722,342 @@ export default function FundingMatcher() {
             <Button 
               type="submit" 
               className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
-              disabled={isSubmitting || !inputs.email || !inputs.name}
+              disabled={isSubmitting}
               data-testid="button-find-lenders"
             >
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Target className="h-4 w-4 mr-2" />}
               Find My Matches
             </Button>
           </div>
 
           <p className="text-xs text-white/50 text-center">
-            By submitting, you agree to receive funding information from WashBizHub and our partners.
+            By submitting, you agree to receive communications about financing options. Your information is secure and never sold.
           </p>
         </div>
       )}
     </form>
   );
 
-  const renderResults = () => {
-    const topMatches = matchedPartners.filter(p => (p.matchScore || 0) >= 55);
-    const fallbacks = matchedPartners.filter(p => (p.matchScore || 0) < 55 && (p.matchScore || 0) >= 30);
+  const renderResults = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mb-2">
+          <CheckCircle2 className="h-3 w-3 mr-1" /> Matches Found
+        </Badge>
+        <h2 className="text-2xl font-bold text-white">Your Personalized Funding Matches</h2>
+        <p className="text-white/60 mt-2">
+          ${parseFloat(inputs.loanAmount).toLocaleString()} for {inputs.loanPurpose.replace(/-/g, ' ')}
+        </p>
+      </div>
 
-    return (
-      <div className="space-y-8">
-        <div className="text-center">
-          <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Your Personalized Funding Matches</h2>
-          <p className="text-white/70">Based on ${parseInt(inputs.loanAmount).toLocaleString()} for {inputs.loanPurpose.replace("-", " ")}</p>
-        </div>
-
-        {topMatches.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Star className="h-5 w-5 text-accent" /> Top Recommendations
-            </h3>
-            {topMatches.map((partner, idx) => {
-              const { grade, color, label } = getGrade(partner.matchScore || 0);
-              const isPrimary = idx === 0;
-              
-              return (
-                <Card 
-                  key={partner.id} 
-                  className={`${isPrimary ? 'border-accent bg-accent/10' : 'bg-white/5 border-white/10'}`}
-                  data-testid={`card-partner-${partner.id}`}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between gap-4 flex-wrap">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          {isPrimary && <Badge className="bg-accent text-accent-foreground">Best Match</Badge>}
-                          <Badge className={`${color} text-white`}>{grade} - {label}</Badge>
-                        </div>
-                        <CardTitle className="text-white text-xl">{partner.name}</CardTitle>
-                        <CardDescription className="text-white/60">{partner.type}</CardDescription>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-3xl font-bold text-white">{partner.matchScore}%</div>
-                        <div className="text-xs text-white/50">Match Score</div>
-                      </div>
+      <div className="space-y-4">
+        {matchedPartners.map((partner, idx) => {
+          const grade = getGrade(partner.matchScore || 0);
+          return (
+            <Card 
+              key={partner.id} 
+              className={`bg-white/5 border-white/10 overflow-hidden ${idx === 0 ? 'ring-2 ring-accent' : ''}`}
+              data-testid={`card-partner-${partner.id}`}
+            >
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                  <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:w-20 flex-shrink-0">
+                    <div className={`w-12 h-12 ${grade.color} rounded-xl flex items-center justify-center font-black text-white text-xl`}>
+                      {grade.grade}
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-white/80 text-sm">{partner.description}</p>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="text-white/50 text-xs">Loan Range</div>
-                        <div className="text-white font-semibold">
-                          ${(partner.minLoan / 1000).toFixed(0)}K - ${partner.maxLoan >= 1000000 ? (partner.maxLoan / 1000000).toFixed(0) + 'M' : (partner.maxLoan / 1000).toFixed(0) + 'K'}
-                        </div>
+                    <div className="text-white/60 text-xs text-center hidden sm:block">
+                      {partner.matchScore}% Match
+                    </div>
+                    <Badge className="sm:hidden bg-white/10 text-white/80 text-xs">
+                      {partner.matchScore}%
+                    </Badge>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold text-white">{partner.name}</h3>
+                      {idx === 0 && <Badge className="bg-accent/20 text-accent text-xs">Top Match</Badge>}
+                    </div>
+                    <p className="text-white/50 text-sm mb-2">{partner.type}</p>
+                    <p className="text-white/70 text-sm mb-3">{partner.description}</p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs">
+                      <div className="bg-white/5 rounded p-2">
+                        <div className="text-white/50">Amount</div>
+                        <div className="text-white font-medium">${(partner.minLoan/1000).toFixed(0)}K - ${partner.maxLoan >= 1000000 ? (partner.maxLoan/1000000).toFixed(0) + 'M' : (partner.maxLoan/1000).toFixed(0) + 'K'}</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="text-white/50 text-xs">Rates</div>
-                        <div className="text-white font-semibold">{partner.rates.split('(')[0].trim()}</div>
+                      <div className="bg-white/5 rounded p-2">
+                        <div className="text-white/50">Min Credit</div>
+                        <div className="text-white font-medium">{partner.minCredit || 'None'}</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="text-white/50 text-xs">Approval</div>
-                        <div className="text-white font-semibold">{partner.approvalSpeed}</div>
+                      <div className="bg-white/5 rounded p-2">
+                        <div className="text-white/50">Approval</div>
+                        <div className="text-white font-medium">{partner.approvalSpeed}</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="text-white/50 text-xs">Funding</div>
-                        <div className="text-white font-semibold">{partner.fundingSpeed.split('/')[0].trim()}</div>
+                      <div className="bg-white/5 rounded p-2">
+                        <div className="text-white/50">Funding</div>
+                        <div className="text-white font-medium">{partner.fundingSpeed.split('/')[0].trim()}</div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {partner.specialFeatures.slice(0, 4).map((feature, i) => (
-                        <Badge key={i} variant="outline" className="border-white/20 text-white/80 text-xs">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {partner.products.slice(0, 5).map((product, i) => (
-                        <Badge key={i} className="bg-white/10 text-white/90 text-xs">
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {partner.products.slice(0, 4).map((product, i) => (
+                        <Badge key={i} variant="outline" className="text-white/60 border-white/20 text-xs">
                           {product}
                         </Badge>
                       ))}
+                      {partner.products.length > 4 && (
+                        <Badge variant="outline" className="text-white/60 border-white/20 text-xs">
+                          +{partner.products.length - 4} more
+                        </Badge>
+                      )}
                     </div>
 
                     <Button 
                       onClick={() => handlePartnerClick(partner)}
-                      className={`w-full ${isPrimary ? 'bg-accent hover:bg-accent/90 text-accent-foreground' : 'bg-white/10 hover:bg-white/20 text-white'} font-bold`}
+                      className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
                       data-testid={`button-apply-${partner.id}`}
                     >
-                      {partner.affiliateUrl === "gokapital-form" ? "Start Application" : "Apply Now"}
-                      <ExternalLink className="ml-2 h-4 w-4" />
+                      {partner.affiliateUrl === "gokapital-form" ? (
+                        <>Start Application <ArrowRight className="ml-2 h-4 w-4" /></>
+                      ) : (
+                        <>Apply Now <ExternalLink className="ml-2 h-4 w-4" /></>
+                      )}
                     </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {fallbacks.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white/80 flex items-center gap-2">
-              <Target className="h-5 w-5" /> Alternative Options
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {fallbacks.map((partner) => (
-                <Card key={partner.id} className="bg-white/5 border-white/10">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-white text-lg">{partner.name}</CardTitle>
-                      <Badge variant="outline" className="border-white/20 text-white/60">{partner.matchScore}%</Badge>
-                    </div>
-                    <CardDescription className="text-white/50 text-xs">{partner.type}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/60 text-xs mb-3">{partner.bestFor.join(" • ")}</p>
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handlePartnerClick(partner)}
-                      className="w-full border-white/20 text-white hover:bg-white/10"
-                    >
-                      Learn More
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Card className="bg-gradient-to-br from-accent/20 to-accent/5 border-accent/30">
-          <CardContent className="py-6">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex-1 min-w-0">
-                <h4 className="text-lg font-bold text-white">Need Expert Guidance?</h4>
-                <p className="text-white/70 text-sm">
-                  Schedule a consultation with Laundromat Larry for personalized funding strategy
-                </p>
-              </div>
-              <Button 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground whitespace-nowrap"
-                onClick={() => window.location.href = "/larry-larsen"}
-              >
-                <Phone className="mr-2 h-4 w-4" />
-                Book Consultation
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => { setShowResults(false); setStep(1); }}
-            className="border-white/30 text-white hover:bg-white/10"
-          >
-            Start Over
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => window.location.href = "/sba-readiness"}
-            className="border-white/30 text-white hover:bg-white/10"
-          >
-            Check SBA Readiness
-          </Button>
-        </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
-    );
-  };
+
+      <Card className="bg-gradient-to-r from-accent/20 to-accent/10 border-accent/30">
+        <CardContent className="p-6 text-center">
+          <Users className="h-10 w-10 text-accent mx-auto mb-3" />
+          <h3 className="text-white font-bold text-lg mb-2">Need Expert Guidance?</h3>
+          <p className="text-white/70 text-sm mb-4">
+            Schedule a consultation with Larry Larsen, 40-year industry veteran, to discuss your financing strategy.
+          </p>
+          <Button variant="outline" className="border-accent text-accent hover:bg-accent/10">
+            Book Consultation <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Button 
+        variant="outline" 
+        onClick={() => { setShowResults(false); setStep(1); }}
+        className="w-full border-white/30 text-white hover:bg-white/10"
+      >
+        Start Over
+      </Button>
+    </div>
+  );
 
   const renderGoKapitalForm = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-bold text-white">GoKapital Real Estate Application</h3>
-          <p className="text-white/60 text-sm">Commercial property financing from $150K - $50M</p>
-        </div>
-        <Button 
-          variant="ghost" 
-          onClick={() => setShowGoKapitalForm(false)}
-          className="text-white/60 hover:text-white"
-        >
-          Back to Results
-        </Button>
+      <div className="text-center mb-6">
+        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 mb-2">
+          <Building2 className="h-3 w-3 mr-1" /> Commercial Real Estate
+        </Badge>
+        <h2 className="text-2xl font-bold text-white">GoKapital Application</h2>
+        <p className="text-white/60 mt-2">Complete this form for commercial real estate financing</p>
       </div>
 
       <form onSubmit={handleGoKapitalSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
-            <Label className="text-white/90">Property Address *</Label>
+            <Label className="text-white/90">1. Property Address *</Label>
             <Input
               placeholder="123 Main St, City, State ZIP"
               value={goKapitalForm.propertyAddress}
               onChange={(e) => setGoKapitalForm({ ...goKapitalForm, propertyAddress: e.target.value })}
               className="bg-white/10 border-white/20 text-white mt-1"
               required
-              data-testid="input-property-address"
+              data-testid="input-gk-address"
             />
           </div>
-          <div>
-            <Label className="text-white/90">Property Type *</Label>
-            <Select value={goKapitalForm.propertyType} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, propertyType: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-property-type">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="laundromat">Laundromat</SelectItem>
-                <SelectItem value="retail">Retail</SelectItem>
-                <SelectItem value="mixed-use">Mixed Use</SelectItem>
-                <SelectItem value="industrial">Industrial/Warehouse</SelectItem>
-                <SelectItem value="multi-family">Multi-Family</SelectItem>
-                <SelectItem value="office">Office</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-white/90">Transaction Type *</Label>
-            <Select value={goKapitalForm.transactionType} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, transactionType: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-transaction-type">
-                <SelectValue placeholder="Purchase or Refinance" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="purchase">Purchase</SelectItem>
-                <SelectItem value="refinance">Refinance</SelectItem>
-                <SelectItem value="cash-out-refi">Cash-Out Refinance</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-white/90">Closing Under</Label>
-            <Select value={goKapitalForm.closingEntity} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, closingEntity: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-closing-entity">
-                <SelectValue placeholder="Entity type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="llc">LLC</SelectItem>
-                <SelectItem value="inc">Inc / Corporation</SelectItem>
-                <SelectItem value="personal">Personal Name</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {goKapitalForm.transactionType === "purchase" && (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-white/90">Purchase Price *</Label>
-              <Input
-                type="number"
-                placeholder="500000"
-                value={goKapitalForm.purchasePrice}
-                onChange={(e) => setGoKapitalForm({ ...goKapitalForm, purchasePrice: e.target.value })}
-                className="bg-white/10 border-white/20 text-white mt-1"
-                data-testid="input-purchase-price"
-              />
+              <Label className="text-white/90">2. Property Type *</Label>
+              <Select value={goKapitalForm.propertyType} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, propertyType: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="retail">Retail/Commercial</SelectItem>
+                  <SelectItem value="industrial">Industrial</SelectItem>
+                  <SelectItem value="mixed-use">Mixed Use</SelectItem>
+                  <SelectItem value="office">Office</SelectItem>
+                  <SelectItem value="warehouse">Warehouse</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label className="text-white/90">Down Payment Available</Label>
-              <Input
-                type="number"
-                placeholder="100000"
-                value={goKapitalForm.downPayment}
-                onChange={(e) => setGoKapitalForm({ ...goKapitalForm, downPayment: e.target.value })}
-                className="bg-white/10 border-white/20 text-white mt-1"
-                data-testid="input-down-payment"
-              />
+              <Label className="text-white/90">3. Transaction Type *</Label>
+              <Select value={goKapitalForm.transactionType} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, transactionType: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="purchase">Purchase</SelectItem>
+                  <SelectItem value="refinance">Refinance</SelectItem>
+                  <SelectItem value="cash-out">Cash-Out Refinance</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        )}
 
-        {(goKapitalForm.transactionType === "refinance" || goKapitalForm.transactionType === "cash-out-refi") && (
-          <div className="grid md:grid-cols-2 gap-4">
+          {goKapitalForm.transactionType === "purchase" && (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-white/90">4a. Purchase Price *</Label>
+                <Input
+                  type="text"
+                  placeholder="$500,000"
+                  value={goKapitalForm.purchasePrice}
+                  onChange={(e) => setGoKapitalForm({ ...goKapitalForm, purchasePrice: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-white/90">4b. Down Payment</Label>
+                <Input
+                  type="text"
+                  placeholder="$100,000"
+                  value={goKapitalForm.downPayment}
+                  onChange={(e) => setGoKapitalForm({ ...goKapitalForm, downPayment: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white mt-1"
+                />
+              </div>
+            </div>
+          )}
+
+          {(goKapitalForm.transactionType === "refinance" || goKapitalForm.transactionType === "cash-out") && (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-white/90">4a. Estimated Value *</Label>
+                <Input
+                  type="text"
+                  placeholder="$600,000"
+                  value={goKapitalForm.estimatedValue}
+                  onChange={(e) => setGoKapitalForm({ ...goKapitalForm, estimatedValue: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-white/90">4b. Amount Owed</Label>
+                <Input
+                  type="text"
+                  placeholder="$350,000"
+                  value={goKapitalForm.amountOwed}
+                  onChange={(e) => setGoKapitalForm({ ...goKapitalForm, amountOwed: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white mt-1"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-white/90">Estimated Property Value</Label>
-              <Input
-                type="number"
-                placeholder="750000"
-                value={goKapitalForm.estimatedValue}
-                onChange={(e) => setGoKapitalForm({ ...goKapitalForm, estimatedValue: e.target.value })}
-                className="bg-white/10 border-white/20 text-white mt-1"
-                data-testid="input-estimated-value"
-              />
+              <Label className="text-white/90">5. Closing Entity</Label>
+              <Select value={goKapitalForm.closingEntity} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, closingEntity: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select entity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="llc">LLC</SelectItem>
+                  <SelectItem value="corporation">Corporation</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="trust">Trust</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label className="text-white/90">Amount Currently Owed</Label>
-              <Input
-                type="number"
-                placeholder="400000"
-                value={goKapitalForm.amountOwed}
-                onChange={(e) => setGoKapitalForm({ ...goKapitalForm, amountOwed: e.target.value })}
-                className="bg-white/10 border-white/20 text-white mt-1"
-                data-testid="input-amount-owed"
-              />
+              <Label className="text-white/90">6. Liquid Assets</Label>
+              <Select value={goKapitalForm.liquidAssets} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, liquidAssets: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="under50k">Under $50,000</SelectItem>
+                  <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
+                  <SelectItem value="100k-250k">$100,000 - $250,000</SelectItem>
+                  <SelectItem value="250k-500k">$250,000 - $500,000</SelectItem>
+                  <SelectItem value="over500k">Over $500,000</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        )}
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-white/90">Liquid Assets Available</Label>
-            <Select value={goKapitalForm.liquidAssets} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, liquidAssets: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-liquid-assets">
-                <SelectValue placeholder="Select range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="under50k">Under $50,000</SelectItem>
-                <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
-                <SelectItem value="100k-250k">$100,000 - $250,000</SelectItem>
-                <SelectItem value="250k-500k">$250,000 - $500,000</SelectItem>
-                <SelectItem value="over500k">Over $500,000</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-white/90">7. Properties Owned (36 mo)</Label>
+              <Select value={goKapitalForm.propertiesOwned} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, propertiesOwned: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select number" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">0 (First-time)</SelectItem>
+                  <SelectItem value="1-2">1-2</SelectItem>
+                  <SelectItem value="3-5">3-5</SelectItem>
+                  <SelectItem value="6+">6+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-white/90">8. Credit Score</Label>
+              <Select value={goKapitalForm.creditScore} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, creditScore: val })}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                  <SelectValue placeholder="Select range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="750+">750+</SelectItem>
+                  <SelectItem value="700-749">700-749</SelectItem>
+                  <SelectItem value="650-699">650-699</SelectItem>
+                  <SelectItem value="600-649">600-649</SelectItem>
+                  <SelectItem value="below600">Below 600</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label className="text-white/90">Properties Owned (Last 36 months)</Label>
-            <Select value={goKapitalForm.propertiesOwned} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, propertiesOwned: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-properties-owned">
-                <SelectValue placeholder="Select count" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">0 - First time investor</SelectItem>
-                <SelectItem value="1-2">1-2 properties</SelectItem>
-                <SelectItem value="3-5">3-5 properties</SelectItem>
-                <SelectItem value="6-10">6-10 properties</SelectItem>
-                <SelectItem value="10+">10+ properties</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label className="text-white/90">Estimated Credit Score</Label>
-            <Select value={goKapitalForm.creditScore} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, creditScore: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-gk-credit-score">
-                <SelectValue placeholder="Select range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="720+">720+</SelectItem>
-                <SelectItem value="680-719">680-719</SelectItem>
-                <SelectItem value="640-679">640-679</SelectItem>
-                <SelectItem value="600-639">600-639</SelectItem>
-                <SelectItem value="under600">Under 600</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-white/90">Is Property Generating Income?</Label>
+            <Label className="text-white/90">9. Is property currently generating income?</Label>
             <Select value={goKapitalForm.generatingIncome} onValueChange={(val) => setGoKapitalForm({ ...goKapitalForm, generatingIncome: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1" data-testid="select-generating-income">
-                <SelectValue placeholder="Select" />
+              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="yes">Yes - Currently operating</SelectItem>
-                <SelectItem value="will-be">Will be after purchase</SelectItem>
-                <SelectItem value="no">No</SelectItem>
+                <SelectItem value="yes-stable">Yes - Stable Income</SelectItem>
+                <SelectItem value="yes-growing">Yes - Growing</SelectItem>
+                <SelectItem value="partial">Partially</SelectItem>
+                <SelectItem value="no">No - Vacant/New</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          <div>
+            <Label className="text-white/90">10. Rate & Term Expectations</Label>
+            <Textarea
+              placeholder="Describe your ideal loan terms, timeline, and any special considerations..."
+              value={goKapitalForm.rateTermExpectations}
+              onChange={(e) => setGoKapitalForm({ ...goKapitalForm, rateTermExpectations: e.target.value })}
+              className="bg-white/10 border-white/20 text-white mt-1 min-h-[80px]"
+              data-testid="input-gk-expectations"
+            />
+          </div>
         </div>
 
-        <div>
-          <Label className="text-white/90">Rate & Term Expectations</Label>
-          <Textarea
-            placeholder="Share any specific rate, term, or timeline requirements..."
-            value={goKapitalForm.rateTermExpectations}
-            onChange={(e) => setGoKapitalForm({ ...goKapitalForm, rateTermExpectations: e.target.value })}
-            className="bg-white/10 border-white/20 text-white placeholder-white/40 mt-1 min-h-[80px]"
-            data-testid="input-rate-expectations"
-          />
-        </div>
-
-        <div className="border-t border-white/10 pt-4 mt-4">
+        <div className="border-t border-white/10 pt-4 mt-6">
           <h4 className="text-white font-semibold mb-3">Contact Information</h4>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <Label className="text-white/90">Full Name *</Label>
+              <Label className="text-white/90">Name *</Label>
               <Input
+                type="text"
                 value={goKapitalForm.contactName}
                 onChange={(e) => setGoKapitalForm({ ...goKapitalForm, contactName: e.target.value })}
                 className="bg-white/10 border-white/20 text-white mt-1"
@@ -942,15 +1090,25 @@ export default function FundingMatcher() {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
-          disabled={isSubmitting}
-          data-testid="button-submit-gokapital"
-        >
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Building2 className="h-4 w-4 mr-2" />}
-          Submit to GoKapital
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            type="button" 
+            variant="outline"
+            onClick={() => setShowGoKapitalForm(false)}
+            className="flex-1 border-white/30 text-white hover:bg-white/10"
+          >
+            Back to Results
+          </Button>
+          <Button 
+            type="submit" 
+            className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+            disabled={isSubmitting}
+            data-testid="button-submit-gokapital"
+          >
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Building2 className="h-4 w-4 mr-2" />}
+            Submit to GoKapital
+          </Button>
+        </div>
 
         <p className="text-xs text-white/50 text-center">
           Application sent to deals@gokapital.com • Affiliate: Nicholas Kremers
@@ -962,32 +1120,43 @@ export default function FundingMatcher() {
   return (
     <>
       <SEO
-        title="Laundromat Funding Matcher - Find Your Perfect Lender | WashBizHub"
-        description="Match with 6 vetted lenders for laundromat financing. SBA loans, equipment financing, real estate loans, and more. Get personalized recommendations in 60 seconds."
-        keywords={["laundromat financing", "SBA loans laundromat", "equipment financing", "commercial real estate loans", "business acquisition loan"]}
+        title="Laundromat Financing & Business Loans | Find SBA, Equipment & Real Estate Funding"
+        description="Compare 7 vetted lenders for laundromat financing. SBA 7(a) loans, equipment financing, commercial real estate loans, term loans, startup funding, and working capital. Get matched in 60 seconds."
+        keywords={SEO_KEYWORDS}
         url="/funding-matcher"
+        ogType="website"
       />
+      
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(faqStructuredData)}
+        </script>
+      </Helmet>
       
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
         <div className="relative overflow-hidden py-16 sm:py-20">
           <div className="absolute inset-0 opacity-20">
             <img 
               src={fundingHeroImg} 
-              alt="Find Funding for Your Laundromat Business"
+              alt="Find Laundromat Financing - SBA Loans, Equipment Financing, Commercial Real Estate"
               className="w-full h-full object-cover"
+              loading="eager"
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/60 to-gray-900" />
           
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
             <Badge className="bg-accent/20 text-accent border-accent/30 mb-4">
-              6 Vetted Lending Partners
+              7 Vetted Lending Partners
             </Badge>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4" data-testid="text-funding-title">
-              Laundromat Funding Matcher
+              Laundromat Financing & Business Loans
             </h1>
             <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto" data-testid="text-funding-subtitle">
-              Answer a few questions and get matched with the best financing options for your situation - from SBA loans to fast capital
+              Find the perfect loan for your laundromat - SBA loans, equipment financing, commercial real estate, term loans, and startup funding
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -1015,47 +1184,174 @@ export default function FundingMatcher() {
           </Card>
 
           {!showResults && !showGoKapitalForm && (
-            <div className="mt-12 grid sm:grid-cols-3 gap-6">
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                  <Building2 className="h-10 w-10 text-accent mx-auto mb-3" />
-                  <h3 className="text-white font-bold mb-2">Real Estate Loans</h3>
-                  <p className="text-white/60 text-sm">Purchase or refinance laundromat properties up to $50M</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                  <Award className="h-10 w-10 text-accent mx-auto mb-3" />
-                  <h3 className="text-white font-bold mb-2">SBA Loans</h3>
-                  <p className="text-white/60 text-sm">Preferred SBA lenders with $0 guarantee fees up to $1M</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6 text-center">
-                  <Zap className="h-10 w-10 text-accent mx-auto mb-3" />
-                  <h3 className="text-white font-bold mb-2">Fast Capital</h3>
-                  <p className="text-white/60 text-sm">Same-day approvals and 24-48 hour funding when speed matters</p>
-                </CardContent>
-              </Card>
-            </div>
+            <>
+              <section className="mt-16" aria-labelledby="financing-types-heading">
+                <h2 id="financing-types-heading" className="text-2xl font-bold text-white text-center mb-8">
+                  Laundromat Financing Options
+                </h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {FINANCING_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <Card key={type.id} className="bg-white/5 border-white/10 hover-elevate">
+                        <CardContent className="p-4">
+                          <Icon className="h-8 w-8 text-accent mb-3" />
+                          <h3 className="text-white font-bold text-sm mb-2">{type.title}</h3>
+                          <p className="text-white/60 text-xs mb-3">{type.description}</p>
+                          <ul className="space-y-1">
+                            {type.features.slice(0, 3).map((feature, i) => (
+                              <li key={i} className="flex items-center gap-1 text-xs text-white/50">
+                                <CheckCircle2 className="h-3 w-3 text-green-400 flex-shrink-0" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="mt-12">
+                <div className="grid sm:grid-cols-3 gap-6">
+                  <Card className="bg-white/5 border-white/10">
+                    <CardContent className="p-6 text-center">
+                      <Building2 className="h-10 w-10 text-accent mx-auto mb-3" />
+                      <h3 className="text-white font-bold mb-2">Commercial Real Estate Loans</h3>
+                      <p className="text-white/60 text-sm">Purchase or refinance laundromat properties up to $50M with DSCR and bridge options</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white/5 border-white/10">
+                    <CardContent className="p-6 text-center">
+                      <Award className="h-10 w-10 text-accent mx-auto mb-3" />
+                      <h3 className="text-white font-bold mb-2">SBA 7(a) Loans</h3>
+                      <p className="text-white/60 text-sm">Preferred SBA lenders with $0 guarantee fees up to $1M through 2025</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white/5 border-white/10">
+                    <CardContent className="p-6 text-center">
+                      <Zap className="h-10 w-10 text-accent mx-auto mb-3" />
+                      <h3 className="text-white font-bold mb-2">Fast Capital & Equipment</h3>
+                      <p className="text-white/60 text-sm">Same-day approvals and 24-48 hour funding for equipment and working capital</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+            </>
           )}
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-8">
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-6">
-              <h3 className="text-white font-bold mb-4 text-center">Our Lending Partners</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <h3 className="text-white font-bold mb-4 text-center">Our 7 Lending Partners</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {FUNDING_PARTNERS.map((partner) => (
-                  <div key={partner.id} className="text-center p-3 rounded-lg bg-white/5">
+                  <div key={partner.id} className="text-center p-3 rounded-lg bg-white/5 hover-elevate">
                     <div className="text-white font-semibold text-sm">{partner.name}</div>
-                    <div className="text-white/50 text-xs mt-1">{partner.type.split(' ').slice(0, 3).join(' ')}</div>
+                    <div className="text-white/50 text-xs mt-1">{partner.type.split(' ').slice(0, 2).join(' ')}</div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-12" aria-labelledby="faq-heading">
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-6 sm:p-8">
+              <div className="flex items-center gap-2 justify-center mb-6">
+                <HelpCircle className="h-6 w-6 text-accent" />
+                <h2 id="faq-heading" className="text-xl font-bold text-white">
+                  Frequently Asked Questions About Laundromat Financing
+                </h2>
+              </div>
+              
+              <Accordion type="single" collapsible className="space-y-2">
+                {FAQ_DATA.map((faq, idx) => (
+                  <AccordionItem 
+                    key={idx} 
+                    value={`faq-${idx}`}
+                    className="border border-white/10 rounded-lg overflow-hidden bg-white/5"
+                  >
+                    <AccordionTrigger className="px-4 py-3 text-white hover:no-underline hover:bg-white/5 text-left text-sm font-medium">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 text-white/70 text-sm">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-12" aria-labelledby="seo-content-heading">
+          <div className="prose prose-invert prose-sm max-w-none">
+            <h2 id="seo-content-heading" className="text-xl font-bold text-white mb-4">
+              Complete Guide to Laundromat Business Financing
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6 text-white/70 text-sm">
+              <div>
+                <h3 className="text-white font-semibold text-base mb-2">SBA Loans for Laundromats</h3>
+                <p className="mb-4">
+                  SBA 7(a) loans are the gold standard for laundromat financing, offering the lowest interest rates 
+                  (Prime + 2.75%) and longest repayment terms (up to 25 years for real estate). Through 2025, 
+                  loans up to $1 million have $0 SBA guarantee fees through preferred lenders. Our partners include 
+                  South End Capital (a division of $3.2B Stearns Bank) and National Business Capital with 75+ lender access.
+                </p>
+                
+                <h3 className="text-white font-semibold text-base mb-2">Equipment Financing</h3>
+                <p className="mb-4">
+                  Commercial washer and dryer financing allows you to upgrade your laundromat without depleting 
+                  working capital. Equipment serves as collateral, making approval easier. Terms range from 2-7 years 
+                  with rates starting at 5.99%. Same-day approval is available through multiple partners.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-white font-semibold text-base mb-2">Commercial Real Estate Loans</h3>
+                <p className="mb-4">
+                  Purchase or refinance laundromat properties with commercial real estate financing. GoKapital 
+                  specializes in laundromat property loans with up to 80% LTV, DSCR options, and bridge financing 
+                  for faster closes. Loan amounts range from $25,000 to $50 million+.
+                </p>
+                
+                <h3 className="text-white font-semibold text-base mb-2">Startup & Personal Credit Financing</h3>
+                <p className="mb-4">
+                  First-time laundromat buyers can access financing through personal credit-based options. 
+                  Preferred Funding Group offers 0% intro APR credit cards and personal term loans under 7% APR 
+                  for borrowers with 700+ credit scores - no business revenue or experience required.
+                </p>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+              <h3 className="text-white font-semibold text-base mb-2">Why Use WashBizHub Funding Matcher?</h3>
+              <ul className="text-white/70 text-sm space-y-2">
+                <li className="flex items-start gap-2">
+                  <BadgeCheck className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span><strong className="text-white">7 Vetted Partners:</strong> We've pre-screened lenders who specialize in laundromat and small business financing</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <BadgeCheck className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span><strong className="text-white">Intelligent Matching:</strong> Our algorithm matches you with the best lenders based on your specific situation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <BadgeCheck className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span><strong className="text-white">All Credit Levels:</strong> Options from 500+ credit scores to excellent credit with 0% intro rates</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <BadgeCheck className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span><strong className="text-white">Fast to Full SBA:</strong> Same-day funding to 45+ day SBA loans - we match your timeline</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );
