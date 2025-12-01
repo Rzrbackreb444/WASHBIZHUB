@@ -12,6 +12,12 @@ The platform aims for market leadership by leveraging multi-AI orchestration (Op
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+**Development Philosophy:**
+- ENHANCE existing features, don't rebuild from scratch
+- NO creating duplicate/new pages when existing ones can be improved
+- Keep codebase clean - delete orphaned files immediately
+- One homepage, one version of each feature
+
 Branding Guidelines:
 - Do NOT use "Bloomberg of Laundromats" terminology - this branding has been retired
 - WashBizHub is the #1 laundromat resource and educational hub
