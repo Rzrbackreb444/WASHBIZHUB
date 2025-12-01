@@ -2855,12 +2855,49 @@ Create engaging, well-researched content that provides value to laundromat owner
       }
 
       const validated = insertListingSchema.parse(req.body);
+      
+      // Generate SEO-friendly slug
+      const slugify = (text: string) => text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+      
+      const shortId = Math.random().toString(36).substring(2, 8);
+      const titleSlug = slugify(validated.title || 'listing');
+      const regionSlug = slugify(validated.region || '');
+      const slug = regionSlug ? `${titleSlug}-${regionSlug}-${shortId}` : `${titleSlug}-${shortId}`;
+      
+      // Compute completeness score (0-100)
+      let score = 0;
+      if (validated.title && validated.title.length >= 5) score += 15;
+      if (validated.tagline && validated.tagline.length >= 50) score += 15;
+      if (validated.description && validated.description.length >= 100) score += 15;
+      if (validated.region && validated.city) score += 15;
+      if (validated.priceOriginal) score += 15;
+      if (validated.businessType) score += 10;
+      if (validated.listingType) score += 5;
+      if (validated.ownerFinancing || validated.includesRealEstate) score += 5;
+      if (validated.generalLocation) score += 5;
+      
+      // Generate SEO metadata
+      const seoTitle = `${validated.title} | ${validated.city || ''} ${validated.region || ''} | WashBizHub`.trim();
+      const seoDescription = validated.tagline || validated.description?.substring(0, 160) || 
+        `${validated.businessType} for sale in ${validated.city || validated.region || 'your area'}. Contact for details.`;
+      
       const listing = await storage.createListing({
         ...validated,
         userId: currentUser.userId,
+        slug,
+        completenessScore: score,
+        seoTitle: seoTitle.substring(0, 70),
+        seoDescription: seoDescription.substring(0, 160),
       });
       
-      triggerListingIndexing(listing.id, listing.slug || undefined);
+      // Only trigger indexing for active listings (not drafts)
+      if (listing.status === 'active') {
+        triggerListingIndexing(listing.id, listing.slug || undefined);
+      }
       
       res.json(listing);
     } catch (error: any) {
@@ -2885,9 +2922,81 @@ Create engaging, well-researched content that provides value to laundromat owner
       }
 
       const validated = insertListingSchema.partial().parse(req.body);
-      const updated = await storage.updateListing(req.params.id, validated);
       
-      triggerListingIndexing(updated.id, updated.slug || undefined);
+      // Recompute completeness score if relevant fields updated
+      const merged = { ...existing, ...validated };
+      let score = 0;
+      if (merged.title && merged.title.length >= 5) score += 15;
+      if (merged.tagline && merged.tagline.length >= 50) score += 15;
+      if (merged.description && merged.description.length >= 100) score += 15;
+      if (merged.region && merged.city) score += 15;
+      if (merged.priceOriginal) score += 15;
+      if (merged.businessType) score += 10;
+      if (merged.listingType) score += 5;
+      if (merged.ownerFinancing || merged.includesRealEstate) score += 5;
+      if (merged.generalLocation) score += 5;
+      
+      const updated = await storage.updateListing(req.params.id, {
+        ...validated,
+        completenessScore: score,
+      });
+      
+      // Only trigger indexing when status becomes active (not for drafts)
+      const wasNotActive = existing.status !== 'active';
+      const isNowActive = updated.status === 'active';
+      if (wasNotActive && isNowActive) {
+        triggerListingIndexing(updated.id, updated.slug || undefined);
+      }
+      
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // PATCH handler (alias for PUT) - used by frontend for partial updates
+  app.patch("/api/listings/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const existing = await storage.getListing(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (existing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only edit your own listings" });
+      }
+
+      const validated = insertListingSchema.partial().parse(req.body);
+      
+      // Recompute completeness score if relevant fields updated
+      const merged = { ...existing, ...validated };
+      let score = 0;
+      if (merged.title && merged.title.length >= 5) score += 15;
+      if (merged.tagline && merged.tagline.length >= 50) score += 15;
+      if (merged.description && merged.description.length >= 100) score += 15;
+      if (merged.region && merged.city) score += 15;
+      if (merged.priceOriginal) score += 15;
+      if (merged.businessType) score += 10;
+      if (merged.listingType) score += 5;
+      if (merged.ownerFinancing || merged.includesRealEstate) score += 5;
+      if (merged.generalLocation) score += 5;
+      
+      const updated = await storage.updateListing(req.params.id, {
+        ...validated,
+        completenessScore: score,
+      });
+      
+      // Only trigger indexing when status becomes active (not for drafts)
+      const wasNotActive = existing.status !== 'active';
+      const isNowActive = updated.status === 'active';
+      if (wasNotActive && isNowActive) {
+        triggerListingIndexing(updated.id, updated.slug || undefined);
+      }
       
       res.json(updated);
     } catch (error: any) {
