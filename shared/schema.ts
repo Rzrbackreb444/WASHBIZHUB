@@ -179,6 +179,41 @@ export const insertCleanbiUsageSchema = createInsertSchema(cleanbiUsage).omit({
 export type InsertCleanbiUsage = z.infer<typeof insertCleanbiUsageSchema>;
 export type CleanbiUsage = typeof cleanbiUsage.$inferSelect;
 
+// Premium CLEANBI Reports (Paid PDF Reports with Full Analysis)
+export const cleanbiReports = pgTable("cleanbi_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  address: text("address").notNull(),
+  lat: decimal("lat", { precision: 10, scale: 7 }),
+  lng: decimal("lng", { precision: 10, scale: 7 }),
+  cleanbiScore: integer("cleanbi_score"),
+  cleanbiGrade: varchar("cleanbi_grade"), // A, B, C, Needs Work
+  reportType: varchar("report_type").default("standard"), // standard, pro, enterprise
+  reportData: jsonb("report_data"), // Full analysis JSON
+  visionAnalysis: jsonb("vision_analysis"), // Vision AI results
+  competitorData: jsonb("competitor_data"), // Places API results
+  demographicData: jsonb("demographic_data"), // Census data
+  pdfUrl: text("pdf_url"), // Object storage URL
+  status: varchar("status").default("pending"), // pending, processing, completed, failed
+  price: integer("price"), // Price paid in cents
+  stripePaymentId: text("stripe_payment_id"),
+  stripeSessionId: text("stripe_session_id"), // Stripe checkout session ID
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"), // When report was generated
+});
+
+export const insertCleanbiReportSchema = createInsertSchema(cleanbiReports).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+}).extend({
+  lat: z.string().optional(),
+  lng: z.string().optional(),
+});
+
+export type InsertCleanbiReport = z.infer<typeof insertCleanbiReportSchema>;
+export type CleanbiReport = typeof cleanbiReports.$inferSelect;
+
 // Residential Property Scores (for ANY address - homes, apartments, land)
 export const residentialScores = pgTable("residential_scores", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
