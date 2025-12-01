@@ -330,11 +330,11 @@ export default function Vault() {
                     className="bg-green-500 hover:bg-green-600 text-white font-bold"
                     data-testid="button-cleanbi-upsell"
                   >
-                    Get CLEANBI Report — $97
+                    Get CLEANBI Report — $99
                   </Button>
                 </div>
                 <div className="text-center p-8 bg-green-500/10 rounded-2xl">
-                  <p className="text-6xl font-black text-green-400">$97</p>
+                  <p className="text-6xl font-black text-green-400">$99</p>
                   <p className="text-white/70">per report</p>
                 </div>
               </div>
