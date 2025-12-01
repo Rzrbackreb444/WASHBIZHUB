@@ -484,7 +484,7 @@ export const CLEANBI_EXTENSION_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "Is the CLEANBI Chrome Extension free?",
-    answer: "Yes! The CLEANBI Anywhere extension is 100% FREE forever. There are no subscriptions, no limits, and no signup required. You can upgrade to the $97 Full CLEANBI Report for deep analysis, but the extension itself costs nothing."
+    answer: "Yes! The CLEANBI Anywhere extension is 100% FREE forever. There are no subscriptions, no limits, and no signup required. You can upgrade to premium reports starting at $99 for deep analysis, but the extension itself costs nothing."
   },
   {
     question: "What websites does CLEANBI Anywhere work on?",
@@ -522,7 +522,7 @@ export const CLEANBI_EXTENSION_HOWTO_SCHEMA = generateHowToSchema(
     },
     {
       name: "Get Full Report (Optional)",
-      text: "Click 'Get Full $97 Report' in the overlay for comprehensive analysis including valuations, competitor intelligence, and AI-powered investment recommendations."
+      text: "Click 'Get Full Report' in the overlay for comprehensive analysis including valuations, competitor intelligence, and AI-powered investment recommendations. Reports start at $99."
     }
   ],
   "PT60S"
@@ -562,7 +562,7 @@ export const HOMEPAGE_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "What is the CLEANBI score?",
-    answer: "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for any business type (restaurants, retail, laundromats, etc.) or residential property in 220+ countries. Premium $97 reports provide deep analysis and valuations."
+    answer: "CLEANBI is a free, Google-powered universal scoring system that rates any business or property location from 0-100 based on foot traffic, competition, reviews, and location quality. It works for any business type (restaurants, retail, laundromats, etc.) or residential property in 220+ countries. Premium reports from $99 provide deep analysis and valuations."
   },
   {
     question: "How can WashBizHub help me buy a laundromat?",
@@ -574,7 +574,7 @@ export const HOMEPAGE_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "Is WashBizHub free to use?",
-    answer: "Many WashBizHub features are free including basic CLEANBI scores, marketplace browsing, blog content, and resource access. Premium features like detailed reports ($97), advanced calculators, courses, and consulting services have associated fees. Free users get unlimited basic CLEANBI scores with no login required."
+    answer: "Many WashBizHub features are free including basic CLEANBI scores, marketplace browsing, blog content, and resource access. Premium features like detailed reports (from $99), advanced calculators, courses, and consulting services have associated fees. Free users get unlimited basic CLEANBI scores with no login required."
   }
 ]);
 
