@@ -2643,6 +2643,249 @@ export type InsertListingPremiumPurchase = z.infer<typeof insertListingPremiumPu
 export type ListingPremiumPurchase = typeof listingPremiumPurchases.$inferSelect;
 
 // ============================================================================
+// BUYER ENGAGEMENT SYSTEM - Saved Searches, Favorites, Messaging, Due Diligence
+// ============================================================================
+
+// Saved Searches with Email Alerts
+export const savedSearches = pgTable("saved_searches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Search Criteria
+  name: text("name").notNull(), // "Philadelphia Laundromats under $500K"
+  filters: jsonb("filters").notNull(), // { businessType, priceMin, priceMax, country, region, city, etc }
+  
+  // Alert Settings
+  alertFrequency: text("alert_frequency").notNull().default("daily"), // "instant", "daily", "weekly", "never"
+  isActive: boolean("is_active").notNull().default(true),
+  lastNotifiedAt: timestamp("last_notified_at"),
+  lastMatchCount: integer("last_match_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("saved_searches_user_idx").on(table.userId),
+  activeAlertIdx: index("saved_searches_active_alert_idx").on(table.isActive, table.alertFrequency),
+}));
+
+export const insertSavedSearchSchema = createInsertSchema(savedSearches).omit({
+  id: true,
+  lastNotifiedAt: true,
+  lastMatchCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+
+// Saved Search Alert History (prevent duplicate notifications)
+export const savedSearchAlerts = pgTable("saved_search_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  savedSearchId: varchar("saved_search_id").references(() => savedSearches.id).notNull(),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+}, (table) => ({
+  searchListingIdx: uniqueIndex("saved_search_alerts_search_listing_idx").on(table.savedSearchId, table.listingId),
+}));
+
+export const insertSavedSearchAlertSchema = createInsertSchema(savedSearchAlerts).omit({
+  id: true,
+  sentAt: true,
+});
+
+export type InsertSavedSearchAlert = z.infer<typeof insertSavedSearchAlertSchema>;
+export type SavedSearchAlert = typeof savedSearchAlerts.$inferSelect;
+
+// Favorite Listings (Buyer Watchlist)
+export const favoriteListings = pgTable("favorite_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  
+  // Notes
+  notes: text("notes"), // Private buyer notes about this listing
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userListingIdx: uniqueIndex("favorite_listings_user_listing_idx").on(table.userId, table.listingId),
+  userIdx: index("favorite_listings_user_idx").on(table.userId),
+}));
+
+export const insertFavoriteListingSchema = createInsertSchema(favoriteListings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertFavoriteListing = z.infer<typeof insertFavoriteListingSchema>;
+export type FavoriteListing = typeof favoriteListings.$inferSelect;
+
+// Buyer-Seller Message Threads
+export const buyerMessageThreads = pgTable("buyer_message_threads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  buyerId: varchar("buyer_id").references(() => users.id).notNull(),
+  sellerId: varchar("seller_id").references(() => users.id).notNull(),
+  
+  // Thread Status
+  status: text("status").notNull().default("active"), // "active", "archived", "closed"
+  subject: text("subject"), // Optional subject line
+  
+  // Read Status
+  buyerUnreadCount: integer("buyer_unread_count").default(0).notNull(),
+  sellerUnreadCount: integer("seller_unread_count").default(0).notNull(),
+  
+  // Last Activity
+  lastMessageAt: timestamp("last_message_at"),
+  lastMessagePreview: text("last_message_preview"), // First 100 chars of last message
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  listingIdx: index("buyer_message_threads_listing_idx").on(table.listingId),
+  buyerIdx: index("buyer_message_threads_buyer_idx").on(table.buyerId),
+  sellerIdx: index("buyer_message_threads_seller_idx").on(table.sellerId),
+  uniqueThreadIdx: uniqueIndex("buyer_message_threads_unique_idx").on(table.listingId, table.buyerId),
+}));
+
+export const insertBuyerMessageThreadSchema = createInsertSchema(buyerMessageThreads).omit({
+  id: true,
+  buyerUnreadCount: true,
+  sellerUnreadCount: true,
+  lastMessageAt: true,
+  lastMessagePreview: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBuyerMessageThread = z.infer<typeof insertBuyerMessageThreadSchema>;
+export type BuyerMessageThread = typeof buyerMessageThreads.$inferSelect;
+
+// Individual Messages in Threads
+export const buyerMessages = pgTable("buyer_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  threadId: varchar("thread_id").references(() => buyerMessageThreads.id).notNull(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  
+  // Message Content
+  body: text("body").notNull(),
+  attachments: jsonb("attachments"), // [{ name, url, type, size }]
+  
+  // Read Status
+  readAt: timestamp("read_at"),
+  
+  // Metadata
+  isSystemMessage: boolean("is_system_message").default(false), // For automated messages
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  threadIdx: index("buyer_messages_thread_idx").on(table.threadId),
+  senderIdx: index("buyer_messages_sender_idx").on(table.senderId),
+}));
+
+export const insertBuyerMessageSchema = createInsertSchema(buyerMessages).omit({
+  id: true,
+  readAt: true,
+  createdAt: true,
+});
+
+export type InsertBuyerMessage = z.infer<typeof insertBuyerMessageSchema>;
+export type BuyerMessage = typeof buyerMessages.$inferSelect;
+
+// Due Diligence Tasks (Checklist for NDA-approved buyers)
+export const dueDiligenceTasks = pgTable("due_diligence_tasks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ndaRequestId: varchar("nda_request_id").references(() => ndaRequests.id).notNull(),
+  
+  // Task Details
+  title: text("title").notNull(),
+  description: text("description"),
+  category: text("category").notNull(), // "financial", "legal", "operational", "physical", "market"
+  sortOrder: integer("sort_order").default(0),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "in_progress", "completed", "na"
+  completedAt: timestamp("completed_at"),
+  
+  // Notes & Documents
+  notes: text("notes"),
+  documents: jsonb("documents"), // [{ name, url, uploadedAt }]
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  ndaIdx: index("due_diligence_tasks_nda_idx").on(table.ndaRequestId),
+}));
+
+export const insertDueDiligenceTaskSchema = createInsertSchema(dueDiligenceTasks).omit({
+  id: true,
+  completedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDueDiligenceTask = z.infer<typeof insertDueDiligenceTaskSchema>;
+export type DueDiligenceTask = typeof dueDiligenceTasks.$inferSelect;
+
+// Listing Comparisons (Side-by-side comparison sets)
+export const listingComparisons = pgTable("listing_comparisons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Comparison Set
+  name: text("name"), // Optional name like "Top 3 Philly Options"
+  listingIds: text("listing_ids").array().notNull(), // Array of listing IDs (max 4)
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("listing_comparisons_user_idx").on(table.userId),
+}));
+
+export const insertListingComparisonSchema = createInsertSchema(listingComparisons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertListingComparison = z.infer<typeof insertListingComparisonSchema>;
+export type ListingComparison = typeof listingComparisons.$inferSelect;
+
+// Buyer Listing History (Track viewed listings)
+export const buyerListingHistory = pgTable("buyer_listing_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  
+  // View History
+  viewCount: integer("view_count").default(1).notNull(),
+  firstViewedAt: timestamp("first_viewed_at").defaultNow().notNull(),
+  lastViewedAt: timestamp("last_viewed_at").defaultNow().notNull(),
+  
+  // Engagement
+  totalTimeSpent: integer("total_time_spent").default(0), // seconds
+}, (table) => ({
+  userListingIdx: uniqueIndex("buyer_listing_history_user_listing_idx").on(table.userId, table.listingId),
+  userIdx: index("buyer_listing_history_user_idx").on(table.userId),
+  lastViewedIdx: index("buyer_listing_history_last_viewed_idx").on(table.userId, table.lastViewedAt),
+}));
+
+export const insertBuyerListingHistorySchema = createInsertSchema(buyerListingHistory).omit({
+  id: true,
+  viewCount: true,
+  firstViewedAt: true,
+  lastViewedAt: true,
+  totalTimeSpent: true,
+});
+
+export type InsertBuyerListingHistory = z.infer<typeof insertBuyerListingHistorySchema>;
+export type BuyerListingHistory = typeof buyerListingHistory.$inferSelect;
+
+// ============================================================================
 // PREMIUM TEMPLATES (Design, Business Setup, Marketing Packages)
 // ============================================================================
 
