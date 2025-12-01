@@ -269,6 +269,9 @@ const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
 // Customer Portal
 const CustomerPortal = lazy(() => import("@/pages/customer-portal"));
 
+// Buyer Engagement System
+const BuyerDashboard = lazy(() => import("@/pages/buyer-dashboard"));
+
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
