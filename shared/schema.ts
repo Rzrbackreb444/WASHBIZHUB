@@ -7579,6 +7579,90 @@ export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificatio
 export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
 
 // ============================================================================
+// PROMO CODE SYSTEM - For Facebook Group & Marketing Campaigns
+// ============================================================================
+
+// Promo Codes - Discount codes synced with Stripe Coupons/Promotion Codes
+export const promoCodes = pgTable("promo_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Code Details
+  code: varchar("code").unique().notNull(), // e.g., "FBGROUP50", "LAUNCH2024"
+  description: text("description"), // Internal note for admin
+  
+  // Discount Configuration
+  discountType: varchar("discount_type").notNull(), // "percent" or "fixed"
+  discountAmount: integer("discount_amount").notNull(), // Percentage (50 = 50%) or cents (5000 = $50)
+  
+  // Stripe Integration
+  stripeCouponId: varchar("stripe_coupon_id"), // Stripe coupon ID
+  stripePromotionCodeId: varchar("stripe_promotion_code_id"), // Stripe promotion code ID
+  
+  // Usage Limits
+  maxRedemptions: integer("max_redemptions"), // Total uses allowed (null = unlimited)
+  maxRedemptionsPerUser: integer("max_redemptions_per_user").default(1), // Per-user limit
+  currentRedemptions: integer("current_redemptions").default(0).notNull(),
+  
+  // Validity Period
+  startsAt: timestamp("starts_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // null = never expires
+  
+  // Applicable Products (null = all products)
+  applicableProducts: text("applicable_products").array(), // ["starter", "pro", "enterprise", "business_plan"]
+  
+  // Status & Metadata
+  isActive: boolean("is_active").default(true).notNull(),
+  createdBy: varchar("created_by"), // Admin user ID
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  codeIdx: uniqueIndex("promo_code_idx").on(table.code),
+  activeIdx: index("promo_active_idx").on(table.isActive),
+  expiresIdx: index("promo_expires_idx").on(table.expiresAt),
+}));
+
+export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({ 
+  id: true, 
+  currentRedemptions: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+export type InsertPromoCode = z.infer<typeof insertPromoCodeSchema>;
+export type PromoCode = typeof promoCodes.$inferSelect;
+
+// Promo Code Redemptions - Track who used which codes
+export const promoCodeRedemptions = pgTable("promo_code_redemptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  promoCodeId: varchar("promo_code_id").notNull().references(() => promoCodes.id),
+  userId: varchar("user_id"), // null for guest checkouts
+  email: varchar("email").notNull(), // Always captured
+  
+  // Purchase Details
+  productType: varchar("product_type").notNull(), // "starter", "pro", "enterprise", "business_plan"
+  originalAmount: integer("original_amount").notNull(), // Original price in cents
+  discountAmount: integer("discount_amount").notNull(), // Discount applied in cents
+  finalAmount: integer("final_amount").notNull(), // Final charged amount in cents
+  
+  // Stripe Reference
+  stripeCheckoutSessionId: varchar("stripe_checkout_session_id"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  
+  redeemedAt: timestamp("redeemed_at").defaultNow().notNull(),
+}, (table) => ({
+  promoCodeIdx: index("redemption_promo_code_idx").on(table.promoCodeId),
+  userIdx: index("redemption_user_idx").on(table.userId),
+  emailIdx: index("redemption_email_idx").on(table.email),
+}));
+
+export const insertPromoCodeRedemptionSchema = createInsertSchema(promoCodeRedemptions).omit({ 
+  id: true, 
+  redeemedAt: true 
+});
+export type InsertPromoCodeRedemption = z.infer<typeof insertPromoCodeRedemptionSchema>;
+export type PromoCodeRedemption = typeof promoCodeRedemptions.$inferSelect;
+
+// ============================================================================
 // MULTI-TENANT PLATFORM ARCHITECTURE
 // Powers both WashBizHub.com AND StrokeRecoveryAcademy.com with shared infra
 // ============================================================================
