@@ -140,10 +140,15 @@ export const CLEANBI_PRICING_TIERS = {
     price: 0,
     interval: 'month',
     features: {
-      reportsPerMonth: 3,
-      basicScore: true,
-      detailedBreakdown: false,
-      pdfExport: false,
+      reportsPerDay: 1, // AGGRESSIVE: Only 1 per day for free users
+      reportsPerMonth: 5, // Total cap per month
+      basicScore: true, // Show score only - no breakdown
+      detailedBreakdown: false, // Requires Pro
+      competitorAnalysis: false, // Requires Pro
+      demographicData: false, // Requires Pro
+      pdfExport: false, // Requires Pro
+      savedReports: false, // Requires Pro
+      emailAlerts: false, // Requires Pro
       apiAccess: false,
       prioritySupport: false,
       whiteLabel: false,
@@ -159,10 +164,15 @@ export const CLEANBI_PRICING_TIERS = {
     price: 29,
     interval: 'month',
     features: {
-      reportsPerMonth: 50,
+      reportsPerDay: -1, // Unlimited per day
+      reportsPerMonth: 100, // Generous monthly cap
       basicScore: true,
-      detailedBreakdown: true,
-      pdfExport: true,
+      detailedBreakdown: true, // Full 7-factor breakdown
+      competitorAnalysis: true, // Nearby competitor mapping
+      demographicData: true, // Census data
+      pdfExport: true, // Download reports
+      savedReports: true, // Save to dashboard
+      emailAlerts: true, // Get notified of score changes
       apiAccess: false,
       prioritySupport: true,
       whiteLabel: false,
@@ -315,37 +325,150 @@ export async function getUserUsageThisMonth(userId: string): Promise<{
 
 export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEANBI_PRICING_TIERS): Promise<{
   allowed: boolean;
-  remaining: number;
-  limit: number;
+  remainingToday: number;
+  remainingMonth: number;
+  dailyLimit: number;
+  monthlyLimit: number;
   requiresUpgrade: boolean;
+  reason?: string;
 }> {
   const tierConfig = CLEANBI_PRICING_TIERS[tier];
-  const usage = await getUserUsageThisMonth(userId);
-  
-  // Check if this is an API tier (has apiCallsPerMonth instead of reportsPerMonth)
   const features = tierConfig.features as any;
-  const monthlyLimit = features.reportsPerMonth ?? features.apiCallsPerMonth ?? 0;
   
-  // Unlimited plans
-  if (monthlyLimit === -1) {
+  // Get daily and monthly limits
+  const dailyLimit = features.reportsPerDay ?? -1;
+  const monthlyLimit = features.reportsPerMonth ?? features.apiCallsPerMonth ?? -1;
+  
+  // Unlimited plans (Pro, Enterprise)
+  if (dailyLimit === -1 && monthlyLimit === -1) {
     return {
       allowed: true,
-      remaining: -1, // Unlimited
-      limit: -1,
+      remainingToday: -1,
+      remainingMonth: -1,
+      dailyLimit: -1,
+      monthlyLimit: -1,
       requiresUpgrade: false
     };
   }
   
-  const limit = monthlyLimit;
-  const remaining = Math.max(0, limit - usage.total);
-  const allowed = usage.total < limit;
+  // Get usage stats
+  const monthlyUsage = await getUserUsageThisMonth(userId);
+  const dailyUsage = await getUserUsageToday(userId);
+  
+  // Check daily limit first (more restrictive for free tier)
+  if (dailyLimit !== -1 && dailyUsage >= dailyLimit) {
+    return {
+      allowed: false,
+      remainingToday: 0,
+      remainingMonth: Math.max(0, monthlyLimit - monthlyUsage.total),
+      dailyLimit,
+      monthlyLimit,
+      requiresUpgrade: true,
+      reason: `Daily limit reached (${dailyLimit}/day). Upgrade to Pro for unlimited reports.`
+    };
+  }
+  
+  // Check monthly limit
+  if (monthlyLimit !== -1 && monthlyUsage.total >= monthlyLimit) {
+    return {
+      allowed: false,
+      remainingToday: 0,
+      remainingMonth: 0,
+      dailyLimit,
+      monthlyLimit,
+      requiresUpgrade: true,
+      reason: `Monthly limit reached (${monthlyLimit}/month). Upgrade to Pro for more reports.`
+    };
+  }
   
   return {
-    allowed,
-    remaining,
-    limit,
-    requiresUpgrade: !allowed
+    allowed: true,
+    remainingToday: dailyLimit === -1 ? -1 : Math.max(0, dailyLimit - dailyUsage),
+    remainingMonth: monthlyLimit === -1 ? -1 : Math.max(0, monthlyLimit - monthlyUsage.total),
+    dailyLimit,
+    monthlyLimit,
+    requiresUpgrade: false
   };
+}
+
+// Get usage for today only
+export async function getUserUsageToday(userId: string): Promise<number> {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const result = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(cleanbiUsage)
+    .where(
+      and(
+        eq(cleanbiUsage.userId, userId),
+        gte(cleanbiUsage.timestamp, todayStart)
+      )
+    );
+  
+  return result[0]?.count || 0;
+}
+
+// Check quota for anonymous users by IP
+export async function checkAnonymousQuota(ipAddress: string): Promise<{
+  allowed: boolean;
+  remaining: number;
+  requiresLogin: boolean;
+  reason?: string;
+}> {
+  // Anonymous users get 1 free report EVER (then must login)
+  const { rateLimitLog } = await import('@shared/schema');
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Check if this IP has used their free report today
+  const existing = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(rateLimitLog)
+    .where(
+      and(
+        eq(rateLimitLog.ipAddress, ipAddress),
+        eq(rateLimitLog.endpoint, 'cleanbi_anonymous'),
+        gte(rateLimitLog.windowStart, today)
+      )
+    );
+  
+  const used = existing[0]?.count || 0;
+  
+  if (used >= 1) {
+    return {
+      allowed: false,
+      remaining: 0,
+      requiresLogin: true,
+      reason: "Create a free account to get more CLEANBI reports"
+    };
+  }
+  
+  return {
+    allowed: true,
+    remaining: 1 - used,
+    requiresLogin: false
+  };
+}
+
+// Track anonymous usage by IP
+export async function trackAnonymousUsage(ipAddress: string): Promise<void> {
+  const { rateLimitLog } = await import('@shared/schema');
+  
+  const now = new Date();
+  const windowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  await db.insert(rateLimitLog).values({
+    ipAddress,
+    endpoint: 'cleanbi_anonymous',
+    requestCount: 1,
+    windowStart,
+    expiresAt: new Date(windowStart.getTime() + 24 * 60 * 60 * 1000) // 24 hours
+  }).onConflictDoUpdate({
+    target: [rateLimitLog.ipAddress, rateLimitLog.endpoint, rateLimitLog.windowStart],
+    set: { requestCount: sql`${rateLimitLog.requestCount} + 1` }
+  });
 }
 
 // ========================================
