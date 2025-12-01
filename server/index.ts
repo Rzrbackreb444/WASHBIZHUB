@@ -12,8 +12,23 @@ import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
 import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
 import { db } from "./db";
-import { promoCodes, promoCodeRedemptions } from "@shared/schema";
+import { promoCodes, promoCodeRedemptions, adminActivityLog } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
+
+// Activity logging helper
+async function logActivity(type: string, description: string, email?: string, metadata?: Record<string, any>) {
+  try {
+    await db.insert(adminActivityLog).values({
+      type,
+      description,
+      email: email || null,
+      metadata: metadata || null,
+      tenant: 'washbizhub.com',
+    });
+  } catch (e: any) {
+    console.error('Activity log error:', e.message);
+  }
+}
 import { securityHeaders, sanitizeInput, corsMiddleware, authRateLimiter } from "./security-middleware";
 
 const app = express();
@@ -185,6 +200,14 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
                 .where(eq(promoCodes.id, promoCode.id));
 
               console.log(`✅ Promo code ${promoCode.code} redeemed by ${session.customer_email}`);
+              
+              // Log activity
+              await logActivity('promo_redemption', `Promo code ${promoCode.code} redeemed`, session.customer_email || undefined, {
+                promoCode: promoCode.code,
+                discountAmount: discountAmount / 100,
+                originalAmount: originalAmount / 100,
+                finalAmount: amountTotal / 100,
+              });
             }
           }
         } catch (promoError: any) {
@@ -212,6 +235,14 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           });
           console.log(`✅ Enrollment created for user ${metadata.userId} in course ${metadata.courseId}`);
           
+          // Log activity
+          await logActivity('purchase', `Course purchased: ${metadata.courseName || 'Course'}`, session.customer_email || metadata.userEmail || undefined, {
+            type: 'course',
+            courseId: metadata.courseId,
+            courseName: metadata.courseName,
+            amount: amountTotal / 100,
+          });
+          
           // Send purchase notification
           await notifyPurchase({
             type: 'course',
@@ -238,6 +269,13 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
             stripePaymentId: paymentIntentId,
           });
           console.log(`✅ Book access granted to user ${metadata.userId}`);
+          
+          // Log activity
+          await logActivity('purchase', `Book purchased: ${metadata.bookTitle || 'Laundromat Bible'}`, session.customer_email || metadata.userEmail || undefined, {
+            type: 'book',
+            bookTitle: metadata.bookTitle,
+            amount: amountTotal / 100,
+          });
           
           // Send purchase notification
           await notifyPurchase({
@@ -347,6 +385,15 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
                          'Subscription';
       const interval = subscription.items.data[0]?.price?.recurring?.interval || 'month';
       
+      // Log activity
+      await logActivity('subscription_created', `New subscription: ${productName}`, subscription.metadata?.customerEmail || undefined, {
+        subscriptionId: subscription.id,
+        productName,
+        amount: amount / 100,
+        interval,
+        status: subscription.status,
+      });
+      
       // Send notification
       await notifyPurchase({
         type: 'subscription',
@@ -370,6 +417,12 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`⚠️  Subscription canceled: ${subscription.id}`);
+      
+      // Log activity
+      await logActivity('subscription_canceled', `Subscription canceled: ${subscription.id}`, subscription.metadata?.customerEmail || undefined, {
+        subscriptionId: subscription.id,
+        customerId: typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id,
+      });
       
       // Revert CLEANBI tier to FREE
       const customerId = typeof subscription.customer === 'string' 
@@ -416,6 +469,13 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         const amountPaid = (invoice.amount_paid / 100).toFixed(2);
         
         console.log(`💰 ADVERTISING INVOICE PAID: $${amountPaid} from ${companyName} (${customerEmail})`);
+        
+        // Log activity
+        await logActivity('advertising_payment', `Advertising payment: $${amountPaid} from ${companyName}`, customerEmail || undefined, {
+          companyName,
+          amount: parseFloat(amountPaid),
+          invoiceId: invoice.id,
+        });
         
         // Send SMS notification to owner
         try {

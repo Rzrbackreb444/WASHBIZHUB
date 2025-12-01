@@ -17,7 +17,7 @@ import ownerAnalyticsRoutes from "./owner-analytics-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, diagnosticCodes, courses, lessons } from "@shared/schema";
+import { listings, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -7763,26 +7763,275 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   // GET /api/admin/stats - Admin dashboard statistics (admin only)
   app.get("/api/admin/stats", isAdmin, async (req, res) => {
     try {
-      // Get all stats for dashboard - fetch subscribers which is the only working method
-      const subscribers = await storage.getEmailSubscribers();
+      // Get real counts from database
+      const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
+      const [subscriberCount] = await db.select({ count: sql<number>`count(*)` }).from(emailSubscribers);
+      const [promoCodeCount] = await db.select({ count: sql<number>`count(*)` }).from(promoCodes);
       
-      // Use subscribers as a proxy for user data (the only method available)
+      // Calculate revenue from Stripe
+      let revenue = 0;
+      if (stripe) {
+        try {
+          const charges = await stripe.charges.list({ limit: 100 });
+          revenue = charges.data
+            .filter(c => c.status === 'succeeded')
+            .reduce((sum, c) => sum + (c.amount / 100), 0);
+        } catch (e) {
+          console.log('Stripe revenue fetch skipped');
+        }
+      }
+      
       const stats = {
-        users: subscribers.length,
-        activeUsers: 0, // Would need getAllUsers to calculate
-        subscribers: subscribers.length,
-        courses: 0, // Would need getAllCourses
-        resources: 0, // Would need getAllResources
-        vendors: 0, // Would need getAllVendors
-        topics: 0, // Would need getAllForumTopics
-        ads: 0, // Would need getAllAdvertisements
-        posts: 0, // TODO: Add blog posts count
-        revenue: 12850, // TODO: Calculate from Stripe
+        users: Number(userCount?.count) || 0,
+        activeUsers: Number(userCount?.count) || 0,
+        subscribers: Number(subscriberCount?.count) || 0,
+        promoCodes: Number(promoCodeCount?.count) || 0,
+        courses: 0,
+        resources: 0,
+        vendors: 0,
+        topics: 0,
+        ads: 0,
+        posts: 0,
+        revenue: Math.round(revenue),
         totalContent: 0,
       };
 
       res.json(stats);
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/admin/analytics - Comprehensive live analytics from Stripe & database
+  app.get("/api/admin/analytics", isAdmin, async (req, res) => {
+    try {
+      const now = new Date();
+      const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      // === REVENUE DATA FROM STRIPE ===
+      let totalRevenue = 0;
+      let thisMonthRevenue = 0;
+      let lastMonthRevenue = 0;
+      let mrr = 0;
+      const productRevenue: Record<string, { amount: number; count: number }> = {};
+      const monthlyTrend: { month: string; amount: number }[] = [];
+      const transactions: any[] = [];
+
+      if (stripe) {
+        try {
+          // Get all successful charges from last 6 months
+          const charges = await stripe.charges.list({ 
+            limit: 100,
+            created: { gte: Math.floor(new Date(now.getFullYear(), now.getMonth() - 6, 1).getTime() / 1000) }
+          });
+
+          for (const charge of charges.data) {
+            if (charge.status !== 'succeeded') continue;
+            
+            const amountDollars = charge.amount / 100;
+            const chargeDate = new Date(charge.created * 1000);
+            
+            totalRevenue += amountDollars;
+            
+            // This month revenue
+            if (chargeDate >= thisMonthStart) {
+              thisMonthRevenue += amountDollars;
+            }
+            
+            // Last month revenue
+            if (chargeDate >= lastMonthStart && chargeDate <= lastMonthEnd) {
+              lastMonthRevenue += amountDollars;
+            }
+            
+            // Product breakdown
+            const productName = charge.description || (charge.metadata as any)?.productName || 'Other';
+            if (!productRevenue[productName]) {
+              productRevenue[productName] = { amount: 0, count: 0 };
+            }
+            productRevenue[productName].amount += amountDollars;
+            productRevenue[productName].count += 1;
+            
+            // Recent transactions (first 10)
+            if (transactions.length < 10) {
+              transactions.push({
+                id: charge.id,
+                type: charge.description || 'Payment',
+                amount: charge.amount,
+                email: charge.billing_details?.email || charge.receipt_email || 'Unknown',
+                status: charge.status,
+                createdAt: chargeDate.toISOString(),
+              });
+            }
+          }
+
+          // Calculate MRR from active subscriptions
+          const subscriptions = await stripe.subscriptions.list({ 
+            status: 'active',
+            limit: 100 
+          });
+          
+          for (const sub of subscriptions.data) {
+            const monthlyAmount = sub.items.data.reduce((sum, item) => {
+              const price = item.price;
+              if (price.recurring?.interval === 'month') {
+                return sum + (price.unit_amount || 0) / 100;
+              } else if (price.recurring?.interval === 'year') {
+                return sum + ((price.unit_amount || 0) / 100) / 12;
+              }
+              return sum;
+            }, 0);
+            mrr += monthlyAmount;
+          }
+
+          // Build monthly trend data
+          const monthlyData: Record<string, number> = {};
+          for (const charge of charges.data) {
+            if (charge.status !== 'succeeded') continue;
+            const d = new Date(charge.created * 1000);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            monthlyData[key] = (monthlyData[key] || 0) + charge.amount / 100;
+          }
+
+          // Generate last 6 months labels
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const monthName = d.toLocaleDateString('en-US', { month: 'short' });
+            monthlyTrend.push({
+              month: monthName,
+              amount: Math.round(monthlyData[key] || 0),
+            });
+          }
+
+        } catch (stripeError: any) {
+          console.error('Stripe analytics error:', stripeError.message);
+        }
+      }
+
+      // === USER DATA FROM DATABASE ===
+      const [totalUsers] = await db.select({ count: sql<number>`count(*)` }).from(users);
+      
+      const [newUsersThisWeek] = await db.select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(sql`${users.createdAt} >= ${oneWeekAgo}`);
+      
+      const [newUsersThisMonth] = await db.select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(sql`${users.createdAt} >= ${thisMonthStart}`);
+      
+      const [newUsersLastMonth] = await db.select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(sql`${users.createdAt} >= ${lastMonthStart} AND ${users.createdAt} < ${thisMonthStart}`);
+
+      // === SUBSCRIPTION TIER DISTRIBUTION ===
+      const tierResults = await db.select({
+        tier: users.cleanbiTier,
+        count: sql<number>`count(*)`
+      }).from(users).groupBy(users.cleanbiTier);
+
+      const tierCounts = {
+        free: 0,
+        starter: 0,
+        pro: 0,
+        enterprise: 0,
+      };
+
+      for (const row of tierResults) {
+        const tier = (row.tier || 'free').toLowerCase();
+        if (tier === 'free' || tier === null) tierCounts.free = Number(row.count);
+        else if (tier === 'starter') tierCounts.starter = Number(row.count);
+        else if (tier === 'pro') tierCounts.pro = Number(row.count);
+        else if (tier === 'enterprise') tierCounts.enterprise = Number(row.count);
+      }
+
+      // === CLEANBI USAGE ===
+      let cleanbiTotalAnalyses = 0;
+      let cleanbiThisMonth = 0;
+      let cleanbiUniqueUsers = 0;
+
+      try {
+        const [totalAnalyses] = await db.select({ count: sql<number>`count(*)` })
+          .from(cleanbiUsage);
+        cleanbiTotalAnalyses = Number(totalAnalyses?.count) || 0;
+
+        const [thisMonthAnalyses] = await db.select({ count: sql<number>`count(*)` })
+          .from(cleanbiUsage)
+          .where(sql`${cleanbiUsage.date} >= ${thisMonthStart.toISOString().split('T')[0]}`);
+        cleanbiThisMonth = Number(thisMonthAnalyses?.count) || 0;
+
+        const [uniqueUsersResult] = await db.select({ count: sql<number>`count(distinct ${cleanbiUsage.userId})` })
+          .from(cleanbiUsage);
+        cleanbiUniqueUsers = Number(uniqueUsersResult?.count) || 0;
+      } catch (e) {
+        console.log('CLEANBI usage query skipped');
+      }
+
+      // === ACTIVITY FEED ===
+      const activityFeed = await db.select()
+        .from(adminActivityLog)
+        .orderBy(desc(adminActivityLog.createdAt))
+        .limit(25);
+
+      // Calculate growth percentages
+      const lastMonthUsers = Number(newUsersLastMonth?.count) || 1;
+      const thisMonthUsers = Number(newUsersThisMonth?.count) || 0;
+      const userGrowth = lastMonthUsers > 0 
+        ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100) 
+        : 0;
+
+      const revenueChange = lastMonthRevenue > 0 
+        ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 * 10) / 10
+        : 0;
+
+      // Build response
+      res.json({
+        revenue: {
+          total: Math.round(totalRevenue),
+          mrr: Math.round(mrr),
+          thisMonth: Math.round(thisMonthRevenue),
+          lastMonth: Math.round(lastMonthRevenue),
+          changePercent: revenueChange,
+          byProduct: Object.entries(productRevenue).map(([name, data]) => ({
+            name,
+            amount: Math.round(data.amount),
+            count: data.count,
+          })).sort((a, b) => b.amount - a.amount).slice(0, 5),
+          monthlyTrend,
+        },
+        users: {
+          total: Number(totalUsers?.count) || 0,
+          newThisWeek: Number(newUsersThisWeek?.count) || 0,
+          newThisMonth: thisMonthUsers,
+          activeThisMonth: Number(totalUsers?.count) || 0,
+          growthPercent: userGrowth,
+        },
+        subscriptions: {
+          free: tierCounts.free,
+          starter: tierCounts.starter,
+          pro: tierCounts.pro,
+          enterprise: tierCounts.enterprise,
+          churnRate: 0,
+        },
+        cleanbi: {
+          totalAnalyses: cleanbiTotalAnalyses,
+          thisMonth: cleanbiThisMonth,
+          uniqueUsers: cleanbiUniqueUsers,
+        },
+        activity: activityFeed.map(a => ({
+          id: a.id,
+          type: a.type,
+          description: a.description,
+          email: a.email,
+          metadata: a.metadata,
+          createdAt: a.createdAt?.toISOString() || new Date().toISOString(),
+        })),
+        transactions,
+      });
+    } catch (error: any) {
+      console.error('Analytics error:', error);
       res.status(500).json({ error: error.message });
     }
   });
