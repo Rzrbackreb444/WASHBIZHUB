@@ -165,7 +165,7 @@ export const CLEANBI_PRICING_TIERS = {
     interval: 'month',
     features: {
       reportsPerDay: -1, // Unlimited per day
-      reportsPerMonth: 100, // Generous monthly cap
+      reportsPerMonth: 50, // 50 reports per month as specified
       basicScore: true,
       detailedBreakdown: true, // Full 7-factor breakdown
       competitorAnalysis: true, // Nearby competitor mapping
