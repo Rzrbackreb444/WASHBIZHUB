@@ -271,6 +271,8 @@ const CustomerPortal = lazy(() => import("@/pages/customer-portal"));
 
 // Buyer Engagement System
 const BuyerDashboard = lazy(() => import("@/pages/buyer-dashboard"));
+const BuyerMessaging = lazy(() => import("@/pages/buyer-messaging"));
+const ListingComparison = lazy(() => import("@/pages/listing-comparison"));
 
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
@@ -1071,6 +1073,23 @@ function Router() {
       <Route path="/settings">
         <Suspense fallback={<LoadingFallback />}>
           <Settings />
+        </Suspense>
+      </Route>
+      
+      {/* Buyer Engagement */}
+      <Route path="/buyer/dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <BuyerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/buyer/messages/:threadId">
+        <Suspense fallback={<LoadingFallback />}>
+          <BuyerMessaging />
+        </Suspense>
+      </Route>
+      <Route path="/buyer/comparison/:comparisonId">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListingComparison />
         </Suspense>
       </Route>
       <Route path="/login">
