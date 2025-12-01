@@ -305,11 +305,24 @@ function determineMarketSaturation(competitorCount: number, populationDensity: n
 }
 
 function calculateCompetitionScore(count: number): number {
+  // More nuanced competition scoring:
+  // Competition is normal - only severely penalize truly saturated markets
+  // This uses a 1-mile radius, so reasonable expectations:
+  // 0-1 competitors = excellent (low competition)
+  // 2-3 competitors = good (normal market)
+  // 4-6 competitors = moderate (competitive but viable)
+  // 7-10 competitors = challenging (need differentiation)
+  // 11+ competitors = saturated
   if (count === 0) return 100;
-  if (count === 1) return 85;
-  if (count === 2) return 65;
-  if (count === 3) return 45;
-  return 25;
+  if (count === 1) return 90;
+  if (count === 2) return 80;
+  if (count === 3) return 72;
+  if (count === 4) return 65;
+  if (count === 5) return 58;
+  if (count === 6) return 52;
+  if (count <= 8) return 45;
+  if (count <= 10) return 38;
+  return 30; // Very saturated, but still viable with good execution
 }
 
 function generateInsights(

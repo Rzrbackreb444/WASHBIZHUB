@@ -112,11 +112,23 @@ function calculateDensityScore(popDensity: number): number {
 }
 
 function calculateCompetitionScore(competitionCount: number): number {
+  // More nuanced competition scoring:
+  // Competition is normal - only severely penalize truly saturated markets
+  // 0-1 competitors = excellent (low competition)
+  // 2-3 competitors = good (normal market)
+  // 4-6 competitors = moderate (competitive but viable)
+  // 7-10 competitors = challenging (need differentiation)
+  // 11+ competitors = saturated
   if (competitionCount === 0) return 100;
-  if (competitionCount === 1) return 85;
-  if (competitionCount === 2) return 65;
-  if (competitionCount === 3) return 45;
-  return 25;
+  if (competitionCount === 1) return 90;
+  if (competitionCount === 2) return 80;
+  if (competitionCount === 3) return 72;
+  if (competitionCount === 4) return 65;
+  if (competitionCount === 5) return 58;
+  if (competitionCount === 6) return 52;
+  if (competitionCount <= 8) return 45;
+  if (competitionCount <= 10) return 38;
+  return 30; // Very saturated, but still viable with good execution
 }
 
 function calculateCleanlinessScore(score: number): number {
@@ -561,6 +573,15 @@ export function calculateQuickCLEANBIScore(
   const confidence = enrichedData.dataQuality.overallConfidence;
   const fallbackPenalty = ((100 - confidence) / 100) * 10;
   const finalScore = Math.round(clamp(rawScore - fallbackPenalty));
+
+  // Debug logging for score breakdown
+  console.log(`📊 CLEANBI Score Breakdown:
+    Market Score (40%): ${marketScore.toFixed(1)} → ${(0.40 * marketScore).toFixed(1)} pts
+    Competition Score (30%): ${competitionScore.toFixed(1)} → ${(0.30 * competitionScore).toFixed(1)} pts  
+    Review Score (30%): ${reviewScore.toFixed(1)} → ${(0.30 * reviewScore).toFixed(1)} pts
+    Raw Score: ${rawScore.toFixed(1)}
+    Confidence: ${(confidence * 100).toFixed(0)}%, Penalty: -${fallbackPenalty.toFixed(1)}
+    Final Score: ${finalScore}`);
 
   return {
     score: finalScore,
