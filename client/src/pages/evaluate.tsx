@@ -149,21 +149,21 @@ export default function EvaluatePage() {
         description="Analyze and compare laundromat opportunities with CLEANBI AI-powered scoring, valuation calculators, and due diligence tools. Find the perfect laundromat investment with our comprehensive buyer resources and checklists."
         canonicalUrl="/evaluate"
         keywords={[
-          "laundromat evaluation",
-          "CLEANBI score",
-          "laundromat valuation",
-          "buy laundromat",
-          "laundromat for sale",
           "laundromat due diligence",
-          "coin laundry investment",
-          "laundromat analysis",
-          "how to evaluate a laundromat",
+          "how to buy a laundromat",
           "laundromat inspection checklist",
-          "laundromat purchase checklist",
+          "how to evaluate a laundromat",
           "what to look for buying laundromat",
+          "laundromat evaluation checklist",
+          "CLEANBI score",
+          "laundromat valuation calculator",
+          "laundromat for sale",
+          "coin laundry investment analysis",
+          "laundromat purchase due diligence",
           "laundromat financial analysis",
-          "laundromat profit analysis",
-          "laundromat location analysis"
+          "laundromat location analysis",
+          "buy a laundromat business",
+          "laundromat red flags buying"
         ]}
         structuredData={structuredData}
         breadcrumbs={breadcrumbs}

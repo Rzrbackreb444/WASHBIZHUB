@@ -77,12 +77,16 @@ const marketplaceResources = [
 
 const operationsFaqs = [
   {
-    question: "How do I run a successful laundromat?",
-    answer: "Running a successful laundromat requires focus on 5 key areas: 1) Equipment reliability - maintain machines proactively with scheduled maintenance to minimize downtime, 2) Cleanliness - clean facilities daily, especially restrooms, folding areas, and machine surfaces, 3) Pricing optimization - analyze competition and adjust vend prices quarterly to maximize revenue, 4) Customer experience - provide a safe, well-lit environment with amenities like WiFi and comfortable seating, 5) Cost control - monitor utilities, negotiate with vendors, and implement energy-efficient practices. Our POS Command Center helps you track all these metrics in real-time."
+    question: "How do I operate a laundromat successfully?",
+    answer: "Operating a successful laundromat requires focus on 5 key areas: 1) Equipment reliability - maintain machines proactively with scheduled maintenance to minimize downtime, 2) Cleanliness - clean facilities daily, especially restrooms, folding areas, and machine surfaces, 3) Pricing optimization - analyze competition and adjust vend prices quarterly to maximize revenue, 4) Customer experience - provide a safe, well-lit environment with amenities like WiFi and comfortable seating, 5) Cost control - monitor utilities, negotiate with vendors, and implement energy-efficient practices. Our POS Command Center helps you track all these metrics in real-time."
   },
   {
-    question: "What are the daily operations of a laundromat?",
-    answer: "Essential daily laundromat operations include: Opening tasks (unlock, turn on lights/TVs, check machine status, empty lint traps), Hourly tasks (walk-through for cleanliness, empty bill changers, restock soap vending), Customer service (assist customers, handle complaints, maintain safe environment), Closing tasks (clean floors/bathrooms, collect coins, secure premises, check all machines are off). Track these with our operational checklists in the Resources Hub."
+    question: "What is the daily operations checklist for a laundromat?",
+    answer: "Essential daily laundromat operations checklist includes: Opening tasks (unlock, turn on lights/TVs, check machine status, empty lint traps), Hourly tasks (walk-through for cleanliness, empty bill changers, restock soap vending), Customer service (assist customers, handle complaints, maintain safe environment), Closing tasks (clean floors/bathrooms, collect coins, secure premises, check all machines are off). Download our complete operational checklists in the Resources Hub for morning, afternoon, and evening routines."
+  },
+  {
+    question: "How do I manage laundromat employees effectively?",
+    answer: "Effective laundromat employee management includes: 1) Clear job descriptions with specific duties for attendants, managers, and maintenance staff, 2) Standardized training program covering customer service, equipment basics, cleaning protocols, and emergency procedures, 3) Scheduling system accounting for peak hours (evenings, weekends), 4) Performance metrics tied to cleanliness scores and customer feedback, 5) Compensation structure with base pay plus bonuses for attendance and performance, 6) Regular check-ins and shift handoff protocols, 7) Clear policies on cash handling and security. Many owners use 1-2 part-time attendants for a store doing $20K-$40K monthly revenue."
   },
   {
     question: "How can I increase laundromat profits?",
@@ -103,16 +107,12 @@ const operationsFaqs = [
   {
     question: "How often should I service laundromat equipment?",
     answer: "Recommended maintenance schedule: Daily - empty lint traps, wipe door seals, check for leaks. Weekly - inspect and clean coin slides, check hoses and connections. Monthly - deep clean machines, inspect belts and bearings, lubricate as needed. Quarterly - professional inspection, calibrate machines, check water/gas connections. Annually - full overhaul, replace wear items (bearings, belts, seals). High-usage machines may require more frequent service. Log all maintenance in our Equipment Diagnostics system."
-  },
-  {
-    question: "How do I handle difficult laundromat customers?",
-    answer: "Customer management best practices: 1) Post clear rules signage for machine usage, closing times, and behavior expectations, 2) Install security cameras for safety and documentation, 3) Train staff on de-escalation techniques, 4) Have a policy for handling damaged property claims, 5) Address complaints promptly and professionally, 6) For serious issues, don't hesitate to call authorities. Maintain a incident log for recurring problems. Focus on creating a safe, family-friendly environment that naturally deters problematic behavior."
   }
 ];
 
 const operationsHowTo = {
-  name: "How to Run a Laundromat Effectively",
-  description: "Step-by-step guide to operating a profitable laundromat, from daily operations to maximizing revenue and minimizing costs.",
+  name: "How to Operate a Profitable Laundromat",
+  description: "Complete step-by-step guide to operating a profitable laundromat, from daily operations checklists to maximizing revenue, managing employees, and minimizing costs with proven industry best practices.",
   totalTime: "P1D",
   steps: [
     {
@@ -176,21 +176,21 @@ export default function OperatePage() {
         description="Enterprise-grade laundromat management tools including POS Command Center, Service Guy AI, equipment diagnostics, and design studio. Optimize operations, increase profits, and reduce downtime with expert resources."
         canonicalUrl="/operate"
         keywords={[
-          "laundromat management",
-          "laundromat POS system",
           "laundromat operations",
+          "how to run a laundromat",
+          "laundromat management tips",
+          "laundromat daily operations checklist",
+          "laundromat employee management",
+          "laundromat POS system",
           "equipment diagnostics",
           "laundromat software",
           "coin laundry management",
-          "laundromat tools",
-          "laundry business operations",
-          "how to run a laundromat",
           "laundromat profit tips",
-          "laundromat daily operations",
           "increase laundromat revenue",
-          "laundromat maintenance",
-          "laundromat employee management",
-          "laundromat customer service"
+          "laundromat maintenance schedule",
+          "laundromat customer service",
+          "how to manage laundromat staff",
+          "laundromat operating costs"
         ]}
         structuredData={structuredData}
         breadcrumbs={breadcrumbs}

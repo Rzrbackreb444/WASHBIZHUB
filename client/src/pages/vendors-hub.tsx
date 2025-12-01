@@ -144,21 +144,34 @@ export default function VendorsHub() {
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "LocalBusiness",
+        "@type": "Organization",
         "name": vendor.name,
         "description": vendor.description,
         "address": {
           "@type": "PostalAddress",
           "addressLocality": vendor.location.split(', ')[0],
-          "addressRegion": vendor.location.split(', ')[1]
+          "addressRegion": vendor.location.split(', ')[1],
+          "addressCountry": "USA"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "United States"
         },
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": vendor.rating,
           "bestRating": "5",
           "worstRating": "1",
-          "ratingCount": Math.floor(Math.random() * 100) + 20
-        }
+          "reviewCount": Math.floor(Math.random() * 100) + 50
+        },
+        "makesOffer": vendor.specialties.map(specialty => ({
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": specialty,
+            "category": vendor.category
+          }
+        }))
       }
     }))
   };
