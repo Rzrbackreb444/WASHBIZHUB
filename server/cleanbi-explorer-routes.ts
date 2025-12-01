@@ -21,6 +21,7 @@ import { geocodeAddress } from "./geocoding-service";
 import { enrichCLEANBIData, type SubscriptionTier } from "./cleanbi-data-enrichment";
 import { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
 import { calculateGoogleCleanbi } from "./google-cleanbi-engine";
+import { getWalkScore, getWalkScoreColor, calculateWalkabilityBonus, type WalkScoreResult } from "./walk-score-service";
 import { newsletterSubscribers } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -45,6 +46,12 @@ interface ExplorerAnalysis {
   opportunityLevel: "goldmine" | "promising" | "moderate" | "saturated" | "oversaturated";
   aerialViewUrl?: string;
   streetViewUrl?: string;
+  walkScore?: number;
+  walkDescription?: string;
+  transitScore?: number | null;
+  transitDescription?: string | null;
+  bikeScore?: number | null;
+  bikeDescription?: string | null;
   createdAt: Date;
 }
 
@@ -540,6 +547,10 @@ router.post("/analyze", async (req: Request, res: Response) => {
     // Get Street View URL
     const streetViewUrl = getStreetViewUrl(geocoded.lat, geocoded.lng);
     
+    // Get Walk Score, Transit Score, and Bike Score
+    const walkScoreData = await getWalkScore(geocoded.lat, geocoded.lng, geocoded.formattedAddress);
+    console.log(`🚶 Walk Score: ${walkScoreData.walkScore} (${walkScoreData.walkDescription})`);
+    
     // Build analysis result
     // Use 1-mile competitor count from enriched data for opportunity level (industry standard trade area)
     // But show full radius competitor count for the map display
@@ -547,23 +558,40 @@ router.post("/analyze", async (req: Request, res: Response) => {
       c => c.distance <= 1.609 // 1 mile in km
     ).length || enrichedData.competition?.count || 0;
     
+    // Calculate walkability bonus and add to CLEANBI score
+    const walkabilityBonus = calculateWalkabilityBonus(walkScoreData.walkScore);
+    const adjustedScore = Math.min(100, quickScore.score + walkabilityBonus);
+    
+    // Recalculate grade with walkability bonus
+    let adjustedGrade = quickScore.grade;
+    if (adjustedScore >= 85) adjustedGrade = "A";
+    else if (adjustedScore >= 70) adjustedGrade = "B";
+    else if (adjustedScore >= 55) adjustedGrade = "C";
+    else adjustedGrade = "Needs Work";
+    
     const analysis: ExplorerAnalysis = {
       id: generateAnalysisId(),
       address: geocoded.formattedAddress,
       lat: geocoded.lat,
       lng: geocoded.lng,
-      cleanbiScore: quickScore.score,
-      grade: quickScore.grade,
+      cleanbiScore: adjustedScore,
+      grade: adjustedGrade,
       competitorCount: competitors.length, // Full radius for display
       populationDensity: enrichedData.demographics.populationDensity,
       medianIncome: enrichedData.demographics.medianHouseholdIncome,
       trafficScore: Math.round(enrichedData.marketScores.demographicPowerScore * 0.8),
       opportunityLevel: calculateOpportunityLevel(
-        quickScore.score, 
+        adjustedScore, 
         oneMileCompetitorCount, // 1-mile count for opportunity assessment
         enrichedData.demographics.populationDensity
       ),
       streetViewUrl,
+      walkScore: walkScoreData.walkScore,
+      walkDescription: walkScoreData.walkDescription,
+      transitScore: walkScoreData.transitScore,
+      transitDescription: walkScoreData.transitDescription,
+      bikeScore: walkScoreData.bikeScore,
+      bikeDescription: walkScoreData.bikeDescription,
       createdAt: new Date()
     };
     
@@ -606,6 +634,163 @@ router.post("/analyze", async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: "Analysis failed. Please try again."
+    });
+  }
+});
+
+/**
+ * POST /api/cleanbi-explorer/analyze-competitor
+ * 
+ * Analyze a competitor location with full CLEANBI scoring
+ * Used for one-click competitor deep dive feature
+ */
+router.post("/analyze-competitor", async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      placeId: z.string().min(1),
+      name: z.string().min(1),
+      lat: z.number(),
+      lng: z.number()
+    });
+    
+    const input = schema.parse(req.body);
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId);
+    
+    // Rate limiting (uses same limits as main analyze)
+    const ipAddress = (req.headers["x-forwarded-for"] as string)?.split(",")[0] || 
+                      req.socket.remoteAddress || "unknown";
+    const rateCheck = await checkExplorerRateLimit(ipAddress, userId, tier);
+    
+    if (!rateCheck.allowed) {
+      return res.json({
+        success: false,
+        rateLimited: true,
+        error: `Rate limit reached for ${tier} tier`,
+        limitType: rateCheck.limitType,
+        upgradeUrl: "/pricing",
+        tier
+      });
+    }
+
+    // Check cache for competitor analysis
+    const cacheKey = generateCacheKey("competitor_analysis", input.placeId);
+    const cached = await cacheGet<ExplorerAnalysis>(cacheKey);
+    
+    if (cached) {
+      console.log(`✅ Competitor analysis cache hit: ${input.name}`);
+      return res.json({
+        success: true,
+        cached: true,
+        address: cached.address,
+        lat: cached.lat,
+        lng: cached.lng,
+        cleanbiScore: cached.cleanbiScore,
+        grade: cached.grade,
+        competitorCount: cached.competitorCount,
+        populationDensity: cached.populationDensity,
+        medianIncome: cached.medianIncome,
+        trafficScore: cached.trafficScore,
+        opportunityLevel: cached.opportunityLevel,
+        streetViewUrl: cached.streetViewUrl,
+        tier,
+        remainingDaily: rateCheck.remainingDaily
+      });
+    }
+
+    // Reverse geocode to get formatted address
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    let formattedAddress = input.name;
+    
+    if (apiKey) {
+      try {
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${input.lat},${input.lng}&key=${apiKey}`;
+        const geocodeRes = await fetch(geocodeUrl);
+        const geocodeData = await geocodeRes.json();
+        if (geocodeData.status === "OK" && geocodeData.results[0]) {
+          formattedAddress = geocodeData.results[0].formatted_address;
+        }
+      } catch (e) {
+        console.warn("Reverse geocode failed, using name:", e);
+      }
+    }
+
+    // Get enriched CLEANBI data for competitor location
+    const enrichedData = await enrichCLEANBIData(formattedAddress, tier);
+    
+    // Calculate CLEANBI score
+    const quickScore = calculateQuickCLEANBIScore(enrichedData);
+    
+    // Get competitors around this location
+    const nearbyCompetitors = await findNearbyCompetitors(input.lat, input.lng, 5);
+    
+    // Calculate opportunity level (1-mile competitors)
+    const oneMileCompetitorCount = nearbyCompetitors.filter(
+      c => c.distance <= 1
+    ).length;
+    
+    // Get Street View URL
+    const streetViewUrl = getStreetViewUrl(input.lat, input.lng);
+    
+    // Build analysis result
+    const analysis: ExplorerAnalysis = {
+      id: generateAnalysisId(),
+      address: formattedAddress,
+      lat: input.lat,
+      lng: input.lng,
+      cleanbiScore: quickScore.score,
+      grade: quickScore.grade,
+      competitorCount: nearbyCompetitors.length,
+      populationDensity: enrichedData.demographics.populationDensity,
+      medianIncome: enrichedData.demographics.medianHouseholdIncome,
+      trafficScore: Math.round(enrichedData.marketScores.demographicPowerScore * 0.8),
+      opportunityLevel: calculateOpportunityLevel(
+        quickScore.score,
+        oneMileCompetitorCount,
+        enrichedData.demographics.populationDensity
+      ),
+      streetViewUrl,
+      createdAt: new Date()
+    };
+
+    // Cache the analysis
+    await cacheSet(cacheKey, analysis, CACHE_TTL.analysis);
+
+    console.log(`✅ Competitor analysis complete: ${input.name} → ${analysis.grade} (${analysis.cleanbiScore}/100)`);
+    
+    // Return consistent response structure matching /analyze endpoint
+    return res.json({
+      success: true,
+      cached: false,
+      address: analysis.address,
+      lat: analysis.lat,
+      lng: analysis.lng,
+      cleanbiScore: analysis.cleanbiScore,
+      grade: analysis.grade,
+      competitorCount: analysis.competitorCount,
+      populationDensity: analysis.populationDensity,
+      medianIncome: analysis.medianIncome,
+      trafficScore: analysis.trafficScore,
+      opportunityLevel: analysis.opportunityLevel,
+      streetViewUrl: analysis.streetViewUrl,
+      tier,
+      remainingDaily: rateCheck.remainingDaily
+    });
+
+  } catch (error: any) {
+    console.error("❌ Competitor analysis error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid input",
+        details: error.errors
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: "Competitor analysis failed. Please try again."
     });
   }
 });

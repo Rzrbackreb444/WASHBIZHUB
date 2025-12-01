@@ -55,7 +55,13 @@ import {
   Scale,
   Banknote,
   PiggyBank,
-  Receipt
+  Receipt,
+  Footprints,
+  Train,
+  Bike,
+  Sun,
+  Bolt,
+  Gauge
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,6 +99,12 @@ interface AnalysisResult {
   opportunityLevel: "goldmine" | "promising" | "moderate" | "saturated" | "oversaturated";
   aerialViewUrl?: string;
   streetViewUrl?: string;
+  walkScore?: number;
+  walkDescription?: string;
+  transitScore?: number | null;
+  transitDescription?: string | null;
+  bikeScore?: number | null;
+  bikeDescription?: string | null;
   timestamp?: number;
 }
 
@@ -716,6 +728,9 @@ export default function CleanBIExplorer() {
               markersRef.current.push(marker);
             });
           }
+          
+          // Render saved location markers on map
+          renderSavedMarkers();
         }
         
         toast({
@@ -1018,18 +1033,18 @@ export default function CleanBIExplorer() {
       
       const data = await response.json();
       
-      if (data.success) {
+      if (data.success && data.cleanbiScore !== undefined && data.grade) {
         const result: AnalysisResult = {
           address: data.address || competitor.name,
-          lat: competitor.lat,
-          lng: competitor.lng,
+          lat: data.lat || competitor.lat,
+          lng: data.lng || competitor.lng,
           cleanbiScore: data.cleanbiScore,
           grade: data.grade,
-          competitorCount: data.competitorCount,
-          populationDensity: data.populationDensity,
-          medianIncome: data.medianIncome,
+          competitorCount: data.competitorCount || 0,
+          populationDensity: data.populationDensity || 0,
+          medianIncome: data.medianIncome || 0,
           trafficScore: data.trafficScore || 75,
-          opportunityLevel: data.opportunityLevel,
+          opportunityLevel: data.opportunityLevel || "moderate",
           streetViewUrl: data.streetViewUrl,
           aerialViewUrl: data.aerialViewUrl
         };
@@ -1040,18 +1055,25 @@ export default function CleanBIExplorer() {
           title: `Competitor Grade: ${result.grade}`, 
           description: `${competitor.name}: Score ${result.cleanbiScore}/100`
         });
+      } else if (data.rateLimited) {
+        toast({ 
+          title: "Rate Limit Reached", 
+          description: data.error || "Please try again later or upgrade your plan", 
+          variant: "destructive" 
+        });
+        setCompetitorSheetOpen(false);
       } else {
         toast({ 
-          title: "Analysis Failed", 
-          description: data.error || "Could not analyze competitor", 
+          title: "Analysis Unavailable", 
+          description: data.error || "Could not analyze this competitor location", 
           variant: "destructive" 
         });
       }
     } catch (error) {
       console.error("Competitor analysis error:", error);
       toast({ 
-        title: "Error", 
-        description: "Failed to analyze competitor location", 
+        title: "Connection Error", 
+        description: "Failed to connect to analysis service. Please try again.", 
         variant: "destructive" 
       });
     } finally {
@@ -1268,6 +1290,51 @@ export default function CleanBIExplorer() {
                         <div className="text-xs text-white/40">out of 100</div>
                       </div>
                     </div>
+
+                    {/* Walk Score Section - Premium Feature Showcase */}
+                    {analysisResult.walkScore !== undefined && (
+                      <div className="bg-gradient-to-r from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Footprints className="w-4 h-4 text-[#C8A661]" />
+                            <span className="text-sm font-medium text-white">Walkability Intelligence</span>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661]">Walk Score API</Badge>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="text-center">
+                            <div className="text-xl font-bold" style={{ color: analysisResult.walkScore >= 70 ? "#22C55E" : analysisResult.walkScore >= 50 ? "#FBBF24" : "#EF4444" }}>
+                              {analysisResult.walkScore}
+                            </div>
+                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
+                              <Footprints className="w-3 h-3" />
+                              Walk
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-bold" style={{ color: (analysisResult.transitScore || 0) >= 70 ? "#22C55E" : (analysisResult.transitScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
+                              {analysisResult.transitScore ?? "—"}
+                            </div>
+                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
+                              <Train className="w-3 h-3" />
+                              Transit
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-bold" style={{ color: (analysisResult.bikeScore || 0) >= 70 ? "#22C55E" : (analysisResult.bikeScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
+                              {analysisResult.bikeScore ?? "—"}
+                            </div>
+                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
+                              <Bike className="w-3 h-3" />
+                              Bike
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-white/60 mt-2 text-center">
+                          {analysisResult.walkDescription || "Walkability data"}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
