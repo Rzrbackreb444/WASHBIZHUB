@@ -142,6 +142,7 @@ const CleanBIReports = lazy(() => import("@/pages/cleanbi-reports"));
 const ExpansionPlanner = lazy(() => import("@/pages/expansion-planner"));
 const CompetitorDashboard = lazy(() => import("@/pages/competitor-dashboard"));
 const BulkAnalysis = lazy(() => import("@/pages/bulk-analysis"));
+const ProductsHub = lazy(() => import("@/pages/products"));
 
 // Forum Pages
 const Forum = lazy(() => import("@/pages/forum"));
@@ -321,6 +322,11 @@ function Router() {
       <Route path="/bulk-analysis">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <BulkAnalysis />
+        </Suspense>
+      </Route>
+      <Route path="/products">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <ProductsHub />
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
