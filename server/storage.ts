@@ -5,6 +5,8 @@ import {
   type InsertDesign,
   type CleanbiScore,
   type InsertCleanbiScore,
+  type CleanbiReport,
+  type InsertCleanbiReport,
   type BlogPost,
   type InsertBlogPost,
   type CalculatorScenario,
@@ -270,6 +272,13 @@ export interface IStorage {
   getCleanbiScores(userId?: string): Promise<CleanbiScore[]>;
   getCleanbiScore(id: string): Promise<CleanbiScore | undefined>;
   createCleanbiScore(score: InsertCleanbiScore): Promise<CleanbiScore>;
+  
+  // CLEANBI Reports (Premium PDF Reports)
+  getCleanbiReports(userId?: string): Promise<CleanbiReport[]>;
+  getCleanbiReport(id: string): Promise<CleanbiReport | undefined>;
+  getCleanbiReportByStripeSession(sessionId: string): Promise<CleanbiReport | undefined>;
+  createCleanbiReport(report: InsertCleanbiReport): Promise<CleanbiReport>;
+  updateCleanbiReport(id: string, report: Partial<InsertCleanbiReport>): Promise<CleanbiReport>;
   
   // Blog Posts
   getBlogPosts(filters?: { type?: string; category?: string }): Promise<BlogPost[]>;
@@ -920,6 +929,7 @@ export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private designs: Map<string, Design>;
   private cleanbiScores: Map<string, CleanbiScore>;
+  private cleanbiReports: Map<string, CleanbiReport>;
   private blogPosts: Map<string, BlogPost>;
   private calculatorScenarios: Map<string, CalculatorScenario>;
   private vendors: Map<string, Vendor>;
@@ -935,6 +945,7 @@ export class MemStorage implements IStorage {
     this.users = new Map();
     this.designs = new Map();
     this.cleanbiScores = new Map();
+    this.cleanbiReports = new Map();
     this.blogPosts = new Map();
     this.calculatorScenarios = new Map();
     this.vendors = new Map();
@@ -1244,6 +1255,43 @@ export class MemStorage implements IStorage {
     } as CleanbiScore;
     this.cleanbiScores.set(id, newScore);
     return newScore;
+  }
+
+  // CLEANBI Reports (Premium PDF Reports)
+  async getCleanbiReports(userId?: string): Promise<CleanbiReport[]> {
+    const reports = Array.from(this.cleanbiReports.values());
+    if (userId) {
+      return reports.filter((r) => r.userId === userId);
+    }
+    return reports.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getCleanbiReport(id: string): Promise<CleanbiReport | undefined> {
+    return this.cleanbiReports.get(id);
+  }
+
+  async getCleanbiReportByStripeSession(sessionId: string): Promise<CleanbiReport | undefined> {
+    return Array.from(this.cleanbiReports.values()).find((r) => r.stripeSessionId === sessionId);
+  }
+
+  async createCleanbiReport(report: InsertCleanbiReport): Promise<CleanbiReport> {
+    const id = randomUUID();
+    const newReport: CleanbiReport = {
+      ...report,
+      id,
+      createdAt: new Date(),
+      completedAt: null,
+    } as CleanbiReport;
+    this.cleanbiReports.set(id, newReport);
+    return newReport;
+  }
+
+  async updateCleanbiReport(id: string, report: Partial<InsertCleanbiReport>): Promise<CleanbiReport> {
+    const existing = await this.getCleanbiReport(id);
+    if (!existing) throw new Error("CLEANBI Report not found");
+    const updated = { ...existing, ...report } as CleanbiReport;
+    this.cleanbiReports.set(id, updated);
+    return updated;
   }
 
   // Blog Posts
