@@ -91,8 +91,8 @@ const OPERATE_LINKS = [
 ];
 
 const PARTNER_LINKS = [
+  { href: "/sell", label: "Sell Your Laundromat", icon: Store, description: "120+ buyers searching now", badge: "HOT" },
   { href: "/add-listing", label: "Add Listing", icon: Store, description: "List your business or service" },
-  { href: "/listing-form", label: "Sell Business", icon: Store, description: "List your laundromat" },
   { href: "/list-equipment", label: "Sell Equipment", icon: Wrench, description: "List machines & parts" },
   { href: "/vendor-form", label: "Vendor Partnership", icon: Building2, description: "Become a supplier" },
   { href: "/advertise", label: "Advertising", icon: TrendingUp, description: "Reach industry professionals" },
@@ -133,8 +133,8 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
   "/partner": {
     label: "Partner With Us",
     links: [
+      { href: "/sell", label: "Sell Laundromat" },
       { href: "/add-listing", label: "Add a Listing" },
-      { href: "/listing-form", label: "Sell Laundromat" },
       { href: "/vendor-form", label: "Become Vendor" },
       { href: "/advertise", label: "Advertise" },
     ],
