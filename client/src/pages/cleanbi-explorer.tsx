@@ -69,6 +69,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -300,6 +301,12 @@ export default function CleanBIExplorer() {
   
   // Deal Scorer state
   const [dealVerdict, setDealVerdict] = useState<"buy" | "negotiate" | "overpriced" | null>(null);
+  
+  // Competitor Analysis state (one-click deep dive)
+  const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null);
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<AnalysisResult | null>(null);
+  const [isAnalyzingCompetitor, setIsAnalyzingCompetitor] = useState(false);
+  const [competitorSheetOpen, setCompetitorSheetOpen] = useState(false);
   
   // Auto-calculate deal verdict when financial values change
   useEffect(() => {
@@ -989,6 +996,69 @@ export default function CleanBIExplorer() {
     toast({ title: "Removed", description: "Analysis removed from history" });
   };
 
+  // One-click competitor analysis - analyze any competitor with full CLEANBI scoring
+  const analyzeCompetitor = async (competitor: Competitor) => {
+    setSelectedCompetitor(competitor);
+    setIsAnalyzingCompetitor(true);
+    setCompetitorSheetOpen(true);
+    setCompetitorAnalysis(null);
+    
+    try {
+      toast({ 
+        title: "Analyzing Competitor", 
+        description: `Running CLEANBI analysis on ${competitor.name}...` 
+      });
+      
+      const response = await apiRequest("POST", "/api/cleanbi-explorer/analyze-competitor", {
+        placeId: competitor.id,
+        name: competitor.name,
+        lat: competitor.lat,
+        lng: competitor.lng
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        const result: AnalysisResult = {
+          address: data.address || competitor.name,
+          lat: competitor.lat,
+          lng: competitor.lng,
+          cleanbiScore: data.cleanbiScore,
+          grade: data.grade,
+          competitorCount: data.competitorCount,
+          populationDensity: data.populationDensity,
+          medianIncome: data.medianIncome,
+          trafficScore: data.trafficScore || 75,
+          opportunityLevel: data.opportunityLevel,
+          streetViewUrl: data.streetViewUrl,
+          aerialViewUrl: data.aerialViewUrl
+        };
+        
+        setCompetitorAnalysis(result);
+        
+        toast({ 
+          title: `Competitor Grade: ${result.grade}`, 
+          description: `${competitor.name}: Score ${result.cleanbiScore}/100`
+        });
+      } else {
+        toast({ 
+          title: "Analysis Failed", 
+          description: data.error || "Could not analyze competitor", 
+          variant: "destructive" 
+        });
+      }
+    } catch (error) {
+      console.error("Competitor analysis error:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to analyze competitor location", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsAnalyzingCompetitor(false);
+    }
+  };
+
   const toggleLayer = (layer: keyof typeof layers) => {
     const newValue = !layers[layer];
     setLayers(prev => ({ ...prev, [layer]: newValue }));
@@ -1272,7 +1342,10 @@ export default function CleanBIExplorer() {
 
                   {/* Competition Tab */}
                   <TabsContent value="compete" className="mt-0">
-                    <div className="text-xs text-white/50 mb-2">Nearby Competitors ({competitors.length})</div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs text-white/50">Nearby Competitors ({competitors.length})</div>
+                      <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661]">Click to Analyze</Badge>
+                    </div>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {competitors.length === 0 ? (
                         <div className="text-center py-6 text-white/40 text-sm">
@@ -1281,10 +1354,16 @@ export default function CleanBIExplorer() {
                         </div>
                       ) : (
                         competitors.slice(0, 10).map((comp) => (
-                          <div key={comp.id} className="bg-white/5 rounded-lg p-3">
+                          <button
+                            key={comp.id}
+                            onClick={() => analyzeCompetitor(comp)}
+                            disabled={isAnalyzingCompetitor && selectedCompetitor?.id === comp.id}
+                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg p-3 transition-all duration-200 border border-transparent hover:border-[#C8A661]/30 group"
+                            data-testid={`button-analyze-competitor-${comp.id}`}
+                          >
                             <div className="flex items-start justify-between">
                               <div className="flex-1 min-w-0">
-                                <div className="font-medium text-white text-sm truncate">{comp.name}</div>
+                                <div className="font-medium text-white text-sm truncate group-hover:text-[#C8A661] transition-colors">{comp.name}</div>
                                 <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
                                   <span className="flex items-center gap-1">
                                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
@@ -1296,8 +1375,18 @@ export default function CleanBIExplorer() {
                                   </span>
                                 </div>
                               </div>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {isAnalyzingCompetitor && selectedCompetitor?.id === comp.id ? (
+                                  <Loader2 className="w-4 h-4 text-[#C8A661] animate-spin" />
+                                ) : (
+                                  <>
+                                    <Target className="w-4 h-4 text-[#C8A661]" />
+                                    <span className="text-[10px] text-[#C8A661]">Analyze</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          </button>
                         ))
                       )}
                     </div>
@@ -2144,6 +2233,210 @@ export default function CleanBIExplorer() {
             </div>
           </div>
         )}
+
+        {/* Competitor Analysis Sheet - One-Click Deep Dive */}
+        <Sheet open={competitorSheetOpen} onOpenChange={setCompetitorSheetOpen}>
+          <SheetContent 
+            side="right" 
+            className="w-full sm:max-w-lg bg-[#0a0a14] border-l border-white/10 text-white overflow-y-auto"
+          >
+            <SheetHeader className="pb-4 border-b border-white/10">
+              <SheetTitle className="text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-[#C8A661]" />
+                Competitor Analysis
+              </SheetTitle>
+              <SheetDescription className="text-white/60">
+                {selectedCompetitor?.name || "Loading..."}
+              </SheetDescription>
+            </SheetHeader>
+
+            {isAnalyzingCompetitor ? (
+              <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 text-white animate-spin" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-medium">Analyzing {selectedCompetitor?.name}</p>
+                  <p className="text-white/50 text-sm mt-1">Running CLEANBI™ intelligence...</p>
+                </div>
+              </div>
+            ) : competitorAnalysis ? (
+              <div className="py-6 space-y-6">
+                {/* Score Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-white">{competitorAnalysis.address}</div>
+                    <div className="text-sm text-white/50 mt-1">
+                      {competitorAnalysis.competitorCount} nearby competitors • {(competitorAnalysis.populationDensity / 1000).toFixed(1)}K density
+                    </div>
+                  </div>
+                  <div 
+                    className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-white shadow-lg"
+                    style={{ backgroundColor: GRADE_COLORS[competitorAnalysis.grade] || "#C8A661" }}
+                  >
+                    {competitorAnalysis.grade}
+                  </div>
+                </div>
+
+                {/* Score Bar */}
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white/70 text-sm">CLEANBI™ Score</span>
+                    <span className="text-xl font-bold" style={{ color: GRADE_COLORS[competitorAnalysis.grade] }}>
+                      {competitorAnalysis.cleanbiScore}/100
+                    </span>
+                  </div>
+                  <Progress value={competitorAnalysis.cleanbiScore} className="h-2" />
+                  <div className="mt-2 text-xs text-white/50">
+                    {OPPORTUNITY_LABELS[competitorAnalysis.opportunityLevel]?.text || "Analysis Complete"}
+                  </div>
+                </div>
+
+                {/* Comparison with Primary Location */}
+                {analysisResult && (
+                  <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-xl p-4 border border-[#C8A661]/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Scale className="w-4 h-4 text-[#C8A661]" />
+                      <span className="text-sm font-medium text-white">vs Your Location</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center">
+                        <div className="text-[10px] text-white/40 mb-1">Your Score</div>
+                        <div 
+                          className="text-lg font-bold"
+                          style={{ color: GRADE_COLORS[analysisResult.grade] }}
+                        >
+                          {analysisResult.cleanbiScore}
+                        </div>
+                      </div>
+                      <div className="text-center flex flex-col items-center justify-center">
+                        <div className={`text-xs font-medium ${
+                          analysisResult.cleanbiScore > competitorAnalysis.cleanbiScore 
+                            ? "text-green-400" 
+                            : analysisResult.cleanbiScore < competitorAnalysis.cleanbiScore 
+                              ? "text-red-400" 
+                              : "text-white/50"
+                        }`}>
+                          {analysisResult.cleanbiScore > competitorAnalysis.cleanbiScore 
+                            ? `+${analysisResult.cleanbiScore - competitorAnalysis.cleanbiScore} pts`
+                            : analysisResult.cleanbiScore < competitorAnalysis.cleanbiScore
+                              ? `${analysisResult.cleanbiScore - competitorAnalysis.cleanbiScore} pts`
+                              : "Tied"}
+                        </div>
+                        <div className="text-[10px] text-white/30">difference</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[10px] text-white/40 mb-1">Competitor</div>
+                        <div 
+                          className="text-lg font-bold"
+                          style={{ color: GRADE_COLORS[competitorAnalysis.grade] }}
+                        >
+                          {competitorAnalysis.cleanbiScore}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Metrics */}
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-white/70">Key Metrics</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                        <DollarSign className="w-3 h-3" />
+                        Median Income
+                      </div>
+                      <div className="text-lg font-bold text-white">
+                        ${(competitorAnalysis.medianIncome / 1000).toFixed(0)}K
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                        <Users className="w-3 h-3" />
+                        Pop. Density
+                      </div>
+                      <div className="text-lg font-bold text-white">
+                        {(competitorAnalysis.populationDensity / 1000).toFixed(1)}K/mi²
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                        <Building2 className="w-3 h-3" />
+                        Competitors
+                      </div>
+                      <div className="text-lg font-bold text-white">
+                        {competitorAnalysis.competitorCount}
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                        <Star className="w-3 h-3 text-yellow-400" />
+                        Their Rating
+                      </div>
+                      <div className="text-lg font-bold text-white">
+                        {selectedCompetitor?.rating.toFixed(1)} ({selectedCompetitor?.reviewCount})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Strategic Insights */}
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-medium text-white">Strategic Insight</span>
+                  </div>
+                  <p className="text-sm text-white/70 leading-relaxed">
+                    {analysisResult && competitorAnalysis.cleanbiScore < analysisResult.cleanbiScore ? (
+                      <>Your location has a <span className="text-green-400 font-medium">competitive advantage</span> with a {analysisResult.cleanbiScore - competitorAnalysis.cleanbiScore} point higher score. Focus on marketing and service quality to capture their customers.</>
+                    ) : analysisResult && competitorAnalysis.cleanbiScore > analysisResult.cleanbiScore ? (
+                      <>This competitor has a <span className="text-yellow-400 font-medium">{competitorAnalysis.cleanbiScore - analysisResult.cleanbiScore} point advantage</span>. Study their operations, pricing, and customer experience to identify improvement opportunities.</>
+                    ) : (
+                      <>This competitor operates in a similar market position. Differentiation through service quality, extended hours, or premium offerings could help you stand out.</>
+                    )}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full bg-[#C8A661] hover:bg-[#C8A661]/90 text-white"
+                    onClick={() => {
+                      if (competitorAnalysis) {
+                        setAddress(competitorAnalysis.address);
+                        setCompetitorSheetOpen(false);
+                        handleAnalyze();
+                      }
+                    }}
+                    data-testid="button-analyze-as-primary"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Analyze This Location as Primary
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full border-white/20 text-white hover:bg-white/10"
+                    onClick={() => {
+                      if (competitorAnalysis) {
+                        window.open(
+                          `https://www.google.com/maps/search/?api=1&query=${competitorAnalysis.lat},${competitorAnalysis.lng}`,
+                          "_blank"
+                        );
+                      }
+                    }}
+                    data-testid="button-open-in-maps"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open in Google Maps
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </SheetContent>
+        </Sheet>
       </div>
     </>
   );
