@@ -72,7 +72,10 @@ const createPromoSchema = z.object({
   maxRedemptionsPerUser: z.coerce.number().min(1).default(1),
   expiresAt: z.string().optional(),
   syncToStripe: z.boolean().default(true),
-});
+}).refine(
+  (data) => data.discountType !== "percent" || data.discountAmount <= 100,
+  { message: "Percent discount cannot exceed 100%", path: ["discountAmount"] }
+);
 
 type PromoFormData = z.infer<typeof createPromoSchema>;
 
@@ -163,12 +166,28 @@ export default function AdminPromoCodes() {
     },
   });
 
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast({ title: "Copied!", description: `Promo code "${code}" copied to clipboard` });
+  const copyToClipboard = async (code: string) => {
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(code);
+        toast({ title: "Copied!", description: `Promo code "${code}" copied to clipboard` });
+      } else {
+        toast({ 
+          title: "Copy this code:", 
+          description: code,
+          duration: 8000 
+        });
+      }
+    } catch {
+      toast({ 
+        title: "Copy this code:", 
+        description: code,
+        duration: 8000 
+      });
+    }
   };
 
-  const generateShareMessage = (code: string, discount: string) => {
+  const generateShareMessage = async (code: string, discount: string) => {
     const message = `🎉 EXCLUSIVE DEAL for our Facebook Group members! 
 
 Use code: ${code}
@@ -177,8 +196,24 @@ Get ${discount} off your WashBizHub subscription!
 Start analyzing locations with CLEANBI™ and grow your laundromat empire! 🧺
 
 👉 https://washbizhub.com/pricing`;
-    navigator.clipboard.writeText(message);
-    toast({ title: "Share message copied!", description: "Ready to paste in your Facebook group" });
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(message);
+        toast({ title: "Share message copied!", description: "Ready to paste in your Facebook group" });
+      } else {
+        toast({ 
+          title: "Share Message:", 
+          description: `Copy this: ${message.substring(0, 100)}...`,
+          duration: 10000 
+        });
+      }
+    } catch {
+      toast({ 
+        title: "Share Message:", 
+        description: `Copy manually: ${message.substring(0, 80)}...`,
+        duration: 10000 
+      });
+    }
   };
 
   if (authLoading) {
@@ -628,8 +663,8 @@ Limited time offer! 🔥`}
                 variant="outline" 
                 size="sm" 
                 className="mt-3"
-                onClick={() => {
-                  navigator.clipboard.writeText(`🚀 EXCLUSIVE for our group members!
+                onClick={async () => {
+                  const template = `🚀 EXCLUSIVE for our group members!
 
 We just launched CLEANBI™ - the ultimate location analysis tool for laundromat investors!
 
@@ -643,8 +678,25 @@ What you'll get:
 
 Try it now: https://washbizhub.com/cleanbi-explorer
 
-Limited time offer! 🔥`);
-                  toast({ title: "Template copied!" });
+Limited time offer! 🔥`;
+                  try {
+                    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                      await navigator.clipboard.writeText(template);
+                      toast({ title: "Template copied!" });
+                    } else {
+                      toast({ 
+                        title: "Copy manually", 
+                        description: "Select the template text above and copy it",
+                        duration: 5000 
+                      });
+                    }
+                  } catch {
+                    toast({ 
+                      title: "Copy manually", 
+                      description: "Select the template text above and copy it",
+                      duration: 5000 
+                    });
+                  }
                 }}
                 data-testid="button-copy-template"
               >

@@ -20,7 +20,10 @@ const createPromoCodeSchema = z.object({
   expiresAt: z.string().datetime().optional(),
   applicableProducts: z.array(z.string()).optional(),
   syncToStripe: z.boolean().default(true),
-});
+}).refine(
+  (data) => data.discountType !== "percent" || data.discountAmount <= 100,
+  { message: "Percent discount cannot exceed 100%", path: ["discountAmount"] }
+);
 
 const validatePromoCodeSchema = z.object({
   code: z.string().min(1),
