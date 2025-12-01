@@ -1052,6 +1052,79 @@ const DEFAULT_DEMOGRAPHICS: CensusData = {
   confidence: 30
 };
 
+// ═══════════════════════════════════════════════════════════════
+// INTERNATIONAL CITY DEMOGRAPHICS - Top Member Countries
+// PPP-adjusted for CLEANBI scoring accuracy (15.5% international members)
+// ═══════════════════════════════════════════════════════════════
+const INTERNATIONAL_CITY_DEMOGRAPHICS: Record<string, Partial<CensusData>> = {
+  // NIGERIA (1,560 members - #1 international)
+  'lagos,ng': { medianHouseholdIncome: 8500, renterPercentage: 72, populationDensity: 20000, medianAge: 24 },
+  'abuja,ng': { medianHouseholdIncome: 12000, renterPercentage: 68, populationDensity: 5500, medianAge: 26 },
+  'port harcourt,ng': { medianHouseholdIncome: 9500, renterPercentage: 70, populationDensity: 8000, medianAge: 25 },
+  'ibadan,ng': { medianHouseholdIncome: 6500, renterPercentage: 65, populationDensity: 6500, medianAge: 24 },
+  'kano,ng': { medianHouseholdIncome: 5500, renterPercentage: 60, populationDensity: 12000, medianAge: 22 },
+  
+  // PHILIPPINES (1,034 members - #2 international)
+  'manila,ph': { medianHouseholdIncome: 9000, renterPercentage: 55, populationDensity: 43000, medianAge: 26 },
+  'quezon city,ph': { medianHouseholdIncome: 10500, renterPercentage: 52, populationDensity: 21000, medianAge: 27 },
+  'cebu,ph': { medianHouseholdIncome: 8500, renterPercentage: 48, populationDensity: 16000, medianAge: 25 },
+  'davao,ph': { medianHouseholdIncome: 7500, renterPercentage: 45, populationDensity: 2800, medianAge: 26 },
+  'makati,ph': { medianHouseholdIncome: 18000, renterPercentage: 65, populationDensity: 24000, medianAge: 30 },
+  
+  // INDIA (741 members - #3 international)
+  'mumbai,in': { medianHouseholdIncome: 6500, renterPercentage: 55, populationDensity: 32000, medianAge: 28 },
+  'delhi,in': { medianHouseholdIncome: 7500, renterPercentage: 48, populationDensity: 29000, medianAge: 27 },
+  'bangalore,in': { medianHouseholdIncome: 12000, renterPercentage: 58, populationDensity: 12000, medianAge: 30 },
+  'hyderabad,in': { medianHouseholdIncome: 9500, renterPercentage: 52, populationDensity: 10000, medianAge: 29 },
+  'chennai,in': { medianHouseholdIncome: 8000, renterPercentage: 50, populationDensity: 26000, medianAge: 28 },
+  'pune,in': { medianHouseholdIncome: 10500, renterPercentage: 55, populationDensity: 15000, medianAge: 29 },
+  
+  // CANADA (725 members - #4 international)
+  'toronto,ca': { medianHouseholdIncome: 65000, renterPercentage: 52, populationDensity: 4300, medianAge: 40 },
+  'vancouver,ca': { medianHouseholdIncome: 58000, renterPercentage: 55, populationDensity: 5500, medianAge: 41 },
+  'montreal,ca': { medianHouseholdIncome: 52000, renterPercentage: 62, populationDensity: 4600, medianAge: 39 },
+  'calgary,ca': { medianHouseholdIncome: 68000, renterPercentage: 38, populationDensity: 1500, medianAge: 37 },
+  'edmonton,ca': { medianHouseholdIncome: 62000, renterPercentage: 42, populationDensity: 1400, medianAge: 36 },
+  'ottawa,ca': { medianHouseholdIncome: 72000, renterPercentage: 40, populationDensity: 350, medianAge: 40 },
+  
+  // AUSTRALIA (542 members - #5 international)
+  'sydney,au': { medianHouseholdIncome: 72000, renterPercentage: 35, populationDensity: 4100, medianAge: 36 },
+  'melbourne,au': { medianHouseholdIncome: 68000, renterPercentage: 32, populationDensity: 1700, medianAge: 35 },
+  'brisbane,au': { medianHouseholdIncome: 65000, renterPercentage: 35, populationDensity: 950, medianAge: 35 },
+  'perth,au': { medianHouseholdIncome: 70000, renterPercentage: 28, populationDensity: 320, medianAge: 36 },
+  'adelaide,au': { medianHouseholdIncome: 58000, renterPercentage: 30, populationDensity: 1600, medianAge: 39 },
+  
+  // UNITED KINGDOM (518 members - #6 international)
+  'london,gb': { medianHouseholdIncome: 52000, renterPercentage: 55, populationDensity: 14500, medianAge: 35 },
+  'birmingham,gb': { medianHouseholdIncome: 38000, renterPercentage: 42, populationDensity: 4200, medianAge: 33 },
+  'manchester,gb': { medianHouseholdIncome: 40000, renterPercentage: 48, populationDensity: 4700, medianAge: 32 },
+  'leeds,gb': { medianHouseholdIncome: 38000, renterPercentage: 45, populationDensity: 3500, medianAge: 34 },
+  'glasgow,gb': { medianHouseholdIncome: 35000, renterPercentage: 52, populationDensity: 3600, medianAge: 36 },
+  
+  // UAE (289 members - #7 international)
+  'dubai,ae': { medianHouseholdIncome: 45000, renterPercentage: 85, populationDensity: 760, medianAge: 33 },
+  'abu dhabi,ae': { medianHouseholdIncome: 52000, renterPercentage: 78, populationDensity: 620, medianAge: 32 },
+  'sharjah,ae': { medianHouseholdIncome: 32000, renterPercentage: 88, populationDensity: 3000, medianAge: 31 },
+  
+  // SOUTH AFRICA (186 members)
+  'johannesburg,za': { medianHouseholdIncome: 15000, renterPercentage: 40, populationDensity: 2700, medianAge: 28 },
+  'cape town,za': { medianHouseholdIncome: 18000, renterPercentage: 38, populationDensity: 1500, medianAge: 30 },
+  'durban,za': { medianHouseholdIncome: 12000, renterPercentage: 42, populationDensity: 1500, medianAge: 27 },
+  
+  // KENYA (178 members)
+  'nairobi,ke': { medianHouseholdIncome: 7500, renterPercentage: 70, populationDensity: 5500, medianAge: 24 },
+  'mombasa,ke': { medianHouseholdIncome: 5500, renterPercentage: 65, populationDensity: 4200, medianAge: 23 },
+  
+  // MEXICO (156 members)
+  'mexico city,mx': { medianHouseholdIncome: 12000, renterPercentage: 35, populationDensity: 6000, medianAge: 32 },
+  'guadalajara,mx': { medianHouseholdIncome: 10500, renterPercentage: 32, populationDensity: 8400, medianAge: 30 },
+  'monterrey,mx': { medianHouseholdIncome: 14000, renterPercentage: 28, populationDensity: 2700, medianAge: 31 },
+  
+  // GHANA (142 members)
+  'accra,gh': { medianHouseholdIncome: 6000, renterPercentage: 68, populationDensity: 12000, medianAge: 22 },
+  'kumasi,gh': { medianHouseholdIncome: 4500, renterPercentage: 62, populationDensity: 8500, medianAge: 21 },
+};
+
 async function fetchCensusData(
   stateCode: string,
   countyCode?: string,
@@ -1525,5 +1598,99 @@ export function getMarketScoreFromCensus(census: CensusData): {
     incomeScore: Math.round(incomeScore),
     densityScore: Math.round(densityScore),
     demographicPowerScore
+  };
+}
+
+/**
+ * Get demographics for international cities
+ * Used for CLEANBI scoring of non-US addresses (15.5% of members)
+ * @param city City name (case-insensitive)
+ * @param countryCode ISO 2-letter country code (e.g., 'NG', 'PH', 'IN', 'CA', 'AU', 'GB', 'AE')
+ * @returns CensusData with international demographics or null if not found
+ */
+export function getInternationalCityDemographics(
+  city: string,
+  countryCode: string
+): CensusData | null {
+  const key = `${city.toLowerCase()},${countryCode.toLowerCase()}`;
+  const demographics = INTERNATIONAL_CITY_DEMOGRAPHICS[key];
+  
+  if (demographics) {
+    console.log(`🌍 International demographics: ${city}, ${countryCode.toUpperCase()}`);
+    return {
+      ...DEFAULT_DEMOGRAPHICS,
+      ...demographics,
+      geoLevel: 'county',
+      confidence: 65,
+      dataYear: 2024
+    };
+  }
+  
+  return null;
+}
+
+/**
+ * Get default demographics for international addresses by country
+ * Provides reasonable fallback for countries without specific city data
+ */
+export function getCountryDefaultDemographics(countryCode: string): CensusData {
+  const countryDefaults: Record<string, Partial<CensusData>> = {
+    // Developed economies
+    'ca': { medianHouseholdIncome: 60000, renterPercentage: 45, populationDensity: 3000, medianAge: 41 },
+    'au': { medianHouseholdIncome: 65000, renterPercentage: 32, populationDensity: 2000, medianAge: 37 },
+    'gb': { medianHouseholdIncome: 42000, renterPercentage: 48, populationDensity: 4500, medianAge: 40 },
+    'de': { medianHouseholdIncome: 48000, renterPercentage: 52, populationDensity: 5000, medianAge: 45 },
+    'fr': { medianHouseholdIncome: 40000, renterPercentage: 45, populationDensity: 4000, medianAge: 42 },
+    'nz': { medianHouseholdIncome: 55000, renterPercentage: 35, populationDensity: 1800, medianAge: 38 },
+    'jp': { medianHouseholdIncome: 38000, renterPercentage: 40, populationDensity: 12000, medianAge: 48 },
+    
+    // Middle East (high renter markets - excellent for laundromats)
+    'ae': { medianHouseholdIncome: 42000, renterPercentage: 85, populationDensity: 1500, medianAge: 32 },
+    'sa': { medianHouseholdIncome: 35000, renterPercentage: 65, populationDensity: 1200, medianAge: 31 },
+    'qa': { medianHouseholdIncome: 55000, renterPercentage: 88, populationDensity: 800, medianAge: 33 },
+    'kw': { medianHouseholdIncome: 40000, renterPercentage: 75, populationDensity: 1000, medianAge: 34 },
+    
+    // Africa (high growth markets)
+    'ng': { medianHouseholdIncome: 7500, renterPercentage: 68, populationDensity: 8000, medianAge: 18 },
+    'za': { medianHouseholdIncome: 14000, renterPercentage: 40, populationDensity: 2000, medianAge: 27 },
+    'ke': { medianHouseholdIncome: 6000, renterPercentage: 68, populationDensity: 4500, medianAge: 20 },
+    'gh': { medianHouseholdIncome: 5000, renterPercentage: 65, populationDensity: 6000, medianAge: 21 },
+    'eg': { medianHouseholdIncome: 8000, renterPercentage: 50, populationDensity: 5500, medianAge: 24 },
+    
+    // Asia (diverse markets)
+    'ph': { medianHouseholdIncome: 8500, renterPercentage: 52, populationDensity: 18000, medianAge: 26 },
+    'in': { medianHouseholdIncome: 7000, renterPercentage: 52, populationDensity: 15000, medianAge: 28 },
+    'pk': { medianHouseholdIncome: 4500, renterPercentage: 45, populationDensity: 8000, medianAge: 22 },
+    'bd': { medianHouseholdIncome: 4000, renterPercentage: 55, populationDensity: 12000, medianAge: 27 },
+    'sg': { medianHouseholdIncome: 65000, renterPercentage: 20, populationDensity: 8500, medianAge: 42 },
+    'my': { medianHouseholdIncome: 12000, renterPercentage: 35, populationDensity: 3500, medianAge: 30 },
+    'th': { medianHouseholdIncome: 10000, renterPercentage: 30, populationDensity: 3200, medianAge: 38 },
+    'id': { medianHouseholdIncome: 6500, renterPercentage: 35, populationDensity: 5000, medianAge: 29 },
+    'vn': { medianHouseholdIncome: 5500, renterPercentage: 40, populationDensity: 4500, medianAge: 31 },
+    
+    // Latin America
+    'mx': { medianHouseholdIncome: 11000, renterPercentage: 32, populationDensity: 6500, medianAge: 29 },
+    'br': { medianHouseholdIncome: 9500, renterPercentage: 30, populationDensity: 4800, medianAge: 33 },
+    'co': { medianHouseholdIncome: 8500, renterPercentage: 38, populationDensity: 4200, medianAge: 31 },
+    'ar': { medianHouseholdIncome: 12000, renterPercentage: 35, populationDensity: 3500, medianAge: 32 },
+    'cl': { medianHouseholdIncome: 15000, renterPercentage: 28, populationDensity: 2800, medianAge: 35 },
+    
+    // Caribbean
+    'jm': { medianHouseholdIncome: 8000, renterPercentage: 45, populationDensity: 2500, medianAge: 30 },
+    'tt': { medianHouseholdIncome: 18000, renterPercentage: 35, populationDensity: 2800, medianAge: 34 },
+    'pr': { medianHouseholdIncome: 22000, renterPercentage: 40, populationDensity: 4000, medianAge: 43 },
+  };
+  
+  const code = countryCode.toLowerCase();
+  const defaults = countryDefaults[code] || {};
+  
+  console.log(`🌍 Country default demographics: ${countryCode.toUpperCase()}`);
+  
+  return {
+    ...DEFAULT_DEMOGRAPHICS,
+    ...defaults,
+    geoLevel: 'county',
+    confidence: 50,
+    dataYear: 2024
   };
 }
