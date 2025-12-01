@@ -321,11 +321,11 @@ export function Hero() {
             data-testid="section-cleanbi-demo"
           >
             {step === 'address' && (
-              <div className="animate-in">
-                <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white">
+              <div className="animate-in text-center">
+                <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white text-center">
                   Analyze Any Laundromat Location
                 </h2>
-                <p className="text-gray-300 mb-8 text-lg">Get instant CLEANBI™ intelligence on any business or property</p>
+                <p className="text-gray-300 mb-8 text-lg text-center">Get instant CLEANBI™ intelligence on any business or property</p>
                 
                 <div className="max-w-2xl mx-auto space-y-4">
                   {/* Business Name Field */}
