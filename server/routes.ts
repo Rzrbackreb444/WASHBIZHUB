@@ -1552,9 +1552,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== GOOGLE-POWERED CLEANBI ====================
   
   // POST /api/cleanbi/auto - Calculate CLEANBI score for ANY address (business OR residential)
+  // ENFORCES SUBSCRIPTION QUOTAS - Free: 1/day, Pro: unlimited
   app.post("/api/cleanbi/auto", async (req, res) => {
     try {
-      // Rate limiting (30 req/min per IP)
+      // Rate limiting (30 req/min per IP) - basic DDoS protection
       const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
       if (!checkRateLimit(clientIp)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
@@ -1571,19 +1572,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Address too long" });
       }
 
+      // Import quota management functions
+      const { 
+        getUserCLEANBITier, 
+        checkCLEANBIQuota, 
+        checkAnonymousQuota,
+        trackCLEANBIUsage,
+        trackAnonymousUsage,
+        CLEANBI_PRICING_TIERS
+      } = await import('./cleanbi-subscription-manager');
+      
+      // Get user info for quota enforcement
+      const currentUser = await getCurrentUser(req).catch(() => null);
+      
+      // ========================================
+      // ENFORCE SUBSCRIPTION QUOTAS
+      // ========================================
+      
+      if (!currentUser) {
+        // ANONYMOUS USER: 1 free report per day per IP, then must sign up
+        const anonQuota = await checkAnonymousQuota(clientIp);
+        
+        if (!anonQuota.allowed) {
+          return res.status(403).json({
+            error: "quota_exceeded",
+            message: anonQuota.reason,
+            requiresLogin: true,
+            upgradeUrl: "/auth"
+          });
+        }
+      } else {
+        // AUTHENTICATED USER: Check their tier quota
+        const userTier = await getUserCLEANBITier(currentUser.userId);
+        const quota = await checkCLEANBIQuota(currentUser.userId, userTier);
+        
+        if (!quota.allowed) {
+          return res.status(403).json({
+            error: "quota_exceeded",
+            message: quota.reason,
+            requiresUpgrade: true,
+            currentTier: userTier,
+            remainingToday: quota.remainingToday,
+            remainingMonth: quota.remainingMonth,
+            upgradeUrl: "/pricing?upgrade=cleanbi-pro"
+          });
+        }
+      }
+
       // UNIVERSAL SCORING: Detect if address is business or residential
       const { detectAddressType } = await import('./address-type-detector');
       const addressType = await detectAddressType(address, businessName);
 
       console.log(`🎯 Address type detected: ${addressType.type.toUpperCase()} (${addressType.confidence}% confidence)`);
 
+      let result: any;
+      
       if (addressType.type === 'business') {
         // Score as BUSINESS using OPTIMIZED wrapper (caching + rate limiting + batching)
         const { calculateCLEANBIScore } = await import('./cleanbi-engine-wrapper');
-        const { getUserCLEANBITier } = await import('./cleanbi-subscription-manager');
-        
-        // Get user info for quota tracking (if authenticated)
-        const currentUser = await getCurrentUser(req).catch(() => null);
         
         // Load user's REAL subscription tier (defaults to FREE if not authenticated)
         let userTier: Awaited<ReturnType<typeof getUserCLEANBITier>> | undefined;
@@ -1591,30 +1637,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userTier = await getUserCLEANBITier(currentUser.userId);
         }
         
-        const result = await calculateCLEANBIScore({
+        result = await calculateCLEANBIScore({
           address,
           userId: currentUser?.userId,
           userTier
         });
         
-        res.json({
+        result = {
           ...result,
           addressType: 'business',
           confidence: addressType.confidence
-        });
+        };
       } else {
         // Score as RESIDENTIAL using new residential scoring engine
         const { scoreResidentialProperty } = await import('./residential-scoring-engine');
-        const result = await scoreResidentialProperty({ address });
+        const residentialResult = await scoreResidentialProperty({ address });
         
-        res.json({
-          ...result,
+        result = {
+          ...residentialResult,
           addressType: 'residential',
-          // Normalize structure to match business response
           industry: 'Residential Property',
           industryDisplay: 'Residential Property',
-        });
+        };
       }
+      
+      // ========================================
+      // TRACK USAGE AFTER SUCCESSFUL SCORING
+      // ========================================
+      
+      if (currentUser) {
+        await trackCLEANBIUsage(currentUser.userId, 'basic');
+        
+        // Add quota info to response
+        const userTier = await getUserCLEANBITier(currentUser.userId);
+        const updatedQuota = await checkCLEANBIQuota(currentUser.userId, userTier);
+        const tierFeatures = CLEANBI_PRICING_TIERS[userTier].features as any;
+        
+        result.quota = {
+          tier: userTier,
+          remainingToday: updatedQuota.remainingToday,
+          remainingMonth: updatedQuota.remainingMonth,
+          dailyLimit: updatedQuota.dailyLimit,
+          monthlyLimit: updatedQuota.monthlyLimit,
+          // Gate premium features based on tier
+          features: {
+            detailedBreakdown: tierFeatures.detailedBreakdown ?? false,
+            competitorAnalysis: tierFeatures.competitorAnalysis ?? false,
+            demographicData: tierFeatures.demographicData ?? false,
+            pdfExport: tierFeatures.pdfExport ?? false
+          }
+        };
+        
+        // For FREE tier, strip premium data from response
+        if (userTier === 'FREE') {
+          // Keep basic score, grade, and summary - remove detailed breakdowns
+          delete result.competitorData;
+          delete result.demographicDetails;
+          delete result.detailedFactors;
+          result.upgradeCTA = {
+            message: "Upgrade to Pro for competitor analysis, demographics, and PDF export",
+            url: "/pricing?upgrade=cleanbi-pro",
+            price: "$29/mo"
+          };
+        }
+      } else {
+        // Track anonymous usage
+        await trackAnonymousUsage(clientIp);
+        
+        // Anonymous users get very limited data
+        result.quota = {
+          tier: 'ANONYMOUS',
+          remainingToday: 0,
+          message: "Create a free account to get more reports"
+        };
+        
+        // Strip all premium data
+        delete result.competitorData;
+        delete result.demographicDetails;
+        delete result.detailedFactors;
+        
+        result.upgradeCTA = {
+          message: "Sign up free for 1 report/day, or go Pro for unlimited",
+          signupUrl: "/auth",
+          proUrl: "/pricing?upgrade=cleanbi-pro"
+        };
+      }
+      
+      res.json(result);
     } catch (error: any) {
       console.error('Universal CLEANBI error:', error);
       res.status(500).json({ 
@@ -8313,6 +8422,166 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       res.status(500).json(
         createErrorResponse('CHECKOUT_ERROR', 'An error occurred during checkout. Please try again.')
       );
+    }
+  });
+
+  /**
+   * POST /api/cleanbi/subscribe - Create Stripe subscription for CLEANBI Pro ($29/mo)
+   * 
+   * SUBSCRIPTION TIERS:
+   * - PRO: $29/mo - Unlimited daily reports, detailed breakdowns, competitor analysis
+   * - ENTERPRISE: $149/mo - Everything + API access, bulk reports, priority support
+   */
+  app.post("/api/cleanbi/subscribe", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json(
+          createErrorResponse('PAYMENT_UNAVAILABLE', 'Payment processing is currently unavailable.')
+        );
+      }
+      
+      const { tier = 'pro', interval = 'month' } = req.body;
+      const currentUser = await getCurrentUser(req);
+      
+      if (!currentUser) {
+        return res.status(401).json(
+          createErrorResponse('AUTH_REQUIRED', 'Please sign in to subscribe.')
+        );
+      }
+      
+      // Validate tier
+      const validTiers = ['pro', 'enterprise'];
+      if (!validTiers.includes(tier)) {
+        return res.status(400).json(
+          createErrorResponse('INVALID_TIER', 'Invalid subscription tier.')
+        );
+      }
+      
+      // Pricing configuration
+      const pricing: Record<string, { monthly: number; annual: number; name: string }> = {
+        pro: { monthly: 2900, annual: 29000, name: 'CLEANBI Pro' }, // $29/mo or $290/year
+        enterprise: { monthly: 14900, annual: 149000, name: 'CLEANBI Enterprise' } // $149/mo or $1490/year
+      };
+      
+      const selectedPricing = pricing[tier];
+      const amount = interval === 'year' ? selectedPricing.annual : selectedPricing.monthly;
+      
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : `${req.protocol}://${req.hostname}`;
+      
+      // Create subscription checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [{
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: selectedPricing.name,
+              description: tier === 'pro' 
+                ? "Unlimited CLEANBI reports, competitor analysis, demographics, PDF export"
+                : "Everything in Pro + API access, bulk reports, white-label options",
+            },
+            unit_amount: amount,
+            recurring: {
+              interval: interval === 'year' ? 'year' : 'month',
+            },
+          },
+          quantity: 1,
+        }],
+        mode: "subscription",
+        success_url: `${baseUrl}/cleanbi?subscribed=true&tier=${tier}`,
+        cancel_url: `${baseUrl}/pricing`,
+        customer_email: currentUser.user.email || undefined,
+        metadata: { 
+          userId: currentUser.userId,
+          type: 'cleanbi-subscription',
+          tier,
+          interval
+        },
+        subscription_data: {
+          metadata: {
+            userId: currentUser.userId,
+            tierId: tier.toUpperCase()
+          }
+        }
+      });
+
+      res.json({ success: true, checkoutUrl: session.url });
+    } catch (error: any) {
+      console.error("CLEANBI subscription error:", error);
+      res.status(500).json(
+        createErrorResponse('CHECKOUT_ERROR', 'An error occurred during checkout. Please try again.')
+      );
+    }
+  });
+
+  /**
+   * GET /api/cleanbi/quota - Get current user's CLEANBI usage and quota
+   */
+  app.get("/api/cleanbi/quota", async (req: any, res) => {
+    try {
+      const { 
+        getUserCLEANBITier, 
+        checkCLEANBIQuota, 
+        checkAnonymousQuota,
+        CLEANBI_PRICING_TIERS
+      } = await import('./cleanbi-subscription-manager');
+      
+      const currentUser = await getCurrentUser(req).catch(() => null);
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      
+      if (!currentUser) {
+        // Anonymous user
+        const anonQuota = await checkAnonymousQuota(clientIp);
+        return res.json({
+          tier: 'ANONYMOUS',
+          isAuthenticated: false,
+          quota: {
+            allowed: anonQuota.allowed,
+            remainingToday: anonQuota.remaining,
+            dailyLimit: 1,
+            monthlyLimit: 1
+          },
+          features: {
+            detailedBreakdown: false,
+            competitorAnalysis: false,
+            demographicData: false,
+            pdfExport: false
+          },
+          upgradeUrl: '/auth'
+        });
+      }
+      
+      const userTier = await getUserCLEANBITier(currentUser.userId);
+      const quota = await checkCLEANBIQuota(currentUser.userId, userTier);
+      const tierConfig = CLEANBI_PRICING_TIERS[userTier];
+      const features = tierConfig.features as any;
+      
+      res.json({
+        tier: userTier,
+        tierName: tierConfig.name,
+        isAuthenticated: true,
+        quota: {
+          allowed: quota.allowed,
+          remainingToday: quota.remainingToday,
+          remainingMonth: quota.remainingMonth,
+          dailyLimit: quota.dailyLimit,
+          monthlyLimit: quota.monthlyLimit
+        },
+        features: {
+          detailedBreakdown: features.detailedBreakdown ?? false,
+          competitorAnalysis: features.competitorAnalysis ?? false,
+          demographicData: features.demographicData ?? false,
+          pdfExport: features.pdfExport ?? false,
+          savedReports: features.savedReports ?? false,
+          emailAlerts: features.emailAlerts ?? false
+        },
+        upgradeUrl: userTier === 'FREE' ? '/pricing?upgrade=cleanbi-pro' : null
+      });
+    } catch (error: any) {
+      console.error("CLEANBI quota check error:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 
