@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Settings,
   Monitor,
-  Search
+  Search,
+  Ticket
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -116,6 +117,14 @@ export default function AdminDashboard() {
       href: "/admin/indexing",
       color: "text-cyan-500",
       stats: null,
+    },
+    {
+      title: "Promo Codes",
+      description: "Create discount codes for Facebook group",
+      icon: Ticket,
+      href: "/admin/promo-codes",
+      color: "text-amber-500",
+      stats: stats?.promoCodes || 0,
     },
     {
       title: "Settings",

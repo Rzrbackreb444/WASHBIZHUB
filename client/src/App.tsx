@@ -111,6 +111,7 @@ const AdminForum = lazy(() => import("@/pages/admin/forum"));
 const AdminUsers = lazy(() => import("@/pages/admin/users"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/analytics"));
 const AdminSettings = lazy(() => import("@/pages/admin/settings"));
+const AdminPromoCodes = lazy(() => import("@/pages/admin/promo-codes"));
 const AdminIndexing = lazy(() => import("@/pages/admin-indexing"));
 const AdminLogin = lazy(() => import("@/pages/admin-login"));
 const AdminCommandCenter = lazy(() => import("@/pages/admin-dashboard"));
@@ -1175,6 +1176,11 @@ function Router() {
       <Route path="/admin/analytics">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <AdminAnalytics />
+        </Suspense>
+      </Route>
+      <Route path="/admin/promo-codes">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminPromoCodes />
         </Suspense>
       </Route>
       <Route path="/admin/settings">
