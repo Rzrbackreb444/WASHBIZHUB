@@ -304,7 +304,7 @@ export function Hero() {
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)' }}
             data-testid="text-hero-title"
           >
-            The Only Laundromat Platform That <span className="text-teal-400">Pays You Back</span> Before You Pay Us
+            The <span className="text-teal-400">Laundromat Boom</span> Is Here. Get In Before It's Too Late.
           </h1>
           
           <p 
@@ -312,7 +312,7 @@ export function Hero() {
             style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
             data-testid="text-hero-subtitle"
           >
-            AI predicts failures &bull; Dynamic pricing adds $24k/year &bull; Marketplace gives you cash back
+            Everyone wants to own a laundromat. Score any location instantly with CLEANBI™ and find your next investment in a $5B industry.
           </p>
 
           <div 

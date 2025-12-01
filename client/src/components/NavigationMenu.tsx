@@ -41,7 +41,6 @@ import {
   BarChart3,
   Store,
   ClipboardCheck,
-  Monitor,
   Bot,
   Activity,
   Palette,
@@ -80,13 +79,12 @@ const EVALUATE_LINKS = [
 ];
 
 const OPERATE_LINKS = [
-  { href: "/pos-command-center", label: "POS System", icon: Monitor, description: "Payment & operations management" },
+  { href: "/equipment-marketplace", label: "Marketplace", icon: Wrench, description: "Equipment, parts & businesses", badge: "HOT" },
   { href: "/equipment-wizard", label: "Equipment Wizard", icon: Settings, description: "Machine selection tool" },
   { href: "/equipment-guides", label: "Equipment Guides", icon: BookOpen, description: "Brand comparisons" },
   { href: "/service-guy-ai", label: "Service AI", icon: Bot, description: "Equipment troubleshooting" },
   { href: "/equipment-diagnostics", label: "Diagnostics", icon: Activity, description: "Machine issue diagnosis" },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "Floor layout planning" },
-  { href: "/equipment-marketplace", label: "Marketplace", icon: Wrench, description: "Equipment & parts" },
   { href: "/resources", label: "Resources", icon: Library, description: "Guides & templates" },
 ];
 
@@ -123,7 +121,7 @@ const SECTION_NAV: Record<string, { label: string; links: { href: string; label:
   "/operate": {
     label: "Operations",
     links: [
-      { href: "/pos-command-center", label: "POS" },
+      { href: "/equipment-marketplace", label: "Marketplace" },
       { href: "/equipment-wizard", label: "Equipment Wizard" },
       { href: "/equipment-guides", label: "Guides" },
       { href: "/service-guy-ai", label: "Service AI" },
