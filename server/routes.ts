@@ -4814,8 +4814,8 @@ Referral ID: Nicholas Kremers
 Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}
       `.trim();
 
-      // Send to BOTH email addresses
-      const recipients = ['consult@washbizhub.com', 'deals@gokapital.com'];
+      // Send to BOTH email addresses per user specification
+      const recipients = ['deals@gokapital.com', 'funding@washbizhub.com'];
       const apiKey = process.env.RESEND_API_KEY;
       
       if (!apiKey) {
