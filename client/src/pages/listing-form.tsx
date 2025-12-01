@@ -116,16 +116,13 @@ export default function ListingForm() {
 
   const createMutation = useMutation({
     mutationFn: async (data: ListingFormData) => {
-      const response = await apiRequest('/api/listings', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          priceInUSD: data.priceOriginal,
-          status: 'draft',
-          detailLevel: detailLevel,
-        }),
+      const response = await apiRequest('POST', '/api/listings', {
+        ...data,
+        priceInUSD: data.priceOriginal,
+        status: 'draft',
+        detailLevel: detailLevel,
       });
-      return response as Listing;
+      return response.json() as Promise<Listing>;
     },
     onSuccess: (listing) => {
       setCreatedListing(listing);
@@ -149,11 +146,11 @@ export default function ListingForm() {
 
   const publishMutation = useMutation({
     mutationFn: async (listingId: string) => {
-      const response = await apiRequest(`/api/listings/${listingId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status: 'active', listedAt: new Date().toISOString() }),
+      const response = await apiRequest('PATCH', `/api/listings/${listingId}`, {
+        status: 'active',
+        listedAt: new Date().toISOString(),
       });
-      return response;
+      return response.json();
     },
     onSuccess: () => {
       toast({
