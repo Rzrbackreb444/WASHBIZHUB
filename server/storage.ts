@@ -819,6 +819,7 @@ export interface IStorage {
   // Rate Limiting - Track and limit API requests per IP
   checkRateLimit(ipAddress: string, endpoint: string, maxRequests: number, windowHours: number): Promise<boolean>;
   recordRequest(ipAddress: string, endpoint: string, windowHours: number): Promise<void>;
+  getRateLimitCount(ipAddress: string, endpoint: string, windowHours: number): Promise<number>;
   cleanupExpiredRateLimits(): Promise<void>;
   
   // Email Verification - Ensure users own the emails they register
@@ -1688,6 +1689,7 @@ export class MemStorage implements IStorage {
   // Security: Rate Limiting & Email Verification Stubs
   async checkRateLimit(): Promise<boolean> { return true; } // No rate limiting in MemStorage
   async recordRequest(): Promise<void> { } // No-op in MemStorage
+  async getRateLimitCount(): Promise<number> { return 0; } // No tracking in MemStorage
   async cleanupExpiredRateLimits(): Promise<void> { }
   async createEmailVerificationToken(): Promise<EmailVerificationToken> { throw new Error("Use DbStorage for security features"); }
   async getEmailVerificationToken(): Promise<EmailVerificationToken | undefined> { return undefined; }
