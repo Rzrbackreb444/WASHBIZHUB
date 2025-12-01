@@ -32,7 +32,7 @@ export interface CensusData {
 export interface CensusEnrichmentResult {
   success: boolean;
   data: CensusData | null;
-  source: 'census_api' | 'zip_estimate' | 'fallback';
+  source: 'census_api' | 'zip_estimate' | 'fallback' | 'international_city' | 'international_country';
   error?: string;
 }
 
@@ -1335,9 +1335,17 @@ const ZIP_DEMOGRAPHICS: Record<string, Partial<CensusData>> = {
 export async function enrichWithCensusData(
   zipCode?: string,
   stateAbbr?: string,
-  coords?: { lat: number; lng: number }
+  coords?: { lat: number; lng: number },
+  city?: string,
+  countryCode?: string
 ): Promise<CensusEnrichmentResult> {
-  const cacheKey = zipCode || `${coords?.lat},${coords?.lng}` || stateAbbr || 'default';
+  // Build cache key from defined components only
+  const cacheKeyParts: string[] = [];
+  if (zipCode) cacheKeyParts.push(`zip:${zipCode}`);
+  if (coords?.lat && coords?.lng) cacheKeyParts.push(`coords:${coords.lat},${coords.lng}`);
+  if (city && countryCode) cacheKeyParts.push(`intl:${city.toLowerCase()},${countryCode.toLowerCase()}`);
+  if (stateAbbr) cacheKeyParts.push(`state:${stateAbbr}`);
+  const cacheKey = cacheKeyParts.length > 0 ? cacheKeyParts.join('|') : 'default';
   
   const cached = censusCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -1346,6 +1354,28 @@ export async function enrichWithCensusData(
   }
 
   try {
+    // INTERNATIONAL ADDRESS PATH - Check for non-US addresses first
+    if (countryCode && countryCode.toUpperCase() !== 'US') {
+      console.log(`🌍 Processing international address: ${city || 'unknown'}, ${countryCode}`);
+      
+      // Try city-level lookup first
+      if (city) {
+        const cityData = getInternationalCityDemographics(city, countryCode);
+        if (cityData) {
+          censusCache.set(cacheKey, { data: cityData, timestamp: Date.now() });
+          console.log(`✅ International CITY demographics: ${city}, ${countryCode.toUpperCase()} - income=$${cityData.medianHouseholdIncome}, renters=${cityData.renterPercentage}%`);
+          return { success: true, data: cityData, source: 'international_city' };
+        }
+      }
+      
+      // Fall back to country-level defaults
+      const countryData = getCountryDefaultDemographics(countryCode);
+      censusCache.set(cacheKey, { data: countryData, timestamp: Date.now() });
+      console.log(`✅ International COUNTRY demographics: ${countryCode.toUpperCase()} - income=$${countryData.medianHouseholdIncome}, renters=${countryData.renterPercentage}%`);
+      return { success: true, data: countryData, source: 'international_country' };
+    }
+
+    // US ADDRESS PATH - Original logic
     if (zipCode) {
       const fips = await getStateCountyFromZip(zipCode);
       
