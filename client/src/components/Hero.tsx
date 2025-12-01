@@ -29,6 +29,7 @@ interface DemoResult {
 }
 
 export function Hero() {
+  const [businessName, setBusinessName] = useState('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [step, setStep] = useState<DemoStep>('address');
@@ -119,10 +120,12 @@ export function Hero() {
     };
   };
 
-  const runDemo = async (inputAddress?: string) => {
+  const runDemo = async (inputAddress?: string, inputName?: string) => {
     const targetAddress = inputAddress || address;
+    const targetName = inputName !== undefined ? inputName : businessName;
     if (!targetAddress.trim()) return;
     if (inputAddress) setAddress(inputAddress);
+    if (inputName !== undefined) setBusinessName(inputName);
     setStep('analyzing');
     setShowPredictions(false);
     
@@ -130,7 +133,7 @@ export function Hero() {
       const response = await fetch('/api/cleanbi-explorer/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: targetAddress, radius: 5 })
+        body: JSON.stringify({ address: targetAddress, businessName: targetName || undefined, radius: 5 })
       });
       
       if (!response.ok) {
@@ -319,59 +322,85 @@ export function Hero() {
           >
             {step === 'address' && (
               <div className="animate-in">
-                <h2 className="text-3xl sm:text-4xl font-bebas mb-6 text-white">
-                  Try a Real Laundromat Address
+                <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white">
+                  Analyze Any Laundromat Location
                 </h2>
-                <p className="text-gray-300 mb-6 text-lg">Enter any address or select a sample laundromat below</p>
+                <p className="text-gray-300 mb-8 text-lg">Get instant CLEANBI™ intelligence on any business or property</p>
                 
-                <div className="relative max-w-2xl mx-auto mb-4">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Enter address, city, state, zip..."
-                    className="w-full pl-12 pr-6 py-5 text-lg sm:text-xl text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
-                    value={address}
-                    onChange={(e) => {
-                      setAddress(e.target.value);
-                      fetchPredictions(e.target.value);
-                    }}
-                    onKeyPress={(e) => e.key === 'Enter' && runDemo()}
-                    onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
-                    data-testid="input-cleanbi-address"
-                  />
-                  
-                  {showPredictions && predictions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
-                      {predictions.map((pred) => (
-                        <button
-                          key={pred.place_id}
-                          onClick={() => {
-                            setAddress(pred.description);
-                            setShowPredictions(false);
-                          }}
-                          className="w-full px-4 py-3 text-left text-navy-900 hover:bg-teal-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
-                          data-testid={`prediction-${pred.place_id}`}
-                        >
-                          <MapPin className="w-4 h-4 text-teal-600" />
-                          <span className="text-sm">{pred.description}</span>
-                        </button>
-                      ))}
+                <div className="max-w-2xl mx-auto space-y-4">
+                  {/* Business Name Field */}
+                  <div>
+                    <label className="block text-left text-sm font-medium text-gray-400 mb-2">
+                      Business Name <span className="text-gray-500">(optional)</span>
+                    </label>
+                    <div className="relative">
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="e.g., Spin City Laundry"
+                        className="w-full pl-12 pr-6 py-4 text-lg text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        data-testid="input-cleanbi-business-name"
+                      />
                     </div>
-                  )}
+                  </div>
+                  
+                  {/* Address Field */}
+                  <div>
+                    <label className="block text-left text-sm font-medium text-gray-400 mb-2">
+                      Street Address <span className="text-teal-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="123 Main Street, City, State ZIP"
+                        className="w-full pl-12 pr-6 py-4 text-lg text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
+                        value={address}
+                        onChange={(e) => {
+                          setAddress(e.target.value);
+                          fetchPredictions(e.target.value);
+                        }}
+                        onKeyPress={(e) => e.key === 'Enter' && runDemo()}
+                        onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
+                        data-testid="input-cleanbi-address"
+                      />
+                      
+                      {showPredictions && predictions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          {predictions.map((pred) => (
+                            <button
+                              key={pred.place_id}
+                              onClick={() => {
+                                setAddress(pred.description);
+                                setShowPredictions(false);
+                              }}
+                              className="w-full px-4 py-3 text-left text-navy-900 hover:bg-teal-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                              data-testid={`prediction-${pred.place_id}`}
+                            >
+                              <MapPin className="w-4 h-4 text-teal-600" />
+                              <span className="text-sm">{pred.description}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  <span className="text-gray-400 text-sm">Try a real laundromat:</span>
+                <div className="flex flex-wrap justify-center gap-2 mt-6 mb-6">
+                  <span className="text-gray-500 text-sm">Quick examples:</span>
                   {[
-                    { name: "Spin City Laundry, Las Vegas", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
-                    { name: "WaveMax, Phoenix", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
-                    { name: "Suds Factory, Miami", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
+                    { name: "Spin City Laundry", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
+                    { name: "WaveMax Laundry", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
+                    { name: "Suds Factory", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
                   ].map((sample) => (
                     <button
                       key={sample.name}
-                      onClick={() => runDemo(sample.addr)}
-                      className="px-3 py-1.5 bg-teal-400/20 text-teal-300 rounded-full text-sm hover:bg-teal-400/30 transition flex items-center gap-1"
-                      data-testid={`button-sample-${sample.name.split(',')[0].toLowerCase().replace(/\s/g, '-')}`}
+                      onClick={() => runDemo(sample.addr, sample.name)}
+                      className="px-3 py-1.5 bg-teal-400/10 text-teal-300 rounded-full text-sm hover:bg-teal-400/20 transition flex items-center gap-1 border border-teal-400/20"
+                      data-testid={`button-sample-${sample.name.toLowerCase().replace(/\s/g, '-')}`}
                     >
                       <Building2 className="w-3 h-3" />
                       {sample.name}
@@ -384,11 +413,12 @@ export function Hero() {
                     onClick={() => runDemo()} 
                     size="lg"
                     disabled={!address.trim()}
-                    className="bg-teal-400 hover:bg-teal-300 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-400/20"
                     data-testid="button-cleanbi-run-demo"
                   >
-                    Run My Free CLEANBI Score
+                    Get Free CLEANBI Score
                   </Button>
+                  <p className="text-gray-500 text-sm mt-3">3 free analyses per day • No credit card required</p>
                 </div>
               </div>
             )}
@@ -517,26 +547,38 @@ export function Hero() {
                 </div>
 
                 <div className="flex flex-wrap gap-4 sm:gap-6 justify-center">
+                  <Link href={`/cleanbi-explorer?address=${encodeURIComponent(address)}&name=${encodeURIComponent(businessName)}&score=${result.score}&grade=${encodeURIComponent(result.grade)}`}>
+                    <Button 
+                      size="lg"
+                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-navy-900 px-8 sm:px-12 py-5 sm:py-6 text-lg sm:text-2xl font-bold rounded-xl hover:scale-105 transition shadow-lg shadow-teal-400/30"
+                      data-testid="button-cleanbi-explore-map"
+                    >
+                      <MapPin className="mr-2 h-6 w-6" />
+                      Explore Full Map
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
                   <Button 
                     onClick={() => handleEmailCapture('trial')}
                     disabled={isSubmitting}
                     size="lg"
-                    className="bg-teal-400 text-navy-900 px-8 sm:px-12 py-5 sm:py-6 text-lg sm:text-2xl font-bold rounded-xl hover:scale-105 transition"
+                    variant="outline"
+                    className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-navy-900 px-6 sm:px-10 py-5 sm:py-6 text-lg sm:text-xl font-bold rounded-xl transition"
                     data-testid="button-cleanbi-start-trial"
                   >
                     {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : null}
-                    Start Free 14-Day Trial
+                    Start Free Trial
                   </Button>
                   <Button 
                     onClick={() => handleEmailCapture('report')}
                     disabled={isSubmitting}
                     size="lg"
                     variant="outline"
-                    className="border-4 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-navy-900 px-8 sm:px-12 py-5 sm:py-6 text-lg sm:text-2xl font-bold rounded-xl transition"
+                    className="border-2 border-white/50 text-white hover:bg-white/20 px-6 sm:px-10 py-5 sm:py-6 text-lg sm:text-xl font-bold rounded-xl transition"
                     data-testid="button-cleanbi-full-report"
                   >
                     <Download className="mr-2 h-5 w-5" />
-                    Download Full Report
+                    Get Report
                   </Button>
                 </div>
                 

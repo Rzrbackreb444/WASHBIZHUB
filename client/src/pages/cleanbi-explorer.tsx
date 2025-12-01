@@ -260,6 +260,7 @@ export default function CleanBIExplorer() {
   const markersRef = useRef<any[]>([]);
   const savedMarkersRef = useRef<any[]>([]);
   
+  const [businessName, setBusinessName] = useState("");
   const [address, setAddress] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -324,10 +325,54 @@ export default function CleanBIExplorer() {
   });
   
   const [searchRadius, setSearchRadius] = useState([5]);
+  const [autoAnalyzeTriggered, setAutoAnalyzeTriggered] = useState(false);
 
   useEffect(() => {
     setSavedAnalyses(getStoredAnalyses());
   }, []);
+  
+  // Auto-analyze from URL parameters (seamless flow from homepage)
+  useEffect(() => {
+    if (autoAnalyzeTriggered) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    // URLSearchParams already decodes values, no need for decodeURIComponent
+    const urlAddress = params.get('address');
+    const urlName = params.get('name');
+    const urlScore = params.get('score');
+    const urlGrade = params.get('grade');
+    
+    if (urlAddress) {
+      setAddress(urlAddress);
+      if (urlName) setBusinessName(urlName);
+      setAutoAnalyzeTriggered(true);
+      
+      // Wait for map to initialize, then auto-analyze
+      const checkAndAnalyze = () => {
+        if (window.google && mapInstance.current) {
+          // If we have pre-computed score/grade from homepage, show it faster
+          if (urlScore && urlGrade) {
+            toast({
+              title: `Continuing analysis: Grade ${urlGrade}`,
+              description: urlName ? `${urlName} - Loading full map...` : `Loading full map...`,
+            });
+          }
+          // Trigger analysis with both name and address
+          setTimeout(() => {
+            analyzeLocationWithAddress(urlAddress, urlName || undefined);
+          }, 500);
+        } else {
+          // Retry after a short delay if map isn't ready
+          setTimeout(checkAndAnalyze, 500);
+        }
+      };
+      
+      checkAndAnalyze();
+      
+      // Clean URL without reloading
+      window.history.replaceState({}, '', '/cleanbi-explorer');
+    }
+  }, [autoAnalyzeTriggered]);
 
   useEffect(() => {
     const loadGoogleMaps = () => {
@@ -539,6 +584,147 @@ export default function CleanBIExplorer() {
     } catch {}
   };
 
+  // Helper function for URL-initiated analysis (seamless handoff from homepage)
+  const analyzeLocationWithAddress = async (targetAddress: string, targetName?: string) => {
+    if (!targetAddress.trim()) return;
+    
+    setAddress(targetAddress);
+    if (targetName) setBusinessName(targetName);
+    setIsAnalyzing(true);
+    setActiveTab("overview");
+    
+    try {
+      const response = await apiRequest("POST", "/api/cleanbi-explorer/analyze", {
+        address: targetAddress,
+        businessName: targetName || undefined,
+        radius: searchRadius[0]
+      });
+
+      const data = await response.json();
+      
+      if (data.rateLimited) {
+        toast({ 
+          title: "Daily Limit Reached", 
+          description: `You've used all 3 free analyses today. Upgrade for unlimited access!`,
+          variant: "destructive"
+        });
+        setShowUpgradePrompt(true);
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      if (data.success) {
+        const result = data.analysis;
+        
+        // Check if this is a first-time user who hasn't provided email yet
+        const hasEmailCapture = emailCaptured || 
+          (typeof localStorage !== 'undefined' && localStorage.getItem("cleanbi_email_captured")) ||
+          (typeof sessionStorage !== 'undefined' && sessionStorage.getItem("cleanbi_email_skipped"));
+        
+        if (!hasEmailCapture) {
+          setPendingAnalysis(result);
+          setPendingCompetitors(data.competitors || []);
+          setShowEmailGate(true);
+          
+          if (mapInstance.current && result) {
+            const center = { lat: result.lat, lng: result.lng };
+            mapInstance.current.setCenter(center);
+            mapInstance.current.setZoom(14);
+          }
+          
+          setIsAnalyzing(false);
+          return;
+        }
+        
+        // Full results flow (same as analyzeLocation)
+        setAnalysisResult(result);
+        setCompetitors(data.competitors || []);
+        setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        
+        const populationServed = Math.min(result.populationDensity * 0.78, 25000);
+        const baseRevenue = populationServed * 18;
+        const incomeMultiplier = Math.max(0.7, Math.min(1.4, result.medianIncome / 70000));
+        const competitionFactor = 1 / Math.max(1, result.competitorCount * 0.3);
+        const estimatedRevenue = Math.max(150000, Math.min(600000, baseRevenue * incomeMultiplier * competitionFactor));
+        const estimatedExpenses = estimatedRevenue * 0.58;
+        const estimatedNOI = estimatedRevenue - estimatedExpenses;
+        const estimatedValue = estimatedNOI * 2.5;
+        
+        setCalcValues(prev => ({
+          ...prev,
+          annualRevenue: Math.round(estimatedRevenue),
+          operatingExpenses: Math.round(estimatedExpenses),
+          askingPrice: Math.round(estimatedValue),
+          downPayment: Math.round(estimatedValue * 0.25),
+        }));
+        setDealVerdict(null);
+        
+        if (data.tier) setUserTier(data.tier);
+        if (typeof data.remainingDaily === "number") setRemainingAnalyses(data.remainingDaily);
+        
+        saveAnalysis(result);
+        setSavedAnalyses(getStoredAnalyses());
+        
+        if (mapInstance.current && result) {
+          const center = { lat: result.lat, lng: result.lng };
+          mapInstance.current.setCenter(center);
+          mapInstance.current.setZoom(14);
+          
+          markersRef.current.forEach(m => m.setMap(null));
+          markersRef.current = [];
+
+          const mainMarker = new window.google.maps.Marker({
+            position: center,
+            map: mapInstance.current,
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 22,
+              fillColor: GRADE_COLORS[result.grade] || "#C8A661",
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 4
+            },
+            zIndex: 1000,
+            animation: window.google.maps.Animation.DROP
+          });
+          
+          markersRef.current.push(mainMarker);
+
+          if (layers.competition && data.competitors) {
+            data.competitors.forEach((comp: Competitor) => {
+              const marker = new window.google.maps.Marker({
+                position: { lat: comp.lat, lng: comp.lng },
+                map: mapInstance.current,
+                icon: {
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 10,
+                  fillColor: "#EF4444",
+                  fillOpacity: 0.8,
+                  strokeColor: "#FFFFFF",
+                  strokeWeight: 2
+                },
+                title: comp.name,
+                zIndex: 500
+              });
+              markersRef.current.push(marker);
+            });
+          }
+        }
+        
+        toast({
+          title: `Grade ${result.grade}: ${result.cleanbiScore}/100`,
+          description: targetName ? `${targetName} analysis complete` : "Location analysis complete"
+        });
+      } else {
+        throw new Error(data.error || "Analysis failed");
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to analyze location. Please try again.", variant: "destructive" });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const analyzeLocation = async () => {
     if (!address.trim()) {
       toast({ title: "Enter an address", description: "Please enter an address to analyze", variant: "destructive" });
@@ -551,6 +737,7 @@ export default function CleanBIExplorer() {
     try {
       const response = await apiRequest("POST", "/api/cleanbi-explorer/analyze", {
         address,
+        businessName: businessName || undefined,
         radius: searchRadius[0]
       });
 
@@ -1639,37 +1826,60 @@ export default function CleanBIExplorer() {
               )}
 
               <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#8B7355]/20 rounded-xl p-4 border border-[#C8A661]/30">
-                <div className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                <div className="text-sm font-medium text-white mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#C8A661]" />
                   Analyze Any Location
                 </div>
                 
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <Input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
-                    placeholder="Enter address, city, or zip code..."
-                    className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 text-base"
-                    data-testid="input-explorer-address"
-                  />
+                {/* Business Name Field */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-white/60 mb-1.5">
+                    Business Name <span className="text-white/40">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <Input
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      placeholder="e.g., Spin City Laundry"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-10 text-sm"
+                      data-testid="input-explorer-business-name"
+                    />
+                  </div>
+                </div>
+                
+                {/* Address Field */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-white/60 mb-1.5">
+                    Street Address <span className="text-[#C8A661]">*</span>
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <Input
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
+                      placeholder="123 Main St, City, State ZIP"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-10 text-sm"
+                      data-testid="input-explorer-address"
+                    />
+                  </div>
                 </div>
 
                 <Button 
                   onClick={analyzeLocation}
-                  disabled={isAnalyzing}
-                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-12 text-base font-medium"
+                  disabled={isAnalyzing || !address.trim()}
+                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-11 text-sm font-medium disabled:opacity-50"
                   data-testid="button-analyze-location"
                 >
                   {isAnalyzing ? (
                     <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Analyzing...
                     </>
                   ) : (
                     <>
-                      <Zap className="w-5 h-5 mr-2" />
+                      <Zap className="w-4 h-4 mr-2" />
                       Analyze Location
                     </>
                   )}
