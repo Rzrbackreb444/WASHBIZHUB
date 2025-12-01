@@ -7,17 +7,18 @@ import logoUrl from "@assets/6_1764040628012.png";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
 const platformLinks = [
-  { href: "/cleanbi", label: "CLEANBI™ Analysis", testId: "link-footer-cleanbi-analysis" },
-  { href: "/design-studio", label: "Design Studio", testId: "link-footer-design-studio" },
+  { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer" },
+  { href: "/cleanbi-auto", label: "Quick Score", testId: "link-footer-cleanbi-auto" },
+  { href: "/design-studio-pro", label: "Design Studio", testId: "link-footer-design-studio" },
   { href: "/service-guy-ai", label: "Service Guy AI", testId: "link-footer-service-guy-ai", icon: Wrench },
   { href: "/calculators", label: "All Calculators", testId: "link-footer-all-calculators", icon: Calculator },
 ];
 
 const marketplaceLinks = [
-  { href: "/listings", label: "Buy/Sell Laundromats", testId: "link-footer-buy-sell-laundromats" },
-  { href: "/superstore", label: "Equipment Store", testId: "link-footer-superstore" },
-  { href: "/parts", label: "Parts Marketplace", testId: "link-footer-parts-marketplace" },
-  { href: "/vendors", label: "Vendor Directory", testId: "link-footer-vendor-directory" },
+  { href: "/laundromat-listings", label: "Buy/Sell Laundromats", testId: "link-footer-buy-sell-laundromats" },
+  { href: "/equipment-marketplace", label: "Equipment Marketplace", testId: "link-footer-equipment-marketplace" },
+  { href: "/directory", label: "Vendor Directory", testId: "link-footer-vendor-directory" },
+  { href: "/sell", label: "Sell Your Business", testId: "link-footer-sell-business" },
 ];
 
 const analyticsLinks = [
@@ -53,7 +54,10 @@ export function Footer() {
             LISTINGS · EQUIPMENT · EDUCATION · VALUATIONS
           </p>
           <p className="text-white/60 text-sm max-w-xl mx-auto">
-            The #1 resource for laundromat owners, operators, and investors.
+            The #1 resource for laundromat owners, operators, and investors in a booming $5B industry.
+          </p>
+          <p className="text-teal-400/80 text-xs mt-2 font-medium">
+            Everyone wants to own a laundromat. We help you find the right one.
           </p>
         </div>
 

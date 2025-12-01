@@ -15,7 +15,7 @@ const journeyPaths = [
     id: "plan",
     icon: Lightbulb,
     headline: "Thinking About It?",
-    description: "Learn if owning a laundromat is right for you",
+    description: "Learn why everyone wants to own a laundromat",
     features: ["ROI Calculator", "Funding Options", "Industry Guides"],
     link: "/startup-funding",
     color: "blue"
@@ -24,25 +24,25 @@ const journeyPaths = [
     id: "evaluate",
     icon: Target,
     headline: "Ready to Buy?",
-    description: "Find and analyze laundromat opportunities",
+    description: "Find deals in the hottest passive income business",
     features: ["Marketplace Listings", "CLEANBI Scoring", "Valuations"],
-    link: "/listings",
+    link: "/laundromat-listings",
     color: "green"
   },
   {
     id: "operate",
     icon: Settings,
     headline: "Already Own One?",
-    description: "Optimize operations and grow revenue",
-    features: ["POS System", "AI Diagnostics", "Design Studio"],
-    link: "/pos-command-center",
+    description: "Maximize revenue with AI-powered tools",
+    features: ["Equipment Marketplace", "AI Diagnostics", "Design Studio"],
+    link: "/equipment-marketplace",
     color: "orange"
   },
   {
     id: "partner",
     icon: Users,
     headline: "Industry Partner?",
-    description: "Connect with laundromat owners",
+    description: "Reach buyers in a booming $5B industry",
     features: ["List Products", "Advertise", "Affiliates"],
     link: "/directory",
     color: "purple"
