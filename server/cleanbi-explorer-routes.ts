@@ -22,6 +22,21 @@ import { enrichCLEANBIData, type SubscriptionTier } from "./cleanbi-data-enrichm
 import { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
 import { calculateGoogleCleanbi } from "./google-cleanbi-engine";
 import { getWalkScore, getWalkScoreColor, calculateWalkabilityBonus, type WalkScoreResult } from "./walk-score-service";
+import { 
+  getFullIntelligenceReport, 
+  getSolarPotential, 
+  getUtilityRates, 
+  getPropertyData, 
+  getDistanceMatrix,
+  canAccessFeature,
+  getUpgradeMessage,
+  type UserTier,
+  type FullIntelligenceReport,
+  type SolarData,
+  type UtilityRateData,
+  type PropertyData,
+  type DistanceMatrixData
+} from "./cleanbi-intelligence-service";
 import { newsletterSubscribers } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -1593,6 +1608,300 @@ router.post("/leads", async (req: Request, res: Response) => {
       success: false,
       error: "Could not save lead"
     });
+  }
+});
+
+// ========================================
+// PREMIUM INTELLIGENCE ENDPOINT
+// ========================================
+
+/**
+ * POST /api/cleanbi-explorer/intelligence
+ * 
+ * Get full intelligence report with tier-based access:
+ * - FREE: Walk Score number only
+ * - STARTER: Solar potential, property value, walk details
+ * - PRO: Utility rates, distance matrix, all calculators
+ * - ENTERPRISE: Ownership, liens, motivated seller score
+ */
+router.post("/intelligence", async (req: Request, res: Response) => {
+  try {
+    const schema = z.object({
+      lat: z.number(),
+      lng: z.number(),
+      address: z.string(),
+      zipCode: z.string().optional().default("")
+    });
+    
+    const input = schema.parse(req.body);
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    console.log(`🧠 Intelligence request: tier=${tier}, address=${input.address}`);
+    
+    // Get the full intelligence report based on tier
+    const report = await getFullIntelligenceReport(
+      input.lat,
+      input.lng,
+      input.address,
+      input.zipCode,
+      tier
+    );
+    
+    console.log(`✅ Intelligence report generated: ${report.featuresUnlocked.length} features unlocked`);
+    
+    return res.json({
+      success: true,
+      report,
+      tier,
+      featuresUnlocked: report.featuresUnlocked,
+      featuresGated: report.featuresGated
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Intelligence error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid input",
+        details: error.errors
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: "Intelligence report failed"
+    });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/solar
+ * 
+ * Get solar potential data (STARTER+ tier)
+ */
+router.get("/solar", async (req: Request, res: Response) => {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lng = parseFloat(req.query.lng as string);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ success: false, error: "Invalid coordinates" });
+    }
+    
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    if (!canAccessFeature(tier, "solarPotential")) {
+      const upgrade = getUpgradeMessage("solarPotential");
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: upgrade.tier,
+        message: upgrade.message,
+        upgradeUrl: "/pricing"
+      });
+    }
+    
+    const solarData = await getSolarPotential(lat, lng);
+    
+    return res.json({
+      success: true,
+      solar: solarData
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Solar API error:", error);
+    return res.status(500).json({ success: false, error: "Solar data unavailable" });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/utility-rates
+ * 
+ * Get utility rate data (PRO+ tier)
+ */
+router.get("/utility-rates", async (req: Request, res: Response) => {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lng = parseFloat(req.query.lng as string);
+    const zipCode = req.query.zipCode as string || "";
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ success: false, error: "Invalid coordinates" });
+    }
+    
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    if (!canAccessFeature(tier, "utilityRates")) {
+      const upgrade = getUpgradeMessage("utilityRates");
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: upgrade.tier,
+        message: upgrade.message,
+        upgradeUrl: "/pricing"
+      });
+    }
+    
+    const utilityData = await getUtilityRates(lat, lng, zipCode);
+    
+    return res.json({
+      success: true,
+      utility: utilityData
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Utility API error:", error);
+    return res.status(500).json({ success: false, error: "Utility data unavailable" });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/property
+ * 
+ * Get property data (STARTER+ for basic, ENTERPRISE for full)
+ */
+router.get("/property", async (req: Request, res: Response) => {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lng = parseFloat(req.query.lng as string);
+    const address = req.query.address as string || "";
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ success: false, error: "Invalid coordinates" });
+    }
+    
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    if (!canAccessFeature(tier, "propertyValue")) {
+      const upgrade = getUpgradeMessage("propertyValue");
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: upgrade.tier,
+        message: upgrade.message,
+        upgradeUrl: "/pricing"
+      });
+    }
+    
+    const propertyData = await getPropertyData(lat, lng, address);
+    
+    // For non-enterprise, limit the data returned
+    if (tier !== "enterprise") {
+      const limitedData = {
+        estimatedValue: propertyData.estimatedValue,
+        yearBuilt: propertyData.yearBuilt,
+        buildingSqFt: propertyData.buildingSqFt,
+        propertyType: propertyData.propertyType,
+        taxAssessedValue: propertyData.taxAssessedValue,
+        status: propertyData.status,
+        // Indicate gated fields
+        ownershipGated: true,
+        liensGated: true
+      };
+      
+      return res.json({
+        success: true,
+        property: limitedData,
+        fullDataRequires: "enterprise"
+      });
+    }
+    
+    return res.json({
+      success: true,
+      property: propertyData
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Property API error:", error);
+    return res.status(500).json({ success: false, error: "Property data unavailable" });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/distance-matrix
+ * 
+ * Get distance matrix / catchment data (PRO+ tier)
+ */
+router.get("/distance-matrix", async (req: Request, res: Response) => {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lng = parseFloat(req.query.lng as string);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ success: false, error: "Invalid coordinates" });
+    }
+    
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    if (!canAccessFeature(tier, "distanceMatrix")) {
+      const upgrade = getUpgradeMessage("distanceMatrix");
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: upgrade.tier,
+        message: upgrade.message,
+        upgradeUrl: "/pricing"
+      });
+    }
+    
+    const distanceData = await getDistanceMatrix(lat, lng);
+    
+    return res.json({
+      success: true,
+      distance: distanceData
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Distance Matrix API error:", error);
+    return res.status(500).json({ success: false, error: "Distance data unavailable" });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/check-feature
+ * 
+ * Check if user can access a specific feature
+ */
+router.get("/check-feature", async (req: Request, res: Response) => {
+  try {
+    const feature = req.query.feature as string;
+    
+    if (!feature) {
+      return res.status(400).json({ success: false, error: "Feature name required" });
+    }
+    
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    const hasAccess = canAccessFeature(tier, feature);
+    
+    if (hasAccess) {
+      return res.json({
+        success: true,
+        hasAccess: true,
+        tier
+      });
+    }
+    
+    const upgrade = getUpgradeMessage(feature);
+    return res.json({
+      success: true,
+      hasAccess: false,
+      tier,
+      requiredTier: upgrade.tier,
+      message: upgrade.message,
+      upgradeUrl: "/pricing"
+    });
+    
+  } catch (error: any) {
+    console.error("❌ Feature check error:", error);
+    return res.status(500).json({ success: false, error: "Feature check failed" });
   }
 });
 
