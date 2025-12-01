@@ -5,11 +5,15 @@ import { registerRoutes } from "./routes";
 import { registerSitemapRoutes } from "./sitemap";
 import { registerPosRoutes } from "./pos-routes";
 import { registerCustomerPortalRoutes } from "./customer-portal-routes";
+import { registerPromoCodeRoutes } from "./promo-code-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
 import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
+import { db } from "./db";
+import { promoCodes, promoCodeRedemptions } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 import { securityHeaders, sanitizeInput, corsMiddleware, authRateLimiter } from "./security-middleware";
 
 const app = express();
@@ -141,6 +145,53 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
 
       const paymentIntentId = session.payment_intent as string;
       const amountTotal = session.amount_total || 0; // in cents
+
+      // Track promo code redemption if applicable
+      if (session.total_details?.breakdown?.discounts && session.total_details.breakdown.discounts.length > 0) {
+        try {
+          const discount = session.total_details.breakdown.discounts[0];
+          const promotionCode = discount.discount?.promotion_code;
+          
+          if (promotionCode && typeof promotionCode === 'string') {
+            // Find our promo code by Stripe promotion code ID
+            const [promoCode] = await db.select()
+              .from(promoCodes)
+              .where(eq(promoCodes.stripePromotionCodeId, promotionCode))
+              .limit(1);
+            
+            if (promoCode) {
+              const originalAmount = (session.amount_subtotal || 0);
+              const discountAmount = (session.total_details?.amount_discount || 0);
+              
+              // Record the redemption
+              await db.insert(promoCodeRedemptions).values({
+                promoCodeId: promoCode.id,
+                userId: metadata?.userId || null,
+                email: session.customer_email || metadata?.userEmail || 'unknown',
+                productType: metadata?.type || 'unknown',
+                originalAmount,
+                discountAmount,
+                finalAmount: amountTotal,
+                stripeCheckoutSessionId: session.id,
+                stripePaymentIntentId: paymentIntentId,
+              });
+
+              // Increment redemption count
+              await db.update(promoCodes)
+                .set({ 
+                  currentRedemptions: sql`${promoCodes.currentRedemptions} + 1`,
+                  updatedAt: new Date(),
+                })
+                .where(eq(promoCodes.id, promoCode.id));
+
+              console.log(`✅ Promo code ${promoCode.code} redeemed by ${session.customer_email}`);
+            }
+          }
+        } catch (promoError: any) {
+          console.error(`⚠️ Failed to track promo code: ${promoError.message}`);
+          // Don't fail the webhook - promo tracking is non-critical
+        }
+      }
 
       // Course purchase
       if (metadata.type === "course_purchase") {
@@ -516,6 +567,7 @@ app.use((req, res, next) => {
   registerSitemapRoutes(app);
   registerPosRoutes(app);
   registerCustomerPortalRoutes(app);
+  registerPromoCodeRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
