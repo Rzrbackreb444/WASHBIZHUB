@@ -1239,4 +1239,76 @@ router.get("/stats", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/cleanbi-explorer/export-sheets
+ * 
+ * Export CLEANBI analysis to Google Sheets (Pro+ tier only)
+ */
+router.post("/export-sheets", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ 
+        success: false, 
+        error: "Authentication required" 
+      });
+    }
+    
+    const tier = await getUserTier(userId);
+    if (tier === "free") {
+      return res.status(403).json({ 
+        success: false, 
+        error: "Google Sheets export requires a Pro subscription",
+        upgradeUrl: "/pricing"
+      });
+    }
+    
+    const { createCleanbiExport } = await import("./google-sheets");
+    
+    const { 
+      address, score, grade, populationDensity, medianIncome, 
+      trafficScore, parkingScore, competitorCount, nearestCompetitor,
+      annualRevenue, operatingExpenses, askingPrice, dealVerdict 
+    } = req.body;
+    
+    if (!address || score === undefined) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Missing required analysis data" 
+      });
+    }
+    
+    const result = await createCleanbiExport({
+      address,
+      score,
+      grade,
+      populationDensity: populationDensity || 0,
+      medianIncome: medianIncome || 0,
+      trafficScore: trafficScore || 0,
+      parkingScore: parkingScore || 0,
+      competitorCount: competitorCount || 0,
+      nearestCompetitor: nearestCompetitor || 0,
+      annualRevenue: annualRevenue || 0,
+      operatingExpenses: operatingExpenses || 0,
+      askingPrice: askingPrice || 0,
+      dealVerdict: dealVerdict || 'Unknown'
+    });
+    
+    console.log(`✅ CLEANBI export created for ${address} -> ${result.spreadsheetUrl}`);
+    
+    return res.json({
+      success: true,
+      spreadsheetUrl: result.spreadsheetUrl,
+      spreadsheetId: result.spreadsheetId
+    });
+
+  } catch (error: any) {
+    console.error("❌ Export error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Could not export to Google Sheets"
+    });
+  }
+});
+
 export default router;

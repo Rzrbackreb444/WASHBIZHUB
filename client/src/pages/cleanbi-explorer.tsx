@@ -1111,22 +1111,49 @@ export default function CleanBIExplorer() {
                     </div>
 
                     {/* Export CTA */}
-                    {userTier !== "free" ? (
+                    {userTier !== "free" && analysisResult ? (
                       <Button 
                         variant="outline" 
                         className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
-                        onClick={() => {
-                          toast({
-                            title: "Coming Soon",
-                            description: "Google Sheets export is being finalized. Your Pro subscription includes this feature!",
-                          });
+                        onClick={async () => {
+                          try {
+                            toast({ title: "Exporting...", description: "Creating your Google Sheets report..." });
+                            const response = await fetch("/api/cleanbi-explorer/export-sheets", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                address: analysisResult.address,
+                                score: analysisResult.cleanbiScore,
+                                grade: analysisResult.grade,
+                                populationDensity: analysisResult.populationDensity,
+                                medianIncome: analysisResult.medianIncome,
+                                trafficScore: analysisResult.trafficScore || 75,
+                                parkingScore: analysisResult.parkingScore || 80,
+                                competitorCount: analysisResult.competitorCount,
+                                nearestCompetitor: analysisResult.nearestCompetitor || 1.5,
+                                annualRevenue: calcValues.annualRevenue,
+                                operatingExpenses: calcValues.operatingExpenses,
+                                askingPrice: calcValues.askingPrice,
+                                dealVerdict: dealVerdict || "Unknown"
+                              })
+                            });
+                            const data = await response.json();
+                            if (data.success) {
+                              toast({ title: "Export Complete!", description: "Opening your spreadsheet..." });
+                              window.open(data.spreadsheetUrl, "_blank");
+                            } else {
+                              toast({ title: "Export Failed", description: data.error, variant: "destructive" });
+                            }
+                          } catch (err) {
+                            toast({ title: "Export Error", description: "Could not export to Google Sheets", variant: "destructive" });
+                          }
                         }}
                         data-testid="button-calc-export"
                       >
                         <FileSpreadsheet className="w-3 h-3 mr-1.5" />
                         Export to Google Sheets
                       </Button>
-                    ) : (
+                    ) : userTier === "free" ? (
                       <Button 
                         variant="outline" 
                         className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
@@ -1221,21 +1248,92 @@ export default function CleanBIExplorer() {
                         Share Analysis Link
                       </Button>
                       
-                      {userTier !== "free" ? (
+                      {userTier !== "free" && analysisResult ? (
                         <Button 
                           className="w-full h-9 text-xs bg-gradient-to-r from-[#C8A661] to-[#8B7355] text-white"
-                          onClick={() => {
-                            toast({
-                              title: "Coming Soon",
-                              description: "PDF report generation is being finalized. Your Pro subscription includes this feature!",
-                            });
+                          onClick={async () => {
+                            try {
+                              toast({ title: "Generating PDF...", description: "Creating your analysis report..." });
+                              
+                              // Use browser-based PDF generation with jsPDF
+                              const { default: jsPDF } = await import("jspdf");
+                              const doc = new jsPDF();
+                              const noi = calcValues.annualRevenue - calcValues.operatingExpenses;
+                              const fairValue = noi * 2.5;
+                              
+                              // Title
+                              doc.setFontSize(20);
+                              doc.setTextColor(30, 58, 95); // Navy
+                              doc.text("CLEANBI™ Location Analysis", 20, 25);
+                              
+                              // Subtitle
+                              doc.setFontSize(12);
+                              doc.setTextColor(100, 100, 100);
+                              doc.text(analysisResult.address, 20, 35);
+                              doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 42);
+                              
+                              // Score Box
+                              doc.setFillColor(200, 166, 97); // Gold
+                              doc.rect(150, 15, 40, 30, "F");
+                              doc.setFontSize(24);
+                              doc.setTextColor(255, 255, 255);
+                              doc.text(analysisResult.grade, 162, 32);
+                              doc.setFontSize(10);
+                              doc.text(`Score: ${analysisResult.cleanbiScore}`, 155, 40);
+                              
+                              // Section: Market Demographics
+                              doc.setFontSize(14);
+                              doc.setTextColor(30, 58, 95);
+                              doc.text("Market Demographics", 20, 60);
+                              doc.setFontSize(11);
+                              doc.setTextColor(60, 60, 60);
+                              doc.text(`Population Density: ${analysisResult.populationDensity.toLocaleString()} per sq mi`, 25, 70);
+                              doc.text(`Median Income: $${analysisResult.medianIncome.toLocaleString()}`, 25, 78);
+                              doc.text(`Competitors: ${analysisResult.competitorCount}`, 25, 86);
+                              
+                              // Section: Financial Projections
+                              doc.setFontSize(14);
+                              doc.setTextColor(30, 58, 95);
+                              doc.text("Financial Projections", 20, 105);
+                              doc.setFontSize(11);
+                              doc.setTextColor(60, 60, 60);
+                              doc.text(`Annual Revenue: $${calcValues.annualRevenue.toLocaleString()}`, 25, 115);
+                              doc.text(`Operating Expenses: $${calcValues.operatingExpenses.toLocaleString()}`, 25, 123);
+                              doc.text(`Net Operating Income: $${noi.toLocaleString()}`, 25, 131);
+                              doc.text(`Fair Market Value (2.5x NOI): $${Math.round(fairValue).toLocaleString()}`, 25, 139);
+                              
+                              // Section: Deal Analysis
+                              doc.setFontSize(14);
+                              doc.setTextColor(30, 58, 95);
+                              doc.text("Deal Analysis", 20, 160);
+                              doc.setFontSize(11);
+                              doc.setTextColor(60, 60, 60);
+                              doc.text(`Asking Price: $${calcValues.askingPrice.toLocaleString()}`, 25, 170);
+                              const verdictColor = dealVerdict === "buy" ? [34, 197, 94] : dealVerdict === "negotiate" ? [234, 179, 8] : [239, 68, 68];
+                              doc.setTextColor(verdictColor[0], verdictColor[1], verdictColor[2]);
+                              doc.text(`Verdict: ${dealVerdict?.toUpperCase() || "N/A"}`, 25, 178);
+                              doc.setTextColor(60, 60, 60);
+                              doc.text(`Target Offer: $${Math.round(noi * 2.2).toLocaleString()}`, 25, 186);
+                              
+                              // Footer
+                              doc.setFontSize(9);
+                              doc.setTextColor(150, 150, 150);
+                              doc.text("Generated by WashBizHub.com - CLEANBI™ Proprietary Technology", 20, 280);
+                              
+                              // Save
+                              doc.save(`CLEANBI_Analysis_${analysisResult.address.replace(/[^a-z0-9]/gi, "_")}.pdf`);
+                              toast({ title: "PDF Downloaded!", description: "Your analysis report has been saved." });
+                            } catch (err) {
+                              console.error("PDF Error:", err);
+                              toast({ title: "PDF Error", description: "Could not generate PDF", variant: "destructive" });
+                            }
                           }}
                           data-testid="button-export-pdf"
                         >
                           <Download className="w-3 h-3 mr-1.5" />
                           Export Full Report (PDF)
                         </Button>
-                      ) : (
+                      ) : userTier === "free" ? (
                         <Button 
                           variant="outline"
                           className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
