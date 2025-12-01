@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +7,35 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift, BarChart3 } from "lucide-react";
+import { Loader2, MapPin, TrendingUp, AlertTriangle, Star, Users, Eye, CheckCircle2, Lock, Mail, Gift, BarChart3, Crown, Zap, Shield, ArrowRight, Sparkles, ArrowUpRight } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { LegalDisclaimer } from "@/components/legal-disclaimer";
 import { apiRequest } from "@/lib/queryClient";
 import { LazyRadarChart } from "@/components/LazyRadarChart";
+
+// Quota status interface
+interface QuotaStatus {
+  tier: string;
+  tierName?: string;
+  isAuthenticated: boolean;
+  quota: {
+    allowed: boolean;
+    remainingToday: number;
+    remainingMonth?: number;
+    dailyLimit: number;
+    monthlyLimit: number;
+  };
+  features: {
+    detailedBreakdown: boolean;
+    competitorAnalysis: boolean;
+    demographicData: boolean;
+    pdfExport: boolean;
+    savedReports?: boolean;
+    emailAlerts?: boolean;
+  };
+  upgradeUrl?: string | null;
+}
 
 // Maximum SEO/AEO Structured Data for CLEANBI Universal Scoring Tool
 const cleanbiAutoStructuredData = {
@@ -78,13 +102,22 @@ export default function CleanbiAuto() {
   const [businessName, setBusinessName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const [result, setResult] = useState<CleanbiResult | null>(null);
   const [hasUnlockedResults, setHasUnlockedResults] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [showQuotaExceeded, setShowQuotaExceeded] = useState(false);
+  const [quotaMessage, setQuotaMessage] = useState("");
   const [captureEmail, setCaptureEmail] = useState("");
   const [captureFirstName, setCaptureFirstName] = useState("");
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
   const { toast } = useToast();
+
+  // Fetch user's current quota status
+  const { data: quotaStatus, refetch: refetchQuota } = useQuery<QuotaStatus>({
+    queryKey: ['/api/cleanbi/quota'],
+    staleTime: 30000, // Cache for 30 seconds
+  });
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('cleanbi_unlocked');
@@ -92,6 +125,44 @@ export default function CleanbiAuto() {
       setHasUnlockedResults(true);
     }
   }, []);
+
+  // Handle Pro subscription upgrade
+  const handleSubscribePro = async () => {
+    setIsSubscribing(true);
+    try {
+      const response = await fetch('/api/cleanbi/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tier: 'pro', interval: 'month' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Not authenticated - redirect to auth
+          window.location.href = '/auth?redirect=/cleanbi-auto&upgrade=cleanbi-pro';
+          return;
+        }
+        throw new Error(data.message || 'Failed to create subscription');
+      }
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Upgrade Error",
+        description: error.message || "Failed to start subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   const handleEmailUnlock = async () => {
     if (!captureEmail.trim() || !captureFirstName.trim()) {
@@ -181,11 +252,13 @@ export default function CleanbiAuto() {
 
     setIsLoading(true);
     setResult(null);
+    setShowQuotaExceeded(false);
 
     try {
       const response = await fetch('/api/cleanbi/auto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           address: address.trim(),
           businessName: businessName.trim() || undefined,
@@ -195,10 +268,32 @@ export default function CleanbiAuto() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle quota exceeded errors (403)
+        if (response.status === 403 && data.error === 'quota_exceeded') {
+          setShowQuotaExceeded(true);
+          setQuotaMessage(data.message || "You've reached your daily limit");
+          
+          if (data.requiresLogin) {
+            toast({
+              title: "Sign up for more reports",
+              description: "Create a free account to get more CLEANBI reports.",
+            });
+          } else if (data.requiresUpgrade) {
+            toast({
+              title: "Upgrade to Pro",
+              description: "Get unlimited CLEANBI reports for $29/month.",
+            });
+          }
+          return;
+        }
+        
         throw new Error(data.error || 'Failed to calculate score');
       }
 
       setResult(data);
+      // Refetch quota after successful analysis
+      refetchQuota();
+      
       toast({
         title: "Success!",
         description: `CLEANBI Score: ${data.score}/100 (Grade: ${data.grade})`,
@@ -380,6 +475,142 @@ export default function CleanbiAuto() {
               </div>
             </div>
           </div>
+
+          {/* Quota Status Banner */}
+          {quotaStatus && quotaStatus.tier !== 'ANONYMOUS' && quotaStatus.tier !== 'FREE' && (
+            <Card className="mb-4 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+              <CardContent className="py-3 px-4 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                    {quotaStatus.tierName || quotaStatus.tier} Plan
+                  </span>
+                  <Badge variant="outline" className="text-green-600 dark:text-green-400 border-green-300 dark:border-green-700">
+                    {quotaStatus.quota.remainingMonth === -1 ? 'Unlimited' : `${quotaStatus.quota.remainingMonth} reports remaining`}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Free Tier Upgrade Banner */}
+          {quotaStatus && (quotaStatus.tier === 'FREE' || quotaStatus.tier === 'ANONYMOUS') && (
+            <Card className="mb-4 border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20">
+              <CardContent className="py-3 px-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40">
+                      <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        {quotaStatus.tier === 'ANONYMOUS' ? 'Want more reports?' : 'You have ' + quotaStatus.quota.remainingToday + ' free report' + (quotaStatus.quota.remainingToday !== 1 ? 's' : '') + ' left today'}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        Upgrade to Pro for unlimited reports, competitor analysis, and PDF exports
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={handleSubscribePro}
+                    disabled={isSubscribing}
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white shrink-0"
+                    data-testid="button-upgrade-pro-banner"
+                  >
+                    {isSubscribing ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <Crown className="w-4 h-4 mr-1" />
+                    )}
+                    Upgrade to Pro - $29/mo
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quota Exceeded Modal */}
+          {showQuotaExceeded && (
+            <Card className="mb-6 border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  <CardTitle className="text-lg text-red-700 dark:text-red-300">Daily Limit Reached</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-red-600 dark:text-red-400">
+                  {quotaMessage || "You've used your free report for today."}
+                </p>
+                
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-red-100 dark:border-red-900">
+                  <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    Upgrade to CLEANBI Pro for unlimited access
+                  </h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground mb-4">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      Unlimited CLEANBI reports per day
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      Full competitor analysis and mapping
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      Detailed demographic breakdowns
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      PDF report downloads
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      Save reports to your dashboard
+                    </li>
+                  </ul>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      onClick={handleSubscribePro}
+                      disabled={isSubscribing}
+                      className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                      data-testid="button-upgrade-pro-modal"
+                    >
+                      {isSubscribing ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Crown className="w-4 h-4 mr-2" />
+                      )}
+                      Upgrade to Pro - $29/month
+                    </Button>
+                    
+                    {!quotaStatus?.isAuthenticated && (
+                      <Button 
+                        variant="outline"
+                        onClick={() => window.location.href = '/auth?redirect=/cleanbi-auto'}
+                        className="flex-1"
+                        data-testid="button-signup-modal"
+                      >
+                        <ArrowRight className="w-4 h-4 mr-2" />
+                        Sign Up Free (1/day)
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setShowQuotaExceeded(false)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid="button-dismiss-quota"
+                >
+                  Dismiss and try again tomorrow
+                </button>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Input Form */}
           <Card className="mb-6 sm:mb-8">
