@@ -130,6 +130,71 @@ interface SavedAnalysis extends AnalysisResult {
   timestamp: number;
 }
 
+// Premium Intelligence Types
+interface SolarData {
+  hasSolarPotential: boolean;
+  annualSunshineHours: number;
+  roofAreaSqFt: number;
+  estimatedPanelCount: number;
+  annualKwhProduction: number;
+  annualSavings: number;
+  paybackYears: number;
+  carbonOffsetLbs: number;
+  status: "success" | "error" | "not_available";
+}
+
+interface UtilityRateData {
+  utilityName: string;
+  residentialRate: number;
+  commercialRate: number;
+  industrialRate: number;
+  avgMonthlyBill: number;
+  rateClass: "low" | "medium" | "high";
+  state: string;
+  zipCode: string;
+  status: "success" | "error" | "not_available";
+}
+
+interface PropertyData {
+  estimatedValue: number;
+  lastSalePrice?: number;
+  lastSaleDate?: string;
+  yearBuilt: number;
+  buildingSqFt: number;
+  propertyType: string;
+  ownerName?: string;
+  taxAssessedValue?: number;
+  annualPropertyTax?: number;
+  hasLiens?: boolean;
+  motivatedSellerScore?: number;
+  status: "success" | "error" | "not_available";
+  ownershipGated?: boolean;
+  liensGated?: boolean;
+}
+
+interface DistanceMatrixData {
+  driveTimeMinutes: number;
+  distanceMiles: number;
+  trafficCondition: "light" | "moderate" | "heavy";
+  nearbyHouseholds1Mile: number;
+  nearbyHouseholds3Mile: number;
+  nearbyHouseholds5Mile: number;
+  catchmentScore: number;
+  status: "success" | "error" | "not_available";
+}
+
+interface IntelligenceReport {
+  walkScore: any;
+  solarData: SolarData | null;
+  propertyValue: Partial<PropertyData> | null;
+  utilityRates: UtilityRateData | null;
+  distanceMatrix: DistanceMatrixData | null;
+  fullPropertyData: PropertyData | null;
+  tier: string;
+  featuresUnlocked: string[];
+  featuresGated: string[];
+}
+
 const GRADE_COLORS: Record<string, string> = {
   "A": "#22C55E",
   "B": "#A3E635",
@@ -290,6 +355,10 @@ export default function CleanBIExplorer() {
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
   const [showSavedMarkers, setShowSavedMarkers] = useState(true);
+  
+  // Premium Intelligence State
+  const [intelligenceData, setIntelligenceData] = useState<IntelligenceReport | null>(null);
+  const [loadingIntelligence, setLoadingIntelligence] = useState(false);
   
   // Email capture gate state
   const [showEmailGate, setShowEmailGate] = useState(false);
@@ -981,6 +1050,42 @@ export default function CleanBIExplorer() {
     }
   };
 
+  // Fetch premium intelligence data
+  const fetchIntelligence = async () => {
+    if (!analysisResult) return;
+    setLoadingIntelligence(true);
+    
+    try {
+      const response = await apiRequest("POST", "/api/cleanbi-explorer/intelligence", {
+        lat: analysisResult.lat,
+        lng: analysisResult.lng,
+        address: analysisResult.address,
+        zipCode: ""
+      });
+      
+      const data = await response.json();
+      if (data.success && data.report) {
+        setIntelligenceData(data.report);
+        console.log(`🧠 Intelligence loaded: ${data.report.featuresUnlocked.length} features`);
+      }
+    } catch (error) {
+      console.error("Intelligence fetch error:", error);
+    } finally {
+      setLoadingIntelligence(false);
+    }
+  };
+
+  // Auto-fetch intelligence when analysis result changes
+  const analysisAddress = analysisResult?.address;
+  const analysisLat = analysisResult?.lat;
+  const analysisLng = analysisResult?.lng;
+  
+  useEffect(() => {
+    if (analysisAddress && analysisLat && analysisLng) {
+      fetchIntelligence();
+    }
+  }, [analysisAddress, analysisLat, analysisLng]);
+
   const shareAnalysis = async () => {
     if (!analysisResult) return;
     
@@ -1334,6 +1439,230 @@ export default function CleanBIExplorer() {
                           {analysisResult.walkDescription || "Walkability data"}
                         </div>
                       </div>
+                    )}
+
+                    {/* Premium Intelligence Panels */}
+                    {loadingIntelligence ? (
+                      <div className="bg-white/5 rounded-lg p-3 flex items-center justify-center">
+                        <div className="animate-spin w-5 h-5 border-2 border-[#C8A661] border-t-transparent rounded-full mr-2" />
+                        <span className="text-white/50 text-sm">Loading premium data...</span>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Solar Potential Panel - STARTER+ */}
+                        {intelligenceData?.solarData ? (
+                          <div className="bg-gradient-to-r from-yellow-500/10 to-transparent rounded-lg p-3 border border-yellow-500/20">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Sun className="w-4 h-4 text-yellow-500" />
+                                <span className="text-sm font-medium text-white">Solar Potential</span>
+                              </div>
+                              <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-500">Google Solar API</Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <div className="text-white/50 text-xs">Annual Production</div>
+                                <div className="text-white font-bold">{intelligenceData.solarData.annualKwhProduction.toLocaleString()} kWh</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Annual Savings</div>
+                                <div className="text-green-400 font-bold">${intelligenceData.solarData.annualSavings.toLocaleString()}</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Payback Period</div>
+                                <div className="text-white font-bold">{intelligenceData.solarData.paybackYears} years</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">CO₂ Offset</div>
+                                <div className="text-white font-bold">{(intelligenceData.solarData.carbonOffsetLbs / 1000).toFixed(1)}K lbs</div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : userTier === "free" && (
+                          <div 
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
+                            onClick={() => setShowUpgradePrompt(true)}
+                            data-testid="solar-upgrade-prompt"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
+                              <Sun className="w-4 h-4 text-yellow-500/50" />
+                              <span className="text-white/70 text-sm">Solar Potential Analysis</span>
+                              <Crown className="w-3 h-3 text-[#C8A661] ml-auto" />
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">Upgrade to see energy savings potential</div>
+                          </div>
+                        )}
+
+                        {/* Property Value Panel - STARTER+ */}
+                        {intelligenceData?.propertyValue ? (
+                          <div className="bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg p-3 border border-blue-500/20">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Building2 className="w-4 h-4 text-blue-400" />
+                                <span className="text-sm font-medium text-white">Property Intelligence</span>
+                              </div>
+                              <Badge variant="outline" className="text-[10px] border-blue-500/30 text-blue-400">ATTOM Data</Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <div className="text-white/50 text-xs">Est. Value</div>
+                                <div className="text-white font-bold">${(intelligenceData.propertyValue.estimatedValue || 0).toLocaleString()}</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Building Size</div>
+                                <div className="text-white font-bold">{(intelligenceData.propertyValue.buildingSqFt || 0).toLocaleString()} sqft</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Year Built</div>
+                                <div className="text-white font-bold">{intelligenceData.propertyValue.yearBuilt || "N/A"}</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Type</div>
+                                <div className="text-white font-bold text-xs">{intelligenceData.propertyValue.propertyType || "Commercial"}</div>
+                              </div>
+                            </div>
+                            {intelligenceData.propertyValue.ownershipGated && (
+                              <div className="mt-2 pt-2 border-t border-white/10">
+                                <div className="flex items-center gap-1 text-xs text-[#C8A661]">
+                                  <Lock className="w-3 h-3" />
+                                  <span>Owner info & liens: Enterprise tier</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : userTier === "free" && (
+                          <div 
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
+                            onClick={() => setShowUpgradePrompt(true)}
+                            data-testid="property-upgrade-prompt"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
+                              <Building2 className="w-4 h-4 text-blue-400/50" />
+                              <span className="text-white/70 text-sm">Property Value & Details</span>
+                              <Crown className="w-3 h-3 text-[#C8A661] ml-auto" />
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">See estimated property values & building info</div>
+                          </div>
+                        )}
+
+                        {/* Utility Rates Panel - PRO+ */}
+                        {intelligenceData?.utilityRates ? (
+                          <div className="bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg p-3 border border-purple-500/20">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Bolt className="w-4 h-4 text-purple-400" />
+                                <span className="text-sm font-medium text-white">Utility Costs</span>
+                              </div>
+                              <Badge variant="outline" className="text-[10px] border-purple-500/30 text-purple-400">OpenEI API</Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <div className="text-white/50 text-xs">Commercial Rate</div>
+                                <div className="text-white font-bold">${intelligenceData.utilityRates.commercialRate.toFixed(3)}/kWh</div>
+                              </div>
+                              <div>
+                                <div className="text-white/50 text-xs">Est. Monthly</div>
+                                <div className="text-white font-bold">${intelligenceData.utilityRates.avgMonthlyBill.toLocaleString()}</div>
+                              </div>
+                              <div className="col-span-2">
+                                <div className="text-white/50 text-xs">Provider</div>
+                                <div className="text-white font-medium text-xs">{intelligenceData.utilityRates.utilityName}</div>
+                              </div>
+                            </div>
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="text-xs text-white/40">Rate Class:</span>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-[10px] ${
+                                  intelligenceData.utilityRates.rateClass === "low" ? "border-green-500/30 text-green-400" :
+                                  intelligenceData.utilityRates.rateClass === "high" ? "border-red-500/30 text-red-400" :
+                                  "border-yellow-500/30 text-yellow-400"
+                                }`}
+                              >
+                                {intelligenceData.utilityRates.rateClass.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        ) : (userTier === "free" || userTier === "starter") && (
+                          <div 
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
+                            onClick={() => setShowUpgradePrompt(true)}
+                            data-testid="utility-upgrade-prompt"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
+                              <Bolt className="w-4 h-4 text-purple-400/50" />
+                              <span className="text-white/70 text-sm">Utility Rate Analysis</span>
+                              <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661] ml-auto">PRO</Badge>
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">Calculate true operating costs with local utility rates</div>
+                          </div>
+                        )}
+
+                        {/* Distance Matrix / Catchment Panel - PRO+ */}
+                        {intelligenceData?.distanceMatrix ? (
+                          <div className="bg-gradient-to-r from-cyan-500/10 to-transparent rounded-lg p-3 border border-cyan-500/20">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Gauge className="w-4 h-4 text-cyan-400" />
+                                <span className="text-sm font-medium text-white">Customer Catchment</span>
+                              </div>
+                              <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400">Distance Matrix</Badge>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-sm text-center">
+                              <div>
+                                <div className="text-lg font-bold text-white">{intelligenceData.distanceMatrix.nearbyHouseholds1Mile.toLocaleString()}</div>
+                                <div className="text-[10px] text-white/50">1 mi</div>
+                              </div>
+                              <div>
+                                <div className="text-lg font-bold text-white">{intelligenceData.distanceMatrix.nearbyHouseholds3Mile.toLocaleString()}</div>
+                                <div className="text-[10px] text-white/50">3 mi</div>
+                              </div>
+                              <div>
+                                <div className="text-lg font-bold text-white">{intelligenceData.distanceMatrix.nearbyHouseholds5Mile.toLocaleString()}</div>
+                                <div className="text-[10px] text-white/50">5 mi</div>
+                              </div>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-white/40">Traffic:</span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-[10px] ${
+                                    intelligenceData.distanceMatrix.trafficCondition === "light" ? "border-green-500/30 text-green-400" :
+                                    intelligenceData.distanceMatrix.trafficCondition === "heavy" ? "border-red-500/30 text-red-400" :
+                                    "border-yellow-500/30 text-yellow-400"
+                                  }`}
+                                >
+                                  {intelligenceData.distanceMatrix.trafficCondition.toUpperCase()}
+                                </Badge>
+                              </div>
+                              <div className="text-xs">
+                                <span className="text-white/40">Catchment Score: </span>
+                                <span className="font-bold" style={{ color: intelligenceData.distanceMatrix.catchmentScore >= 70 ? "#22C55E" : intelligenceData.distanceMatrix.catchmentScore >= 50 ? "#FBBF24" : "#EF4444" }}>
+                                  {intelligenceData.distanceMatrix.catchmentScore}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (userTier === "free" || userTier === "starter") && (
+                          <div 
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
+                            onClick={() => setShowUpgradePrompt(true)}
+                            data-testid="catchment-upgrade-prompt"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
+                              <Gauge className="w-4 h-4 text-cyan-400/50" />
+                              <span className="text-white/70 text-sm">Customer Catchment Analysis</span>
+                              <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661] ml-auto">PRO</Badge>
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">See household counts & drive-time analytics</div>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {/* Action Buttons */}
