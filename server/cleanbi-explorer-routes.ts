@@ -21,6 +21,7 @@ import { geocodeAddress } from "./geocoding-service";
 import { enrichCLEANBIData, type SubscriptionTier } from "./cleanbi-data-enrichment";
 import { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
 import { calculateGoogleCleanbi } from "./google-cleanbi-engine";
+import { newsletterSubscribers } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -1307,6 +1308,66 @@ router.post("/export-sheets", async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: error.message || "Could not export to Google Sheets"
+    });
+  }
+});
+
+// ========================================
+// CLEANBI LEADS CAPTURE
+// ========================================
+
+const leadCaptureSchema = z.object({
+  email: z.string().email(),
+  address: z.string().optional(),
+  score: z.number().optional(),
+  grade: z.string().optional(),
+  source: z.string().default("cleanbi-explorer")
+});
+
+router.post("/leads", async (req: Request, res: Response) => {
+  try {
+    const validated = leadCaptureSchema.parse(req.body);
+    const ipAddress = req.ip || req.headers['x-forwarded-for']?.toString().split(',')[0] || "unknown";
+    
+    // Log lead capture for visibility
+    console.log(`\n📧 ====== CLEANBI LEAD CAPTURED ======`);
+    console.log(`📩 Email: ${validated.email}`);
+    console.log(`📍 Address: ${validated.address || "Not provided"}`);
+    console.log(`📊 Score: ${validated.score || "N/A"} | Grade: ${validated.grade || "N/A"}`);
+    console.log(`🔗 Source: ${validated.source}`);
+    console.log(`🌐 IP: ${ipAddress}`);
+    console.log(`⏰ Time: ${new Date().toISOString()}`);
+    console.log(`=====================================\n`);
+    
+    // Try to add to newsletter subscribers with CLEANBI source tag
+    try {
+      await db.insert(newsletterSubscribers).values({
+        email: validated.email,
+        primaryIndustry: "laundromat",
+        source: `cleanbi-${validated.source}`,
+        interests: validated.address ? [`analyzed:${validated.address.substring(0, 50)}`] : [],
+        status: "active"
+      }).onConflictDoNothing();
+    } catch (dbError) {
+      // Silent fail - lead still captured via logs
+      console.log(`Note: Could not add to newsletter DB (may already exist)`);
+    }
+    
+    return res.json({ success: true, message: "Lead captured successfully" });
+    
+  } catch (error: any) {
+    console.error("❌ Lead capture error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid email address" 
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: "Could not save lead"
     });
   }
 });

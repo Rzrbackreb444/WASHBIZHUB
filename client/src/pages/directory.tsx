@@ -29,6 +29,7 @@ interface BusinessListing {
   description: string;
   shortDescription?: string;
   categoryId?: string;
+  category?: string;
   city?: string;
   state?: string;
   serviceArea?: string;
@@ -38,6 +39,7 @@ interface BusinessListing {
   tier: string;
   isFeatured: boolean;
   hasVerifiedBadge: boolean;
+  isPremium?: boolean;
   viewCount: number;
   servicesOffered?: string[];
   brandsCarried?: string[];
@@ -50,20 +52,142 @@ interface Category {
   icon?: string;
 }
 
+const SAMPLE_CATEGORIES: Category[] = [
+  { id: "brokers", name: "Business Brokers", slug: "brokers" },
+  { id: "funders", name: "Funding & Lenders", slug: "funders" },
+  { id: "equipment", name: "Equipment Vendors", slug: "equipment" },
+  { id: "service", name: "Service & Repair", slug: "service" },
+  { id: "supplies", name: "Supplies & Parts", slug: "supplies" },
+  { id: "tech", name: "Technology & POS", slug: "tech" },
+  { id: "insurance", name: "Insurance", slug: "insurance" },
+  { id: "consultants", name: "Consultants", slug: "consultants" },
+  { id: "realestate", name: "Commercial Real Estate", slug: "realestate" },
+  { id: "marketing", name: "Marketing & Design", slug: "marketing" },
+];
+
+const SAMPLE_LISTINGS: BusinessListing[] = [
+  {
+    id: "1",
+    businessName: "Larry Larsen Business Brokerage",
+    slug: "larry-larsen-brokerage",
+    description: "30+ years experience in laundromat sales. Specialized in Southern California coin laundry transactions. SBA-approved broker with over 500 successful deals closed.",
+    shortDescription: "Premier laundromat broker with 30+ years experience",
+    category: "Business Brokers",
+    categoryId: "brokers",
+    city: "Newport Beach",
+    state: "CA",
+    serviceArea: "Southern California",
+    tier: "premium",
+    isFeatured: true,
+    hasVerifiedBadge: true,
+    isPremium: true,
+    viewCount: 2847,
+    servicesOffered: ["Business Sales", "Valuations", "SBA Consulting", "Due Diligence"],
+  },
+  {
+    id: "2",
+    businessName: "GoKapital Commercial Financing",
+    slug: "gokapital",
+    description: "Premier commercial real estate lender specializing in laundromat property purchases. Fast approvals, competitive rates, up to $50M funding.",
+    shortDescription: "Commercial real estate & business loans for laundromats",
+    category: "Funding & Lenders",
+    categoryId: "funders",
+    city: "Miami",
+    state: "FL",
+    serviceArea: "Nationwide",
+    tier: "premium",
+    isFeatured: true,
+    hasVerifiedBadge: true,
+    isPremium: true,
+    viewCount: 3421,
+    servicesOffered: ["Commercial RE Loans", "Bridge Loans", "Equipment Financing", "SBA Loans"],
+  },
+  {
+    id: "3",
+    businessName: "Dexter Laundry Equipment",
+    slug: "dexter-equipment",
+    description: "Industry-leading commercial laundry equipment manufacturer. Washers, dryers, and complete laundromat solutions with energy-efficient technology.",
+    shortDescription: "Premium commercial laundry equipment manufacturer",
+    category: "Equipment Vendors",
+    categoryId: "equipment",
+    city: "Fairfield",
+    state: "IA",
+    serviceArea: "Nationwide",
+    tier: "premium",
+    isFeatured: true,
+    hasVerifiedBadge: true,
+    isPremium: true,
+    viewCount: 4156,
+    servicesOffered: ["Commercial Washers", "Commercial Dryers", "Installation", "Training"],
+    brandsCarried: ["Dexter"],
+  },
+  {
+    id: "4",
+    businessName: "South End Capital",
+    slug: "south-end-capital",
+    description: "Division of $3.2B Stearns Bank. Preferred SBA lender with $0 guarantee fees on loans up to $1M. Story-based underwriting for complex situations.",
+    shortDescription: "Preferred SBA lender with $0 fees up to $1M",
+    category: "Funding & Lenders",
+    categoryId: "funders",
+    city: "Stamford",
+    state: "CT",
+    serviceArea: "Nationwide",
+    tier: "featured",
+    isFeatured: true,
+    hasVerifiedBadge: true,
+    viewCount: 1892,
+    servicesOffered: ["SBA 7(a) Loans", "Equipment Financing", "Working Capital"],
+  },
+  {
+    id: "5",
+    businessName: "ESD Inc - Card Payment Systems",
+    slug: "esd-card-systems",
+    description: "Leading card payment solutions for laundromats. CyclePay app-based payments, card readers, and complete payment infrastructure.",
+    shortDescription: "Card payment & digital solutions for laundromats",
+    category: "Technology & POS",
+    categoryId: "tech",
+    city: "Philadelphia",
+    state: "PA",
+    serviceArea: "Nationwide",
+    tier: "featured",
+    isFeatured: false,
+    hasVerifiedBadge: true,
+    viewCount: 1456,
+    servicesOffered: ["Card Readers", "Mobile Payments", "POS Systems", "Revenue Tracking"],
+  },
+  {
+    id: "6",
+    businessName: "Preferred Funding Group",
+    slug: "preferred-funding-group",
+    description: "Personal credit-based startup funding. $5K-$150K with no business credit required. Perfect for first-time laundromat buyers.",
+    shortDescription: "Personal credit funding for laundromat startups",
+    category: "Funding & Lenders",
+    categoryId: "funders",
+    city: "Phoenix",
+    state: "AZ",
+    serviceArea: "Nationwide",
+    tier: "featured",
+    isFeatured: true,
+    hasVerifiedBadge: true,
+    viewCount: 2234,
+    servicesOffered: ["Startup Funding", "Personal Credit Loans", "Business Credit Building"],
+  },
+];
+
 export default function DirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
 
-  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+  const { data: categories = SAMPLE_CATEGORIES, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/directory/categories"],
   });
 
-  const { data: featuredListings, isLoading: featuredLoading } = useQuery<BusinessListing[]>({
+  const { data: featuredListings = SAMPLE_LISTINGS.filter(l => l.isFeatured), isLoading: featuredLoading } = useQuery<BusinessListing[]>({
     queryKey: ["/api/directory/listings/featured"],
   });
 
-  const { data: listings, isLoading: listingsLoading } = useQuery<BusinessListing[]>({
+  const { data: listings = SAMPLE_LISTINGS, isLoading: listingsLoading } = useQuery<BusinessListing[]>({
     queryKey: ["/api/directory/listings", { category: selectedCategory, state: selectedState, search: searchQuery }],
   });
 
@@ -321,15 +445,24 @@ export default function DirectoryPage() {
                           )}
                           
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <h3 className="font-semibold text-lg text-slate-900">
                                 {listing.businessName}
                               </h3>
                               {listing.hasVerifiedBadge && (
-                                <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                <Badge className="bg-blue-500/10 text-blue-600 border border-blue-500/30 flex-shrink-0 gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Verified
+                                </Badge>
                               )}
-                              {listing.isFeatured && (
-                                <Badge className="bg-[#b8860b] flex-shrink-0">Featured</Badge>
+                              {listing.isPremium && (
+                                <Badge className="bg-gradient-to-r from-[#b8860b] to-[#d4a030] text-white flex-shrink-0 gap-1">
+                                  <Star className="w-3 h-3" />
+                                  Premium
+                                </Badge>
+                              )}
+                              {listing.isFeatured && !listing.isPremium && (
+                                <Badge variant="outline" className="border-[#b8860b]/50 text-[#b8860b] flex-shrink-0">Featured</Badge>
                               )}
                             </div>
                             
