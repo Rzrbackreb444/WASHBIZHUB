@@ -72,6 +72,10 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
         - Shareable analysis links for viral distribution
         - Multi-tier rate limiting (free: 5/min, 20/day; starter: 20/min, 100/day; pro: 50/min, 500/day; enterprise: 200/min, 5000/day)
         - Aggressive caching strategy (80%+ cost reduction target)
+        - **Email Capture Gate:** First-time users prompted for email before seeing full analysis; resilient UX with "Skip for now" option, client-side validation, and graceful error handling; leads stored in newsletterSubscribers table
+- **Deal Flow Dashboard (`/laundromat-listings`):** Searchable listings with price range filters, state selection, real estate toggle, CLEANBI integration buttons, and funding quick actions
+- **Funding Marketplace (`/funding-matcher`):** 7 integrated funding partners (ARF Financial, Direct Capital, Kabbage, PayPal Working Capital, GreenBox Capital, Credibly, OnDeck) with 3-step lead capture, risk-based matching algorithm, and affiliate tracking
+- **Verified Directory (`/directory`):** Industry service provider directory with tiered subscriptions (Free, Premium $499/mo, Featured $1,400/mo), verified/premium badges, and sample data for Brokers, Funders, and Equipment Vendors
 - **Affiliate Blog Systems:** Bulk generation systems for SEO-optimized blogs featuring affiliate links for financing.
 - **Business Directory System:** Freemium vendor/service provider directory with tiered subscriptions.
 - **Revenue Conversion Funnel Tools:**
