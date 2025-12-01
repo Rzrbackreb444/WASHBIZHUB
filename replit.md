@@ -63,6 +63,13 @@ The backend is built with Node.js and Express in TypeScript, offering RESTful JS
 - **Regional Pricing System:** PPP-adjusted pricing for 220+ countries with multi-currency support and Stripe integration.
 - **CLEANBI Intelligence System:** A multi-source property intelligence tool for scoring any address globally (businesses and residential properties), including an auto-calculator and a Chrome extension.
     - **CLEANBI Multi-Source Data Enrichment:** Production data pipeline integrating Census Bureau (ACS demographics), ATTOM API (property values), and Google Places (geocoding, competitor search). Features a 6-factor weighted scoring system, tiered access control, and confidence scoring.
+    - **CLEANBI 2.0 Scoring Algorithm (Industry-Calibrated):**
+        - **Quick Score Weights (Location-Only):** Demographics 45%, Competition 30%, Quality 15%, Confidence 10%
+        - **Demographic Scoring:** Renter % (40-70% optimal), Income bell curve to $55K, Density 2000-5000/sq mi
+        - **Competition Saturation Formula:** `100 - normalize((competitors × 1000) / household_density)`
+        - **Trade Area:** 1-mile radius (87% of laundromat customers live within 1 mile per industry research)
+        - **Census Data:** County-level with urban core density estimation for accurate local scoring
+        - **ZIP Prefix Mapping:** Arkansas counties (729=Sebastian/Fort Smith, 721=Pulaski/Little Rock, etc.)
     - **CLEANBI Optimization Infrastructure:** Includes a shared metrics service, tiered subscription system with Stripe webhook synchronization, Redis caching, Redis rate limiter, and a batched API pipeline.
     - **CLEANBI Explorer (`/cleanbi-explorer`):** Full-screen immersive map experience with 3D aerial views, competition heatmaps, and proprietary AI scoring. Features include:
         - Google Maps integration with dark-theme styling

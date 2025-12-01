@@ -1,0 +1,101 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║     WASHBIZHUB MASTER ALGORITHMS & FORMULAS REFERENCE - COMPLETE EDITION v3.0     ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              23 MAJOR SECTIONS
+═══════════════════════════════════════════════════════════════════════════════════
+
+1.  API Keys & External Services (14 APIs)
+2.  CLEANBI 2.0 Scoring Algorithm (17 weighted factors)
+3.  Monte Carlo Simulation (500 runs, percentile outputs)
+4.  Business Valuation Engine (EBITDA/Revenue/Asset multiples)
+5.  Equipment Valuator (6 brand depreciation curves)
+6.  Property Intelligence (ATTOM integration)
+7.  Competition Intelligence (Google Places)
+8.  Census Demographics (7 ACS variables + 30-day cache)
+9.  Google Suite Analytics (Distance, Elevation, Traffic)
+10. Property Type Scoring Algorithms (8 BI scores)
+11. Standalone Calculators (9 total)
+12. Financial Formulas Library (30+ formulas)
+13. Funding Eligibility Logic (SBA requirements)
+14. International Localization (14 countries)
+15. AI Services (RAG, Embeddings, Nick AI)
+16. Diagnostics Engine (Fault lookup, Symptom triage)
+17. Predictive Maintenance AI (Health scores, Failure patterns)
+18. What-If Analysis Engine (10 variables, NPV/IRR/ROI)
+19. Subscription & Quota System (3 tiers)
+20. Route Optimization (Google Routes API)
+21. Market Heatmap Generation (Haversine + Saturation)
+22. Exchange Rates Service (Live + 24-hour cache)
+23. Recommendations Engine (Immediate + Preventive)
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              FULL INVENTORY
+═══════════════════════════════════════════════════════════════════════════════════
+
+BACKEND SERVICES: 58 Python files in api/services/
+├── AI & RAG System (5 files)
+├── Valuation Services (6 files)
+├── Diagnostics (3 files)
+├── Core Services (44 files)
+
+FRONTEND CALCULATORS: 9 TypeScript files
+├── ROI Calculator Pro
+├── Turns Per Day Calculator
+├── Equipment Payback Calculator
+├── Water Usage Income Verifier
+├── Revenue Forecaster
+├── Pricing Optimizer
+├── Financing Calculator
+├── ROI Analyzer (Advanced)
+├── TPD Calculator (Legacy)
+
+SCORING ALGORITHMS: 8 property types
+├── CLEANBI™ (Laundromats) - 17 factors
+├── WASHBI™ (Car Wash) - 5 factors
+├── SPACEBI™ (Self-Storage) - 5 factors
+├── SHOPBI™ (Retail) - 5 factors
+├── WORKBI™ (Industrial) - 5 factors
+├── DINEBI™ (Restaurant) - 5 factors
+├── HEALTHBI™ (Medical) - 5 factors
+├── LOGISBI™ (Logistics) - 5 factors
+
+EXTERNAL APIS: 14 integrations
+├── AI: OpenAI, Anthropic, Gemini, Vision AI
+├── Property: ATTOM, Census, Google Maps/Places/Routes, Mapbox
+├── Payments: Stripe, PayPal
+├── Email: SendGrid
+
+INTERNATIONAL SUPPORT: 14 countries with localized benchmarks
+├── Americas: US, CA, MX, BR
+├── Europe: GB, DE, FR, ES, IT
+├── Asia-Pacific: AU, NZ, JP, KR, CN
+
+NEW ADDITIONS IN v3.0:
+✅ Predictive Maintenance AI (Health scores, failure prediction)
+✅ What-If Analysis Engine (10 scenario variables)
+✅ Subscription Quota System (3 tiers with limits)
+✅ Route Optimization (Google Routes API)
+✅ Market Heatmap (Haversine distance, saturation scoring)
+✅ Exchange Rates Service (Live + fallback)
+✅ Recommendations Engine (Immediate + Preventive maintenance)
+✅ Diagnostics Triage (AI-powered fault analysis)
+✅ Repair Plan Generator (Tiered A/B/C plans)
+✅ RAG System (Text chunking, embeddings, retrieval)
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              STATISTICS
+═══════════════════════════════════════════════════════════════════════════════════
+
+• Total Algorithms/Formulas: 100+
+• Backend Python Files: 58
+• Frontend Calculator Components: 9
+• API Integrations: 14
+• Countries Supported: 14
+• Equipment Depreciation Curves: 6 brands
+• Valuation Methods: 3
+• AI Services: 5
+• Subscription Tiers: 3
+
+Cost per full property analysis: ~$1.55
