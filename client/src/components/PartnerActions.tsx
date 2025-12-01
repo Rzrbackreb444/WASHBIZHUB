@@ -9,7 +9,7 @@ import {
 
 const partnerActions = [
   {
-    href: "/add-listing",
+    href: "/listing-form",
     title: "Add a Listing",
     description: "List laundromats, equipment, services, or products",
     icon: Store,

@@ -260,7 +260,7 @@ export default function SellerDashboard() {
                   Manage your listings, view performance, and grow your business
                 </p>
               </div>
-              <Link href="/add-listing">
+              <Link href="/listing-form">
                 <Button
                   size="lg"
                   className="bg-[#d4af37] hover:bg-[#d4af37]/90 text-[#0b1526] font-bold"
@@ -360,7 +360,7 @@ export default function SellerDashboard() {
                     <p className="text-white/60 mb-6">
                       Create your first listing to start reaching buyers.
                     </p>
-                    <Link href="/add-listing">
+                    <Link href="/listing-form">
                       <Button className="bg-[#d4af37] hover:bg-[#d4af37]/90 text-[#0b1526]" data-testid="button-create-first-listing">
                         <Plus className="w-4 h-4 mr-2" />
                         Create Your First Listing
