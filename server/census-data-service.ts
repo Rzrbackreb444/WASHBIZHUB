@@ -46,6 +46,7 @@ const CACHE_TTL = 24 * 60 * 60 * 1000;
 const zipToFipsCache: Map<string, { state: string; county: string } | null> = new Map();
 
 const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = {
+  // New York City area
   '100': { state: '36', county: '061' },
   '101': { state: '36', county: '061' },
   '102': { state: '36', county: '061' },
@@ -54,7 +55,19 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '112': { state: '36', county: '047' },
   '113': { state: '36', county: '081' },
   '114': { state: '36', county: '081' },
+  // Washington DC
   '200': { state: '11', county: '001' },
+  // Arkansas - Fort Smith (Sebastian County 131)
+  '729': { state: '05', county: '131' }, // Fort Smith (THE WASHROOM location)
+  '728': { state: '05', county: '131' }, // Fort Smith area
+  // Arkansas - Little Rock (Pulaski County 119)
+  '721': { state: '05', county: '119' }, // Little Rock
+  '722': { state: '05', county: '119' }, // Little Rock area
+  // Arkansas - Northwest (Washington County 143, Benton County 007)
+  '727': { state: '05', county: '143' }, // Fayetteville/Washington Co
+  '726': { state: '05', county: '007' }, // Bentonville/Benton Co
+  // Arkansas - Northeast (Craighead County 031)
+  '724': { state: '05', county: '031' }, // Jonesboro
   '201': { state: '11', county: '001' },
   '202': { state: '11', county: '001' },
   '203': { state: '11', county: '001' },
@@ -234,8 +247,43 @@ function parseCensusResponse(data: any[], geoLevel: 'tract' | 'county' | 'state'
   const vacancyRate = totalHousing > 0 ? (vacantUnits / totalHousing) * 100 : 8;
   const povertyRate = population > 0 ? (belowPoverty / population) * 100 : 12;
   
-  const sqMiPerTract = geoLevel === 'tract' ? 1.5 : geoLevel === 'county' ? 500 : 2500;
-  const density = population / sqMiPerTract;
+  // Population Density Estimation by Geographic Level
+  // Key insight: Laundromat trade area is typically 1-mile radius (~3 sq mi)
+  // County-level data includes rural areas which artificially lowers density
+  // We need to estimate the URBAN/SUBURBAN density where laundromats are located
+  
+  let density: number;
+  if (geoLevel === 'tract') {
+    // Census tracts are ~1-2 sq mi in urban areas
+    density = population / 1.5;
+  } else if (geoLevel === 'county') {
+    // For county-level data, we can't just divide by total county area
+    // Instead, estimate urban/suburban density based on:
+    // - Total county population indicates urbanization level
+    // - Laundromats are in developed areas, not rural farmland
+    // 
+    // Heuristic: Counties with 50K+ population have cities/suburbs
+    // Estimate that 60-80% of population lives in urban/suburban areas
+    // covering perhaps 10-20% of the county land area
+    
+    if (population > 200000) {
+      // Large metro county - high urban density
+      density = (population * 0.7) / (50); // ~70% urban population in ~50 sq mi core
+    } else if (population > 100000) {
+      // Mid-size county (like Sebastian Co, Fort Smith ~130K)
+      density = (population * 0.6) / (40); // ~60% in ~40 sq mi developed area
+    } else if (population > 50000) {
+      // Small city county
+      density = (population * 0.5) / (30);
+    } else {
+      // Rural county - lower but still estimate developed area
+      density = (population * 0.4) / (25);
+    }
+    console.log(`📊 County density estimation: ${population} pop → ~${Math.round(density)}/sq mi (urban core estimate)`);
+  } else {
+    // State level - use standard state density calc
+    density = population / 2500;
+  }
 
   const confidence = geoLevel === 'tract' ? 95 : geoLevel === 'county' ? 80 : 60;
 
@@ -493,23 +541,97 @@ export function getMarketScoreFromCensus(census: CensusData): {
   densityScore: number;
   demographicPowerScore: number;
 } {
-  const renterScore = Math.min(100, (census.renterPercentage / 70) * 100);
+  // INDUSTRY-CALIBRATED SCORING based on Coin Laundry Association & industry research
+  // Sources: PlanetLaundry, Martin-Ray, Laundrylux, American Coin-Op, industry consultants
   
-  let incomeScore: number;
-  if (census.medianHouseholdIncome >= 35000 && census.medianHouseholdIncome <= 65000) {
-    incomeScore = 100;
+  // RENTER SCORE: Linear 40-70% optimal (per master algorithms doc)
+  // Industry data: 60-70% of laundromat customers are renters, 87% live within 1 mile
+  // Threshold: 25% minimum, 40% good, 50%+ excellent, 60-70% ideal
+  let renterScore: number;
+  if (census.renterPercentage >= 60) {
+    // 60%+ = excellent (90-100 range)
+    renterScore = 90 + Math.min(10, (census.renterPercentage - 60) / 2);
+  } else if (census.renterPercentage >= 50) {
+    // 50-60% = very good (80-90 range)
+    renterScore = 80 + (census.renterPercentage - 50);
+  } else if (census.renterPercentage >= 40) {
+    // 40-50% = good (65-80 range) - industry minimum threshold
+    renterScore = 65 + (census.renterPercentage - 40) * 1.5;
+  } else if (census.renterPercentage >= 30) {
+    // 30-40% = below average but viable (50-65 range)
+    renterScore = 50 + (census.renterPercentage - 30) * 1.5;
+  } else if (census.renterPercentage >= 25) {
+    // 25-30% = minimum threshold (40-50 range)
+    renterScore = 40 + (census.renterPercentage - 25) * 2;
   } else {
-    const deviation = Math.abs(census.medianHouseholdIncome - 50000);
-    incomeScore = Math.max(0, 100 - (deviation / 1000));
+    // <25% = poor location for laundromat (25-40 range)
+    renterScore = Math.max(25, census.renterPercentage * 1.6);
   }
   
-  const densityScore = Math.min(100, (census.populationDensity / 2500) * 100);
+  // INCOME SCORE: Bell curve to $55K (per master algorithms doc)
+  // Industry sweet spot: $28K-$65K, core target: $35K-$60K
+  // Median laundromat customer income: $28K-$30K
+  // Too high (>$85K) = less demand, too low (<$20K) = less spending
+  let incomeScore: number;
+  const targetIncome = 55000; // Peak of bell curve per master doc
+  if (census.medianHouseholdIncome >= 30000 && census.medianHouseholdIncome <= 70000) {
+    // Sweet spot range ($30K-$70K) = high scores
+    if (census.medianHouseholdIncome >= 35000 && census.medianHouseholdIncome <= 65000) {
+      // Core ideal range = 90-100
+      const distFromPeak = Math.abs(census.medianHouseholdIncome - targetIncome);
+      incomeScore = 100 - (distFromPeak / 2000); // Small penalty for deviation from $55K
+    } else {
+      // Edges of sweet spot = 75-90
+      incomeScore = 75 + ((census.medianHouseholdIncome >= 35000 ? 
+        (70000 - census.medianHouseholdIncome) : 
+        (census.medianHouseholdIncome - 30000)) / 1000);
+    }
+  } else if (census.medianHouseholdIncome > 70000) {
+    // Higher income = declining demand (affluent areas have in-unit laundry)
+    // $70K-$85K = 60-75, >$85K = 40-60
+    if (census.medianHouseholdIncome <= 85000) {
+      incomeScore = 75 - ((census.medianHouseholdIncome - 70000) / 1000);
+    } else {
+      incomeScore = Math.max(40, 60 - ((census.medianHouseholdIncome - 85000) / 2000));
+    }
+  } else {
+    // Lower income (<$30K) = viable but less spending power
+    incomeScore = Math.max(50, 70 - ((30000 - census.medianHouseholdIncome) / 500));
+  }
   
+  // DENSITY SCORE: Linear 2000-5000/sq mi (per master algorithms doc)
+  // Industry research: 12,000+ for urban, but 2000-5000 is good baseline for trade area
+  // Adjusted scoring to reward higher density without harsh penalties
+  let densityScore: number;
+  if (census.populationDensity >= 5000) {
+    // High density (5000+) = 85-100
+    densityScore = 85 + Math.min(15, (census.populationDensity - 5000) / 1000);
+  } else if (census.populationDensity >= 3000) {
+    // Good density (3000-5000) = 70-85
+    densityScore = 70 + ((census.populationDensity - 3000) / 133);
+  } else if (census.populationDensity >= 2000) {
+    // Adequate density (2000-3000) = 55-70
+    densityScore = 55 + ((census.populationDensity - 2000) / 67);
+  } else if (census.populationDensity >= 1000) {
+    // Suburban/lower density (1000-2000) = 40-55
+    densityScore = 40 + ((census.populationDensity - 1000) / 67);
+  } else {
+    // Rural/very low density (<1000) = 25-40
+    densityScore = Math.max(25, 25 + (census.populationDensity / 40));
+  }
+  
+  // DEMOGRAPHIC POWER SCORE: Weighted combination
+  // Based on master doc weights adjusted for location-only analysis:
+  // - Renter %: 40% (critical demand driver - 87% of customers are renters nearby)
+  // - Population Density: 30% (foot traffic and customer base)
+  // - Income: 30% (spending power and market fit)
   const demographicPowerScore = Math.round(
     (renterScore * 0.40) +
     (densityScore * 0.30) +
     (incomeScore * 0.30)
   );
+
+  console.log(`📊 Census Market Scores: Renter=${Math.round(renterScore)} (${census.renterPercentage}%), Density=${Math.round(densityScore)} (${census.populationDensity}/sqmi), Income=${Math.round(incomeScore)} ($${census.medianHouseholdIncome.toLocaleString()}) → Power=${demographicPowerScore}`);
 
   return {
     renterScore: Math.round(renterScore),

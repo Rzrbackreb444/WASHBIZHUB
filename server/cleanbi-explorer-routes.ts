@@ -179,18 +179,49 @@ async function checkExplorerRateLimit(
   }
 }
 
+/**
+ * INDUSTRY-CALIBRATED OPPORTUNITY LEVEL
+ * Aligned with CLEANBI grading: A≥85, B=70-84, C=55-69, Needs Work<55
+ * 
+ * Opportunity levels use positive language per user preferences:
+ * - goldmine: Exceptional opportunity (A grade + low competition)
+ * - promising: Strong opportunity (B grade + manageable competition)
+ * - moderate: Good potential (C grade or higher competition)
+ * - saturated: Room to grow (Needs Work or high competition)
+ * - oversaturated: Strategic location (challenging but viable)
+ */
 function calculateOpportunityLevel(
   cleanbiScore: number, 
   competitorCount: number,
   populationDensity: number
 ): "goldmine" | "promising" | "moderate" | "saturated" | "oversaturated" {
-  const densityFactor = populationDensity > 5000 ? 1.2 : populationDensity > 2000 ? 1 : 0.8;
-  const adjustedScore = cleanbiScore * densityFactor;
+  // Don't penalize for lower density - that's already factored into the score
+  // The CLEANBI score itself accounts for density in the demographic component
   
-  if (adjustedScore >= 85 && competitorCount <= 2) return "goldmine";
-  if (adjustedScore >= 75 && competitorCount <= 4) return "promising";
-  if (adjustedScore >= 60 && competitorCount <= 6) return "moderate";
-  if (adjustedScore >= 45 || competitorCount <= 8) return "saturated";
+  // Aligned with CLEANBI grade thresholds
+  if (cleanbiScore >= 85) {
+    // A-grade location
+    if (competitorCount <= 2) return "goldmine";
+    if (competitorCount <= 5) return "promising";
+    return "moderate";
+  }
+  
+  if (cleanbiScore >= 70) {
+    // B-grade location
+    if (competitorCount <= 3) return "promising";
+    if (competitorCount <= 6) return "moderate";
+    return "saturated";
+  }
+  
+  if (cleanbiScore >= 55) {
+    // C-grade location
+    if (competitorCount <= 4) return "moderate";
+    if (competitorCount <= 7) return "saturated";
+    return "oversaturated";
+  }
+  
+  // Needs Work (<55)
+  if (competitorCount <= 5) return "saturated";
   return "oversaturated";
 }
 
@@ -510,6 +541,12 @@ router.post("/analyze", async (req: Request, res: Response) => {
     const streetViewUrl = getStreetViewUrl(geocoded.lat, geocoded.lng);
     
     // Build analysis result
+    // Use 1-mile competitor count from enriched data for opportunity level (industry standard trade area)
+    // But show full radius competitor count for the map display
+    const oneMileCompetitorCount = enrichedData.competition?.nearbyCompetitors?.filter(
+      c => c.distance <= 1.609 // 1 mile in km
+    ).length || enrichedData.competition?.count || 0;
+    
     const analysis: ExplorerAnalysis = {
       id: generateAnalysisId(),
       address: geocoded.formattedAddress,
@@ -517,18 +554,20 @@ router.post("/analyze", async (req: Request, res: Response) => {
       lng: geocoded.lng,
       cleanbiScore: quickScore.score,
       grade: quickScore.grade,
-      competitorCount: competitors.length,
+      competitorCount: competitors.length, // Full radius for display
       populationDensity: enrichedData.demographics.populationDensity,
       medianIncome: enrichedData.demographics.medianHouseholdIncome,
       trafficScore: Math.round(enrichedData.marketScores.demographicPowerScore * 0.8),
       opportunityLevel: calculateOpportunityLevel(
         quickScore.score, 
-        competitors.length,
+        oneMileCompetitorCount, // 1-mile count for opportunity assessment
         enrichedData.demographics.populationDensity
       ),
       streetViewUrl,
       createdAt: new Date()
     };
+    
+    console.log(`📊 Opportunity Level: score=${quickScore.score}, 1mi-competitors=${oneMileCompetitorCount}, level=${analysis.opportunityLevel}`);
 
     // Cache the analysis
     await cacheSet(cacheKey, analysis, CACHE_TTL.analysis);

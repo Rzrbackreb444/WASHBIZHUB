@@ -296,33 +296,71 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
 }
 
 function determineMarketSaturation(competitorCount: number, populationDensity: number): 'low' | 'moderate' | 'high' | 'saturated' {
-  const laundromatsPerCapita = competitorCount / (populationDensity / 1000);
+  // Saturation based on laundromats per 1000 people in urban core area
+  // Industry benchmark: ~1 laundromat per 4,000-6,000 households is healthy
+  // With avg 2.5 people per household, that's 1 per 10,000-15,000 people
   
-  if (laundromatsPerCapita < 0.3) return 'low';
-  if (laundromatsPerCapita < 0.6) return 'moderate';
-  if (laundromatsPerCapita < 1.0) return 'high';
-  return 'saturated';
+  // Use density-normalized saturation formula from master algorithms
+  const householdDensity = populationDensity / 2.5;
+  const saturationRatio = (competitorCount * 1000) / Math.max(1, householdDensity);
+  
+  // Aligned with competition scoring thresholds
+  if (saturationRatio <= 2) return 'low';        // Excellent opportunity (score 90-100)
+  if (saturationRatio <= 4) return 'moderate';   // Good opportunity (score 80-90)
+  if (saturationRatio <= 8) return 'high';       // Competitive (score 60-80)
+  return 'saturated';                             // Challenging (score <60)
 }
 
-function calculateCompetitionScore(count: number): number {
-  // More nuanced competition scoring:
-  // Competition is normal - only severely penalize truly saturated markets
-  // This uses a 1-mile radius, so reasonable expectations:
-  // 0-1 competitors = excellent (low competition)
-  // 2-3 competitors = good (normal market)
-  // 4-6 competitors = moderate (competitive but viable)
-  // 7-10 competitors = challenging (need differentiation)
-  // 11+ competitors = saturated
-  if (count === 0) return 100;
-  if (count === 1) return 90;
-  if (count === 2) return 80;
-  if (count === 3) return 72;
-  if (count === 4) return 65;
-  if (count === 5) return 58;
-  if (count === 6) return 52;
-  if (count <= 8) return 45;
-  if (count <= 10) return 38;
-  return 30; // Very saturated, but still viable with good execution
+/**
+ * INDUSTRY-CALIBRATED COMPETITION SCORING
+ * Based on master algorithms: Saturation Score = 100 - normalize((competitors × 1000) / household_density)
+ * 
+ * Key industry insights:
+ * - 87% of laundromat customers live within 1 mile
+ * - Healthy market: 1 laundromat per 4,000-6,000 households
+ * - Competition should be normalized by population density
+ * - Low competitor ratings = opportunity for differentiation
+ */
+function calculateCompetitionScore(count: number, populationDensity?: number): number {
+  // If we have population density, use the master doc saturation formula
+  if (populationDensity && populationDensity > 0) {
+    // Master doc formula: Saturation Score = 100 - normalize((competitors × 1000) / household_density)
+    // Adjusted for population density (assume ~2.5 people per household)
+    const householdDensity = populationDensity / 2.5;
+    const saturationRatio = (count * 1000) / Math.max(1, householdDensity);
+    
+    // Normalize: 0 = perfect, higher = more saturated
+    // Industry benchmark: ratio of ~2-4 is healthy (1 laundromat per 250-500 HH per sq mi)
+    let score: number;
+    if (saturationRatio === 0) {
+      score = 100; // No competition
+    } else if (saturationRatio <= 2) {
+      score = 95 - (saturationRatio * 2.5); // Excellent (90-95)
+    } else if (saturationRatio <= 4) {
+      score = 90 - ((saturationRatio - 2) * 5); // Good (80-90)
+    } else if (saturationRatio <= 8) {
+      score = 80 - ((saturationRatio - 4) * 5); // Moderate (60-80)
+    } else if (saturationRatio <= 15) {
+      score = 60 - ((saturationRatio - 8) * 2); // Challenging (46-60)
+    } else {
+      score = Math.max(30, 46 - ((saturationRatio - 15) * 0.5)); // Saturated (30-46)
+    }
+    
+    return Math.round(Math.max(30, Math.min(100, score)));
+  }
+  
+  // Fallback: count-based scoring when density unavailable
+  // Based on 1-mile radius industry expectations
+  if (count === 0) return 100;  // Blue ocean
+  if (count === 1) return 92;   // Minimal competition
+  if (count === 2) return 84;   // Healthy market
+  if (count === 3) return 76;   // Competitive
+  if (count === 4) return 68;   // Crowded
+  if (count === 5) return 62;   
+  if (count === 6) return 56;   
+  if (count <= 8) return 48;    // Saturated
+  if (count <= 10) return 42;   
+  return 35; // Very saturated - differentiation required
 }
 
 function generateInsights(
@@ -435,8 +473,11 @@ export async function enrichCLEANBIData(
     ? competitors.reduce((sum, c) => sum + c.rating, 0) / competitors.length
     : 0;
 
-  const competitionScore = calculateCompetitionScore(competitors.length);
+  // Use density-adjusted competition scoring (master algorithms doc formula)
+  const competitionScore = calculateCompetitionScore(competitors.length, census.populationDensity);
   const marketSaturation = determineMarketSaturation(competitors.length, census.populationDensity);
+  
+  console.log(`📊 Competition Score: ${competitionScore} (${competitors.length} competitors, ${census.populationDensity}/sqmi density)`);
 
   let placeDetails = null;
   if (geocoded?.placeId) {
