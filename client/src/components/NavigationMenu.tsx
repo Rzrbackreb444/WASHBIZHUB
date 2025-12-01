@@ -61,12 +61,12 @@ const FB_GROUP_URL = "https://facebook.com/groups/thelaundromat";
 const CHROME_EXTENSION_URL = "https://chrome.google.com/webstore/detail/cleanbi-anywhere";
 
 const PLAN_LINKS = [
+  { href: "/sba-readiness", label: "SBA Readiness Check", icon: Target, description: "Free 2-min loan qualification quiz" },
+  { href: "/business-plan-generator", label: "Business Plan Generator", icon: BookOpen, description: "AI-powered SBA-ready plans" },
   { href: "/ai-consultation", label: "AI Consultation", icon: Bot, description: "Expert AI analysis for your deal" },
   { href: "/larry-larsen", label: "Expert Consulting", icon: Users, description: "50+ year industry veteran" },
   { href: "/calculators", label: "ROI Calculator", icon: Calculator, description: "Calculate potential returns" },
   { href: "/startup-funding", label: "Funding Options", icon: DollarSign, description: "Access capital for your business" },
-  { href: "/academy", label: "Tech Academy", icon: GraduationCap, description: "Professional certification programs" },
-  { href: "/book", label: "Industry Guide", icon: BookOpen, description: "Comprehensive laundromat resource" },
   { href: "/blog", label: "Insights", icon: Lightbulb, description: "Articles and industry news" },
 ];
 
