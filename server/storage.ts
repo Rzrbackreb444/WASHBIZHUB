@@ -234,6 +234,23 @@ import {
   type InsertIndexingEvent,
   type MarketplaceListing,
   type InsertMarketplaceListing,
+  // Buyer Engagement System
+  type SavedSearch,
+  type InsertSavedSearch,
+  type SavedSearchAlert,
+  type InsertSavedSearchAlert,
+  type FavoriteListing,
+  type InsertFavoriteListing,
+  type BuyerMessageThread,
+  type InsertBuyerMessageThread,
+  type BuyerMessage,
+  type InsertBuyerMessage,
+  type DueDiligenceTask,
+  type InsertDueDiligenceTask,
+  type ListingComparison,
+  type InsertListingComparison,
+  type BuyerListingHistory,
+  type InsertBuyerListingHistory,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -923,6 +940,56 @@ export interface IStorage {
   createMarketplaceListing(listing: InsertMarketplaceListing): Promise<MarketplaceListing>;
   updateMarketplaceListing(id: string, listing: Partial<InsertMarketplaceListing>): Promise<MarketplaceListing>;
   deleteMarketplaceListing(id: string): Promise<void>;
+  
+  // ==================== BUYER ENGAGEMENT SYSTEM ====================
+  
+  // Saved Searches with Email Alerts
+  getSavedSearches(userId: string): Promise<SavedSearch[]>;
+  getSavedSearch(id: string): Promise<SavedSearch | undefined>;
+  createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch>;
+  updateSavedSearch(id: string, search: Partial<InsertSavedSearch>): Promise<SavedSearch>;
+  deleteSavedSearch(id: string): Promise<void>;
+  getSavedSearchesForAlerts(frequency: string): Promise<SavedSearch[]>;
+  recordSavedSearchAlert(savedSearchId: string, listingId: string): Promise<SavedSearchAlert>;
+  hasAlertBeenSent(savedSearchId: string, listingId: string): Promise<boolean>;
+  
+  // Favorite Listings (Buyer Watchlist)
+  getFavoriteListings(userId: string): Promise<FavoriteListing[]>;
+  getFavoriteListingsWithDetails(userId: string): Promise<(FavoriteListing & { listing: Listing })[]>;
+  addFavoriteListing(favorite: InsertFavoriteListing): Promise<FavoriteListing>;
+  removeFavoriteListing(userId: string, listingId: string): Promise<void>;
+  isListingFavorited(userId: string, listingId: string): Promise<boolean>;
+  updateFavoriteNotes(userId: string, listingId: string, notes: string): Promise<FavoriteListing>;
+  
+  // Buyer-Seller Messaging
+  getMessageThreads(userId: string, role: 'buyer' | 'seller'): Promise<BuyerMessageThread[]>;
+  getMessageThread(id: string): Promise<BuyerMessageThread | undefined>;
+  getMessageThreadByListing(listingId: string, buyerId: string): Promise<BuyerMessageThread | undefined>;
+  createMessageThread(thread: InsertBuyerMessageThread): Promise<BuyerMessageThread>;
+  getMessages(threadId: string): Promise<BuyerMessage[]>;
+  sendMessage(message: InsertBuyerMessage): Promise<BuyerMessage>;
+  markMessagesAsRead(threadId: string, userId: string): Promise<void>;
+  getUnreadMessageCount(userId: string, role: 'buyer' | 'seller'): Promise<number>;
+  
+  // Due Diligence Tasks
+  getDueDiligenceTasks(ndaRequestId: string): Promise<DueDiligenceTask[]>;
+  getDueDiligenceTask(id: string): Promise<DueDiligenceTask | undefined>;
+  createDueDiligenceTask(task: InsertDueDiligenceTask): Promise<DueDiligenceTask>;
+  updateDueDiligenceTask(id: string, task: Partial<InsertDueDiligenceTask>): Promise<DueDiligenceTask>;
+  deleteDueDiligenceTask(id: string): Promise<void>;
+  createDefaultDueDiligenceTasks(ndaRequestId: string): Promise<DueDiligenceTask[]>;
+  
+  // Listing Comparisons
+  getListingComparisons(userId: string): Promise<ListingComparison[]>;
+  getListingComparison(id: string): Promise<ListingComparison | undefined>;
+  createListingComparison(comparison: InsertListingComparison): Promise<ListingComparison>;
+  updateListingComparison(id: string, comparison: Partial<InsertListingComparison>): Promise<ListingComparison>;
+  deleteListingComparison(id: string): Promise<void>;
+  
+  // Buyer Listing History
+  trackListingView(userId: string, listingId: string, timeSpent?: number): Promise<BuyerListingHistory>;
+  getBuyerListingHistory(userId: string, limit?: number): Promise<BuyerListingHistory[]>;
+  getRecentlyViewedListings(userId: string, limit?: number): Promise<(BuyerListingHistory & { listing: Listing })[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -1626,6 +1693,49 @@ export class MemStorage implements IStorage {
   async getEmailVerificationToken(): Promise<EmailVerificationToken | undefined> { return undefined; }
   async markEmailVerified(): Promise<void> { throw new Error("Use DbStorage for security features"); }
   async cleanupExpiredTokens(): Promise<void> { }
+  
+  // Buyer Engagement System Stubs (use DbStorage for actual functionality)
+  async getSavedSearches(): Promise<SavedSearch[]> { return []; }
+  async getSavedSearch(): Promise<SavedSearch | undefined> { return undefined; }
+  async createSavedSearch(): Promise<SavedSearch> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async updateSavedSearch(): Promise<SavedSearch> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async deleteSavedSearch(): Promise<void> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async getSavedSearchesForAlerts(): Promise<SavedSearch[]> { return []; }
+  async recordSavedSearchAlert(): Promise<SavedSearchAlert> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async hasAlertBeenSent(): Promise<boolean> { return false; }
+  
+  async getFavoriteListings(): Promise<FavoriteListing[]> { return []; }
+  async getFavoriteListingsWithDetails(): Promise<(FavoriteListing & { listing: Listing })[]> { return []; }
+  async addFavoriteListing(): Promise<FavoriteListing> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async removeFavoriteListing(): Promise<void> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async isListingFavorited(): Promise<boolean> { return false; }
+  async updateFavoriteNotes(): Promise<FavoriteListing> { throw new Error("Use DbStorage for buyer engagement features"); }
+  
+  async getMessageThreads(): Promise<BuyerMessageThread[]> { return []; }
+  async getMessageThread(): Promise<BuyerMessageThread | undefined> { return undefined; }
+  async getMessageThreadByListing(): Promise<BuyerMessageThread | undefined> { return undefined; }
+  async createMessageThread(): Promise<BuyerMessageThread> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async getMessages(): Promise<BuyerMessage[]> { return []; }
+  async sendMessage(): Promise<BuyerMessage> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async markMessagesAsRead(): Promise<void> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async getUnreadMessageCount(): Promise<number> { return 0; }
+  
+  async getDueDiligenceTasks(): Promise<DueDiligenceTask[]> { return []; }
+  async getDueDiligenceTask(): Promise<DueDiligenceTask | undefined> { return undefined; }
+  async createDueDiligenceTask(): Promise<DueDiligenceTask> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async updateDueDiligenceTask(): Promise<DueDiligenceTask> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async deleteDueDiligenceTask(): Promise<void> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async createDefaultDueDiligenceTasks(): Promise<DueDiligenceTask[]> { throw new Error("Use DbStorage for buyer engagement features"); }
+  
+  async getListingComparisons(): Promise<ListingComparison[]> { return []; }
+  async getListingComparison(): Promise<ListingComparison | undefined> { return undefined; }
+  async createListingComparison(): Promise<ListingComparison> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async updateListingComparison(): Promise<ListingComparison> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async deleteListingComparison(): Promise<void> { throw new Error("Use DbStorage for buyer engagement features"); }
+  
+  async trackListingView(): Promise<BuyerListingHistory> { throw new Error("Use DbStorage for buyer engagement features"); }
+  async getBuyerListingHistory(): Promise<BuyerListingHistory[]> { return []; }
+  async getRecentlyViewedListings(): Promise<(BuyerListingHistory & { listing: Listing })[]> { return []; }
 }
 
 // Use DbStorage for production-grade persistence

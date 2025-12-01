@@ -10895,6 +10895,438 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ============================================================================
+  // BUYER ENGAGEMENT SYSTEM
+  // ============================================================================
+
+  // Saved Searches with Email Alerts
+  app.get("/api/buyer/saved-searches", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const searches = await storage.getSavedSearches(user.id);
+      res.json(searches);
+    } catch (error: any) {
+      console.error("Error fetching saved searches:", error);
+      res.status(500).json({ error: "Failed to fetch saved searches" });
+    }
+  });
+
+  app.post("/api/buyer/saved-searches", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { name, filters, alertFrequency } = req.body;
+      const search = await storage.createSavedSearch({
+        userId: user.id,
+        name,
+        filters,
+        alertFrequency: alertFrequency || "daily",
+        isActive: true
+      });
+      
+      res.json(search);
+    } catch (error: any) {
+      console.error("Error creating saved search:", error);
+      res.status(500).json({ error: "Failed to create saved search" });
+    }
+  });
+
+  app.put("/api/buyer/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const existing = await storage.getSavedSearch(req.params.id);
+      if (!existing || existing.userId !== user.id) {
+        return res.status(404).json({ error: "Search not found" });
+      }
+      
+      const updated = await storage.updateSavedSearch(req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating saved search:", error);
+      res.status(500).json({ error: "Failed to update saved search" });
+    }
+  });
+
+  app.delete("/api/buyer/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const existing = await storage.getSavedSearch(req.params.id);
+      if (!existing || existing.userId !== user.id) {
+        return res.status(404).json({ error: "Search not found" });
+      }
+      
+      await storage.deleteSavedSearch(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting saved search:", error);
+      res.status(500).json({ error: "Failed to delete saved search" });
+    }
+  });
+
+  // Favorite Listings (Buyer Watchlist)
+  app.get("/api/buyer/favorites", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const favorites = await storage.getFavoriteListingsWithDetails(user.id);
+      res.json(favorites);
+    } catch (error: any) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ error: "Failed to fetch favorites" });
+    }
+  });
+
+  app.post("/api/buyer/favorites/:listingId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { listingId } = req.params;
+      const { notes } = req.body;
+      
+      const isFavorited = await storage.isListingFavorited(user.id, listingId);
+      if (isFavorited) {
+        return res.status(400).json({ error: "Already favorited" });
+      }
+      
+      const favorite = await storage.addFavoriteListing({
+        userId: user.id,
+        listingId,
+        notes
+      });
+      
+      res.json(favorite);
+    } catch (error: any) {
+      console.error("Error adding favorite:", error);
+      res.status(500).json({ error: "Failed to add favorite" });
+    }
+  });
+
+  app.delete("/api/buyer/favorites/:listingId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      await storage.removeFavoriteListing(user.id, req.params.listingId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error removing favorite:", error);
+      res.status(500).json({ error: "Failed to remove favorite" });
+    }
+  });
+
+  app.get("/api/buyer/favorites/:listingId/check", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const isFavorited = await storage.isListingFavorited(user.id, req.params.listingId);
+      res.json({ isFavorited });
+    } catch (error: any) {
+      console.error("Error checking favorite:", error);
+      res.status(500).json({ error: "Failed to check favorite" });
+    }
+  });
+
+  app.patch("/api/buyer/favorites/:listingId/notes", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { notes } = req.body;
+      const favorite = await storage.updateFavoriteNotes(user.id, req.params.listingId, notes);
+      res.json(favorite);
+    } catch (error: any) {
+      console.error("Error updating favorite notes:", error);
+      res.status(500).json({ error: "Failed to update notes" });
+    }
+  });
+
+  // Buyer-Seller Messaging
+  app.get("/api/buyer/messages/threads", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const role = (req.query.role as 'buyer' | 'seller') || 'buyer';
+      const threads = await storage.getMessageThreads(user.id, role);
+      res.json(threads);
+    } catch (error: any) {
+      console.error("Error fetching message threads:", error);
+      res.status(500).json({ error: "Failed to fetch threads" });
+    }
+  });
+
+  app.get("/api/buyer/messages/threads/:threadId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const thread = await storage.getMessageThread(req.params.threadId);
+      if (!thread || (thread.buyerId !== user.id && thread.sellerId !== user.id)) {
+        return res.status(404).json({ error: "Thread not found" });
+      }
+      
+      const messages = await storage.getMessages(req.params.threadId);
+      await storage.markMessagesAsRead(req.params.threadId, user.id);
+      
+      res.json({ thread, messages });
+    } catch (error: any) {
+      console.error("Error fetching thread:", error);
+      res.status(500).json({ error: "Failed to fetch thread" });
+    }
+  });
+
+  app.post("/api/buyer/messages/threads", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { listingId, subject, initialMessage } = req.body;
+      
+      const listing = await storage.getListing(listingId);
+      if (!listing || !listing.userId) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      let thread = await storage.getMessageThreadByListing(listingId, user.id);
+      
+      if (!thread) {
+        thread = await storage.createMessageThread({
+          listingId,
+          buyerId: user.id,
+          sellerId: listing.userId,
+          status: "active",
+          subject
+        });
+      }
+      
+      if (initialMessage) {
+        await storage.sendMessage({
+          threadId: thread.id,
+          senderId: user.id,
+          body: initialMessage
+        });
+      }
+      
+      res.json(thread);
+    } catch (error: any) {
+      console.error("Error creating thread:", error);
+      res.status(500).json({ error: "Failed to create thread" });
+    }
+  });
+
+  app.post("/api/buyer/messages/threads/:threadId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const thread = await storage.getMessageThread(req.params.threadId);
+      if (!thread || (thread.buyerId !== user.id && thread.sellerId !== user.id)) {
+        return res.status(404).json({ error: "Thread not found" });
+      }
+      
+      const { body, attachments } = req.body;
+      const message = await storage.sendMessage({
+        threadId: req.params.threadId,
+        senderId: user.id,
+        body,
+        attachments
+      });
+      
+      res.json(message);
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  app.get("/api/buyer/messages/unread-count", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const role = (req.query.role as 'buyer' | 'seller') || 'buyer';
+      const count = await storage.getUnreadMessageCount(user.id, role);
+      res.json({ count });
+    } catch (error: any) {
+      console.error("Error fetching unread count:", error);
+      res.status(500).json({ error: "Failed to fetch count" });
+    }
+  });
+
+  // Listing Comparisons
+  app.get("/api/buyer/comparisons", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const comparisons = await storage.getListingComparisons(user.id);
+      res.json(comparisons);
+    } catch (error: any) {
+      console.error("Error fetching comparisons:", error);
+      res.status(500).json({ error: "Failed to fetch comparisons" });
+    }
+  });
+
+  app.post("/api/buyer/comparisons", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { name, listingIds, notes } = req.body;
+      
+      if (!listingIds || listingIds.length < 2 || listingIds.length > 4) {
+        return res.status(400).json({ error: "Must compare between 2-4 listings" });
+      }
+      
+      const comparison = await storage.createListingComparison({
+        userId: user.id,
+        name,
+        listingIds,
+        notes
+      });
+      
+      res.json(comparison);
+    } catch (error: any) {
+      console.error("Error creating comparison:", error);
+      res.status(500).json({ error: "Failed to create comparison" });
+    }
+  });
+
+  app.get("/api/buyer/comparisons/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const comparison = await storage.getListingComparison(req.params.id);
+      if (!comparison || comparison.userId !== user.id) {
+        return res.status(404).json({ error: "Comparison not found" });
+      }
+      
+      const listingsData = await Promise.all(
+        comparison.listingIds.map(id => storage.getListing(id))
+      );
+      
+      res.json({ comparison, listings: listingsData.filter(Boolean) });
+    } catch (error: any) {
+      console.error("Error fetching comparison:", error);
+      res.status(500).json({ error: "Failed to fetch comparison" });
+    }
+  });
+
+  app.delete("/api/buyer/comparisons/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const comparison = await storage.getListingComparison(req.params.id);
+      if (!comparison || comparison.userId !== user.id) {
+        return res.status(404).json({ error: "Comparison not found" });
+      }
+      
+      await storage.deleteListingComparison(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting comparison:", error);
+      res.status(500).json({ error: "Failed to delete comparison" });
+    }
+  });
+
+  // Buyer Listing History
+  app.post("/api/buyer/history/track", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { listingId, timeSpent } = req.body;
+      const history = await storage.trackListingView(user.id, listingId, timeSpent);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Error tracking view:", error);
+      res.status(500).json({ error: "Failed to track view" });
+    }
+  });
+
+  app.get("/api/buyer/history/recent", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const limit = parseInt(req.query.limit as string) || 10;
+      const history = await storage.getRecentlyViewedListings(user.id, limit);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Error fetching history:", error);
+      res.status(500).json({ error: "Failed to fetch history" });
+    }
+  });
+
+  // Due Diligence Tasks
+  app.get("/api/buyer/due-diligence/:ndaRequestId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const tasks = await storage.getDueDiligenceTasks(req.params.ndaRequestId);
+      res.json(tasks);
+    } catch (error: any) {
+      console.error("Error fetching due diligence tasks:", error);
+      res.status(500).json({ error: "Failed to fetch tasks" });
+    }
+  });
+
+  app.patch("/api/buyer/due-diligence/:taskId", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const task = await storage.updateDueDiligenceTask(req.params.taskId, req.body);
+      res.json(task);
+    } catch (error: any) {
+      console.error("Error updating task:", error);
+      res.status(500).json({ error: "Failed to update task" });
+    }
+  });
+
+  // Buyer Dashboard Stats
+  app.get("/api/buyer/dashboard-stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const [favorites, savedSearches, threads, recentViews, comparisons] = await Promise.all([
+        storage.getFavoriteListings(user.id),
+        storage.getSavedSearches(user.id),
+        storage.getMessageThreads(user.id, 'buyer'),
+        storage.getBuyerListingHistory(user.id, 5),
+        storage.getListingComparisons(user.id)
+      ]);
+      
+      const unreadMessages = await storage.getUnreadMessageCount(user.id, 'buyer');
+      
+      res.json({
+        favoritesCount: favorites.length,
+        savedSearchesCount: savedSearches.length,
+        activeThreadsCount: threads.filter(t => t.status === 'active').length,
+        unreadMessages,
+        recentViewsCount: recentViews.length,
+        comparisonsCount: comparisons.length
+      });
+    } catch (error: any) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

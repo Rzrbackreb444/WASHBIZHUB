@@ -49,6 +49,15 @@ import {
   newProductAlerts,
   dealAlerts,
   browseAbandonment,
+  savedSearches,
+  savedSearchAlerts,
+  favoriteListings,
+  buyerMessageThreads,
+  buyerMessages,
+  dueDiligenceTasks,
+  listingComparisons,
+  buyerListingHistory,
+  ndaRequests,
   type User,
   type UpsertUser,
   type Design,
@@ -192,6 +201,25 @@ import {
   type InsertCalculatorPurchase,
   type CreatorProfile,
   type InsertCreatorProfile,
+  // Buyer Engagement System
+  type SavedSearch,
+  type InsertSavedSearch,
+  type SavedSearchAlert,
+  type InsertSavedSearchAlert,
+  type FavoriteListing,
+  type InsertFavoriteListing,
+  type BuyerMessageThread,
+  type InsertBuyerMessageThread,
+  type BuyerMessage,
+  type InsertBuyerMessage,
+  type DueDiligenceTask,
+  type InsertDueDiligenceTask,
+  type ListingComparison,
+  type InsertListingComparison,
+  type BuyerListingHistory,
+  type InsertBuyerListingHistory,
+  type Listing,
+  type NdaRequest,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -2596,6 +2624,342 @@ export class DbStorage implements IStorage {
     const shares = events.filter(e => e.eventType === 'share').length;
     
     return { views, calculations, shares };
+  }
+
+  // ============================================================================
+  // BUYER ENGAGEMENT SYSTEM
+  // ============================================================================
+
+  // Saved Searches with Email Alerts
+  async getSavedSearches(userId: string): Promise<SavedSearch[]> {
+    return await db.select().from(savedSearches)
+      .where(eq(savedSearches.userId, userId))
+      .orderBy(desc(savedSearches.createdAt));
+  }
+
+  async getSavedSearch(id: string): Promise<SavedSearch | undefined> {
+    const result = await db.select().from(savedSearches).where(eq(savedSearches.id, id));
+    return result[0];
+  }
+
+  async createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch> {
+    const result = await db.insert(savedSearches).values(search).returning();
+    return result[0];
+  }
+
+  async updateSavedSearch(id: string, search: Partial<InsertSavedSearch>): Promise<SavedSearch> {
+    const updateData = { ...search, updatedAt: new Date() };
+    const result = await db.update(savedSearches)
+      .set(updateData)
+      .where(eq(savedSearches.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteSavedSearch(id: string): Promise<void> {
+    await db.delete(savedSearchAlerts).where(eq(savedSearchAlerts.savedSearchId, id));
+    await db.delete(savedSearches).where(eq(savedSearches.id, id));
+  }
+
+  async getSavedSearchesForAlerts(frequency: string): Promise<SavedSearch[]> {
+    return await db.select().from(savedSearches)
+      .where(and(
+        eq(savedSearches.isActive, true),
+        eq(savedSearches.alertFrequency, frequency)
+      ));
+  }
+
+  async recordSavedSearchAlert(savedSearchId: string, listingId: string): Promise<SavedSearchAlert> {
+    const result = await db.insert(savedSearchAlerts)
+      .values({ savedSearchId, listingId })
+      .returning();
+    return result[0];
+  }
+
+  async hasAlertBeenSent(savedSearchId: string, listingId: string): Promise<boolean> {
+    const result = await db.select().from(savedSearchAlerts)
+      .where(and(
+        eq(savedSearchAlerts.savedSearchId, savedSearchId),
+        eq(savedSearchAlerts.listingId, listingId)
+      ));
+    return result.length > 0;
+  }
+
+  // Favorite Listings (Buyer Watchlist)
+  async getFavoriteListings(userId: string): Promise<FavoriteListing[]> {
+    return await db.select().from(favoriteListings)
+      .where(eq(favoriteListings.userId, userId))
+      .orderBy(desc(favoriteListings.createdAt));
+  }
+
+  async getFavoriteListingsWithDetails(userId: string): Promise<(FavoriteListing & { listing: Listing })[]> {
+    const favorites = await db.select({
+      favorite: favoriteListings,
+      listing: listings
+    }).from(favoriteListings)
+      .innerJoin(listings, eq(favoriteListings.listingId, listings.id))
+      .where(eq(favoriteListings.userId, userId))
+      .orderBy(desc(favoriteListings.createdAt));
+    
+    return favorites.map(f => ({ ...f.favorite, listing: f.listing }));
+  }
+
+  async addFavoriteListing(favorite: InsertFavoriteListing): Promise<FavoriteListing> {
+    const result = await db.insert(favoriteListings).values(favorite).returning();
+    return result[0];
+  }
+
+  async removeFavoriteListing(userId: string, listingId: string): Promise<void> {
+    await db.delete(favoriteListings)
+      .where(and(
+        eq(favoriteListings.userId, userId),
+        eq(favoriteListings.listingId, listingId)
+      ));
+  }
+
+  async isListingFavorited(userId: string, listingId: string): Promise<boolean> {
+    const result = await db.select().from(favoriteListings)
+      .where(and(
+        eq(favoriteListings.userId, userId),
+        eq(favoriteListings.listingId, listingId)
+      ));
+    return result.length > 0;
+  }
+
+  async updateFavoriteNotes(userId: string, listingId: string, notes: string): Promise<FavoriteListing> {
+    const result = await db.update(favoriteListings)
+      .set({ notes })
+      .where(and(
+        eq(favoriteListings.userId, userId),
+        eq(favoriteListings.listingId, listingId)
+      ))
+      .returning();
+    return result[0];
+  }
+
+  // Buyer-Seller Messaging
+  async getMessageThreads(userId: string, role: 'buyer' | 'seller'): Promise<BuyerMessageThread[]> {
+    const condition = role === 'buyer' 
+      ? eq(buyerMessageThreads.buyerId, userId)
+      : eq(buyerMessageThreads.sellerId, userId);
+    
+    return await db.select().from(buyerMessageThreads)
+      .where(condition)
+      .orderBy(desc(buyerMessageThreads.lastMessageAt));
+  }
+
+  async getMessageThread(id: string): Promise<BuyerMessageThread | undefined> {
+    const result = await db.select().from(buyerMessageThreads)
+      .where(eq(buyerMessageThreads.id, id));
+    return result[0];
+  }
+
+  async getMessageThreadByListing(listingId: string, buyerId: string): Promise<BuyerMessageThread | undefined> {
+    const result = await db.select().from(buyerMessageThreads)
+      .where(and(
+        eq(buyerMessageThreads.listingId, listingId),
+        eq(buyerMessageThreads.buyerId, buyerId)
+      ));
+    return result[0];
+  }
+
+  async createMessageThread(thread: InsertBuyerMessageThread): Promise<BuyerMessageThread> {
+    const result = await db.insert(buyerMessageThreads).values(thread).returning();
+    return result[0];
+  }
+
+  async getMessages(threadId: string): Promise<BuyerMessage[]> {
+    return await db.select().from(buyerMessages)
+      .where(eq(buyerMessages.threadId, threadId))
+      .orderBy(asc(buyerMessages.createdAt));
+  }
+
+  async sendMessage(message: InsertBuyerMessage): Promise<BuyerMessage> {
+    const result = await db.insert(buyerMessages).values(message).returning();
+    const sentMessage = result[0];
+    
+    const thread = await this.getMessageThread(message.threadId);
+    if (thread) {
+      const preview = message.body.substring(0, 100);
+      const isBuyer = thread.buyerId === message.senderId;
+      
+      await db.update(buyerMessageThreads)
+        .set({
+          lastMessageAt: new Date(),
+          lastMessagePreview: preview,
+          updatedAt: new Date(),
+          ...(isBuyer 
+            ? { sellerUnreadCount: thread.sellerUnreadCount + 1 }
+            : { buyerUnreadCount: thread.buyerUnreadCount + 1 }
+          )
+        })
+        .where(eq(buyerMessageThreads.id, message.threadId));
+    }
+    
+    return sentMessage;
+  }
+
+  async markMessagesAsRead(threadId: string, userId: string): Promise<void> {
+    const thread = await this.getMessageThread(threadId);
+    if (!thread) return;
+    
+    await db.update(buyerMessages)
+      .set({ readAt: new Date() })
+      .where(and(
+        eq(buyerMessages.threadId, threadId),
+        sql`${buyerMessages.senderId} != ${userId}`,
+        sql`${buyerMessages.readAt} IS NULL`
+      ));
+    
+    const isBuyer = thread.buyerId === userId;
+    await db.update(buyerMessageThreads)
+      .set(isBuyer ? { buyerUnreadCount: 0 } : { sellerUnreadCount: 0 })
+      .where(eq(buyerMessageThreads.id, threadId));
+  }
+
+  async getUnreadMessageCount(userId: string, role: 'buyer' | 'seller'): Promise<number> {
+    const threads = await this.getMessageThreads(userId, role);
+    const countField = role === 'buyer' ? 'buyerUnreadCount' : 'sellerUnreadCount';
+    return threads.reduce((sum, t) => sum + (t[countField] || 0), 0);
+  }
+
+  // Due Diligence Tasks
+  async getDueDiligenceTasks(ndaRequestId: string): Promise<DueDiligenceTask[]> {
+    return await db.select().from(dueDiligenceTasks)
+      .where(eq(dueDiligenceTasks.ndaRequestId, ndaRequestId))
+      .orderBy(asc(dueDiligenceTasks.sortOrder));
+  }
+
+  async getDueDiligenceTask(id: string): Promise<DueDiligenceTask | undefined> {
+    const result = await db.select().from(dueDiligenceTasks)
+      .where(eq(dueDiligenceTasks.id, id));
+    return result[0];
+  }
+
+  async createDueDiligenceTask(task: InsertDueDiligenceTask): Promise<DueDiligenceTask> {
+    const result = await db.insert(dueDiligenceTasks).values(task).returning();
+    return result[0];
+  }
+
+  async updateDueDiligenceTask(id: string, task: Partial<InsertDueDiligenceTask>): Promise<DueDiligenceTask> {
+    const updateData = {
+      ...task,
+      updatedAt: new Date(),
+      ...(task.status === 'completed' ? { completedAt: new Date() } : {})
+    };
+    const result = await db.update(dueDiligenceTasks)
+      .set(updateData)
+      .where(eq(dueDiligenceTasks.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteDueDiligenceTask(id: string): Promise<void> {
+    await db.delete(dueDiligenceTasks).where(eq(dueDiligenceTasks.id, id));
+  }
+
+  async createDefaultDueDiligenceTasks(ndaRequestId: string): Promise<DueDiligenceTask[]> {
+    const defaultTasks = [
+      { title: 'Review Financial Statements', description: 'Analyze P&L, balance sheet, and cash flow statements', category: 'financial', sortOrder: 1 },
+      { title: 'Verify Tax Returns', description: 'Request and review last 3 years of tax returns', category: 'financial', sortOrder: 2 },
+      { title: 'Inspect Equipment', description: 'On-site inspection of all machines and equipment', category: 'physical', sortOrder: 3 },
+      { title: 'Review Lease Agreement', description: 'Analyze lease terms, rent escalations, and renewal options', category: 'legal', sortOrder: 4 },
+      { title: 'Utility Bills Analysis', description: 'Review 12 months of utility bills for cost verification', category: 'operational', sortOrder: 5 },
+      { title: 'Employee Records', description: 'Review payroll records and employee agreements', category: 'operational', sortOrder: 6 },
+      { title: 'Competition Analysis', description: 'Assess nearby competitors and market positioning', category: 'market', sortOrder: 7 },
+      { title: 'Environmental Compliance', description: 'Verify compliance with local environmental regulations', category: 'legal', sortOrder: 8 },
+      { title: 'Insurance Review', description: 'Review current insurance policies and claims history', category: 'legal', sortOrder: 9 },
+      { title: 'Customer Base Analysis', description: 'Understand customer demographics and retention', category: 'market', sortOrder: 10 },
+    ];
+
+    const results: DueDiligenceTask[] = [];
+    for (const task of defaultTasks) {
+      const created = await this.createDueDiligenceTask({ ...task, ndaRequestId });
+      results.push(created);
+    }
+    return results;
+  }
+
+  // Listing Comparisons
+  async getListingComparisons(userId: string): Promise<ListingComparison[]> {
+    return await db.select().from(listingComparisons)
+      .where(eq(listingComparisons.userId, userId))
+      .orderBy(desc(listingComparisons.updatedAt));
+  }
+
+  async getListingComparison(id: string): Promise<ListingComparison | undefined> {
+    const result = await db.select().from(listingComparisons)
+      .where(eq(listingComparisons.id, id));
+    return result[0];
+  }
+
+  async createListingComparison(comparison: InsertListingComparison): Promise<ListingComparison> {
+    const result = await db.insert(listingComparisons).values(comparison).returning();
+    return result[0];
+  }
+
+  async updateListingComparison(id: string, comparison: Partial<InsertListingComparison>): Promise<ListingComparison> {
+    const updateData = { ...comparison, updatedAt: new Date() };
+    const result = await db.update(listingComparisons)
+      .set(updateData)
+      .where(eq(listingComparisons.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteListingComparison(id: string): Promise<void> {
+    await db.delete(listingComparisons).where(eq(listingComparisons.id, id));
+  }
+
+  // Buyer Listing History
+  async trackListingView(userId: string, listingId: string, timeSpent?: number): Promise<BuyerListingHistory> {
+    const existing = await db.select().from(buyerListingHistory)
+      .where(and(
+        eq(buyerListingHistory.userId, userId),
+        eq(buyerListingHistory.listingId, listingId)
+      ));
+    
+    if (existing.length > 0) {
+      const result = await db.update(buyerListingHistory)
+        .set({
+          viewCount: existing[0].viewCount + 1,
+          lastViewedAt: new Date(),
+          totalTimeSpent: existing[0].totalTimeSpent + (timeSpent || 0)
+        })
+        .where(eq(buyerListingHistory.id, existing[0].id))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db.insert(buyerListingHistory)
+        .values({ userId, listingId })
+        .returning();
+      return result[0];
+    }
+  }
+
+  async getBuyerListingHistory(userId: string, limit?: number): Promise<BuyerListingHistory[]> {
+    let query = db.select().from(buyerListingHistory)
+      .where(eq(buyerListingHistory.userId, userId))
+      .orderBy(desc(buyerListingHistory.lastViewedAt));
+    
+    if (limit) {
+      query = query.limit(limit) as typeof query;
+    }
+    
+    return await query;
+  }
+
+  async getRecentlyViewedListings(userId: string, limit: number = 10): Promise<(BuyerListingHistory & { listing: Listing })[]> {
+    const history = await db.select({
+      history: buyerListingHistory,
+      listing: listings
+    }).from(buyerListingHistory)
+      .innerJoin(listings, eq(buyerListingHistory.listingId, listings.id))
+      .where(eq(buyerListingHistory.userId, userId))
+      .orderBy(desc(buyerListingHistory.lastViewedAt))
+      .limit(limit);
+    
+    return history.map(h => ({ ...h.history, listing: h.listing }));
   }
 }
 
