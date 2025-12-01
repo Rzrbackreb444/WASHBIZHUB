@@ -160,6 +160,8 @@ async function geocodeAddress(address: string): Promise<{
   zipCode: string | null;
   state: string | null;
   placeId: string | null;
+  city: string | null;
+  country: string | null;
 } | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -179,10 +181,12 @@ async function geocodeAddress(address: string): Promise<{
     const result = data.results[0];
     const components = result.address_components || [];
     
-    let zipCode = null, state = null;
+    let zipCode = null, state = null, city = null, country = null;
     for (const comp of components) {
       if (comp.types.includes('postal_code')) zipCode = comp.long_name;
       if (comp.types.includes('administrative_area_level_1')) state = comp.short_name;
+      if (comp.types.includes('locality')) city = comp.long_name;
+      if (comp.types.includes('country')) country = comp.short_name;
     }
 
     return {
@@ -191,7 +195,9 @@ async function geocodeAddress(address: string): Promise<{
       formattedAddress: result.formatted_address,
       zipCode,
       state,
-      placeId: result.place_id
+      placeId: result.place_id,
+      city,
+      country
     };
   } catch (error) {
     console.error('Geocoding error:', error);
@@ -442,7 +448,9 @@ export async function enrichCLEANBIData(
   const censusResult = await enrichWithCensusData(
     geocoded?.zipCode || undefined,
     geocoded?.state || undefined,
-    geocoded ? { lat: geocoded.lat, lng: geocoded.lng } : undefined
+    geocoded ? { lat: geocoded.lat, lng: geocoded.lng } : undefined,
+    geocoded?.city || undefined,
+    geocoded?.country || undefined
   );
 
   if (censusResult.success) {
