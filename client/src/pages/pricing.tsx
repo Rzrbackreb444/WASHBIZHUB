@@ -32,14 +32,14 @@ export default function Pricing() {
       description: "Try before you buy",
       cta: "Get Started Free",
       features: [
-        "3 location analyses per day",
+        "1 location analysis per day",
         "CLEANBI Score & Grade",
         "Basic competitor count",
         "Street View access",
         "Save analyses to history",
         "Shareable analysis links"
       ],
-      limits: "3 analyses/day"
+      limits: "1 analysis/day"
     },
     {
       name: "Starter",
@@ -116,7 +116,7 @@ export default function Pricing() {
     },
     {
       question: "How many free analyses do I get?",
-      answer: "Free users get 3 location analyses per day. Your saved analyses are always accessible, and you can come back tomorrow for 3 more free analyses."
+      answer: "Free users get 1 location analysis per day. Your saved analyses are always accessible, and you can come back tomorrow for another free analysis."
     },
     {
       question: "What's included in the Starter plan?",
@@ -136,7 +136,7 @@ export default function Pricing() {
     <>
       <SEO 
         title="CLEANBI Explorer Pricing - Location Intelligence for Laundromat Investors"
-        description="Score any location for laundromat investment potential. Free tier: 3 analyses/day. Starter: $29/mo unlimited analyses, 3D views, competitor intel. Pro: $79/mo with calculators & API. Enterprise: $199/mo with ownership data."
+        description="Score any location for laundromat investment potential. Free tier: 1 analysis/day. Starter: $29/mo unlimited analyses, 3D views, competitor intel. Pro: $79/mo with calculators & API. Enterprise: $199/mo with ownership data."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
@@ -308,7 +308,7 @@ export default function Pricing() {
                     </tr>
                     {[
                       { feature: "CLEANBI Score & Grade", free: true, starter: true, pro: true, enterprise: true },
-                      { feature: "Daily Analyses", free: "3/day", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
+                      { feature: "Daily Analyses", free: "1/day", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
                       { feature: "Competitor Count", free: true, starter: true, pro: true, enterprise: true },
                       { feature: "Street View", free: true, starter: true, pro: true, enterprise: true },
                       { feature: "Save & Share Analyses", free: true, starter: true, pro: true, enterprise: true },
@@ -438,7 +438,7 @@ export default function Pricing() {
                 <Link href="/cleanbi-explorer">
                   <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964D] text-white" data-testid="button-cta-try-free">
                     <Map className="h-5 w-5 mr-2" />
-                    Try Free - 3 Analyses/Day
+                    Try Free - 1 Analysis/Day
                   </Button>
                 </Link>
                 <Link href="/consultation">

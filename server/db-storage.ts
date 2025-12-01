@@ -2310,17 +2310,18 @@ export class DbStorage implements IStorage {
   // ============================================================================
   
   // Check if IP address has exceeded rate limit for endpoint
+  // Uses expiresAt for accurate rolling window (requests with expiresAt >= now are still valid)
   async checkRateLimit(ipAddress: string, endpoint: string, maxRequests: number, windowHours: number): Promise<boolean> {
-    const windowStart = new Date();
-    windowStart.setHours(windowStart.getHours() - windowHours);
+    const now = new Date();
     
+    // Query all non-expired requests (expiresAt >= now means request is still within its window)
     const logs = await db.select()
       .from(rateLimitLog)
       .where(
         and(
           eq(rateLimitLog.ipAddress, ipAddress),
           eq(rateLimitLog.endpoint, endpoint),
-          sql`${rateLimitLog.windowStart} >= ${windowStart}`
+          sql`${rateLimitLog.expiresAt} >= ${now}`
         )
       );
     
@@ -2328,31 +2329,45 @@ export class DbStorage implements IStorage {
     return totalRequests < maxRequests; // Returns true if under limit
   }
   
-  // Record a new request for rate limiting (UPSERT to handle race conditions)
+  // Record a new request for rate limiting
+  // Simplified: Insert individual records with unique IDs, query counts non-expired records
+  // This avoids race conditions from UPSERT bucketing
   async recordRequest(ipAddress: string, endpoint: string, windowHours: number): Promise<void> {
     const now = new Date();
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + windowHours);
     
-    // Round to current hour for window tracking
-    const windowStart = new Date(now);
-    windowStart.setMinutes(0, 0, 0);
+    // Calculate expiresAt using milliseconds for precision (handles fractional hours like 1/60)
+    const windowMs = windowHours * 60 * 60 * 1000;
+    const expiresAt = new Date(now.getTime() + windowMs);
     
-    // UPSERT: Insert or increment if exists (handles concurrent requests safely)
+    // Insert individual record with requestCount=1, unique ID generated automatically
+    // Count queries use expiresAt >= now to sum all non-expired records
     await db.insert(rateLimitLog)
       .values({
         ipAddress,
         endpoint,
         requestCount: 1,
-        windowStart,
+        windowStart: now, // Actual timestamp, no bucketing
         expiresAt,
-      })
-      .onConflictDoUpdate({
-        target: [rateLimitLog.ipAddress, rateLimitLog.endpoint, rateLimitLog.windowStart],
-        set: {
-          requestCount: sql`${rateLimitLog.requestCount} + 1`,
-        },
       });
+  }
+  
+  // Get current rate limit count for a key/endpoint within window
+  // Uses expiresAt for accurate rolling window (requests with expiresAt >= now are still valid)
+  async getRateLimitCount(ipAddress: string, endpoint: string, windowHours: number): Promise<number> {
+    const now = new Date();
+    
+    // Query all non-expired requests (expiresAt >= now means request is still within its window)
+    const logs = await db.select()
+      .from(rateLimitLog)
+      .where(
+        and(
+          eq(rateLimitLog.ipAddress, ipAddress),
+          eq(rateLimitLog.endpoint, endpoint),
+          sql`${rateLimitLog.expiresAt} >= ${now}`
+        )
+      );
+    
+    return logs.reduce((sum, log) => sum + log.requestCount, 0);
   }
   
   // Cleanup expired rate limit logs

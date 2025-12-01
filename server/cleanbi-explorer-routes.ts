@@ -37,9 +37,10 @@ import {
   type PropertyData,
   type DistanceMatrixData
 } from "./cleanbi-intelligence-service";
-import { newsletterSubscribers } from "@shared/schema";
+import { newsletterSubscribers, cleanbiUsage } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -92,7 +93,7 @@ interface HeatmapPoint {
 // ========================================
 
 const TIER_RATE_LIMITS: Record<string, { perMinute: number; perDay: number }> = {
-  free: { perMinute: 3, perDay: 3 },       // 3 analyses per day - creates urgency
+  free: { perMinute: 1, perDay: 1 },        // 1 analysis per day - creates urgency, hooks with score
   starter: { perMinute: 20, perDay: 100 },  // $29/mo - serious investors
   pro: { perMinute: 50, perDay: 500 },      // $79/mo - power users
   enterprise: { perMinute: 200, perDay: 5000 } // Custom - brokers/consultants
@@ -127,77 +128,113 @@ async function getUserTier(userId: string | null): Promise<SubscriptionTier> {
   }
 }
 
-const dailyUsageCache = new Map<string, { count: number; date: string }>();
+/**
+ * PERSISTENT RATE LIMITING - Uses database storage (survives server restarts)
+ * 
+ * Flow: Check limits → If allowed, do analysis → Record usage → Return remaining count
+ * 
+ * Key point: checkRateLimit ONLY checks, recordRequest RECORDS usage
+ * We must record usage AFTER successful analysis, then return accurate remaining
+ */
 
+/**
+ * Check if user can perform an analysis (doesn't record usage)
+ * Returns accurate remaining count based on actual database usage
+ */
 async function checkExplorerRateLimit(
   ipAddress: string, 
   userId: string | null, 
   tier: SubscriptionTier
 ): Promise<{ 
   allowed: boolean; 
-  remainingMinute: number; 
   remainingDaily: number;
   resetAt: Date;
   limitType?: "minute" | "daily" 
 }> {
   const limits = TIER_RATE_LIMITS[tier] || TIER_RATE_LIMITS.free;
-  const key = userId || ipAddress;
+  const key = userId ? `user:${userId}` : `ip:${ipAddress}`;
   
   try {
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const dailyEndpoint = `cleanbi-explorer-daily`;
+    const minuteEndpoint = `cleanbi-explorer-minute`;
     
-    const dailyKey = `daily:${key}`;
-    let dailyUsage = dailyUsageCache.get(dailyKey);
+    // Get actual usage count from database for accurate remaining calculation
+    const usedCount = await storage.getRateLimitCount(key, dailyEndpoint, 24);
+    const remainingDaily = Math.max(0, limits.perDay - usedCount);
     
-    if (!dailyUsage || dailyUsage.date !== today) {
-      dailyUsage = { count: 0, date: today };
-      dailyUsageCache.set(dailyKey, dailyUsage);
-    }
+    console.log(`📊 Rate limit check for ${key}: used=${usedCount}, limit=${limits.perDay}, remaining=${remainingDaily}`);
     
-    if (dailyUsage.count >= limits.perDay) {
+    // Check daily limit first (24h rolling window)
+    if (usedCount >= limits.perDay) {
       const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
+      tomorrow.setHours(tomorrow.getHours() + 24);
       
       return {
         allowed: false,
-        remainingMinute: limits.perMinute,
         remainingDaily: 0,
         resetAt: tomorrow,
         limitType: "daily"
       };
     }
     
-    const minuteAllowed = await storage.checkRateLimit(key, "/api/cleanbi-explorer", limits.perMinute, 1/60);
-    
-    if (!minuteAllowed) {
+    // Check per-minute limit (for burst protection)
+    const minuteUsed = await storage.getRateLimitCount(key, minuteEndpoint, 1/60);
+    if (minuteUsed >= limits.perMinute) {
       return {
         allowed: false,
-        remainingMinute: 0,
-        remainingDaily: limits.perDay - dailyUsage.count,
+        remainingDaily,
         resetAt: new Date(Date.now() + 60000),
         limitType: "minute"
       };
     }
     
-    dailyUsage.count++;
-    dailyUsageCache.set(dailyKey, dailyUsage);
-    
+    // Return accurate remaining BEFORE this analysis
     return {
       allowed: true,
-      remainingMinute: limits.perMinute - 1,
-      remainingDaily: limits.perDay - dailyUsage.count,
+      remainingDaily,
       resetAt: new Date(Date.now() + 60000)
     };
   } catch (err) {
     console.warn("Rate limit check failed, allowing request:", err);
     return { 
       allowed: true, 
-      remainingMinute: limits.perMinute, 
       remainingDaily: limits.perDay,
       resetAt: new Date() 
     };
+  }
+}
+
+/**
+ * Record a successful analysis and return updated remaining count
+ * Called AFTER a successful analysis to track usage
+ */
+async function recordExplorerUsage(
+  ipAddress: string,
+  userId: string | null,
+  tier: SubscriptionTier
+): Promise<number> {
+  const limits = TIER_RATE_LIMITS[tier] || TIER_RATE_LIMITS.free;
+  const key = userId ? `user:${userId}` : `ip:${ipAddress}`;
+  
+  try {
+    // Record for daily tracking (24h window)
+    const dailyEndpoint = `cleanbi-explorer-daily`;
+    await storage.recordRequest(key, dailyEndpoint, 24);
+    
+    // Record for minute tracking (burst protection)
+    const minuteEndpoint = `cleanbi-explorer-minute`;
+    await storage.recordRequest(key, minuteEndpoint, 1/60);
+    
+    // Get actual usage count from database for accurate remaining
+    const usedCount = await storage.getRateLimitCount(key, dailyEndpoint, 24);
+    const remaining = Math.max(0, limits.perDay - usedCount);
+    console.log(`📊 CLEANBI usage recorded for ${key} (tier: ${tier}, used: ${usedCount}, remaining: ${remaining})`);
+    
+    return remaining;
+  } catch (err) {
+    console.warn("Failed to record usage:", err);
+    return Math.max(0, limits.perDay - 1);
   }
 }
 
@@ -527,6 +564,9 @@ router.post("/analyze", async (req: Request, res: Response) => {
       const competitors = await findNearbyCompetitors(cached.lat, cached.lng, input.radius);
       const heatmapData = await generateOpportunityHeatmap(cached.lat, cached.lng, input.radius);
       
+      // Record usage (persists across server restarts) and get remaining
+      const remainingDaily = await recordExplorerUsage(ipAddress, userId, tier);
+      
       return res.json({
         success: true,
         cached: true,
@@ -534,7 +574,7 @@ router.post("/analyze", async (req: Request, res: Response) => {
         competitors,
         heatmapData,
         tier,
-        remainingDaily: rateCheck.remainingDaily
+        remainingDaily
       });
     }
 
@@ -615,12 +655,8 @@ router.post("/analyze", async (req: Request, res: Response) => {
     // Cache the analysis
     await cacheSet(cacheKey, analysis, CACHE_TTL.analysis);
     
-    // Record usage for analytics (using existing createCleanbiScore method)
-    try {
-      console.log(`📊 CLEANBI Explorer usage: ${tier} tier, ${input.address}`);
-    } catch (e) {
-      // Non-critical, continue
-    }
+    // Record usage (persists across server restarts) and get remaining
+    const remainingDaily = await recordExplorerUsage(ipAddress, userId, tier);
 
     console.log(`✅ CLEANBI Explorer analysis complete: ${analysis.grade} (${analysis.cleanbiScore}/100)`);
     
@@ -631,7 +667,7 @@ router.post("/analyze", async (req: Request, res: Response) => {
       competitors,
       heatmapData,
       tier,
-      remainingDaily: rateCheck.remainingDaily,
+      remainingDaily,
       dataQuality: enrichedData.dataQuality
     });
 
@@ -694,6 +730,10 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
     
     if (cached) {
       console.log(`✅ Competitor analysis cache hit: ${input.name}`);
+      
+      // Record usage (persists across server restarts) and get remaining
+      const remainingDaily = await recordExplorerUsage(ipAddress, userId, tier);
+      
       return res.json({
         success: true,
         cached: true,
@@ -709,7 +749,7 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
         opportunityLevel: cached.opportunityLevel,
         streetViewUrl: cached.streetViewUrl,
         tier,
-        remainingDaily: rateCheck.remainingDaily
+        remainingDaily
       });
     }
 
@@ -770,6 +810,9 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
 
     // Cache the analysis
     await cacheSet(cacheKey, analysis, CACHE_TTL.analysis);
+    
+    // Record usage (persists across server restarts) and get remaining
+    const remainingDaily = await recordExplorerUsage(ipAddress, userId, tier);
 
     console.log(`✅ Competitor analysis complete: ${input.name} → ${analysis.grade} (${analysis.cleanbiScore}/100)`);
     
@@ -789,7 +832,7 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
       opportunityLevel: analysis.opportunityLevel,
       streetViewUrl: analysis.streetViewUrl,
       tier,
-      remainingDaily: rateCheck.remainingDaily
+      remainingDaily
     });
 
   } catch (error: any) {

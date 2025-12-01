@@ -693,7 +693,7 @@ export default function CleanBIExplorer() {
       if (data.rateLimited) {
         toast({ 
           title: "Daily Limit Reached", 
-          description: `You've used all 3 free analyses today. Upgrade for unlimited access!`,
+          description: `You've used your free analysis today. Upgrade for unlimited access!`,
           variant: "destructive"
         });
         setShowUpgradePrompt(true);
@@ -834,11 +834,11 @@ export default function CleanBIExplorer() {
 
       const data = await response.json();
       
-      // Handle rate limit (3 free analyses per day)
+      // Handle rate limit (1 free analysis per day)
       if (data.rateLimited) {
         toast({ 
           title: "Daily Limit Reached", 
-          description: `You've used all 3 free analyses today. Upgrade for unlimited access!`,
+          description: `You've used your free analysis today. Upgrade for unlimited access!`,
           variant: "destructive"
         });
         setShowUpgradePrompt(true);
@@ -1249,7 +1249,7 @@ export default function CleanBIExplorer() {
           },
           {
             question: "Is CLEANBI Explorer free to use?",
-            answer: "Yes! You get 3 free location analyses per day. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription."
+            answer: "Yes! You get 1 free location analysis per day. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription."
           },
           {
             question: "What's included in the competition analysis?",
@@ -1282,7 +1282,7 @@ export default function CleanBIExplorer() {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD",
-            "description": "3 free analyses per day, premium unlimited access available"
+            "description": "1 free analysis per day, premium unlimited access available"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -1812,89 +1812,152 @@ export default function CleanBIExplorer() {
                         <Calculator className="w-4 h-4 text-green-400" />
                         Quick Financial Analysis
                       </div>
-                      <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Auto-populated</Badge>
+                      {userTier === "free" ? (
+                        <Badge className="text-[10px] bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                          <Lock className="w-2.5 h-2.5 mr-1" />
+                          Premium
+                        </Badge>
+                      ) : (
+                        <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Auto-populated</Badge>
+                      )}
                     </div>
                     
-                    {/* ROI Calculator Mini */}
-                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="w-4 h-4 text-green-400" />
-                        <span className="text-sm font-medium text-white">ROI Analysis</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                          <label className="text-[10px] text-white/50 block mb-1">Annual Revenue</label>
-                          <Input
-                            type="number"
-                            value={calcValues.annualRevenue}
-                            onChange={(e) => setCalcValues(v => ({...v, annualRevenue: Number(e.target.value)}))}
-                            className="h-8 text-sm bg-white/10 border-white/20 text-white"
-                            data-testid="input-calc-revenue"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-white/50 block mb-1">Operating Expenses</label>
-                          <Input
-                            type="number"
-                            value={calcValues.operatingExpenses}
-                            onChange={(e) => setCalcValues(v => ({...v, operatingExpenses: Number(e.target.value)}))}
-                            className="h-8 text-sm bg-white/10 border-white/20 text-white"
-                            data-testid="input-calc-expenses"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* ROI Results */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-green-500/10 rounded p-2 text-center border border-green-500/20">
-                          <div className="text-lg font-bold text-green-400">
-                            {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.downPayment, 1) * 100).toFixed(0)}%
+                    {/* Premium Gate for Free Users */}
+                    {userTier === "free" ? (
+                      <div className="relative">
+                        {/* Blurred Preview */}
+                        <div className="blur-sm pointer-events-none opacity-60">
+                          <div className="bg-white/5 rounded-lg p-3 border border-white/10 mb-3">
+                            <div className="flex items-center gap-2 mb-3">
+                              <TrendingUp className="w-4 h-4 text-green-400" />
+                              <span className="text-sm font-medium text-white">ROI Analysis</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="bg-green-500/10 rounded p-2 text-center">
+                                <div className="text-lg font-bold text-green-400">42%</div>
+                                <div className="text-[10px] text-white/50">Cash-on-Cash</div>
+                              </div>
+                              <div className="bg-white/5 rounded p-2 text-center">
+                                <div className="text-lg font-bold text-white">8.5%</div>
+                                <div className="text-[10px] text-white/50">Cap Rate</div>
+                              </div>
+                              <div className="bg-white/5 rounded p-2 text-center">
+                                <div className="text-lg font-bold text-[#C8A661]">$14.7K</div>
+                                <div className="text-[10px] text-white/50">Monthly NOI</div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-[10px] text-white/50">Cash-on-Cash</div>
-                        </div>
-                        <div className="bg-white/5 rounded p-2 text-center">
-                          <div className="text-lg font-bold text-white">
-                            {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.askingPrice, 1) * 100).toFixed(1)}%
-                          </div>
-                          <div className="text-[10px] text-white/50">Cap Rate</div>
-                        </div>
-                        <div className="bg-white/5 rounded p-2 text-center">
-                          <div className="text-lg font-bold text-[#C8A661]">
-                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) / 12 / 1000).toFixed(1)}K
-                          </div>
-                          <div className="text-[10px] text-white/50">Monthly NOI</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Valuation Estimate */}
-                    <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="w-4 h-4 text-[#C8A661]" />
-                        <span className="text-sm font-medium text-white">Estimated Value Range</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-center">
-                        <div>
-                          <div className="text-xs text-white/40">Low (2.0x)</div>
-                          <div className="text-base font-bold text-white">
-                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2 / 1000).toFixed(0)}K
+                          <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div><div className="text-base font-bold text-white">$352K</div></div>
+                              <div className="bg-[#C8A661]/20 rounded py-1"><div className="text-lg font-bold text-[#C8A661]">$440K</div></div>
+                              <div><div className="text-base font-bold text-white">$528K</div></div>
+                            </div>
                           </div>
                         </div>
-                        <div className="bg-[#C8A661]/20 rounded py-1">
-                          <div className="text-xs text-[#C8A661]">Fair (2.5x)</div>
-                          <div className="text-lg font-bold text-[#C8A661]">
-                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-white/40">High (3.0x)</div>
-                          <div className="text-base font-bold text-white">
-                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 3 / 1000).toFixed(0)}K
+                        
+                        {/* Upgrade CTA Overlay */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg backdrop-blur-[2px]">
+                          <div className="text-center p-4">
+                            <Lock className="w-8 h-8 text-[#C8A661] mx-auto mb-2" />
+                            <h4 className="text-white font-semibold mb-1">Revenue Projections</h4>
+                            <p className="text-white/60 text-xs mb-3">Get ROI analysis, valuation estimates, and deal scoring</p>
+                            <Button 
+                              size="sm"
+                              className="bg-[#C8A661] hover:bg-[#B8963D] text-black font-medium"
+                              onClick={() => setShowUpgradePrompt(true)}
+                              data-testid="button-unlock-financials"
+                            >
+                              <Crown className="w-3.5 h-3.5 mr-1.5" />
+                              Unlock — $29/mo
+                            </Button>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <>
+                        {/* ROI Calculator Mini */}
+                        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                          <div className="flex items-center gap-2 mb-3">
+                            <TrendingUp className="w-4 h-4 text-green-400" />
+                            <span className="text-sm font-medium text-white">ROI Analysis</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                              <label className="text-[10px] text-white/50 block mb-1">Annual Revenue</label>
+                              <Input
+                                type="number"
+                                value={calcValues.annualRevenue}
+                                onChange={(e) => setCalcValues(v => ({...v, annualRevenue: Number(e.target.value)}))}
+                                className="h-8 text-sm bg-white/10 border-white/20 text-white"
+                                data-testid="input-calc-revenue"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-white/50 block mb-1">Operating Expenses</label>
+                              <Input
+                                type="number"
+                                value={calcValues.operatingExpenses}
+                                onChange={(e) => setCalcValues(v => ({...v, operatingExpenses: Number(e.target.value)}))}
+                                className="h-8 text-sm bg-white/10 border-white/20 text-white"
+                                data-testid="input-calc-expenses"
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* ROI Results */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-green-500/10 rounded p-2 text-center border border-green-500/20">
+                              <div className="text-lg font-bold text-green-400">
+                                {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.downPayment, 1) * 100).toFixed(0)}%
+                              </div>
+                              <div className="text-[10px] text-white/50">Cash-on-Cash</div>
+                            </div>
+                            <div className="bg-white/5 rounded p-2 text-center">
+                              <div className="text-lg font-bold text-white">
+                                {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.askingPrice, 1) * 100).toFixed(1)}%
+                              </div>
+                              <div className="text-[10px] text-white/50">Cap Rate</div>
+                            </div>
+                            <div className="bg-white/5 rounded p-2 text-center">
+                              <div className="text-lg font-bold text-[#C8A661]">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) / 12 / 1000).toFixed(1)}K
+                              </div>
+                              <div className="text-[10px] text-white/50">Monthly NOI</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Valuation Estimate */}
+                        <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <DollarSign className="w-4 h-4 text-[#C8A661]" />
+                            <span className="text-sm font-medium text-white">Estimated Value Range</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center">
+                            <div>
+                              <div className="text-xs text-white/40">Low (2.0x)</div>
+                              <div className="text-base font-bold text-white">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2 / 1000).toFixed(0)}K
+                              </div>
+                            </div>
+                            <div className="bg-[#C8A661]/20 rounded py-1">
+                              <div className="text-xs text-[#C8A661]">Fair (2.5x)</div>
+                              <div className="text-lg font-bold text-[#C8A661]">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-white/40">High (3.0x)</div>
+                              <div className="text-base font-bold text-white">
+                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 3 / 1000).toFixed(0)}K
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* Export CTA */}
                     {userTier !== "free" && analysisResult ? (
@@ -2278,35 +2341,47 @@ export default function CleanBIExplorer() {
             <div className="p-4">
               {/* Free Tier Usage Indicator */}
               {userTier === "free" && (
-                <div className="mb-3 bg-white/5 rounded-lg p-3 border border-white/10">
+                <div className={`mb-3 rounded-lg p-3 border ${remainingAnalyses === 0 ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/10"}`}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Zap className="w-4 h-4 text-[#C8A661]" />
-                      <span>Daily Analyses</span>
+                      <Zap className={`w-4 h-4 ${remainingAnalyses === 0 ? "text-red-400" : "text-[#C8A661]"}`} />
+                      <span>Daily Analysis</span>
                     </div>
                     <Badge 
                       variant="outline" 
                       className={`text-xs ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#C8A661]/50 text-[#C8A661]"}`}
                     >
-                      {remainingAnalyses !== null ? `${remainingAnalyses} left` : "3 free/day"}
+                      {remainingAnalyses !== null ? (remainingAnalyses === 0 ? "Used" : "1 left") : "1 free/day"}
                     </Badge>
                   </div>
                   <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
                     <div 
-                      className="h-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] transition-all duration-300"
-                      style={{ width: `${((remainingAnalyses ?? 3) / 3) * 100}%` }}
+                      className={`h-full transition-all duration-300 ${remainingAnalyses === 0 ? "bg-red-500" : "bg-gradient-to-r from-[#C8A661] to-[#8B7355]"}`}
+                      style={{ width: `${remainingAnalyses === 0 ? 0 : 100}%` }}
                     />
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setShowUpgradePrompt(true)}
-                    className="w-full text-[#C8A661] hover:text-white hover:bg-[#C8A661]/20 text-xs h-8"
-                    data-testid="button-upgrade-sidebar"
-                  >
-                    <Crown className="w-3.5 h-3.5 mr-1.5" />
-                    Upgrade for Unlimited Analyses
-                  </Button>
+                  {remainingAnalyses === 0 ? (
+                    <Button
+                      size="sm"
+                      onClick={() => setShowUpgradePrompt(true)}
+                      className="w-full bg-[#C8A661] hover:bg-[#B8963D] text-black font-medium text-xs h-8"
+                      data-testid="button-upgrade-sidebar"
+                    >
+                      <Crown className="w-3.5 h-3.5 mr-1.5" />
+                      Unlock Unlimited — $29/mo
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowUpgradePrompt(true)}
+                      className="w-full text-[#C8A661] hover:text-white hover:bg-[#C8A661]/20 text-xs h-8"
+                      data-testid="button-upgrade-sidebar"
+                    >
+                      <Crown className="w-3.5 h-3.5 mr-1.5" />
+                      Upgrade for Unlimited
+                    </Button>
+                  )}
                 </div>
               )}
 
@@ -2500,7 +2575,7 @@ export default function CleanBIExplorer() {
                 
                 <h2 className="text-2xl font-bold text-white mb-2">You've Hit Your Daily Limit</h2>
                 <p className="text-white/60 mb-6">
-                  Free users get 3 location analyses per day. Upgrade to unlock unlimited analyses, 3D Aerial Views, and premium insights.
+                  Free users get 1 location analysis per day. Upgrade to unlock unlimited analyses, 3D Aerial Views, revenue projections, and premium insights.
                 </p>
                 
                 <div className="space-y-3 mb-6">

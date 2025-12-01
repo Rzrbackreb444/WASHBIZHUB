@@ -112,7 +112,7 @@ export default function CleanBI() {
     <>
       <SEO 
         title="CLEANBI™ - Free Laundromat Location Scoring & Analysis | WashBizHub" 
-        description="Score any laundromat location in seconds with CLEANBI™. Free A/B/C grades, competition mapping, demographics analysis, and AI-powered insights. Industry-standard 17-factor scoring system trusted by 5,600+ operators. 3 free scores per day."
+        description="Score any laundromat location in seconds with CLEANBI™. Free A/B/C grades, competition mapping, demographics analysis, and AI-powered insights. Industry-standard 17-factor scoring system trusted by 5,600+ operators. 1 free analysis per day."
         canonicalUrl="/cleanbi"
         ogType="website"
         keywords={[

@@ -418,7 +418,7 @@ export function Hero() {
                   >
                     Get Free CLEANBI Score
                   </Button>
-                  <p className="text-gray-500 text-sm mt-3">3 free analyses per day • No credit card required</p>
+                  <p className="text-gray-500 text-sm mt-3">1 free analysis per day • No credit card required</p>
                 </div>
               </div>
             )}
@@ -639,7 +639,7 @@ export function Hero() {
             </Link>
           </div>
           <p className="mt-4 text-sm text-gray-300/80" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
-            <span className="text-teal-400 font-medium">3 free analyses/day</span> · Unlimited with Pro
+            <span className="text-teal-400 font-medium">1 free analysis/day</span> · Unlimited with Pro
           </p>
         </div>
       </div>

@@ -73,7 +73,7 @@ const PRICING_TIERS = [
     icon: Unlock,
     color: "from-slate-500 to-slate-600",
     features: [
-      { name: "CLEANBI Explorer", included: true, limit: "3 analyses/day" },
+      { name: "CLEANBI Explorer", included: true, limit: "1 analysis/day" },
       { name: "Basic Location Score", included: true },
       { name: "Valuation Calculator", included: true, limit: "Limited" },
       { name: "ROI Calculator", included: true },
