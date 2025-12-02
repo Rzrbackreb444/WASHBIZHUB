@@ -290,6 +290,7 @@ const Resources = lazy(() => import("@/pages/resources"));
 const ResourceDetail = lazy(() => import("@/pages/resource-detail"));
 const Settings = lazy(() => import("@/pages/settings"));
 const Login = lazy(() => import("@/pages/login"));
+const Signup = lazy(() => import("@/pages/signup"));
 const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
 const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
 const TermsOfService = lazy(() => import("@/pages/terms"));
@@ -1107,6 +1108,11 @@ function Router() {
       <Route path="/login">
         <Suspense fallback={<LoadingFallback />}>
           <Login />
+        </Suspense>
+      </Route>
+      <Route path="/signup">
+        <Suspense fallback={<LoadingFallback />}>
+          <Signup />
         </Suspense>
       </Route>
 
