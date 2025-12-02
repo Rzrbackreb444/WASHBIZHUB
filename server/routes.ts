@@ -1733,6 +1733,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== LISTING URL ANALYZER ====================
+  // Analyze any BizBuySell, LoopNet, or similar listing URL
+  
+  app.post("/api/listing-analyzer", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ error: "Listing URL is required" });
+      }
+      
+      // SECURITY: Parse and validate URL hostname to prevent SSRF attacks
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(url);
+      } catch {
+        return res.status(400).json({ error: "Invalid URL format" });
+      }
+      
+      // Only allow HTTPS
+      if (parsedUrl.protocol !== 'https:') {
+        return res.status(400).json({ error: "Only HTTPS URLs are supported" });
+      }
+      
+      // Validate hostname against allowlist (exact match or subdomain)
+      const supportedDomains = ['bizbuysell.com', 'loopnet.com', 'businessbroker.net', 'businessesforsale.com'];
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const isSupported = supportedDomains.some(domain => 
+        hostname === domain || hostname.endsWith('.' + domain)
+      );
+      
+      if (!isSupported) {
+        return res.status(400).json({ 
+          error: "Unsupported listing site",
+          supported: supportedDomains,
+          hint: "Paste a URL from BizBuySell, LoopNet, or BusinessBroker.net"
+        });
+      }
+      
+      // Parse the listing
+      const { parseListingUrl, calculateDealMetrics } = await import('./listing-parser');
+      const listing = await parseListingUrl(url);
+      
+      if (listing.error && listing.confidence === 0) {
+        return res.status(422).json({ 
+          error: "Could not parse listing",
+          details: listing.error,
+          hint: "The listing page may be unavailable or have an unexpected format"
+        });
+      }
+      
+      // Calculate deal metrics
+      const dealMetrics = calculateDealMetrics(listing);
+      
+      // Return combined result
+      res.json({
+        success: true,
+        listing,
+        dealMetrics,
+        readyForCleanbi: !!(listing.fullAddress || listing.city),
+        suggestedAddress: listing.fullAddress || (listing.city && listing.state ? `${listing.city}, ${listing.state}` : null)
+      });
+      
+    } catch (error: any) {
+      console.error('Listing analyzer error:', error);
+      res.status(500).json({ 
+        error: "Failed to analyze listing",
+        details: error.message
+      });
+    }
+  });
+
   // POST /api/cleanbi/purchase-report - Create Stripe checkout for $97 full report
   app.post("/api/cleanbi/purchase-report", async (req, res) => {
     try {
