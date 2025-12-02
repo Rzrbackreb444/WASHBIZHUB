@@ -364,7 +364,7 @@ export default function Home() {
               Trusted by 72,000+ Professionals
             </div>
             
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
               Stop Guessing. Start Knowing.
             </h2>
             <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
