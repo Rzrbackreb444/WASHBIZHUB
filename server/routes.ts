@@ -870,6 +870,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // ==================== HOMEPAGE DATA ====================
+  
+  app.get("/api/homepage/stats", async (_req, res) => {
+    try {
+      const [listingCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(listings)
+        .where(eq(listings.status, 'active'));
+      
+      const [userCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(users);
+      
+      const [cleanbiCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(cleanbiUsage);
+      
+      const [vendorCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(vendors);
+      
+      res.json({
+        listings: listingCount?.count || 0,
+        users: userCount?.count || 0,
+        cleanbiAnalyses: cleanbiCount?.count || 0,
+        cities: 150,
+        partners: vendorCount?.count || 0
+      });
+    } catch (error: any) {
+      console.error("Error fetching homepage stats:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/homepage/featured-listings", async (_req, res) => {
+    try {
+      const featuredListings = await db
+        .select({
+          id: listings.id,
+          title: listings.title,
+          city: listings.city,
+          region: listings.region,
+          country: listings.country,
+          price: listings.priceInUSD,
+          priceVisibility: listings.priceVisibility,
+          featuredImage: listings.featuredImage,
+          featured: listings.featured,
+          tagline: listings.tagline,
+          slug: listings.slug
+        })
+        .from(listings)
+        .where(eq(listings.status, 'active'))
+        .orderBy(desc(listings.featured), desc(listings.createdAt))
+        .limit(4);
+      
+      res.json(featuredListings);
+    } catch (error: any) {
+      console.error("Error fetching featured listings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // ==================== DESIGNS ====================
   
   app.get("/api/designs", async (req, res) => {
