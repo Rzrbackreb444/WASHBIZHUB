@@ -30,6 +30,14 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   username: varchar("username").unique(), // Public display name for forum
   
+  // Email/Password Auth fields
+  passwordHash: text("password_hash"), // For email/password auth (bcrypt hashed)
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: text("email_verification_token"),
+  emailVerificationExpires: timestamp("email_verification_expires"),
+  passwordResetToken: text("password_reset_token"),
+  passwordResetExpires: timestamp("password_reset_expires"),
+  
   // Personal/Contact Information
   phone: varchar("phone"),
   bio: text("bio"),
