@@ -26,56 +26,91 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Menu, LogOut, Search, X, ChevronRight } from "lucide-react";
+import { 
+  Menu, LogOut, Search, X, ChevronRight,
+  FileText, Brain, Users, Calculator, Wallet, BookOpen,
+  MapPin, Building2, DollarSign, Truck, Navigation, ClipboardCheck,
+  ShoppingCart, Wand2, BookMarked, Bot, Wrench, Palette, FileStack,
+  Store, PlusCircle, Package, Handshake, Megaphone
+} from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const PLAN_LINKS = [
-  { href: "/sba-readiness", label: "SBA Readiness Check" },
-  { href: "/business-plan-generator", label: "Business Plan Generator" },
-  { href: "/ai-consultation", label: "AI Consultation" },
-  { href: "/larry-larsen", label: "Expert Consulting" },
-  { href: "/calculators", label: "ROI Calculator" },
-  { href: "/startup-funding", label: "Funding Options" },
-  { href: "/blog", label: "Insights" },
+  { href: "/sba-readiness", label: "SBA Readiness Check", icon: ClipboardCheck, desc: "Check loan eligibility" },
+  { href: "/business-plan-generator", label: "Business Plan Generator", icon: FileText, desc: "AI-powered plans" },
+  { href: "/ai-consultation", label: "AI Consultation", icon: Brain, desc: "Strategic guidance" },
+  { href: "/larry-larsen", label: "Expert Consulting", icon: Users, desc: "1-on-1 with pros" },
+  { href: "/calculators", label: "ROI Calculator", icon: Calculator, desc: "Financial projections" },
+  { href: "/startup-funding", label: "Funding Options", icon: Wallet, desc: "Explore financing" },
+  { href: "/blog", label: "Insights", icon: BookOpen, desc: "Industry articles" },
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/cleanbi-auto", label: "CLEANBI Score" },
-  { href: "/laundromat-listings", label: "Listings" },
-  { href: "/valuation-calculator", label: "Valuation" },
-  { href: "/distributor-locator", label: "Distributors" },
-  { href: "/laundromat-locator", label: "Locator" },
-  { href: "/resources", label: "Due Diligence" },
+  { href: "/cleanbi-auto", label: "CLEANBI Score", icon: MapPin, desc: "Location intelligence", featured: true },
+  { href: "/laundromat-listings", label: "Listings", icon: Building2, desc: "Browse for sale" },
+  { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, desc: "What's it worth?" },
+  { href: "/distributor-locator", label: "Distributors", icon: Truck, desc: "Find equipment" },
+  { href: "/laundromat-locator", label: "Locator", icon: Navigation, desc: "Find laundromats" },
+  { href: "/resources", label: "Due Diligence", icon: ClipboardCheck, desc: "Verify deals" },
 ];
 
 const OPERATE_LINKS = [
-  { href: "/equipment-marketplace", label: "Marketplace" },
-  { href: "/equipment-wizard", label: "Equipment Wizard" },
-  { href: "/equipment-guides", label: "Equipment Guides" },
-  { href: "/service-guy-ai", label: "Service AI" },
-  { href: "/equipment-diagnostics", label: "Diagnostics" },
-  { href: "/design-studio-pro", label: "Design Studio" },
-  { href: "/resources", label: "Resources" },
+  { href: "/equipment-marketplace", label: "Marketplace", icon: ShoppingCart, desc: "Buy & sell equipment" },
+  { href: "/equipment-wizard", label: "Equipment Wizard", icon: Wand2, desc: "Find the right fit" },
+  { href: "/equipment-guides", label: "Equipment Guides", icon: BookMarked, desc: "Maintenance tips" },
+  { href: "/service-guy-ai", label: "Service AI", icon: Bot, desc: "AI technician help" },
+  { href: "/equipment-diagnostics", label: "Diagnostics", icon: Wrench, desc: "Troubleshoot issues" },
+  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Layout planning" },
+  { href: "/resources", label: "Resources", icon: FileStack, desc: "Operator toolkit" },
 ];
 
 const PARTNER_LINKS = [
-  { href: "/sell", label: "Sell Your Laundromat" },
-  { href: "/listing-form", label: "Add Listing" },
-  { href: "/list-equipment", label: "Sell Equipment" },
-  { href: "/vendor-form", label: "Vendor Partnership" },
-  { href: "/advertise", label: "Advertising" },
+  { href: "/sell", label: "Sell Your Laundromat", icon: Store, desc: "List your business" },
+  { href: "/listing-form", label: "Add Listing", icon: PlusCircle, desc: "Post for sale" },
+  { href: "/list-equipment", label: "Sell Equipment", icon: Package, desc: "Equipment listings" },
+  { href: "/vendor-form", label: "Vendor Partnership", icon: Handshake, desc: "Join our network" },
+  { href: "/advertise", label: "Advertising", icon: Megaphone, desc: "Promote your brand" },
 ];
 
-function DropdownLink({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) {
+interface NavLinkItem {
+  href: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  desc?: string;
+  featured?: boolean;
+}
+
+function DropdownLink({ href, label, icon: Icon, desc, featured, onClick }: NavLinkItem & { onClick?: () => void }) {
   return (
     <NavigationMenuLink asChild>
       <Link
         href={href}
         onClick={onClick}
-        className="block px-4 py-2.5 text-sm text-foreground/80 rounded-md transition-colors hover:bg-muted hover:text-foreground"
+        className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+          featured 
+            ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/20 hover:border-[#b8860b]/40' 
+            : 'hover:bg-[#1e3a5f]/5'
+        }`}
         data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
       >
-        {label}
+        {Icon && (
+          <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+            featured 
+              ? 'bg-[#b8860b]/20 text-[#b8860b] group-hover:bg-[#b8860b]/30' 
+              : 'bg-[#1e3a5f]/10 text-[#1e3a5f] group-hover:bg-[#1e3a5f]/20'
+          }`}>
+            <Icon className="w-4 h-4" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <span className={`block text-sm font-semibold ${featured ? 'text-[#b8860b]' : 'text-gray-900'} group-hover:text-[#1e3a5f]`}>
+            {label}
+          </span>
+          {desc && (
+            <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
+          )}
+        </div>
+        <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all mt-0.5" />
       </Link>
     </NavigationMenuLink>
   );
@@ -225,11 +260,21 @@ export function NavigationMenu() {
                         Plan
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <div className="w-[200px] p-2">
-                          {PLAN_LINKS.map((link) => (
-                            <DropdownLink key={link.href} {...link} />
-                          ))}
-                        </div>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-3 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Plan Your Journey</span>
+                          </div>
+                          <div className="space-y-1">
+                            {PLAN_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
@@ -241,11 +286,21 @@ export function NavigationMenu() {
                         Evaluate
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <div className="w-[200px] p-2">
-                          {EVALUATE_LINKS.map((link) => (
-                            <DropdownLink key={link.href} {...link} />
-                          ))}
-                        </div>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-3 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Evaluate Opportunities</span>
+                          </div>
+                          <div className="space-y-1">
+                            {EVALUATE_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
@@ -257,11 +312,21 @@ export function NavigationMenu() {
                         Operate
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <div className="w-[200px] p-2">
-                          {OPERATE_LINKS.map((link) => (
-                            <DropdownLink key={link.href} {...link} />
-                          ))}
-                        </div>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-3 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Operate & Grow</span>
+                          </div>
+                          <div className="space-y-1">
+                            {OPERATE_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
@@ -273,11 +338,21 @@ export function NavigationMenu() {
                         Partner
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <div className="w-[200px] p-2">
-                          {PARTNER_LINKS.map((link) => (
-                            <DropdownLink key={link.href} {...link} />
-                          ))}
-                        </div>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-3 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Partner With Us</span>
+                          </div>
+                          <div className="space-y-1">
+                            {PARTNER_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
                   </NavigationMenuList>
