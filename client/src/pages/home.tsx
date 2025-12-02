@@ -7,6 +7,7 @@ import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
 import {
   FeaturesSection,
+  TrustSignalsSection,
   TemplatesSection,
   MarketplaceSection,
   FeaturedVendorBanner,
@@ -543,6 +544,9 @@ export default function Home() {
         
         {/* FEATURES - Clean, Reliable, Profitable, Community */}
         <FeaturesSection />
+        
+        {/* TRUST SIGNALS - Live stats from database */}
+        <TrustSignalsSection />
         
         {/* TEMPLATES & GUIDES */}
         <TemplatesSection />

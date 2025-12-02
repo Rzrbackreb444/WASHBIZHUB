@@ -4,11 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { 
   ArrowRight, Sparkles, Shield, TrendingUp, Users, 
   Download, Lock, MapPin, DollarSign, Calendar, Building2,
   Calculator, Target, BookOpen, GraduationCap, Phone,
-  Search, MessageSquare, QrCode, Star, ExternalLink
+  Search, MessageSquare, QrCode, Star, ExternalLink, Plus, Package
 } from "lucide-react";
 
 import equipmentImage from "@assets/AdobeStock_507641449_1764704943942.jpeg";
@@ -106,28 +107,27 @@ const TEMPLATES = [
   }
 ];
 
-const LISTINGS = [
-  {
-    title: "Coin Laundry - Prime Downtown Location",
-    location: "Seattle, WA",
-    price: "$425K",
-    revenue: "$185K/yr",
-    cashFlow: "$92K/yr",
-    built: "2018",
-    isFeatured: true,
-    image: aerialViewHD
-  },
-  {
-    title: "Full-Service Laundromat with Wash & Fold",
-    location: "Portland, OR",
-    price: "$650K",
-    revenue: "$295K/yr",
-    cashFlow: "$145K/yr",
-    built: "2015",
-    isFeatured: false,
-    image: aerialView
-  }
-];
+interface FeaturedListing {
+  id: string;
+  title: string;
+  city: string;
+  region: string;
+  country: string;
+  price: number | null;
+  priceVisibility: string;
+  featuredImage: string;
+  featured: boolean;
+  tagline: string;
+  slug: string;
+}
+
+interface HomepageStats {
+  listings: number;
+  users: number;
+  cleanbiAnalyses: number;
+  cities: number;
+  partners: number;
+}
 
 const FINANCING_OPTIONS = [
   { icon: Building2, title: "SBA 7(a) Loan", description: "Government-backed financing with favorable terms" },
@@ -191,6 +191,84 @@ export function FeaturesSection() {
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-base leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+      <GoldDivider />
+    </>
+  );
+}
+
+export function TrustSignalsSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
+  const { data: stats } = useQuery<HomepageStats>({
+    queryKey: ['/api/homepage/stats']
+  });
+
+  const trustStats = [
+    { 
+      value: stats?.listings || 0, 
+      label: "Active Listings",
+      icon: Building2,
+      suffix: "+"
+    },
+    { 
+      value: stats?.users || 0, 
+      label: "Registered Users",
+      icon: Users,
+      suffix: "+"
+    },
+    { 
+      value: stats?.cleanbiAnalyses || 0, 
+      label: "CLEANBI Analyses",
+      icon: Target,
+      suffix: "+"
+    },
+    { 
+      value: stats?.partners || 0, 
+      label: "Verified Vendors",
+      icon: Shield,
+      suffix: "+"
+    }
+  ];
+
+  return (
+    <>
+      <section className="py-20 bg-gradient-to-r from-[#1e3a5f] via-[#2a4a73] to-[#1e3a5f]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div 
+            ref={ref}
+            variants={staggerContainer}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            {trustStats.map((stat, idx) => (
+              <motion.div 
+                key={stat.label} 
+                variants={cardItem}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-xl bg-white/10 backdrop-blur-sm">
+                  <stat.icon className="w-6 h-6 text-[#b8860b]" />
+                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                >
+                  <p 
+                    className="text-4xl md:text-5xl font-bold text-white mb-2"
+                    style={{ fontFamily: 'var(--font-bebas)' }}
+                  >
+                    {stat.value.toLocaleString()}{stat.suffix}
+                  </p>
+                </motion.div>
+                <p className="text-white/70 text-sm">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -293,6 +371,16 @@ export function MarketplaceSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
+  const { data: listings = [], isLoading } = useQuery<FeaturedListing[]>({
+    queryKey: ['/api/homepage/featured-listings']
+  });
+
+  const formatPrice = (price: number | null, visibility: string) => {
+    if (visibility === 'nda_required') return 'Contact for Price';
+    if (!price) return 'Call for Details';
+    return `$${(price / 1000).toFixed(0)}K`;
+  };
+  
   return (
     <>
       <section className="py-24 bg-gray-50">
@@ -309,7 +397,7 @@ export function MarketplaceSection() {
             >
               Explore the Marketplace
             </h2>
-            <p className="text-gray-600 text-lg">Featured and standard listings</p>
+            <p className="text-gray-600 text-lg">Real laundromats for sale from verified sellers</p>
           </motion.div>
           
           <motion.div 
@@ -320,43 +408,90 @@ export function MarketplaceSection() {
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
             <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-              {LISTINGS.map((listing) => (
-                <motion.div key={listing.title} variants={cardItem}>
-                  <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 bg-white ${listing.isFeatured ? 'border-2 border-[#b8860b]/40' : 'border border-gray-200'}`}>
-                    <div className="relative h-48">
-                      <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
-                      {listing.isFeatured && (
-                        <Badge className="absolute top-4 left-4 bg-[#b8860b] text-white shadow-lg">
-                          <Star className="w-3 h-3 mr-1" /> Featured (Paid)
-                        </Badge>
-                      )}
-                      <span className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
-                        {listing.price}
-                      </span>
-                    </div>
-                    <div className="p-8">
-                      <h3 
-                        className="text-lg font-bold text-[#1e3a5f] uppercase mb-3"
-                        style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}
-                      >
-                        {listing.title}
-                      </h3>
-                      <div className="space-y-2 text-sm text-gray-600 mb-6">
-                        <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#b8860b]" /> {listing.location}</div>
-                        <div className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-[#b8860b]" /> Revenue: {listing.revenue}</div>
-                        <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-[#b8860b]" /> Cash Flow: {listing.cashFlow}</div>
-                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-[#b8860b]" /> Built: {listing.built}</div>
-                      </div>
-                      <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f] hover:text-[#1e3a5f]" data-testid={`button-listing-details-${listing.isFeatured ? 'featured' : 'standard'}`}>View Details</Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
+              {isLoading ? (
+                <>
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-80 bg-gray-200 rounded-2xl animate-pulse" />
+                  ))}
+                </>
+              ) : (
+                <>
+                  {listings.slice(0, 2).map((listing) => (
+                    <motion.div key={listing.id} variants={cardItem}>
+                      <Link href={`/laundromat-listings/${listing.slug}`}>
+                        <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 bg-white cursor-pointer ${listing.featured ? 'border-2 border-[#b8860b]/40' : 'border border-gray-200'}`}>
+                          <div className="relative h-48">
+                            <img 
+                              src={listing.featuredImage || aerialViewHD} 
+                              alt={listing.title} 
+                              className="w-full h-full object-cover" 
+                            />
+                            {listing.featured && (
+                              <Badge className="absolute top-4 left-4 bg-[#b8860b] text-white shadow-lg">
+                                <Star className="w-3 h-3 mr-1" /> Featured
+                              </Badge>
+                            )}
+                            <span className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
+                              {formatPrice(listing.price, listing.priceVisibility)}
+                            </span>
+                          </div>
+                          <div className="p-6">
+                            <h3 
+                              className="text-lg font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2"
+                              style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}
+                            >
+                              {listing.title}
+                            </h3>
+                            <div className="space-y-2 text-sm text-gray-600 mb-4">
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-[#b8860b]" /> 
+                                {listing.city}, {listing.region}
+                              </div>
+                              {listing.tagline && (
+                                <p className="text-xs text-gray-500 line-clamp-2">{listing.tagline}</p>
+                              )}
+                            </div>
+                            <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f] hover:text-[#1e3a5f]" data-testid={`button-listing-details-${listing.id}`}>
+                              View Details
+                            </Button>
+                          </div>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </>
+              )}
             </div>
             
             <motion.div variants={cardItem} className="space-y-8">
+              {/* Your Laundromat Here CTA */}
+              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#b8860b]/40 bg-gradient-to-br from-[#b8860b]/5 to-[#1e3a5f]/5 hover:border-[#b8860b]/60 hover:shadow-xl transition-all duration-300">
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#b8860b]/10 flex items-center justify-center">
+                    <Plus className="w-8 h-8 text-[#b8860b]" />
+                  </div>
+                  <h3 
+                    className="text-xl font-bold text-[#1e3a5f] uppercase mb-3"
+                    style={{ fontFamily: 'var(--font-bebas)' }}
+                  >
+                    Your Laundromat Here
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    Reach thousands of qualified buyers. List your laundromat with verified pricing and analytics.
+                  </p>
+                  <Link href="/listing-form">
+                    <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-lg" data-testid="button-list-your-laundromat">
+                      List Your Laundromat
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-gray-500 mt-3">Starting at $0/month</p>
+                </div>
+              </Card>
+
+              {/* Vendor Spotlight */}
               <Card className="p-8 border border-gray-200 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-                <p className="text-xs font-semibold tracking-[0.15em] text-gray-400 uppercase mb-6">Vendor Spotlight (Paid)</p>
+                <p className="text-xs font-semibold tracking-[0.15em] text-gray-400 uppercase mb-6">Vendor Spotlight</p>
                 <div className="border-b border-gray-100 pb-6 mb-6">
                   <h3 
                     className="text-lg font-bold text-[#1e3a5f] uppercase"
@@ -378,12 +513,18 @@ export function MarketplaceSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-12 text-center"
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/laundromat-listings">
               <Button variant="outline" className="border-gray-300 hover:border-gray-400 px-8 py-3" data-testid="button-browse-all-listings">
                 Browse All Listings
                 <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/listing-form">
+              <Button className="bg-[#1e3a5f] hover:bg-[#152d4a] text-white px-8 py-3" data-testid="button-list-yours-cta">
+                <Plus className="mr-2 h-4 w-4" />
+                List Yours
               </Button>
             </Link>
           </motion.div>
@@ -751,12 +892,12 @@ export function ShopSection() {
             variants={staggerContainer}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {PRODUCTS.map((product, idx) => (
               <motion.div key={product.title} variants={cardItem}>
-                <Card className="overflow-hidden border border-gray-200 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 bg-white">
-                  <div className="relative h-56">
+                <Card className="overflow-hidden border border-gray-200 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 bg-white h-full flex flex-col">
+                  <div className="relative h-48">
                     <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
                     {idx < 2 && (
                       <Badge className="absolute top-4 left-4 bg-[#b8860b] text-white shadow-lg">
@@ -765,40 +906,68 @@ export function ShopSection() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
-                  <div className="p-8">
-                    <Badge variant="outline" className="mb-3 text-xs">{product.category}</Badge>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <Badge variant="outline" className="mb-2 text-xs w-fit">{product.category}</Badge>
                     <h3 
-                      className="text-lg font-bold text-[#1e3a5f] uppercase mb-2"
+                      className="text-base font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2"
                       style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}
                     >
                       {product.title}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4 leading-relaxed">{product.description}</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-6">{product.price}</p>
-                    <div className="space-y-3">
-                      <Button variant="default" className="w-full bg-[#FF9900] hover:bg-[#E88B00] text-white shadow-md" data-testid={`button-product-amazon-${idx}`}>
-                        Buy on Amazon <ExternalLink className="w-4 h-4 ml-2" />
-                      </Button>
-                      <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f]" data-testid={`button-product-details-${idx}`}>
-                        View Details
-                      </Button>
-                    </div>
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-1">{product.description}</p>
+                    <p className="text-xl font-bold text-gray-900 mb-4">{product.price}</p>
+                    <Button variant="default" className="w-full bg-[#FF9900] hover:bg-[#E88B00] text-white shadow-md" data-testid={`button-product-amazon-${idx}`}>
+                      Buy on Amazon <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
                   </div>
                 </Card>
               </motion.div>
             ))}
+
+            {/* Your Equipment Here CTA */}
+            <motion.div variants={cardItem}>
+              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#1e3a5f]/30 bg-gradient-to-br from-[#1e3a5f]/5 to-[#b8860b]/5 hover:border-[#1e3a5f]/50 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                <div className="p-8 text-center flex-1 flex flex-col justify-center">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center">
+                    <Package className="w-8 h-8 text-[#1e3a5f]" />
+                  </div>
+                  <h3 
+                    className="text-xl font-bold text-[#1e3a5f] uppercase mb-3"
+                    style={{ fontFamily: 'var(--font-bebas)' }}
+                  >
+                    Your Equipment Here
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    Sell your laundry equipment to thousands of buyers. List washers, dryers, parts, and more.
+                  </p>
+                  <Link href="/list-equipment">
+                    <Button className="w-full bg-[#1e3a5f] hover:bg-[#152d4a] text-white shadow-lg" data-testid="button-list-your-equipment">
+                      List Equipment
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-gray-500 mt-3">Free to list</p>
+                </div>
+              </Card>
+            </motion.div>
           </motion.div>
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-12 text-center"
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/products">
               <Button variant="outline" className="border-gray-300 hover:border-gray-400 px-8 py-3" data-testid="button-browse-shop">
                 Browse Shop
                 <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/list-equipment">
+              <Button className="bg-[#1e3a5f] hover:bg-[#152d4a] text-white px-8 py-3" data-testid="button-sell-equipment-cta">
+                <Plus className="mr-2 h-4 w-4" />
+                Sell Equipment
               </Button>
             </Link>
           </motion.div>
