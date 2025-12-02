@@ -45,6 +45,27 @@ interface ProductOffer {
   priceValidUntil?: string;
 }
 
+interface ReviewItem {
+  author: string;
+  authorType?: 'Person' | 'Organization';
+  datePublished: string;
+  reviewBody: string;
+  ratingValue: number;
+  bestRating?: number;
+  worstRating?: number;
+}
+
+interface AggregateRatingData {
+  itemName: string;
+  itemType: 'Product' | 'SoftwareApplication' | 'Course' | 'LocalBusiness' | 'Organization' | 'Service';
+  itemDescription?: string;
+  ratingValue: number;
+  reviewCount: number;
+  bestRating?: number;
+  worstRating?: number;
+  reviews?: ReviewItem[];
+}
+
 interface SEOProps {
   title: string;
   description: string;
@@ -66,6 +87,7 @@ interface SEOProps {
   dateModified?: string;
   articleSection?: string;
   noIndex?: boolean;
+  aggregateRating?: AggregateRatingData;
 }
 
 export function SEO({
@@ -89,6 +111,7 @@ export function SEO({
   dateModified,
   articleSection,
   noIndex = false,
+  aggregateRating,
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - #1 Laundromat Resource`;
@@ -223,6 +246,38 @@ export function SEO({
     "description": description
   } : null;
 
+  // AggregateRating and Review structured data for rich snippets in search results
+  const aggregateRatingData = aggregateRating ? {
+    "@context": "https://schema.org",
+    "@type": aggregateRating.itemType,
+    "name": aggregateRating.itemName,
+    ...(aggregateRating.itemDescription && { "description": aggregateRating.itemDescription }),
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": aggregateRating.ratingValue,
+      "reviewCount": aggregateRating.reviewCount,
+      "bestRating": aggregateRating.bestRating || 5,
+      "worstRating": aggregateRating.worstRating || 1
+    },
+    ...(aggregateRating.reviews && aggregateRating.reviews.length > 0 && {
+      "review": aggregateRating.reviews.map(review => ({
+        "@type": "Review",
+        "author": {
+          "@type": review.authorType || "Person",
+          "name": review.author
+        },
+        "datePublished": review.datePublished,
+        "reviewBody": review.reviewBody,
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": review.ratingValue,
+          "bestRating": review.bestRating || 5,
+          "worstRating": review.worstRating || 1
+        }
+      }))
+    })
+  } : null;
+
   return (
     <Helmet>
       {/* Primary Meta Tags */}
@@ -302,6 +357,11 @@ export function SEO({
       {speakableData && (
         <script type="application/ld+json">
           {JSON.stringify(sanitizeObject(speakableData))}
+        </script>
+      )}
+      {aggregateRatingData && (
+        <script type="application/ld+json">
+          {JSON.stringify(sanitizeObject(aggregateRatingData))}
         </script>
       )}
       {structuredData && (

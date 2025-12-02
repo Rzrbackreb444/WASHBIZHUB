@@ -217,6 +217,7 @@ const BusinessPlanGenerator = lazy(() => import("@/pages/business-plan-generator
 // Listings & Vendors
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
 const VendorsHub = lazy(() => import("@/pages/vendors-hub"));
+const CityLanding = lazy(() => import("@/pages/city-landing"));
 const AddListing = lazy(() => import("@/pages/add-listing"));
 const SellYourLaundromat = lazy(() => import("@/pages/sell-your-laundromat"));
 const ListingForm = lazy(() => import("@/pages/listing-form"));
@@ -973,6 +974,19 @@ function Router() {
           <LaundromatListings />
         </Suspense>
       </Route>
+
+      {/* Geo-targeted City Landing Pages for Local SEO */}
+      <Route path="/laundromats-for-sale/:state/:city">
+        <Suspense fallback={<LoadingFallback />}>
+          <CityLanding />
+        </Suspense>
+      </Route>
+      <Route path="/cleanbi/:state/:city">
+        <Suspense fallback={<LoadingFallback />}>
+          <CityLanding />
+        </Suspense>
+      </Route>
+
       <Route path="/vendors">
         <Suspense fallback={<LoadingFallback />}>
           <VendorsHub />

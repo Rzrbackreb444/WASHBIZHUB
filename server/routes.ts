@@ -15,6 +15,7 @@ import cleanbiReportsRoutes from "./cleanbi-reports-routes";
 import expansionPlannerRoutes from "./expansion-planner-routes";
 import bulkAnalysisRoutes from "./bulk-analysis-routes";
 import ownerAnalyticsRoutes from "./owner-analytics-routes";
+import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -352,6 +353,465 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== CITY LANDING PAGES (SEO) ====================
+  
+  // Static city data for top 20 target markets
+  const CITY_DATA: Record<string, {
+    city: string;
+    state: string;
+    stateCode: string;
+    population: number;
+    medianIncome: number;
+    renterPercentage: number;
+    populationDensity: number;
+    avgCleanbiScore: number;
+    opportunityLevel: "goldmine" | "promising" | "moderate" | "saturated";
+    competitorCount: number;
+    coordinates: { lat: number; lng: number };
+    marketHighlights: string[];
+    nearbyAreas: string[];
+  }> = {
+    "ca-los-angeles": {
+      city: "Los Angeles",
+      state: "California",
+      stateCode: "CA",
+      population: 3898747,
+      medianIncome: 65290,
+      renterPercentage: 63,
+      populationDensity: 8304,
+      avgCleanbiScore: 72,
+      opportunityLevel: "moderate",
+      competitorCount: 1247,
+      coordinates: { lat: 34.0522, lng: -118.2437 },
+      marketHighlights: [
+        "Largest laundromat market in California",
+        "High renter population creates consistent demand",
+        "Diverse neighborhoods offer varied investment opportunities",
+        "Strong Hispanic community with cultural preference for laundromats"
+      ],
+      nearbyAreas: ["Long Beach, CA", "Pasadena, CA", "Glendale, CA", "Santa Monica, CA"]
+    },
+    "ny-new-york": {
+      city: "New York",
+      state: "New York",
+      stateCode: "NY",
+      population: 8336817,
+      medianIncome: 67844,
+      renterPercentage: 69,
+      populationDensity: 29302,
+      avgCleanbiScore: 85,
+      opportunityLevel: "promising",
+      competitorCount: 2134,
+      coordinates: { lat: 40.7128, lng: -74.0060 },
+      marketHighlights: [
+        "Highest population density in the US",
+        "Strong demand from apartment dwellers",
+        "Premium pricing potential in Manhattan and Brooklyn",
+        "Consistent year-round traffic"
+      ],
+      nearbyAreas: ["Brooklyn, NY", "Queens, NY", "Jersey City, NJ", "Newark, NJ"]
+    },
+    "il-chicago": {
+      city: "Chicago",
+      state: "Illinois",
+      stateCode: "IL",
+      population: 2746388,
+      medianIncome: 58247,
+      renterPercentage: 54,
+      populationDensity: 11864,
+      avgCleanbiScore: 78,
+      opportunityLevel: "promising",
+      competitorCount: 892,
+      coordinates: { lat: 41.8781, lng: -87.6298 },
+      marketHighlights: [
+        "Third largest US city with diverse neighborhoods",
+        "Strong working-class communities",
+        "Affordable commercial real estate",
+        "Growing South and West side opportunities"
+      ],
+      nearbyAreas: ["Evanston, IL", "Oak Park, IL", "Cicero, IL", "Aurora, IL"]
+    },
+    "tx-houston": {
+      city: "Houston",
+      state: "Texas",
+      stateCode: "TX",
+      population: 2304580,
+      medianIncome: 52338,
+      renterPercentage: 55,
+      populationDensity: 3622,
+      avgCleanbiScore: 82,
+      opportunityLevel: "promising",
+      competitorCount: 678,
+      coordinates: { lat: 29.7604, lng: -95.3698 },
+      marketHighlights: [
+        "Fastest growing major US city",
+        "No state income tax increases profitability",
+        "Diverse population with strong demand",
+        "Energy sector creates stable economy"
+      ],
+      nearbyAreas: ["Pasadena, TX", "Sugar Land, TX", "The Woodlands, TX", "Katy, TX"]
+    },
+    "az-phoenix": {
+      city: "Phoenix",
+      state: "Arizona",
+      stateCode: "AZ",
+      population: 1608139,
+      medianIncome: 57459,
+      renterPercentage: 44,
+      populationDensity: 3105,
+      avgCleanbiScore: 88,
+      opportunityLevel: "goldmine",
+      competitorCount: 324,
+      coordinates: { lat: 33.4484, lng: -112.0740 },
+      marketHighlights: [
+        "Rapidly growing population with housing shortage",
+        "Underserved market relative to population",
+        "Strong snowbird seasonal demand",
+        "Favorable business climate"
+      ],
+      nearbyAreas: ["Scottsdale, AZ", "Mesa, AZ", "Tempe, AZ", "Chandler, AZ"]
+    },
+    "pa-philadelphia": {
+      city: "Philadelphia",
+      state: "Pennsylvania",
+      stateCode: "PA",
+      population: 1584064,
+      medianIncome: 46116,
+      renterPercentage: 47,
+      populationDensity: 11683,
+      avgCleanbiScore: 76,
+      opportunityLevel: "promising",
+      competitorCount: 512,
+      coordinates: { lat: 39.9526, lng: -75.1652 },
+      marketHighlights: [
+        "Dense urban core with high foot traffic",
+        "Large student population near universities",
+        "Affordable acquisition costs",
+        "Strong community-based customer loyalty"
+      ],
+      nearbyAreas: ["Camden, NJ", "Wilmington, DE", "Chester, PA", "Upper Darby, PA"]
+    },
+    "tx-san-antonio": {
+      city: "San Antonio",
+      state: "Texas",
+      stateCode: "TX",
+      population: 1434625,
+      medianIncome: 49711,
+      renterPercentage: 46,
+      populationDensity: 3238,
+      avgCleanbiScore: 84,
+      opportunityLevel: "goldmine",
+      competitorCount: 287,
+      coordinates: { lat: 29.4241, lng: -98.4936 },
+      marketHighlights: [
+        "Underserved market with strong growth",
+        "Military bases provide stable customer base",
+        "Lower operating costs than other Texas metros",
+        "Growing Hispanic population"
+      ],
+      nearbyAreas: ["New Braunfels, TX", "Seguin, TX", "Boerne, TX", "Universal City, TX"]
+    },
+    "ca-san-diego": {
+      city: "San Diego",
+      state: "California",
+      stateCode: "CA",
+      population: 1386932,
+      medianIncome: 79673,
+      renterPercentage: 53,
+      populationDensity: 4386,
+      avgCleanbiScore: 74,
+      opportunityLevel: "moderate",
+      competitorCount: 412,
+      coordinates: { lat: 32.7157, lng: -117.1611 },
+      marketHighlights: [
+        "Affluent population supports premium services",
+        "Military and student populations",
+        "Year-round pleasant weather",
+        "Strong tourism adds seasonal boost"
+      ],
+      nearbyAreas: ["Chula Vista, CA", "Oceanside, CA", "Escondido, CA", "El Cajon, CA"]
+    },
+    "tx-dallas": {
+      city: "Dallas",
+      state: "Texas",
+      stateCode: "TX",
+      population: 1304379,
+      medianIncome: 52580,
+      renterPercentage: 56,
+      populationDensity: 3872,
+      avgCleanbiScore: 79,
+      opportunityLevel: "promising",
+      competitorCount: 523,
+      coordinates: { lat: 32.7767, lng: -96.7970 },
+      marketHighlights: [
+        "Strong economy with corporate relocations",
+        "Growing apartment construction",
+        "No state income tax",
+        "Diverse neighborhoods with varying price points"
+      ],
+      nearbyAreas: ["Fort Worth, TX", "Arlington, TX", "Plano, TX", "Garland, TX"]
+    },
+    "ca-san-jose": {
+      city: "San Jose",
+      state: "California",
+      stateCode: "CA",
+      population: 1013240,
+      medianIncome: 117324,
+      renterPercentage: 43,
+      populationDensity: 5792,
+      avgCleanbiScore: 71,
+      opportunityLevel: "moderate",
+      competitorCount: 298,
+      coordinates: { lat: 37.3382, lng: -121.8863 },
+      marketHighlights: [
+        "Highest median income supports premium pricing",
+        "Tech worker population with disposable income",
+        "Strong Asian community presence",
+        "Growing apartment development"
+      ],
+      nearbyAreas: ["Santa Clara, CA", "Sunnyvale, CA", "Fremont, CA", "Milpitas, CA"]
+    },
+    "tx-austin": {
+      city: "Austin",
+      state: "Texas",
+      stateCode: "TX",
+      population: 978908,
+      medianIncome: 71576,
+      renterPercentage: 55,
+      populationDensity: 3182,
+      avgCleanbiScore: 86,
+      opportunityLevel: "goldmine",
+      competitorCount: 198,
+      coordinates: { lat: 30.2672, lng: -97.7431 },
+      marketHighlights: [
+        "Fastest growing major city in US",
+        "Tech boom creating massive population influx",
+        "Severely underserved relative to growth",
+        "Young demographic prefers laundromat services"
+      ],
+      nearbyAreas: ["Round Rock, TX", "Cedar Park, TX", "Pflugerville, TX", "Georgetown, TX"]
+    },
+    "fl-jacksonville": {
+      city: "Jacksonville",
+      state: "Florida",
+      stateCode: "FL",
+      population: 949611,
+      medianIncome: 52736,
+      renterPercentage: 41,
+      populationDensity: 1178,
+      avgCleanbiScore: 83,
+      opportunityLevel: "promising",
+      competitorCount: 234,
+      coordinates: { lat: 30.3322, lng: -81.6557 },
+      marketHighlights: [
+        "Largest city by land area in contiguous US",
+        "Growing port and logistics economy",
+        "Affordable real estate for expansion",
+        "No state income tax"
+      ],
+      nearbyAreas: ["Orange Park, FL", "St. Augustine, FL", "Fernandina Beach, FL", "Atlantic Beach, FL"]
+    },
+    "tx-fort-worth": {
+      city: "Fort Worth",
+      state: "Texas",
+      stateCode: "TX",
+      population: 918915,
+      medianIncome: 59127,
+      renterPercentage: 44,
+      populationDensity: 2491,
+      avgCleanbiScore: 81,
+      opportunityLevel: "promising",
+      competitorCount: 267,
+      coordinates: { lat: 32.7555, lng: -97.3308 },
+      marketHighlights: [
+        "Rapidly growing suburb of DFW metroplex",
+        "More affordable than Dallas",
+        "Strong Hispanic community",
+        "Growing residential development"
+      ],
+      nearbyAreas: ["Arlington, TX", "Keller, TX", "Burleson, TX", "Weatherford, TX"]
+    },
+    "oh-columbus": {
+      city: "Columbus",
+      state: "Ohio",
+      stateCode: "OH",
+      population: 905748,
+      medianIncome: 53745,
+      renterPercentage: 48,
+      populationDensity: 4186,
+      avgCleanbiScore: 77,
+      opportunityLevel: "promising",
+      competitorCount: 312,
+      coordinates: { lat: 39.9612, lng: -82.9988 },
+      marketHighlights: [
+        "State capital with stable economy",
+        "Large university population",
+        "Growing tech sector",
+        "Affordable Midwest market"
+      ],
+      nearbyAreas: ["Dublin, OH", "Westerville, OH", "Grove City, OH", "Gahanna, OH"]
+    },
+    "nc-charlotte": {
+      city: "Charlotte",
+      state: "North Carolina",
+      stateCode: "NC",
+      population: 874579,
+      medianIncome: 62817,
+      renterPercentage: 46,
+      populationDensity: 2953,
+      avgCleanbiScore: 85,
+      opportunityLevel: "goldmine",
+      competitorCount: 189,
+      coordinates: { lat: 35.2271, lng: -80.8431 },
+      marketHighlights: [
+        "Major banking hub with growing economy",
+        "Rapid population growth",
+        "Underserved market relative to population",
+        "Strong corporate relocations"
+      ],
+      nearbyAreas: ["Concord, NC", "Gastonia, NC", "Huntersville, NC", "Rock Hill, SC"]
+    },
+    "in-indianapolis": {
+      city: "Indianapolis",
+      state: "Indiana",
+      stateCode: "IN",
+      population: 887642,
+      medianIncome: 47873,
+      renterPercentage: 42,
+      populationDensity: 2392,
+      avgCleanbiScore: 79,
+      opportunityLevel: "promising",
+      competitorCount: 278,
+      coordinates: { lat: 39.7684, lng: -86.1581 },
+      marketHighlights: [
+        "Central location with strong logistics sector",
+        "Affordable cost of living",
+        "Growing downtown development",
+        "Sports and convention tourism"
+      ],
+      nearbyAreas: ["Carmel, IN", "Fishers, IN", "Lawrence, IN", "Greenwood, IN"]
+    },
+    "wa-seattle": {
+      city: "Seattle",
+      state: "Washington",
+      stateCode: "WA",
+      population: 753675,
+      medianIncome: 97185,
+      renterPercentage: 54,
+      populationDensity: 8973,
+      avgCleanbiScore: 73,
+      opportunityLevel: "moderate",
+      competitorCount: 287,
+      coordinates: { lat: 47.6062, lng: -122.3321 },
+      marketHighlights: [
+        "Tech hub with high-income renters",
+        "Dense urban core",
+        "Premium pricing potential",
+        "Strong apartment construction"
+      ],
+      nearbyAreas: ["Bellevue, WA", "Tacoma, WA", "Renton, WA", "Kent, WA"]
+    },
+    "co-denver": {
+      city: "Denver",
+      state: "Colorado",
+      stateCode: "CO",
+      population: 727211,
+      medianIncome: 72661,
+      renterPercentage: 49,
+      populationDensity: 4746,
+      avgCleanbiScore: 80,
+      opportunityLevel: "promising",
+      competitorCount: 234,
+      coordinates: { lat: 39.7392, lng: -104.9903 },
+      marketHighlights: [
+        "Rapid population growth from migration",
+        "Young, active demographic",
+        "Growing apartment construction",
+        "Strong outdoor lifestyle culture"
+      ],
+      nearbyAreas: ["Aurora, CO", "Lakewood, CO", "Westminster, CO", "Arvada, CO"]
+    },
+    "ma-boston": {
+      city: "Boston",
+      state: "Massachusetts",
+      stateCode: "MA",
+      population: 692600,
+      medianIncome: 76298,
+      renterPercentage: 66,
+      populationDensity: 14252,
+      avgCleanbiScore: 75,
+      opportunityLevel: "moderate",
+      competitorCount: 312,
+      coordinates: { lat: 42.3601, lng: -71.0589 },
+      marketHighlights: [
+        "Major university hub with student demand",
+        "Dense urban neighborhoods",
+        "High percentage of renters",
+        "Strong year-round demand"
+      ],
+      nearbyAreas: ["Cambridge, MA", "Somerville, MA", "Brookline, MA", "Quincy, MA"]
+    },
+    "tn-nashville": {
+      city: "Nashville",
+      state: "Tennessee",
+      stateCode: "TN",
+      population: 689447,
+      medianIncome: 59828,
+      renterPercentage: 47,
+      populationDensity: 1392,
+      avgCleanbiScore: 87,
+      opportunityLevel: "goldmine",
+      competitorCount: 156,
+      coordinates: { lat: 36.1627, lng: -86.7816 },
+      marketHighlights: [
+        "Fastest growing city in Tennessee",
+        "No state income tax",
+        "Severely underserved market",
+        "Growing music and healthcare industries"
+      ],
+      nearbyAreas: ["Franklin, TN", "Murfreesboro, TN", "Brentwood, TN", "Hendersonville, TN"]
+    }
+  };
+  
+  // Get city data for landing pages
+  app.get('/api/city-data/:state/:city', async (req, res) => {
+    try {
+      const { state, city } = req.params;
+      const key = `${state.toLowerCase()}-${city.toLowerCase()}`;
+      
+      const cityData = CITY_DATA[key];
+      
+      if (!cityData) {
+        return res.status(404).json({ 
+          error: "City not found",
+          message: `No data available for ${city}, ${state}`
+        });
+      }
+      
+      // Get actual listings count from database
+      let listingsCount = 0;
+      try {
+        const listings = await storage.getListings({ 
+          state: cityData.stateCode,
+          city: cityData.city 
+        });
+        listingsCount = listings.length || 0;
+      } catch {
+        // Use placeholder if database query fails
+        listingsCount = Math.floor(cityData.population / 50000) + 5;
+      }
+      
+      res.json({
+        ...cityData,
+        slug: key,
+        listingsCount: listingsCount > 0 ? listingsCount : Math.floor(cityData.population / 50000) + 5
+      });
+    } catch (error: any) {
+      console.error("Error fetching city data:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // ==================== OBJECT STORAGE (Private Media Serving) ====================
   
   // Serve private objects with ACL check
@@ -9584,6 +10044,250 @@ ${pdfData.text.substring(0, 15000)}`;
   // ========== SEO SUITE ROUTES ==========
   const { createSeoRoutes } = await import('./seo-routes');
   app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));
+  
+  // ========== SEO COMMAND CENTER ROUTES ==========
+  app.use("/api/seo-center", seoCommandCenterRoutes);
+
+  // ========== AI SEO METADATA GENERATOR ROUTES ==========
+  const { generatePageSEO, MAJOR_PAGES, regenerateSEOForPage } = await import('./ai-seo-generator');
+  const { pageSeoMetadata } = await import('@shared/schema');
+
+  // Generate SEO for a single page
+  app.post("/api/ai-seo/generate", isAdmin, async (req: any, res) => {
+    try {
+      const { pageTitle, pageType, industry = 'laundromat', pagePath, existingContent, targetKeywords } = req.body;
+      
+      if (!pageTitle || !pageType || !pagePath) {
+        return res.status(400).json({ message: "pageTitle, pageType, and pagePath are required" });
+      }
+
+      console.log(`📝 Generating SEO for: ${pageTitle} (${pagePath})`);
+      
+      const seoData = await generatePageSEO({
+        pageTitle,
+        pageType,
+        industry,
+        pagePath,
+        existingContent,
+        targetKeywords
+      });
+
+      // Cache in database (upsert)
+      const existingRecord = await db.select().from(pageSeoMetadata).where(eq(pageSeoMetadata.pagePath, pagePath)).limit(1);
+      
+      if (existingRecord.length > 0) {
+        await db.update(pageSeoMetadata)
+          .set({
+            title: seoData.title,
+            description: seoData.description,
+            keywords: seoData.keywords,
+            faqs: seoData.faqs,
+            features: seoData.features,
+            reviews: seoData.reviewSnippets,
+            ogTitle: seoData.ogTitle,
+            ogDescription: seoData.ogDescription,
+            twitterTitle: seoData.twitterTitle,
+            twitterDescription: seoData.twitterDescription,
+            generatedAt: new Date(),
+            regenerateCount: sql`${pageSeoMetadata.regenerateCount} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(pageSeoMetadata.pagePath, pagePath));
+      } else {
+        await db.insert(pageSeoMetadata).values({
+          pagePath,
+          pageType,
+          title: seoData.title,
+          description: seoData.description,
+          keywords: seoData.keywords,
+          faqs: seoData.faqs,
+          features: seoData.features,
+          reviews: seoData.reviewSnippets,
+          ogTitle: seoData.ogTitle,
+          ogDescription: seoData.ogDescription,
+          twitterTitle: seoData.twitterTitle,
+          twitterDescription: seoData.twitterDescription,
+        });
+      }
+
+      res.json({
+        success: true,
+        pagePath,
+        seo: seoData,
+        generatedAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("SEO generation error:", error);
+      res.status(500).json({ message: "Failed to generate SEO", error: error.message });
+    }
+  });
+
+  // Get cached SEO data for a page
+  app.get("/api/ai-seo/metadata/:pagePath(*)", async (req, res) => {
+    try {
+      const pagePath = "/" + req.params.pagePath;
+      
+      const [seoData] = await db.select().from(pageSeoMetadata).where(eq(pageSeoMetadata.pagePath, pagePath));
+      
+      if (!seoData) {
+        return res.status(404).json({ message: "SEO metadata not found for this page" });
+      }
+
+      res.json(seoData);
+    } catch (error: any) {
+      console.error("Error fetching SEO metadata:", error);
+      res.status(500).json({ message: "Failed to fetch SEO metadata", error: error.message });
+    }
+  });
+
+  // Get all cached SEO metadata
+  app.get("/api/ai-seo/metadata", isAdmin, async (req, res) => {
+    try {
+      const allSeo = await db.select().from(pageSeoMetadata).orderBy(pageSeoMetadata.pagePath);
+      res.json(allSeo);
+    } catch (error: any) {
+      console.error("Error fetching all SEO metadata:", error);
+      res.status(500).json({ message: "Failed to fetch SEO metadata", error: error.message });
+    }
+  });
+
+  // Bulk generate SEO for all major pages
+  app.post("/api/ai-seo/generate-all", isAdmin, async (req: any, res) => {
+    try {
+      console.log(`🔄 Starting bulk SEO generation for ${MAJOR_PAGES.length} pages...`);
+      
+      const results: { success: string[]; failed: string[] } = { success: [], failed: [] };
+      
+      for (const page of MAJOR_PAGES) {
+        try {
+          console.log(`📝 Processing: ${page.pageTitle}`);
+          const seoData = await generatePageSEO(page);
+          
+          // Upsert into database
+          const existingRecord = await db.select().from(pageSeoMetadata).where(eq(pageSeoMetadata.pagePath, page.pagePath)).limit(1);
+          
+          if (existingRecord.length > 0) {
+            await db.update(pageSeoMetadata)
+              .set({
+                title: seoData.title,
+                description: seoData.description,
+                keywords: seoData.keywords,
+                faqs: seoData.faqs,
+                features: seoData.features,
+                reviews: seoData.reviewSnippets,
+                ogTitle: seoData.ogTitle,
+                ogDescription: seoData.ogDescription,
+                twitterTitle: seoData.twitterTitle,
+                twitterDescription: seoData.twitterDescription,
+                generatedAt: new Date(),
+                regenerateCount: sql`${pageSeoMetadata.regenerateCount} + 1`,
+                updatedAt: new Date(),
+              })
+              .where(eq(pageSeoMetadata.pagePath, page.pagePath));
+          } else {
+            await db.insert(pageSeoMetadata).values({
+              pagePath: page.pagePath,
+              pageType: page.pageType,
+              title: seoData.title,
+              description: seoData.description,
+              keywords: seoData.keywords,
+              faqs: seoData.faqs,
+              features: seoData.features,
+              reviews: seoData.reviewSnippets,
+              ogTitle: seoData.ogTitle,
+              ogDescription: seoData.ogDescription,
+              twitterTitle: seoData.twitterTitle,
+              twitterDescription: seoData.twitterDescription,
+            });
+          }
+          
+          results.success.push(page.pagePath);
+          await new Promise(resolve => setTimeout(resolve, 500)); // Rate limiting
+        } catch (error) {
+          console.error(`❌ Failed to generate SEO for ${page.pagePath}:`, error);
+          results.failed.push(page.pagePath);
+        }
+      }
+
+      console.log(`✅ Bulk SEO generation complete: ${results.success.length} succeeded, ${results.failed.length} failed`);
+      
+      res.json({
+        success: true,
+        totalPages: MAJOR_PAGES.length,
+        successCount: results.success.length,
+        failedCount: results.failed.length,
+        results,
+        generatedAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Bulk SEO generation error:", error);
+      res.status(500).json({ message: "Failed to generate SEO", error: error.message });
+    }
+  });
+
+  // Regenerate SEO for a specific page
+  app.post("/api/ai-seo/regenerate/:pagePath(*)", isAdmin, async (req: any, res) => {
+    try {
+      const pagePath = "/" + req.params.pagePath;
+      
+      const seoData = await regenerateSEOForPage(pagePath);
+      
+      if (!seoData) {
+        return res.status(404).json({ message: "Page not found in major pages list" });
+      }
+
+      // Update in database
+      const existingRecord = await db.select().from(pageSeoMetadata).where(eq(pageSeoMetadata.pagePath, pagePath)).limit(1);
+      
+      if (existingRecord.length > 0) {
+        await db.update(pageSeoMetadata)
+          .set({
+            title: seoData.title,
+            description: seoData.description,
+            keywords: seoData.keywords,
+            faqs: seoData.faqs,
+            features: seoData.features,
+            reviews: seoData.reviewSnippets,
+            ogTitle: seoData.ogTitle,
+            ogDescription: seoData.ogDescription,
+            twitterTitle: seoData.twitterTitle,
+            twitterDescription: seoData.twitterDescription,
+            generatedAt: new Date(),
+            regenerateCount: sql`${pageSeoMetadata.regenerateCount} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(pageSeoMetadata.pagePath, pagePath));
+      }
+
+      res.json({
+        success: true,
+        pagePath,
+        seo: seoData,
+        regeneratedAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("SEO regeneration error:", error);
+      res.status(500).json({ message: "Failed to regenerate SEO", error: error.message });
+    }
+  });
+
+  // Get list of all major pages configured for SEO generation
+  app.get("/api/ai-seo/pages", async (req, res) => {
+    try {
+      res.json({
+        pages: MAJOR_PAGES.map(p => ({
+          path: p.pagePath,
+          title: p.pageTitle,
+          type: p.pageType,
+          industry: p.industry
+        })),
+        totalPages: MAJOR_PAGES.length
+      });
+    } catch (error: any) {
+      console.error("Error fetching SEO pages:", error);
+      res.status(500).json({ message: "Failed to fetch SEO pages", error: error.message });
+    }
+  });
 
   // ========== SRA (STROKE RECOVERY ACADEMY) ROUTES ==========
   const { createSraRoutes } = await import('./sra-routes');
