@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon } from "lucide-react";
+import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon, Sparkles, Star } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import heroImage from "@assets/IMG_5796_1763738809544.jpeg";
 import { LazyRadarChart } from "./LazyRadarChart";
 import { getGradeInfo } from "@shared/cleanbi-grades";
 
@@ -136,9 +135,7 @@ export function Hero() {
         body: JSON.stringify({ address: targetAddress, businessName: targetName || undefined, radius: 5 })
       });
       
-      if (!response.ok) {
-        throw new Error('API request failed');
-      }
+      if (!response.ok) throw new Error('API request failed');
       
       const data = await response.json();
       
@@ -147,7 +144,6 @@ export function Hero() {
         const addressType = detectAddressType(targetAddress);
         const gradeInfo = getGradeInfo(analysis.cleanbiScore);
         
-        // Calculate revenue projections based on actual demographics
         const washerCount = addressType === 'laundromat' ? 20 : 18;
         const competitorFactor = Math.max(0.7, 1 - (competitors?.length || 0) * 0.03);
         const incomeFactor = Math.min(1.3, (analysis.medianIncome || 50000) / 60000);
@@ -182,12 +178,7 @@ export function Hero() {
       }
     } catch (error) {
       console.error('CLEANBI API error:', error);
-      // Fallback to demo mode if API fails - notify user
-      toast({ 
-        title: "Using demo mode", 
-        description: "Live analysis unavailable. Showing estimated projections.",
-        variant: "default"
-      });
+      toast({ title: "Using demo mode", description: "Live analysis unavailable. Showing estimated projections.", variant: "default" });
       const addressType = detectAddressType(targetAddress);
       const demoResult = generateRealisticScore(addressType);
       setResult(demoResult);
@@ -206,22 +197,11 @@ export function Hero() {
       await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email, 
-          address, 
-          source: 'cleanbi_demo',
-          action,
-          score: result?.score,
-          addressType: result?.addressType
-        })
+        body: JSON.stringify({ email, address, source: 'cleanbi_demo', action, score: result?.score, addressType: result?.addressType })
       });
-      
       setStep('success');
-      
       if (action === 'trial') {
-        setTimeout(() => {
-          window.location.href = '/pricing?trial=true';
-        }, 1500);
+        setTimeout(() => { window.location.href = '/pricing?trial=true'; }, 1500);
       }
     } catch (error) {
       toast({ title: "Something went wrong. Please try again.", variant: "destructive" });
@@ -236,127 +216,121 @@ export function Hero() {
     return `$${val.toLocaleString()}`;
   };
 
-  const radarData = {
-    labels: ['Population', 'Income', 'Renters', 'Age', 'Competition', 'Traffic', 'Visibility', 'Sq Ft', 'Machines', 'Parking', 'Equip Age', 'Cleanliness', 'Pricing', 'Hours', 'Drop-Off', 'Card System', 'Reviews'],
-    datasets: [{
-      label: 'Your Store',
-      data: result ? [
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 11)),
-        Math.min(10, Math.round(result.score / 10.5)),
-        Math.min(10, Math.round(result.score / 12)),
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 11)),
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 11)),
-        Math.min(10, Math.round(result.score / 10.5)),
-        Math.min(10, Math.round(result.score / 12)),
-        Math.min(10, Math.round(result.score / 11)),
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 11)),
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 12)),
-        Math.min(10, Math.round(result.score / 10)),
-        Math.min(10, Math.round(result.score / 10.5))
-      ] : Array(17).fill(7),
-      backgroundColor: 'rgba(57,204,204,0.2)',
-      borderColor: '#39CCCC',
-      borderWidth: 4,
-      pointBackgroundColor: '#39CCCC',
-    }],
-  };
-
-  const radarOptions = {
-    scales: { 
-      r: { 
-        min: 0, 
-        max: 10, 
-        ticks: { stepSize: 2, color: 'rgba(255,255,255,0.6)' }, 
-        grid: { color: 'rgba(255,255,255,0.1)' }, 
-        pointLabels: { color: '#fff', font: { size: 10 } },
-        angleLines: { color: 'rgba(255,255,255,0.1)' }
-      } 
-    },
-    plugins: { legend: { display: false } },
-    maintainAspectRatio: true,
-  };
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-navy-900 to-navy-800">
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={heroImage} 
-          alt="Premium stacked commercial laundromat washers and dryers in modern industrial facility"
-          className="w-full h-full object-cover opacity-20"
-          loading="eager"
-          decoding="async"
-          width={1920}
-          height={1080}
-          data-testid="img-hero-background"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-900/95 via-navy-900/90 to-navy-800/95" />
+    <section className="relative overflow-hidden mesh-gradient-hero">
+      {/* Decorative mesh elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-[#b8860b]/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-[#1e3a5f]/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-bebas leading-tight mb-6 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)' }}
-            data-testid="text-hero-title"
-          >
-            Don't <span className="text-teal-400">Overpay</span> For Your Next Laundromat
-          </h1>
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
-          <p 
-            className="text-xl sm:text-2xl text-white mb-12 max-w-3xl mx-auto font-medium"
-            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
-            data-testid="text-hero-subtitle"
-          >
-            Bad location = $200K+ mistake. Score any address in 30 seconds with CLEANBI™ before you invest.
-          </p>
+          {/* Left: Text Content */}
+          <div className="text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
+              <Sparkles className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-sm font-medium text-[#1e3a5f]">The #1 Laundromat Intelligence Platform</span>
+            </div>
+            
+            <h1 
+              className="hero-title text-[#1e3a5f] mb-6"
+              data-testid="text-hero-title"
+            >
+              Don't Overpay for Your Next{' '}
+              <span className="text-gradient-gold">Laundromat</span>
+            </h1>
+            
+            <p 
+              className="hero-subtitle max-w-xl mx-auto lg:mx-0 mb-8"
+              data-testid="text-hero-subtitle"
+            >
+              Bad location = $200K+ mistake. Score any address in 30 seconds with CLEANBI™ before you invest.
+            </p>
 
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+              <Button 
+                className="btn-premium-gold text-white px-8 py-6 text-lg font-semibold rounded-xl"
+                onClick={() => document.getElementById('cleanbi-demo')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-hero-cta-primary"
+              >
+                Get Your Free Score
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Link href="/directory">
+                <Button 
+                  variant="outline" 
+                  className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-[#1e3a5f]/20 text-[#1e3a5f] hover:bg-[#1e3a5f]/5"
+                  data-testid="button-hero-cta-secondary"
+                >
+                  Browse Listings
+                </Button>
+              </Link>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>72,000+ users</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                <span>4.9/5 rating</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>Free to start</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: CLEANBI Demo Card */}
           <div 
-            id="cleanbi" 
-            className="bg-navy-900 rounded-3xl p-8 sm:p-10 max-w-4xl mx-auto border-2 border-teal-400/50 shadow-2xl"
+            id="cleanbi-demo"
+            className="premium-card p-8 max-w-lg mx-auto lg:mx-0 lg:ml-auto"
             data-testid="section-cleanbi-demo"
           >
             {/* Progress Indicator */}
-            <div className="flex items-center justify-center gap-2 mb-6" data-testid="progress-indicator">
-              <div className={`flex items-center gap-2 ${step === 'address' ? 'text-teal-400' : 'text-gray-500'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'address' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>1</div>
-                <span className="text-sm hidden sm:inline">Enter Address</span>
-              </div>
-              <div className={`w-8 h-0.5 ${step !== 'address' ? 'bg-teal-400' : 'bg-gray-600'}`} />
-              <div className={`flex items-center gap-2 ${step === 'analyzing' ? 'text-teal-400' : step === 'results' || step === 'capture' || step === 'success' ? 'text-teal-400' : 'text-gray-500'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'analyzing' ? 'bg-teal-400 text-navy-900 animate-pulse' : step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>2</div>
-                <span className="text-sm hidden sm:inline">Analyze</span>
-              </div>
-              <div className={`w-8 h-0.5 ${step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400' : 'bg-gray-600'}`} />
-              <div className={`flex items-center gap-2 ${step === 'results' || step === 'capture' || step === 'success' ? 'text-teal-400' : 'text-gray-500'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>3</div>
-                <span className="text-sm hidden sm:inline">Get Score</span>
-              </div>
+            <div className="flex items-center justify-between gap-2 mb-6" data-testid="progress-indicator">
+              {[
+                { num: 1, label: 'Address', active: step === 'address' },
+                { num: 2, label: 'Analyze', active: step === 'analyzing' || step === 'results' || step === 'capture' || step === 'success' },
+                { num: 3, label: 'Score', active: step === 'results' || step === 'capture' || step === 'success' }
+              ].map((s, i) => (
+                <div key={s.num} className="flex items-center gap-2 flex-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                    s.active ? 'bg-[#b8860b] text-white' : 'bg-gray-100 text-gray-400'
+                  } ${step === 'analyzing' && s.num === 2 ? 'animate-pulse' : ''}`}>
+                    {s.num}
+                  </div>
+                  <span className={`text-xs hidden sm:inline ${s.active ? 'text-[#1e3a5f] font-medium' : 'text-gray-400'}`}>
+                    {s.label}
+                  </span>
+                  {i < 2 && <div className={`h-0.5 flex-1 ${s.active ? 'bg-[#b8860b]' : 'bg-gray-200'}`} />}
+                </div>
+              ))}
             </div>
 
             {step === 'address' && (
-              <div className="animate-in text-center">
-                <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white text-center">
+              <div className="animate-in">
+                <h2 className="text-2xl font-bold text-[#1e3a5f] mb-2 text-center">
                   Is This Location Worth It?
                 </h2>
-                <p className="text-gray-300 mb-8 text-lg text-center">Get your CLEANBI™ score in 30 seconds - know before you go</p>
+                <p className="text-gray-500 mb-6 text-center">Get your CLEANBI™ score in 30 seconds</p>
                 
-                <div className="max-w-2xl mx-auto space-y-4">
-                  {/* Business Name Field */}
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-left text-sm font-medium text-gray-400 mb-2">
-                      Business Name <span className="text-gray-500">(optional)</span>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Business Name <span className="text-gray-400">(optional)</span>
                     </label>
                     <div className="relative">
                       <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
                         placeholder="e.g., Spin City Laundry"
-                        className="w-full pl-12 pr-6 py-4 text-lg text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
+                        className="input-premium w-full pl-12"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         data-testid="input-cleanbi-business-name"
@@ -364,17 +338,16 @@ export function Hero() {
                     </div>
                   </div>
                   
-                  {/* Address Field */}
                   <div>
-                    <label className="block text-left text-sm font-medium text-gray-400 mb-2">
-                      Street Address <span className="text-teal-400">*</span>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Street Address <span className="text-[#b8860b]">*</span>
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
                         placeholder="123 Main Street, City, State ZIP"
-                        className="w-full pl-12 pr-6 py-4 text-lg text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
+                        className="input-premium w-full pl-12"
                         value={address}
                         onChange={(e) => {
                           setAddress(e.target.value);
@@ -386,7 +359,7 @@ export function Hero() {
                       />
                       
                       {showPredictions && predictions.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                           {predictions.map((pred) => (
                             <button
                               key={pred.place_id}
@@ -394,10 +367,10 @@ export function Hero() {
                                 setAddress(pred.description);
                                 setShowPredictions(false);
                               }}
-                              className="w-full px-4 py-3 text-left text-navy-900 hover:bg-teal-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                              className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
                               data-testid={`prediction-${pred.place_id}`}
                             >
-                              <MapPin className="w-4 h-4 text-teal-600" />
+                              <MapPin className="w-4 h-4 text-[#b8860b]" />
                               <span className="text-sm">{pred.description}</span>
                             </button>
                           ))}
@@ -407,17 +380,16 @@ export function Hero() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-2 mt-6 mb-6">
-                  <span className="text-gray-500 text-sm">Quick examples:</span>
+                <div className="flex flex-wrap justify-center gap-2 mt-4 mb-6">
                   {[
-                    { name: "Spin City Laundry", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
-                    { name: "WaveMax Laundry", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
+                    { name: "Spin City", addr: "2847 S Las Vegas Blvd, Las Vegas, NV 89109" },
+                    { name: "WaveMax", addr: "4502 N Central Ave, Phoenix, AZ 85012" },
                     { name: "Suds Factory", addr: "1455 Ocean Dr, Miami Beach, FL 33139" }
                   ].map((sample) => (
                     <button
                       key={sample.name}
                       onClick={() => runDemo(sample.addr, sample.name)}
-                      className="px-3 py-1.5 bg-teal-400/10 text-teal-300 rounded-full text-sm hover:bg-teal-400/20 transition flex items-center gap-1 border border-teal-400/20"
+                      className="px-3 py-1.5 bg-[#1e3a5f]/5 text-[#1e3a5f] rounded-full text-xs font-medium hover:bg-[#1e3a5f]/10 transition flex items-center gap-1 border border-[#1e3a5f]/10"
                       data-testid={`button-sample-${sample.name.toLowerCase().replace(/\s/g, '-')}`}
                     >
                       <Building2 className="w-3 h-3" />
@@ -426,35 +398,31 @@ export function Hero() {
                   ))}
                 </div>
                 
-                <div>
-                  <Button 
-                    onClick={() => runDemo()} 
-                    size="lg"
-                    disabled={!address.trim()}
-                    className="bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-400/20"
-                    data-testid="button-cleanbi-run-demo"
-                  >
-                    Score This Location Now
-                  </Button>
-                  <p className="text-gray-500 text-sm mt-3">Free instant analysis • No signup required</p>
-                </div>
+                <Button 
+                  onClick={() => runDemo()} 
+                  disabled={!address.trim()}
+                  className="btn-premium-gold w-full text-white py-6 text-lg font-semibold rounded-xl disabled:opacity-50"
+                  data-testid="button-cleanbi-run-demo"
+                >
+                  Score This Location
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <p className="text-gray-400 text-xs mt-3 text-center">Free instant analysis - No signup required</p>
               </div>
             )}
 
             {step === 'analyzing' && (
-              <div className="animate-in py-12">
-                <Loader2 className="w-16 h-16 text-teal-400 animate-spin mx-auto mb-6" />
-                <h2 className="text-3xl sm:text-4xl font-bebas text-white mb-4">
+              <div className="animate-in py-8 text-center">
+                <Loader2 className="w-12 h-12 text-[#b8860b] animate-spin mx-auto mb-4" />
+                <h2 className="text-xl font-bold text-[#1e3a5f] mb-2">
                   Analyzing Location Data...
                 </h2>
-                <p className="text-gray-300 text-lg">
-                  Scanning demographics, competition, traffic patterns...
-                </p>
-                <div className="mt-6 flex justify-center gap-2">
+                <p className="text-gray-500">Scanning demographics, competition, traffic patterns...</p>
+                <div className="mt-4 flex justify-center gap-2">
                   {['Demographics', 'Competition', 'Traffic', 'Revenue'].map((item, i) => (
                     <span 
                       key={item}
-                      className="px-3 py-1 bg-teal-400/20 text-teal-400 rounded-full text-sm animate-pulse"
+                      className="px-3 py-1 bg-[#b8860b]/10 text-[#b8860b] rounded-full text-xs font-medium animate-pulse"
                       style={{ animationDelay: `${i * 0.2}s` }}
                     >
                       {item}
@@ -466,13 +434,13 @@ export function Hero() {
 
             {step === 'results' && result && (
               <div className="animate-in">
-                <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="flex items-center justify-center gap-2 mb-4">
                   {result.addressType === 'residential' ? (
-                    <HomeIcon className="w-8 h-8 text-amber-400" />
+                    <HomeIcon className="w-6 h-6 text-amber-500" />
                   ) : (
-                    <Building2 className="w-8 h-8 text-teal-400" />
+                    <Building2 className="w-6 h-6 text-[#1e3a5f]" />
                   )}
-                  <span className="text-lg text-gray-300 capitalize">
+                  <span className="text-sm text-gray-500 capitalize">
                     {result.addressType === 'laundromat' ? 'Laundromat Location' : 
                      result.addressType === 'commercial' ? 'Commercial Property' : 'Residential Property'}
                   </span>
@@ -480,185 +448,89 @@ export function Hero() {
 
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <span 
-                    className="text-7xl sm:text-9xl font-bold"
-                    style={{ color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#A3E635' : result.grade === 'C' ? '#FBBF24' : '#C8A661' }}
+                    className="text-6xl font-bold"
+                    style={{ color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#b8860b' }}
                     data-testid="text-cleanbi-score"
                   >
-                    {result.score}/100
+                    {result.score}
                   </span>
-                  <span 
-                    className="text-4xl sm:text-6xl font-bold px-4 py-2 rounded-xl"
-                    style={{ 
-                      backgroundColor: result.grade === 'A' ? '#22C55E20' : result.grade === 'B' ? '#A3E63520' : result.grade === 'C' ? '#FBBF2420' : '#C8A66120',
-                      color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#A3E635' : result.grade === 'C' ? '#FBBF24' : '#C8A661'
-                    }}
-                  >
-                    {result.grade}
-                  </span>
+                  <div className="text-left">
+                    <span 
+                      className="text-3xl font-bold px-3 py-1 rounded-lg"
+                      style={{ 
+                        backgroundColor: result.grade === 'A' ? '#22C55E20' : result.grade === 'B' ? '#84CC1620' : result.grade === 'C' ? '#EAB30820' : '#b8860b20',
+                        color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#b8860b'
+                      }}
+                    >
+                      {result.grade}
+                    </span>
+                    <p className="text-sm text-gray-500 mt-1">out of 100</p>
+                  </div>
                 </div>
                 
-                <p className="text-xl text-gray-300 mb-6">{result.opportunity}</p>
+                <p className="text-gray-600 mb-6 text-center font-medium">{result.opportunity}</p>
                 
-                {result.addressType === 'residential' && result.propertyMetrics ? (
-                  <div className="bg-navy-900/50 rounded-2xl p-6 mb-6">
-                    <p className="text-gray-400 text-sm mb-2">Residential Property Analysis</p>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{formatCurrency(result.propertyMetrics.estimatedValue)}</p>
-                        <p className="text-gray-400 text-sm">Est. Value</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{formatCurrency(result.propertyMetrics.monthlyRent)}/mo</p>
-                        <p className="text-gray-400 text-sm">Rental Potential</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl sm:text-3xl font-bold text-amber-400">{result.propertyMetrics.capRate.toFixed(1)}%</p>
-                        <p className="text-gray-400 text-sm">Cap Rate</p>
-                      </div>
-                    </div>
-                    <p className="text-amber-400/80 text-sm mt-4 italic">
-                      This is a residential property. For laundromat business projections, enter a commercial address.
+                {result.projections && (
+                  <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                    <p className="text-xs text-gray-400 mb-2 text-center">Estimated Annual Revenue</p>
+                    <p className="text-2xl font-bold text-[#1e3a5f] text-center">
+                      {formatCurrency(result.projections.revenueMin)} - {formatCurrency(result.projections.revenueMax)}
                     </p>
                   </div>
-                ) : result.projections ? (
-                  <div className="bg-navy-900/50 rounded-2xl p-6 mb-6">
-                    <p className="text-gray-400 text-sm mb-2">Laundromat Business Projections</p>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-bold text-teal-400" data-testid="text-cleanbi-revenue">
-                          {formatCurrency(result.projections.revenueMin)} – {formatCurrency(result.projections.revenueMax)}
-                        </p>
-                        <p className="text-gray-400 text-sm">Annual Revenue Potential</p>
-                      </div>
-                      <div>
-                        <p className="text-3xl sm:text-4xl font-bold text-teal-400">
-                          {formatCurrency(result.projections.valuationMin)} – {formatCurrency(result.projections.valuationMax)}
-                        </p>
-                        <p className="text-gray-400 text-sm">Est. Business Valuation</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-                
-                <div className="bg-navy-900/50 rounded-3xl p-4 sm:p-8 mb-8">
-                  <div className="max-w-lg mx-auto">
-                    <LazyRadarChart data={radarData} options={radarOptions} />
-                  </div>
-                </div>
+                )}
 
-                <div className="bg-navy-900/70 rounded-2xl p-6 mb-6 border border-teal-400/30">
-                  <p className="text-white text-lg mb-4">
-                    <Mail className="inline w-5 h-5 mr-2 text-teal-400" />
-                    Enter your email to unlock your full report + start your free trial
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-                    <input
-                      type="email"
-                      placeholder="your@email.com"
-                      className="flex-1 px-5 py-4 text-lg text-navy-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-400 bg-white"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleEmailCapture('trial')}
-                      data-testid="input-cleanbi-email"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-4 sm:gap-6 justify-center">
-                  <Link href={`/cleanbi-explorer?address=${encodeURIComponent(address)}&name=${encodeURIComponent(businessName)}&score=${result.score}&grade=${encodeURIComponent(result.grade)}`}>
-                    <Button 
-                      size="lg"
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-navy-900 px-8 sm:px-12 py-5 sm:py-6 text-lg sm:text-2xl font-bold rounded-xl hover:scale-105 transition shadow-lg shadow-teal-400/30"
-                      data-testid="button-cleanbi-explore-map"
-                    >
-                      <MapPin className="mr-2 h-6 w-6" />
-                      Explore Full Map
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                <div className="flex gap-3">
+                  <Link href="/cleanbi" className="flex-1">
+                    <Button className="w-full btn-premium-gold text-white" data-testid="button-full-report">
+                      Get Full Report
                     </Button>
                   </Link>
                   <Button 
-                    onClick={() => handleEmailCapture('trial')}
-                    disabled={isSubmitting}
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-navy-900 px-6 sm:px-10 py-5 sm:py-6 text-lg sm:text-xl font-bold rounded-xl transition"
-                    data-testid="button-cleanbi-start-trial"
+                    variant="outline" 
+                    onClick={() => { setStep('address'); setResult(null); setAddress(''); }}
+                    className="flex-1 border-[#1e3a5f]/20 text-[#1e3a5f]"
+                    data-testid="button-try-another"
                   >
-                    {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : null}
-                    Start Free Trial
-                  </Button>
-                  <Button 
-                    onClick={() => handleEmailCapture('report')}
-                    disabled={isSubmitting}
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-white/50 text-white hover:bg-white/20 px-6 sm:px-10 py-5 sm:py-6 text-lg sm:text-xl font-bold rounded-xl transition"
-                    data-testid="button-cleanbi-full-report"
-                  >
-                    <Download className="mr-2 h-5 w-5" />
-                    Get Report
+                    Try Another
                   </Button>
                 </div>
-                
-                <button 
-                  onClick={() => { setStep('address'); setEmail(''); }}
-                  className="mt-6 text-gray-400 hover:text-white text-sm underline"
-                  data-testid="button-cleanbi-try-another"
+              </div>
+            )}
+
+            {step === 'capture' && (
+              <div className="animate-in py-4 text-center">
+                <h2 className="text-xl font-bold text-[#1e3a5f] mb-2">Unlock Your Full Report</h2>
+                <p className="text-gray-500 mb-6">Enter your email to access detailed insights</p>
+                <div className="relative mb-4">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    placeholder="you@email.com"
+                    className="input-premium w-full pl-12"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    data-testid="input-email-capture"
+                  />
+                </div>
+                <Button 
+                  onClick={() => handleEmailCapture('report')} 
+                  disabled={isSubmitting}
+                  className="w-full btn-premium-gold text-white"
+                  data-testid="button-get-report"
                 >
-                  Try another address
-                </button>
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Get My Report'}
+                </Button>
               </div>
             )}
 
             {step === 'success' && (
-              <div className="animate-in py-12">
-                <CheckCircle className="w-20 h-20 text-teal-400 mx-auto mb-6" />
-                <h2 className="text-4xl sm:text-5xl font-bebas text-white mb-4">
-                  You're In!
-                </h2>
-                <p className="text-xl text-gray-200 mb-2">
-                  Check your inbox for your full CLEANBI report.
-                </p>
-                <p className="text-lg text-teal-400">
-                  Redirecting to complete your trial setup...
-                </p>
+              <div className="animate-in py-8 text-center">
+                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold text-[#1e3a5f] mb-2">You're All Set!</h2>
+                <p className="text-gray-500">Check your email for your full CLEANBI report.</p>
               </div>
             )}
           </div>
-
-          <p 
-            className="mt-12 text-xl text-white font-medium"
-            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
-            data-testid="text-hero-trust-stat"
-          >
-            Join 72,000+ owners already winning &rarr;
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            <Link href="/cleanbi-explorer">
-              <Button 
-                size="lg"
-                className="bg-teal-400 text-navy-900 hover:bg-teal-300 font-semibold shadow-xl"
-                data-testid="button-hero-explorer"
-              >
-                Explore CLEANBI Map
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="text-white border-white/50 hover:bg-white/20 font-semibold"
-                data-testid="button-hero-pricing"
-              >
-                View Plans
-              </Button>
-            </Link>
-          </div>
-          <p className="mt-4 text-sm text-gray-300/80" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
-            <span className="text-teal-400 font-medium">1 free analysis/day</span> · Unlimited with Pro
-          </p>
         </div>
       </div>
     </section>
