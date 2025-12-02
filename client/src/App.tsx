@@ -14,6 +14,7 @@ import { usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTransition } from "@/components/PageTransition";
 
 function ScrollToTop() {
@@ -1398,18 +1399,20 @@ function AppContent() {
 
 function App() {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <TenantProvider>
-          <ThemeProvider>
-            <TooltipProvider>
-              <AppContent />
-              <Toaster />
-            </TooltipProvider>
-          </ThemeProvider>
-        </TenantProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <ErrorBoundary variant="page" showError={process.env.NODE_ENV === "development"}>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <TenantProvider>
+            <ThemeProvider>
+              <TooltipProvider>
+                <AppContent />
+                <Toaster />
+              </TooltipProvider>
+            </ThemeProvider>
+          </TenantProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 }
 

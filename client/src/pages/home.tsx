@@ -9,6 +9,7 @@ import { IndustryPulse, IndustryPulseMini } from "@/components/IndustryPulse";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { DealScout, DealScoutBanner } from "@/components/DealScout";
 import { FoundingMemberBanner } from "@/components/FoundingMember";
+import { HomeSkeleton } from "@/components/Skeletons";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -101,12 +102,18 @@ const stats = [
 ];
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [exitIntentShown, setExitIntentShown] = useState(false);
   const [dealCalcPrice, setDealCalcPrice] = useState("");
   const [dealCalcRevenue, setDealCalcRevenue] = useState("");
   const [dealCalcResult, setDealCalcResult] = useState<{ verdict: string; color: string; multiple: number } | null>(null);
   
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Exit intent detection
   useEffect(() => {
     const handleMouseLeave = (e: MouseEvent) => {
@@ -118,6 +125,10 @@ export default function Home() {
     document.addEventListener("mouseleave", handleMouseLeave);
     return () => document.removeEventListener("mouseleave", handleMouseLeave);
   }, [exitIntentShown]);
+
+  if (isLoading) {
+    return <HomeSkeleton data-testid="home-loading" />;
+  }
 
   // Deal risk calculator logic
   const calculateDealRisk = () => {
