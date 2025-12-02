@@ -418,9 +418,9 @@ export function MarketplaceSection() {
                 <>
                   {listings.slice(0, 2).map((listing) => (
                     <motion.div key={listing.id} variants={cardItem}>
-                      <Link href={`/laundromat-listings/${listing.slug}`}>
-                        <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 bg-white cursor-pointer ${listing.featured ? 'border-2 border-[#b8860b]/40' : 'border border-gray-200'}`}>
-                          <div className="relative h-48">
+                      <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white ${listing.featured ? 'border-2 border-[#b8860b]/40' : 'border border-gray-200'}`}>
+                        <Link href={`/laundromat-listings/${listing.slug}`}>
+                          <div className="relative h-48 cursor-pointer hover:opacity-95 transition-opacity">
                             <img 
                               src={listing.featuredImage || aerialViewHD} 
                               alt={listing.title} 
@@ -435,28 +435,40 @@ export function MarketplaceSection() {
                               {formatPrice(listing.price, listing.priceVisibility)}
                             </span>
                           </div>
-                          <div className="p-6">
+                        </Link>
+                        <div className="p-6">
+                          <Link href={`/laundromat-listings/${listing.slug}`}>
                             <h3 
-                              className="text-lg font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2"
+                              className="text-lg font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2 cursor-pointer hover:text-[#b8860b] transition-colors"
                               style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}
                             >
                               {listing.title}
                             </h3>
-                            <div className="space-y-2 text-sm text-gray-600 mb-4">
-                              <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-[#b8860b]" /> 
-                                {listing.city}, {listing.region}
-                              </div>
-                              {listing.tagline && (
-                                <p className="text-xs text-gray-500 line-clamp-2">{listing.tagline}</p>
-                              )}
+                          </Link>
+                          <div className="space-y-2 text-sm text-gray-600 mb-4">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-[#b8860b]" /> 
+                              {listing.city}, {listing.region}
                             </div>
-                            <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f] hover:text-[#1e3a5f]" data-testid={`button-listing-details-${listing.id}`}>
-                              View Details
-                            </Button>
+                            {listing.tagline && (
+                              <p className="text-xs text-gray-500 line-clamp-2">{listing.tagline}</p>
+                            )}
                           </div>
-                        </Card>
-                      </Link>
+                          <div className="space-y-2">
+                            <Link href={`/laundromat-listings/${listing.slug}`}>
+                              <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f] hover:text-[#1e3a5f]" data-testid={`button-listing-details-${listing.id}`}>
+                                View Details
+                              </Button>
+                            </Link>
+                            <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.city + ', ' + listing.region)}`}>
+                              <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid={`button-cleanbi-analysis-${listing.id}`}>
+                                <Target className="w-4 h-4 mr-2" />
+                                Get Full CLEANBI Analysis
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </Card>
                     </motion.div>
                   ))}
                 </>
