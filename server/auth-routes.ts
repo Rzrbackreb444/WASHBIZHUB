@@ -4,7 +4,36 @@ import { db } from "./db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
-import { getResendClient } from "./resend-client";
+import { Resend } from "resend";
+
+// Email sending helper with fallback
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.error("❌ RESEND_API_KEY not configured");
+    throw new Error("Email service not configured");
+  }
+  
+  const resend = new Resend(apiKey);
+  const fromEmail = "WashBizHub <info@washbizhub.com>";
+  
+  console.log(`📧 Sending email to: ${to}, subject: ${subject}`);
+  
+  const result = await resend.emails.send({
+    from: fromEmail,
+    to,
+    subject,
+    html,
+  });
+  
+  if (result.error) {
+    console.error("❌ Resend error:", result.error);
+    throw new Error(result.error.message);
+  }
+  
+  console.log(`✅ Email sent successfully to ${to}, id: ${result.data?.id}`);
+}
 
 const router = Router();
 
@@ -259,52 +288,47 @@ router.post("/magic-link/request", async (req: Request, res: Response) => {
 
     // Send email via Resend
     try {
-      const { client, fromEmail } = await getResendClient();
-      
-      await client.emails.send({
-        from: fromEmail,
-        to: normalizedEmail,
-        subject: "Sign in to WashBizHub",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
-              <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
-            </div>
-            
-            <h2 style="color: #333;">Sign in to your account</h2>
-            
-            <p style="color: #555; font-size: 16px; line-height: 1.6;">
-              Click the button below to securely sign in to WashBizHub. This link expires in 15 minutes.
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${magicLink}" 
-                 style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                Sign In to WashBizHub
-              </a>
-            </div>
-            
-            <p style="color: #888; font-size: 14px;">
-              If you didn't request this email, you can safely ignore it.
-            </p>
-            
-            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-            
-            <p style="color: #999; font-size: 12px; text-align: center;">
-              &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
-            </p>
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
+            <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
           </div>
-        `,
-      });
+          
+          <h2 style="color: #333;">Sign in to your account</h2>
+          
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">
+            Click the button below to securely sign in to WashBizHub. This link expires in 15 minutes.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${magicLink}" 
+               style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Sign In to WashBizHub
+            </a>
+          </div>
+          
+          <p style="color: #888; font-size: 14px;">
+            If you didn't request this email, you can safely ignore it.
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+          
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
+          </p>
+        </div>
+      `;
+      
+      await sendEmail(normalizedEmail, "Sign in to WashBizHub", emailHtml);
 
       res.json({ 
         success: true, 
         message: "Magic link sent! Check your email to sign in." 
       });
-    } catch (emailError) {
+    } catch (emailError: any) {
       console.error("Failed to send magic link email:", emailError);
-      res.status(500).json({ error: "Failed to send email. Please try again." });
+      res.status(500).json({ error: emailError.message || "Failed to send email. Please try again." });
     }
   } catch (error: any) {
     console.error("Magic link request error:", error);
@@ -362,52 +386,47 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
 
     // Send email
     try {
-      const { client, fromEmail } = await getResendClient();
-      
-      await client.emails.send({
-        from: fromEmail,
-        to: normalizedEmail,
-        subject: "Reset Your WashBizHub Password",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
-              <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
-            </div>
-            
-            <h2 style="color: #333;">Reset Your Password</h2>
-            
-            <p style="color: #555; font-size: 16px; line-height: 1.6;">
-              You requested to reset your password. Click the button below to create a new password. This link expires in 1 hour.
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetLink}" 
-                 style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                Reset Password
-              </a>
-            </div>
-            
-            <p style="color: #888; font-size: 14px;">
-              If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.
-            </p>
-            
-            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-            
-            <p style="color: #999; font-size: 12px; text-align: center;">
-              &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
-            </p>
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
+            <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
           </div>
-        `,
-      });
+          
+          <h2 style="color: #333;">Reset Your Password</h2>
+          
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">
+            You requested to reset your password. Click the button below to create a new password. This link expires in 1 hour.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" 
+               style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Reset Password
+            </a>
+          </div>
+          
+          <p style="color: #888; font-size: 14px;">
+            If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+          
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
+          </p>
+        </div>
+      `;
+      
+      await sendEmail(normalizedEmail, "Reset Your WashBizHub Password", emailHtml);
 
       res.json({ 
         success: true, 
         message: "If an account exists with this email, you will receive a password reset link." 
       });
-    } catch (emailError) {
+    } catch (emailError: any) {
       console.error("Failed to send password reset email:", emailError);
-      res.status(500).json({ error: "Failed to send email. Please try again." });
+      res.status(500).json({ error: emailError.message || "Failed to send email. Please try again." });
     }
   } catch (error: any) {
     console.error("Forgot password error:", error);
