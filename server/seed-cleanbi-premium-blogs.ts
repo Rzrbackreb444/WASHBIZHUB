@@ -7,6 +7,7 @@
 
 import { db } from "./db";
 import { blogPosts } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 const WASHBIZHUB_URL = "https://washbizhub.com";
 
@@ -908,7 +909,7 @@ async function seedPremiumBlogs() {
     try {
       // Check if blog already exists
       const existing = await db.select().from(blogPosts).where(
-        (table: any) => table.slug === blog.slug
+        eq(blogPosts.slug, blog.slug)
       ).limit(1);
 
       if (existing.length > 0) {
@@ -934,15 +935,14 @@ async function seedPremiumBlogs() {
         type: "evergreen",
         category: blog.category,
         market: "global",
-        readTime: blog.readTime,
-        wordCount: blog.wordCount,
         internalLinks: blog.internalLinks,
-        externalLinks: blog.externalLinks,
         status: "published",
         published: true,
         linkToCleanbi: true,
         cleanbiAnchorText: "Try CLEANBI free - analyze any location in 60 seconds",
-        seoScore: 95, // High SEO score for premium content
+        seoScore: 95,
+        readabilityScore: 85,
+        aiQualityScore: 95,
       });
 
       console.log(`✅ Created: ${blog.title}`);
