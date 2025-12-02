@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,28 +21,42 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated, isLoading, authResolved } = useAuth();
   const [, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   
-  // Fetch stats only when we KNOW user is admin (authResolved ensures definitive state)
+  // Check admin auth on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/admin/check", { credentials: "include" });
+        const data = await response.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          setLocation("/admin/login");
+        }
+      } catch {
+        setIsAuthenticated(false);
+        setLocation("/admin/login");
+      }
+    };
+    checkAuth();
+  }, [setLocation]);
+  
+  // Fetch stats only when authenticated
   const { data: stats, refetch, isFetching } = useQuery({
-    queryKey: ['/api/admin/stats'],
-    enabled: authResolved && isAuthenticated && user?.isAdmin === true,
+    queryKey: ['/api/admin/dashboard/stats'],
+    enabled: isAuthenticated === true,
+    queryFn: async () => {
+      const res = await fetch('/api/admin/dashboard/stats', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      return res.json();
+    }
   });
 
-  // Handle redirect ONLY when we have a DEFINITIVE answer
-  // authResolved ensures we've completed the auth check successfully
-  useEffect(() => {
-    // Only redirect when:
-    // 1. Auth has fully resolved (not just stopped loading)
-    // 2. AND user is confirmed NOT an admin
-    if (authResolved && (!user || !user.isAdmin)) {
-      setLocation('/');
-    }
-  }, [authResolved, user, setLocation]);
-
-  // Show loading while auth is being determined OR while still fetching
-  if (!authResolved) {
+  // Show loading while checking auth
+  if (isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -54,9 +67,9 @@ export default function AdminDashboard() {
     );
   }
 
-  // If auth resolved but no user or not admin, show redirecting (the useEffect will handle actual redirect)
-  if (!user || !user.isAdmin) {
-    return <div className="flex items-center justify-center h-screen">Redirecting...</div>;
+  // If not authenticated, show redirecting
+  if (!isAuthenticated) {
+    return <div className="flex items-center justify-center h-screen">Redirecting to login...</div>;
   }
 
   const modules = [
