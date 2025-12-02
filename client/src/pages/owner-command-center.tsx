@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -362,10 +363,6 @@ export default function OwnerCommandCenter() {
     );
   }
 
-  if (!isAuthenticated || !isOwner) {
-    return null;
-  }
-
   const tierData = stats?.tierBreakdown ? [
     { name: "Free", value: stats.tierBreakdown.free, color: TIER_COLORS.free },
     { name: "Accelerate", value: stats.tierBreakdown.accelerate, color: TIER_COLORS.accelerate },
@@ -380,9 +377,13 @@ export default function OwnerCommandCenter() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <AuthGuard 
+      title="Sign In to Access Owner Command Center" 
+      description="Sign in to access your dashboard."
+    >
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        {/* Premium Header */}
+        <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -823,5 +824,6 @@ export default function OwnerCommandCenter() {
         </main>
       </div>
     </div>
+    </AuthGuard>
   );
 }

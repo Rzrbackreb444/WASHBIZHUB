@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1118,7 +1119,7 @@ export default function FundingMatcher() {
   );
 
   return (
-    <>
+    <AuthGuard title="Sign In to Find Funding Options" description="Sign in to access this feature.">
       <SEO
         title="Laundromat Financing & Business Loans | Find SBA, Equipment & Real Estate Funding"
         description="Compare 7 vetted lenders for laundromat financing. SBA 7(a) loans, equipment financing, commercial real estate loans, term loans, startup funding, and working capital. Get matched in 60 seconds."
@@ -1353,6 +1354,6 @@ export default function FundingMatcher() {
           </div>
         </section>
       </div>
-    </>
+    </AuthGuard>
   );
 }

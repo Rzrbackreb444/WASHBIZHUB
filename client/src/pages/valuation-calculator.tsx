@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/components/AuthGuard";
 import { CalculatorEngine } from "@/components/CalculatorEngine";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -262,7 +263,7 @@ export default function ValuationCalculator() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use Valuation Calculator" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="Laundromat Valuation Calculator - Free Business Appraisal Tool 2025 | WashBizHub"
         description="Calculate how much a laundromat is worth using 4 professional valuation methods: Revenue Multiple (2.5-4.5x), EBITDA Multiple (3.5-6.5x), Cap Rate, and Asset-Based. Free appraisal tool trusted by 11,000+ buyers and sellers."
@@ -314,6 +315,6 @@ export default function ValuationCalculator() {
       </div>
 
       <CalculatorEngine config={config} onSave={handleSave} />
-    </>
+    </AuthGuard>
   );
 }

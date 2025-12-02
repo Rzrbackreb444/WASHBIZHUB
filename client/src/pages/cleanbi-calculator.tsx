@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,7 +136,7 @@ export default function CLEANBICalculator() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use CLEANBI Calculator" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="CLEANBI™ Calculator - Free 17-Factor Laundromat Viability Score | WashBizHub"
         description="Calculate laundromat location viability with CLEANBI's free 17-factor scorecard. Evaluate location quality, revenue potential, equipment condition, lease terms, competition, and 12 more critical factors. Get instant A/B/C grades for investment decisions."
@@ -431,6 +432,6 @@ export default function CLEANBICalculator() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

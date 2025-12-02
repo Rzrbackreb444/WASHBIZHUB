@@ -98,6 +98,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
+import { AuthGuard } from "@/components/AuthGuard";
 import type { AiConversation, ContentProject, EmailContact } from "@shared/schema";
 
 type ConversationType = "general" | "blog" | "book" | "newsletter" | "code";
@@ -2160,7 +2161,7 @@ export default function AIContentStudio() {
   );
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access AI Content Studio" description="Sign in to access this tool.">
       <SEO
         title="AI Content Studio | WashBizHub"
         description="Create blog posts, books, newsletters, and more with AI-powered content generation tools."
@@ -2539,6 +2540,6 @@ export default function AIContentStudio() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </AuthGuard>
   );
 }

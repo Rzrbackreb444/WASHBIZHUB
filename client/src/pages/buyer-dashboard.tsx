@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { AuthGuard } from "@/components/AuthGuard";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,28 +70,11 @@ export default function BuyerDashboard() {
     }
   });
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center px-4">
-        <Card className="max-w-md w-full border-slate-700 bg-slate-900/50">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Access Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">Sign in to access your buyer dashboard and manage your search</p>
-            <Link href="/login">
-              <Button className="w-full" data-testid="button-sign-in">
-                Sign In
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Buyer Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <SEO title="Buyer Dashboard | WashBizHub" description="Manage your property search" />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
@@ -369,7 +353,7 @@ export default function BuyerDashboard() {
           </Tabs>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }
 

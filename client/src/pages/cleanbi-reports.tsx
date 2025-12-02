@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { AuthGuard } from "@/components/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -380,7 +381,7 @@ export default function CleanbiReports() {
   ];
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Reports" description="Sign in to access this feature.">
       <SEO
         title="Premium CLEANBI Location Reports - AI-Powered Laundromat Feasibility Analysis"
         description="Get professional laundromat location analysis with Vision AI, Street View imagery, and 17-factor CLEANBI scoring. Reports from $199. Competitor mapping, demographics, and AI recommendations for informed investment decisions."
@@ -1018,6 +1019,6 @@ export default function CleanbiReports() {
           </div>
         </section>
       </div>
-    </>
+    </AuthGuard>
   );
 }

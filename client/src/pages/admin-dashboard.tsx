@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -241,7 +242,11 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <AuthGuard 
+      title="Sign In to Access Admin Dashboard" 
+      description="Sign in to access your dashboard."
+    >
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-lg bg-slate-900/80 border-b border-slate-700">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -535,5 +540,6 @@ export default function AdminDashboard() {
         </div>
       </main>
     </div>
+    </AuthGuard>
   );
 }

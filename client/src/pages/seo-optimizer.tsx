@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AuthGuard } from "@/components/AuthGuard";
 
 interface SeoKeyword {
   id: string;
@@ -171,12 +172,13 @@ export default function SEOOptimizer() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2" data-testid="text-page-title">
-            SEO Optimizer
-          </h1>
+    <AuthGuard title="Sign In to Access SEO Optimizer" description="Sign in to access this tool.">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2" data-testid="text-page-title">
+              SEO Optimizer
+            </h1>
           <p className="text-xl text-green-200">
             Advanced keyword research, competitor analysis, and SERP tracking
           </p>
@@ -528,5 +530,6 @@ export default function SEOOptimizer() {
         </Dialog>
       </div>
     </div>
+    </AuthGuard>
   );
 }

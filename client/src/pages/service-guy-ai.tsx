@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { AuthGuard } from "@/components/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -263,9 +264,10 @@ export default function ServiceGuyAI() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <SEO 
-        title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
+    <AuthGuard title="Sign In for AI Diagnostics" description="Sign in to access this feature.">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+        <SEO 
+          title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
         description="Free AI-powered laundromat equipment troubleshooting. 2,200+ error codes for Speed Queen, Dexter, Maytag, Huebsch & 35+ brands. Get repair guides, part numbers & fix times."
         keywords={[
           "laundromat error codes",
@@ -862,5 +864,6 @@ export default function ServiceGuyAI() {
         </Card>
       </div>
     </div>
+    </AuthGuard>
   );
 }

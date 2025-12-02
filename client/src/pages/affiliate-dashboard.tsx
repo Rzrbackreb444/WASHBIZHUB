@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,32 +94,41 @@ export default function AffiliateDashboard() {
 
   if (!affiliate) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-slate-900/50 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white">Join the Affiliate Program</CardTitle>
-              <CardDescription className="text-slate-400">
-                Earn 20% commission on every sale you refer. Start making money by sharing WashBizHub products and services.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                onClick={() => window.location.href = "/affiliate/apply"}
-                data-testid="button-apply-affiliate"
-              >
-                Apply Now
-              </Button>
-            </CardContent>
-          </Card>
+      <AuthGuard 
+        title="Sign In to Access Affiliate Dashboard" 
+        description="Sign in to access your dashboard."
+      >
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
+          <div className="max-w-2xl mx-auto">
+            <Card className="bg-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white">Join the Affiliate Program</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Earn 20% commission on every sale you refer. Start making money by sharing WashBizHub products and services.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={() => window.location.href = "/affiliate/apply"}
+                  data-testid="button-apply-affiliate"
+                >
+                  Apply Now
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </AuthGuard>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
+    <AuthGuard 
+      title="Sign In to Access Affiliate Dashboard" 
+      description="Sign in to access your dashboard."
+    >
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -461,5 +471,6 @@ export default function AffiliateDashboard() {
         </Tabs>
       </div>
     </div>
+    </AuthGuard>
   );
 }

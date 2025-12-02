@@ -29,6 +29,7 @@ import {
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AuthGuard } from "@/components/AuthGuard";
 
 const Canvas = lazy(() => import("@react-three/fiber").then(m => ({ default: m.Canvas })));
 const ThreeScene = lazy(() => import("./design-studio-3d-scene"));
@@ -1529,7 +1530,7 @@ export default function DesignStudio() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Design Studio" description="Sign in to access this tool.">
       <SEO 
         title="Laundromat Design Studio - Free 2D/3D Floor Plan Designer | WashBizHub" 
         description="Design your laundromat layout with our free 2D/3D floor plan tool. Drag-and-drop Dexter, Speed Queen equipment. Get real-time costs, TPD, and ROI projections."
@@ -2558,6 +2559,6 @@ export default function DesignStudio() {
           {isMobile && <div className="h-20" />}
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

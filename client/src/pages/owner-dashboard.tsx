@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -302,7 +303,10 @@ export default function OwnerDashboard() {
   ];
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Owner Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <Helmet>
         <title>Owner Dashboard | WashBizHub</title>
         <meta name="description" content="Your complete business command center. Manage calculators, dashboards, POS, website, AI agents, and more from one place." />
@@ -544,6 +548,6 @@ export default function OwnerDashboard() {
           </Card>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

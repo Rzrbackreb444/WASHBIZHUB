@@ -10,6 +10,7 @@ import {
   ComposedChart
 } from "recharts";
 import { DollarSign, TrendingUp, Calculator, Zap, Save, Download } from "lucide-react";
+import { AuthGuard } from "@/components/AuthGuard";
 
 // Equipment Library with Pricing
 const EQUIPMENT_LIBRARY = [
@@ -112,13 +113,14 @@ export default function DesignStudioPro() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2 mb-8">
-          <h1 className="text-5xl font-bold flex items-center justify-center gap-3">
-            <Calculator className="w-12 h-12 text-accent" />
-            Design Studio Pro
+    <AuthGuard title="Sign In to Access Design Studio Pro" description="Sign in to access this tool.">
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2 mb-8">
+            <h1 className="text-5xl font-bold flex items-center justify-center gap-3">
+              <Calculator className="w-12 h-12 text-accent" />
+              Design Studio Pro
           </h1>
           <p className="text-muted-foreground text-lg">
             Real-time pricing optimizer with ROI calculations and revenue projections
@@ -494,5 +496,6 @@ export default function DesignStudioPro() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

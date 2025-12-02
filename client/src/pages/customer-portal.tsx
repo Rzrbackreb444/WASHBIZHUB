@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { AuthGuard } from "@/components/AuthGuard";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -803,8 +804,9 @@ export default function CustomerPortal() {
   const activeOrders = orders?.filter((o) => !["completed", "delivered", "cancelled"].includes(o.status.toLowerCase())) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-sidebar/95 backdrop-blur-md border-b border-sidebar-border">
+    <AuthGuard title="Sign In to Access Customer Portal" description="Sign in to access this feature.">
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 bg-sidebar/95 backdrop-blur-md border-b border-sidebar-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Droplets className="h-8 w-8 text-primary" />
@@ -1998,5 +2000,6 @@ export default function CustomerPortal() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -187,7 +188,7 @@ export default function CalculatorsSuite() {
   const selectedCalc = CALCULATORS.find(c => c.id === activeCalc)!;
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Calculator Suite" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="Laundromat ROI Calculator & Business Tools | Free CLEANBI Score, Valuation & Profit Calculators | WashBizHub"
         description="Free laundromat calculators: ROI, valuation, break-even, machine yield, CLEANBI score. Calculate investment returns, pricing, and profitability. Industry-standard tools."
@@ -515,7 +516,7 @@ export default function CalculatorsSuite() {
           </div>
         </section>
       </div>
-    </>
+    </AuthGuard>
   );
 }
 

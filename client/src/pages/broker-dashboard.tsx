@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,26 +84,6 @@ export default function BrokerDashboard() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to access your broker dashboard.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/auth/login">
-              <Button className="w-full" data-testid="button-login">
-                Log In
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const activeListings = listings.filter(l => l.status === "active");
   const draftListings = listings.filter(l => l.status === "draft");
   const soldListings = listings.filter(l => l.status === "sold");
@@ -111,9 +92,13 @@ export default function BrokerDashboard() {
   const avgDaysToSell = brokerProfile?.averageDaysToSell || 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
+    <AuthGuard 
+      title="Sign In to Access Broker Dashboard" 
+      description="Sign in to access your dashboard."
+    >
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <div>
@@ -464,5 +449,6 @@ export default function BrokerDashboard() {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 }

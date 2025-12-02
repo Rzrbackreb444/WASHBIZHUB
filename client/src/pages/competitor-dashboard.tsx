@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { 
   Map, 
@@ -507,7 +508,10 @@ export default function CompetitorDashboard() {
   };
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Competitor Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <SEO
         title="Competitor Intelligence Dashboard - Laundromat Market Monitoring"
         description="Real-time competitor monitoring and market intelligence for laundromat owners. Track competitor ratings, pricing, and market saturation. AI-powered competitive analysis and alerts."
@@ -1322,6 +1326,6 @@ export default function CompetitorDashboard() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { AuthGuard } from "@/components/AuthGuard";
 import { 
   Building2,
   Truck,
@@ -545,7 +546,7 @@ export default function BusinessBuilderPage() {
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Business Builder" description="Sign in to access this tool.">
       <Helmet>
         <title>Build Your Laundry Business | WashBizHub</title>
         <meta name="description" content="Design and launch your complete laundry on-demand business. Choose services, pricing, tools, and website - all hosted on WashBizHub." />
@@ -979,6 +980,6 @@ export default function BusinessBuilderPage() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }
