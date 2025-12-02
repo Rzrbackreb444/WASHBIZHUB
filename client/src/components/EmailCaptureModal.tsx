@@ -5,19 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Mail, 
-  Gift, 
-  Loader2, 
-  CheckCircle2, 
-  Sparkles,
-  FileText,
-  Calculator,
-  TrendingUp
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -33,30 +23,22 @@ const leadMagnetConfig = {
   cleanbi: {
     title: "Unlock Your Full CLEANBI Score",
     description: "Enter your email to see your complete property intelligence report with actionable insights.",
-    icon: Calculator,
-    benefit: "Full 17-factor analysis + PDF report",
-    color: "bg-[#39CCCC]"
+    benefit: "Full 17-factor analysis + PDF report"
   },
   guide: {
     title: "Free: Ultimate Laundromat Buyer's Guide",
     description: "50+ page guide covering due diligence, valuation, negotiation, and avoiding costly mistakes.",
-    icon: FileText,
-    benefit: "Instant PDF download",
-    color: "bg-[#b8860b]"
+    benefit: "Instant PDF download"
   },
   checklist: {
     title: "Free: Due Diligence Checklist",
     description: "The same 47-point checklist our consultants use to evaluate laundromat purchases.",
-    icon: CheckCircle2,
-    benefit: "Used by 500+ buyers",
-    color: "bg-green-600"
+    benefit: "Used by 500+ buyers"
   },
   calculator: {
     title: "Unlock Advanced Calculators",
     description: "Get access to our full suite of ROI, valuation, and profitability calculators.",
-    icon: TrendingUp,
-    benefit: "7 professional calculators",
-    color: "bg-blue-600"
+    benefit: "7 professional calculators"
   }
 };
 
@@ -74,7 +56,6 @@ export function EmailCaptureModal({
   const { toast } = useToast();
 
   const config = leadMagnetConfig[leadMagnet];
-  const Icon = config.icon;
 
   const subscribeMutation = useMutation({
     mutationFn: async (data: { email: string; firstName: string; interest: string; source: string; leadMagnet: string }) => {
@@ -90,7 +71,7 @@ export function EmailCaptureModal({
     onSuccess: () => {
       setSubmitted(true);
       toast({
-        title: "Success!",
+        title: "Success",
         description: "Check your email for your free resource.",
       });
       setTimeout(() => {
@@ -131,43 +112,40 @@ export function EmailCaptureModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         {submitted ? (
-          <div className="py-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+          <div className="py-10 text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">✓</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">You're In!</h3>
-            <p className="text-slate-600">Check your email for your free resource.</p>
+            <h3 className="text-xl font-semibold text-foreground mb-2">You're In</h3>
+            <p className="text-muted-foreground">Check your email for your free resource.</p>
           </div>
         ) : (
           <>
-            <DialogHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`w-12 h-12 ${config.color} rounded-xl flex items-center justify-center`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <Badge className="bg-green-100 text-green-700 border-0">
-                  <Gift className="w-3 h-3 mr-1" />
-                  FREE
-                </Badge>
+            <DialogHeader className="space-y-3">
+              <div className="inline-flex">
+                <span className="text-xs font-medium tracking-wider uppercase text-[#b8860b] bg-[#b8860b]/10 px-3 py-1 rounded-full">
+                  Free Access
+                </span>
               </div>
-              <DialogTitle className="text-xl">{config.title}</DialogTitle>
-              <DialogDescription>{config.description}</DialogDescription>
+              <DialogTitle className="text-xl font-semibold">{config.title}</DialogTitle>
+              <DialogDescription className="text-muted-foreground">{config.description}</DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-              <div>
-                <Label htmlFor="firstName">First Name</Label>
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
                 <Input
                   id="firstName"
                   placeholder="Your first name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  className="h-11"
                   data-testid="input-capture-firstname"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="email">Email Address *</Label>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email Address <span className="text-muted-foreground">*</span></Label>
                 <Input
                   id="email"
                   type="email"
@@ -175,14 +153,15 @@ export function EmailCaptureModal({
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-11"
                   data-testid="input-capture-email"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="interest">I'm interested in</Label>
+              <div className="space-y-2">
+                <Label htmlFor="interest" className="text-sm font-medium">I'm interested in</Label>
                 <Select value={interest} onValueChange={setInterest}>
-                  <SelectTrigger data-testid="select-interest">
+                  <SelectTrigger className="h-11" data-testid="select-interest">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -196,20 +175,19 @@ export function EmailCaptureModal({
 
               <Button 
                 type="submit" 
-                className={`w-full h-12 ${config.color} hover:opacity-90`}
+                className="w-full h-12 bg-[#b8860b] hover:bg-[#a07609] text-white font-medium"
                 disabled={subscribeMutation.isPending}
                 data-testid="button-capture-submit"
               >
                 {subscribeMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  "Get Free Access"
                 )}
-                Get Free Access
               </Button>
 
-              <p className="text-xs text-slate-500 text-center">
-                {config.benefit} • No spam, unsubscribe anytime
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                {config.benefit} · No spam, unsubscribe anytime
               </p>
             </form>
           </>
@@ -225,17 +203,16 @@ export function LeadMagnetBanner() {
   return (
     <>
       <div className="bg-gradient-to-r from-[#001F3F] to-slate-800 text-white py-3 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-3 text-center">
-          <Badge className="bg-[#b8860b] text-white border-0">
-            <Gift className="w-3 h-3 mr-1" />
-            FREE GUIDE
-          </Badge>
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-4 text-center">
+          <span className="text-xs font-medium tracking-wider uppercase text-[#b8860b]">
+            Free Guide
+          </span>
           <span className="text-sm md:text-base">
-            <strong>New:</strong> Download our 50-page Laundromat Buyer's Guide
+            Download our 50-page Laundromat Buyer's Guide
           </span>
           <Button 
             size="sm" 
-            className="bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F] font-bold"
+            className="bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F] font-semibold"
             onClick={() => setShowModal(true)}
             data-testid="button-banner-cta"
           >
@@ -264,29 +241,25 @@ export function FloatingCTA() {
   return (
     <>
       <div className="hidden sm:block fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-4">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 max-w-xs">
+        <div className="bg-background/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-black/10 border border-border/50 p-4 max-w-xs">
           <button 
             onClick={() => setDismissed(true)}
-            className="absolute top-2 right-2 text-slate-400 hover:text-slate-600"
+            className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors text-lg leading-none"
+            aria-label="Dismiss"
           >
             ×
           </button>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-[#b8860b] rounded-lg flex items-center justify-center flex-shrink-0">
-              <FileText className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900 dark:text-white text-sm">Free Buyer's Guide</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">50+ pages of expert advice</p>
-              <Button 
-                size="sm" 
-                className="bg-[#b8860b] hover:bg-[#a07609] text-white w-full"
-                onClick={() => setShowModal(true)}
-                data-testid="button-floating-cta"
-              >
-                Download Free
-              </Button>
-            </div>
+          <div className="pr-6">
+            <p className="font-semibold text-foreground text-sm mb-1">Free Buyer's Guide</p>
+            <p className="text-xs text-muted-foreground mb-3">50+ pages of expert advice</p>
+            <Button 
+              size="sm" 
+              className="bg-[#b8860b] hover:bg-[#a07609] text-white w-full font-medium"
+              onClick={() => setShowModal(true)}
+              data-testid="button-floating-cta"
+            >
+              Download Free
+            </Button>
           </div>
         </div>
       </div>

@@ -1,11 +1,6 @@
 /**
  * UNIVERSAL UPGRADE PROMPT COMPONENT
- * 
- * Freemium conversion system based on top SaaS best practices:
- * - Contextual prompts at natural friction points
- * - "Discovery" framing (not blocking)
- * - FOMO & urgency tactics
- * - Minimal friction upgrade flow
+ * Premium, minimalist design for freemium conversion
  */
 
 import { useState, useEffect } from "react";
@@ -15,10 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { 
-  Sparkles, Crown, Zap, TrendingUp, X, Check, 
-  Clock, Users, Star, ArrowRight, Tag, AlertCircle 
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UpgradePromptProps {
@@ -31,7 +22,7 @@ interface UpgradePromptProps {
   benefits?: string[];
   urgency?: {
     message: string;
-    countdown?: number; // hours
+    countdown?: number;
     socialProof?: string;
   };
 }
@@ -72,21 +63,21 @@ const PRICING_TIERS = [
     name: "Scale",
     price: 499,
     period: "month",
-    tagline: "Most Popular - Multi-location operators",
+    tagline: "Multi-location operators",
     features: [
       "Everything in Accelerate",
       "Up to 5 Locations",
       "IoT Machine Monitoring",
       "Route Optimization",
       "3D Design Studio",
-      "CLEANBI™ Scoring",
+      "CLEANBI Scoring",
       "AI Consultant Access",
       "Professional Analytics Suite",
       "Affiliate Program (20%)",
       "Priority Support",
     ],
     highlight: true,
-    badge: "BEST VALUE",
+    badge: "Most Popular",
   },
   {
     name: "Summit",
@@ -123,29 +114,26 @@ export function UpgradePrompt({
   const [promoError, setPromoError] = useState("");
   const [discount, setDiscount] = useState(0);
 
-  // Update countdown when urgency.countdown changes
   useEffect(() => {
     if (urgency?.countdown !== undefined) {
       setCountdown(urgency.countdown);
     }
   }, [urgency?.countdown]);
 
-  // Start countdown timer
   useEffect(() => {
     if (!urgency?.countdown || countdown === 0) return;
     
     const timer = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 3600000); // 1 hour
+    }, 3600000);
 
     return () => clearInterval(timer);
   }, [urgency, countdown]);
 
   const applyPromoCode = () => {
-    // Validate promo code
     if (promoCode.toLowerCase() === "nickisthecoolest") {
       setPromoApplied(true);
-      setDiscount(0.40); // 40% off
+      setDiscount(0.40);
       setPromoError("");
     } else {
       setPromoApplied(false);
@@ -162,7 +150,6 @@ export function UpgradePrompt({
   };
 
   const handleUpgrade = async (planName: string, price: number) => {
-    // Map plan names to Stripe price IDs from environment variables
     const priceIdMap: Record<string, string> = {
       "Pro": import.meta.env.VITE_STRIPE_PRICE_SEO_PRO || "price_seo_pro_monthly",
       "Enterprise": import.meta.env.VITE_STRIPE_PRICE_SEO_ENTERPRISE || "price_seo_enterprise_monthly",
@@ -175,7 +162,6 @@ export function UpgradePrompt({
     }
 
     try {
-      // Call backend with promo code if applied
       const response = await fetch("/api/subscriptions/upgrade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,7 +177,7 @@ export function UpgradePrompt({
 
       const { url } = await response.json();
       if (url) {
-        window.location.href = url; // Redirect to Stripe checkout
+        window.location.href = url;
       }
     } catch (error) {
       console.error("Upgrade error:", error);
@@ -201,13 +187,13 @@ export function UpgradePrompt({
   const getTriggerHeadline = () => {
     switch (trigger) {
       case "usage_limit":
-        return "You've hit your free plan limit";
+        return "You've reached your limit";
       case "feature_gate":
-        return `You discovered a Premium feature! ✨`;
+        return "Premium Feature";
       case "achievement":
-        return "Great progress! Ready for more?";
+        return "Ready for more?";
       case "exploration":
-        return "Unlock the full WashBizHub experience";
+        return "Unlock the full experience";
       default:
         return "Upgrade to Pro";
     }
@@ -220,7 +206,7 @@ export function UpgradePrompt({
       case "feature_gate":
         return featureDescription || `${featureName} is available on Pro and Enterprise plans.`;
       case "achievement":
-        return `You're getting great results! Upgrade to unlock even more powerful tools.`;
+        return `You're getting great results. Upgrade to unlock even more powerful tools.`;
       default:
         return "Access premium features and take your business to the next level.";
     }
@@ -229,40 +215,29 @@ export function UpgradePrompt({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <DialogTitle className="text-2xl flex items-center gap-2 mb-2">
-                {trigger === "feature_gate" && <Sparkles className="h-6 w-6 text-primary" />}
-                {trigger === "usage_limit" && <Zap className="h-6 w-6 text-orange-500" />}
-                {trigger === "achievement" && <TrendingUp className="h-6 w-6 text-emerald-500" />}
-                {getTriggerHeadline()}
-              </DialogTitle>
-              <DialogDescription className="text-base">
-                {getTriggerSubtext()}
-              </DialogDescription>
-            </div>
-          </div>
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-semibold">
+            {getTriggerHeadline()}
+          </DialogTitle>
+          <DialogDescription className="text-base text-muted-foreground">
+            {getTriggerSubtext()}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Urgency Banner */}
         {urgency && (
-          <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 p-4">
+          <Card className="bg-[#b8860b]/10 border-[#b8860b]/30 p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-semibold">{urgency.message}</p>
-                  {urgency.socialProof && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                      <Users className="h-3 w-3" />
-                      {urgency.socialProof}
-                    </p>
-                  )}
-                </div>
+              <div>
+                <p className="font-medium text-foreground">{urgency.message}</p>
+                {urgency.socialProof && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {urgency.socialProof}
+                  </p>
+                )}
               </div>
               {countdown > 0 && (
-                <Badge variant="default" className="text-lg font-bold px-4 py-2">
+                <Badge className="bg-[#b8860b] text-white text-lg font-semibold px-4 py-2">
                   {countdown}h left
                 </Badge>
               )}
@@ -270,18 +245,15 @@ export function UpgradePrompt({
           </Card>
         )}
 
-        {/* Benefits Grid */}
+        {/* Benefits */}
         {benefits.length > 0 && (
           <div className="my-6">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Crown className="h-5 w-5 text-primary" />
-              What you'll unlock:
-            </h3>
+            <h3 className="font-semibold mb-4">What you'll unlock:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">{benefit}</span>
+                <div key={index} className="flex items-start gap-3">
+                  <span className="text-[#b8860b] text-sm mt-0.5">✓</span>
+                  <span className="text-sm text-foreground/80">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -290,50 +262,44 @@ export function UpgradePrompt({
 
         <Separator />
 
-        {/* Promo Code Input */}
+        {/* Promo Code */}
         <div className="my-6">
-          <Card className="p-4">
-            <div className="flex items-center gap-3">
-              <Tag className="h-5 w-5 text-primary" />
-              <div className="flex-1">
-                <label className="text-sm font-semibold mb-2 block">
-                  Have a promo code?
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter promo code"
-                    value={promoCode}
-                    onChange={(e) => {
-                      setPromoCode(e.target.value);
-                      setPromoError("");
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && applyPromoCode()}
-                    className={cn(promoApplied && "border-emerald-500")}
-                    data-testid="input-promo-code"
-                  />
-                  <Button
-                    onClick={applyPromoCode}
-                    variant={promoApplied ? "default" : "outline"}
-                    disabled={!promoCode}
-                    data-testid="button-apply-promo"
-                  >
-                    {promoApplied ? "Applied!" : "Apply"}
-                  </Button>
-                </div>
-                {promoApplied && (
-                  <p className="text-sm text-emerald-600 flex items-center gap-1 mt-2">
-                    <Check className="h-4 w-4" />
-                    🎉 {(discount * 100)}% discount applied! Nick is the coolest!
-                  </p>
-                )}
-                {promoError && (
-                  <p className="text-sm text-destructive flex items-center gap-1 mt-2">
-                    <AlertCircle className="h-4 w-4" />
-                    {promoError}
-                  </p>
-                )}
-              </div>
+          <Card className="p-4 border-border/50">
+            <label className="text-sm font-medium mb-3 block">
+              Have a promo code?
+            </label>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter promo code"
+                value={promoCode}
+                onChange={(e) => {
+                  setPromoCode(e.target.value);
+                  setPromoError("");
+                }}
+                onKeyDown={(e) => e.key === "Enter" && applyPromoCode()}
+                className={cn("h-11", promoApplied && "border-emerald-500")}
+                data-testid="input-promo-code"
+              />
+              <Button
+                onClick={applyPromoCode}
+                variant={promoApplied ? "default" : "outline"}
+                disabled={!promoCode}
+                className="h-11"
+                data-testid="button-apply-promo"
+              >
+                {promoApplied ? "Applied" : "Apply"}
+              </Button>
             </div>
+            {promoApplied && (
+              <p className="text-sm text-emerald-600 mt-2">
+                {(discount * 100)}% discount applied
+              </p>
+            )}
+            {promoError && (
+              <p className="text-sm text-destructive mt-2">
+                {promoError}
+              </p>
+            )}
           </Card>
         </div>
 
@@ -341,22 +307,22 @@ export function UpgradePrompt({
         <div className="my-6">
           <h3 className="text-center font-semibold text-lg mb-6">Choose Your Plan</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {PRICING_TIERS.map((tier) => (
+            {PRICING_TIERS.slice(0, 3).map((tier) => (
               <Card
                 key={tier.name}
                 className={cn(
-                  "relative p-6 hover-elevate transition-all",
-                  tier.highlight && "border-2 border-primary shadow-lg scale-105"
+                  "relative p-6 transition-all",
+                  tier.highlight ? "border-2 border-[#b8860b] shadow-lg ring-1 ring-[#b8860b]/20" : "border-border/50"
                 )}
               >
                 {tier.badge && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-accent">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#b8860b] text-white">
                     {tier.badge}
                   </Badge>
                 )}
                 
                 <div className="text-center mb-4">
-                  <h4 className="font-bold text-lg mb-1">{tier.name}</h4>
+                  <h4 className="font-semibold text-lg mb-1">{tier.name}</h4>
                   <p className="text-xs text-muted-foreground mb-3">{tier.tagline}</p>
                   <div className="flex items-baseline justify-center gap-1">
                     {promoApplied && tier.price > 0 ? (
@@ -377,32 +343,28 @@ export function UpgradePrompt({
                 </div>
 
                 <ul className="space-y-2 mb-6">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <Check className={cn(
-                        "h-4 w-4 flex-shrink-0 mt-0.5",
-                        tier.highlight ? "text-primary" : "text-muted-foreground"
-                      )} />
-                      <span>{feature}</span>
+                  {tier.features.slice(0, 6).map((feature, index) => (
+                    <li key={index} className="flex items-start gap-3 text-sm">
+                      <span className={cn(
+                        "text-xs mt-1",
+                        tier.highlight ? "text-[#b8860b]" : "text-muted-foreground"
+                      )}>✓</span>
+                      <span className="text-foreground/80">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Button
-                  className="w-full"
+                  className={cn(
+                    "w-full h-11 font-medium",
+                    tier.highlight ? "bg-[#b8860b] hover:bg-[#a07609]" : ""
+                  )}
                   variant={tier.highlight ? "default" : "outline"}
                   disabled={tier.price === 0}
                   onClick={() => handleUpgrade(tier.name, tier.price)}
                   data-testid={`button-select-${tier.name.toLowerCase()}`}
                 >
-                  {tier.price === 0 ? (
-                    "Current Plan"
-                  ) : (
-                    <>
-                      Upgrade to {tier.name}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  {tier.price === 0 ? "Current Plan" : `Upgrade to ${tier.name}`}
                 </Button>
               </Card>
             ))}
@@ -410,32 +372,25 @@ export function UpgradePrompt({
         </div>
 
         {/* Trust Signals */}
-        <Card className="bg-muted/30 p-4">
+        <Card className="bg-muted/30 border-border/50 p-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-              </div>
-              <p className="text-xs text-muted-foreground">4.9/5 from 2,847 reviews</p>
+              <p className="text-sm font-medium text-foreground">4.9/5</p>
+              <p className="text-xs text-muted-foreground">from 2,847 reviews</p>
             </div>
             <div>
-              <p className="font-bold text-lg">72,000+</p>
+              <p className="text-sm font-medium text-foreground">72,000+</p>
               <p className="text-xs text-muted-foreground">Laundromats served</p>
             </div>
             <div>
-              <p className="font-bold text-lg">$12M+</p>
+              <p className="text-sm font-medium text-foreground">$12M+</p>
               <p className="text-xs text-muted-foreground">Revenue generated</p>
             </div>
           </div>
         </Card>
 
-        {/* Money-back guarantee */}
-        <p className="text-center text-sm text-muted-foreground">
-          💯 30-day money-back guarantee • Cancel anytime • No hidden fees
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          30-day money-back guarantee · Cancel anytime · No hidden fees
         </p>
       </DialogContent>
     </Dialog>
