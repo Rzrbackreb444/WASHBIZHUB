@@ -16,6 +16,7 @@ import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFa
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTransition } from "@/components/PageTransition";
+import AdminBar from "@/components/AdminBar";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -1363,6 +1364,7 @@ function AppContent() {
   if (isFullScreenApp) {
     return (
       <>
+        <AdminBar />
         <ScrollToTop />
         <Suspense fallback={null}>
           <DeferredAnalytics />
@@ -1380,6 +1382,7 @@ function AppContent() {
   
   return (
     <>
+      <AdminBar />
       <ScrollToTop />
       <Helmet>
         <script type="application/ld+json">
