@@ -21,7 +21,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog } from "@shared/schema";
+import { listings, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
