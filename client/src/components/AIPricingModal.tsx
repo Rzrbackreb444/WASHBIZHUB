@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, Crown, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface PricingPlan {
@@ -13,7 +12,6 @@ interface PricingPlan {
   features: string[];
   model: string;
   badge?: string;
-  badgeVariant?: "default" | "secondary" | "destructive" | "outline";
   popular?: boolean;
 }
 
@@ -41,7 +39,6 @@ const PRICING_PLANS: PricingPlan[] = [
     quota: "500 messages/month",
     model: "GPT-4 Turbo",
     badge: "Most Popular",
-    badgeVariant: "default",
     popular: true,
     features: [
       "500 AI consultant messages per month",
@@ -61,7 +58,6 @@ const PRICING_PLANS: PricingPlan[] = [
     quota: "Unlimited",
     model: "Claude 3.5 Sonnet",
     badge: "Best Value",
-    badgeVariant: "secondary",
     features: [
       "Unlimited AI consultant messages",
       "Premium AI model (Claude 3.5 Sonnet)",
@@ -87,19 +83,17 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
     if (onUpgrade) {
       onUpgrade(tier);
     }
-    // Stripe checkout will be implemented in next task
     console.log(`Upgrade to ${tier}`);
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-bold flex items-center gap-2">
-            <Sparkles className="h-8 w-8 text-primary" />
-            Upgrade WashBizHub AI Consultant
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-semibold">
+            Upgrade AI Consultant
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-base text-muted-foreground">
             Get unlimited access to the world's most advanced laundromat business consultant
           </DialogDescription>
         </DialogHeader>
@@ -108,15 +102,16 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
           {PRICING_PLANS.map((plan) => (
             <Card
               key={plan.tier}
-              className={`relative p-6 hover-elevate ${
-                plan.popular ? "border-2 border-primary shadow-lg" : ""
+              className={`relative p-6 transition-all ${
+                plan.popular ? "border-2 border-[#b8860b] shadow-lg ring-1 ring-[#b8860b]/20" : "border border-border/50"
               }`}
               data-testid={`card-pricing-${plan.tier}`}
             >
               {plan.badge && (
                 <Badge
-                  variant={plan.badgeVariant}
-                  className="absolute -top-3 left-1/2 -translate-x-1/2"
+                  className={`absolute -top-3 left-1/2 -translate-x-1/2 ${
+                    plan.popular ? "bg-[#b8860b] text-white" : "bg-muted text-muted-foreground"
+                  }`}
                   data-testid={`badge-plan-${plan.tier}`}
                 >
                   {plan.badge}
@@ -124,53 +119,48 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
               )}
 
               <div className="text-center mb-6">
-                <div className="flex items-center justify-center mb-2">
-                  {plan.tier === "free" && <Zap className="h-8 w-8 text-muted-foreground" />}
-                  {plan.tier === "pro" && <Sparkles className="h-8 w-8 text-primary" />}
-                  {plan.tier === "enterprise" && <Crown className="h-8 w-8 text-accent" />}
-                </div>
-                <h3 className="text-2xl font-bold mb-2" data-testid={`text-plan-name-${plan.tier}`}>
+                <h3 className="text-xl font-semibold mb-3" data-testid={`text-plan-name-${plan.tier}`}>
                   {plan.name}
                 </h3>
-                <div className="mb-1">
+                <div className="mb-2">
                   <span className="text-4xl font-bold" data-testid={`text-price-${plan.tier}`}>
                     {plan.price}
                   </span>
                   <span className="text-muted-foreground">{plan.period}</span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2" data-testid={`text-quota-${plan.tier}`}>
+                <p className="text-sm text-muted-foreground" data-testid={`text-quota-${plan.tier}`}>
                   {plan.quota}
                 </p>
-                <Badge variant="outline" className="mb-4" data-testid={`badge-model-${plan.tier}`}>
-                  {plan.model}
-                </Badge>
+                <p className="text-xs text-muted-foreground mt-2" data-testid={`badge-model-${plan.tier}`}>
+                  Powered by {plan.model}
+                </p>
               </div>
 
               <ul className="space-y-3 mb-6">
                 {plan.features.map((feature, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-2 text-sm"
+                    className="flex items-start gap-3 text-sm"
                     data-testid={`text-feature-${plan.tier}-${index}`}
                   >
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>{feature}</span>
+                    <span className={`text-xs mt-1 ${plan.popular ? "text-[#b8860b]" : "text-muted-foreground"}`}>✓</span>
+                    <span className="text-foreground/80">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               {currentTier === plan.tier ? (
-                <Button variant="outline" disabled className="w-full" data-testid={`button-current-${plan.tier}`}>
+                <Button variant="outline" disabled className="w-full h-11" data-testid={`button-current-${plan.tier}`}>
                   Current Plan
                 </Button>
               ) : plan.tier === "free" ? (
-                <Button variant="ghost" disabled className="w-full" data-testid="button-free-plan">
+                <Button variant="ghost" disabled className="w-full h-11" data-testid="button-free-plan">
                   Free Forever
                 </Button>
               ) : (
                 <Button
                   variant={plan.popular ? "default" : "outline"}
-                  className="w-full"
+                  className={`w-full h-11 font-medium ${plan.popular ? "bg-[#b8860b] hover:bg-[#a07609]" : ""}`}
                   onClick={() => handleUpgrade(plan.tier as "pro" | "enterprise")}
                   data-testid={`button-upgrade-${plan.tier}`}
                 >
@@ -181,11 +171,9 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
           ))}
         </div>
 
-        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-          <p className="text-sm text-center text-muted-foreground">
-            <strong>30-day money-back guarantee.</strong> Cancel anytime, no questions asked. All plans include
-            Professional expertise in laundromat valuation, equipment selection, financial analysis,
-            and market insights.
+        <div className="mt-6 p-4 bg-muted/30 rounded-xl text-center">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">30-day money-back guarantee.</span> Cancel anytime, no questions asked.
           </p>
         </div>
       </DialogContent>
