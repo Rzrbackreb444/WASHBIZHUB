@@ -79,6 +79,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ListingAnalyzer } from "@/components/ListingAnalyzer";
 
 declare global {
   interface Window {
@@ -815,6 +816,17 @@ export default function CleanBIExplorer() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const analyzeFromListing = (listingAddress: string, listingBusinessName?: string) => {
+    setAddress(listingAddress);
+    if (listingBusinessName) setBusinessName(listingBusinessName);
+    setTimeout(() => {
+      const analyzeBtn = document.querySelector('[data-testid="button-analyze-location"]') as HTMLButtonElement;
+      if (analyzeBtn) {
+        analyzeBtn.click();
+      }
+    }, 150);
   };
 
   const analyzeLocation = async () => {
@@ -2431,6 +2443,20 @@ export default function CleanBIExplorer() {
                   )}
                 </div>
               )}
+
+              {/* Listing URL Analyzer */}
+              <div className="mb-4">
+                <ListingAnalyzer 
+                  onAnalyzeAddress={analyzeFromListing}
+                  isAnalyzing={isAnalyzing}
+                />
+              </div>
+
+              <div className="relative flex items-center mb-4">
+                <div className="flex-1 h-px bg-white/10"></div>
+                <span className="px-3 text-xs text-white/40">or enter address directly</span>
+                <div className="flex-1 h-px bg-white/10"></div>
+              </div>
 
               <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#8B7355]/20 rounded-xl p-4 border border-[#C8A661]/30">
                 <div className="text-sm font-medium text-white mb-4 flex items-center gap-2">
