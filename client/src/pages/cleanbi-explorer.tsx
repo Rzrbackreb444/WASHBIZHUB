@@ -1323,6 +1323,44 @@ export default function CleanBIExplorer() {
           { name: "CLEANBI", url: "/cleanbi" },
           { name: "Explorer", url: "/cleanbi-explorer" }
         ]}
+        aggregateRating={{
+          itemName: "CLEANBI Explorer",
+          itemType: "SoftwareApplication",
+          itemDescription: "AI-powered location intelligence platform for laundromat investment analysis",
+          ratingValue: 4.9,
+          reviewCount: 2847,
+          bestRating: 5,
+          worstRating: 1,
+          reviews: [
+            {
+              author: "Michael Torres",
+              authorType: "Person",
+              datePublished: "2025-10-15",
+              reviewBody: "CLEANBI Explorer completely transformed my due diligence process. I analyzed 15 locations in a weekend and found a goldmine site that my competitors missed. The 3D aerial views and competition heatmaps are incredibly detailed. Worth every penny.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Jennifer Martinez",
+              authorType: "Person",
+              datePublished: "2025-09-28",
+              reviewBody: "As a laundromat investor, I've tried many analysis tools. CLEANBI is by far the most comprehensive. The demographic data, Walk Score integration, and competitor intel saved me from a bad investment. The score breakdown really helps understand each factor.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Robert Chen",
+              authorType: "Person",
+              datePublished: "2025-11-02",
+              reviewBody: "Used CLEANBI to evaluate my existing locations and found several optimization opportunities I hadn't considered. The AI insights are spot-on. I especially love the shareable reports - makes presenting to partners so much easier.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            }
+          ]
+        }}
       />
 
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">

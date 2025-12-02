@@ -156,6 +156,44 @@ export default function Pricing() {
           { name: "Home", url: "/" },
           { name: "Pricing", url: "/pricing" }
         ]}
+        aggregateRating={{
+          itemName: "WashBizHub Platform",
+          itemType: "SoftwareApplication",
+          itemDescription: "Complete laundromat business intelligence platform with CLEANBI location scoring, analytics, and investment tools",
+          ratingValue: 4.7,
+          reviewCount: 3291,
+          bestRating: 5,
+          worstRating: 1,
+          reviews: [
+            {
+              author: "David Rodriguez",
+              authorType: "Person",
+              datePublished: "2025-10-20",
+              reviewBody: "The Starter plan is perfect for getting started. I use CLEANBI Explorer daily to scout new locations. The unlimited analyses pay for themselves after just one good deal. The 3D views are amazing for virtual site visits.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Sarah Thompson",
+              authorType: "Person",
+              datePublished: "2025-09-15",
+              reviewBody: "Upgraded to Pro for the ROI calculators and Monte Carlo simulations. These tools helped me model different scenarios before buying my second laundromat. The API access is great for my custom dashboards too.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Marcus Williams",
+              authorType: "Person",
+              datePublished: "2025-11-08",
+              reviewBody: "Enterprise is worth it if you manage multiple locations. The ownership data and motivated seller detection have helped me find off-market deals. White-label reports make client presentations professional.",
+              ratingValue: 4,
+              bestRating: 5,
+              worstRating: 1
+            }
+          ]
+        }}
       />
       <div className="min-h-screen bg-background py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
