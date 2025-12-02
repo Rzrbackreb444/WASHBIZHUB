@@ -248,6 +248,9 @@ const ErrorCodes = lazy(() => import("@/pages/error-codes"));
 const ErrorCodeDetail = lazy(() => import("@/pages/error-code-detail"));
 const ErrorCodeScanner = lazy(() => import("@/pages/error-code-scanner"));
 
+// Utility Bill Auditor
+const UtilityBillAuditor = lazy(() => import("@/pages/utility-bill-auditor"));
+
 // Locator Pages
 const Locator = lazy(() => import("@/pages/locator"));
 const DistributorLocator = lazy(() => import("@/pages/distributor-locator"));
@@ -892,6 +895,13 @@ function Router() {
       <Route path="/error-scanner">
         <Suspense fallback={<LoadingFallback />}>
           <ErrorCodeScanner />
+        </Suspense>
+      </Route>
+      
+      {/* Utility Bill Auditor */}
+      <Route path="/utility-bill-auditor">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityBillAuditor />
         </Suspense>
       </Route>
 

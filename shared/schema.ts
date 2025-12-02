@@ -12275,5 +12275,97 @@ export type FoundingMember = typeof foundingMembers.$inferSelect;
 export type UserActivityLog = typeof userActivityLog.$inferSelect;
 
 // ============================================================================
+// UTILITY BILL AUDITOR - AI-Powered Bill Analysis
+// ============================================================================
+
+export const utilityBillAnalyses = pgTable("utility_bill_analyses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Bill identification
+  billType: varchar("bill_type").notNull(), // "electric", "water", "gas", "combined"
+  billDate: timestamp("bill_date"),
+  billPeriodStart: timestamp("bill_period_start"),
+  billPeriodEnd: timestamp("bill_period_end"),
+  
+  // Electric usage
+  electricKwh: decimal("electric_kwh", { precision: 10, scale: 2 }),
+  electricCost: decimal("electric_cost", { precision: 10, scale: 2 }),
+  electricRatePerKwh: decimal("electric_rate_per_kwh", { precision: 6, scale: 4 }),
+  
+  // Water usage
+  waterGallons: decimal("water_gallons", { precision: 12, scale: 2 }),
+  waterCost: decimal("water_cost", { precision: 10, scale: 2 }),
+  waterRatePerGallon: decimal("water_rate_per_gallon", { precision: 8, scale: 6 }),
+  
+  // Gas usage
+  gasTherms: decimal("gas_therms", { precision: 10, scale: 2 }),
+  gasCost: decimal("gas_cost", { precision: 10, scale: 2 }),
+  gasRatePerTherm: decimal("gas_rate_per_therm", { precision: 6, scale: 4 }),
+  
+  // Totals
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  
+  // Laundromat-specific metrics
+  grossRevenue: decimal("gross_revenue", { precision: 12, scale: 2 }),
+  upgRatio: decimal("upg_ratio", { precision: 5, scale: 2 }), // Utilities as % of Gross
+  costPerWasherLoad: decimal("cost_per_washer_load", { precision: 6, scale: 4 }),
+  costPerDryerLoad: decimal("cost_per_dryer_load", { precision: 6, scale: 4 }),
+  
+  // AI Analysis
+  anomalies: jsonb("anomalies").default(sql`'[]'::jsonb`), // Array of { type, severity, message }
+  recommendations: jsonb("recommendations").default(sql`'[]'::jsonb`), // Array of { priority, action, expectedSavings }
+  
+  // Raw extracted data
+  rawExtractedData: jsonb("raw_extracted_data"),
+  
+  // Image storage
+  imageUrl: text("image_url"),
+  
+  // Confidence score from AI
+  confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("utility_bill_user_idx").on(table.userId),
+  billDateIdx: index("utility_bill_date_idx").on(table.billDate),
+}));
+
+export const insertUtilityBillAnalysisSchema = createInsertSchema(utilityBillAnalyses).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  electricKwh: z.string().optional(),
+  electricCost: z.string().optional(),
+  electricRatePerKwh: z.string().optional(),
+  waterGallons: z.string().optional(),
+  waterCost: z.string().optional(),
+  waterRatePerGallon: z.string().optional(),
+  gasTherms: z.string().optional(),
+  gasCost: z.string().optional(),
+  gasRatePerTherm: z.string().optional(),
+  totalCost: z.string().optional(),
+  grossRevenue: z.string().optional(),
+  upgRatio: z.string().optional(),
+  costPerWasherLoad: z.string().optional(),
+  costPerDryerLoad: z.string().optional(),
+  confidenceScore: z.string().optional(),
+  anomalies: z.array(z.object({
+    type: z.string(),
+    severity: z.enum(["low", "medium", "high"]),
+    message: z.string(),
+    percentChange: z.number().optional(),
+  })).optional(),
+  recommendations: z.array(z.object({
+    priority: z.enum(["low", "medium", "high"]),
+    action: z.string(),
+    expectedSavings: z.string().optional(),
+  })).optional(),
+});
+
+export type InsertUtilityBillAnalysis = z.infer<typeof insertUtilityBillAnalysisSchema>;
+export type UtilityBillAnalysis = typeof utilityBillAnalyses.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
