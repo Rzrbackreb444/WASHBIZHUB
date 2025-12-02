@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/components/Advertisement";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GlobalSearchTrigger } from "@/components/GlobalSearch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -271,6 +272,8 @@ export function Header() {
               <div className="hidden xl:block">
                 <Advertisement placement="header" />
               </div>
+              
+              <GlobalSearchTrigger />
               
               <ThemeToggle />
               
