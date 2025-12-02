@@ -132,6 +132,7 @@ const ValuationCalculator = lazy(() => import("@/pages/valuation-calculator"));
 const TPDCalculator = lazy(() => import("@/pages/tpd-calculator"));
 const CLEANBICalculator = lazy(() => import("@/pages/cleanbi-calculator"));
 const LoanCalculator = lazy(() => import("@/pages/loan-calculator"));
+const UtilityCalculator = lazy(() => import("@/pages/utility-calculator"));
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
 const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
@@ -243,6 +244,7 @@ const PartsCatalogue = lazy(() => import("@/pages/parts-catalogue"));
 const RepairGuide = lazy(() => import("@/pages/repair-guide"));
 const ErrorCodes = lazy(() => import("@/pages/error-codes"));
 const ErrorCodeDetail = lazy(() => import("@/pages/error-code-detail"));
+const ErrorCodeScanner = lazy(() => import("@/pages/error-code-scanner"));
 
 // Locator Pages
 const Locator = lazy(() => import("@/pages/locator"));
@@ -487,6 +489,11 @@ function Router() {
       <Route path="/loan-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <LoanCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/utility-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityCalculator />
         </Suspense>
       </Route>
 
@@ -851,6 +858,11 @@ function Router() {
       <Route path="/error-codes/:slug">
         <Suspense fallback={<LoadingFallback />}>
           <ErrorCodeDetail />
+        </Suspense>
+      </Route>
+      <Route path="/error-scanner">
+        <Suspense fallback={<LoadingFallback />}>
+          <ErrorCodeScanner />
         </Suspense>
       </Route>
 

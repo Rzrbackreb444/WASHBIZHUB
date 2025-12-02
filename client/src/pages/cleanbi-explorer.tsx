@@ -391,6 +391,19 @@ export default function CleanBIExplorer() {
   const [isAnalyzingCompetitor, setIsAnalyzingCompetitor] = useState(false);
   const [competitorSheetOpen, setCompetitorSheetOpen] = useState(false);
   
+  // Market Gap Finder state
+  const [showMarketGaps, setShowMarketGaps] = useState(false);
+  const [gapRadius, setGapRadius] = useState([1.5]);
+  const [minRenterPercent, setMinRenterPercent] = useState([35]);
+  const [gapZones, setGapZones] = useState<any[]>([]);
+  const [topOpportunities, setTopOpportunities] = useState<any[]>([]);
+  const [saturationScore, setSaturationScore] = useState<number | null>(null);
+  const [totalGapCount, setTotalGapCount] = useState(0);
+  const [areaStats, setAreaStats] = useState<any>(null);
+  const [loadingGapAnalysis, setLoadingGapAnalysis] = useState(false);
+  const [gapMarkers, setGapMarkers] = useState<any[]>([]);
+  const [gapZoneCircles, setGapZoneCircles] = useState<any[]>([]);
+  
   // Auto-calculate deal verdict when financial values change
   useEffect(() => {
     if (calcValues.annualRevenue > 0 && calcValues.operatingExpenses > 0 && calcValues.askingPrice > 0) {
