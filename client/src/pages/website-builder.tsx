@@ -31,6 +31,7 @@ import {
   FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { AuthGuard } from "@/components/AuthGuard";
 
 interface BusinessProfile {
   id: string;
@@ -492,7 +493,7 @@ export default function WebsiteBuilder() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Build Your Website" description="Sign in to access this tool.">
       <SEO
         title="Website Builder - Build Your Laundromat Website"
         description="Create a professional laundromat website with drag-and-drop page building, custom branding, AI chatbot, and integrated marketing tools."
@@ -2670,6 +2671,6 @@ export default function WebsiteBuilder() {
           </Tabs>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

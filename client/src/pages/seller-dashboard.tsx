@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/AuthGuard";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
@@ -186,27 +187,6 @@ export default function SellerDashboard() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0b1526] to-background flex items-center justify-center">
-        <Card className="max-w-md bg-[#0b1526]/80 border-[#d4af37]/20">
-          <CardHeader>
-            <CardTitle className="text-white">Authentication Required</CardTitle>
-            <CardDescription>Please log in to access your seller dashboard.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <a href="/api/login">
-              <Button className="w-full bg-[#d4af37] hover:bg-[#d4af37]/90 text-[#0b1526]" data-testid="button-login">
-                Log In to Continue
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const listings = data?.listings || [];
   const summary = data?.summary || {
     totalListings: 0,
@@ -228,7 +208,10 @@ export default function SellerDashboard() {
   const canAccessAnalytics = currentTier !== "free";
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Seller Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <SEO
         title="Seller Dashboard | Manage Your Listings | WashBizHub"
         description="Manage your business listings, view analytics, and upgrade your subscription on WashBizHub."
@@ -895,6 +878,6 @@ export default function SellerDashboard() {
           </Tabs>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

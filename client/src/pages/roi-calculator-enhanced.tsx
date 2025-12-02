@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/components/AuthGuard";
 import { EnhancedCalculatorEngine } from "@/components/EnhancedCalculatorEngine";
 import type { Scenario } from "@/components/calculator/ScenarioCard";
 import type { BenchmarkData } from "@/components/calculator/BenchmarkBar";
@@ -311,7 +312,7 @@ export default function ROICalculatorEnhanced() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use Enhanced ROI Calculator" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="ROI Calculator Pro - Advanced Laundromat Investment Analysis | WashBizHub"
         description="World-class laundromat ROI calculator with scenario modeling, industry benchmarks, and AI-powered recommendations. Calculate cash-on-cash returns, payback period, and 5-year projections with professional-grade analytics."
@@ -327,6 +328,6 @@ export default function ROICalculatorEnhanced() {
         ]}
       />
       <EnhancedCalculatorEngine config={roiConfig} />
-    </>
+    </AuthGuard>
   );
 }

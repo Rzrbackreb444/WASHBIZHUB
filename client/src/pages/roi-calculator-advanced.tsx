@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,7 +112,7 @@ export default function ROICalculatorAdvanced() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use Advanced ROI Calculator" description="Sign in to access this calculator and track your usage.">
       <Helmet>
         <title>Advanced ROI Calculator - WashBizHub</title>
         <meta name="description" content="Multi-year ROI projections with DSCR, cash-on-cash return, and exit valuation modeling for laundromat investments." />
@@ -491,6 +492,6 @@ export default function ROICalculatorAdvanced() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -119,27 +120,6 @@ export default function Dashboard() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-accent/5">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Welcome to WashBizHub</CardTitle>
-            <CardDescription>Sign in to access your dashboard and manage your laundromat business.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <a href="/api/login">
-              <Button className="w-full" size="lg" data-testid="button-login">
-                Sign In to Continue
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const onboardingChecklist = summary?.onboarding.checklist || {};
   const completedSteps = ONBOARDING_STEPS.filter(step => onboardingChecklist[step.key]).length;
   const onboardingProgress = (completedSteps / ONBOARDING_STEPS.length) * 100;
@@ -150,7 +130,10 @@ export default function Dashboard() {
   const TierIcon = tierInfo.icon;
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <SEO 
         title="Dashboard | WashBizHub" 
         description="Manage your laundromat business from one central dashboard. Access POS, analytics, and tools."
@@ -386,6 +369,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

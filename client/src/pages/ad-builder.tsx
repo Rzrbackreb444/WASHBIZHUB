@@ -7,6 +7,7 @@ import { CanvasBannerEditor } from '@/components/ad-builder/CanvasBannerEditor';
 import { Zap, SquareIcon, Copy } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useToast } from '@/hooks/use-toast';
+import { AuthGuard } from "@/components/AuthGuard";
 
 export default function AdBuilder() {
   const [activeTemplate, setActiveTemplate] = useState<'horizontal' | 'vertical' | 'square'>('horizontal');
@@ -21,7 +22,7 @@ export default function AdBuilder() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Build Ads" description="Sign in to access this tool.">
       <SEO
         title="Ad Banner Builder | Canva-Style Editor | WashBizHub"
         description="Create professional ad banners with drag-and-drop logo and text placement. No design experience needed."
@@ -137,6 +138,6 @@ export default function AdBuilder() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

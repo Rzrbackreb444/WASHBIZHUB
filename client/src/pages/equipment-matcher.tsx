@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -474,9 +475,10 @@ export default function EquipmentMatcher() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-3xl mx-auto py-8 px-4">
-        <div className="text-center mb-8">
+    <AuthGuard title="Sign In to Match Equipment" description="Sign in to access this feature.">
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-3xl mx-auto py-8 px-4">
+          <div className="text-center mb-8">
           <Badge className="mb-2">Free Tool</Badge>
           <h1 className="text-3xl font-bold" data-testid="text-page-title">Equipment Matcher Wizard</h1>
           <p className="text-muted-foreground mt-2">Find the perfect commercial laundry equipment for your operation</p>
@@ -528,10 +530,11 @@ export default function EquipmentMatcher() {
           </CardFooter>
         </Card>
 
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>Powered by WashBizHub • Connecting laundromat owners with the right equipment</p>
+          <div className="mt-8 text-center text-sm text-muted-foreground">
+            <p>Powered by WashBizHub • Connecting laundromat owners with the right equipment</p>
+          </div>
         </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

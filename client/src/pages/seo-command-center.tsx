@@ -36,6 +36,7 @@ import {
   Eye, Flame, Languages, FileText, Users, ShoppingCart, Video,
   Star, Trophy, FileStack, Plus, Play, Settings, Trash2, ExternalLink
 } from "lucide-react";
+import { AuthGuard } from "@/components/AuthGuard";
 
 /**
  * Get grade color
@@ -162,82 +163,76 @@ export default function SeoCommandCenter() {
   const latestAudit = (projectDetails as any)?.latestAudit;
   const tasks = (projectDetails as any)?.tasks || [];
 
-  if (projectsLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading SEO Command Center...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (projects.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen max-w-2xl mx-auto p-6">
-        <Target className="h-24 w-24 mb-6 text-muted-foreground" />
-        <h1 className="text-3xl font-bold mb-4">Welcome to SEO Command Center</h1>
-        <p className="text-muted-foreground text-center mb-8">
-          The 300-point master SEO system. Create your first project to get started!
-        </p>
-        <Dialog open={createProjectOpen} onOpenChange={setCreateProjectOpen}>
-          <DialogTrigger asChild>
-            <Button size="lg" data-testid="button-create-project">
-              <Plus className="mr-2 h-5 w-5" />
-              Create SEO Project
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create SEO Project</DialogTitle>
-              <DialogDescription>
-                Add a website to analyze with our 300-point scoring system
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              createProjectMutation.mutate({
-                name: formData.get("name"),
-                url: formData.get("url"),
-                description: formData.get("description"),
-                primaryKeywords: (formData.get("keywords") as string || "").split(",").map(k => k.trim()).filter(Boolean),
-              });
-            }}>
-              <div className="space-y-4 py-4">
-                <div>
-                  <Label htmlFor="name">Project Name</Label>
-                  <Input id="name" name="name" placeholder="My Awesome Website" required data-testid="input-project-name" />
-                </div>
-                <div>
-                  <Label htmlFor="url">Website URL</Label>
-                  <Input id="url" name="url" type="url" placeholder="https://example.com" required data-testid="input-project-url" />
-                </div>
-                <div>
-                  <Label htmlFor="keywords">Target Keywords (comma-separated)</Label>
-                  <Input id="keywords" name="keywords" placeholder="seo, marketing, analytics" data-testid="input-keywords" />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description (optional)</Label>
-                  <Textarea id="description" name="description" placeholder="Describe your SEO goals..." data-testid="textarea-description" />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setCreateProjectOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={createProjectMutation.isPending} data-testid="button-submit-project">
-                  {createProjectMutation.isPending ? "Creating..." : "Create Project"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background p-6">
+    <AuthGuard title="Sign In to Access SEO Command Center" description="Sign in to access this tool.">
+      {projectsLoading ? (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading SEO Command Center...</p>
+          </div>
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-screen max-w-2xl mx-auto p-6">
+          <Target className="h-24 w-24 mb-6 text-muted-foreground" />
+          <h1 className="text-3xl font-bold mb-4">Welcome to SEO Command Center</h1>
+          <p className="text-muted-foreground text-center mb-8">
+            The 300-point master SEO system. Create your first project to get started!
+          </p>
+          <Dialog open={createProjectOpen} onOpenChange={setCreateProjectOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" data-testid="button-create-project">
+                <Plus className="mr-2 h-5 w-5" />
+                Create SEO Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create SEO Project</DialogTitle>
+                <DialogDescription>
+                  Add a website to analyze with our 300-point scoring system
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                createProjectMutation.mutate({
+                  name: formData.get("name"),
+                  url: formData.get("url"),
+                  description: formData.get("description"),
+                  primaryKeywords: (formData.get("keywords") as string || "").split(",").map(k => k.trim()).filter(Boolean),
+                });
+              }}>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="name">Project Name</Label>
+                    <Input id="name" name="name" placeholder="My Awesome Website" required data-testid="input-project-name" />
+                  </div>
+                  <div>
+                    <Label htmlFor="url">Website URL</Label>
+                    <Input id="url" name="url" type="url" placeholder="https://example.com" required data-testid="input-project-url" />
+                  </div>
+                  <div>
+                    <Label htmlFor="keywords">Target Keywords (comma-separated)</Label>
+                    <Input id="keywords" name="keywords" placeholder="seo, marketing, analytics" data-testid="input-keywords" />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description (optional)</Label>
+                    <Textarea id="description" name="description" placeholder="Describe your SEO goals..." data-testid="textarea-description" />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setCreateProjectOpen(false)}>Cancel</Button>
+                  <Button type="submit" disabled={createProjectMutation.isPending} data-testid="button-submit-project">
+                    {createProjectMutation.isPending ? "Creating..." : "Create Project"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-background p-6">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -637,5 +632,7 @@ export default function SeoCommandCenter() {
         </TabsContent>
       </Tabs>
     </div>
+      )}
+    </AuthGuard>
   );
 }

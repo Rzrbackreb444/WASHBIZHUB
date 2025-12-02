@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -107,7 +108,7 @@ export default function CalculatorsHub() {
   const existingSheet = sheets?.find(s => s.name.toLowerCase().includes(activeCalculator));
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Calculators" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="Laundromat Calculators | WashBizHub"
         description="Professional calculators for laundromat owners - Business valuation, ROI analysis, startup costs, and operating expenses powered by Google Sheets."
@@ -268,7 +269,7 @@ export default function CalculatorsHub() {
           </div>
         </section>
       </div>
-    </>
+    </AuthGuard>
   );
 }
 

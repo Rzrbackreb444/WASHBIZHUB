@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { useLocation, useSearch } from "wouter";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -511,7 +512,7 @@ export default function AIConsultationCouncil() {
   ];
 
   return (
-    <>
+    <AuthGuard title="Sign In for AI Consultation" description="Sign in to access this feature.">
       <SEO
         title="AI Consultation Council | 6 AI Experts + Larry Larsen Analyze Your Laundromat Deal | WashBizHub"
         description="Get expert laundromat analysis from 6 AI specialists + 'Laundromat' Larry Larsen. CLEANBI scoring, competition heatmaps, valuation analysis, and actionable recommendations. Starting at $49 - a fraction of traditional $5K-$10K consulting. Creating millionaires one customer at a time."
@@ -1601,6 +1602,6 @@ export default function AIConsultationCouncil() {
           </div>
         )}
       </div>
-    </>
+    </AuthGuard>
   );
 }

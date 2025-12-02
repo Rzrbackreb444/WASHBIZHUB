@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -223,9 +224,10 @@ export default function BusinessPlanGenerator() {
   const progress = (step / 4) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-white/10">
+    <AuthGuard title="Sign In to Generate Business Plans" description="Sign in to access this feature.">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
@@ -795,5 +797,6 @@ export default function BusinessPlanGenerator() {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 }

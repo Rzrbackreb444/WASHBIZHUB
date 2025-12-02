@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,7 +139,7 @@ export default function TPDCalculator() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use TPD Calculator" description="Sign in to access this calculator and track your usage.">
       <Helmet>
         <title>TPD Calculator with Monte Carlo - WashBizHub</title>
         <meta name="description" content="Calculate Turns Per Day (TPD) with Monte Carlo simulation. 10,000 iterations for probabilistic financial modeling." />
@@ -516,6 +517,6 @@ export default function TPDCalculator() {
           </div>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

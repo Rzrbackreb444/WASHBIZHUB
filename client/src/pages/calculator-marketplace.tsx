@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Helmet } from "react-helmet-async";
@@ -321,7 +322,7 @@ export default function CalculatorMarketplacePage() {
   });
 
   return (
-    <>
+    <AuthGuard title="Sign In to Access Calculator Marketplace" description="Sign in to access this calculator and track your usage.">
       <Helmet>
         <title>Business Tools Marketplace | WashBizHub</title>
         <meta name="description" content="Discover calculators, dashboards, templates, POS systems, and AI agents for your laundromat business. Build, customize, and monetize your own tools." />
@@ -583,6 +584,6 @@ export default function CalculatorMarketplacePage() {
           </Card>
         </section>
       </div>
-    </>
+    </AuthGuard>
   );
 }

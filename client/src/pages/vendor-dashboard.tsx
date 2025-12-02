@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +43,10 @@ export default function VendorDashboard() {
   };
 
   return (
-    <>
+    <AuthGuard 
+      title="Sign In to Access Vendor Dashboard" 
+      description="Sign in to access your dashboard."
+    >
       <SEO
         title="Vendor Dashboard | Manage Store & Inventory | WashBizHub"
         description="Complete vendor management dashboard with product listing, inventory tracking, and sales analytics."
@@ -195,6 +199,6 @@ export default function VendorDashboard() {
           </Tabs>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { useLocation } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -771,7 +772,7 @@ export default function CalculatorBuilderPage() {
   ];
 
   return (
-    <>
+    <AuthGuard title="Sign In to Build Calculators" description="Sign in to access this calculator and track your usage.">
       <Helmet>
         <title>Calculator Builder - Create Custom Calculators | WashBizHub</title>
         <meta name="description" content="Build your own custom business calculators with our drag-and-drop builder. Create ROI calculators, valuation tools, and more for the laundromat industry." />
@@ -825,6 +826,6 @@ export default function CalculatorBuilderPage() {
           categories={categories}
         />
       </div>
-    </>
+    </AuthGuard>
   );
 }

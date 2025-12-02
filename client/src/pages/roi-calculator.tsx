@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -173,7 +174,7 @@ export default function ROICalculator() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use ROI Calculator" description="Sign in to access this calculator and track your usage.">
       <SEO
         title="Laundromat ROI Calculator - Free Investment Return Tool 2025 | WashBizHub"
         description="Calculate laundromat ROI for free with our professional investment return calculator. Instantly project cash-on-cash returns, break-even timeline, 5-year ROI, and annual cash flow. Used by 14,000+ investors."
@@ -376,6 +377,6 @@ export default function ROICalculator() {
           </Card>
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }
