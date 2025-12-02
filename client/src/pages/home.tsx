@@ -5,6 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
+import { IndustryPulse, IndustryPulseMini } from "@/components/IndustryPulse";
+import { JourneyProgress } from "@/components/JourneyProgress";
+import { DealScout, DealScoutBanner } from "@/components/DealScout";
+import { FoundingMemberBanner } from "@/components/FoundingMember";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -571,6 +575,32 @@ export default function Home() {
                   </div>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* INDUSTRY PULSE & DEAL SCOUT - Live engagement features */}
+        <section className="py-16 bg-muted/20 border-t border-b border-border/30" data-testid="section-engagement">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <Badge className="mb-3 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                Live Intelligence
+              </Badge>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                Real-Time Market Insights
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Stay ahead with live industry data and AI-powered deal discovery
+              </p>
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              <IndustryPulse />
+              <DealScout />
+            </div>
+            
+            <div className="mt-8 flex justify-center">
+              <IndustryPulseMini />
             </div>
           </div>
         </section>
