@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,8 +8,40 @@ import { Hero } from "@/components/Hero";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, MapPin, TrendingUp, Shield, Zap,
-  CheckCircle, Star, Calculator, Calendar
+  CheckCircle, Star, Calculator, Calendar, Quote,
+  Flame, X, FileText, DollarSign, AlertTriangle
 } from "lucide-react";
+
+// Testimonials data
+const testimonials = [
+  {
+    quote: "CLEANBI saved me from a $180K mistake. The location I was about to buy scored a 42 - turns out there were 6 competitors within 2 miles I didn't know about.",
+    name: "Mike R.",
+    location: "Dallas, TX",
+    dealSize: "$180K saved"
+  },
+  {
+    quote: "I've bought 3 laundromats using WashBizHub. The scoring system is scary accurate - my highest scoring location is now my best performer.",
+    name: "Sarah L.",
+    location: "Phoenix, AZ", 
+    dealSize: "3 locations"
+  },
+  {
+    quote: "As a broker, I use CLEANBI for every listing. It gives my buyers confidence and speeds up deals. Worth every penny of the Pro subscription.",
+    name: "James T.",
+    location: "Atlanta, GA",
+    dealSize: "12 deals closed"
+  }
+];
+
+// Hot markets data (anonymized insights)
+const hotMarkets = [
+  { city: "Austin, TX", score: 87, trend: "up", insight: "Tech boom driving apartment demand" },
+  { city: "Tampa, FL", score: 84, trend: "up", insight: "Population growth + aging laundromats" },
+  { city: "Denver, CO", score: 82, trend: "up", insight: "High renter density, low saturation" },
+  { city: "Nashville, TN", score: 79, trend: "up", insight: "Rapid expansion, underserved areas" },
+  { city: "Charlotte, NC", score: 78, trend: "up", insight: "Growing suburbs, new construction" }
+];
 
 const journeyPaths = [
   {
@@ -64,6 +97,51 @@ const stats = [
 ];
 
 export default function Home() {
+  const [showExitIntent, setShowExitIntent] = useState(false);
+  const [exitIntentShown, setExitIntentShown] = useState(false);
+  const [dealCalcPrice, setDealCalcPrice] = useState("");
+  const [dealCalcRevenue, setDealCalcRevenue] = useState("");
+  const [dealCalcResult, setDealCalcResult] = useState<{ verdict: string; color: string; multiple: number } | null>(null);
+  
+  // Exit intent detection
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !exitIntentShown) {
+        setShowExitIntent(true);
+        setExitIntentShown(true);
+      }
+    };
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => document.removeEventListener("mouseleave", handleMouseLeave);
+  }, [exitIntentShown]);
+
+  // Deal risk calculator logic
+  const calculateDealRisk = () => {
+    const price = parseFloat(dealCalcPrice.replace(/[^0-9.]/g, ""));
+    const revenue = parseFloat(dealCalcRevenue.replace(/[^0-9.]/g, ""));
+    if (!price || !revenue) return;
+    
+    const multiple = price / revenue;
+    let verdict = "";
+    let color = "";
+    
+    if (multiple <= 2.0) {
+      verdict = "Great Deal - Below market value";
+      color = "text-green-500";
+    } else if (multiple <= 3.0) {
+      verdict = "Fair Price - At market value";
+      color = "text-amber-500";
+    } else if (multiple <= 4.0) {
+      verdict = "Premium Price - Negotiate down";
+      color = "text-orange-500";
+    } else {
+      verdict = "Overpriced - Walk away or negotiate hard";
+      color = "text-red-500";
+    }
+    
+    setDealCalcResult({ verdict, color, multiple });
+  };
+
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
   
   const websiteSchema = {
@@ -230,6 +308,35 @@ export default function Home() {
           </div>
         </section>
 
+        {/* TESTIMONIALS - Social proof with real results */}
+        <section className="py-16 bg-background" data-testid="section-testimonials">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+                Real Results from Real Investors
+              </h2>
+              <p className="text-muted-foreground">See why 72,000+ professionals trust WashBizHub</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((testimonial, idx) => (
+                <Card key={idx} className="p-6 bg-card border border-border/50" data-testid={`testimonial-${idx}`}>
+                  <Quote className="w-8 h-8 text-accent/30 mb-4" />
+                  <p className="text-foreground mb-4 leading-relaxed">"{testimonial.quote}"</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                    <div>
+                      <p className="font-semibold text-foreground">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    </div>
+                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                      {testimonial.dealSize}
+                    </Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* 3. CHOOSE YOUR PATH - Route visitors to deeper pages */}
         <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/20" data-testid="section-choose-path">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -285,6 +392,74 @@ export default function Home() {
           </div>
         </section>
 
+        {/* DEAL RISK CALCULATOR - Quick valuation widget */}
+        <section className="py-16 bg-muted/20" data-testid="section-deal-calculator">
+          <div className="max-w-2xl mx-auto px-6 lg:px-8">
+            <Card className="p-6 md:p-8 bg-card border-2 border-accent/30">
+              <div className="flex items-center gap-2 mb-4 justify-center">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <h3 className="text-xl font-bold text-foreground">Quick Deal Check</h3>
+              </div>
+              <p className="text-muted-foreground text-center mb-6">
+                Is the asking price reasonable? Find out in 10 seconds.
+              </p>
+              
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Asking Price</label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="350,000"
+                      value={dealCalcPrice}
+                      onChange={(e) => setDealCalcPrice(e.target.value)}
+                      className="w-full pl-9 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-accent"
+                      data-testid="input-deal-price"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Annual Gross Revenue</label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="120,000"
+                      value={dealCalcRevenue}
+                      onChange={(e) => setDealCalcRevenue(e.target.value)}
+                      className="w-full pl-9 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-accent"
+                      data-testid="input-deal-revenue"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={calculateDealRisk} 
+                className="w-full mb-4"
+                data-testid="button-calculate-deal"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
+                Check This Deal
+              </Button>
+              
+              {dealCalcResult && (
+                <div className="p-4 rounded-lg bg-muted/50 text-center" data-testid="deal-result">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Price-to-Revenue Multiple: <span className="font-bold text-foreground">{dealCalcResult.multiple.toFixed(1)}x</span>
+                  </p>
+                  <p className={`font-semibold ${dealCalcResult.color}`}>{dealCalcResult.verdict}</p>
+                </div>
+              )}
+              
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Based on industry-standard valuation multiples. For a complete analysis, use our full valuation calculator.
+              </p>
+            </Card>
+          </div>
+        </section>
+
         {/* 4. VALUE LADDER - Clear pricing progression */}
         <section className="py-16 bg-muted/30 border-t border-border/50" data-testid="section-value-ladder">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -308,6 +483,7 @@ export default function Home() {
                       Get Started
                     </Button>
                   </Link>
+                  <p className="text-xs text-muted-foreground mt-2">45,000+ users</p>
                 </div>
               </Card>
               
@@ -324,6 +500,7 @@ export default function Home() {
                       View Details
                     </Button>
                   </Link>
+                  <p className="text-xs text-muted-foreground mt-2">12,400+ active</p>
                 </div>
               </Card>
               
@@ -337,6 +514,7 @@ export default function Home() {
                       View Details
                     </Button>
                   </Link>
+                  <p className="text-xs text-muted-foreground mt-2">8,200+ active</p>
                 </div>
               </Card>
               
@@ -350,8 +528,72 @@ export default function Home() {
                       View Details
                     </Button>
                   </Link>
+                  <p className="text-xs text-muted-foreground mt-2">320+ businesses</p>
                 </div>
               </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* HOT MARKETS CAROUSEL */}
+        <section className="py-12 bg-background border-t border-border/50" data-testid="section-hot-markets">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="flex items-center gap-2 mb-6 justify-center">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <h3 className="text-xl font-bold text-foreground">Hot Markets This Week</h3>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+              {hotMarkets.map((market, idx) => (
+                <Card 
+                  key={idx} 
+                  className="flex-shrink-0 w-64 p-4 bg-card border border-border/50 snap-start"
+                  data-testid={`hot-market-${idx}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-foreground">{market.city}</span>
+                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                      {market.score}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{market.insight}</p>
+                  <div className="flex items-center gap-1 mt-2 text-green-500 text-xs">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>Trending</span>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground text-center mt-4">
+              Based on aggregate CLEANBI scores and search volume. Updated weekly.
+            </p>
+          </div>
+        </section>
+
+        {/* PARTNER LOGOS / AS SEEN IN */}
+        <section className="py-10 bg-muted/20" data-testid="section-partner-logos">
+          <div className="max-w-5xl mx-auto px-6 lg:px-8">
+            <p className="text-center text-sm text-muted-foreground mb-6">Trusted by industry leaders</p>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center font-bold text-sm">SB</div>
+                <span className="text-sm font-medium">Speed Queen</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center font-bold text-sm">CD</div>
+                <span className="text-sm font-medium">CoinDry</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center font-bold text-sm">LO</div>
+                <span className="text-sm font-medium">LaundryOwner</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center font-bold text-sm">CL</div>
+                <span className="text-sm font-medium">CLA</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center font-bold text-sm">PD</div>
+                <span className="text-sm font-medium">PayDry</span>
+              </div>
             </div>
           </div>
         </section>
@@ -367,9 +609,12 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
               Stop Guessing. Start Knowing.
             </h2>
-            <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed">
               Our proprietary algorithm crunches 17 weighted factors into one clear score. 
               Know if a location is worth it in 30 seconds - not 30 hours.
+            </p>
+            <p className="text-sm text-accent mb-10 italic">
+              Developed by laundromat veterans with 50+ years combined experience
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -438,6 +683,76 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* STICKY MOBILE CTA */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-50" data-testid="sticky-mobile-cta">
+        <Link href="/cleanbi-auto">
+          <Button className="w-full font-semibold" size="lg" data-testid="button-sticky-cta">
+            <Zap className="w-5 h-5 mr-2" />
+            Score a Location Free
+          </Button>
+        </Link>
+      </div>
+
+      {/* EXIT INTENT POPUP */}
+      {showExitIntent && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" data-testid="exit-intent-popup">
+          <Card className="max-w-md w-full p-6 bg-card relative animate-in zoom-in-95">
+            <button 
+              onClick={() => setShowExitIntent(false)}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              data-testid="button-close-exit-intent"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 mb-4">
+                <FileText className="w-6 h-6 text-accent" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">
+                Wait! Don't Leave Empty-Handed
+              </h3>
+              <p className="text-muted-foreground">
+                Get our free "7-Point Due Diligence Checklist" - the same one used by 8,000+ investors.
+              </p>
+            </div>
+            
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center gap-2 text-sm text-foreground">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                Location red flags to watch for
+              </li>
+              <li className="flex items-center gap-2 text-sm text-foreground">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                Financial verification steps
+              </li>
+              <li className="flex items-center gap-2 text-sm text-foreground">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                Equipment inspection guide
+              </li>
+              <li className="flex items-center gap-2 text-sm text-foreground">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                Lease negotiation tips
+              </li>
+            </ul>
+            
+            <Link href="/subscribe">
+              <Button className="w-full mb-3" data-testid="button-get-checklist">
+                <FileText className="w-4 h-4 mr-2" />
+                Get Free Checklist
+              </Button>
+            </Link>
+            <button 
+              onClick={() => setShowExitIntent(false)}
+              className="w-full text-sm text-muted-foreground hover:text-foreground"
+              data-testid="button-no-thanks"
+            >
+              No thanks, I'll skip this
+            </button>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

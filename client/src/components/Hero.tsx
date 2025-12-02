@@ -320,6 +320,24 @@ export function Hero() {
             className="bg-navy-900 rounded-3xl p-8 sm:p-10 max-w-4xl mx-auto border-2 border-teal-400/50 shadow-2xl"
             data-testid="section-cleanbi-demo"
           >
+            {/* Progress Indicator */}
+            <div className="flex items-center justify-center gap-2 mb-6" data-testid="progress-indicator">
+              <div className={`flex items-center gap-2 ${step === 'address' ? 'text-teal-400' : 'text-gray-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'address' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>1</div>
+                <span className="text-sm hidden sm:inline">Enter Address</span>
+              </div>
+              <div className={`w-8 h-0.5 ${step !== 'address' ? 'bg-teal-400' : 'bg-gray-600'}`} />
+              <div className={`flex items-center gap-2 ${step === 'analyzing' ? 'text-teal-400' : step === 'results' || step === 'capture' || step === 'success' ? 'text-teal-400' : 'text-gray-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'analyzing' ? 'bg-teal-400 text-navy-900 animate-pulse' : step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>2</div>
+                <span className="text-sm hidden sm:inline">Analyze</span>
+              </div>
+              <div className={`w-8 h-0.5 ${step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400' : 'bg-gray-600'}`} />
+              <div className={`flex items-center gap-2 ${step === 'results' || step === 'capture' || step === 'success' ? 'text-teal-400' : 'text-gray-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'results' || step === 'capture' || step === 'success' ? 'bg-teal-400 text-navy-900' : 'bg-gray-600 text-white'}`}>3</div>
+                <span className="text-sm hidden sm:inline">Get Score</span>
+              </div>
+            </div>
+
             {step === 'address' && (
               <div className="animate-in text-center">
                 <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white text-center">
