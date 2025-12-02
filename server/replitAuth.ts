@@ -186,6 +186,13 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
 };
 
+// Platform owner emails with full admin access
+const ADMIN_EMAILS = [
+  "nick@washbizhub.com",
+  "rzrbackreb444@gmail.com", 
+  "thelaundromatfb@gmail.com"
+];
+
 export const isAdmin: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
@@ -197,8 +204,14 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
   if (now <= user.expires_at) {
     // Check if user is admin
     const userId = user.claims?.sub;
+    const userEmail = user.claims?.email?.toLowerCase();
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Platform owner emails always have admin access
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+      return next();
     }
 
     const dbUser = await storage.getUser(userId);
@@ -222,8 +235,14 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
 
     // Check if user is admin after token refresh
     const userId = user.claims?.sub;
+    const userEmail = user.claims?.email?.toLowerCase();
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Platform owner emails always have admin access
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+      return next();
     }
 
     const dbUser = await storage.getUser(userId);
