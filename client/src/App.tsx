@@ -1350,12 +1350,15 @@ function Router() {
   );
 }
 
+const ROUTES_WITH_CUSTOM_FOOTER = new Set(['/']);
+
 function AppContent() {
   usePageTracking();
   const [location] = useLocation();
   
   const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login', '/cleanbi-explorer'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
+  const hasCustomFooter = ROUTES_WITH_CUSTOM_FOOTER.has(location);
   
   if (isFullScreenApp) {
     return (
@@ -1400,7 +1403,7 @@ function AppContent() {
             </PageTransition>
           </RouteErrorBoundary>
         </main>
-        <Footer />
+        {!hasCustomFooter && <Footer />}
       </div>
       <DeferredAIChatWidget />
     </>
