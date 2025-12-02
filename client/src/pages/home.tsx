@@ -14,36 +14,36 @@ const journeyPaths = [
   {
     id: "plan",
     icon: Lightbulb,
-    headline: "Thinking About It?",
-    description: "Learn why everyone wants to own a laundromat",
-    features: ["ROI Calculator", "Funding Options", "Industry Guides"],
+    headline: "First-Time Buyer?",
+    description: "Avoid the $200K mistakes new owners make",
+    features: ["ROI Calculator", "Funding Options", "Due Diligence Guides"],
     link: "/startup-funding",
     color: "blue"
   },
   {
     id: "evaluate",
     icon: Target,
-    headline: "Ready to Buy?",
-    description: "Find deals in the hottest passive income business",
-    features: ["Marketplace Listings", "CLEANBI Scoring", "Valuations"],
+    headline: "Evaluating a Deal?",
+    description: "Know if the asking price is fair before you sign",
+    features: ["CLEANBI Location Score", "Instant Valuations", "Deal Listings"],
     link: "/laundromat-listings",
     color: "green"
   },
   {
     id: "operate",
     icon: Settings,
-    headline: "Already Own One?",
-    description: "Maximize revenue with AI-powered tools",
-    features: ["Equipment Marketplace", "AI Diagnostics", "Design Studio"],
+    headline: "Current Owner?",
+    description: "Boost your revenue by 20-30% with proven tools",
+    features: ["AI Diagnostics", "Design Studio", "Equipment Deals"],
     link: "/equipment-marketplace",
     color: "orange"
   },
   {
     id: "partner",
     icon: Users,
-    headline: "Industry Partner?",
-    description: "Reach buyers in a booming $5B industry",
-    features: ["List Products", "Advertise", "Affiliates"],
+    headline: "Vendor or Broker?",
+    description: "Get in front of 72,000+ serious buyers",
+    features: ["List Products", "Premium Ads", "Affiliate Program"],
     link: "/directory",
     color: "purple"
   }
@@ -236,13 +236,13 @@ export default function Home() {
             <div className="text-center mb-14">
               <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
                 <Sparkles className="w-3 h-3 mr-1.5" />
-                Get Started
+                Your Next Step
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4" data-testid="text-choose-path-heading">
-                Where Are You On Your Journey?
+                What Brings You Here Today?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Select your path to access tailored tools and resources
+                Pick your situation - we'll show you exactly what you need
               </p>
             </div>
 
@@ -361,28 +361,28 @@ export default function Home() {
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
               <MapPin className="w-4 h-4" />
-              Powered by Google Maps API
+              Trusted by 72,000+ Professionals
             </div>
             
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Score Any Location Instantly
+              Stop Guessing. Start Knowing.
             </h2>
             <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              CLEANBI analyzes demographics, competition, traffic, and market potential for any address worldwide. 
-              Free basic scores, premium reports from $99.
+              CLEANBI pulls demographics, competition, traffic, and revenue potential into one score. 
+              Know if a location is worth it in 30 seconds - not 30 hours.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link href="/cleanbi-auto">
                 <Button size="lg" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-try-cleanbi">
                   <Zap className="w-5 h-5 mr-2" />
-                  Try CLEANBI Free
+                  Get Your Free Score
                 </Button>
               </Link>
               <Link href="/cleanbi-explorer">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto px-8" data-testid="button-explore-map">
                   <MapPin className="w-5 h-5 mr-2" />
-                  Open Map Explorer
+                  Explore the Map
                 </Button>
               </Link>
             </div>
@@ -393,22 +393,22 @@ export default function Home() {
                 <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Data-Driven Decisions</span>
-                <span className="text-xs text-muted-foreground">Real market intelligence</span>
+                <span className="text-sm font-medium text-foreground">Spot Winners Fast</span>
+                <span className="text-xs text-muted-foreground">Real demographics & traffic</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-blue-500" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Reduce Risk</span>
-                <span className="text-xs text-muted-foreground">Before you invest</span>
+                <span className="text-sm font-medium text-foreground">Avoid Bad Deals</span>
+                <span className="text-xs text-muted-foreground">See red flags instantly</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-purple-500" />
                 </div>
-                <span className="text-sm font-medium text-foreground">AI-Powered</span>
-                <span className="text-xs text-muted-foreground">Smart recommendations</span>
+                <span className="text-sm font-medium text-foreground">Negotiate Smarter</span>
+                <span className="text-xs text-muted-foreground">Data backs your offer</span>
               </div>
             </div>
           </div>
@@ -418,20 +418,20 @@ export default function Home() {
         <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Ready to Make Smarter Decisions?
+              Your Next Laundromat Shouldn't Be a Gamble
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-              Join 72,000+ laundromat professionals using WashBizHub to grow their business.
+              72,000+ owners and investors trust WashBizHub to find winning locations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/subscribe">
+              <Link href="/cleanbi-auto">
                 <Button size="lg" variant="secondary" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-get-started">
-                  Get Started Free
+                  Score a Location Free
                 </Button>
               </Link>
-              <Link href="/larry-larsen">
+              <Link href="/pricing">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" data-testid="button-talk-expert">
-                  Talk to an Expert
+                  See All Plans
                 </Button>
               </Link>
             </div>
