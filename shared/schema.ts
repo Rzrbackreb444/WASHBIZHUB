@@ -12079,5 +12079,192 @@ export type InsertPageSeoMetadata = z.infer<typeof insertPageSeoMetadataSchema>;
 export type PageSeoMetadata = typeof pageSeoMetadata.$inferSelect;
 
 // ============================================================================
-// END OF SCHEMA - Complete Platform with Industry-Leading POS Features
+// GAMIFICATION & STICKY FEATURES - User Engagement System
+// ============================================================================
+
+// Achievement/Badge definitions
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").unique().notNull(), // "first_cleanbi", "calculator_pro", etc.
+  name: varchar("name").notNull(),
+  description: text("description").notNull(),
+  category: varchar("category").notNull(), // "exploration", "learning", "analysis", "community"
+  icon: varchar("icon"), // Icon name or emoji
+  points: integer("points").default(10).notNull(),
+  tier: varchar("tier").default("bronze").notNull(), // "bronze", "silver", "gold", "platinum"
+  requirement: jsonb("requirement"), // { type: "count", target: "cleanbi_analyses", value: 5 }
+  isSecret: boolean("is_secret").default(false), // Hidden until unlocked
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User earned achievements
+export const userAchievements = pgTable("user_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  achievementId: varchar("achievement_id").references(() => achievements.id).notNull(),
+  unlockedAt: timestamp("unlocked_at").defaultNow().notNull(),
+  notified: boolean("notified").default(false),
+}, (table) => ({
+  userAchievementIdx: uniqueIndex("user_achievement_unique_idx").on(table.userId, table.achievementId),
+}));
+
+// Laundromat Journey - User's progress through the buying process
+export const userJourney = pgTable("user_journey", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).unique().notNull(),
+  
+  // Current stage
+  stage: varchar("stage").default("exploring").notNull(), // "exploring", "researching", "evaluating", "negotiating", "acquiring", "operating"
+  stageProgress: integer("stage_progress").default(0).notNull(), // 0-100
+  
+  // Milestones completed (JSON array of milestone codes)
+  completedMilestones: jsonb("completed_milestones").default(sql`'[]'::jsonb`).notNull(),
+  
+  // Activity tracking
+  totalPoints: integer("total_points").default(0).notNull(),
+  streak: integer("streak").default(0).notNull(), // Days active in a row
+  lastActiveDate: timestamp("last_active_date"),
+  
+  // Preferences discovered
+  preferredLocationRadius: integer("preferred_location_radius"), // miles
+  preferredPriceRange: jsonb("preferred_price_range"), // { min: 100000, max: 500000 }
+  preferredMarkets: jsonb("preferred_markets"), // ["Houston, TX", "Austin, TX"]
+  
+  // Saved items count
+  savedListings: integer("saved_listings").default(0),
+  savedCalculations: integer("saved_calculations").default(0),
+  savedReports: integer("saved_reports").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Journey Milestones (static definitions)
+export const journeyMilestones = pgTable("journey_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").unique().notNull(),
+  stage: varchar("stage").notNull(), // Which journey stage this belongs to
+  name: varchar("name").notNull(),
+  description: text("description").notNull(),
+  order: integer("order").notNull(), // Display order within stage
+  points: integer("points").default(25).notNull(),
+  action: varchar("action"), // What action completes this: "visit_page", "use_calculator", "save_listing"
+  actionTarget: varchar("action_target"), // Specific page/tool: "/cleanbi", "roi-calculator"
+});
+
+// Deal Scout - Personalized deal alerts for users
+export const userDealScout = pgTable("user_deal_scout", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Alert criteria
+  alertType: varchar("alert_type").notNull(), // "new_listing", "price_drop", "cleanbi_match", "market_trend"
+  
+  // Location preferences
+  locations: jsonb("locations"), // Array of cities/states/zip codes
+  radiusMiles: integer("radius_miles").default(50),
+  
+  // Price/value preferences  
+  minPrice: integer("min_price"),
+  maxPrice: integer("max_price"),
+  minCleanbiScore: integer("min_cleanbi_score"),
+  
+  // Alert settings
+  frequency: varchar("frequency").default("instant"), // "instant", "daily", "weekly"
+  isActive: boolean("is_active").default(true),
+  
+  // Stats
+  alertsSent: integer("alerts_sent").default(0),
+  lastAlertAt: timestamp("last_alert_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Deal Scout Alert History - Sent alerts
+export const dealScoutHistory = pgTable("deal_scout_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  scoutId: varchar("scout_id").references(() => userDealScout.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Alert content
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  listingId: varchar("listing_id"), // If referencing a specific listing
+  
+  // Tracking
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  readAt: timestamp("read_at"),
+  clickedAt: timestamp("clicked_at"),
+});
+
+// Industry Pulse - Live industry statistics (updated regularly)
+export const industryPulse = pgTable("industry_pulse", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Time period
+  date: timestamp("date").notNull(),
+  period: varchar("period").notNull(), // "daily", "weekly", "monthly"
+  
+  // Market activity
+  newListings: integer("new_listings").default(0),
+  listingsSold: integer("listings_sold").default(0),
+  averageAskingPrice: integer("average_asking_price"),
+  averageSalePrice: integer("average_sale_price"),
+  averageMultiple: decimal("average_multiple", { precision: 4, scale: 2 }),
+  
+  // CLEANBI stats
+  analysesRun: integer("analyses_run").default(0),
+  averageCleanbiScore: integer("average_cleanbi_score"),
+  
+  // User activity  
+  newUsers: integer("new_users").default(0),
+  activeUsers: integer("active_users").default(0),
+  
+  // Geographic hotspots
+  hotMarkets: jsonb("hot_markets"), // [{ city: "Houston", state: "TX", count: 15 }]
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  datePeriodIdx: uniqueIndex("industry_pulse_date_period_idx").on(table.date, table.period),
+}));
+
+// Founding Member Status
+export const foundingMembers = pgTable("founding_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).unique().notNull(),
+  memberNumber: integer("member_number").notNull(), // #1, #2, #3, etc.
+  tier: varchar("tier").default("founding").notNull(), // "founding", "early_adopter", "pioneer"
+  perks: jsonb("perks"), // { "lifetime_discount": 0.20, "priority_support": true }
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+});
+
+// User Activity Log - For streak tracking and engagement
+export const userActivityLog = pgTable("user_activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  activityType: varchar("activity_type").notNull(), // "page_view", "calculator_use", "listing_view", "cleanbi_analysis"
+  activityTarget: varchar("activity_target"), // Page path or tool name
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userDateIdx: index("user_activity_user_date_idx").on(table.userId, table.createdAt),
+}));
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({ id: true, createdAt: true });
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({ id: true, unlockedAt: true });
+export const insertUserJourneySchema = createInsertSchema(userJourney).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserDealScoutSchema = createInsertSchema(userDealScout).omit({ id: true, alertsSent: true, lastAlertAt: true, createdAt: true });
+export const insertUserActivityLogSchema = createInsertSchema(userActivityLog).omit({ id: true, createdAt: true });
+
+export type Achievement = typeof achievements.$inferSelect;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type UserJourney = typeof userJourney.$inferSelect;
+export type UserDealScout = typeof userDealScout.$inferSelect;
+export type DealScoutHistory = typeof dealScoutHistory.$inferSelect;
+export type IndustryPulse = typeof industryPulse.$inferSelect;
+export type FoundingMember = typeof foundingMembers.$inferSelect;
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+
+// ============================================================================
+// END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
