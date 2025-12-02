@@ -15,6 +15,8 @@ import cleanbiReportsRoutes from "./cleanbi-reports-routes";
 import expansionPlannerRoutes from "./expansion-planner-routes";
 import bulkAnalysisRoutes from "./bulk-analysis-routes";
 import ownerAnalyticsRoutes from "./owner-analytics-routes";
+import { registerSitemapRoutes } from "./sitemap-routes";
+import { registerEngagementRoutes } from "./engagement-routes";
 import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -241,6 +243,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply tenant resolution to ALL requests
   // This attaches req.tenant based on domain (washbizhub.com, strokerecoveryacademy.com, strokelyfe.app)
   app.use(resolveTenant);
+  
+  // ==================== SEO & ENGAGEMENT ROUTES ====================
+  registerSitemapRoutes(app);
+  registerEngagementRoutes(app);
   
   // ==================== ADMIN DASHBOARD ====================
   app.use("/api/admin", adminRoutes);

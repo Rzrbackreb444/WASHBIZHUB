@@ -272,6 +272,11 @@ const LondrPartnership = lazy(() => import("@/pages/londr-partnership"));
 // CLEANBI Auto
 const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
 
+// Engagement & User Features
+const ScoreHistory = lazy(() => import("@/pages/score-history"));
+const ReferralProgram = lazy(() => import("@/pages/referral-program"));
+const HelpCenter = lazy(() => import("@/pages/help-center"));
+
 // Customer Portal
 const CustomerPortal = lazy(() => import("@/pages/customer-portal"));
 
@@ -413,6 +418,23 @@ function Router() {
       <Route path="/cleanbi-auto">
         <Suspense fallback={<LoadingFallback />}>
           <CleanbiAuto />
+        </Suspense>
+      </Route>
+
+      {/* Engagement & User Features */}
+      <Route path="/score-history">
+        <Suspense fallback={<LoadingFallback />}>
+          <ScoreHistory />
+        </Suspense>
+      </Route>
+      <Route path="/referral-program">
+        <Suspense fallback={<LoadingFallback />}>
+          <ReferralProgram />
+        </Suspense>
+      </Route>
+      <Route path="/help-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <HelpCenter />
         </Suspense>
       </Route>
 

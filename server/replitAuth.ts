@@ -160,7 +160,8 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  // Check if passport is initialized and user is authenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -196,7 +197,8 @@ const ADMIN_EMAILS = [
 export const isAdmin: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  // Check if passport is initialized and user is authenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
