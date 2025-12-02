@@ -14,17 +14,52 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 // ========================================
+// PLATFORM ADMIN EMAILS - UNLIMITED ACCESS
+// ========================================
+
+export const PLATFORM_ADMIN_EMAILS = [
+  "nick@washbizhub.com",
+  "thelaundromatfb@gmail.com",
+  "rzrbackreb444@gmail.com"
+];
+
+/**
+ * Check if an email is a platform admin with unlimited access
+ */
+export function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return PLATFORM_ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+/**
+ * Get user email by ID for admin check
+ */
+export async function getUserEmail(userId: string): Promise<string | null> {
+  try {
+    const [user] = await db.select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    return user?.email || null;
+  } catch {
+    return null;
+  }
+}
+
+// ========================================
 // HELPER: Get User's CLEANBI Tier
 // ========================================
 
 /**
  * Get user's CLEANBI subscription tier
  * Production: Uses dedicated cleanbiTier field, with Stripe fallback
+ * ADMINS: Platform admins always get ENTERPRISE tier with unlimited access
  */
 export async function getUserCLEANBITier(userId: string): Promise<keyof typeof CLEANBI_PRICING_TIERS> {
   try {
     const [user] = await db.select({ 
       tier: users.cleanbiTier,
+      email: users.email,
       subscriptionId: users.cleanbiSubscriptionId,
       subscriptionStatus: users.cleanbiSubscriptionStatus,
       stripeCustomerId: users.stripeCustomerId
@@ -35,6 +70,11 @@ export async function getUserCLEANBITier(userId: string): Promise<keyof typeof C
     
     if (!user) {
       return 'FREE';
+    }
+    
+    // ADMIN CHECK: Platform admins get ENTERPRISE tier (unlimited access)
+    if (isAdminEmail(user.email)) {
+      return 'ENTERPRISE';
     }
     
     // If tier is set and subscription is valid (active, trialing, past_due), use it
@@ -332,6 +372,20 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
   requiresUpgrade: boolean;
   reason?: string;
 }> {
+  // ADMIN CHECK: Platform admins get UNLIMITED access
+  const userEmail = await getUserEmail(userId);
+  if (isAdminEmail(userEmail)) {
+    return {
+      allowed: true,
+      remainingToday: -1,
+      remainingMonth: -1,
+      dailyLimit: -1,
+      monthlyLimit: -1,
+      requiresUpgrade: false,
+      reason: "Platform Admin - Unlimited Access"
+    };
+  }
+  
   const tierConfig = CLEANBI_PRICING_TIERS[tier];
   const features = tierConfig.features as any;
   
