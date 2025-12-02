@@ -27,6 +27,7 @@ import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
 import { generateBlogContent, generateCleanbiInsights, optimizeLayout, scanErrorCodeFromImage } from "./gemini";
+import { analyzeUtilityBill, compareBills, type UtilityBillData } from "./utility-bill-analyzer";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
@@ -138,6 +139,8 @@ import {
   insertEmailContactSchema,
   insertBusinessListingSchema,
   insertBusinessListingInquirySchema,
+  insertUtilityBillAnalysisSchema,
+  utilityBillAnalyses,
   aiConversations,
   contentProjects,
   emailContacts,
@@ -11900,6 +11903,288 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ message: error.message || "Failed to fetch statistics" });
+    }
+  });
+
+  // ==================== UTILITY BILL AUDITOR API ====================
+
+  // POST /api/utility-bill/analyze - Analyze utility bill image using Gemini Vision AI
+  app.post("/api/utility-bill/analyze", isAuthenticated, rateLimiter, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { image, mimeType, grossRevenue } = req.body;
+
+      if (!image) {
+        return res.status(400).json({ message: "No image provided" });
+      }
+
+      // Get user's most recent analysis for comparison
+      const [previousAnalysis] = await db
+        .select()
+        .from(utilityBillAnalyses)
+        .where(eq(utilityBillAnalyses.userId, userId))
+        .orderBy(desc(utilityBillAnalyses.createdAt))
+        .limit(1);
+
+      let previousBillData: UtilityBillData | undefined;
+      if (previousAnalysis && previousAnalysis.rawExtractedData) {
+        previousBillData = previousAnalysis.rawExtractedData as UtilityBillData;
+      }
+
+      // Analyze the bill using Gemini Vision
+      const analysisResult = await analyzeUtilityBill(
+        image,
+        mimeType || "image/jpeg",
+        grossRevenue ? parseFloat(grossRevenue) : undefined,
+        previousBillData
+      );
+
+      // Save the analysis to the database
+      const [savedAnalysis] = await db
+        .insert(utilityBillAnalyses)
+        .values({
+          userId,
+          billType: analysisResult.billData.billType,
+          billDate: analysisResult.billData.billDate ? new Date(analysisResult.billData.billDate) : null,
+          billPeriodStart: analysisResult.billData.billPeriodStart ? new Date(analysisResult.billData.billPeriodStart) : null,
+          billPeriodEnd: analysisResult.billData.billPeriodEnd ? new Date(analysisResult.billData.billPeriodEnd) : null,
+          electricKwh: analysisResult.billData.electricKwh?.toString(),
+          electricCost: analysisResult.billData.electricCost?.toString(),
+          electricRatePerKwh: analysisResult.billData.electricRatePerKwh?.toString(),
+          waterGallons: analysisResult.billData.waterGallons?.toString(),
+          waterCost: analysisResult.billData.waterCost?.toString(),
+          waterRatePerGallon: analysisResult.billData.waterRatePerGallon?.toString(),
+          gasTherms: analysisResult.billData.gasTherms?.toString(),
+          gasCost: analysisResult.billData.gasCost?.toString(),
+          gasRatePerTherm: analysisResult.billData.gasRatePerTherm?.toString(),
+          totalCost: analysisResult.billData.totalCost?.toString(),
+          grossRevenue: grossRevenue?.toString(),
+          upgRatio: analysisResult.laundromatMetrics.upgRatio?.toString(),
+          costPerWasherLoad: analysisResult.laundromatMetrics.costPerWasherLoad?.toString(),
+          costPerDryerLoad: analysisResult.laundromatMetrics.costPerDryerLoad?.toString(),
+          anomalies: analysisResult.anomalies,
+          recommendations: analysisResult.recommendations,
+          rawExtractedData: analysisResult.rawExtractedData,
+          confidenceScore: analysisResult.billData.confidence?.toString(),
+        })
+        .returning();
+
+      res.json({
+        success: true,
+        analysisId: savedAnalysis.id,
+        billData: analysisResult.billData,
+        laundromatMetrics: analysisResult.laundromatMetrics,
+        anomalies: analysisResult.anomalies,
+        recommendations: analysisResult.recommendations,
+        hasPreviousData: !!previousBillData,
+      });
+    } catch (error: any) {
+      console.error("Error analyzing utility bill:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to analyze utility bill"
+      });
+    }
+  });
+
+  // POST /api/utility-bill/compare - Compare two utility bills
+  app.post("/api/utility-bill/compare", isAuthenticated, rateLimiter, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { currentBillId, previousBillId } = req.body;
+
+      if (!currentBillId || !previousBillId) {
+        return res.status(400).json({ message: "Both bill IDs are required" });
+      }
+
+      // Fetch both bills
+      const [currentBill] = await db
+        .select()
+        .from(utilityBillAnalyses)
+        .where(and(
+          eq(utilityBillAnalyses.id, currentBillId),
+          eq(utilityBillAnalyses.userId, userId)
+        ))
+        .limit(1);
+
+      const [previousBill] = await db
+        .select()
+        .from(utilityBillAnalyses)
+        .where(and(
+          eq(utilityBillAnalyses.id, previousBillId),
+          eq(utilityBillAnalyses.userId, userId)
+        ))
+        .limit(1);
+
+      if (!currentBill || !previousBill) {
+        return res.status(404).json({ message: "One or both bills not found" });
+      }
+
+      // Compare the bills
+      const currentData = currentBill.rawExtractedData as UtilityBillData;
+      const previousData = previousBill.rawExtractedData as UtilityBillData;
+
+      const comparison = await compareBills(currentData, previousData);
+
+      res.json({
+        success: true,
+        ...comparison,
+        currentBill: {
+          id: currentBill.id,
+          billDate: currentBill.billDate,
+          totalCost: currentBill.totalCost,
+        },
+        previousBill: {
+          id: previousBill.id,
+          billDate: previousBill.billDate,
+          totalCost: previousBill.totalCost,
+        }
+      });
+    } catch (error: any) {
+      console.error("Error comparing utility bills:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to compare utility bills"
+      });
+    }
+  });
+
+  // GET /api/utility-bill/history - Get user's utility bill analysis history
+  app.get("/api/utility-bill/history", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { limit = 20, offset = 0 } = req.query;
+
+      const analyses = await db
+        .select({
+          id: utilityBillAnalyses.id,
+          billType: utilityBillAnalyses.billType,
+          billDate: utilityBillAnalyses.billDate,
+          billPeriodStart: utilityBillAnalyses.billPeriodStart,
+          billPeriodEnd: utilityBillAnalyses.billPeriodEnd,
+          electricKwh: utilityBillAnalyses.electricKwh,
+          electricCost: utilityBillAnalyses.electricCost,
+          waterGallons: utilityBillAnalyses.waterGallons,
+          waterCost: utilityBillAnalyses.waterCost,
+          gasTherms: utilityBillAnalyses.gasTherms,
+          gasCost: utilityBillAnalyses.gasCost,
+          totalCost: utilityBillAnalyses.totalCost,
+          upgRatio: utilityBillAnalyses.upgRatio,
+          costPerWasherLoad: utilityBillAnalyses.costPerWasherLoad,
+          costPerDryerLoad: utilityBillAnalyses.costPerDryerLoad,
+          anomalies: utilityBillAnalyses.anomalies,
+          recommendations: utilityBillAnalyses.recommendations,
+          confidenceScore: utilityBillAnalyses.confidenceScore,
+          createdAt: utilityBillAnalyses.createdAt,
+        })
+        .from(utilityBillAnalyses)
+        .where(eq(utilityBillAnalyses.userId, userId))
+        .orderBy(desc(utilityBillAnalyses.createdAt))
+        .limit(Number(limit))
+        .offset(Number(offset));
+
+      // Get total count
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(utilityBillAnalyses)
+        .where(eq(utilityBillAnalyses.userId, userId));
+
+      res.json({
+        success: true,
+        analyses,
+        total: count,
+        limit: Number(limit),
+        offset: Number(offset)
+      });
+    } catch (error: any) {
+      console.error("Error fetching utility bill history:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch utility bill history"
+      });
+    }
+  });
+
+  // GET /api/utility-bill/:id - Get a specific utility bill analysis
+  app.get("/api/utility-bill/:id", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { id } = req.params;
+
+      const [analysis] = await db
+        .select()
+        .from(utilityBillAnalyses)
+        .where(and(
+          eq(utilityBillAnalyses.id, id),
+          eq(utilityBillAnalyses.userId, userId)
+        ))
+        .limit(1);
+
+      if (!analysis) {
+        return res.status(404).json({ message: "Analysis not found" });
+      }
+
+      res.json({
+        success: true,
+        analysis
+      });
+    } catch (error: any) {
+      console.error("Error fetching utility bill analysis:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch utility bill analysis"
+      });
+    }
+  });
+
+  // DELETE /api/utility-bill/:id - Delete a utility bill analysis
+  app.delete("/api/utility-bill/:id", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { id } = req.params;
+
+      const [deleted] = await db
+        .delete(utilityBillAnalyses)
+        .where(and(
+          eq(utilityBillAnalyses.id, id),
+          eq(utilityBillAnalyses.userId, userId)
+        ))
+        .returning();
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Analysis not found" });
+      }
+
+      res.json({
+        success: true,
+        message: "Analysis deleted successfully"
+      });
+    } catch (error: any) {
+      console.error("Error deleting utility bill analysis:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to delete utility bill analysis"
+      });
     }
   });
 

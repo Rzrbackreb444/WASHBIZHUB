@@ -21,6 +21,7 @@ const navigationSections = [
     items: [
       { href: "/design-studio", label: "Design Studio 2D/3D" },
       { href: "/cleanbi", label: "CLEANBI™ Analysis" },
+      { href: "/utility-bill-auditor", label: "Utility Bill Auditor" },
       { href: "/ai-blogging", label: "AI Blogging Suite" },
       { href: "/seo-optimizer", label: "SEO Optimizer" },
       { href: "/templates", label: "Premium Templates" },
