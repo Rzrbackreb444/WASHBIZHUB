@@ -285,7 +285,78 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 4. SINGLE SPOTLIGHT CTA - CLEANBI + Platform value */}
+        {/* 4. VALUE LADDER - Clear pricing progression */}
+        <section className="py-16 bg-muted/30 border-t border-border/50" data-testid="section-value-ladder">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                Start Free, Upgrade as You Grow
+              </h2>
+              <p className="text-muted-foreground">
+                From free tools to enterprise solutions - pay only for what you need
+              </p>
+            </div>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="p-5 border border-border/50 bg-card">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">Free</div>
+                  <div className="text-3xl font-bold text-accent mt-1">$0</div>
+                  <p className="text-sm text-muted-foreground mt-2">1 CLEANBI/day, basic tools</p>
+                  <Link href="/subscribe">
+                    <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-free-tier">
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+              
+              <Card className="p-5 border-2 border-accent/30 bg-card relative">
+                <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs">
+                  Most Popular
+                </Badge>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">Starter</div>
+                  <div className="text-3xl font-bold text-accent mt-1">$29<span className="text-base font-normal text-muted-foreground">/mo</span></div>
+                  <p className="text-sm text-muted-foreground mt-2">Unlimited CLEANBI, 3D views</p>
+                  <Link href="/pricing">
+                    <Button size="sm" className="mt-4 w-full" data-testid="button-starter-tier">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+              
+              <Card className="p-5 border border-border/50 bg-card">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">Pro</div>
+                  <div className="text-3xl font-bold text-accent mt-1">$79<span className="text-base font-normal text-muted-foreground">/mo</span></div>
+                  <p className="text-sm text-muted-foreground mt-2">AI insights, bulk analysis</p>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-pro-tier">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+              
+              <Card className="p-5 border border-border/50 bg-card">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">Enterprise</div>
+                  <div className="text-3xl font-bold text-accent mt-1">$199<span className="text-base font-normal text-muted-foreground">/mo</span></div>
+                  <p className="text-sm text-muted-foreground mt-2">API access, white-label</p>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-enterprise-tier">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. SINGLE SPOTLIGHT CTA - CLEANBI + Platform value */}
         <section className="py-20 md:py-28 bg-gradient-to-b from-muted/20 to-background border-t border-border/50" data-testid="section-spotlight-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -343,7 +414,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 5. SIMPLE FOOTER CTA */}
+        {/* 6. SIMPLE FOOTER CTA */}
         <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">

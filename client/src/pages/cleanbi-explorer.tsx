@@ -1320,6 +1320,49 @@ export default function CleanBIExplorer() {
         >
           <ScrollArea className="flex-1">
 
+            {/* Empty State - Click to Analyze CTA */}
+            {!analysisResult && !isAnalyzing && (
+              <div className="p-4 border-b border-white/10">
+                <div className="text-center py-6">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-xl">
+                    <MapPin className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Ready to Score Your Location?</h3>
+                  <p className="text-white/60 text-sm mb-4">
+                    Enter any address below to get an instant CLEANBI™ score (0-100) and investment grade.
+                  </p>
+                  <div className="space-y-2 text-left mb-6">
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                      <span>Competitor density analysis</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                      <span>Demographics & income data</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                      <span>A/B/C investment grading</span>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      const addressInput = document.querySelector('[data-testid="input-explorer-address"]') as HTMLInputElement;
+                      if (addressInput) {
+                        addressInput.focus();
+                        addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
+                    className="w-full bg-gradient-to-r from-[#C8A661] to-[#8B7355] hover:opacity-90 text-white h-11 text-sm font-medium"
+                    data-testid="button-click-to-analyze"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Click to Analyze
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* Analysis Result */}
             {analysisResult && (
               <div className="p-4 border-b border-white/10">
