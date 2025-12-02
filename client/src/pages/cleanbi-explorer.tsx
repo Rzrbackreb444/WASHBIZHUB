@@ -1243,6 +1243,269 @@ export default function CleanBIExplorer() {
     }
   };
 
+  // Market Gap Finder - Find underserved areas with high renter populations
+  const findMarketGaps = async () => {
+    if (!mapInstance.current) {
+      toast({ title: "Map not ready", description: "Please wait for the map to load", variant: "destructive" });
+      return;
+    }
+
+    const bounds = mapInstance.current.getBounds();
+    if (!bounds) {
+      toast({ title: "Zoom in", description: "Please zoom into an area to analyze market gaps", variant: "destructive" });
+      return;
+    }
+
+    setLoadingGapAnalysis(true);
+    
+    try {
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      
+      const response = await apiRequest("POST", "/api/cleanbi-explorer/market-gaps", {
+        bounds: {
+          north: ne.lat(),
+          south: sw.lat(),
+          east: ne.lng(),
+          west: sw.lng()
+        },
+        gapRadius: gapRadius[0],
+        minRenterPercent: minRenterPercent[0],
+        minIncome: 35000
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setGapZones(data.gapZones || []);
+        setTopOpportunities(data.topOpportunities || []);
+        setSaturationScore(data.saturationScore);
+        setTotalGapCount(data.totalGapCount || 0);
+        setAreaStats(data.areaStats);
+        
+        // Render gap zones on map
+        renderGapZones(data.gapZones || [], data.topOpportunities || []);
+        
+        toast({ 
+          title: `Found ${data.totalGapCount} Gap Zones`, 
+          description: `Saturation: ${data.saturationScore?.toFixed(2)} laundromats per 1K renters`
+        });
+      } else {
+        toast({ 
+          title: "Analysis Failed", 
+          description: data.error || "Could not analyze market gaps", 
+          variant: "destructive" 
+        });
+      }
+    } catch (error) {
+      console.error("Market gap analysis error:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to analyze market gaps", 
+        variant: "destructive" 
+      });
+    } finally {
+      setLoadingGapAnalysis(false);
+    }
+  };
+
+  // Render gap zones and opportunity markers on the map
+  const renderGapZones = (zones: any[], opportunities: any[]) => {
+    if (!mapInstance.current || !window.google) return;
+    
+    // Clear existing gap markers and circles
+    gapMarkers.forEach(m => m.setMap(null));
+    gapZoneCircles.forEach(c => c.setMap(null));
+    
+    const newMarkers: any[] = [];
+    const newCircles: any[] = [];
+    
+    // Render gap zone circles (gold with 30% opacity)
+    zones.forEach((zone) => {
+      const circle = new window.google.maps.Circle({
+        center: { lat: zone.lat, lng: zone.lng },
+        radius: gapRadius[0] * 1609.34, // Convert miles to meters
+        map: mapInstance.current,
+        fillColor: "#b8860b",
+        fillOpacity: 0.3,
+        strokeColor: "#b8860b",
+        strokeOpacity: 0.6,
+        strokeWeight: 1,
+        clickable: true,
+        zIndex: 100
+      });
+      
+      // Add click listener to analyze gap zone
+      circle.addListener("click", () => analyzeGapZone(zone));
+      
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
+          <div style="padding: 10px; font-family: system-ui; min-width: 160px; background: #12121f; border-radius: 8px;">
+            <div style="font-weight: bold; color: #b8860b; margin-bottom: 4px;">Market Gap Zone</div>
+            <div style="font-size: 12px; color: #999;">
+              <div>Score: ${zone.opportunityScore}/100</div>
+              <div>Renters: ${zone.renterPercentage}%</div>
+              <div>Income: $${Math.round(zone.medianIncome / 1000)}K</div>
+              <div>${zone.gapReason}</div>
+            </div>
+            <div style="font-size: 11px; color: #b8860b; margin-top: 6px;">Click to run full CLEANBI analysis</div>
+          </div>
+        `
+      });
+      
+      circle.addListener("mouseover", () => {
+        infoWindow.setPosition({ lat: zone.lat, lng: zone.lng });
+        infoWindow.open(mapInstance.current);
+      });
+      
+      circle.addListener("mouseout", () => {
+        infoWindow.close();
+      });
+      
+      newCircles.push(circle);
+    });
+    
+    // Render top opportunity markers (star icons)
+    opportunities.forEach((opp, idx) => {
+      const marker = new window.google.maps.Marker({
+        position: { lat: opp.lat, lng: opp.lng },
+        map: mapInstance.current,
+        icon: {
+          path: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+          fillColor: "#b8860b",
+          fillOpacity: 1,
+          strokeColor: "#FFFFFF",
+          strokeWeight: 2,
+          scale: 1.2,
+          anchor: new window.google.maps.Point(12, 12)
+        },
+        title: `Top ${idx + 1}: Score ${opp.opportunityScore}`,
+        zIndex: 200 + idx,
+        label: {
+          text: `${idx + 1}`,
+          color: "#000",
+          fontSize: "10px",
+          fontWeight: "bold"
+        }
+      });
+      
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
+          <div style="padding: 12px; font-family: system-ui; min-width: 180px; background: #12121f; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <div style="width: 28px; height: 28px; border-radius: 6px; background: #b8860b; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">#${idx + 1}</div>
+              <div style="font-size: 16px; font-weight: bold; color: white;">Score: ${opp.opportunityScore}</div>
+            </div>
+            <div style="font-size: 12px; color: #999; margin-bottom: 4px;">${opp.gapReason}</div>
+            <div style="font-size: 11px; color: #666;">
+              Renters: ${opp.renterPercentage}% | Income: $${Math.round(opp.medianIncome / 1000)}K
+            </div>
+            <button 
+              onclick="window.analyzeGapFromMap && window.analyzeGapFromMap(${opp.lat}, ${opp.lng})"
+              style="margin-top: 8px; padding: 6px 12px; background: #b8860b; border: none; border-radius: 4px; color: white; font-size: 11px; cursor: pointer; width: 100%;"
+            >
+              Run CLEANBI Analysis
+            </button>
+          </div>
+        `
+      });
+      
+      marker.addListener("click", () => {
+        infoWindow.open(mapInstance.current, marker);
+      });
+      
+      newMarkers.push(marker);
+    });
+    
+    setGapMarkers(newMarkers);
+    setGapZoneCircles(newCircles);
+  };
+
+  // Analyze a specific gap zone with full CLEANBI
+  const analyzeGapZone = async (zone: any) => {
+    setIsAnalyzing(true);
+    
+    try {
+      toast({ 
+        title: "Analyzing Gap Zone", 
+        description: "Running CLEANBI on this location..."
+      });
+      
+      const response = await apiRequest("POST", "/api/cleanbi-explorer/analyze-gap", {
+        lat: zone.lat,
+        lng: zone.lng
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.analysis) {
+        const result: AnalysisResult = {
+          address: data.analysis.address,
+          lat: data.analysis.lat,
+          lng: data.analysis.lng,
+          cleanbiScore: data.analysis.cleanbiScore,
+          grade: data.analysis.grade,
+          competitorCount: data.analysis.competitorCount,
+          populationDensity: data.analysis.populationDensity,
+          medianIncome: data.analysis.medianIncome,
+          trafficScore: data.analysis.trafficScore,
+          opportunityLevel: data.analysis.opportunityLevel,
+          streetViewUrl: data.analysis.streetViewUrl
+        };
+        
+        setAnalysisResult(result);
+        setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        setCompetitors(data.competitors || []);
+        setActiveTab("overview");
+        
+        // Save analysis
+        const saved = saveAnalysis(result);
+        setSavedAnalyses(getStoredAnalyses());
+        
+        // Center map on gap zone
+        if (mapInstance.current) {
+          mapInstance.current.setCenter({ lat: zone.lat, lng: zone.lng });
+          mapInstance.current.setZoom(15);
+        }
+        
+        toast({ 
+          title: `Gap Zone Grade: ${result.grade}`, 
+          description: `CLEANBI Score: ${result.cleanbiScore}/100 — ${OPPORTUNITY_LABELS[result.opportunityLevel]?.text}`
+        });
+      } else {
+        toast({ 
+          title: "Analysis Failed", 
+          description: data.error || "Could not analyze this gap zone", 
+          variant: "destructive" 
+        });
+      }
+    } catch (error) {
+      console.error("Gap zone analysis error:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to analyze gap zone", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Clear gap zones when toggling off
+  useEffect(() => {
+    if (!showMarketGaps) {
+      gapMarkers.forEach(m => m.setMap(null));
+      gapZoneCircles.forEach(c => c.setMap(null));
+      setGapMarkers([]);
+      setGapZoneCircles([]);
+      setGapZones([]);
+      setTopOpportunities([]);
+      setSaturationScore(null);
+      setTotalGapCount(0);
+      setAreaStats(null);
+    }
+  }, [showMarketGaps]);
+
   return (
     <AuthGuard 
       title="Sign In to Access CLEANBI Explorer"
@@ -1265,7 +1528,13 @@ export default function CleanBIExplorer() {
           "3D aerial view",
           "foot traffic analysis",
           "laundromat valuation",
-          "real estate scoring"
+          "real estate scoring",
+          "market gap finder",
+          "laundromat site selection",
+          "where to open laundromat",
+          "laundromat opportunity zones",
+          "underserved laundromat markets",
+          "coin laundry market gaps"
         ]}
         faqs={[
           {
@@ -2394,6 +2663,171 @@ export default function CleanBIExplorer() {
               </div>
             </div>
 
+            {/* Market Gap Finder Section */}
+            <Collapsible className="p-4 border-b border-white/10">
+              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-[#b8860b]" />
+                  <span className="text-sm font-medium text-white">Market Gap Finder</span>
+                  <Badge variant="outline" className="text-[10px] border-[#b8860b]/50 text-[#b8860b] px-1.5 py-0">NEW</Badge>
+                </div>
+                <ChevronDown className="w-4 h-4 text-white/50" />
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="space-y-4">
+                <p className="text-xs text-white/50">
+                  Find underserved areas with high renter populations and low laundromat competition.
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm text-white/70 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#b8860b]/50 border border-[#b8860b]" />
+                    Show Market Gaps
+                  </Label>
+                  <Switch 
+                    checked={showMarketGaps} 
+                    onCheckedChange={setShowMarketGaps}
+                    data-testid="switch-show-market-gaps"
+                  />
+                </div>
+
+                {showMarketGaps && (
+                  <>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-sm text-white/70">Gap Radius</Label>
+                        <span className="text-sm font-medium text-[#b8860b]">{gapRadius[0]} miles</span>
+                      </div>
+                      <Slider
+                        value={gapRadius}
+                        onValueChange={setGapRadius}
+                        min={0.5}
+                        max={5}
+                        step={0.5}
+                        className="[&_[role=slider]]:bg-[#b8860b]"
+                        data-testid="slider-gap-radius"
+                      />
+                      <p className="text-[10px] text-white/40 mt-1">Min distance from any competitor</p>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-sm text-white/70">Min Renter %</Label>
+                        <span className="text-sm font-medium text-[#b8860b]">{minRenterPercent[0]}%</span>
+                      </div>
+                      <Slider
+                        value={minRenterPercent}
+                        onValueChange={setMinRenterPercent}
+                        min={20}
+                        max={60}
+                        step={5}
+                        className="[&_[role=slider]]:bg-[#b8860b]"
+                        data-testid="slider-min-renter-percent"
+                      />
+                      <p className="text-[10px] text-white/40 mt-1">Areas with high renter concentration</p>
+                    </div>
+
+                    <Button 
+                      onClick={findMarketGaps}
+                      disabled={loadingGapAnalysis}
+                      className="w-full bg-gradient-to-r from-[#b8860b] to-[#8B6914] hover:opacity-90 text-white h-10 text-sm font-medium"
+                      data-testid="button-find-gaps"
+                    >
+                      {loadingGapAnalysis ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Scanning Area...
+                        </>
+                      ) : (
+                        <>
+                          <Target className="w-4 h-4 mr-2" />
+                          Find Market Gaps
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Gap Analysis Results Panel */}
+                    {totalGapCount > 0 && areaStats && (
+                      <div className="bg-[#b8860b]/10 rounded-lg p-3 border border-[#b8860b]/30 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-white/70">Area Saturation</span>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              saturationScore && saturationScore < 0.3 
+                                ? "border-green-500/50 text-green-400" 
+                                : saturationScore && saturationScore < 0.6 
+                                  ? "border-yellow-500/50 text-yellow-400"
+                                  : "border-red-500/50 text-red-400"
+                            }`}
+                          >
+                            {saturationScore?.toFixed(2)} per 1K renters
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-white/5 rounded-lg p-2">
+                            <div className="text-lg font-bold text-[#b8860b]">{totalGapCount}</div>
+                            <div className="text-[10px] text-white/50">Gap Zones Found</div>
+                          </div>
+                          <div className="bg-white/5 rounded-lg p-2">
+                            <div className="text-lg font-bold text-white">{areaStats.competitorCount}</div>
+                            <div className="text-[10px] text-white/50">Competitors</div>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-white/70">
+                          <span className="text-white/50">Avg Income:</span> ${Math.round(areaStats.avgIncome / 1000)}K • 
+                          <span className="text-white/50 ml-1">Renters:</span> {areaStats.avgRenterPercentage}%
+                        </div>
+
+                        {/* Top Opportunities */}
+                        {topOpportunities.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-xs font-medium text-white flex items-center gap-1">
+                              <Star className="w-3 h-3 text-[#b8860b]" />
+                              Top Opportunities
+                            </div>
+                            <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                              {topOpportunities.map((opp, idx) => (
+                                <div 
+                                  key={opp.id}
+                                  onClick={() => analyzeGapZone(opp)}
+                                  className="flex items-center justify-between bg-white/5 rounded-lg p-2 cursor-pointer hover:bg-white/10 transition-colors"
+                                  data-testid={`gap-opportunity-${idx}`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded bg-[#b8860b] flex items-center justify-center text-[10px] font-bold text-white">
+                                      {idx + 1}
+                                    </div>
+                                    <div>
+                                      <div className="text-xs text-white">Score: {opp.opportunityScore}</div>
+                                      <div className="text-[10px] text-white/40">{opp.gapReason}</div>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    size="icon" 
+                                    variant="ghost" 
+                                    className="h-6 w-6 text-[#b8860b] hover:bg-[#b8860b]/20"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      analyzeGapZone(opp);
+                                    }}
+                                  >
+                                    <Zap className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+
             {/* Saved Analyses History */}
             <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="p-4 border-b border-white/10">
               <CollapsibleTrigger className="flex items-center justify-between w-full mb-3">
@@ -2598,6 +3032,39 @@ export default function CleanBIExplorer() {
             data-testid="explorer-map"
           />
 
+          {/* Market Gap Legend - Shows when gaps are displayed */}
+          {showMarketGaps && totalGapCount > 0 && (
+            <div className="absolute bottom-6 right-4 z-20 bg-[#12121f]/95 backdrop-blur-sm border border-white/10 rounded-xl p-3 shadow-xl" data-testid="market-gap-legend">
+              <div className="text-xs font-medium text-white mb-2 flex items-center gap-1.5">
+                <Target className="w-3 h-3 text-[#b8860b]" />
+                Market Gap Legend
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#b8860b]/30 border border-[#b8860b]" />
+                  <span className="text-[10px] text-white/70">Gap Zones (high renters, low competition)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-[#b8860b] fill-[#b8860b]" />
+                  <span className="text-[10px] text-white/70">Top Opportunity Locations</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-red-500" />
+                  <span className="text-[10px] text-white/70">Existing Competitors</span>
+                </div>
+              </div>
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <div className="text-[10px] text-white/50 mb-1">Saturation Score</div>
+                <div className="flex items-center gap-1">
+                  <div className="flex-1 h-1.5 rounded-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" />
+                </div>
+                <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                  <span>Low</span>
+                  <span>High</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Street View Modal */}

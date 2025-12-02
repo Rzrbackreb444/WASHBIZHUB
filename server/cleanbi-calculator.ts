@@ -1,7 +1,12 @@
 /**
  * CLEANBI v2.0 Scoring Engine
  * Implements all 17 factors with weights from blueprint
+ * 
+ * MANDATORY: Uses A, B, C, Needs Work grading (NO D or F!)
+ * Grading thresholds: A=85+, B=70-84, C=55-69, Needs Work=<55
  */
+
+import { getGrade, type CLEANBIGrade } from '../shared/cleanbi-grades';
 
 export interface CleanbiInput {
   // Demographics
@@ -56,7 +61,7 @@ export interface CleanbiInput {
 
 export interface CleanbiOutput {
   cleanbiScore: number; // 0-100
-  grade: string; // A, B, C, D, F
+  grade: CLEANBIGrade; // A, B, C, Needs Work (NO D or F!)
   confidence: number; // 0-100%
   subscores: {
     marketScore: number;
@@ -191,16 +196,8 @@ export function calculateCleanbi(input: CleanbiInput): CleanbiOutput {
     100
   );
 
-  // ====== GRADE ASSIGNMENT ======
-  const gradeMap: { [key: string]: string } = {
-    "A": cleanbiScore >= 85 ? "A" : "",
-    "B": cleanbiScore >= 75 && cleanbiScore < 85 ? "B" : "",
-    "C": cleanbiScore >= 65 && cleanbiScore < 75 ? "C" : "",
-    "D": cleanbiScore >= 50 && cleanbiScore < 65 ? "D" : "",
-    "F": cleanbiScore < 50 ? "F" : "",
-  };
-
-  const grade = Object.values(gradeMap).find(g => g !== "") || "F";
+  // ====== GRADE ASSIGNMENT (A, B, C, Needs Work - NO D or F!) ======
+  const grade = getGrade(cleanbiScore);
   const confidence = clamp(70 + (cleanbiScore / 100) * 20, 60, 95);
 
   // ====== VALUATION ======

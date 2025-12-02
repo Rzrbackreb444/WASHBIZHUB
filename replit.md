@@ -85,6 +85,44 @@ The frontend uses Vite for development, TanStack Query for state management, and
 9. **Error Code Photo Reader** 📱→🔧: Vision AI OCR reads error codes from machine display photos → instant lookup in 2,000+ code database → repair steps, parts, cost estimates
 10. **Voice Diagnostics** 🎤→🔧: Speech-to-Text transcribes symptoms → Triage AI diagnoses → "Likely causes: worn drum bearings. Parts: $45. Repair time: 2 hours"
 
+### Key Industry Benchmarks & Formulas
+**Revenue & Profitability:**
+- Monthly Revenue: $5,000-$25,000+ (optimal $15,000+)
+- Revenue per Washer/Month: $350-$600 (optimal $450+)
+- EBITDA Margin: 15-20% (top performers 25%+)
+- Net Profit Margin: 10-20% (top performers 25%+)
+
+**Operational KPIs:**
+- TPD (Turns Per Day): Target 3-4, Poor <2, Excellent 5-8
+- Machine Utilization: Peak 60-80%, Average 30-50%
+- WDF Efficiency: 30-50 lbs/hr (efficient 50-70, top 70+)
+
+**Cost Ratios (% of Revenue):**
+- UPG (Utilities): Target 15-18%, Acceptable 18-24%, Critical >30%
+- Rent-to-Revenue: Optimal 15-20%, High >25%, Unacceptable >30%
+- Labor: Target 8-12%, Acceptable 12-18%, High >18%
+- Maintenance: Target 3-5%, Acceptable 5-8%, High >8%
+
+**Customer Metrics:**
+- CAC (Customer Acquisition Cost): Target $5-15
+- LTV (Customer Lifetime Value): ~$1,152 (avg $12 × 4 visits × 24 months)
+- LTV:CAC Ratio: Minimum 3:1, Good 4-5:1, Excellent 6:1+
+
+**Equipment Depreciation Curves:**
+| Brand | Year 5 | Year 10 | Year 15 | Year 20 |
+|-------|--------|---------|---------|---------|
+| Speed Queen | 70% | 45% | 25% | 10% |
+| Dexter | 65% | 40% | 20% | 8% |
+| Maytag | 60% | 35% | 18% | 5% |
+
+**Valuation Multiples (by CLEANBI Grade):**
+| Grade | Min Multiple | Avg Multiple | Max Multiple |
+|-------|-------------|--------------|--------------|
+| A | 4.0x | 4.7x | 5.5x |
+| B | 3.2x | 3.5x | 4.0x |
+| C | 2.0x | 2.5x | 3.0x |
+| Needs Work | 0.8x | 1.5x | 2.0x |
+
 ### System Design Choices
 - **Data Storage:** PostgreSQL (Neon Serverless) with Drizzle ORM.
 - **Caching & Messaging:** Redis for pub/sub, sessions, and caching.

@@ -133,6 +133,7 @@ const TPDCalculator = lazy(() => import("@/pages/tpd-calculator"));
 const CLEANBICalculator = lazy(() => import("@/pages/cleanbi-calculator"));
 const LoanCalculator = lazy(() => import("@/pages/loan-calculator"));
 const UtilityCalculator = lazy(() => import("@/pages/utility-calculator"));
+const LaborCalculator = lazy(() => import("@/pages/labor-calculator"));
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
 const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
@@ -494,6 +495,11 @@ function Router() {
       <Route path="/utility-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <UtilityCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/labor-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaborCalculator />
         </Suspense>
       </Route>
 
