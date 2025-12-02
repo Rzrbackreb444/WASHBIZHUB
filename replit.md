@@ -71,6 +71,15 @@ The frontend uses Vite for development, TanStack Query for state management, and
 - **Deal Flow & Funding:** Features a "Deal Flow Dashboard" (`/laundromat-listings`) and a "Funding Marketplace" (`/funding-matcher`) with 7 integrated partners.
 - **Business Directory:** A "Verified Directory" (`/directory`) for service providers with tiered subscriptions.
 - **Advertising & Promotions:** Includes a Facebook Group Advertising System with various ad products and a Stripe-powered invoice generator, plus a Promo Code System for campaigns.
+- **WordPress-Style AdminBar:** Fixed top navigation bar (`client/src/components/AdminBar.tsx`) for authenticated admin users. Features:
+  - Dashboard quick access
+  - Context-aware "Edit This" button (detects current page type and links to edit)
+  - "New" dropdown for creating content (Listings, Blog Posts, Courses, Promo Codes, Ads)
+  - Quick access dropdowns for Content, Listings, Marketing sections
+  - User menu with profile/settings/logout
+  - Mobile responsive with hamburger menu
+  - WordPress-style dark theme (#1d2327 background)
+  - Only visible for authenticated admin users
 - **Admin Analytics Dashboard:** Live analytics dashboard (`/admin/analytics`) pulling real data from Stripe API and database. Features:
   - Revenue metrics: Total, MRR, monthly trends, product breakdown
   - User metrics: Total users, signups, tier distribution (Free/Starter/Pro/Enterprise)
