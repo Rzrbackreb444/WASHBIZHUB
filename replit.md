@@ -45,6 +45,16 @@ Owner Contact & Notifications:
 ### UI/UX Decisions
 The frontend uses React 18, TypeScript, Wouter for routing, Radix UI and shadcn/ui for components, and Tailwind CSS for styling. It features responsive dashboards with Chart.js/Recharts, dark-theme styling for maps, and an emphasis on a Chrome Web Store-like grading system for CLEANBI. The design prioritizes clear, positive language for opportunity levels.
 
+**Premium Homepage Design (Stripe-grade):**
+- Brand colors: Navy (#1e3a5f) and Gold (#b8860b)
+- Typography: Bebas Neue at 84/48/30px scale for headings
+- Spacing: py-24/32 section rhythm, gap-8/12 for grids
+- Animations: Framer Motion scroll-triggered with useInView hooks
+- Card styling: shadow-xl, rounded-2xl, p-8 padding, hover:scale-[1.02]
+- Navigation: Mega-menus (320px wide) with icons, descriptions, category headers
+- Dividers: Gold gradient lines between sections
+- Hero: Navy-gold mesh gradient with parallax layers and floating device mockups
+
 ### Technical Implementations
 The frontend uses Vite for development, TanStack Query for state management, and supports PWA. The backend is Node.js/Express in TypeScript, offering RESTful JSON APIs and WebSockets. It uses Drizzle ORM with PostgreSQL (Neon serverless) and is event-driven with Redis pub/sub. Replit Auth (OIDC) handles authentication and role-based access control.
 
