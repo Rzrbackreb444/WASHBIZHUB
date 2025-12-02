@@ -1,533 +1,524 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, LogIn, LogOut, User, ChevronDown, Building2, Calculator, ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon, Users, X, Shield, Zap, Globe, Award, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { 
+  Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, Building2, Calculator, 
+  ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon, Users, X, 
+  Shield, Zap, Globe, Award, CheckCircle, Wrench, BookOpen, BarChart3,
+  FileText, DollarSign, Layout, Bot, Search, TrendingUp, Store, MessageSquare
+} from "lucide-react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/components/Advertisement";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import logoUrl from "@assets/6_1764040628012.png";
+
+const navigationSections = [
+  {
+    id: "platform",
+    title: "Platform",
+    icon: Building2,
+    items: [
+      { href: "/design-studio", label: "Design Studio 2D/3D", icon: Layout },
+      { href: "/cleanbi", label: "CLEANBI™ Analysis", icon: BarChart3 },
+      { href: "/ai-blogging", label: "AI Blogging Suite", icon: Bot },
+      { href: "/seo-optimizer", label: "SEO Optimizer", icon: Search },
+      { href: "/templates", label: "Premium Templates", icon: FileText },
+      { href: "/repair-guide", label: "Service Guy AI", icon: Wrench },
+    ]
+  },
+  {
+    id: "resources",
+    title: "Resources",
+    icon: Calculator,
+    items: [
+      { href: "/resources", label: "Resource Hub", icon: BookOpen },
+      { href: "/vendors", label: "Vendor Directory", icon: Store },
+      { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp },
+      { href: "/calculator", label: "Revenue Calculator", icon: Calculator },
+      { href: "/funding-matcher", label: "Funding Matcher", icon: DollarSign },
+    ]
+  },
+  {
+    id: "marketplace",
+    title: "Marketplace",
+    icon: ShoppingCart,
+    items: [
+      { href: "/listings", label: "Browse Listings", icon: Search },
+      { href: "/listing-form", label: "Add a Listing", icon: FileText },
+      { href: "/seller-dashboard", label: "Seller Dashboard", icon: BarChart3 },
+      { href: "/superstore", label: "Equipment Superstore", icon: ShoppingCart },
+    ]
+  },
+  {
+    id: "learn",
+    title: "Learn",
+    icon: GraduationCap,
+    items: [
+      { href: "/courses", label: "Premium Courses", icon: GraduationCap },
+      { href: "/book", label: "The Laundromat Bible", icon: BookOpen },
+      { href: "/blog", label: "Industry Blog", icon: FileText },
+    ]
+  },
+  {
+    id: "community",
+    title: "Community",
+    icon: Users,
+    items: [
+      { href: "/forum", label: "Discussion Forum", icon: MessageSquare },
+      { href: "/facebook-group", label: "Facebook Community", icon: Users },
+    ]
+  },
+  {
+    id: "expert",
+    title: "Expert Help",
+    icon: Phone,
+    items: [
+      { href: "/consultation", label: "Book Consultation", icon: Phone },
+      { href: "/about", label: "About Us", icon: Users },
+      { href: "/pricing", label: "Pricing", icon: DollarSign },
+    ]
+  }
+];
 
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const { user, isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
 
   return (
     <>
-      {/* Skip to Content Link - Accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-primary-foreground focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-gold-500 focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
         data-testid="link-skip-to-content"
       >
         Skip to main content
       </a>
       
-      {/* Trust Bar - Navy/Teal Theme */}
-      <div className="bg-navy-900 border-b border-teal-400/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-center py-1.5 gap-4 sm:gap-8 text-xs sm:text-sm flex-wrap">
-            <div className="hidden sm:flex items-center gap-1.5 text-white/80">
-              <Globe className="w-3.5 h-3.5 text-teal-400" />
-              <span>220+ Countries</span>
+      <div className="bg-[#1e3a5f] border-b border-gold-500/20" data-testid="trust-bar">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-center py-2 gap-6 sm:gap-8 text-xs sm:text-sm flex-wrap">
+            <div className="hidden sm:flex items-center gap-2 text-white/90">
+              <Globe className="w-4 h-4 text-gold-400" aria-hidden="true" />
+              <span className="font-medium">220+ Countries</span>
             </div>
-            <div className="flex items-center gap-1.5 text-white/80">
-              <Users className="w-3.5 h-3.5 text-teal-400" />
+            <div className="flex items-center gap-2 text-white/90">
+              <Users className="w-4 h-4 text-gold-400" aria-hidden="true" />
               <span className="font-semibold text-white">72,000+ Members</span>
             </div>
-            <div className="hidden md:flex items-center gap-1.5 text-white/80">
-              <Zap className="w-3.5 h-3.5 text-teal-400" />
-              <span>80+ Tools</span>
+            <div className="hidden md:flex items-center gap-2 text-white/90">
+              <Zap className="w-4 h-4 text-gold-400" aria-hidden="true" />
+              <span className="font-medium">80+ Tools</span>
+            </div>
+            <div className="hidden lg:flex items-center gap-2 text-white/90">
+              <Award className="w-4 h-4 text-gold-400" aria-hidden="true" />
+              <span className="font-medium">#1 Laundromat Platform</span>
             </div>
           </div>
         </div>
       </div>
       
-    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between py-3">
-          {/* Logo - Responsive sizing */}
-          <Link href="/" aria-label="WashBizHub Home">
-            <div className="flex items-center gap-2 cursor-pointer hover-elevate active-elevate-2 rounded-md px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" data-testid="link-logo">
-              <img 
-                src={logoUrl} 
-                alt="WashBizHub - Laundromat Business Hub" 
-                className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto" 
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-                width={128}
-                height={128}
-              />
-            </div>
-          </Link>
+      <header 
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-[#1e3a5f]/95 backdrop-blur-md shadow-xl' 
+            : 'bg-[#1e3a5f]'
+        }`}
+        data-testid="header-main"
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between py-4 gap-4">
+            <Link href="/" aria-label="WashBizHub Home">
+              <div 
+                className="flex items-center gap-2 cursor-pointer rounded-lg px-2 py-1 transition-all duration-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e3a5f]" 
+                data-testid="link-logo"
+              >
+                <img 
+                  src={logoUrl} 
+                  alt="WashBizHub - Laundromat Business Hub" 
+                  className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto" 
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  width={96}
+                  height={96}
+                />
+              </div>
+            </Link>
 
-          {/* Desktop Navigation - Mega Menu Trigger - Hidden on mobile/tablet */}
-          <nav className="hidden lg:flex items-center gap-2" role="navigation" aria-label="Main navigation">
-            <Button
-              variant="default"
-              size="lg"
-              className="text-base font-bold bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-offset-2"
-              onMouseEnter={() => setMegaMenuOpen(true)}
-              onMouseLeave={() => setMegaMenuOpen(false)}
-              onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-              aria-expanded={megaMenuOpen}
-              aria-haspopup="true"
-              aria-label="Explore Platform - Open navigation menu"
-              data-testid="button-mega-menu"
-            >
-              Explore Platform <ChevronDown className={`ml-2 h-5 w-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
-            </Button>
-          </nav>
+            <nav className="hidden lg:flex items-center gap-6" role="navigation" aria-label="Main navigation">
+              <div 
+                className="relative"
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onMouseLeave={() => setMegaMenuOpen(false)}
+              >
+                <button
+                  className="flex items-center gap-2 px-4 py-2.5 text-white font-medium text-sm tracking-wide rounded-lg transition-all duration-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 group"
+                  onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+                  aria-expanded={megaMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="Explore Platform - Open navigation menu"
+                  data-testid="button-mega-menu"
+                >
+                  <span className="relative">
+                    Explore Platform
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
+                  </span>
+                  <ChevronDown 
+                    className={`w-4 h-4 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} 
+                    aria-hidden="true" 
+                  />
+                </button>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Advertisement - Only on XL screens */}
-            <div className="hidden xl:block">
-              <Advertisement placement="header" />
-            </div>
-            
-            {/* Theme Toggle */}
-            <ThemeToggle />
-            
-            {!isLoading && (
-              <>
-                {isAuthenticated ? (
-                  <>
-                    {/* Settings button - Hidden on xs */}
-                    <Link href="/settings" className="hidden sm:block">
-                      <Button 
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Settings"
-                        data-testid="button-settings"
-                      >
-                        <SettingsIcon className="h-4 w-4" aria-hidden="true" />
-                      </Button>
-                    </Link>
-                    
-                    {/* User info - Hidden on mobile */}
-                    <div className="hidden md:flex items-center gap-2 text-foreground/80 text-sm mr-1">
-                      <User className="h-4 w-4" />
-                      <span className="font-medium max-w-[120px] truncate">
-                        {user?.firstName || user?.email || 'User'}
-                      </span>
+                <div 
+                  className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200 ${
+                    megaMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+                  }`}
+                  data-testid="mega-menu-panel"
+                >
+                  <div className="bg-[#1e3a5f]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-6 min-w-[800px]">
+                    <div className="grid grid-cols-3 gap-8">
+                      {navigationSections.slice(0, 3).map((section) => (
+                        <div key={section.id}>
+                          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
+                            <section.icon className="w-4 h-4 text-gold-400" aria-hidden="true" />
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wide font-bebas text-base">
+                              {section.title}
+                            </h3>
+                          </div>
+                          <ul className="space-y-1">
+                            {section.items.map((item) => (
+                              <li key={item.href}>
+                                <Link href={item.href}>
+                                  <div 
+                                    className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer group"
+                                    onClick={() => setMegaMenuOpen(false)}
+                                    data-testid={`link-nav-${item.href.replace('/', '')}`}
+                                  >
+                                    <item.icon className="w-4 h-4 text-white/50 group-hover:text-gold-400 transition-colors" aria-hidden="true" />
+                                    <span className="relative">
+                                      {item.label}
+                                      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-gold-400 transition-all duration-200 group-hover:w-full" />
+                                    </span>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
                     </div>
                     
-                    {/* Logout button - Compact on mobile */}
-                    <Button 
-                      onClick={() => window.location.href = '/api/logout'}
-                      variant="outline"
-                      size="sm"
-                      className="hidden sm:flex"
-                      data-testid="button-logout"
-                    >
-                      <LogOut className="h-4 w-4 mr-1.5" />
-                      <span className="hidden md:inline">Logout</span>
-                    </Button>
-                    
-                    {/* Mobile logout - Icon only */}
-                    <Button 
-                      onClick={() => window.location.href = '/api/logout'}
-                      variant="ghost"
-                      size="icon"
-                      className="sm:hidden"
-                      aria-label="Logout"
-                      data-testid="button-logout-mobile"
-                    >
-                      <LogOut className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    {/* Login button - Text on desktop, icon on mobile */}
-                    <Button 
-                      onClick={() => window.location.href = '/api/login'}
-                      variant="outline"
-                      size="sm"
-                      className="hidden sm:flex"
-                      data-testid="button-login"
-                    >
-                      <LogIn className="h-4 w-4 mr-1.5" />
-                      Login
-                    </Button>
-                    
-                    <Button 
-                      onClick={() => window.location.href = '/api/login'}
-                      variant="ghost"
-                      size="icon"
-                      className="sm:hidden"
-                      aria-label="Login"
-                      data-testid="button-login-mobile"
-                    >
-                      <LogIn className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </>
-                )}
-                
-                {/* Pricing Link - Hidden on mobile */}
-                <Link href="/pricing" className="hidden md:block">
-                  <Button 
+                    <div className="grid grid-cols-3 gap-8 mt-6 pt-6 border-t border-white/10">
+                      {navigationSections.slice(3).map((section) => (
+                        <div key={section.id}>
+                          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
+                            <section.icon className="w-4 h-4 text-gold-400" aria-hidden="true" />
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wide font-bebas text-base">
+                              {section.title}
+                            </h3>
+                          </div>
+                          <ul className="space-y-1">
+                            {section.items.map((item) => (
+                              <li key={item.href}>
+                                <Link href={item.href}>
+                                  <div 
+                                    className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer group"
+                                    onClick={() => setMegaMenuOpen(false)}
+                                    data-testid={`link-nav-${item.href.replace('/', '')}`}
+                                  >
+                                    <item.icon className="w-4 h-4 text-white/50 group-hover:text-gold-400 transition-colors" aria-hidden="true" />
+                                    <span className="relative">
+                                      {item.label}
+                                      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-gold-400 transition-all duration-200 group-hover:w-full" />
+                                    </span>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Link href="/cleanbi">
+                <span 
+                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
+                  data-testid="link-nav-cleanbi-quick"
+                >
+                  CLEANBI™
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
+                </span>
+              </Link>
+
+              <Link href="/listings">
+                <span 
+                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
+                  data-testid="link-nav-listings-quick"
+                >
+                  Marketplace
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
+                </span>
+              </Link>
+
+              <Link href="/courses">
+                <span 
+                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
+                  data-testid="link-nav-courses-quick"
+                >
+                  Academy
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
+                </span>
+              </Link>
+            </nav>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden xl:block">
+                <Advertisement placement="header" />
+              </div>
+              
+              <ThemeToggle />
+              
+              {!isLoading && (
+                <>
+                  {isAuthenticated ? (
+                    <>
+                      <Link href="/settings" className="hidden sm:block">
+                        <Button 
+                          variant="ghost"
+                          size="icon"
+                          className="text-white/80 hover:text-white hover:bg-white/10"
+                          aria-label="Settings"
+                          data-testid="button-settings"
+                        >
+                          <SettingsIcon className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </Link>
+                      
+                      <div className="hidden md:flex items-center gap-2 text-white/80 text-sm px-3 py-1.5 bg-white/5 rounded-lg">
+                        <User className="h-4 w-4" aria-hidden="true" />
+                        <span className="font-medium max-w-[100px] truncate">
+                          {user?.firstName || user?.email || 'User'}
+                        </span>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => window.location.href = '/api/logout'}
+                        variant="ghost"
+                        size="sm"
+                        className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
+                        data-testid="button-logout"
+                      >
+                        <LogOut className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                        <span className="hidden md:inline">Logout</span>
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => window.location.href = '/api/logout'}
+                        variant="ghost"
+                        size="icon"
+                        className="sm:hidden text-white/80 hover:text-white hover:bg-white/10"
+                        aria-label="Logout"
+                        data-testid="button-logout-mobile"
+                      >
+                        <LogOut className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={() => window.location.href = '/api/login'}
+                        variant="ghost"
+                        size="sm"
+                        className="hidden sm:flex text-white/90 hover:text-white hover:bg-white/10 border border-white/20"
+                        data-testid="button-login"
+                      >
+                        <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                        Login
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => window.location.href = '/api/login'}
+                        variant="ghost"
+                        size="icon"
+                        className="sm:hidden text-white/80 hover:text-white hover:bg-white/10"
+                        aria-label="Login"
+                        data-testid="button-login-mobile"
+                      >
+                        <LogIn className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    </>
+                  )}
+                  
+                  {(!user?.isPro) && (
+                    <Link href="/pricing" className="hidden sm:block">
+                      <Button 
+                        className="bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg shadow-lg shadow-gold-500/20 transition-all duration-200"
+                        size="sm"
+                        data-testid="button-upgrade"
+                      >
+                        <Zap className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                        <span className="hidden lg:inline">Upgrade to Pro</span>
+                        <span className="lg:hidden">Upgrade</span>
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              )}
+              
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
                     variant="ghost"
-                    size="sm"
-                    data-testid="button-pricing"
+                    size="icon"
+                    className="lg:hidden text-white hover:bg-white/10"
+                    aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                    data-testid="button-mobile-menu"
                   >
-                    Pricing
+                    <Menu className="h-5 w-5" aria-hidden="true" />
                   </Button>
-                </Link>
-                
-                {/* Upgrade CTA - Responsive sizing */}
-                {(!user?.isPro) && (
-                  <Link href="/pricing" className="hidden sm:block">
-                    <Button 
-                      className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-md"
-                      size="sm"
-                      data-testid="button-upgrade"
-                    >
-                      <span className="hidden lg:inline">Upgrade</span>
-                      <span className="lg:hidden">Pro</span>
-                    </Button>
-                  </Link>
-                )}
-              </>
-            )}
-            
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-expanded={mobileMenuOpen}
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-controls="mobile-navigation"
-              data-testid="button-mobile-menu"
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-            </Button>
+                </SheetTrigger>
+                <SheetContent 
+                  side="right" 
+                  className="w-[320px] sm:w-[380px] bg-[#1e3a5f]/98 backdrop-blur-xl border-l border-white/10 p-0"
+                  data-testid="nav-mobile-drawer"
+                >
+                  <div className="flex flex-col h-full">
+                    <SheetHeader className="p-6 border-b border-white/10">
+                      <SheetTitle className="text-white font-bebas text-2xl tracking-wide">
+                        Navigation
+                      </SheetTitle>
+                    </SheetHeader>
+                    
+                    <div className="flex-1 overflow-y-auto py-4">
+                      {navigationSections.map((section) => (
+                        <Collapsible 
+                          key={section.id}
+                          open={expandedSections.includes(section.id)}
+                          onOpenChange={() => toggleSection(section.id)}
+                        >
+                          <CollapsibleTrigger 
+                            className="flex items-center justify-between w-full px-6 py-3 min-h-[44px] text-left hover:bg-white/5 transition-colors"
+                            data-testid={`button-mobile-section-${section.id}`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <section.icon className="w-5 h-5 text-gold-400" aria-hidden="true" />
+                              <span className="text-white font-semibold text-sm uppercase tracking-wide">
+                                {section.title}
+                              </span>
+                            </div>
+                            <ChevronRight 
+                              className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
+                                expandedSections.includes(section.id) ? 'rotate-90' : ''
+                              }`} 
+                              aria-hidden="true" 
+                            />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="bg-white/5">
+                            {section.items.map((item) => (
+                              <Link href={item.href} key={item.href}>
+                                <div 
+                                  className="flex items-center gap-3 px-6 pl-14 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  data-testid={`link-mobile-${item.href.replace('/', '')}`}
+                                >
+                                  <item.icon className="w-4 h-4 text-white/50" aria-hidden="true" />
+                                  <span className="text-sm">{item.label}</span>
+                                </div>
+                              </Link>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      ))}
+                    </div>
+                    
+                    <div className="p-6 border-t border-white/10 space-y-3">
+                      {!isAuthenticated && (
+                        <Button 
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            window.location.href = '/api/login';
+                          }}
+                          variant="ghost"
+                          className="w-full justify-start text-white/90 hover:text-white hover:bg-white/10 border border-white/20 min-h-[44px]"
+                          data-testid="button-mobile-login"
+                        >
+                          <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
+                          Login with Replit
+                        </Button>
+                      )}
+                      
+                      {(!user?.isPro) && (
+                        <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
+                          <Button 
+                            className="w-full bg-gold-500 hover:bg-gold-600 text-white font-semibold shadow-lg min-h-[44px]"
+                            data-testid="button-mobile-upgrade"
+                          >
+                            <Zap className="w-4 h-4 mr-2" aria-hidden="true" />
+                            Upgrade to Pro
+                          </Button>
+                        </Link>
+                      )}
+                      
+                      {isAuthenticated && (
+                        <>
+                          <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
+                            <Button 
+                              variant="ghost"
+                              className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 min-h-[44px]"
+                              data-testid="button-mobile-settings"
+                            >
+                              <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+                              Settings
+                            </Button>
+                          </Link>
+                          <Button 
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              window.location.href = '/api/logout';
+                            }}
+                            variant="ghost"
+                            className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 min-h-[44px]"
+                            data-testid="button-mobile-logout"
+                          >
+                            <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
+                            Logout
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-
-        {/* Desktop Mega Menu Panel */}
-        {megaMenuOpen && (
-          <div 
-            className="hidden lg:block absolute left-0 right-0 top-full bg-card border-b border-border shadow-2xl z-50"
-            onMouseEnter={() => setMegaMenuOpen(true)}
-            onMouseLeave={() => setMegaMenuOpen(false)}
-            onClick={() => setMegaMenuOpen(false)}
-            data-testid="mega-menu-panel"
-          >
-            <div className="max-w-7xl mx-auto px-6 py-8">
-              <div className="grid grid-cols-2 xl:grid-cols-6 gap-6">
-                {/* Platform Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Building2 className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Platform</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/design-studio">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-design-studio">
-                          Design Studio 2D/3D
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/cleanbi">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-cleanbi">
-                          CLEANBI™ Analysis
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/ai-blogging">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-ai-blogging">
-                          AI Blogging Suite
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/seo-optimizer">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-seo-optimizer">
-                          SEO Optimizer
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/templates">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-templates">
-                          Premium Templates
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/repair-guide">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-service-guy-ai">
-                          Service Guy AI
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Resources Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Calculator className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Resources</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/resources">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-resources">
-                          Resource Hub
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/vendors">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-vendors">
-                          Vendor Directory
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/roi-calculator">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-roi-calculator">
-                          ROI Calculator
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/calculator">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-calculator">
-                          Revenue Calculator
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/funding-matcher">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-funding-matcher">
-                          Funding Matcher
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Marketplace Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <ShoppingCart className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Marketplace</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/listings">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-listings">
-                          Browse Listings
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/listing-form">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-add-listing">
-                          Add a Listing
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/seller-dashboard">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-seller-dashboard">
-                          Seller Dashboard
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/superstore">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-superstore">
-                          Equipment Superstore
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Learn Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <GraduationCap className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Learn</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/courses">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-courses">
-                          Premium Courses
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/book">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-book">
-                          The Laundromat Bible
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/blog">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-blog">
-                          Industry Blog
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Community Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Users className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Community</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/forum">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-forum">
-                          Discussion Forum
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/facebook-group">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-facebook-group">
-                          Facebook Community
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Expert Help Column */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Phone className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Expert Help</h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li>
-                      <Link href="/consultation">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-consultation">
-                          Book Consultation
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/about">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-about">
-                          About Us
-                        </div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/pricing">
-                        <div className="cursor-pointer text-sm text-foreground/80 hover:text-primary transition-colors hover-elevate rounded-md px-2 py-1.5" data-testid="link-nav-pricing-menu">
-                          Pricing
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <nav 
-            id="mobile-navigation"
-            className="lg:hidden py-4 border-t border-border max-h-[80vh] overflow-y-auto" 
-            role="navigation"
-            aria-label="Mobile navigation"
-            data-testid="nav-mobile-menu"
-          >
-            <div className="space-y-4">
-              {/* Platform Section */}
-              <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <Building2 className="w-3.5 h-3.5" />
-                  Platform
-                </div>
-                <Link href="/design-studio"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-design-studio">Design Studio 2D/3D</div></Link>
-                <Link href="/cleanbi"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-cleanbi">CLEANBI™ Analysis</div></Link>
-                <Link href="/repair-guide"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-service-guy">Service Guy AI</div></Link>
-              </div>
-              
-              {/* Resources Section */}
-              <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <Calculator className="w-3.5 h-3.5" />
-                  Resources
-                </div>
-                <Link href="/resources"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-resources">Resource Hub</div></Link>
-                <Link href="/roi-calculator"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-roi">ROI Calculator</div></Link>
-                <Link href="/funding-matcher"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-funding">Funding Matcher</div></Link>
-              </div>
-              
-              {/* Marketplace Section */}
-              <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  Marketplace
-                </div>
-                <Link href="/listings"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-listings">Browse Listings</div></Link>
-                <Link href="/listing-form"><div className="block px-3 py-2.5 text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md font-medium transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-add-listing">Add a Listing</div></Link>
-                <Link href="/seller-dashboard"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-seller-dashboard">Seller Dashboard</div></Link>
-                <Link href="/superstore"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-superstore">Equipment Superstore</div></Link>
-              </div>
-              
-              {/* Learn Section */}
-              <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <GraduationCap className="w-3.5 h-3.5" />
-                  Learn
-                </div>
-                <Link href="/courses"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-courses">Premium Courses</div></Link>
-                <Link href="/book"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-book">The Laundromat Bible</div></Link>
-                <Link href="/blog"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-blog">Industry Blog</div></Link>
-              </div>
-              
-              {/* Community Section */}
-              <div>
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <Users className="w-3.5 h-3.5" />
-                  Community
-                </div>
-                <Link href="/forum"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-forum">Discussion Forum</div></Link>
-                <Link href="/consultation"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-consultation">Book Consultation</div></Link>
-              </div>
-              
-              {/* Pricing/About Section */}
-              <div className="border-t border-border pt-4 mt-2">
-                <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5" />
-                  Quick Links
-                </div>
-                <Link href="/pricing"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-pricing">Pricing</div></Link>
-                <Link href="/about"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-about">About Us</div></Link>
-                {isAuthenticated && (
-                  <Link href="/settings"><div className="block px-3 py-2.5 text-foreground/80 hover:bg-primary/10 hover:text-primary cursor-pointer rounded-md transition-colors sm:hidden" onClick={() => setMobileMenuOpen(false)} data-testid="link-mobile-settings">Settings</div></Link>
-                )}
-              </div>
-            </div>
-          </nav>
-        )}
-      </div>
-    </header>
+      </header>
     </>
   );
 }

@@ -1328,7 +1328,7 @@ export default function CleanBIExplorer() {
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
         {/* Left Sidebar */}
         <div 
-          className={`absolute top-52 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-[400px]" : "w-0 overflow-hidden"}`}
+          className={`absolute top-0 left-0 bottom-0 z-20 bg-[#12121f] border-r border-white/10 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-[400px]" : "w-0 overflow-hidden"}`}
         >
           <ScrollArea className="flex-1">
 
