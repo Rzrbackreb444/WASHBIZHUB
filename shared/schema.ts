@@ -6937,42 +6937,47 @@ export type EquipmentInquiry = typeof equipmentInquiries.$inferSelect;
 // PLATFORM-WIDE SEARCH INDEX
 // ============================================================================
 
-// Search Index (for predictive autocomplete across entire platform)
+// Search Index (for full-text search across entire platform with PostgreSQL ts_vector)
 export const searchIndex = pgTable("search_index", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   
   // Content Reference
-  contentType: text("content_type").notNull(), // "product", "vendor", "listing", "course", "blog", "resource"
-  contentId: varchar("content_id").notNull(),
-  contentUrl: text("content_url").notNull(),
+  entityType: text("entity_type").notNull(), // "page", "calculator", "resource", "listing", "article", "course", "blog", "vendor"
+  contentId: varchar("content_id"), // Optional - for dynamic content items
+  url: text("url").notNull(),
   
   // Searchable Content
   title: text("title").notNull(),
   description: text("description"),
   keywords: text("keywords").array(),
+  searchableContent: text("searchable_content"), // Full text content for ts_vector search
   category: text("category"),
   
   // Ranking
-  searchRank: integer("search_rank").default(0), // Higher = better
-  popularity: integer("popularity").default(0), // Click count
+  searchRank: integer("search_rank").default(0), // Base rank priority (1-10)
+  popularity: integer("popularity").default(0), // Click count boosts ranking
   
   // Metadata
   imageUrl: text("image_url"),
   price: decimal("price", { precision: 10, scale: 2 }),
+  metadata: jsonb("metadata"), // Additional metadata for filtering
   
   // Status
   isActive: boolean("is_active").default(true),
   
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
-  contentTypeIdx: index("search_index_content_type_idx").on(table.contentType),
+  entityTypeIdx: index("search_index_entity_type_idx").on(table.entityType),
   titleIdx: index("search_index_title_idx").on(table.title),
   rankIdx: index("search_index_rank_idx").on(table.searchRank),
   activeIdx: index("search_index_active_idx").on(table.isActive),
+  urlIdx: uniqueIndex("search_index_url_idx").on(table.url),
 }));
 
 export const insertSearchIndexSchema = createInsertSchema(searchIndex).omit({
   id: true,
+  createdAt: true,
   updatedAt: true,
 });
 

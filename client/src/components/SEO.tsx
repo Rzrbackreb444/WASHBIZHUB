@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { JsonLd } from "./JsonLd";
 
 function sanitizeObject<T extends object>(obj: T): T {
   return JSON.parse(JSON.stringify(obj, (_, value) => 
@@ -279,6 +280,7 @@ export function SEO({
   } : null;
 
   return (
+    <>
     <Helmet>
       {/* Primary Meta Tags */}
       <title>{fullTitle}</title>
@@ -364,19 +366,8 @@ export function SEO({
           {JSON.stringify(sanitizeObject(aggregateRatingData))}
         </script>
       )}
-      {structuredData && (
-        Array.isArray(structuredData) 
-          ? structuredData.map((data, index) => (
-              <script key={`structured-data-${index}`} type="application/ld+json">
-                {JSON.stringify(sanitizeObject(data as object))}
-              </script>
-            ))
-          : (
-              <script type="application/ld+json">
-                {JSON.stringify(sanitizeObject(structuredData as object))}
-              </script>
-            )
-      )}
     </Helmet>
+    {structuredData && <JsonLd schema={structuredData} />}
+    </>
   );
 }
