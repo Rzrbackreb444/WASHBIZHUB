@@ -7,9 +7,9 @@ import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
-  Sparkles, MapPin, TrendingUp, Shield, Zap,
-  CheckCircle, Star, Calculator, Calendar, Quote,
-  Flame, X, FileText, DollarSign, AlertTriangle
+  Sparkles, CheckCircle, Star, Quote,
+  X, DollarSign, AlertTriangle, Calculator, Flame, TrendingUp,
+  MapPin, Shield, Zap, FileText
 } from "lucide-react";
 
 // Testimonials data
@@ -512,26 +512,17 @@ export default function Home() {
         {/* 1. HERO - Primary value prop + CLEANBI demo */}
         <Hero />
 
-        {/* Trust Indicators - Professional trust signals */}
-        <section className="py-4 border-b border-border/30" data-testid="section-trust-indicators">
+        {/* Trust Indicators - Clean professional bar */}
+        <section className="py-3 border-b border-border/20 bg-muted/20" data-testid="section-trust-indicators">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Users className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Trusted by 72,000+ owners</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Calculator className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">50+ professional calculators</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Sparkles className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">AI-powered insights</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Since 2024</span>
-              </div>
+            <div className="flex items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground flex-wrap">
+              <span>Trusted by 72,000+ owners</span>
+              <span className="hidden sm:inline text-muted-foreground/40">•</span>
+              <span className="hidden sm:inline">50+ professional calculators</span>
+              <span className="hidden md:inline text-muted-foreground/40">•</span>
+              <span className="hidden md:inline">AI-powered insights</span>
+              <span className="hidden lg:inline text-muted-foreground/40">•</span>
+              <span className="hidden lg:inline">Since 2024</span>
             </div>
           </div>
         </section>

@@ -2,10 +2,8 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, Building2, Calculator, 
-  ShoppingCart, GraduationCap, Phone, Settings as SettingsIcon, Users, X, 
-  Shield, Zap, Globe, Award, CheckCircle, Wrench, BookOpen, BarChart3,
-  FileText, DollarSign, Layout, Bot, Search, TrendingUp, Store, MessageSquare
+  Menu, LogIn, LogOut, User, ChevronDown, ChevronRight,
+  Settings as SettingsIcon, Zap
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,66 +17,60 @@ const navigationSections = [
   {
     id: "platform",
     title: "Platform",
-    icon: Building2,
     items: [
-      { href: "/design-studio", label: "Design Studio 2D/3D", icon: Layout },
-      { href: "/cleanbi", label: "CLEANBI™ Analysis", icon: BarChart3 },
-      { href: "/ai-blogging", label: "AI Blogging Suite", icon: Bot },
-      { href: "/seo-optimizer", label: "SEO Optimizer", icon: Search },
-      { href: "/templates", label: "Premium Templates", icon: FileText },
-      { href: "/repair-guide", label: "Service Guy AI", icon: Wrench },
+      { href: "/design-studio", label: "Design Studio 2D/3D" },
+      { href: "/cleanbi", label: "CLEANBI™ Analysis" },
+      { href: "/ai-blogging", label: "AI Blogging Suite" },
+      { href: "/seo-optimizer", label: "SEO Optimizer" },
+      { href: "/templates", label: "Premium Templates" },
+      { href: "/repair-guide", label: "Service Guy AI" },
     ]
   },
   {
     id: "resources",
     title: "Resources",
-    icon: Calculator,
     items: [
-      { href: "/resources", label: "Resource Hub", icon: BookOpen },
-      { href: "/vendors", label: "Vendor Directory", icon: Store },
-      { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp },
-      { href: "/calculator", label: "Revenue Calculator", icon: Calculator },
-      { href: "/funding-matcher", label: "Funding Matcher", icon: DollarSign },
+      { href: "/resources", label: "Resource Hub" },
+      { href: "/vendors", label: "Vendor Directory" },
+      { href: "/roi-calculator", label: "ROI Calculator" },
+      { href: "/calculator", label: "Revenue Calculator" },
+      { href: "/funding-matcher", label: "Funding Matcher" },
     ]
   },
   {
     id: "marketplace",
     title: "Marketplace",
-    icon: ShoppingCart,
     items: [
-      { href: "/listings", label: "Browse Listings", icon: Search },
-      { href: "/listing-form", label: "Add a Listing", icon: FileText },
-      { href: "/seller-dashboard", label: "Seller Dashboard", icon: BarChart3 },
-      { href: "/superstore", label: "Equipment Superstore", icon: ShoppingCart },
+      { href: "/listings", label: "Browse Listings" },
+      { href: "/listing-form", label: "Add a Listing" },
+      { href: "/seller-dashboard", label: "Seller Dashboard" },
+      { href: "/superstore", label: "Equipment Superstore" },
     ]
   },
   {
     id: "learn",
     title: "Learn",
-    icon: GraduationCap,
     items: [
-      { href: "/courses", label: "Premium Courses", icon: GraduationCap },
-      { href: "/book", label: "The Laundromat Bible", icon: BookOpen },
-      { href: "/blog", label: "Industry Blog", icon: FileText },
+      { href: "/courses", label: "Premium Courses" },
+      { href: "/book", label: "The Laundromat Bible" },
+      { href: "/blog", label: "Industry Blog" },
     ]
   },
   {
     id: "community",
     title: "Community",
-    icon: Users,
     items: [
-      { href: "/forum", label: "Discussion Forum", icon: MessageSquare },
-      { href: "/facebook-group", label: "Facebook Community", icon: Users },
+      { href: "/forum", label: "Discussion Forum" },
+      { href: "/facebook-group", label: "Facebook Community" },
     ]
   },
   {
     id: "expert",
     title: "Expert Help",
-    icon: Phone,
     items: [
-      { href: "/consultation", label: "Book Consultation", icon: Phone },
-      { href: "/about", label: "About Us", icon: Users },
-      { href: "/pricing", label: "Pricing", icon: DollarSign },
+      { href: "/consultation", label: "Book Consultation" },
+      { href: "/about", label: "About Us" },
+      { href: "/pricing", label: "Pricing" },
     ]
   }
 ];
@@ -117,25 +109,16 @@ export function Header() {
         Skip to main content
       </a>
       
-      <div className="bg-[#1e3a5f] border-b border-gold-500/20" data-testid="trust-bar">
+      <div className="bg-[#1e3a5f] border-b border-gold-500/10" data-testid="trust-bar">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center py-2 gap-6 sm:gap-8 text-xs sm:text-sm flex-wrap">
-            <div className="hidden sm:flex items-center gap-2 text-white/90">
-              <Globe className="w-4 h-4 text-gold-400" aria-hidden="true" />
-              <span className="font-medium">220+ Countries</span>
-            </div>
-            <div className="flex items-center gap-2 text-white/90">
-              <Users className="w-4 h-4 text-gold-400" aria-hidden="true" />
-              <span className="font-semibold text-white">72,000+ Members</span>
-            </div>
-            <div className="hidden md:flex items-center gap-2 text-white/90">
-              <Zap className="w-4 h-4 text-gold-400" aria-hidden="true" />
-              <span className="font-medium">80+ Tools</span>
-            </div>
-            <div className="hidden lg:flex items-center gap-2 text-white/90">
-              <Award className="w-4 h-4 text-gold-400" aria-hidden="true" />
-              <span className="font-medium">#1 Laundromat Platform</span>
-            </div>
+          <div className="flex items-center justify-center py-2 gap-4 sm:gap-6 md:gap-10 text-xs sm:text-sm">
+            <span className="text-white/70 hidden sm:inline">220+ Countries</span>
+            <span className="text-white/70 hidden sm:inline">•</span>
+            <span className="text-white font-medium">72,000+ Members</span>
+            <span className="text-white/70 hidden md:inline">•</span>
+            <span className="text-white/70 hidden md:inline">50+ Business Tools</span>
+            <span className="text-white/70 hidden lg:inline">•</span>
+            <span className="text-gold-400 font-semibold hidden lg:inline">#1 Laundromat Platform</span>
           </div>
         </div>
       </div>
@@ -198,30 +181,23 @@ export function Header() {
                   }`}
                   data-testid="mega-menu-panel"
                 >
-                  <div className="bg-[#1e3a5f]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-6 min-w-[800px]">
-                    <div className="grid grid-cols-3 gap-8">
+                  <div className="bg-[#1e3a5f]/98 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-6 min-w-[720px]">
+                    <div className="grid grid-cols-3 gap-6">
                       {navigationSections.slice(0, 3).map((section) => (
                         <div key={section.id}>
-                          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
-                            <section.icon className="w-4 h-4 text-gold-400" aria-hidden="true" />
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wide font-bebas text-base">
-                              {section.title}
-                            </h3>
-                          </div>
-                          <ul className="space-y-1">
+                          <h3 className="text-xs font-bold text-gold-400 uppercase tracking-wider mb-3 pb-2 border-b border-white/10">
+                            {section.title}
+                          </h3>
+                          <ul className="space-y-0.5">
                             {section.items.map((item) => (
                               <li key={item.href}>
                                 <Link href={item.href}>
                                   <div 
-                                    className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer group"
+                                    className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
                                     onClick={() => setMegaMenuOpen(false)}
                                     data-testid={`link-nav-${item.href.replace('/', '')}`}
                                   >
-                                    <item.icon className="w-4 h-4 text-white/50 group-hover:text-gold-400 transition-colors" aria-hidden="true" />
-                                    <span className="relative">
-                                      {item.label}
-                                      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-gold-400 transition-all duration-200 group-hover:w-full" />
-                                    </span>
+                                    {item.label}
                                   </div>
                                 </Link>
                               </li>
@@ -231,29 +207,22 @@ export function Header() {
                       ))}
                     </div>
                     
-                    <div className="grid grid-cols-3 gap-8 mt-6 pt-6 border-t border-white/10">
+                    <div className="grid grid-cols-3 gap-6 mt-5 pt-5 border-t border-white/10">
                       {navigationSections.slice(3).map((section) => (
                         <div key={section.id}>
-                          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
-                            <section.icon className="w-4 h-4 text-gold-400" aria-hidden="true" />
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wide font-bebas text-base">
-                              {section.title}
-                            </h3>
-                          </div>
-                          <ul className="space-y-1">
+                          <h3 className="text-xs font-bold text-gold-400 uppercase tracking-wider mb-3 pb-2 border-b border-white/10">
+                            {section.title}
+                          </h3>
+                          <ul className="space-y-0.5">
                             {section.items.map((item) => (
                               <li key={item.href}>
                                 <Link href={item.href}>
                                   <div 
-                                    className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer group"
+                                    className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
                                     onClick={() => setMegaMenuOpen(false)}
                                     data-testid={`link-nav-${item.href.replace('/', '')}`}
                                   >
-                                    <item.icon className="w-4 h-4 text-white/50 group-hover:text-gold-400 transition-colors" aria-hidden="true" />
-                                    <span className="relative">
-                                      {item.label}
-                                      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-gold-400 transition-all duration-200 group-hover:w-full" />
-                                    </span>
+                                    {item.label}
                                   </div>
                                 </Link>
                               </li>
@@ -426,12 +395,9 @@ export function Header() {
                             className="flex items-center justify-between w-full px-6 py-3 min-h-[44px] text-left hover:bg-white/5 transition-colors"
                             data-testid={`button-mobile-section-${section.id}`}
                           >
-                            <div className="flex items-center gap-3">
-                              <section.icon className="w-5 h-5 text-gold-400" aria-hidden="true" />
-                              <span className="text-white font-semibold text-sm uppercase tracking-wide">
-                                {section.title}
-                              </span>
-                            </div>
+                            <span className="text-white font-semibold text-sm uppercase tracking-wide">
+                              {section.title}
+                            </span>
                             <ChevronRight 
                               className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
                                 expandedSections.includes(section.id) ? 'rotate-90' : ''
@@ -443,12 +409,11 @@ export function Header() {
                             {section.items.map((item) => (
                               <Link href={item.href} key={item.href}>
                                 <div 
-                                  className="flex items-center gap-3 px-6 pl-14 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                                  className="px-6 pl-10 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm"
                                   onClick={() => setMobileMenuOpen(false)}
                                   data-testid={`link-mobile-${item.href.replace('/', '')}`}
                                 >
-                                  <item.icon className="w-4 h-4 text-white/50" aria-hidden="true" />
-                                  <span className="text-sm">{item.label}</span>
+                                  {item.label}
                                 </div>
                               </Link>
                             ))}
