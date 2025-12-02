@@ -160,11 +160,11 @@ export function NavigationMenu() {
       
       <header className="sticky top-0 z-50">
         {/* Top utility bar */}
-        <div className="bg-[#0a1628] text-white/70 border-b border-white/5">
+        <div className="bg-[#0f2744] text-white/70 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-8 flex items-center justify-between text-xs">
               <span className="hidden sm:inline">nick@washbizhub.com</span>
-              <span className="sm:hidden text-white/60">WashBizHub</span>
+              <span className="sm:hidden text-[#b8860b]">WashBizHub</span>
 
               <div className="flex items-center gap-2">
                 <ThemeToggle />
@@ -174,7 +174,7 @@ export function NavigationMenu() {
                 ) : isAuthenticated && user ? (
                   <button
                     onClick={() => logout()}
-                    className="flex items-center gap-1.5 hover:text-white transition-colors px-2 py-1"
+                    className="flex items-center gap-1.5 hover:text-[#b8860b] transition-colors px-2 py-1"
                     data-testid="button-logout"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export function NavigationMenu() {
                 ) : (
                   <a 
                     href="/api/login"
-                    className="hover:text-white transition-colors px-2 py-1"
+                    className="hover:text-[#b8860b] transition-colors px-2 py-1"
                     data-testid="link-login"
                   >
                     Sign In
@@ -194,8 +194,8 @@ export function NavigationMenu() {
           </div>
         </div>
 
-        {/* Main nav bar */}
-        <div className="bg-background border-b border-border/50">
+        {/* Main nav bar - Premium Navy */}
+        <div className="bg-[#1e3a5f] border-b border-[#2a4a73]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-16 flex items-center justify-between gap-4">
               <Link 
@@ -219,7 +219,7 @@ export function NavigationMenu() {
                   <NavigationMenuList className="gap-0">
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
                         data-testid="dropdown-plan"
                       >
                         Plan
@@ -235,7 +235,7 @@ export function NavigationMenu() {
 
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
                         data-testid="dropdown-evaluate"
                       >
                         Evaluate
@@ -251,7 +251,7 @@ export function NavigationMenu() {
 
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
                         data-testid="dropdown-operate"
                       >
                         Operate
@@ -267,7 +267,7 @@ export function NavigationMenu() {
 
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
                         data-testid="dropdown-partner"
                       >
                         Partner
@@ -289,7 +289,7 @@ export function NavigationMenu() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex h-10 w-10"
+                  className="hidden md:flex h-10 w-10 text-white/80 hover:text-white hover:bg-white/10"
                   onClick={() => setSearchOpen(!searchOpen)}
                   aria-label="Search"
                   data-testid="button-search"
@@ -300,7 +300,7 @@ export function NavigationMenu() {
                 <Link href="/signup">
                   <Button 
                     size="sm"
-                    className="hidden sm:flex h-10 px-4 font-medium"
+                    className="hidden sm:flex h-10 px-5 font-semibold bg-[#b8860b] hover:bg-[#9a7209] text-white border-0"
                     data-testid="button-start-trial"
                   >
                     Get Started
@@ -313,7 +313,7 @@ export function NavigationMenu() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="lg:hidden h-10 w-10" 
+                      className="lg:hidden h-10 w-10 text-white/80 hover:text-white hover:bg-white/10" 
                       data-testid="button-mobile-menu"
                     >
                       <AnimatePresence mode="wait" initial={false}>
