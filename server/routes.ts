@@ -8,6 +8,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import adminRoutes from "./admin-routes";
+import authRoutes from "./auth-routes";
 import calculatorRoutes from "./calculator-routes";
 import cleanbiExplorerRoutes from "./cleanbi-explorer-routes";
 import cleanbiReportsRoutes from "./cleanbi-reports-routes";
@@ -242,6 +243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== ADMIN DASHBOARD ====================
   app.use("/api/admin", adminRoutes);
+  
   app.use("/api/calculators", calculatorRoutes);
   app.use("/api/cleanbi-explorer", cleanbiExplorerRoutes);
   app.use("/api/cleanbi/reports", cleanbiReportsRoutes);
@@ -254,7 +256,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== AUTH ====================
   
   // Setup Replit Auth (login, logout, callback routes)
+  // This also initializes session middleware - MUST come before email/password auth routes
   await setupAuth(app);
+  
+  // ==================== EMAIL/PASSWORD AUTH ====================
+  // Mounted after setupAuth() so session middleware is available
+  app.use("/api/auth/email", authRoutes);
   
   // Get authenticated user data
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
