@@ -417,7 +417,7 @@ export default function Home() {
         {/* 6. SIMPLE FOOTER CTA */}
         <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center">
               Your Next Laundromat Shouldn't Be a Gamble
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
