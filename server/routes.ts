@@ -59,6 +59,16 @@ import {
 } from "./content-indexing-hooks";
 import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
 import { optimizeBlogForSEO } from "./seo-optimizer";
+import { 
+  performSearch, 
+  trackSearchAnalytics, 
+  incrementPopularity, 
+  getPopularSearchTerms,
+  reindexAllContent,
+  getSearchIndexStats,
+  initializeSearchIndex,
+  type SearchQuery 
+} from "./search-service";
 import { readFileSync } from "fs";
 import { join } from "path";
 import multer from "multer";
@@ -4828,37 +4838,92 @@ Disallow: /private/`;
   });
 
   // ==================== PLATFORM-WIDE SEARCH ====================
-  // GET /api/search - Predictive autocomplete search
-  app.get("/api/search", async (req, res) => {
+  
+  // POST /api/search - Full-text search with PostgreSQL ts_vector
+  // Rate limited to prevent abuse
+  app.post("/api/search", rateLimiter({ windowMs: 60000, max: 30 }), async (req, res) => {
     try {
-      const { q, limit } = req.query;
+      const { query, filters, limit, offset } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Query string is required" });
+      }
+      
+      if (query.length < 2) {
+        return res.status(400).json({ error: "Query must be at least 2 characters" });
+      }
+      
+      if (query.length > 200) {
+        return res.status(400).json({ error: "Query must be 200 characters or less" });
+      }
+      
+      const searchQuery: SearchQuery = {
+        query: query.trim(),
+        filters: {
+          entityTypes: filters?.entityTypes || undefined,
+          categories: filters?.categories || undefined,
+        },
+        limit: Math.min(limit || 20, 100),
+        offset: offset || 0,
+      };
+      
+      const results = await performSearch(searchQuery);
+      
+      // Track search analytics
+      const userId = (req as any).user?.claims?.sub || (req as any).user?.sub || null;
+      await trackSearchAnalytics(
+        searchQuery.query,
+        results.totalCount,
+        userId,
+        (req as any).sessionID
+      );
+      
+      res.json(results);
+    } catch (error: any) {
+      console.error("Search error:", error);
+      res.status(500).json({ error: "Search failed", message: error.message });
+    }
+  });
+  
+  // GET /api/search - Quick autocomplete search (legacy + simple queries)
+  app.get("/api/search", rateLimiter({ windowMs: 60000, max: 60 }), async (req, res) => {
+    try {
+      const { q, limit, type } = req.query;
+      
       if (!q || typeof q !== 'string') {
         return res.status(400).json({ error: "Query parameter 'q' is required" });
       }
       
-      const results = await storage.searchContent(q, limit ? parseInt(limit as string) : 10);
+      const searchQuery: SearchQuery = {
+        query: q.trim(),
+        filters: type ? { entityTypes: [type as string] } : undefined,
+        limit: Math.min(parseInt(limit as string) || 10, 50),
+        offset: 0,
+      };
+      
+      const results = await performSearch(searchQuery);
       
       // Track search analytics
-      if ((req as any).user?.claims || (req as any).user?.sub) {
-        await storage.createSearchAnalytic({
-          query: q,
-          resultsCount: results.length,
-          userId: (req as any).user?.claims?.sub || (req as any).user?.sub || null,
-          sessionId: (req as any).sessionID,
-        });
-      }
+      const userId = (req as any).user?.claims?.sub || (req as any).user?.sub || null;
+      await trackSearchAnalytics(
+        searchQuery.query,
+        results.totalCount,
+        userId,
+        (req as any).sessionID
+      );
       
       res.json(results);
     } catch (error: any) {
+      console.error("Search error:", error);
       res.status(500).json({ error: error.message });
     }
   });
 
-  // GET /api/search/popular - Get popular searches
+  // GET /api/search/popular - Get popular search terms
   app.get("/api/search/popular", async (req, res) => {
     try {
       const { limit } = req.query;
-      const popular = await storage.getPopularSearches(limit ? parseInt(limit as string) : 20);
+      const popular = await getPopularSearchTerms(limit ? parseInt(limit as string) : 20);
       res.json(popular);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -4868,13 +4933,60 @@ Disallow: /private/`;
   // POST /api/search/click - Track search result click
   app.post("/api/search/click", async (req, res) => {
     try {
-      const { resultId } = req.body;
+      const { resultId, query, position } = req.body;
       if (resultId) {
-        await storage.incrementSearchPopularity(resultId);
+        await incrementPopularity(resultId);
+        
+        // Track click in analytics
+        const userId = (req as any).user?.claims?.sub || (req as any).user?.sub || null;
+        await trackSearchAnalytics(
+          query || "",
+          1,
+          userId,
+          (req as any).sessionID,
+          resultId,
+          position
+        );
       }
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // GET /api/search/stats - Get search index statistics (admin only)
+  app.get("/api/search/stats", isAdmin, async (req, res) => {
+    try {
+      const stats = await getSearchIndexStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // POST /api/search/index - Trigger re-indexing (admin only)
+  app.post("/api/search/index", isAdmin, async (req, res) => {
+    try {
+      console.log("🔄 Starting search index rebuild...");
+      const result = await reindexAllContent();
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: `Successfully indexed ${result.indexed} items`,
+          indexed: result.indexed,
+        });
+      } else {
+        res.json({
+          success: false,
+          message: `Indexed ${result.indexed} items with ${result.errors.length} errors`,
+          indexed: result.indexed,
+          errors: result.errors.slice(0, 10), // Return first 10 errors
+        });
+      }
+    } catch (error: any) {
+      console.error("Reindexing error:", error);
+      res.status(500).json({ error: "Reindexing failed", message: error.message });
     }
   });
 
@@ -13181,5 +13293,10 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   const httpServer = createServer(app);
+  
+  initializeSearchIndex().catch(err => {
+    console.error("Failed to initialize search index:", err);
+  });
+  
   return httpServer;
 }
