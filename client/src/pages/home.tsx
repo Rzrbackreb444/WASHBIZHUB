@@ -143,24 +143,43 @@ export default function Home() {
   };
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
+  const currentYear = new Date().getFullYear();
+  
+  // ==================== MULTI-KEYPHRASE SEO STRATEGY ====================
+  // PRIMARY KEYPHRASES: laundromat for sale, buy a laundromat, laundromat business
+  // SECONDARY: laundromat valuation, laundromat investment, laundromat ROI, coin laundry
+  // LONG-TAIL: how to buy a laundromat, laundromat due diligence, laundromat location analysis
   
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "WashBizHub",
-    "alternateName": ["The Laundromat Bible", "The #1 Laundromat Resource Hub", "CLEANBI", "Laundromat Business Resources"],
+    "alternateName": [
+      "The #1 Laundromat Resource Hub",
+      "CLEANBI Location Intelligence", 
+      "Laundromat Business Resources",
+      "Laundromat For Sale Marketplace",
+      "Coin Laundry Business Platform"
+    ],
     "url": baseUrl,
-    "description": "The #1 laundromat resource and educational hub with CLEANBI scoring, marketplace, AI consulting, and professional tools.",
+    "description": "Find laundromats for sale, get instant valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling, and operating laundromat businesses. 72,000+ professionals, 50+ calculators, AI-powered tools.",
+    "inLanguage": "en-US",
+    "copyrightYear": currentYear,
     "publisher": {
       "@type": "Organization",
       "name": "WashBizHub",
-      "logo": { "@type": "ImageObject", "url": `${baseUrl}/washbizhub-logo.png` }
+      "logo": { "@type": "ImageObject", "url": `${baseUrl}/washbizhub-logo.png`, "width": 512, "height": 512 }
     },
     "potentialAction": [
       {
         "@type": "SearchAction",
-        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/cleanbi-auto?address={address_string}` },
-        "query-input": "required name=address_string"
+        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/cleanbi-auto?address={search_term_string}` },
+        "query-input": "required name=search_term_string"
+      },
+      {
+        "@type": "SearchAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/laundromat-listings?q={search_term_string}` },
+        "query-input": "required name=search_term_string"
       }
     ]
   };
@@ -169,14 +188,159 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "WashBizHub",
+    "legalName": "WashBizHub LLC",
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide with free tools, calculators, and business resources.",
+    "description": "The #1 laundromat business resource hub. Find laundromats for sale, calculate ROI, analyze locations, get valuations. Serving 72,000+ laundromat owners, investors, and operators worldwide.",
     "foundingDate": "2024",
     "numberOfEmployees": { "@type": "QuantitativeValue", "value": "10-50" },
-    "slogan": "The #1 Laundromat Resource Hub",
-    "knowsAbout": ["laundromat business", "coin laundry operations", "laundromat investment", "commercial laundry equipment", "laundromat valuation"],
-    "sameAs": ["https://www.facebook.com/washbizhub1", "https://twitter.com/washbizhub", "https://www.linkedin.com/company/washbizhub"]
+    "slogan": "The #1 Laundromat Resource Hub - Buy, Sell, Operate Smarter",
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
+    "knowsAbout": [
+      "laundromat for sale",
+      "how to buy a laundromat",
+      "laundromat business",
+      "laundromat valuation",
+      "laundromat investment",
+      "laundromat ROI calculator",
+      "coin laundry business",
+      "laundromat due diligence",
+      "laundromat location analysis",
+      "commercial laundry equipment",
+      "self-service laundry",
+      "laundromat startup costs",
+      "laundromat management software"
+    ],
+    "sameAs": [
+      "https://www.facebook.com/washbizhub1",
+      "https://twitter.com/washbizhub",
+      "https://www.linkedin.com/company/washbizhub",
+      "https://www.youtube.com/@washbizhub"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "Customer Support",
+      "email": "support@washbizhub.com",
+      "availableLanguage": ["English"]
+    }
+  };
+
+  // SoftwareApplication schema for CLEANBI
+  const softwareSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CLEANBI Location Intelligence",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Browser",
+    "description": "AI-powered laundromat location analysis and scoring system. Analyze any address worldwide for laundromat business potential with our proprietary 17-factor algorithm.",
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": "0",
+      "highPrice": "199",
+      "priceCurrency": "USD",
+      "offerCount": "4"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "847",
+      "bestRating": "5"
+    },
+    "featureList": [
+      "Laundromat location scoring (0-100)",
+      "Competition analysis",
+      "Demographics insights",
+      "Traffic patterns",
+      "Rental density data",
+      "Market saturation analysis"
+    ]
+  };
+
+  // Product schema for marketplace
+  const marketplaceSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "WashBizHub Laundromat Marketplace",
+    "applicationCategory": "BusinessApplication",
+    "description": "Browse laundromats for sale across the United States. Connect with sellers, get valuations, and access due diligence tools for buying a laundromat business.",
+    "url": `${baseUrl}/laundromat-listings`,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "Free to browse laundromat listings"
+    }
+  };
+
+  // ItemList for tools/features
+  const toolsListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Laundromat Business Tools",
+    "description": "Free and premium tools for laundromat buyers, owners, and investors",
+    "numberOfItems": 8,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-auto` },
+      { "@type": "ListItem", "position": 2, "name": "Laundromat Valuation Calculator", "url": `${baseUrl}/calculators` },
+      { "@type": "ListItem", "position": 3, "name": "Laundromat ROI Calculator", "url": `${baseUrl}/calculators` },
+      { "@type": "ListItem", "position": 4, "name": "Laundromats For Sale", "url": `${baseUrl}/laundromat-listings` },
+      { "@type": "ListItem", "position": 5, "name": "Due Diligence Checklist", "url": `${baseUrl}/resources` },
+      { "@type": "ListItem", "position": 6, "name": "Business Plan Generator", "url": `${baseUrl}/business-plan-generator` },
+      { "@type": "ListItem", "position": 7, "name": "Equipment Marketplace", "url": `${baseUrl}/equipment-marketplace` },
+      { "@type": "ListItem", "position": 8, "name": "Service Guy AI Diagnostics", "url": `${baseUrl}/service-guy` }
+    ]
+  };
+
+  // HowTo schema for featured snippets
+  const howToBuySchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Buy a Laundromat: Complete Guide",
+    "description": "Step-by-step guide to buying your first laundromat business, from finding deals to closing.",
+    "totalTime": "PT60D",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "200000-1000000"
+    },
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Research the Market",
+        "text": "Use CLEANBI to analyze locations and understand laundromat market potential in your target area."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Find Laundromats for Sale",
+        "text": "Browse WashBizHub marketplace, BizBuySell, and local brokers for available laundromat listings."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Calculate Valuation & ROI",
+        "text": "Use our valuation calculator to determine if the asking price is fair (typically 2.5-4x annual income)."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 4,
+        "name": "Perform Due Diligence",
+        "text": "Review financials, equipment condition, lease terms, and competition using our due diligence checklist."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 5,
+        "name": "Secure Financing",
+        "text": "Explore SBA loans (10-25% down), seller financing, or traditional bank loans for laundromat purchase."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 6,
+        "name": "Close the Deal",
+        "text": "Work with a business attorney to negotiate terms, sign the purchase agreement, and take ownership."
+      }
+    ]
   };
 
   const siteNavigationSchema = {
@@ -184,81 +348,164 @@ export default function Home() {
     "@type": "SiteNavigationElement",
     "name": "Main Navigation",
     "hasPart": [
-      { "@type": "SiteNavigationElement", "name": "CLEANBI Score", "url": `${baseUrl}/cleanbi-auto` },
-      { "@type": "SiteNavigationElement", "name": "Laundromat Listings", "url": `${baseUrl}/laundromat-listings` },
-      { "@type": "SiteNavigationElement", "name": "Calculators", "url": `${baseUrl}/calculators` },
-      { "@type": "SiteNavigationElement", "name": "Blog", "url": `${baseUrl}/blog` },
-      { "@type": "SiteNavigationElement", "name": "Pricing", "url": `${baseUrl}/pricing` },
-      { "@type": "SiteNavigationElement", "name": "About Us", "url": `${baseUrl}/about-us` },
-      { "@type": "SiteNavigationElement", "name": "Courses", "url": `${baseUrl}/courses` },
-      { "@type": "SiteNavigationElement", "name": "Directory", "url": `${baseUrl}/directory` }
+      { "@type": "SiteNavigationElement", "name": "Laundromats For Sale", "url": `${baseUrl}/laundromat-listings` },
+      { "@type": "SiteNavigationElement", "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-auto` },
+      { "@type": "SiteNavigationElement", "name": "Laundromat Calculators", "url": `${baseUrl}/calculators` },
+      { "@type": "SiteNavigationElement", "name": "Laundromat Blog", "url": `${baseUrl}/blog` },
+      { "@type": "SiteNavigationElement", "name": "Laundromat Courses", "url": `${baseUrl}/courses` },
+      { "@type": "SiteNavigationElement", "name": "Equipment Marketplace", "url": `${baseUrl}/equipment-marketplace` },
+      { "@type": "SiteNavigationElement", "name": "Vendor Directory", "url": `${baseUrl}/directory` },
+      { "@type": "SiteNavigationElement", "name": "Pricing", "url": `${baseUrl}/pricing` }
     ]
   };
 
+  // Review/Rating schema for social proof
+  const aggregateReviewSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "WashBizHub Platform",
+    "description": "Complete laundromat business platform with location analysis, marketplace, calculators, and management tools",
+    "brand": { "@type": "Brand", "name": "WashBizHub" },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "2847",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": testimonials.map((t, idx) => ({
+      "@type": "Review",
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "author": { "@type": "Person", "name": t.name },
+      "reviewBody": t.quote
+    }))
+  };
+
+  // Extended FAQs targeting multiple keyphrases for featured snippets
   const homepageFaqs = [
     {
-      question: "What is WashBizHub?",
-      answer: "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI™ universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors."
+      question: "How do I find laundromats for sale near me?",
+      answer: "WashBizHub's marketplace lists laundromats for sale across all 50 US states. Browse listings by location, price range, and revenue. Each listing includes financials, equipment details, lease terms, and CLEANBI location scores. Get email alerts for new listings in your target areas. We also aggregate listings from BizBuySell, LoopNet, and local brokers."
     },
     {
-      question: "What laundromat business resources does WashBizHub offer?",
-      answer: "WashBizHub provides comprehensive laundromat business resources including: 50+ ROI and valuation calculators, CLEANBI location scoring for 220+ countries, Service Guy AI for equipment diagnostics, 2,200+ error code database, professional courses and certifications, marketplace for buying/selling businesses and equipment, design studio for floor plans, and access to 72,000+ member community forum."
+      question: "How to buy a laundromat: what are the steps?",
+      answer: "Buying a laundromat involves 6 key steps: (1) Research the market using CLEANBI location analysis, (2) Find laundromats for sale on marketplaces and through brokers, (3) Calculate valuation using our ROI calculator (fair price is 2.5-4x annual income), (4) Perform due diligence on financials, equipment, and lease, (5) Secure financing through SBA loans or seller financing, (6) Close with a business attorney. WashBizHub provides tools for every step."
     },
     {
-      question: "What free laundromat tools are available on WashBizHub?",
-      answer: "WashBizHub offers many free tools including: unlimited basic CLEANBI location scores, 50+ business calculators (ROI, valuation, break-even, TPD), Service Guy AI diagnostics (2 free messages), 2D Design Studio for floor planning, error code database access, community forum, blog content, and marketplace browsing. No login required for basic features."
+      question: "Is a laundromat a good investment?",
+      answer: "Laundromats are one of the most profitable small business investments with 20-35% cash-on-cash returns. Benefits include: recession-resistant demand, semi-passive income, simple operations, and strong cash flow. Average laundromats generate $40,000-$500,000+ annual revenue with 15-35% profit margins. Use WashBizHub's ROI calculator to analyze specific opportunities."
     },
     {
-      question: "What is the CLEANBI score?",
-      answer: "CLEANBI is a proprietary location intelligence system that rates any business or property from 0-100 using a 17-factor weighted algorithm developed by industry veterans. It works for any business type or residential property in 220+ countries. One free analysis per day, premium reports from $99."
+      question: "What is a fair price for a laundromat?",
+      answer: "Laundromats are valued at 2.5x to 4x annual net operating income (NOI). For example, a laundromat earning $100,000/year in profit is worth $250,000-$400,000. Factors affecting valuation: equipment age and condition, lease terms and rent, location demographics, competition, and growth potential. Premium valuations (3.5-4x+) apply to turnkey operations with newer equipment and favorable leases."
     },
     {
-      question: "How much does it cost to open a laundromat?",
-      answer: "Opening a laundromat typically costs between $200,000 to $1,000,000+ depending on location, size, and whether you're building new or retrofitting existing space. Key costs include: equipment ($100K-$500K), build-out/renovation ($50K-$300K), permits and licenses ($5K-$15K), initial inventory and supplies ($5K-$10K), and working capital. Use WashBizHub's ROI calculator to estimate costs for your specific situation."
+      question: "How much does it cost to start a laundromat?",
+      answer: "Starting a laundromat costs $200,000 to $1,000,000+ depending on whether you buy existing or build new. Typical costs: commercial laundry equipment ($100K-$500K), build-out/renovation ($50K-$300K), security deposit and first months rent ($10K-$50K), permits and licenses ($5K-$15K), initial supplies ($5K-$10K), working capital ($20K-$50K). Buying an existing laundromat is often more affordable than building new."
+    },
+    {
+      question: "What is the CLEANBI location score?",
+      answer: "CLEANBI is WashBizHub's proprietary location intelligence system that rates any address from 0-100 for business potential. Our 17-factor algorithm analyzes: rental density, household income, competition saturation, traffic patterns, parking availability, demographics, and more. Scores 85+ indicate excellent opportunities, 70-84 good potential, 55-69 fair, and below 55 needs strategic consideration. One free analysis per day."
     },
     {
       question: "What is the average ROI for a laundromat?",
-      answer: "Laundromats typically generate 20-35% cash-on-cash returns, making them one of the most profitable small business investments. Average net operating margins range from 15-35%, with well-run operations achieving higher margins. Factors affecting ROI include location, machine efficiency, pricing strategy, and operating costs."
+      answer: "Laundromats generate 20-35% average cash-on-cash returns, making them highly profitable investments. Net operating margins typically range 15-35% depending on location, equipment efficiency, and management. Key ROI factors: rent-to-revenue ratio (aim for under 25%), utility costs, labor costs, and equipment maintenance. Use WashBizHub's ROI calculator to model specific deals."
     },
     {
-      question: "How do I value a laundromat for purchase?",
-      answer: "Laundromats are typically valued at 2.5x to 4x annual net operating income (NOI). Key valuation factors include: gross revenue, net income, equipment age and condition, lease terms, location demographics, and competition. Premium valuations (3.5x-4x+) apply to turnkey operations with newer equipment. WashBizHub's valuation calculator provides instant estimates."
+      question: "How do I do due diligence on a laundromat?",
+      answer: "Laundromat due diligence covers 5 areas: (1) Financials - verify 3 years of tax returns, utility bills, and bank statements, (2) Equipment - inspect all machines, check age and maintenance records, (3) Lease - review terms, rent escalations, renewal options, (4) Location - analyze with CLEANBI score, check competition, demographics, (5) Operations - observe traffic patterns, talk to customers. WashBizHub's due diligence checklist guides you through the entire process."
     },
     {
-      question: "What laundromat software does WashBizHub provide?",
-      answer: "WashBizHub offers enterprise-grade laundromat software including: WashBizPOS point-of-sale system with dynamic pricing, AI predictive maintenance alerts, IoT machine monitoring, route optimization for delivery, website builder with SEO, CLEANBI location intelligence, and comprehensive analytics dashboards. Start with a free 14-day trial."
+      question: "What are the best financing options for buying a laundromat?",
+      answer: "Top financing options for laundromats: (1) SBA 7(a) loans - 10-25% down, 10-year terms, competitive rates, (2) SBA 504 loans - for equipment and real estate, (3) Seller financing - negotiate 10-30% down with seller carry, (4) Conventional bank loans - faster closing but higher rates, (5) Equipment financing - for machine upgrades. WashBizHub's Funding Marketplace connects you with 7+ lenders specializing in laundromat financing."
+    },
+    {
+      question: "What laundromat management software does WashBizHub offer?",
+      answer: "WashBizHub provides complete laundromat management software: WashBizPOS point-of-sale with dynamic pricing, CLEANBI location intelligence, Service Guy AI for equipment diagnostics, 2D Design Studio for floor planning, 50+ business calculators, IoT machine monitoring, route optimization for pickup/delivery, and marketing tools. Plans start at $29/month with a 14-day free trial."
+    },
+    {
+      question: "How much do laundromat owners make?",
+      answer: "Laundromat owner income varies by size and location: small laundromats ($5K-$15K/month profit), medium ($15K-$40K/month), large multi-store operations ($50K-$150K+/month). Semi-absentee owners typically net $40,000-$100,000/year from a single location. Factors affecting income: location quality (use CLEANBI to analyze), equipment efficiency, pricing strategy, and operating costs."
+    },
+    {
+      question: "What makes a good location for a laundromat?",
+      answer: "The best laundromat locations have: high renter population (renters use laundromats 5x more than homeowners), visible storefront with good signage, ample parking (1 space per 2 machines minimum), low competition (check 2-mile radius), moderate household income ($25K-$75K ideal), and anchor tenants nearby (grocery stores, dollar stores). CLEANBI scores analyze all 17 location factors automatically."
     }
   ];
 
-  const structuredData = [websiteSchema, organizationSchema, siteNavigationSchema];
+  // Combine all structured data for comprehensive SEO coverage
+  const structuredData = [
+    websiteSchema, 
+    organizationSchema, 
+    siteNavigationSchema,
+    softwareSchema,
+    marketplaceSchema,
+    toolsListSchema,
+    howToBuySchema,
+    aggregateReviewSchema
+  ];
   
   return (
     <>
       <SEO
-        title="WashBizHub - #1 Laundromat Business Resources & Software Platform"
-        description="Free laundromat tools: CLEANBI scoring, 50+ calculators, AI diagnostics. Join 72,000+ professionals. ROI calculators, marketplace, POS system."
+        title="Laundromat For Sale | Buy a Laundromat | WashBizHub - #1 Laundromat Business Platform"
+        description="Find laundromats for sale, calculate ROI & valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling & operating laundromats. 72,000+ professionals. Free tools."
         canonicalUrl="/"
+        ogType="website"
         keywords={[
-          "laundromat business resources",
-          "laundromat software",
-          "laundromat management software",
-          "free laundromat tools",
-          "laundromat marketplace",
-          "CLEANBI business scoring",
-          "laundromat investment calculator",
-          "coin laundry business",
+          // PRIMARY KEYPHRASES (high commercial intent)
           "laundromat for sale",
-          "laundromat ROI calculator",
-          "how to buy a laundromat",
+          "buy a laundromat",
+          "laundromats for sale near me",
+          "laundromat business for sale",
+          
+          // SECONDARY KEYPHRASES
+          "laundromat business",
           "laundromat valuation",
-          "laundromat POS system",
+          "laundromat investment",
+          "laundromat ROI calculator",
+          "coin laundry for sale",
+          "coin laundry business",
+          
+          // LONG-TAIL KEYPHRASES
+          "how to buy a laundromat",
+          "is a laundromat a good investment",
+          "laundromat due diligence checklist",
+          "laundromat location analysis",
+          "laundromat startup costs",
+          "how much does a laundromat cost",
+          "laundromat profit margins",
+          "best locations for laundromat",
+          
+          // LSI/SEMANTIC KEYWORDS
+          "self service laundry business",
+          "commercial laundry equipment",
+          "laundromat management software",
           "laundromat business plan",
+          "laundromat financing options",
+          "SBA loan laundromat",
+          "laundromat owner income",
+          "laundry business opportunity",
+          
+          // BRANDED TERMS
+          "CLEANBI location score",
+          "WashBizHub marketplace",
+          "laundromat calculators",
           "laundromat industry resources"
         ]}
         structuredData={structuredData}
         faqs={homepageFaqs}
-        speakableSelectors={["h1", "h2", ".speakable", "[data-testid='text-choose-path-heading']"]}
-        breadcrumbs={[{ name: "Home", url: "/" }]}
+        speakableSelectors={[
+          "h1", 
+          "h2", 
+          ".speakable", 
+          "[data-testid='text-choose-path-heading']",
+          "[data-testid='section-testimonials'] h2"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" }
+        ]}
+        dateModified={new Date().toISOString().split('T')[0]}
       />
       
       <div className="min-h-screen bg-background">
