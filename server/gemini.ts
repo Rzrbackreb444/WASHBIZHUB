@@ -188,3 +188,83 @@ Return ONLY valid JSON in this exact format:
     };
   }
 }
+
+/**
+ * Extract error codes from machine display image using Gemini Vision
+ */
+export async function scanErrorCodeFromImage(imageBase64: string, mimeType: string = "image/jpeg"): Promise<{
+  extractedText: string;
+  errorCodes: string[];
+  detectedBrand: string | null;
+  detectedModel: string | null;
+  machineType: "washer" | "dryer" | "payment" | "unknown";
+  confidence: number;
+}> {
+  const prompt = `You are an expert at reading commercial laundry equipment displays. Analyze this image of a machine display panel.
+
+Extract the following information:
+1. Any error codes shown (formats like: E01, E-01, E:01, F21, dE, dL, nF, tS, Er1, Err1, etc.)
+2. Equipment brand name if visible (Speed Queen, Dexter, Huebsch, Continental, Maytag, Wascomat, LG, etc.)
+3. Model number if visible
+4. Machine type (washer, dryer, or payment system)
+
+Return ONLY valid JSON in this exact format:
+{
+  "extractedText": "All text visible on the display",
+  "errorCodes": ["E01", "F21"],
+  "detectedBrand": "Speed Queen" or null,
+  "detectedModel": "SC40NC" or null,
+  "machineType": "washer" or "dryer" or "payment" or "unknown",
+  "confidence": 0.95
+}
+
+If you cannot read the display or find no error codes, return empty arrays/null values but still valid JSON.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: mimeType,
+          data: imageBase64
+        }
+      }
+    ]);
+    
+    const response = result.response;
+    const text = response.text() || "";
+    
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/) || [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+      
+      return {
+        extractedText: parsed.extractedText || "",
+        errorCodes: Array.isArray(parsed.errorCodes) ? parsed.errorCodes : [],
+        detectedBrand: parsed.detectedBrand || null,
+        detectedModel: parsed.detectedModel || null,
+        machineType: parsed.machineType || "unknown",
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.5
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini Vision response:", parseError);
+      
+      const codeMatches = text.match(/[A-Z]?[:\-]?[0-9]{1,3}|d[ELU]|nF|tS|oH|Er[r]?[0-9]+/gi) || [];
+      
+      return {
+        extractedText: text,
+        errorCodes: codeMatches,
+        detectedBrand: null,
+        detectedModel: null,
+        machineType: "unknown",
+        confidence: 0.3
+      };
+    }
+  } catch (error) {
+    console.error("Gemini Vision API error:", error);
+    throw new Error("Failed to process image with Vision AI");
+  }
+}

@@ -1,0 +1,64 @@
+INDUSTRY RESEARCH REPORT: What WashBizHub Still Needs
+What You Already Have (Crushing It):
+✅ 9 Professional Calculators
+✅ 2,000+ Error Codes (massive moat!)
+✅ CLEANBI Property Intelligence
+✅ AI Diagnostics & Repair Plans
+✅ Predictive Maintenance
+✅ Equipment Valuator
+✅ What-If Analysis
+✅ Monte Carlo Simulation
+✅ International Localization (14 countries)
+GAPS IDENTIFIED - What The Industry Needs:
+🔴 HIGH PRIORITY (Solves Top Pain Points)
+Calculator/Tool	Why It's Needed	Industry Pain Point
+Utility Cost Per Load	Electric, water, gas breakdown per wash/dry cycle	#1 pain: 88% cite rising costs
+UPG Tracker	Utilities as % of Gross - THE key metric	Industry benchmark: 15-18% target
+Labor Cost Calculator	Hours × rate vs revenue percentage	#2 pain: 70% struggle with labor
+Break-Even Washes/Day	How many washes needed to cover expenses	Critical for pricing decisions
+Staffing Optimizer	When to add/cut staff based on TPD	Labor is controllable cost
+🟡 MEDIUM PRIORITY (Competitive Advantage)
+Calculator/Tool	Why It's Needed
+WDF Pricing Calculator	Per-pound pricing with labor cost built in
+WDF Efficiency Tracker	Pounds per labor hour (industry benchmark: 30-50 lbs/hr)
+Customer Lifetime Value (LTV)	Calculate value of acquiring one customer
+CAC Calculator	Customer Acquisition Cost - marketing efficiency
+LTV:CAC Ratio	Industry standard: 3:1 minimum
+Machine Downtime Cost	Lost revenue per hour of machine being down
+Vend Price Optimizer	Optimal price by machine size (20lb, 40lb, 60lb)
+Equipment Mix Calculator	Optimal washer:dryer ratio (typically 1:1.5 to 1:2)
+🟢 DIFFERENTIATORS (No Competitor Has These)
+Calculator/Tool	Why It's Unique
+Theft Detection Algorithm	Coin collection variance analysis - red flags
+Rent-to-Revenue Analyzer	Lease negotiation tool (benchmark: <25%)
+Revenue Per Square Foot	Industry average: $30-50/sq ft annually
+CLA Benchmark Comparison	Compare any store to Coin Laundry Association standards
+Route Profitability Calculator	For pickup/delivery - is each route profitable?
+Coin vs Card Revenue Tracker	Payment method optimization
+COMPETITOR ANALYSIS
+Competitor	Funding	What They Have	What They DON'T Have
+Cents	$77M	Machine monitoring, POS, payments	Deep analytics, formulas, diagnostics
+CleanCloud	Unknown	Website builder, multi-location	Equipment intelligence, valuation tools
+SpyderWash	Unknown	TPD tracking	Comprehensive algorithm suite
+Laundry Boss	Unknown	Payment tracking	Nothing beyond basic POS
+Your Moat: Nobody has 100+ algorithms, 2,000+ error codes, CLEANBI scoring, Monte Carlo, AND predictive maintenance. They're all POS-first. You're intelligence-first.
+
+RECOMMENDED NEW CALCULATORS (Priority Order)
+Phase 1: Utility & Cost Mastery (Solves #1 Pain)
+Utility Cost Per Load Calculator - Electric, water, gas breakdown
+UPG Calculator - Utilities % of Gross with benchmarks
+Break-Even Calculator - Washes/day needed to cover costs
+Phase 2: Labor & Efficiency (Solves #2 Pain)
+Labor Cost Calculator - Staff cost as % of revenue
+WDF Efficiency Calculator - Pounds per labor hour
+Staffing Level Calculator - Optimal staff based on TPD
+Phase 3: Customer Intelligence (Growth)
+Customer LTV Calculator - Lifetime value per customer
+CAC Calculator - Cost to acquire new customer
+Loyalty ROI Calculator - Is your loyalty program profitable?
+Phase 4: Operations Mastery (Domination)
+Vend Price Optimizer by Size - Different prices for 20/40/60lb
+Equipment Mix Calculator - Optimal washer:dryer ratio
+Downtime Cost Calculator - Revenue lost per machine outage
+Theft Detection Tool - Coin variance analysis
+CLA Benchmark Comparison - Industry standard comparison

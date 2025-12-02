@@ -70,6 +70,20 @@ The frontend uses Vite for development, TanStack Query for state management, and
   - Activity logging via `admin_activity_log` table tracking: user_signup, purchase, subscription_created, subscription_canceled, promo_redemption, advertising_payment
 - **Revenue Funnel Tools:** "SBA Loan Readiness Checker" (`/sba-readiness`) and an "AI Business Plan Generator" (`/business-plan-generator`) with Stripe integration for payment verification.
 - **Calculator & Formula Ecosystem:** Over 80 unique formulas across standalone pages and integrated within CLEANBI, covering valuation, financial analysis, operations, real estate, and more. Includes a core algorithm library for advanced simulations.
+- **Utility Cost Calculator & UPG Tracker:** Calculates cost per load (electric, water, gas), tracks Utilities as % of Gross with 15-18% benchmark, alerts for danger zones.
+- **Labor Cost Calculator & Staffing Optimizer:** Labor cost as % of revenue, WDF efficiency (lbs/hr), optimal staffing by TPD.
+
+### ROADMAP: 10 Killer Combined Algorithms (Google Cloud + WashBizHub)
+1. **Utility Bill Scanner** 📷→💡: Vision AI OCR extracts kWh, therms, gallons from utility bill photos → auto-calculates cost per load, UPG ratio, flags anomalies ("Water up 40% - possible leak")
+2. **Smart Location Scout** 📍→🎯: Enhanced CLEANBI with Places API competitor data, Census demographics, Street View visibility analysis → Predicted CLEANBI score before visiting
+3. **Equipment Photo Appraiser** 📸→💰: Vision AI detects brand/model from photos, Gemini estimates age from wear patterns, applies depreciation curves → "Speed Queen SC40, ~8 years old, FMV: $2,400-$2,800"
+4. **Competitor Intelligence Report** 🕵️→📊: Places API reviews + Natural Language sentiment analysis → weakness map ("dirty", "expensive", "broken machines")
+5. **Due Diligence Document Verifier** 📄→✅: Document AI extracts financials from utility bills, bank statements, P&L → cross-references water usage to expected revenue → FRAUD RISK scoring
+6. **Route Profit Optimizer** 🚗→💵: Routes API + profit per stop calculation → identifies unprofitable pickup/delivery routes, suggests price adjustments by zone
+7. **Market Gap Finder** 🗺️→🎯: Places API + Census data → calculates machines per 1,000 renters → identifies underserved high-renter areas with no laundromat within 2 miles
+8. **Store Condition Auditor** 📷→📋: Vision AI + Gemini scores cleanliness, lighting, signage from photos → improvement recommendations with CLEANBI point impact
+9. **Error Code Photo Reader** 📱→🔧: Vision AI OCR reads error codes from machine display photos → instant lookup in 2,000+ code database → repair steps, parts, cost estimates
+10. **Voice Diagnostics** 🎤→🔧: Speech-to-Text transcribes symptoms → Triage AI diagnoses → "Likely causes: worn drum bearings. Parts: $45. Repair time: 2 hours"
 
 ### System Design Choices
 - **Data Storage:** PostgreSQL (Neon Serverless) with Drizzle ORM.

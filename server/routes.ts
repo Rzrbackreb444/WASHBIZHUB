@@ -24,7 +24,7 @@ import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
-import { generateBlogContent, generateCleanbiInsights, optimizeLayout } from "./gemini";
+import { generateBlogContent, generateCleanbiInsights, optimizeLayout, scanErrorCodeFromImage } from "./gemini";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
@@ -11419,6 +11419,120 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error seeding error codes:", error);
       res.status(500).json({ message: error.message || "Failed to seed error codes" });
+    }
+  });
+
+  // Scan error code from image using Vision AI
+  app.post("/api/diagnostics/scan-error-code", rateLimiter, async (req, res) => {
+    try {
+      const { image, mimeType } = req.body;
+      
+      if (!image) {
+        return res.status(400).json({ message: "No image provided" });
+      }
+      
+      // Use Gemini Vision to extract error codes from image
+      const visionResult = await scanErrorCodeFromImage(image, mimeType || "image/jpeg");
+      
+      if (!visionResult.errorCodes || visionResult.errorCodes.length === 0) {
+        return res.json({
+          success: false,
+          extractedText: visionResult.extractedText,
+          errorCodes: [],
+          detectedBrand: visionResult.detectedBrand,
+          detectedModel: visionResult.detectedModel,
+          machineType: visionResult.machineType,
+          confidence: visionResult.confidence,
+          diagnostics: [],
+          similarCodes: []
+        });
+      }
+      
+      // Look up each detected error code in the database
+      const diagnosticsPromises = visionResult.errorCodes.map(async (code) => {
+        // Build conditions for matching
+        const conditions: any[] = [];
+        
+        // Match by code (case insensitive)
+        conditions.push(sql`LOWER(${diagnosticCodes.code}) = LOWER(${code})`);
+        
+        // If brand detected, prefer matching that brand
+        if (visionResult.detectedBrand) {
+          const brandConditions = await db
+            .select()
+            .from(diagnosticCodes)
+            .where(sql`LOWER(${diagnosticCodes.code}) = LOWER(${code}) AND LOWER(${diagnosticCodes.manufacturer}) LIKE LOWER(${'%' + visionResult.detectedBrand + '%'})`)
+            .limit(1);
+          
+          if (brandConditions.length > 0) {
+            return brandConditions[0];
+          }
+        }
+        
+        // Otherwise get any matching code
+        const [result] = await db
+          .select()
+          .from(diagnosticCodes)
+          .where(sql`LOWER(${diagnosticCodes.code}) = LOWER(${code})`)
+          .limit(1);
+        
+        return result;
+      });
+      
+      const diagnosticsResults = await Promise.all(diagnosticsPromises);
+      const diagnostics = diagnosticsResults.filter(Boolean);
+      
+      // Get similar codes from the same manufacturer
+      let similarCodes: any[] = [];
+      if (diagnostics.length > 0 && diagnostics[0]) {
+        const manufacturer = diagnostics[0].manufacturer;
+        similarCodes = await db
+          .select({
+            id: diagnosticCodes.id,
+            code: diagnosticCodes.code,
+            manufacturer: diagnosticCodes.manufacturer,
+            slug: diagnosticCodes.slug,
+            title: diagnosticCodes.title,
+            severity: diagnosticCodes.severity
+          })
+          .from(diagnosticCodes)
+          .where(sql`${diagnosticCodes.manufacturer} = ${manufacturer} AND ${diagnosticCodes.id} != ${diagnostics[0].id}`)
+          .limit(6);
+      }
+      
+      res.json({
+        success: diagnostics.length > 0,
+        extractedText: visionResult.extractedText,
+        errorCodes: visionResult.errorCodes,
+        detectedBrand: visionResult.detectedBrand,
+        detectedModel: visionResult.detectedModel,
+        machineType: visionResult.machineType,
+        confidence: visionResult.confidence,
+        diagnostics: diagnostics.map(d => ({
+          id: d.id,
+          code: d.code,
+          manufacturer: d.manufacturer,
+          slug: d.slug,
+          title: d.title,
+          description: d.description,
+          severity: d.severity || "medium",
+          machineType: d.machineType || "washer",
+          possibleCauses: d.possibleCauses || [],
+          troubleshootingSteps: d.troubleshootingSteps || [],
+          requiredParts: d.requiredParts || [],
+          partsWithPricing: d.partsWithPricing || [],
+          estimatedRepairTime: d.estimatedRepairTime || 30,
+          skillLevel: d.skillLevel || "intermediate",
+          quickFix: d.quickFix || null
+        })),
+        similarCodes
+      });
+    } catch (error: any) {
+      console.error("Error scanning error code:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to scan error code",
+        success: false 
+      });
     }
   });
 
