@@ -304,7 +304,7 @@ export function Hero() {
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)' }}
             data-testid="text-hero-title"
           >
-            The <span className="text-teal-400">Laundromat Boom</span> Is Here. Get In Before It's Too Late.
+            Don't <span className="text-teal-400">Overpay</span> For Your Next Laundromat
           </h1>
           
           <p 
@@ -312,7 +312,7 @@ export function Hero() {
             style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}
             data-testid="text-hero-subtitle"
           >
-            Everyone wants to own a laundromat. Score any location instantly with CLEANBI™ and find your next investment in a $5B industry.
+            Bad location = $200K+ mistake. Score any address in 30 seconds with CLEANBI™ before you invest.
           </p>
 
           <div 
@@ -323,9 +323,9 @@ export function Hero() {
             {step === 'address' && (
               <div className="animate-in text-center">
                 <h2 className="text-3xl sm:text-4xl font-bebas mb-2 text-white text-center">
-                  Analyze Any Laundromat Location
+                  Is This Location Worth It?
                 </h2>
-                <p className="text-gray-300 mb-8 text-lg text-center">Get instant CLEANBI™ intelligence on any business or property</p>
+                <p className="text-gray-300 mb-8 text-lg text-center">Get your CLEANBI™ score in 30 seconds - know before you go</p>
                 
                 <div className="max-w-2xl mx-auto space-y-4">
                   {/* Business Name Field */}
@@ -416,9 +416,9 @@ export function Hero() {
                     className="bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 text-navy-900 px-10 sm:px-16 py-6 text-xl sm:text-2xl font-bold rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-400/20"
                     data-testid="button-cleanbi-run-demo"
                   >
-                    Get Free CLEANBI Score
+                    Score This Location Now
                   </Button>
-                  <p className="text-gray-500 text-sm mt-3">1 free analysis per day • No credit card required</p>
+                  <p className="text-gray-500 text-sm mt-3">Free instant analysis • No signup required</p>
                 </div>
               </div>
             )}
