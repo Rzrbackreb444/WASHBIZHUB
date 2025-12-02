@@ -78,6 +78,10 @@ export const users = pgTable("users", {
   onboardingStep: integer("onboarding_step").default(0), // Current step in wizard (0 = not started)
   onboardingChecklist: jsonb("onboarding_checklist").default(sql`'{"profileComplete":false,"locationAdded":false,"machinesAdded":false,"firstSaleComplete":false,"teamInvited":false}'::jsonb`),
   
+  // Referral Program
+  referralCode: varchar("referral_code").unique(),
+  referredBy: varchar("referred_by"),
+  
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
