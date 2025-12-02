@@ -224,26 +224,34 @@ export default function CleanBI() {
           credentials: "Proprietary 17-factor CLEANBI algorithm used by 5,640+ industry professionals for site selection and due diligence."
         }}
       />
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 sm:py-16 md:py-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8 sm:mb-12">
-          <Brain className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 text-accent mx-auto mb-3 sm:mb-4" />
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 sm:mb-4" data-testid="text-cleanbi-title">
-            CLEANBI™ Scoring System
+    <div className="min-h-screen bg-white">
+      {/* Premium Hero Section */}
+      <div className="mesh-gradient-hero py-16 sm:py-20 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
+            <Brain className="w-4 h-4 text-[#b8860b]" />
+            <span className="text-sm font-medium text-[#1e3a5f]">Location Intelligence</span>
+          </div>
+          <h1 className="hero-title text-[#1e3a5f] mb-4" data-testid="text-cleanbi-title">
+            <span className="text-gradient-gold">CLEANBI™</span>{' '}
+            Scoring System
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/70 px-2" data-testid="text-cleanbi-subtitle">
+          <p className="hero-subtitle max-w-2xl mx-auto" data-testid="text-cleanbi-subtitle">
             17-Factor Business Intelligence Analysis with AI Insights
           </p>
         </div>
+      </div>
 
-        <Card className="bg-white/10 backdrop-blur border-white/20 mb-6 sm:mb-8">
-          <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="text-white text-xl sm:text-2xl">Laundromat Assessment</CardTitle>
-            <CardDescription className="text-white/70 text-sm sm:text-base">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+
+        <Card className="premium-card mb-8">
+          <CardHeader className="px-6">
+            <CardTitle className="text-[#1e3a5f] text-xl sm:text-2xl">Laundromat Assessment</CardTitle>
+            <CardDescription className="text-gray-500 text-sm sm:text-base">
               Rate your laundromat across 7 core categories (0-100)
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 sm:space-y-8 px-4 sm:px-6">
+          <CardContent className="space-y-6 sm:space-y-8 px-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateInsights)} className="space-y-6 sm:space-y-8">
                 <FormField
@@ -251,18 +259,18 @@ export default function CleanBI() {
                   name="laundromatName"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel className="text-white/90 font-medium">Laundromat Name</FormLabel>
+                      <FormLabel className="text-[#1e3a5f] font-medium">Laundromat Name</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter your laundromat name"
-                          className={`bg-white/20 border-white/30 text-white placeholder-white/50 ${fieldState.error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+                          className={`input-premium ${fieldState.error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
                           data-testid="input-laundromat-name"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-300" />
+                      <FormMessage className="text-red-500" />
                       {showSuccess && !fieldState.error && field.value && (
-                        <div className="flex items-center gap-2 text-green-400 text-sm mt-1">
+                        <div className="flex items-center gap-2 text-green-600 text-sm mt-1">
                           <CheckCircle2 className="h-4 w-4" />
                           <span>Assessment saved successfully</span>
                         </div>
@@ -275,10 +283,10 @@ export default function CleanBI() {
                   <div key={category.key}>
                     <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
                       <div className="min-w-0 flex-1">
-                        <FormLabel className="text-white/90 font-medium text-sm sm:text-base">{category.label}</FormLabel>
-                        <p className="text-xs sm:text-sm text-white/60 mt-0.5 sm:mt-1">{category.description}</p>
+                        <FormLabel className="text-[#1e3a5f] font-medium text-sm sm:text-base">{category.label}</FormLabel>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">{category.description}</p>
                       </div>
-                      <div className="text-xl sm:text-2xl font-black text-accent min-w-[50px] sm:min-w-[60px] text-right flex-shrink-0" data-testid={`score-${category.key}`}>
+                      <div className="text-xl sm:text-2xl font-bold text-[#b8860b] min-w-[50px] sm:min-w-[60px] text-right flex-shrink-0" data-testid={`score-${category.key}`}>
                         {scores[category.key as keyof typeof scores]}
                       </div>
                     </div>
@@ -295,7 +303,7 @@ export default function CleanBI() {
 
                 <Button 
                   type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-6"
+                  className="w-full btn-premium-gold text-white font-semibold text-lg py-6"
                   data-testid="button-generate-insights"
                   disabled={generateInsights.isPending || createScore.isPending}
                 >
@@ -317,46 +325,51 @@ export default function CleanBI() {
         </Card>
 
         {/* Results */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Card className="premium-card">
+            <CardContent className="pt-8 px-6">
               <div className="text-center">
-                <div className="text-xs sm:text-sm text-white/70 mb-2">Total CLEANBI™ Score</div>
-                <div className="text-4xl sm:text-5xl md:text-6xl font-black text-accent mb-3 sm:mb-4" data-testid="total-score">
+                <div className="text-sm text-gray-500 mb-2">Total CLEANBI™ Score</div>
+                <div className="text-5xl md:text-6xl font-bold text-[#b8860b] mb-3" data-testid="total-score">
                   {totalScore}
                 </div>
-                <div className="text-lg sm:text-xl md:text-2xl text-white/80">out of 700</div>
+                <div className="text-xl text-gray-600">out of 700</div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`${gradeInfo.bg} backdrop-blur border-white/20`}>
-            <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
+          <Card className="premium-card bg-gradient-to-br from-[#1e3a5f]/5 to-[#b8860b]/5">
+            <CardContent className="pt-8 px-6">
               <div className="text-center">
-                <div className="text-xs sm:text-sm text-white/70 mb-2">Grade</div>
-                <div className={`text-4xl sm:text-5xl md:text-6xl font-black ${gradeInfo.color} mb-3 sm:mb-4`} data-testid="grade">
+                <div className="text-sm text-gray-500 mb-2">Grade</div>
+                <div className={`text-5xl md:text-6xl font-bold mb-3 ${
+                  gradeInfo.grade === 'A' ? 'text-green-600' :
+                  gradeInfo.grade === 'B' ? 'text-lime-600' :
+                  gradeInfo.grade === 'C' ? 'text-amber-500' :
+                  'text-[#C8A661]'
+                }`} data-testid="grade">
                   {gradeInfo.grade}
                 </div>
-                <div className="text-lg sm:text-xl md:text-2xl text-white/80">Average: {avgScore.toFixed(1)}</div>
+                <div className="text-xl text-gray-600">Average: {avgScore.toFixed(1)}</div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="bg-white/10 backdrop-blur border-white/20 mt-6">
+        <Card className="premium-card mt-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-accent" />
+            <CardTitle className="text-[#1e3a5f] flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-[#b8860b]" />
               AI-Powered Recommendations
             </CardTitle>
           </CardHeader>
           <CardContent>
             {aiInsights ? (
-              <div className="text-white/90 whitespace-pre-wrap" data-testid="text-ai-insights">
+              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed" data-testid="text-ai-insights">
                 {aiInsights}
               </div>
             ) : (
-              <p className="text-white/70" data-testid="text-ai-insights-placeholder">
+              <p className="text-gray-500" data-testid="text-ai-insights-placeholder">
                 Complete the assessment and click "Generate AI Insights" to receive personalized 
                 recommendations powered by Gemini AI. Our system analyzes your scores across all 
                 17 factors to identify specific improvement opportunities.

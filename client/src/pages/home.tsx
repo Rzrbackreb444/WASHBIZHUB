@@ -4,7 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
-import { Hero } from "@/components/Hero";
+import { PremiumHero } from "@/components/PremiumHero";
+import {
+  FeaturesSection,
+  TemplatesSection,
+  MarketplaceSection,
+  FeaturedVendorBanner,
+  FinancingSection,
+  CalculatorHighlight,
+  AnalyzeLocationSection,
+  EducationSection,
+  ShopSection,
+  CommunitySection,
+  CTASection,
+  PremiumFooter
+} from "@/components/PremiumHomeSections";
 import { IndustryPulse, IndustryPulseMini } from "@/components/IndustryPulse";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { DealScout, DealScoutBanner } from "@/components/DealScout";
@@ -523,62 +537,64 @@ export default function Home() {
         dateModified={new Date().toISOString().split('T')[0]}
       />
       
-      <div className="min-h-screen bg-background">
-        {/* 1. HERO - Primary value prop + CLEANBI demo */}
-        <Hero />
-
-        {/* Trust Indicators - Clean professional bar */}
-        <section className="py-3 border-b border-border/20 bg-muted/20" data-testid="section-trust-indicators">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground flex-wrap">
-              <span>Trusted by 72,000+ owners</span>
-              <span className="hidden sm:inline text-muted-foreground/40">•</span>
-              <span className="hidden sm:inline">50+ professional calculators</span>
-              <span className="hidden md:inline text-muted-foreground/40">•</span>
-              <span className="hidden md:inline">AI-powered insights</span>
-              <span className="hidden lg:inline text-muted-foreground/40">•</span>
-              <span className="hidden lg:inline">Since 2024</span>
-            </div>
-          </div>
-        </section>
+      <div className="min-h-screen bg-white">
+        {/* PREMIUM HERO - With hero image background */}
+        <PremiumHero />
         
-        {/* 2. TRUST PROOF - Compact social proof bar */}
-        <section className="py-8 border-b border-border/50 bg-muted/30" data-testid="section-trust-proof">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="text-center" data-testid={`stat-${idx}`}>
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="text-2xl md:text-3xl font-bold text-foreground">
-                      {stat.value}
-                    </span>
-                    {stat.icon && <Star className="w-5 h-5 text-amber-400 fill-amber-400" />}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* FEATURES - Clean, Reliable, Profitable, Community */}
+        <FeaturesSection />
+        
+        {/* TEMPLATES & GUIDES */}
+        <TemplatesSection />
+        
+        {/* MARKETPLACE - Listings & Vendors */}
+        <MarketplaceSection />
+        
+        {/* FEATURED VENDOR BANNER */}
+        <FeaturedVendorBanner />
+        
+        {/* FINANCING SECTION */}
+        <FinancingSection />
+        
+        {/* CALCULATOR HIGHLIGHT */}
+        <CalculatorHighlight />
+        
+        {/* ANALYZE ANY LOCATION */}
+        <AnalyzeLocationSection />
+        
+        {/* EDUCATION - Learn from Experts */}
+        <EducationSection />
+        
+        {/* SHOP - Operator Essentials */}
+        <ShopSection />
+        
+        {/* COMMUNITY SECTION */}
+        <CommunitySection />
+        
+        {/* CTA SECTION */}
+        <CTASection />
+        
+        {/* PREMIUM FOOTER */}
+        <PremiumFooter />
 
         {/* TESTIMONIALS - Social proof with real results */}
-        <section className="py-16 bg-background" data-testid="section-testimonials">
+        <section className="py-16 bg-gray-50 hidden" data-testid="section-testimonials">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 text-center">
                 Real Results from Real Investors
               </h2>
-              <p className="text-muted-foreground">See why 72,000+ professionals trust WashBizHub</p>
+              <p className="text-gray-600">See why 72,000+ professionals trust WashBizHub</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, idx) => (
-                <Card key={idx} className="p-6 bg-card border border-border/50" data-testid={`testimonial-${idx}`}>
-                  <Quote className="w-8 h-8 text-accent/30 mb-4" />
-                  <p className="text-foreground mb-4 leading-relaxed">"{testimonial.quote}"</p>
-                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                <Card key={idx} className="p-6 bg-white border border-gray-200" data-testid={`testimonial-${idx}`}>
+                  <Quote className="w-8 h-8 text-gray-300 mb-4" />
+                  <p className="text-gray-900 mb-4 leading-relaxed">"{testimonial.quote}"</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-gray-200">
                     <div>
-                      <p className="font-semibold text-foreground">{testimonial.name}</p>
-                      <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                      <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                      <p className="text-sm text-gray-600">{testimonial.location}</p>
                     </div>
                     <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
                       {testimonial.dealSize}
@@ -590,17 +606,17 @@ export default function Home() {
           </div>
         </section>
 
-        {/* INDUSTRY PULSE & DEAL SCOUT - Live engagement features */}
-        <section className="py-16 bg-muted/20 border-t border-b border-border/30" data-testid="section-engagement">
+        {/* INDUSTRY PULSE & DEAL SCOUT - Hidden for now, using premium layout */}
+        <section className="py-16 bg-gray-50 border-t border-b border-gray-200 hidden" data-testid="section-engagement">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
               <Badge className="mb-3 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
                 Live Intelligence
               </Badge>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 Real-Time Market Insights
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-gray-600 max-w-2xl mx-auto">
                 Stay ahead with live industry data and AI-powered deal discovery
               </p>
             </div>
@@ -616,8 +632,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 3. CHOOSE YOUR PATH - Route visitors to deeper pages */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/20" data-testid="section-choose-path">
+        {/* CHOOSE YOUR PATH - Hidden for now, using premium layout */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-white to-gray-50 hidden" data-testid="section-choose-path">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-14">
               <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
@@ -671,8 +687,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* DEAL RISK CALCULATOR - Quick valuation widget */}
-        <section className="py-16 bg-muted/20" data-testid="section-deal-calculator">
+        {/* DEAL RISK CALCULATOR - Hidden, using premium layout */}
+        <section className="py-16 bg-muted/20 hidden" data-testid="section-deal-calculator">
           <div className="max-w-2xl mx-auto px-6 lg:px-8">
             <Card className="p-6 md:p-8 bg-card border-2 border-accent/30">
               <div className="flex items-center gap-2 mb-4 justify-center">
@@ -739,8 +755,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 4. VALUE LADDER - Clear pricing progression */}
-        <section className="py-16 bg-muted/30 border-t border-border/50" data-testid="section-value-ladder">
+        {/* 4. VALUE LADDER - Hidden, using premium layout */}
+        <section className="py-16 bg-muted/30 border-t border-border/50 hidden" data-testid="section-value-ladder">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -814,8 +830,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOT MARKETS CAROUSEL */}
-        <section className="py-12 bg-background border-t border-border/50" data-testid="section-hot-markets">
+        {/* HOT MARKETS CAROUSEL - Hidden, using premium layout */}
+        <section className="py-12 bg-background border-t border-border/50 hidden" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex items-center gap-2 mb-6 justify-center">
               <Flame className="w-5 h-5 text-orange-500" />
@@ -848,8 +864,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* PARTNER LOGOS / AS SEEN IN */}
-        <section className="py-10 bg-muted/20" data-testid="section-partner-logos">
+        {/* PARTNER LOGOS / AS SEEN IN - Hidden, using premium layout */}
+        <section className="py-10 bg-muted/20 hidden" data-testid="section-partner-logos">
           <div className="max-w-5xl mx-auto px-6 lg:px-8">
             <p className="text-center text-sm text-muted-foreground mb-6">Trusted by industry leaders</p>
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60">
@@ -877,8 +893,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 5. SINGLE SPOTLIGHT CTA - CLEANBI + Platform value */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/20 to-background border-t border-border/50" data-testid="section-spotlight-cta">
+        {/* 5. SINGLE SPOTLIGHT CTA - Hidden, using premium layout */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/20 to-background border-t border-border/50 hidden" data-testid="section-spotlight-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
               <MapPin className="w-4 h-4" />
@@ -938,8 +954,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 6. SIMPLE FOOTER CTA */}
-        <section className="py-16 bg-primary text-primary-foreground" data-testid="section-footer-cta">
+        {/* 6. SIMPLE FOOTER CTA - Hidden, using premium layout */}
+        <section className="py-16 bg-primary text-primary-foreground hidden" data-testid="section-footer-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center">
               Your Next Laundromat Shouldn't Be a Gamble
@@ -963,8 +979,8 @@ export default function Home() {
         </section>
       </div>
 
-      {/* STICKY MOBILE CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-50" data-testid="sticky-mobile-cta">
+      {/* STICKY MOBILE CTA - Hidden for premium layout */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-50 hidden" data-testid="sticky-mobile-cta">
         <Link href="/cleanbi-auto">
           <Button className="w-full font-semibold" size="lg" data-testid="button-sticky-cta">
             <Zap className="w-5 h-5 mr-2" />
