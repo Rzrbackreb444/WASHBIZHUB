@@ -494,13 +494,13 @@ export function NavigationMenu() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              <Link href="/pricing">
+              <Link href="/signup">
                 <Button 
                   size="sm"
                   className="hidden sm:flex min-h-[44px] px-4"
                   data-testid="button-start-trial"
                 >
-                  Get Started
+                  Get Started Free
                 </Button>
               </Link>
 
