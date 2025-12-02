@@ -280,35 +280,36 @@ export default function DirectoryPage() {
         ]}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4">
+      <div className="min-h-screen bg-white">
+        {/* Premium Hero Section */}
+        <div className="mesh-gradient-hero py-20 px-6">
           <div className="max-w-5xl mx-auto text-center">
-            <Badge className="bg-[#b8860b]/20 text-[#d4a030] border-[#b8860b]/30 mb-4" data-testid="badge-directory">
-              <Building2 className="w-3 h-3 mr-1" />
-              Industry Directory
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Laundromat Industry Directory
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
+              <Building2 className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-sm font-medium text-[#1e3a5f]">Industry Directory</span>
+            </div>
+            <h1 className="hero-title text-[#1e3a5f] mb-4">
+              The #1 Laundromat{' '}
+              <span className="text-gradient-gold">Marketplace</span>
             </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+            <p className="hero-subtitle max-w-3xl mx-auto mb-10">
               Find laundromats for sale, equipment, supplies, and trusted service providers. Everything you need in one place.
             </p>
 
-            {/* Search Bar */}
+            {/* Premium Search Bar */}
             <div className="max-w-2xl mx-auto mb-8">
-              <div className="flex gap-2 bg-white/10 backdrop-blur rounded-lg p-2">
+              <div className="premium-card flex gap-2 p-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     placeholder="Search listings..."
-                    className="pl-10 bg-white border-0 h-12 text-slate-900"
+                    className="input-premium pl-12 h-12 border-0"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     data-testid="input-directory-search"
                   />
                 </div>
-                <Button className="bg-[#b8860b] hover:bg-[#a07609] h-12 px-6" data-testid="button-search">
+                <Button className="btn-premium-gold text-white h-12 px-6" data-testid="button-search">
                   <Search className="w-4 h-4 mr-2" />
                   Search
                 </Button>
@@ -317,7 +318,7 @@ export default function DirectoryPage() {
 
             {/* Add Listing CTA */}
             <Link href="/add-listing">
-              <Button variant="outline" className="border-white/30 text-white hover:bg-white/10" data-testid="link-add-listing">
+              <Button variant="outline" className="border-[#1e3a5f]/20 text-[#1e3a5f] hover:bg-[#1e3a5f]/5" data-testid="link-add-listing">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your Listing Free
               </Button>
@@ -554,30 +555,30 @@ export default function DirectoryPage() {
             </Card>
           )}
 
-          {/* CTA Section */}
-          <Card className="mt-12 bg-gradient-to-br from-[#001F3F] to-slate-800 text-white border-0">
-            <CardContent className="p-8 md:p-12 text-center">
-              <Sparkles className="w-12 h-12 text-[#b8860b] mx-auto mb-4" />
-              <h3 className="text-2xl font-bold mb-4">List Your Business or Equipment</h3>
-              <p className="text-slate-300 max-w-xl mx-auto mb-6">
-                Reach thousands of laundromat owners, buyers, and operators. Basic listings are free. Featured listings get 10x more visibility.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/add-listing">
-                  <Button className="bg-[#b8860b] hover:bg-[#a07609]" size="lg" data-testid="button-list-free">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Free Listing
-                  </Button>
-                </Link>
-                <Link href="/pricing">
-                  <Button variant="outline" className="border-white/30 text-white hover:bg-white/10" size="lg" data-testid="button-featured">
-                    <Star className="w-4 h-4 mr-2" />
-                    Get Featured
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Premium CTA Section */}
+          <div className="mt-16 premium-card bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/90 p-10 md:p-14 text-center rounded-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-[#b8860b]/20 flex items-center justify-center mx-auto mb-6">
+              <Sparkles className="w-8 h-8 text-[#b8860b]" />
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">List Your Business or Equipment</h3>
+            <p className="text-white/70 max-w-xl mx-auto mb-8 text-lg">
+              Reach thousands of laundromat owners, buyers, and operators. Basic listings are free. Featured listings get 10x more visibility.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/add-listing">
+                <Button className="btn-premium-gold text-white px-8 py-6 text-lg font-semibold" data-testid="button-list-free">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add Free Listing
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold" data-testid="button-featured">
+                  <Star className="w-5 h-5 mr-2" />
+                  Get Featured
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </>

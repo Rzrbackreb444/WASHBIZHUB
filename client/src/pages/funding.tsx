@@ -315,48 +315,45 @@ export default function Funding() {
         ]}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4">
+      <div className="min-h-screen bg-white">
+        {/* Premium Hero Section */}
+        <div className="mesh-gradient-hero py-20 px-6">
           <div className="max-w-5xl mx-auto text-center">
-            <Badge className="bg-[#b8860b]/20 text-[#d4a030] border-[#b8860b]/30 mb-4" data-testid="badge-funding">
-              <DollarSign className="w-3 h-3 mr-1" />
-              7 Trusted Lending Partners
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Laundromat Funding Made Simple
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
+              <DollarSign className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-sm font-medium text-[#1e3a5f]">7 Trusted Lending Partners</span>
+            </div>
+            <h1 className="hero-title text-[#1e3a5f] mb-4">
+              Laundromat{' '}
+              <span className="text-gradient-gold">Funding</span>{' '}
+              Made Simple
             </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+            <p className="hero-subtitle max-w-3xl mx-auto mb-12">
               From startup to acquisition, find the right financing for your laundromat. Compare rates, terms, and get pre-qualified in minutes.
             </p>
             
-            {/* Quick Stats */}
-            <div className="flex flex-wrap justify-center gap-8 text-center">
-              <div>
-                <div className="text-3xl font-bold text-[#b8860b]">$5K-$50M</div>
-                <div className="text-sm text-slate-400">Funding Range</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-[#b8860b]">7</div>
-                <div className="text-sm text-slate-400">Lending Partners</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-[#b8860b]">Same Day</div>
-                <div className="text-sm text-slate-400">Fastest Approval</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-[#b8860b]">500+</div>
-                <div className="text-sm text-slate-400">Min Credit Score</div>
-              </div>
+            {/* Premium Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+              {[
+                { value: "$5K-$50M", label: "Funding Range" },
+                { value: "7", label: "Lending Partners" },
+                { value: "Same Day", label: "Fastest Approval" },
+                { value: "500+", label: "Min Credit Score" }
+              ].map((stat, i) => (
+                <div key={i} className="premium-card p-4 text-center">
+                  <div className="text-xl md:text-2xl font-bold text-[#b8860b]">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Funding Type Tabs */}
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">What type of funding do you need?</h2>
-            <p className="text-slate-600 dark:text-slate-400">Select a category to see your best options</p>
+        <div className="max-w-6xl mx-auto px-4 py-16">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-3">What type of funding do you need?</h2>
+            <p className="text-gray-500 text-lg">Select a category to see your best options</p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
