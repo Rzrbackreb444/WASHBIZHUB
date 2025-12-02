@@ -14,68 +14,46 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import logoUrl from "@assets/6_1764040628012.png";
 
+// Primary navigation links for quick access
+const primaryNavLinks = [
+  { href: "/cleanbi", label: "CLEANBI™" },
+  { href: "/directory", label: "Directory" },
+  { href: "/funding", label: "Funding" },
+  { href: "/calculators", label: "Calculators" },
+  { href: "/pricing", label: "Pricing" },
+];
+
+// Mega menu sections with sub-items
 const navigationSections = [
   {
-    id: "platform",
-    title: "Platform",
+    id: "tools",
+    title: "Business Tools",
     items: [
-      { href: "/design-studio", label: "Design Studio 2D/3D" },
-      { href: "/cleanbi", label: "CLEANBI™ Analysis" },
+      { href: "/cleanbi", label: "CLEANBI™ Location Analysis" },
       { href: "/utility-bill-auditor", label: "Utility Bill Auditor" },
-      { href: "/ai-blogging", label: "AI Blogging Suite" },
-      { href: "/seo-optimizer", label: "SEO Optimizer" },
-      { href: "/templates", label: "Premium Templates" },
-      { href: "/repair-guide", label: "Service Guy AI" },
+      { href: "/calculators", label: "All Calculators" },
+    ]
+  },
+  {
+    id: "directory",
+    title: "Directory",
+    items: [
+      { href: "/directory", label: "Browse All Listings" },
+      { href: "/directory?category=laundromats", label: "Laundromats for Sale" },
+      { href: "/directory?category=equipment", label: "Equipment" },
+      { href: "/directory?category=services", label: "Service Providers" },
     ]
   },
   {
     id: "resources",
     title: "Resources",
     items: [
-      { href: "/resources", label: "Resource Hub" },
-      { href: "/vendors", label: "Vendor Directory" },
-      { href: "/roi-calculator", label: "ROI Calculator" },
-      { href: "/calculator", label: "Revenue Calculator" },
-      { href: "/funding-matcher", label: "Funding Matcher" },
-    ]
-  },
-  {
-    id: "marketplace",
-    title: "Marketplace",
-    items: [
-      { href: "/listings", label: "Browse Listings" },
-      { href: "/listing-form", label: "Add a Listing" },
-      { href: "/seller-dashboard", label: "Seller Dashboard" },
-      { href: "/superstore", label: "Equipment Superstore" },
-    ]
-  },
-  {
-    id: "learn",
-    title: "Learn",
-    items: [
-      { href: "/courses", label: "Premium Courses" },
-      { href: "/book", label: "The Laundromat Bible" },
+      { href: "/funding", label: "Funding & Financing" },
       { href: "/blog", label: "Industry Blog" },
+      { href: "/about", label: "About WashBizHub" },
+      { href: "/pricing", label: "Pricing Plans" },
     ]
   },
-  {
-    id: "community",
-    title: "Community",
-    items: [
-      { href: "/forum", label: "Discussion Forum" },
-      { href: "/facebook-group", label: "Facebook Community" },
-    ]
-  },
-  {
-    id: "expert",
-    title: "Expert Help",
-    items: [
-      { href: "/consultation", label: "Book Consultation" },
-      { href: "/help-center", label: "Help Center" },
-      { href: "/about", label: "About Us" },
-      { href: "/pricing", label: "Pricing" },
-    ]
-  }
 ];
 
 export function Header() {
@@ -155,118 +133,92 @@ export function Header() {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-6" role="navigation" aria-label="Main navigation">
+              {/* Primary Nav Links */}
+              {primaryNavLinks.map((link) => (
+                <Link href={link.href} key={link.href}>
+                  <span 
+                    className={`text-sm font-medium transition-colors relative group cursor-pointer ${
+                      location === link.href || location.startsWith(link.href + '?')
+                        ? 'text-gold-400' 
+                        : 'text-white/90 hover:text-white'
+                    }`}
+                    data-testid={`link-nav-${link.href.replace('/', '')}-quick`}
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
+                  </span>
+                </Link>
+              ))}
+
+              {/* More dropdown for secondary items */}
               <div 
                 className="relative"
                 onMouseEnter={() => setMegaMenuOpen(true)}
                 onMouseLeave={() => setMegaMenuOpen(false)}
               >
                 <button
-                  className="flex items-center gap-2 px-4 py-2.5 text-white font-medium text-sm tracking-wide rounded-lg transition-all duration-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 group"
+                  className="flex items-center gap-1.5 text-white/80 font-medium text-sm transition-all duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 group"
                   onClick={() => setMegaMenuOpen(!megaMenuOpen)}
                   aria-expanded={megaMenuOpen}
                   aria-haspopup="true"
-                  aria-label="Explore Platform - Open navigation menu"
+                  aria-label="More options"
                   data-testid="button-mega-menu"
                 >
                   <span className="relative">
-                    Explore Platform
+                    More
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
                   </span>
                   <ChevronDown 
-                    className={`w-4 h-4 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} 
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} 
                     aria-hidden="true" 
                   />
                 </button>
 
                 <div 
-                  className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200 ${
+                  className={`absolute top-full right-0 pt-2 transition-all duration-200 ${
                     megaMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
                   }`}
                   data-testid="mega-menu-panel"
                 >
-                  <div className="bg-[#1e3a5f]/98 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-6 min-w-[720px]">
-                    <div className="grid grid-cols-3 gap-6">
-                      {navigationSections.slice(0, 3).map((section) => (
-                        <div key={section.id}>
-                          <h3 className="text-xs font-bold text-gold-400 uppercase tracking-wider mb-3 pb-2 border-b border-white/10">
-                            {section.title}
-                          </h3>
-                          <ul className="space-y-0.5">
-                            {section.items.map((item) => (
-                              <li key={item.href}>
-                                <Link href={item.href}>
-                                  <div 
-                                    className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
-                                    onClick={() => setMegaMenuOpen(false)}
-                                    data-testid={`link-nav-${item.href.replace('/', '')}`}
-                                  >
-                                    {item.label}
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-6 mt-5 pt-5 border-t border-white/10">
-                      {navigationSections.slice(3).map((section) => (
-                        <div key={section.id}>
-                          <h3 className="text-xs font-bold text-gold-400 uppercase tracking-wider mb-3 pb-2 border-b border-white/10">
-                            {section.title}
-                          </h3>
-                          <ul className="space-y-0.5">
-                            {section.items.map((item) => (
-                              <li key={item.href}>
-                                <Link href={item.href}>
-                                  <div 
-                                    className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
-                                    onClick={() => setMegaMenuOpen(false)}
-                                    data-testid={`link-nav-${item.href.replace('/', '')}`}
-                                  >
-                                    {item.label}
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="bg-[#1e3a5f]/98 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-4 min-w-[200px]">
+                    <ul className="space-y-1">
+                      <li>
+                        <Link href="/utility-bill-auditor">
+                          <div 
+                            className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
+                            onClick={() => setMegaMenuOpen(false)}
+                            data-testid="link-nav-utility-bill-auditor"
+                          >
+                            Utility Bill Auditor
+                          </div>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/blog">
+                          <div 
+                            className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
+                            onClick={() => setMegaMenuOpen(false)}
+                            data-testid="link-nav-blog"
+                          >
+                            Industry Blog
+                          </div>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/about">
+                          <div 
+                            className="px-3 py-2 text-sm text-white/80 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-white cursor-pointer"
+                            onClick={() => setMegaMenuOpen(false)}
+                            data-testid="link-nav-about"
+                          >
+                            About Us
+                          </div>
+                        </Link>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
-
-              <Link href="/cleanbi">
-                <span 
-                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
-                  data-testid="link-nav-cleanbi-quick"
-                >
-                  CLEANBI™
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
-                </span>
-              </Link>
-
-              <Link href="/listings">
-                <span 
-                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
-                  data-testid="link-nav-listings-quick"
-                >
-                  Marketplace
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
-                </span>
-              </Link>
-
-              <Link href="/courses">
-                <span 
-                  className="text-white/90 font-medium text-sm hover:text-white transition-colors relative group cursor-pointer"
-                  data-testid="link-nav-courses-quick"
-                >
-                  Academy
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold-400 transition-all duration-300 group-hover:w-full" />
-                </span>
-              </Link>
             </nav>
 
             <div className="flex items-center gap-2 sm:gap-3">
@@ -389,42 +341,77 @@ export function Header() {
                       </SheetTitle>
                     </SheetHeader>
                     
-                    <div className="flex-1 overflow-y-auto py-4">
-                      {navigationSections.map((section) => (
+                    <div className="flex-1 overflow-y-auto">
+                      {/* Primary Quick Links - Always Visible */}
+                      <div className="p-4 space-y-2 border-b border-white/10">
+                        {primaryNavLinks.map((link) => (
+                          <Link href={link.href} key={link.href}>
+                            <div 
+                              className={`px-4 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                                location === link.href || location.startsWith(link.href + '?')
+                                  ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
+                                  : 'text-white hover:bg-white/10'
+                              }`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              data-testid={`link-mobile-${link.href.replace('/', '')}-quick`}
+                            >
+                              {link.label}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* Secondary Links - Collapsible */}
+                      <div className="py-2">
                         <Collapsible 
-                          key={section.id}
-                          open={expandedSections.includes(section.id)}
-                          onOpenChange={() => toggleSection(section.id)}
+                          open={expandedSections.includes('more')}
+                          onOpenChange={() => toggleSection('more')}
                         >
                           <CollapsibleTrigger 
                             className="flex items-center justify-between w-full px-6 py-3 min-h-[44px] text-left hover:bg-white/5 transition-colors"
-                            data-testid={`button-mobile-section-${section.id}`}
+                            data-testid="button-mobile-section-more"
                           >
-                            <span className="text-white font-semibold text-sm uppercase tracking-wide">
-                              {section.title}
+                            <span className="text-white/70 font-medium text-sm">
+                              More Options
                             </span>
                             <ChevronRight 
-                              className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
-                                expandedSections.includes(section.id) ? 'rotate-90' : ''
+                              className={`w-4 h-4 text-white/40 transition-transform duration-200 ${
+                                expandedSections.includes('more') ? 'rotate-90' : ''
                               }`} 
                               aria-hidden="true" 
                             />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="bg-white/5">
-                            {section.items.map((item) => (
-                              <Link href={item.href} key={item.href}>
-                                <div 
-                                  className="px-6 pl-10 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm"
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  data-testid={`link-mobile-${item.href.replace('/', '')}`}
-                                >
-                                  {item.label}
-                                </div>
-                              </Link>
-                            ))}
+                            <Link href="/utility-bill-auditor">
+                              <div 
+                                className="px-6 pl-10 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm"
+                                onClick={() => setMobileMenuOpen(false)}
+                                data-testid="link-mobile-utility-bill-auditor"
+                              >
+                                Utility Bill Auditor
+                              </div>
+                            </Link>
+                            <Link href="/blog">
+                              <div 
+                                className="px-6 pl-10 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm"
+                                onClick={() => setMobileMenuOpen(false)}
+                                data-testid="link-mobile-blog"
+                              >
+                                Industry Blog
+                              </div>
+                            </Link>
+                            <Link href="/about">
+                              <div 
+                                className="px-6 pl-10 py-3 min-h-[44px] text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm"
+                                onClick={() => setMobileMenuOpen(false)}
+                                data-testid="link-mobile-about"
+                              >
+                                About Us
+                              </div>
+                            </Link>
                           </CollapsibleContent>
                         </Collapsible>
-                      ))}
+                      </div>
                     </div>
                     
                     <div className="p-6 border-t border-white/10 space-y-3">
