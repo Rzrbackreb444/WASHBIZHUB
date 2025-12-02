@@ -7,67 +7,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* WashBizHub Ultra-Premium Enterprise Palette */
+/* WashBizHub Premium Stripe-Inspired Palette */
 :root {
-  --navy-900: 217 57% 10%;
-  --navy-800: 217 57% 12%;
-  --teal-400: 181 82% 40%;
-  --gold-500: 46 68% 52%;
-  --gold-400: 46 68% 58%;
-  --gold-600: 46 68% 42%;
-
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
-  --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-  --background: 0 0% 98%;
-  --foreground: 217 57% 10%;
-  --border: 217 20% 88%;
+  /* Brand Colors - Navy & Gold */
+  --navy-900: 210 57% 15%;
+  --navy-800: 210 50% 20%;
+  --navy-700: 210 45% 25%;
+  --gold-500: 43 89% 38%;
+  --gold-400: 43 80% 48%;
+  --gold-600: 43 95% 30%;
+  
+  /* Stripe-inspired clean background */
+  --button-outline: rgba(0,0,0, .08);
+  --badge-outline: rgba(0,0,0, .04);
+  --opaque-button-border-intensity: -6;
+  --elevate-1: rgba(0,0,0, .02);
+  --elevate-2: rgba(0,0,0, .05);
+  
+  /* Clean, bright backgrounds */
+  --background: 0 0% 100%;
+  --foreground: 210 50% 15%;
+  --border: 220 13% 91%;
+  
+  /* Premium white cards */
   --card: 0 0% 100%;
-  --card-foreground: 217 57% 10%;
-  --card-border: 217 18% 92%;
-  --sidebar: 217 57% 10%;
-  --sidebar-foreground: 0 0% 95%;
-  --sidebar-border: 217 57% 8%;
-  --sidebar-primary: 181 82% 40%;
+  --card-foreground: 210 50% 15%;
+  --card-border: 220 13% 91%;
+  
+  /* Navy sidebar */
+  --sidebar: 210 57% 15%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-border: 210 57% 12%;
+  --sidebar-primary: 43 89% 38%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 217 57% 14%;
-  --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 181 82% 40%;
+  --sidebar-accent: 210 50% 20%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-ring: 43 89% 38%;
+  
+  /* Clean popovers */
   --popover: 0 0% 100%;
-  --popover-foreground: 217 57% 10%;
-  --popover-border: 217 18% 90%;
-  --primary: 181 82% 40%;
+  --popover-foreground: 210 50% 15%;
+  --popover-border: 220 13% 91%;
+  
+  /* Navy primary, Gold accent */
+  --primary: 210 57% 15%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 217 15% 92%;
-  --secondary-foreground: 217 57% 10%;
-  --muted: 217 12% 95%;
-  --muted-foreground: 217 16% 47%;
-  --accent: 46 68% 52%;
-  --accent-foreground: 217 57% 10%;
-  --destructive: 0 72% 42%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 210 50% 15%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 43 89% 38%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --input: 217 20% 90%;
-  --ring: 181 82% 40%;
-  --chart-1: 217 57% 10%;
-  --chart-2: 181 82% 40%;
-  --chart-3: 46 68% 52%;
-  --chart-4: 280 65% 45%;
-  --chart-5: 160 60% 38%;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --input: 220 13% 91%;
+  --ring: 43 89% 38%;
+  
+  /* Charts */
+  --chart-1: 210 57% 15%;
+  --chart-2: 43 89% 38%;
+  --chart-3: 210 70% 50%;
+  --chart-4: 280 65% 50%;
+  --chart-5: 160 60% 45%;
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --font-bebas: 'Bebas Neue', sans-serif;
-  --radius: .5rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(210 20% 50% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(210 20% 50% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(210 20% 50% / 0.00), 0px 1px 2px -1px hsl(210 20% 50% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(210 20% 50% / 0.00), 0px 1px 2px -1px hsl(210 20% 50% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(210 20% 50% / 0.00), 0px 2px 4px -1px hsl(210 20% 50% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(210 20% 50% / 0.00), 0px 4px 6px -1px hsl(210 20% 50% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(210 20% 50% / 0.00), 0px 8px 10px -1px hsl(210 20% 50% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(210 20% 50% / 0.00);
+  --radius: .625rem;
+  
+  /* Stripe-style premium shadows */
+  --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 6px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.06), 0 16px 32px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.08), 0 32px 64px rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.1), 0 48px 96px rgba(0, 0, 0, 0.15);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -450,4 +468,130 @@
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
   }
+}
+
+/* ============================================
+   STRIPE-INSPIRED PREMIUM UTILITIES
+   ============================================ */
+
+/* Mesh Gradient Background - WashBizHub Navy/Gold theme */
+.mesh-gradient-hero {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(184, 134, 11, 0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(30, 58, 95, 0.2), transparent),
+    radial-gradient(ellipse 50% 50% at 0% 100%, rgba(184, 134, 11, 0.1), transparent),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.mesh-gradient-navy {
+  background:
+    radial-gradient(ellipse 100% 80% at 50% -30%, rgba(184, 134, 11, 0.3), transparent),
+    radial-gradient(ellipse 80% 60% at 100% 20%, rgba(59, 130, 246, 0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 0% 80%, rgba(184, 134, 11, 0.2), transparent),
+    linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+}
+
+/* Premium Card Styles */
+.premium-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02), 0 4px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.premium-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06), 0 16px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Premium Button Styles */
+.btn-premium-primary {
+  background: linear-gradient(180deg, #1e3a5f 0%, #162d4d 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.btn-premium-primary:hover {
+  background: linear-gradient(180deg, #254a73 0%, #1e3a5f 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-premium-gold {
+  background: linear-gradient(180deg, #d4a030 0%, #b8860b 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.btn-premium-gold:hover {
+  background: linear-gradient(180deg, #e0b040 0%, #c8960b 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Premium Input Styles */
+.input-premium {
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.input-premium:focus {
+  outline: none;
+  border-color: #1e3a5f;
+  box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.1);
+}
+
+/* Section Backgrounds */
+.section-light {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.section-muted {
+  background: #f8fafc;
+}
+
+/* Floating Element Effect */
+.floating-preview {
+  transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 50px 100px -20px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium Text Gradients */
+.text-gradient-navy {
+  background: linear-gradient(135deg, #1e3a5f 0%, #3b5998 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #b8860b 0%, #d4a030 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium Dividers */
+.divider-subtle {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
+}
+
+/* Hero Section Typography */
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  line-height: 1.6;
+  color: #64748b;
 }
