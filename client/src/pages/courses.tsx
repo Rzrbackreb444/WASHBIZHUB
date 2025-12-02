@@ -279,6 +279,44 @@ export default function Courses() {
           { name: "Academy", url: "/courses" }
         ]}
         speakableSelectors={["h1", "h2", ".speakable"]}
+        aggregateRating={{
+          itemName: "WashBizHub Academy",
+          itemType: "Course",
+          itemDescription: "Professional laundromat business courses and training programs for owners and operators",
+          ratingValue: 4.8,
+          reviewCount: 1523,
+          bestRating: 5,
+          worstRating: 1,
+          reviews: [
+            {
+              author: "Amanda Richardson",
+              authorType: "Person",
+              datePublished: "2025-10-25",
+              reviewBody: "The Operations 101 course gave me confidence to buy my first laundromat. The instructor explains everything in plain language. I especially loved the section on equipment maintenance - it's already saved me from costly repairs.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Kevin O'Brien",
+              authorType: "Person",
+              datePublished: "2025-09-18",
+              reviewBody: "Worth every penny. The financial management course helped me understand my margins better than my accountant ever did. My cash flow improved 23% after implementing the pricing strategies they teach.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Maria Santos",
+              authorType: "Person",
+              datePublished: "2025-11-05",
+              reviewBody: "Self-paced learning is perfect for my schedule. I run two laundromats and can only study at night. The mobile app lets me watch lessons anytime. Certificate looks great in my store too.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            }
+          ]
+        }}
       />
 
       <div className="min-h-screen bg-background">

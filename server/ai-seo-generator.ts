@@ -6,11 +6,13 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("Missing required GEMINI_API_KEY");
-}
+let genAI: GoogleGenerativeAI | null = null;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+if (process.env.GEMINI_API_KEY) {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+} else {
+  console.warn("⚠️  GEMINI_API_KEY not configured - AI SEO generator will use fallback data");
+}
 
 export type PageType = 'tool' | 'content' | 'marketplace' | 'pricing' | 'blog';
 export type Industry = 'laundromat' | 'general';
@@ -76,6 +78,11 @@ const LAUNDROMAT_REVIEWER_NAMES = [
 
 export async function generatePageSEO(params: SEOGenerationParams): Promise<GeneratedSEO> {
   const { pageTitle, pageType, industry, pagePath, existingContent, targetKeywords } = params;
+  
+  if (!genAI) {
+    console.log(`📝 Using fallback SEO for: ${pageTitle} (no API key)`);
+    return generateFallbackSEO(params);
+  }
   
   const industryKeywords = industry === 'laundromat' 
     ? LAUNDROMAT_KEYWORDS[pageType] || LAUNDROMAT_KEYWORDS.content
