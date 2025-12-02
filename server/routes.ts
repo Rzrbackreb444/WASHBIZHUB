@@ -37,7 +37,20 @@ import {
   obfuscateForAnonymous,
   addSecurityHeaders 
 } from "./anti-scraping-middleware";
-import { submitAllToGoogle, submitAllViaIndexNow } from "./auto-indexing";
+import { 
+  submitAllToGoogle, 
+  submitAllViaIndexNow,
+  submitUrlWithDeduplication,
+  submitBatch,
+  submitFromSitemap,
+  addToQueue,
+  processQueue,
+  getQueueStatus,
+  getSubmissionHistory,
+  getDeduplicationStats,
+  clearDeduplicationCache,
+  getIndexNowKey,
+} from "./auto-indexing";
 import { 
   triggerBlogIndexing, 
   triggerListingIndexing, 
@@ -4435,6 +4448,13 @@ Disallow: /private/`;
 
     res.header('Content-Type', 'text/plain');
     res.send(robotsTxt);
+  });
+
+  // ==================== SEO: INDEXNOW KEY FILE ====================
+  app.get("/indexnow-key.txt", (_req, res) => {
+    const key = getIndexNowKey();
+    res.header('Content-Type', 'text/plain');
+    res.send(key);
   });
 
   // ==================== VENDOR MARKETPLACE ====================
@@ -9843,6 +9863,195 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         error: error.message 
       });
     }
+  });
+
+  // ==================== INDEXNOW PUBLIC API ====================
+  
+  // POST /api/indexnow/submit - Submit URLs to IndexNow (Bing, Yahoo, Yandex, DuckDuckGo)
+  app.post("/api/indexnow/submit", async (req: any, res) => {
+    try {
+      const { urls, url, force = false, sitemapUrl } = req.body;
+      
+      // Handle sitemap submission
+      if (sitemapUrl) {
+        console.log(`📤 IndexNow: Processing sitemap URL: ${sitemapUrl}`);
+        const result = await submitFromSitemap(sitemapUrl, { skipDeduplication: force });
+        return res.json({
+          success: true,
+          source: "sitemap",
+          sitemapUrl,
+          ...result,
+          engines: ["Bing", "Yahoo", "Yandex", "DuckDuckGo"],
+        });
+      }
+      
+      // Handle batch URL submission
+      if (urls && Array.isArray(urls)) {
+        if (urls.length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: "URLs array is empty",
+          });
+        }
+        
+        if (urls.length > 500) {
+          return res.status(400).json({
+            success: false,
+            error: "Maximum 500 URLs per request. Use queue endpoint for larger batches.",
+          });
+        }
+        
+        console.log(`📤 IndexNow: Processing ${urls.length} URLs`);
+        const result = await submitBatch(urls, { skipDeduplication: force });
+        
+        return res.json({
+          success: true,
+          source: "batch",
+          ...result,
+          engines: ["Bing", "Yahoo", "Yandex", "DuckDuckGo"],
+        });
+      }
+      
+      // Handle single URL submission
+      if (url) {
+        console.log(`📤 IndexNow: Submitting single URL: ${url}`);
+        const result = await submitUrlWithDeduplication(url, force);
+        
+        return res.json({
+          success: result.submitted,
+          source: "single",
+          url,
+          submitted: result.submitted,
+          deduplicated: result.deduplicated,
+          message: result.message,
+          engines: result.submitted ? ["Bing", "Yahoo", "Yandex", "DuckDuckGo"] : [],
+        });
+      }
+      
+      return res.status(400).json({
+        success: false,
+        error: "Please provide 'url', 'urls' array, or 'sitemapUrl'",
+      });
+    } catch (error: any) {
+      console.error("IndexNow submission failed:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  // GET /api/indexnow/status - Get IndexNow service status and recent submissions
+  app.get("/api/indexnow/status", async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const queueStatus = getQueueStatus();
+      const recentSubmissions = getSubmissionHistory(limit);
+      const deduplicationStats = getDeduplicationStats();
+      const indexNowKey = getIndexNowKey();
+      
+      res.json({
+        success: true,
+        status: {
+          active: true,
+          keyConfigured: !!indexNowKey,
+          keyFile: "/indexnow-key.txt",
+          engines: ["Bing", "Yahoo", "Yandex", "DuckDuckGo"],
+        },
+        queue: queueStatus,
+        deduplication: {
+          windowHours: 24,
+          ...deduplicationStats,
+        },
+        recentSubmissions: {
+          count: recentSubmissions.length,
+          submissions: recentSubmissions,
+        },
+      });
+    } catch (error: any) {
+      console.error("Failed to get IndexNow status:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  // POST /api/indexnow/queue - Add URLs to queue for batch processing
+  app.post("/api/indexnow/queue", async (req: any, res) => {
+    try {
+      const { urls, priority = 0 } = req.body;
+      
+      if (!urls || !Array.isArray(urls) || urls.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "URLs array required",
+        });
+      }
+      
+      console.log(`📥 IndexNow: Adding ${urls.length} URLs to queue`);
+      const result = addToQueue(urls, priority);
+      
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error: any) {
+      console.error("Failed to add to queue:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  // POST /api/indexnow/queue/process - Process the IndexNow queue
+  app.post("/api/indexnow/queue/process", async (req: any, res) => {
+    try {
+      console.log("🔄 IndexNow: Processing queue");
+      const result = await processQueue();
+      
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error: any) {
+      console.error("Failed to process queue:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  // DELETE /api/indexnow/deduplication - Clear deduplication cache
+  app.delete("/api/indexnow/deduplication", isAdmin, async (req: any, res) => {
+    try {
+      const result = clearDeduplicationCache();
+      
+      res.json({
+        success: true,
+        ...result,
+        message: "Deduplication cache cleared",
+      });
+    } catch (error: any) {
+      console.error("Failed to clear deduplication cache:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  // GET /api/indexnow/key - Get the IndexNow key (for verification)
+  app.get("/api/indexnow/key", async (req: any, res) => {
+    const key = getIndexNowKey();
+    res.json({
+      key,
+      keyLocation: `https://washbizhub.com/${key}.txt`,
+      alternateLocation: "https://washbizhub.com/indexnow-key.txt",
+    });
   });
 
   // GET /api/admin/pagespeed - Analyze Core Web Vitals using Google PageSpeed API

@@ -589,3 +589,348 @@ export async function scheduleReindexing(
     nextRun,
   };
 }
+
+// ==================== INDEXNOW SERVICE ====================
+// URL deduplication, queue system, and status tracking
+
+export interface IndexNowSubmission {
+  url: string;
+  submittedAt: Date;
+  status: "pending" | "success" | "failed";
+  engines: string[];
+  message?: string;
+}
+
+export interface IndexNowQueueItem {
+  url: string;
+  addedAt: Date;
+  priority: number;
+}
+
+const DEDUPLICATION_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_RECENT_SUBMISSIONS = 1000;
+const BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 1000;
+
+const urlSubmissionCache: Map<string, Date> = new Map();
+const submissionQueue: IndexNowQueueItem[] = [];
+const recentSubmissions: IndexNowSubmission[] = [];
+let isProcessingQueue = false;
+
+export function getIndexNowKey(): string {
+  return process.env.INDEXNOW_API_KEY || "d8dd574359317a7a428e5402f039fd0a";
+}
+
+function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.href.replace(/\/$/, "");
+  } catch {
+    return url.replace(/\/$/, "");
+  }
+}
+
+function isUrlDeduplicated(url: string): boolean {
+  const normalized = normalizeUrl(url);
+  const lastSubmission = urlSubmissionCache.get(normalized);
+  
+  if (!lastSubmission) return false;
+  
+  const timeSinceLastSubmission = Date.now() - lastSubmission.getTime();
+  return timeSinceLastSubmission < DEDUPLICATION_WINDOW_MS;
+}
+
+function recordSubmission(url: string): void {
+  const normalized = normalizeUrl(url);
+  urlSubmissionCache.set(normalized, new Date());
+  
+  if (urlSubmissionCache.size > MAX_RECENT_SUBMISSIONS * 2) {
+    const now = Date.now();
+    for (const [key, date] of urlSubmissionCache.entries()) {
+      if (now - date.getTime() > DEDUPLICATION_WINDOW_MS) {
+        urlSubmissionCache.delete(key);
+      }
+    }
+  }
+}
+
+function addToRecentSubmissions(submission: IndexNowSubmission): void {
+  recentSubmissions.unshift(submission);
+  if (recentSubmissions.length > MAX_RECENT_SUBMISSIONS) {
+    recentSubmissions.pop();
+  }
+}
+
+export function getSubmissionHistory(limit: number = 50): IndexNowSubmission[] {
+  return recentSubmissions.slice(0, limit);
+}
+
+export function getQueueStatus(): { 
+  queueLength: number; 
+  isProcessing: boolean; 
+  recentCount: number;
+  deduplicatedUrls: number;
+} {
+  return {
+    queueLength: submissionQueue.length,
+    isProcessing: isProcessingQueue,
+    recentCount: recentSubmissions.length,
+    deduplicatedUrls: urlSubmissionCache.size,
+  };
+}
+
+export async function submitUrlWithDeduplication(url: string, force: boolean = false): Promise<{
+  submitted: boolean;
+  deduplicated: boolean;
+  message: string;
+}> {
+  const normalized = normalizeUrl(url);
+  
+  if (!force && isUrlDeduplicated(normalized)) {
+    return {
+      submitted: false,
+      deduplicated: true,
+      message: `URL was already submitted within the last 24 hours: ${normalized}`,
+    };
+  }
+  
+  const apiKey = getIndexNowKey();
+  const result = await submitViaIndexNow(normalized, apiKey);
+  
+  if (result.success) {
+    recordSubmission(normalized);
+    addToRecentSubmissions({
+      url: normalized,
+      submittedAt: new Date(),
+      status: "success",
+      engines: ["Bing", "Yahoo", "Yandex", "DuckDuckGo"],
+      message: result.message,
+    });
+  } else {
+    addToRecentSubmissions({
+      url: normalized,
+      submittedAt: new Date(),
+      status: "failed",
+      engines: [],
+      message: result.message,
+    });
+  }
+  
+  return {
+    submitted: result.success,
+    deduplicated: false,
+    message: result.message,
+  };
+}
+
+export function addToQueue(urls: string[], priority: number = 0): { 
+  added: number; 
+  skipped: number; 
+  queueLength: number 
+} {
+  let added = 0;
+  let skipped = 0;
+  
+  for (const url of urls) {
+    const normalized = normalizeUrl(url);
+    
+    const existsInQueue = submissionQueue.some(item => normalizeUrl(item.url) === normalized);
+    if (existsInQueue) {
+      skipped++;
+      continue;
+    }
+    
+    submissionQueue.push({
+      url: normalized,
+      addedAt: new Date(),
+      priority,
+    });
+    added++;
+  }
+  
+  submissionQueue.sort((a, b) => b.priority - a.priority);
+  
+  return {
+    added,
+    skipped,
+    queueLength: submissionQueue.length,
+  };
+}
+
+export async function processQueue(): Promise<{
+  processed: number;
+  succeeded: number;
+  failed: number;
+  deduplicated: number;
+  remaining: number;
+}> {
+  if (isProcessingQueue) {
+    return {
+      processed: 0,
+      succeeded: 0,
+      failed: 0,
+      deduplicated: 0,
+      remaining: submissionQueue.length,
+    };
+  }
+  
+  isProcessingQueue = true;
+  let processed = 0;
+  let succeeded = 0;
+  let failed = 0;
+  let deduplicated = 0;
+  
+  console.log(`📤 Processing IndexNow queue: ${submissionQueue.length} URLs`);
+  
+  try {
+    while (submissionQueue.length > 0) {
+      const batch = submissionQueue.splice(0, BATCH_SIZE);
+      
+      for (const item of batch) {
+        const result = await submitUrlWithDeduplication(item.url);
+        processed++;
+        
+        if (result.deduplicated) {
+          deduplicated++;
+        } else if (result.submitted) {
+          succeeded++;
+        } else {
+          failed++;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      if (submissionQueue.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+      }
+    }
+  } finally {
+    isProcessingQueue = false;
+  }
+  
+  console.log(`✅ Queue processed: ${succeeded} succeeded, ${failed} failed, ${deduplicated} deduplicated`);
+  
+  return {
+    processed,
+    succeeded,
+    failed,
+    deduplicated,
+    remaining: submissionQueue.length,
+  };
+}
+
+export async function submitBatch(urls: string[], options: {
+  skipDeduplication?: boolean;
+  priority?: number;
+} = {}): Promise<{
+  total: number;
+  queued: number;
+  processed: number;
+  succeeded: number;
+  failed: number;
+  deduplicated: number;
+}> {
+  const { skipDeduplication = false, priority = 0 } = options;
+  
+  let succeeded = 0;
+  let failed = 0;
+  let deduplicated = 0;
+  
+  console.log(`📊 Starting batch IndexNow submission for ${urls.length} URLs...`);
+  
+  for (let i = 0; i < urls.length; i += BATCH_SIZE) {
+    const batch = urls.slice(i, i + BATCH_SIZE);
+    
+    for (const url of batch) {
+      const result = await submitUrlWithDeduplication(url, skipDeduplication);
+      
+      if (result.deduplicated) {
+        deduplicated++;
+      } else if (result.submitted) {
+        succeeded++;
+      } else {
+        failed++;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (i + BATCH_SIZE < urls.length) {
+      await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+    }
+  }
+  
+  console.log(`✨ Batch submission complete: ${succeeded} succeeded, ${failed} failed, ${deduplicated} deduplicated`);
+  
+  return {
+    total: urls.length,
+    queued: 0,
+    processed: urls.length,
+    succeeded,
+    failed,
+    deduplicated,
+  };
+}
+
+export async function submitFromSitemap(sitemapUrl: string, options: {
+  skipDeduplication?: boolean;
+} = {}): Promise<{
+  total: number;
+  succeeded: number;
+  failed: number;
+  deduplicated: number;
+}> {
+  console.log(`🌐 Fetching sitemap from: ${sitemapUrl}`);
+  
+  try {
+    const response = await fetch(sitemapUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch sitemap: HTTP ${response.status}`);
+    }
+    
+    const sitemapXml = await response.text();
+    const urls = parseSitemapUrls(sitemapXml);
+    
+    console.log(`📄 Found ${urls.length} URLs in sitemap`);
+    
+    const result = await submitBatch(urls, options);
+    
+    return {
+      total: result.total,
+      succeeded: result.succeeded,
+      failed: result.failed,
+      deduplicated: result.deduplicated,
+    };
+  } catch (error) {
+    console.error(`❌ Failed to process sitemap: ${error}`);
+    throw error;
+  }
+}
+
+export function clearDeduplicationCache(): { cleared: number } {
+  const count = urlSubmissionCache.size;
+  urlSubmissionCache.clear();
+  console.log(`🧹 Cleared ${count} URLs from deduplication cache`);
+  return { cleared: count };
+}
+
+export function getDeduplicationStats(): {
+  totalUrls: number;
+  oldestSubmission: Date | null;
+  newestSubmission: Date | null;
+} {
+  let oldest: Date | null = null;
+  let newest: Date | null = null;
+  
+  for (const date of urlSubmissionCache.values()) {
+    if (!oldest || date < oldest) oldest = date;
+    if (!newest || date > newest) newest = date;
+  }
+  
+  return {
+    totalUrls: urlSubmissionCache.size,
+    oldestSubmission: oldest,
+    newestSubmission: newest,
+  };
+}
