@@ -13,6 +13,10 @@ import equipmentImage from "@assets/AdobeStock_507641449_1764704943942.jpeg";
 import washerDetailImage from "@assets/AdobeStock_711286802_1764704943943.jpeg";
 import laundromatImage from "@assets/Dexter_Laundromat_Stock_photo_1764704943945.jpg";
 import neonSignImage from "@assets/AdobeStock_111864759_1764704943941.jpeg";
+import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
+import consultingImage from "@assets/laundromat_consulting_1764705500502.png";
+import aerialViewHD from "@assets/laundromat_aerial_view_hd_1764705500502.jpg";
+import aerialView from "@assets/laundromat_aerial_view_1764705500503.jpg";
 
 const FEATURES = [
   {
@@ -81,7 +85,7 @@ const LISTINGS = [
     cashFlow: "$92K/yr",
     built: "2018",
     isFeatured: true,
-    image: laundromatImage
+    image: aerialViewHD
   },
   {
     title: "Full-Service Laundromat with Wash & Fold",
@@ -91,7 +95,7 @@ const LISTINGS = [
     cashFlow: "$145K/yr",
     built: "2015",
     isFeatured: false,
-    image: equipmentImage
+    image: aerialView
   }
 ];
 
@@ -111,7 +115,7 @@ const CALCULATORS = [
 const EDUCATION = [
   { icon: BookOpen, title: "The Ultimate Laundromat Guidebook", description: "The definitive guide to buying, operating, and scaling profitable laundromats", cta: "Get the Book", link: "/book" },
   { icon: GraduationCap, title: "Online Courses", description: "Self-paced courses to master every aspect of the laundromat business", cta: "Enroll Now", link: "/courses" },
-  { icon: Phone, title: "Consultations", description: "One-on-one guidance on acquisitions, operations, and growth strategy", cta: "Book a Call", link: "/consultation", isHighlighted: true }
+  { icon: Phone, title: "Consultations", description: "One-on-one guidance on acquisitions, operations, and growth strategy", cta: "Book a Call", link: "/consultation", isHighlighted: true, image: consultingImage }
 ];
 
 const PRODUCTS = [
@@ -300,35 +304,48 @@ export function FeaturedVendorBanner() {
   return (
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <Card className="border-2 border-[#b8860b]/30 bg-gradient-to-r from-[#b8860b]/5 to-transparent p-6">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <Badge className="bg-[#b8860b] text-white shrink-0">
-              <Star className="w-3 h-3 mr-1" /> Featured Vendor
-            </Badge>
-            <div className="flex-1 flex flex-col md:flex-row items-center gap-6">
-              <div className="w-24 h-16 bg-gray-100 rounded flex items-center justify-center text-sm font-bold text-gray-400">
-                PAYRANGE
-              </div>
-              <div className="text-center md:text-left">
-                <h3 
-                  className="text-sm font-bold text-[#1e3a5f] uppercase"
-                  style={{ fontFamily: 'var(--font-bebas)' }}
-                >
-                  PayRange
-                </h3>
-                <p className="text-gray-800 font-medium">Mobile Payment Solutions</p>
-                <p className="text-sm text-gray-600">Contactless payment systems for modern laundromats</p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <Badge variant="outline" className="text-xs">Mobile Payment Readers</Badge>
-                  <Badge variant="outline" className="text-xs">App Integration</Badge>
+        <Card className="overflow-hidden border-2 border-[#b8860b]/30">
+          <div className="grid md:grid-cols-3 gap-0">
+            <div className="relative h-48 md:h-auto">
+              <img 
+                src={twinCitiesInterior} 
+                alt="Modern laundromat interior" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/90 md:block hidden" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/90 to-transparent md:hidden" />
+            </div>
+            <div className="md:col-span-2 p-6 bg-gradient-to-r from-white to-[#b8860b]/5">
+              <div className="flex flex-col h-full justify-center">
+                <Badge className="bg-[#b8860b] text-white w-fit mb-4">
+                  <Star className="w-3 h-3 mr-1" /> Featured Vendor
+                </Badge>
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="w-24 h-16 bg-gray-100 rounded flex items-center justify-center text-sm font-bold text-gray-400 shrink-0">
+                    PAYRANGE
+                  </div>
+                  <div className="flex-1">
+                    <h3 
+                      className="text-sm font-bold text-[#1e3a5f] uppercase"
+                      style={{ fontFamily: 'var(--font-bebas)' }}
+                    >
+                      PayRange
+                    </h3>
+                    <p className="text-gray-800 font-medium">Mobile Payment Solutions</p>
+                    <p className="text-sm text-gray-600">Contactless payment systems for modern laundromats</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Badge variant="outline" className="text-xs">Mobile Payment Readers</Badge>
+                      <Badge variant="outline" className="text-xs">App Integration</Badge>
+                    </div>
+                  </div>
+                  <Link href="/vendors">
+                    <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white shrink-0" data-testid="button-featured-vendor-storefront">
+                      Visit Storefront <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
-            <Link href="/vendors">
-              <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white shrink-0" data-testid="button-featured-vendor-storefront">
-                Visit Storefront <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
           </div>
         </Card>
       </div>
@@ -464,27 +481,46 @@ export function EducationSection() {
           {EDUCATION.map((item) => (
             <Card 
               key={item.title} 
-              className={`p-6 border text-center ${item.isHighlighted ? 'border-[#b8860b] bg-white' : 'border-gray-200 bg-white'}`}
+              className={`overflow-hidden border ${item.isHighlighted ? 'border-[#b8860b] bg-white' : 'border-gray-200 bg-white'}`}
             >
-              <div className={`w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-4 ${item.isHighlighted ? 'bg-[#b8860b]' : 'bg-gray-100'}`}>
-                <item.icon className={`w-8 h-8 ${item.isHighlighted ? 'text-white' : 'text-gray-600'}`} />
+              {item.image ? (
+                <div className="relative h-40">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1e3a5f]/80 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 
+                      className="text-sm font-bold text-white uppercase"
+                      style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.05em' }}
+                    >
+                      {item.title}
+                    </h3>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 pb-0 text-center">
+                  <div className={`w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-4 ${item.isHighlighted ? 'bg-[#b8860b]' : 'bg-gray-100'}`}>
+                    <item.icon className={`w-8 h-8 ${item.isHighlighted ? 'text-white' : 'text-gray-600'}`} />
+                  </div>
+                  <h3 
+                    className="text-sm font-bold text-[#1e3a5f] uppercase mb-2"
+                    style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.05em' }}
+                  >
+                    {item.title}
+                  </h3>
+                </div>
+              )}
+              <div className={`p-6 ${item.image ? 'pt-4' : 'pt-0'} text-center`}>
+                <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                <Link href={item.link}>
+                  <Button 
+                    variant={item.isHighlighted ? "default" : "outline"} 
+                    className={`w-full ${item.isHighlighted ? 'bg-[#1e3a5f] hover:bg-[#2a4a73]' : 'border-gray-300'}`}
+                    data-testid={`button-education-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {item.cta}
+                  </Button>
+                </Link>
               </div>
-              <h3 
-                className="text-sm font-bold text-[#1e3a5f] uppercase mb-2"
-                style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.05em' }}
-              >
-                {item.title}
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">{item.description}</p>
-              <Link href={item.link}>
-                <Button 
-                  variant={item.isHighlighted ? "default" : "outline"} 
-                  className={`w-full ${item.isHighlighted ? 'bg-[#1e3a5f] hover:bg-[#2a4a73]' : 'border-gray-300'}`}
-                  data-testid={`button-education-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {item.cta}
-                </Button>
-              </Link>
             </Card>
           ))}
         </div>
