@@ -9,9 +9,11 @@ const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.
 const platformLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer" },
   { href: "/cleanbi-auto", label: "Quick Score", testId: "link-footer-cleanbi-auto" },
+  { href: "/score-history", label: "Score History", testId: "link-footer-score-history" },
   { href: "/design-studio-pro", label: "Design Studio", testId: "link-footer-design-studio" },
   { href: "/service-guy-ai", label: "Service Guy AI", testId: "link-footer-service-guy-ai", icon: Wrench },
   { href: "/calculators", label: "All Calculators", testId: "link-footer-all-calculators", icon: Calculator },
+  { href: "/referral-program", label: "Referral Program", testId: "link-footer-referral-program", icon: DollarSign },
 ];
 
 const marketplaceLinks = [
@@ -33,6 +35,7 @@ const educationLinks = [
   { href: "/book", label: "The Laundromat Bible", testId: "link-footer-laundromat-bible", icon: BookOpen },
   { href: "/blog", label: "Industry Blog", testId: "link-footer-industry-blog" },
   { href: "/resources", label: "Resource Hub", testId: "link-footer-resource-hub" },
+  { href: "/help-center", label: "Help Center", testId: "link-footer-help-center" },
 ];
 
 export function Footer() {

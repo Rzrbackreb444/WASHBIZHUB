@@ -69,6 +69,7 @@ const navigationSections = [
     title: "Expert Help",
     items: [
       { href: "/consultation", label: "Book Consultation" },
+      { href: "/help-center", label: "Help Center" },
       { href: "/about", label: "About Us" },
       { href: "/pricing", label: "Pricing" },
     ]
