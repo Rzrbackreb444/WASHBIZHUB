@@ -3295,12 +3295,17 @@ function CleanBIExplorerContent() {
                                   <span className="text-xs sm:text-sm font-semibold text-white">AI Insights</span>
                                   <Badge className="text-[8px] sm:text-[9px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Gemini</Badge>
                                 </div>
-                                {!valuatorNarrative && (
+                                {!valuatorNarrative && valuatorResult && analysisResult && (
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     className="h-7 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
                                     onClick={async () => {
+                                      if (!valuatorResult || !analysisResult) {
+                                        toast({ title: "Valuation Required", description: "Calculate valuation first to generate AI insights", variant: "destructive" });
+                                        return;
+                                      }
+                                      
                                       setIsGeneratingNarrative(true);
                                       try {
                                         const dominantBrand = valuatorEquipment.reduce((acc, item) => {
@@ -3314,15 +3319,15 @@ function CleanBIExplorerContent() {
                                           body: JSON.stringify({
                                             totalAssetValue: valuatorResult.totalAssetValue,
                                             equipmentFMV: valuatorResult.equipmentFMV,
-                                            propertyValue: valuatorResult.propertyValue,
-                                            businessValue: valuatorResult.businessValue,
-                                            cleanbiGrade: analysisResult.grade,
-                                            cleanbiScore: analysisResult.cleanbiScore,
-                                            ebitdaMultiple: valuatorResult.businessDetails.ebitdaMultiple,
-                                            ebitda: valuatorResult.businessDetails.ebitda,
+                                            propertyValue: valuatorResult.propertyValue || 0,
+                                            businessValue: valuatorResult.businessValue || 0,
+                                            cleanbiGrade: analysisResult.grade || 'C',
+                                            cleanbiScore: analysisResult.cleanbiScore || 70,
+                                            ebitdaMultiple: valuatorResult.businessDetails?.ebitdaMultiple || 3.0,
+                                            ebitda: valuatorResult.businessDetails?.ebitda || 0,
                                             equipmentDetails: {
                                               totalMachines: valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0),
-                                              weightedAge: valuatorResult.equipmentBreakdown.weightedAge,
+                                              weightedAge: valuatorResult.equipmentBreakdown?.weightedAge || 5,
                                               dominantBrand: topBrand
                                             },
                                             locationFactors: {
@@ -3334,18 +3339,27 @@ function CleanBIExplorerContent() {
                                           })
                                         });
                                         
-                                        if (response.success) {
+                                        if (response.success && response.narrative) {
                                           setValuatorNarrative(response.narrative);
                                           trackEvent("valuator_narrative_generated", "engagement");
+                                          toast({ title: "AI Insights Generated", description: "Valuation narrative ready" });
+                                        } else if (response.upgradeRequired) {
+                                          toast({ title: "Pro Tier Required", description: "Upgrade to Pro to access AI insights", variant: "destructive" });
+                                        } else if (response.fallback) {
+                                          setValuatorNarrative(response.fallback);
+                                          toast({ title: "Limited Insights", description: "Using fallback analysis - full AI temporarily unavailable" });
+                                        } else {
+                                          toast({ title: "Error", description: response.error || "Could not generate AI insights", variant: "destructive" });
                                         }
-                                      } catch (error) {
+                                      } catch (error: any) {
                                         console.error("Narrative error:", error);
-                                        toast({ title: "Error", description: "Could not generate AI insights", variant: "destructive" });
+                                        const errorMessage = error?.message || "Could not generate AI insights";
+                                        toast({ title: "Error", description: errorMessage, variant: "destructive" });
                                       } finally {
                                         setIsGeneratingNarrative(false);
                                       }
                                     }}
-                                    disabled={isGeneratingNarrative}
+                                    disabled={isGeneratingNarrative || !valuatorResult}
                                     data-testid="button-generate-narrative"
                                   >
                                     {isGeneratingNarrative ? (
