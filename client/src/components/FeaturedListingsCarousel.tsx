@@ -220,7 +220,7 @@ export function FeaturedListingsCarousel() {
     
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [api]);

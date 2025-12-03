@@ -94,6 +94,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ListingAnalyzer } from "@/components/ListingAnalyzer";
@@ -1972,28 +1974,28 @@ function CleanBIExplorerContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="p-6 border-b border-white/10"
+                className="p-3 sm:p-6 border-b border-white/10"
                 data-testid="analysis-result-panel"
               >
-                {/* Score Header - Premium Grade Display */}
+                {/* Score Header - Premium Grade Display - Mobile Optimized */}
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="flex items-center gap-4 mb-4"
+                  className="flex items-center gap-3 sm:gap-4 mb-4"
                 >
                   <div 
-                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-xl border border-white/10"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold text-white shadow-xl border border-white/10 shrink-0"
                     style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] || "#b8860b", fontFamily: "'Bebas Neue', sans-serif" }}
                     data-testid="grade-badge"
                   >
                     {analysisResult.grade}
                   </div>
-                  <div>
-                    <div className="text-4xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{analysisResult.cleanbiScore}</div>
-                    <div className="text-sm text-white/50 font-medium">CLEANBI™ Score</div>
+                  <div className="min-w-0">
+                    <div className="text-3xl sm:text-4xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{analysisResult.cleanbiScore}</div>
+                    <div className="text-xs sm:text-sm text-white/50 font-medium">CLEANBI™ Score</div>
                     <Badge 
-                      className={`mt-1 ${OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.pulse ? "animate-pulse" : ""}`}
+                      className={`mt-1 text-[10px] sm:text-xs ${OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.pulse ? "animate-pulse" : ""}`}
                       style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] + "33", color: GRADE_COLORS[analysisResult.grade] }}
                     >
                       {OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.text}
@@ -2001,28 +2003,34 @@ function CleanBIExplorerContent() {
                   </div>
                 </motion.div>
 
-                {/* Detail Tabs */}
+                {/* Detail Tabs - Mobile Optimized */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-7 bg-white/5 backdrop-blur-sm mb-3 rounded-xl border border-white/10">
-                    <TabsTrigger value="overview" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Overview</TabsTrigger>
-                    <TabsTrigger value="score" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
-                    <TabsTrigger value="compete" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Compete</TabsTrigger>
-                    <TabsTrigger value="financials" className="text-[10px] px-1 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-financials">
+                  <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-3 rounded-xl border border-white/10 gap-0.5 p-1">
+                    <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                      <span className="hidden sm:inline">Overview</span>
+                      <span className="sm:hidden">Info</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="score" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
+                    <TabsTrigger value="compete" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                      <span className="hidden sm:inline">Compete</span>
+                      <span className="sm:hidden">Comp</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="financials" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-financials">
                       <Calculator className="w-3 h-3" />
-                      Calc
+                      <span className="hidden sm:inline">Calc</span>
                     </TabsTrigger>
-                    <TabsTrigger value="valuator" className="text-[10px] px-1 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-valuator">
+                    <TabsTrigger value="valuator" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-valuator">
                       <CircleDollarSign className="w-3 h-3" />
-                      Value
-                      {(userTier === "free" || userTier === "starter") && <Crown className="w-2.5 h-2.5 text-[#8B5CF6]" />}
+                      <span className="hidden sm:inline">Value</span>
+                      {(userTier === "free" || userTier === "starter") && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#8B5CF6]" />}
                     </TabsTrigger>
-                    <TabsTrigger value="deal" className="text-[10px] px-1 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-deal">
+                    <TabsTrigger value="deal" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-deal">
                       <Scale className="w-3 h-3" />
-                      Deal
+                      <span className="hidden sm:inline">Deal</span>
                     </TabsTrigger>
-                    <TabsTrigger value="insights" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg">
+                    <TabsTrigger value="insights" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg">
                       AI
-                      {userTier === "free" && <Crown className="w-2.5 h-2.5 text-[#b8860b]" />}
+                      {userTier === "free" && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#b8860b]" />}
                     </TabsTrigger>
                   </TabsList>
 
@@ -3002,18 +3010,18 @@ function CleanBIExplorerContent() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        {/* Valuator Header */}
-                        <div className="flex items-center justify-between">
+                      <div className="space-y-3 sm:space-y-4">
+                        {/* Valuator Header - Mobile Optimized */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <CircleDollarSign className="w-5 h-5 text-[#8B5CF6]" />
-                            <span className="text-sm font-semibold text-white">CLEANBI Valuator</span>
-                            <Badge className="text-[9px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Pro</Badge>
+                            <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-[#8B5CF6]" />
+                            <span className="text-xs sm:text-sm font-semibold text-white">CLEANBI Valuator</span>
+                            <Badge className="text-[8px] sm:text-[9px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Pro</Badge>
                           </div>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                            className="h-7 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 w-full sm:w-auto"
                             onClick={() => setShowAddEquipmentModal(true)}
                             data-testid="button-add-equipment"
                           >
@@ -3022,15 +3030,15 @@ function CleanBIExplorerContent() {
                           </Button>
                         </div>
 
-                        {/* Equipment Inventory Section */}
+                        {/* Equipment Inventory Section - Mobile Optimized */}
                         {valuatorEquipment.length === 0 ? (
-                          <div className="bg-white/5 rounded-lg p-4 text-center border border-dashed border-white/20">
-                            <WashingMachine className="w-10 h-10 mx-auto mb-2 text-white/30" />
-                            <p className="text-sm text-white/50 mb-3">No equipment added yet</p>
+                          <div className="bg-white/5 rounded-lg p-3 sm:p-4 text-center border border-dashed border-white/20">
+                            <WashingMachine className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 text-white/30" />
+                            <p className="text-xs sm:text-sm text-white/50 mb-3">No equipment added yet</p>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-xs"
+                              className="text-[10px] sm:text-xs"
                               onClick={() => setShowAddEquipmentModal(true)}
                               data-testid="button-add-first-equipment"
                             >
@@ -3040,29 +3048,29 @@ function CleanBIExplorerContent() {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            <div className="text-xs text-white/50 mb-2">Equipment Inventory ({valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0)} machines)</div>
-                            <ScrollArea className="max-h-40">
+                            <div className="text-[10px] sm:text-xs text-white/50 mb-2">Equipment Inventory ({valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0)} machines)</div>
+                            <ScrollArea className="max-h-32 sm:max-h-40">
                               <div className="space-y-1.5">
                                 {valuatorEquipment.map((item) => (
                                   <div 
                                     key={item.id}
-                                    className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2 hover:bg-white/8 transition-colors"
+                                    className="flex items-center justify-between bg-white/5 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white/8 transition-colors"
                                     data-testid={`equipment-item-${item.id}`}
                                   >
-                                    <div className="flex items-center gap-2">
-                                      <div className={`w-7 h-7 rounded-md flex items-center justify-center ${item.machineType === 'washer' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                                        <WashingMachine className="w-4 h-4" />
+                                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                                      <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center shrink-0 ${item.machineType === 'washer' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                        <WashingMachine className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                       </div>
-                                      <div>
-                                        <div className="text-xs font-medium text-white">
+                                      <div className="min-w-0">
+                                        <div className="text-[10px] sm:text-xs font-medium text-white truncate">
                                           {item.quantity}x {BRAND_DISPLAY_NAMES[item.brand]} {MACHINE_TYPE_DISPLAY[item.machineType]}
                                         </div>
-                                        <div className="text-[10px] text-white/50">
-                                          {CAPACITY_DISPLAY_NAMES[item.capacity]} • {item.ageYears}yr old • ${item.purchaseCost.toLocaleString()}
+                                        <div className="text-[9px] sm:text-[10px] text-white/50 truncate">
+                                          {CAPACITY_DISPLAY_NAMES[item.capacity]} • {item.ageYears}yr • ${item.purchaseCost.toLocaleString()}
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                                       <Button
                                         size="icon"
                                         variant="ghost"
@@ -3157,49 +3165,49 @@ function CleanBIExplorerContent() {
                           </Button>
                         )}
 
-                        {/* Valuation Results */}
+                        {/* Valuation Results - Mobile Optimized */}
                         {valuatorResult && (
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="space-y-3"
+                            className="space-y-2 sm:space-y-3"
                           >
                             {/* Total Valuation */}
-                            <div className="bg-gradient-to-br from-[#8B5CF6]/20 to-transparent rounded-lg p-4 border border-[#8B5CF6]/30">
-                              <div className="text-xs text-white/50 mb-1">Total Asset Value</div>
-                              <div className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                            <div className="bg-gradient-to-br from-[#8B5CF6]/20 to-transparent rounded-lg p-3 sm:p-4 border border-[#8B5CF6]/30">
+                              <div className="text-[10px] sm:text-xs text-white/50 mb-1">Total Asset Value</div>
+                              <div className="text-2xl sm:text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                                 ${valuatorResult.totalAssetValue.toLocaleString()}
                               </div>
-                              <div className="text-xs text-white/40 mt-1">
+                              <div className="text-[10px] sm:text-xs text-white/40 mt-1">
                                 Range: ${valuatorResult.valuationRange.min.toLocaleString()} - ${valuatorResult.valuationRange.max.toLocaleString()}
                               </div>
                             </div>
 
                             {/* Value Breakdown */}
-                            <div className="grid grid-cols-3 gap-2">
-                              <div className="bg-white/5 rounded-lg p-3 text-center">
-                                <WashingMachine className="w-4 h-4 mx-auto mb-1 text-blue-400" />
-                                <div className="text-xs text-white/50">Equipment FMV</div>
-                                <div className="text-sm font-bold text-white">${valuatorResult.equipmentFMV.toLocaleString()}</div>
+                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                              <div className="bg-white/5 rounded-lg p-2 sm:p-3 text-center">
+                                <WashingMachine className="w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto mb-1 text-blue-400" />
+                                <div className="text-[9px] sm:text-xs text-white/50">Equipment</div>
+                                <div className="text-[10px] sm:text-sm font-bold text-white">${valuatorResult.equipmentFMV.toLocaleString()}</div>
                               </div>
-                              <div className="bg-white/5 rounded-lg p-3 text-center">
-                                <Building2 className="w-4 h-4 mx-auto mb-1 text-green-400" />
-                                <div className="text-xs text-white/50">Property</div>
-                                <div className="text-sm font-bold text-white">${valuatorResult.propertyValue.toLocaleString()}</div>
+                              <div className="bg-white/5 rounded-lg p-2 sm:p-3 text-center">
+                                <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto mb-1 text-green-400" />
+                                <div className="text-[9px] sm:text-xs text-white/50">Property</div>
+                                <div className="text-[10px] sm:text-sm font-bold text-white">${valuatorResult.propertyValue.toLocaleString()}</div>
                               </div>
-                              <div className="bg-white/5 rounded-lg p-3 text-center">
-                                <TrendingUp className="w-4 h-4 mx-auto mb-1 text-[#8B5CF6]" />
-                                <div className="text-xs text-white/50">Business</div>
-                                <div className="text-sm font-bold text-white">${valuatorResult.businessValue.toLocaleString()}</div>
+                              <div className="bg-white/5 rounded-lg p-2 sm:p-3 text-center">
+                                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto mb-1 text-[#8B5CF6]" />
+                                <div className="text-[9px] sm:text-xs text-white/50">Business</div>
+                                <div className="text-[10px] sm:text-sm font-bold text-white">${valuatorResult.businessValue.toLocaleString()}</div>
                               </div>
                             </div>
 
                             {/* EBITDA Details */}
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-white/50">EBITDA Multiple</span>
+                            <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                                <span className="text-[10px] sm:text-xs text-white/50">EBITDA Multiple</span>
                                 <Badge 
-                                  className="text-[10px]"
+                                  className="text-[9px] sm:text-[10px]"
                                   style={{ 
                                     backgroundColor: GRADE_COLORS[valuatorResult.businessDetails.cleanbiGrade] + "33",
                                     color: GRADE_COLORS[valuatorResult.businessDetails.cleanbiGrade]
@@ -3209,26 +3217,26 @@ function CleanBIExplorerContent() {
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2">
-                                <div className="text-2xl font-bold text-[#8B5CF6]">{valuatorResult.businessDetails.ebitdaMultiple}x</div>
-                                <div className="text-xs text-white/40">
-                                  (Range: {valuatorResult.businessDetails.ebitdaMultipleRange.min}x - {valuatorResult.businessDetails.ebitdaMultipleRange.max}x)
+                                <div className="text-xl sm:text-2xl font-bold text-[#8B5CF6]">{valuatorResult.businessDetails.ebitdaMultiple}x</div>
+                                <div className="text-[9px] sm:text-xs text-white/40">
+                                  ({valuatorResult.businessDetails.ebitdaMultipleRange.min}x - {valuatorResult.businessDetails.ebitdaMultipleRange.max}x)
                                 </div>
                               </div>
-                              <div className="text-xs text-white/50 mt-1">
+                              <div className="text-[10px] sm:text-xs text-white/50 mt-1">
                                 EBITDA: ${valuatorResult.businessDetails.ebitda.toLocaleString()}/yr
                               </div>
                             </div>
 
-                            {/* Adjustments */}
+                            {/* Adjustments - Mobile Optimized */}
                             {valuatorResult.adjustments.length > 0 && (
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-xs text-white/50 mb-2">Valuation Adjustments</div>
-                                <div className="space-y-1">
+                              <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                                <div className="text-[10px] sm:text-xs text-white/50 mb-1.5 sm:mb-2">Valuation Adjustments</div>
+                                <div className="space-y-0.5 sm:space-y-1">
                                   {valuatorResult.adjustments.map((adj, idx) => (
-                                    <div key={idx} className="flex items-center justify-between text-xs">
-                                      <span className="text-white/70">{adj.reason}</span>
-                                      <span className={adj.direction === 'increase' ? 'text-green-400' : 'text-red-400'}>
-                                        {adj.direction === 'increase' ? '+' : '-'}${adj.amount.toLocaleString()} ({adj.percentage}%)
+                                    <div key={idx} className="flex items-center justify-between text-[10px] sm:text-xs gap-2">
+                                      <span className="text-white/70 truncate">{adj.reason}</span>
+                                      <span className={`shrink-0 ${adj.direction === 'increase' ? 'text-green-400' : 'text-red-400'}`}>
+                                        {adj.direction === 'increase' ? '+' : '-'}${adj.amount.toLocaleString()}
                                       </span>
                                     </div>
                                   ))}
@@ -3236,17 +3244,17 @@ function CleanBIExplorerContent() {
                               </div>
                             )}
 
-                            {/* Equipment Age & Depreciation */}
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-white/50">Weighted Equipment Age</span>
-                                <span className="text-white font-medium">{valuatorResult.equipmentBreakdown.weightedAge.toFixed(1)} years</span>
+                            {/* Equipment Age & Depreciation - Mobile Optimized */}
+                            <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                              <div className="flex items-center justify-between text-[10px] sm:text-xs">
+                                <span className="text-white/50">Weighted Age</span>
+                                <span className="text-white font-medium">{valuatorResult.equipmentBreakdown.weightedAge.toFixed(1)} yrs</span>
                               </div>
-                              <div className="flex items-center justify-between text-xs mt-1">
+                              <div className="flex items-center justify-between text-[10px] sm:text-xs mt-0.5 sm:mt-1">
                                 <span className="text-white/50">Original Cost</span>
                                 <span className="text-white/70">${valuatorResult.equipmentBreakdown.totalOriginalCost.toLocaleString()}</span>
                               </div>
-                              <div className="flex items-center justify-between text-xs mt-1">
+                              <div className="flex items-center justify-between text-[10px] sm:text-xs mt-0.5 sm:mt-1">
                                 <span className="text-white/50">Depreciation</span>
                                 <span className="text-red-400">
                                   -${(valuatorResult.equipmentBreakdown.totalOriginalCost - valuatorResult.equipmentBreakdown.totalFMV).toLocaleString()}
@@ -3254,12 +3262,12 @@ function CleanBIExplorerContent() {
                               </div>
                             </div>
 
-                            {/* Confidence Level */}
-                            <div className="flex items-center justify-center gap-2 text-xs">
+                            {/* Confidence Level - Mobile Optimized */}
+                            <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
                               <span className="text-white/40">Confidence:</span>
                               <Badge 
                                 variant="outline"
-                                className={`text-[10px] ${
+                                className={`text-[9px] sm:text-[10px] ${
                                   valuatorResult.businessDetails.confidenceLevel === 'high' 
                                     ? 'border-green-500/30 text-green-400'
                                     : valuatorResult.businessDetails.confidenceLevel === 'medium'
@@ -4654,6 +4662,197 @@ function CleanBIExplorerContent() {
             ) : null}
           </SheetContent>
         </Sheet>
+
+        {/* Equipment Add/Edit Modal for Valuator */}
+        <Dialog open={showAddEquipmentModal} onOpenChange={(open) => {
+          setShowAddEquipmentModal(open);
+          if (!open) setEditingEquipment(null);
+        }}>
+          <DialogContent className="bg-[#0f1d2f] border border-white/10 text-white max-w-md sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-white flex items-center gap-2">
+                <WashingMachine className="w-5 h-5 text-[#8B5CF6]" />
+                {editingEquipment ? 'Edit Equipment' : 'Add Equipment'}
+              </DialogTitle>
+              <DialogDescription className="text-white/60">
+                Enter the machine details to calculate fair market value.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form 
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const equipment: EquipmentItem = {
+                  id: editingEquipment?.id || `eq_${Date.now()}`,
+                  machineType: formData.get('machineType') as MachineType,
+                  brand: formData.get('brand') as MachineBrand,
+                  model: formData.get('model') as string || '',
+                  capacity: formData.get('capacity') as MachineCapacity,
+                  ageYears: parseInt(formData.get('ageYears') as string) || 0,
+                  purchaseCost: parseInt(formData.get('purchaseCost') as string) || 0,
+                  quantity: parseInt(formData.get('quantity') as string) || 1,
+                  condition: formData.get('condition') as 'excellent' | 'good' | 'fair' | 'poor' || 'good',
+                };
+                
+                if (editingEquipment) {
+                  setValuatorEquipment(prev => prev.map(item => 
+                    item.id === editingEquipment.id ? equipment : item
+                  ));
+                  toast({ title: "Equipment updated" });
+                } else {
+                  setValuatorEquipment(prev => [...prev, equipment]);
+                  toast({ title: "Equipment added" });
+                }
+                
+                setShowAddEquipmentModal(false);
+                setEditingEquipment(null);
+              }}
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="machineType" className="text-xs text-white/70">Type</Label>
+                  <Select name="machineType" defaultValue={editingEquipment?.machineType || 'washer'}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-9">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1e3a5f] border-white/10">
+                      <SelectItem value="washer">Washer</SelectItem>
+                      <SelectItem value="dryer">Dryer</SelectItem>
+                      <SelectItem value="combo">Combo</SelectItem>
+                      <SelectItem value="folder">Folder</SelectItem>
+                      <SelectItem value="ironer">Ironer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="quantity" className="text-xs text-white/70">Quantity</Label>
+                  <Input 
+                    type="number" 
+                    name="quantity" 
+                    min="1" 
+                    max="100"
+                    defaultValue={editingEquipment?.quantity || 1}
+                    className="bg-white/5 border-white/10 text-white h-9"
+                    data-testid="input-equipment-quantity"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="brand" className="text-xs text-white/70">Brand</Label>
+                <Select name="brand" defaultValue={editingEquipment?.brand || 'speed_queen'}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-9">
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1e3a5f] border-white/10 max-h-60">
+                    {Object.entries(BRAND_DISPLAY_NAMES).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="capacity" className="text-xs text-white/70">Capacity</Label>
+                  <Select name="capacity" defaultValue={editingEquipment?.capacity || 'medium'}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-9">
+                      <SelectValue placeholder="Select capacity" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1e3a5f] border-white/10">
+                      <SelectItem value="small">Small (15-20 lbs)</SelectItem>
+                      <SelectItem value="medium">Medium (20-30 lbs)</SelectItem>
+                      <SelectItem value="large">Large (30-40 lbs)</SelectItem>
+                      <SelectItem value="extra_large">XL (40-60 lbs)</SelectItem>
+                      <SelectItem value="mega">Mega (60-80+ lbs)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="condition" className="text-xs text-white/70">Condition</Label>
+                  <Select name="condition" defaultValue={editingEquipment?.condition || 'good'}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-9">
+                      <SelectValue placeholder="Condition" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1e3a5f] border-white/10">
+                      <SelectItem value="excellent">Excellent</SelectItem>
+                      <SelectItem value="good">Good</SelectItem>
+                      <SelectItem value="fair">Fair</SelectItem>
+                      <SelectItem value="poor">Poor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ageYears" className="text-xs text-white/70">Age (years)</Label>
+                  <Input 
+                    type="number" 
+                    name="ageYears" 
+                    min="0" 
+                    max="30"
+                    defaultValue={editingEquipment?.ageYears || 0}
+                    className="bg-white/5 border-white/10 text-white h-9"
+                    placeholder="e.g. 5"
+                    data-testid="input-equipment-age"
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchaseCost" className="text-xs text-white/70">Purchase Cost ($)</Label>
+                  <Input 
+                    type="number" 
+                    name="purchaseCost" 
+                    min="0"
+                    defaultValue={editingEquipment?.purchaseCost || ''}
+                    className="bg-white/5 border-white/10 text-white h-9"
+                    placeholder="e.g. 8500"
+                    data-testid="input-equipment-cost"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="model" className="text-xs text-white/70">Model (optional)</Label>
+                <Input 
+                  type="text" 
+                  name="model" 
+                  defaultValue={editingEquipment?.model || ''}
+                  className="bg-white/5 border-white/10 text-white h-9"
+                  placeholder="e.g. SC80"
+                  data-testid="input-equipment-model"
+                />
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddEquipmentModal(false);
+                    setEditingEquipment(null);
+                  }}
+                  className="border-white/20 text-white hover:bg-white/10"
+                  data-testid="button-cancel-equipment"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+                  data-testid="button-save-equipment"
+                >
+                  {editingEquipment ? 'Update' : 'Add'} Equipment
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
