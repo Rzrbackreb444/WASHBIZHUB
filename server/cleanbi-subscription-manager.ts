@@ -113,6 +113,7 @@ export async function getUserCLEANBITier(userId: string): Promise<keyof typeof C
 function normalizeTier(tier: string): keyof typeof CLEANBI_PRICING_TIERS {
   const tierMap: Record<string, keyof typeof CLEANBI_PRICING_TIERS> = {
     'free': 'FREE',
+    'starter': 'STARTER',
     'pro': 'PRO',
     'enterprise': 'ENTERPRISE',
     'white_label': 'WHITE_LABEL',
@@ -174,6 +175,9 @@ async function getStripeSubscriptionTier(stripeCustomerId: string): Promise<keyo
 // ========================================
 
 export const CLEANBI_PRICING_TIERS = {
+  // ========================================
+  // FREE TIER: 3 analyses total (lifetime)
+  // ========================================
   FREE: {
     id: 'free',
     name: 'Free',
@@ -184,86 +188,171 @@ export const CLEANBI_PRICING_TIERS = {
       reportsPerDay: -1, // No daily limit - just total
       reportsPerMonth: -1, // No monthly limit - just total
       basicScore: true, // Show score only - no breakdown
-      detailedBreakdown: false, // Requires Pro
-      competitorAnalysis: false, // Requires Pro
-      demographicData: false, // Requires Pro
-      pdfExport: false, // Requires Pro
-      savedReports: false, // Requires Pro
-      emailAlerts: false, // Requires Pro
+      detailedBreakdown: false, // Requires Starter+
+      competitorAnalysis: false, // Requires Starter+
+      demographicData: false, // Requires Starter+
+      pdfExport: false, // Requires Starter+
+      savedReports: false, // Requires Starter+
+      emailAlerts: false, // Requires Starter+
       apiAccess: false,
       prioritySupport: false,
       whiteLabel: false,
-      bulkReports: false
+      bulkReports: false,
+      ownershipData: false,
+      motivatedSellerScore: false
     },
     stripeProductId: null,
     stripePriceId: null
   },
   
-  PRO: {
-    id: 'pro',
-    name: 'Pro',
+  // ========================================
+  // STARTER TIER: $29/mo - Unlimited analyses
+  // ========================================
+  STARTER: {
+    id: 'starter',
+    name: 'Starter',
     price: 29,
     interval: 'month',
     features: {
       reportsPerDay: -1, // Unlimited per day
-      reportsPerMonth: 50, // 50 reports per month as specified
+      reportsPerMonth: -1, // Unlimited per month
       basicScore: true,
-      detailedBreakdown: true, // Full 7-factor breakdown
+      detailedBreakdown: true, // Full 6-factor breakdown
       competitorAnalysis: true, // Nearby competitor mapping
       demographicData: true, // Census data
       pdfExport: true, // Download reports
-      savedReports: true, // Save to dashboard
+      savedReports: true, // Save to dashboard (100 max)
       emailAlerts: true, // Get notified of score changes
-      apiAccess: false,
+      aerialView: true, // 3D flyover
+      walkScore: true, // Walk & Transit scores
+      solarAnalysis: true, // Solar potential
+      propertyValue: true, // Property value estimates
+      apiAccess: false, // Pro+ only
       prioritySupport: true,
       whiteLabel: false,
-      bulkReports: false
+      bulkReports: false,
+      ownershipData: false,
+      motivatedSellerScore: false
+    },
+    stripeProductId: 'prod_cleanbi_starter',
+    stripePriceId: 'price_cleanbi_starter_monthly',
+    annualPrice: 290, // 2 months free
+    annualStripePriceId: 'price_cleanbi_starter_annual'
+  },
+  
+  // ========================================
+  // PRO TIER: $99/mo - Unlimited + API access
+  // ========================================
+  PRO: {
+    id: 'pro',
+    name: 'Pro',
+    price: 99,
+    interval: 'month',
+    features: {
+      reportsPerDay: -1, // Unlimited per day
+      reportsPerMonth: -1, // Unlimited per month
+      basicScore: true,
+      detailedBreakdown: true,
+      competitorAnalysis: true,
+      demographicData: true,
+      pdfExport: true,
+      savedReports: true, // Unlimited
+      emailAlerts: true,
+      aerialView: true,
+      walkScore: true,
+      solarAnalysis: true,
+      propertyValue: true,
+      roiCalculator: true, // Pro+ only
+      monteCarloSimulation: true, // Pro+ only
+      utilityRateAnalysis: true, // Pro+ only
+      catchmentMaps: true, // Drive-time catchment
+      revenueProjections: true, // Pro+ only
+      apiAccess: true, // 500 calls/month
+      apiCallsPerMonth: 500,
+      prioritySupport: true,
+      phoneSupport: true, // Pro+ only
+      whiteLabel: false,
+      bulkReports: true,
+      ownershipData: false,
+      motivatedSellerScore: false
     },
     stripeProductId: 'prod_cleanbi_pro',
     stripePriceId: 'price_cleanbi_pro_monthly',
-    annualPrice: 290, // 2 months free
+    annualPrice: 990, // 2 months free
     annualStripePriceId: 'price_cleanbi_pro_annual'
   },
   
+  // ========================================
+  // ENTERPRISE TIER: $699/mo - Full access + white label + ownership data
+  // ========================================
   ENTERPRISE: {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 149,
+    price: 699,
     interval: 'month',
     features: {
+      reportsPerDay: -1, // Unlimited
       reportsPerMonth: -1, // Unlimited
       basicScore: true,
       detailedBreakdown: true,
+      competitorAnalysis: true,
+      demographicData: true,
       pdfExport: true,
+      savedReports: true,
+      emailAlerts: true,
+      aerialView: true,
+      walkScore: true,
+      solarAnalysis: true,
+      propertyValue: true,
+      roiCalculator: true,
+      monteCarloSimulation: true,
+      utilityRateAnalysis: true,
+      catchmentMaps: true,
+      revenueProjections: true,
       apiAccess: true,
+      apiCallsPerMonth: -1, // Unlimited API calls
       prioritySupport: true,
-      whiteLabel: false,
-      bulkReports: true
+      phoneSupport: true,
+      slackSupport: true, // Enterprise only
+      dedicatedAccountManager: true, // Enterprise only
+      whiteLabel: true, // Custom branding
+      bulkReports: true,
+      ownershipData: true, // Enterprise only - ownership & lien data
+      motivatedSellerScore: true, // Enterprise only - distressed seller detection
+      propertyTaxRecords: true, // Enterprise only
+      teamCollaboration: true // Enterprise only - unlimited team members
     },
     stripeProductId: 'prod_cleanbi_enterprise',
     stripePriceId: 'price_cleanbi_enterprise_monthly',
-    annualPrice: 1490, // 2 months free
+    annualPrice: 6990, // 2 months free
     annualStripePriceId: 'price_cleanbi_enterprise_annual'
   },
   
+  // ========================================
+  // WHITE LABEL TIER: Legacy/Custom pricing
+  // ========================================
   WHITE_LABEL: {
     id: 'white_label',
     name: 'White Label',
     price: 999,
     interval: 'month',
     features: {
-      reportsPerMonth: -1, // Unlimited
+      reportsPerDay: -1,
+      reportsPerMonth: -1,
       basicScore: true,
       detailedBreakdown: true,
       pdfExport: true,
       apiAccess: true,
+      apiCallsPerMonth: -1,
       prioritySupport: true,
       whiteLabel: true,
-      bulkReports: true
+      bulkReports: true,
+      ownershipData: true,
+      motivatedSellerScore: true
     },
     stripeProductId: 'prod_cleanbi_whitelabel',
     stripePriceId: 'price_cleanbi_whitelabel_monthly',
-    annualPrice: 9990, // 2 months free
+    annualPrice: 9990,
     annualStripePriceId: 'price_cleanbi_whitelabel_annual'
   },
   
