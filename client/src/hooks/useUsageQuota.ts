@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 
 export interface UsageQuotaData {
-  tier: "FREE" | "PRO" | "ENTERPRISE" | "WHITE_LABEL" | "ANONYMOUS";
+  tier: "FREE" | "STARTER" | "PRO" | "ENTERPRISE" | "WHITE_LABEL" | "ANONYMOUS";
   tierName: string;
   isAuthenticated: boolean;
   quota: {
