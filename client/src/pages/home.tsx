@@ -27,7 +27,8 @@ import { JourneyProgress } from "@/components/JourneyProgress";
 import { DealScout, DealScoutBanner } from "@/components/DealScout";
 import { FoundingMemberBanner } from "@/components/FoundingMember";
 import { HomeSkeleton } from "@/components/Skeletons";
-import { DueDiligenceChecklistModal } from "@/components/DueDiligenceChecklistModal";
+import { HomepageNewsletter } from "@/components/HomepageNewsletter";
+import { TrustSignals } from "@/components/TrustSignals";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -181,8 +182,6 @@ function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPat
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const [showExitIntent, setShowExitIntent] = useState(false);
-  const [exitIntentShown, setExitIntentShown] = useState(false);
   const [dealCalcPrice, setDealCalcPrice] = useState("");
   const [dealCalcRevenue, setDealCalcRevenue] = useState("");
   const [dealCalcResult, setDealCalcResult] = useState<{ verdict: string; color: string; multiple: number } | null>(null);
@@ -191,18 +190,6 @@ export default function Home() {
     const timer = setTimeout(() => setIsLoading(false), 100);
     return () => clearTimeout(timer);
   }, []);
-
-  // Exit intent detection
-  useEffect(() => {
-    const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0 && !exitIntentShown) {
-        setShowExitIntent(true);
-        setExitIntentShown(true);
-      }
-    };
-    document.addEventListener("mouseleave", handleMouseLeave);
-    return () => document.removeEventListener("mouseleave", handleMouseLeave);
-  }, [exitIntentShown]);
 
   if (isLoading) {
     return <HomeSkeleton data-testid="home-loading" />;
@@ -1179,6 +1166,16 @@ export default function Home() {
           </div>
         </section>
 
+        {/* NEWSLETTER SECTION - Email capture with benefits */}
+        <HomepageNewsletter source="homepage" />
+        
+        {/* TRUST SIGNALS - Testimonials */}
+        <section className="py-16 md:py-20 bg-muted/30" data-testid="section-homepage-testimonials">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <TrustSignals variant="testimonials" showTitle />
+          </div>
+        </section>
+
         {/* HOT MARKETS CAROUSEL - Hidden, using premium layout */}
         <section className="py-12 bg-background border-t border-border/50 hidden" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -1337,14 +1334,6 @@ export default function Home() {
           </Button>
         </Link>
       </div>
-
-      {/* EXIT INTENT - Premium Due Diligence Checklist Modal */}
-      <DueDiligenceChecklistModal
-        isOpen={showExitIntent}
-        onClose={() => setShowExitIntent(false)}
-        onSuccess={() => setShowExitIntent(false)}
-        source="exit_intent"
-      />
     </>
   );
 }
