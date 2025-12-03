@@ -837,12 +837,11 @@ function CleanBIExplorerContent() {
         }));
         setDealVerdict(null);
         
-        quota.refetch().then((refetchResult) => {
-          const updatedQuota = refetchResult.data;
-          if (updatedQuota?.quota?.remainingToday === 0 && userTier === "free") {
-            setTimeout(() => setShowPostAnalysisModal(true), 1500);
-          }
-        });
+        quota.refetch();
+        
+        if (userTier === "free" && remainingAnalyses <= 1) {
+          setTimeout(() => setShowPostAnalysisModal(true), 1500);
+        }
         
         saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -1050,12 +1049,11 @@ function CleanBIExplorerContent() {
         }));
         setDealVerdict(null);
         
-        quota.refetch().then((refetchResult) => {
-          const updatedQuota = refetchResult.data;
-          if (updatedQuota?.quota?.remainingToday === 0 && userTier === "free") {
-            setTimeout(() => setShowPostAnalysisModal(true), 1500);
-          }
-        });
+        quota.refetch();
+        
+        if (userTier === "free" && remainingAnalyses <= 1) {
+          setTimeout(() => setShowPostAnalysisModal(true), 1500);
+        }
         
         const saved = saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());

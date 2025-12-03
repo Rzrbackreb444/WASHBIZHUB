@@ -1,18 +1,16 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Mail, Calculator, ShoppingCart, GraduationCap, BarChart3, Layout, BookOpen, Wrench, DollarSign } from "lucide-react";
+import { ExternalLink, Facebook, Mail, Package, ShoppingCart, BookOpen, CreditCard, Sparkles, Wrench, Calculator, DollarSign, MapPin, Palette, GraduationCap, HelpCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
-const platformLinks = [
-  { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer" },
-  { href: "/score-history", label: "Score History", testId: "link-footer-score-history" },
-  { href: "/design-studio-pro", label: "Design Studio", testId: "link-footer-design-studio" },
+const productsLinks = [
+  { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer", icon: MapPin, featured: true },
+  { href: "/valuation-calculator", label: "Valuation Suite", testId: "link-footer-valuation-suite", icon: Calculator },
+  { href: "/design-studio-pro", label: "Design Studio", testId: "link-footer-design-studio", icon: Palette },
   { href: "/service-guy-ai", label: "Service Guy AI", testId: "link-footer-service-guy-ai", icon: Wrench },
-  { href: "/calculators", label: "All Calculators", testId: "link-footer-all-calculators", icon: Calculator },
-  { href: "/referral-program", label: "Referral Program", testId: "link-footer-referral-program", icon: DollarSign },
 ];
 
 const marketplaceLinks = [
@@ -22,19 +20,19 @@ const marketplaceLinks = [
   { href: "/sell", label: "Sell Your Business", testId: "link-footer-sell-business" },
 ];
 
-const analyticsLinks = [
-  { href: "/valuation-calculator", label: "Valuation Calculator", testId: "link-footer-valuation-calculator" },
-  { href: "/roi-calculator", label: "ROI Calculator", testId: "link-footer-roi-calculator" },
-  { href: "/calculator", label: "Revenue Calculator", testId: "link-footer-revenue-calculator" },
-  { href: "/funding-matcher", label: "Funding Matcher", testId: "link-footer-funding-matcher" },
-];
-
-const educationLinks = [
-  { href: "/courses", label: "Premium Courses", testId: "link-footer-premium-courses" },
+const resourcesLinks = [
+  { href: "/courses", label: "Premium Courses", testId: "link-footer-premium-courses", icon: GraduationCap },
   { href: "/book", label: "The Laundromat Bible", testId: "link-footer-laundromat-bible", icon: BookOpen },
   { href: "/blog", label: "Industry Blog", testId: "link-footer-industry-blog" },
   { href: "/resources", label: "Resource Hub", testId: "link-footer-resource-hub" },
-  { href: "/help-center", label: "Help Center", testId: "link-footer-help-center" },
+  { href: "/help-center", label: "Help Center", testId: "link-footer-help-center", icon: HelpCircle },
+];
+
+const pricingLinks = [
+  { href: "/pricing", label: "View Plans", testId: "link-footer-pricing" },
+  { href: "/pricing#compare", label: "Compare Features", testId: "link-footer-compare-features" },
+  { href: "/referral-program", label: "Referral Program", testId: "link-footer-referral-program", icon: DollarSign },
+  { href: "/funding-matcher", label: "Funding Matcher", testId: "link-footer-funding-matcher" },
 ];
 
 export function Footer() {
@@ -63,46 +61,28 @@ export function Footer() {
           </p>
         </div>
 
-        {/* Main Navigation Grid - 4 columns */}
+        {/* Main Navigation Grid - 4 columns matching nav pillars */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           
-          {/* Platform Tools */}
+          {/* Products */}
           <div>
             <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Layout className="h-4 w-4 text-[hsl(45,38%,59%)]" />
-              Platform
+              <Package className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+              Products
             </h3>
             <ul className="space-y-2">
-              {platformLinks.map((link) => (
+              {productsLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href}>
                     <span 
-                      className="flex items-center gap-1.5 text-white/70 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer text-sm"
+                      className={`flex items-center gap-1.5 transition-colors cursor-pointer text-sm ${
+                        link.featured 
+                          ? "text-[hsl(45,38%,59%)] font-medium" 
+                          : "text-white/70 hover:text-[hsl(45,38%,59%)]"
+                      }`}
                       data-testid={link.testId}
                     >
                       {link.icon && <link.icon className="h-3 w-3" />}
-                      {link.label}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Analytics */}
-          <div>
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-[hsl(45,38%,59%)]" />
-              Analytics
-            </h3>
-            <ul className="space-y-2">
-              {analyticsLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href}>
-                    <span 
-                      className="text-white/70 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer text-sm block"
-                      data-testid={link.testId}
-                    >
                       {link.label}
                     </span>
                   </Link>
@@ -133,14 +113,37 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Education */}
+          {/* Resources */}
           <div>
             <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-              <GraduationCap className="h-4 w-4 text-[hsl(45,38%,59%)]" />
-              Education
+              <BookOpen className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+              Resources
             </h3>
             <ul className="space-y-2">
-              {educationLinks.map((link) => (
+              {resourcesLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href}>
+                    <span 
+                      className="flex items-center gap-1.5 text-white/70 hover:text-[hsl(45,38%,59%)] transition-colors cursor-pointer text-sm"
+                      data-testid={link.testId}
+                    >
+                      {link.icon && <link.icon className="h-3 w-3" />}
+                      {link.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Pricing */}
+          <div>
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-[hsl(45,38%,59%)]" />
+              Pricing
+            </h3>
+            <ul className="space-y-2">
+              {pricingLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href}>
                     <span 
