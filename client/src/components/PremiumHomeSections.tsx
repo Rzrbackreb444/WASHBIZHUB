@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { 
   ArrowRight, Sparkles, Shield, TrendingUp, Users, 
   Download, Lock, MapPin, DollarSign, Calendar, Building2,
   Calculator, Target, BookOpen, GraduationCap, Phone,
-  Search, MessageSquare, QrCode, Star, ExternalLink, Plus, Package
+  Search, MessageSquare, QrCode, Star, ExternalLink, Plus, Package, Loader2
 } from "lucide-react";
 
 import equipmentImage from "@assets/AdobeStock_507641449_1764704943942.jpeg";
@@ -370,6 +371,8 @@ export function TemplatesSection() {
 export function MarketplaceSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [cleanbiLoadingId, setCleanbiLoadingId] = useState<string | null>(null);
+  const [, navigate] = useLocation();
   
   const { data: listings = [], isLoading } = useQuery<FeaturedListing[]>({
     queryKey: ['/api/homepage/featured-listings']
@@ -460,12 +463,22 @@ export function MarketplaceSection() {
                                 View Details
                               </Button>
                             </Link>
-                            <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.city + ', ' + listing.region)}`}>
-                              <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid={`button-cleanbi-analyze-${listing.id}`}>
+                            <Button 
+                              className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" 
+                              data-testid={`button-cleanbi-analyze-${listing.id}`}
+                              disabled={cleanbiLoadingId === listing.id}
+                              onClick={() => {
+                                setCleanbiLoadingId(listing.id);
+                                navigate(`/cleanbi-explorer?address=${encodeURIComponent(listing.city + ', ' + listing.region)}`);
+                              }}
+                            >
+                              {cleanbiLoadingId === listing.id ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
                                 <MapPin className="w-4 h-4 mr-2" />
-                                Analyze with CLEANBI
-                              </Button>
-                            </Link>
+                              )}
+                              {cleanbiLoadingId === listing.id ? "Analyzing..." : "Analyze with CLEANBI"}
+                            </Button>
                           </div>
                         </div>
                       </Card>

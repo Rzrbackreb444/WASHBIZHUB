@@ -244,7 +244,7 @@ export function DonutChart({ data, size = 160, thickness = 24, showLegend = true
   
   let currentOffset = 0;
   const segments = data.map((item) => {
-    const percentage = (item.value / total) * 100;
+    const percentage = total > 0 ? (item.value / total) * 100 : 0;
     const strokeDasharray = (percentage / 100) * circumference;
     const segment = {
       ...item,

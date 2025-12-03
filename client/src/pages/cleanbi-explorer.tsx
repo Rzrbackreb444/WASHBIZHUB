@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
 import { AuthGuard } from "@/components/AuthGuard";
 import { 
@@ -65,7 +66,12 @@ import {
   Bolt,
   Gauge,
   MessageSquare,
-  Lightbulb
+  Lightbulb,
+  Phone,
+  Briefcase,
+  BookmarkPlus,
+  ArrowRight,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,11 +87,14 @@ import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ListingAnalyzer } from "@/components/ListingAnalyzer";
 import { useUsageQuota } from "@/hooks/useUsageQuota";
 import { UpgradeModal } from "@/components/monetization/UpgradeModal";
 import { UsageLimitBanner } from "@/components/monetization/UpgradePrompt";
+import { trackEvent, trackConversion } from "@/lib/user-journey";
+import { PLATFORM_TIERS } from "@/lib/tier-config";
+import { useAuth } from "@/hooks/useAuth";
 
 declare global {
   interface Window {
@@ -347,8 +356,10 @@ function generateAINarrative(analysis: AnalysisResult, competitors: Competitor[]
   return narrative;
 }
 
-export default function CleanBIExplorer() {
+function CleanBIExplorerContent() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const mapRef = useRef<HTMLDivElement>(null);
   const streetViewRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -1525,10 +1536,7 @@ export default function CleanBIExplorer() {
   }, [showMarketGaps]);
 
   return (
-    <AuthGuard 
-      title="Sign In to Access CLEANBI Explorer"
-      description="Create a free account to analyze any location. Free tier includes 1 analysis per day!"
-    >
+    <>
       <SEO 
         title="CLEANBI™ Explorer 2.0 - Interactive Market Intelligence Map"
         description="Discover high-opportunity laundromat locations with our interactive CLEANBI Explorer. Real-time 3D aerial views, competition heatmaps, demographic analysis, and AI-powered business insights. Score any address globally in seconds."
@@ -2739,6 +2747,145 @@ export default function CleanBIExplorer() {
                     </div>
                   </TabsContent>
                 </Tabs>
+
+                {/* Next Steps CTAs - Action Chaining Section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="mt-4 bg-gradient-to-br from-[#1e3a5f]/80 to-[#0f1d2f]/80 rounded-xl p-4 border border-[#b8860b]/30"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <ArrowRight className="w-4 h-4 text-[#b8860b]" />
+                    <span className="text-sm font-semibold text-white">Ready to Take Action?</span>
+                  </div>
+                  <p className="text-xs text-white/60 mb-4">
+                    This location scores a <span className="text-[#b8860b] font-medium">Grade {analysisResult.grade}</span>. 
+                    {analysisResult.grade === "A" || analysisResult.grade === "B" 
+                      ? " Move forward with confidence." 
+                      : " Get expert guidance to maximize potential."}
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      size="sm"
+                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium"
+                      onClick={() => {
+                        trackEvent("cleanbi_cta_funding", "engagement", undefined, { 
+                          address: analysisResult.address,
+                          grade: analysisResult.grade,
+                          score: analysisResult.cleanbiScore 
+                        });
+                        trackConversion("funding_intent", undefined, { source: "cleanbi_explorer" });
+                        setLocation(`/funding?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}`);
+                      }}
+                      data-testid="button-cta-funding"
+                    >
+                      <Banknote className="w-3.5 h-3.5 mr-1.5" />
+                      Get Funding
+                    </Button>
+                    
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/10 h-9 text-xs font-medium"
+                      onClick={() => {
+                        trackEvent("cleanbi_cta_consultation", "engagement", undefined, { 
+                          address: analysisResult.address,
+                          grade: analysisResult.grade,
+                          score: analysisResult.cleanbiScore 
+                        });
+                        setLocation(`/consultation?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}`);
+                      }}
+                      data-testid="button-cta-consultation"
+                    >
+                      <Phone className="w-3.5 h-3.5 mr-1.5" />
+                      Book Consult
+                    </Button>
+                    
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10 h-9 text-xs font-medium"
+                      onClick={() => {
+                        trackEvent("cleanbi_cta_broker", "engagement", undefined, { 
+                          address: analysisResult.address,
+                          grade: analysisResult.grade,
+                          score: analysisResult.cleanbiScore 
+                        });
+                        setLocation(`/directory?category=brokers&address=${encodeURIComponent(analysisResult.address)}`);
+                      }}
+                      data-testid="button-cta-broker"
+                    >
+                      <Briefcase className="w-3.5 h-3.5 mr-1.5" />
+                      Find Broker
+                    </Button>
+                    
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10 h-9 text-xs font-medium"
+                      onClick={async () => {
+                        trackEvent("cleanbi_cta_save_dashboard", "engagement", undefined, { 
+                          address: analysisResult.address,
+                          grade: analysisResult.grade,
+                          score: analysisResult.cleanbiScore 
+                        });
+                        
+                        if (!user) {
+                          toast({
+                            title: "Sign in required",
+                            description: "Create an account to save analyses to your dashboard.",
+                          });
+                          setLocation("/login?redirect=/cleanbi-explorer");
+                          return;
+                        }
+                        
+                        try {
+                          const savedItem = saveAnalysis(analysisResult);
+                          setSavedAnalyses(getStoredAnalyses());
+                          
+                          await apiRequest("/api/cleanbi-explorer/save-analysis", {
+                            method: "POST",
+                            body: JSON.stringify({
+                              address: analysisResult.address,
+                              lat: analysisResult.lat,
+                              lng: analysisResult.lng,
+                              score: analysisResult.cleanbiScore,
+                              grade: analysisResult.grade,
+                              competitorCount: analysisResult.competitorCount,
+                              populationDensity: analysisResult.populationDensity,
+                              medianIncome: analysisResult.medianIncome,
+                              trafficScore: analysisResult.trafficScore,
+                              opportunityLevel: analysisResult.opportunityLevel,
+                            })
+                          }).catch(() => {});
+                          
+                          toast({
+                            title: "Analysis Saved",
+                            description: "Added to your dashboard & history.",
+                          });
+                        } catch {
+                          toast({
+                            title: "Saved Locally",
+                            description: "Analysis saved to your browser history.",
+                          });
+                        }
+                      }}
+                      data-testid="button-cta-save"
+                    >
+                      <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
+                      Save Analysis
+                    </Button>
+                  </div>
+                  
+                  {analysisResult.grade === "A" && (
+                    <div className="mt-3 flex items-center gap-2 text-xs text-green-400 bg-green-500/10 rounded-lg px-3 py-2">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Grade A locations sell fast — act quickly!</span>
+                    </div>
+                  )}
+                </motion.div>
               </motion.div>
             )}
             </AnimatePresence>
@@ -3055,6 +3202,146 @@ export default function CleanBIExplorer() {
                 </AnimatePresence>
               </CollapsibleContent>
             </Collapsible>
+
+            {/* Tier Comparison Panel - Upgrade CTA */}
+            <div className="p-4 border-b border-white/10">
+              <div className="bg-gradient-to-br from-[#1e3a5f]/60 to-[#0f1d2f]/60 rounded-xl p-4 border border-[#b8860b]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-[#b8860b]" />
+                    <span className="text-sm font-semibold text-white">Your Plan</span>
+                  </div>
+                  <Badge 
+                    className={`text-xs ${
+                      userTier === "enterprise" ? "bg-purple-500/20 text-purple-400 border-purple-500/30" :
+                      userTier === "pro" ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
+                      userTier === "starter" ? "bg-green-500/20 text-green-400 border-green-500/30" :
+                      "bg-white/10 text-white/60 border-white/20"
+                    }`}
+                  >
+                    {userTier === "enterprise" ? "Enterprise" :
+                     userTier === "pro" ? "Pro" :
+                     userTier === "starter" ? "Starter" : "Free"}
+                  </Badge>
+                </div>
+                
+                {/* Current Features */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-xs text-white/70">
+                    <Check className="w-3 h-3 text-green-400" />
+                    <span>Basic location scoring</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-white/70">
+                    <Check className="w-3 h-3 text-green-400" />
+                    <span>Competitor mapping</span>
+                  </div>
+                  {userTier !== "free" && (
+                    <>
+                      <div className="flex items-center gap-2 text-xs text-white/70">
+                        <Check className="w-3 h-3 text-green-400" />
+                        <span>Unlimited analyses</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-white/70">
+                        <Check className="w-3 h-3 text-green-400" />
+                        <span>Financial projections</span>
+                      </div>
+                    </>
+                  )}
+                  {(userTier === "pro" || userTier === "enterprise") && (
+                    <>
+                      <div className="flex items-center gap-2 text-xs text-white/70">
+                        <Check className="w-3 h-3 text-green-400" />
+                        <span>AI-powered insights</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-white/70">
+                        <Check className="w-3 h-3 text-green-400" />
+                        <span>Google Sheets export</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Locked Features - Only for non-enterprise users */}
+                {userTier !== "enterprise" && (
+                  <>
+                    <Separator className="my-3 bg-white/10" />
+                    <div className="text-xs text-white/50 mb-2">
+                      {userTier === "free" ? "Unlock with Starter:" : 
+                       userTier === "starter" ? "Unlock with Pro:" : 
+                       "Unlock with Enterprise:"}
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      {userTier === "free" && (
+                        <>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Unlimited daily analyses</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Financial ROI calculator</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Deal scoring & valuation</span>
+                          </div>
+                        </>
+                      )}
+                      {userTier === "starter" && (
+                        <>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>AI investment insights</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Export to Google Sheets</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Review sentiment analysis</span>
+                          </div>
+                        </>
+                      )}
+                      {userTier === "pro" && (
+                        <>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>White-label reports</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>API access</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-white/40">
+                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
+                            <span>Priority support</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    
+                    <Button 
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium"
+                      onClick={() => {
+                        trackEvent("cleanbi_tier_upgrade_click", "conversion", undefined, {
+                          currentTier: userTier,
+                          targetTier: userTier === "free" ? "starter" : userTier === "starter" ? "pro" : "enterprise"
+                        });
+                        setShowUpgradeModal(true);
+                      }}
+                      data-testid="button-tier-upgrade"
+                    >
+                      <Crown className="w-3.5 h-3.5 mr-1.5" />
+                      {userTier === "free" ? "Upgrade — $29/mo" :
+                       userTier === "starter" ? "Go Pro — $99/mo" :
+                       "Enterprise — $699/mo"}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
 
             {/* Search Section - At Bottom */}
             <div className="p-4">
@@ -3819,6 +4106,17 @@ export default function CleanBIExplorer() {
           </SheetContent>
         </Sheet>
       </div>
+    </>
+  );
+}
+
+export default function CleanBIExplorer() {
+  return (
+    <AuthGuard
+      title="CLEANBI Explorer Access"
+      description="Sign in to access the CLEANBI Explorer and analyze laundromat locations. Free account includes 1 analysis per day."
+    >
+      <CleanBIExplorerContent />
     </AuthGuard>
   );
 }

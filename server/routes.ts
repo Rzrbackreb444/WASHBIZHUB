@@ -9803,6 +9803,58 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   /**
+   * GET /api/user/activity - Get recent CLEANBI analyses for the current user
+   */
+  app.get("/api/user/activity", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const recentAnalyses = await db.select({
+        id: cleanbiUsage.id,
+        address: cleanbiUsage.addressScored,
+        reportType: cleanbiUsage.reportType,
+        timestamp: cleanbiUsage.timestamp,
+        createdAt: cleanbiUsage.createdAt,
+      })
+        .from(cleanbiUsage)
+        .where(eq(cleanbiUsage.userId, currentUser.userId))
+        .orderBy(desc(cleanbiUsage.createdAt))
+        .limit(10);
+
+      const thisMonth = new Date();
+      const firstDayOfMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+      
+      const [monthlyCount] = await db.select({ count: sql<number>`count(*)::int` })
+        .from(cleanbiUsage)
+        .where(and(
+          eq(cleanbiUsage.userId, currentUser.userId),
+          sql`${cleanbiUsage.createdAt} >= ${firstDayOfMonth.toISOString()}`
+        ));
+
+      const quotaResetDate = currentUser.user.cleanbiQuotaResetDate 
+        ? new Date(currentUser.user.cleanbiQuotaResetDate)
+        : new Date(thisMonth.getFullYear(), thisMonth.getMonth() + 1, 1);
+
+      res.json({
+        recentAnalyses: recentAnalyses.map(a => ({
+          id: a.id,
+          address: a.address || 'Unknown Address',
+          reportType: a.reportType || 'basic',
+          date: a.createdAt || a.timestamp,
+        })),
+        thisMonthCount: monthlyCount?.count || 0,
+        quotaResetDate: quotaResetDate.toISOString(),
+      });
+    } catch (error: any) {
+      console.error("User activity error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  /**
    * POST /api/cleanbi/enriched - Get enriched CLEANBI score with Master Formulas
    * 
    * Uses multi-source data enrichment:

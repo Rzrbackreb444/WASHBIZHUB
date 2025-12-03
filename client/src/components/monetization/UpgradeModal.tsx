@@ -88,22 +88,37 @@ export function UpgradeModal({
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create checkout session");
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        const errorMessage = data?.error || data?.message || `Server error (${response.status})`;
+        throw new Error(errorMessage);
+      }
       
-      if (data.checkoutUrl) {
+      if (data?.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        throw new Error("No checkout URL returned");
+        throw new Error("No checkout URL returned from server");
       }
     } catch (error) {
       console.error("Checkout error:", error);
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "An unexpected error occurred";
+      
+      const isNetworkError = error instanceof TypeError && error.message.includes("fetch");
+      
       toast({
-        title: "Checkout Error",
-        description: "Unable to start checkout. Please try again.",
+        title: isNetworkError ? "Connection Error" : "Checkout Error",
+        description: isNetworkError 
+          ? "Unable to connect to the server. Please check your internet connection and try again."
+          : errorMessage,
         variant: "destructive",
       });
       setIsLoading(false);

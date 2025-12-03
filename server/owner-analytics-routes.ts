@@ -8,8 +8,11 @@ import {
 import { eq, sql, desc, count, sum, gte, and, lt, isNotNull } from "drizzle-orm";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
+import { requireTier } from "./middleware/tier-enforcement";
 
 const router = Router();
+
+router.use(requireTier("starter"));
 
 const OWNER_EMAIL = "rzrbackreb444@gmail.com";
 

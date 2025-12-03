@@ -16,8 +16,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, DollarSign, TrendingUp, Building,
-  Filter, Search, Droplets, Car, Shirt, Sparkles, Target
+  Filter, Search, Droplets, Car, Shirt, Sparkles, Target, Loader2
 } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface Listing {
   id: string;
@@ -262,6 +263,8 @@ export default function Listings() {
 }
 
 function ListingCard({ listing }: { listing: Listing }) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [, navigate] = useLocation();
   const BusinessIcon = getBusinessIcon(listing.businessType);
   const businessLabel = getBusinessLabel(listing.businessType);
 
@@ -330,18 +333,25 @@ function ListingCard({ listing }: { listing: Listing }) {
             </div>
           )}
           
-          <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address || `${listing.city}, ${listing.state}`)}`}>
-            <Button 
+          <Button 
               size="sm"
               variant="outline" 
               className="w-full mt-3 border-accent/50 text-accent hover:bg-accent/10"
               data-testid={`button-cleanbi-analyze-${listing.id}`}
-              onClick={(e) => e.stopPropagation()}
+              disabled={loadingId === listing.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLoadingId(listing.id);
+                navigate(`/cleanbi-explorer?address=${encodeURIComponent(listing.address || `${listing.city}, ${listing.state}`)}`);
+              }}
             >
-              <MapPin className="w-3 h-3 mr-1" />
-              Analyze with CLEANBI
+              {loadingId === listing.id ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              ) : (
+                <MapPin className="w-3 h-3 mr-1" />
+              )}
+              {loadingId === listing.id ? "Analyzing..." : "Analyze with CLEANBI"}
             </Button>
-          </Link>
         </CardContent>
       </Card>
     </Link>

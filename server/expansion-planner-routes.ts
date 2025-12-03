@@ -17,8 +17,11 @@ import { geocodeAddress } from "./geocoding-service";
 import { calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
 import { enrichCLEANBIData } from "./cleanbi-data-enrichment";
 import { cacheGet, cacheSet, generateCacheKey } from "./cleanbi-cache-layer";
+import { requireTier } from "./middleware/tier-enforcement";
 
 const router = Router();
+
+router.use(requireTier("pro"));
 
 interface LocationAnalysis {
   address: string;
