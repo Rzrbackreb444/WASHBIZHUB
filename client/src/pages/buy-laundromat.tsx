@@ -9,7 +9,8 @@ import { SEO } from "@/components/SEO";
 import { Link } from "wouter";
 import { 
   MapPin, DollarSign, TrendingUp, Building2, Search, Filter,
-  Zap, Phone, Mail, ExternalLink, Star, Clock, Users, ChevronRight
+  Zap, Phone, Mail, ExternalLink, Star, Clock, Users, ChevronRight,
+  CheckCircle2, Crown
 } from "lucide-react";
 import { useState } from "react";
 import type { Listing } from "@shared/schema";
@@ -66,12 +67,20 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
           </div>
         )}
         
-        {listing.featured && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground shadow-lg">
-            <Star className="w-3 h-3 mr-1" />
-            Featured
-          </Badge>
-        )}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {listing.featured && (
+            <Badge className="bg-accent text-accent-foreground shadow-lg">
+              <Star className="w-3 h-3 mr-1" />
+              Featured
+            </Badge>
+          )}
+          {(listing as any).larryVerified && (
+            <Badge className="bg-amber-500 text-black shadow-lg border border-amber-400">
+              <Crown className="w-3 h-3 mr-1" />
+              Larry Verified
+            </Badge>
+          )}
+        </div>
         
         <div className="absolute top-3 right-3">
           <Badge variant="secondary" className="bg-background/90 backdrop-blur">
@@ -146,6 +155,18 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
             >
               <Zap className="w-4 h-4 mr-2" />
               Analyze with CLEANBI
+            </Button>
+          </Link>
+          
+          <Link href={`/ai-consultation-council?address=${encodeURIComponent(listing.exactAddress || `${listing.city}, ${listing.region}`)}&listing=${listing.id}`}>
+            <Button 
+              variant="outline"
+              size="sm"
+              className="w-full"
+              data-testid={`button-council-${listing.id}`}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              AI Expert Council — From $49
             </Button>
           </Link>
           
