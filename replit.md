@@ -51,7 +51,14 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 ### Feature Specifications
 - **Multi-tenancy:** Supports distinct platforms like WashBizHub and StrokeRecoveryAcademy.
 - **AI Orchestration:** Integrates multiple AI models (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized content, analysis, and RAG pipelines.
-- **CLEANBI Intelligence System:** Scores global properties using a 6-factor weighted system, offering tiered access, confidence scoring, and an immersive map explorer with real-time scoring and competitor mapping.
+- **CLEANBI Explorer (Flagship Product):** The centerpiece of WashBizHub - a full-page location intelligence system at /cleanbi-explorer. Features:
+  - Google Maps integration with competitor mapping and 3D flyover
+  - 6-factor weighted scoring (Demographics, Competition, Traffic, Accessibility, Economic, Location Quality)
+  - Real-time quota tracking via useUsageQuota hook → UsageLimitBanner → UpgradeModal → Stripe checkout
+  - Premium feature gating: Transit/Walk Score (Starter+), Utility Costs/Catchment (Pro+), PDF/Sheets Export (Starter+)
+  - "Analyze with CLEANBI" button appears on every listing card across the platform
+  - Gold pulsing gradient navigation button (first position in header, full-width mobile CTA)
+  - All navigation links point to /cleanbi-explorer (backward-compatible /cleanbi-auto still works)
 - **POS Command Center:** An enterprise dashboard for laundromat operations, including KPIs, order management, CRM, IoT machine status, and route planning.
 - **IoT & Diagnostics:** Ingests sensor data for predictive maintenance.
 - **Route Optimization:** Integrates Google Maps and OR-Tools with Twilio.
