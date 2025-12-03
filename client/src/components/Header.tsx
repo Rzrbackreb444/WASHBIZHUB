@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Menu, LogIn, LogOut, User, ChevronDown, ChevronRight,
   Settings as SettingsIcon, Zap, MapPin, FolderOpen, DollarSign, Calculator, CreditCard,
-  Store, Users, HelpCircle, Building2
+  Store, Users, HelpCircle, Building2, Handshake
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import logoUrl from "@assets/6_1764040628012.png";
 
 const primaryNavLinks = [
+  { href: "/our-partnership", label: "Nick & Larry", icon: Handshake },
   { href: "/buy-laundromat", label: "Buy", icon: Store },
   { href: "/brokers", label: "Brokers", icon: Users },
   { href: "/directory", label: "Directory", icon: FolderOpen },
