@@ -150,6 +150,7 @@ const ExpansionPlanner = lazy(() => import("@/pages/expansion-planner"));
 const CompetitorDashboard = lazy(() => import("@/pages/competitor-dashboard"));
 const BulkAnalysis = lazy(() => import("@/pages/bulk-analysis"));
 const ProductsHub = lazy(() => import("@/pages/products"));
+const ListYourLaundromat = lazy(() => import("@/pages/list-your-laundromat"));
 
 // Forum Pages
 const Forum = lazy(() => import("@/pages/forum"));
@@ -356,6 +357,16 @@ function Router() {
       <Route path="/products">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <ProductsHub />
+        </Suspense>
+      </Route>
+      <Route path="/list-your-laundromat">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListYourLaundromat />
+        </Suspense>
+      </Route>
+      <Route path="/sell-your-laundromat">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListYourLaundromat />
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
