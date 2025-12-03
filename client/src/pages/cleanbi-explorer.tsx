@@ -3278,6 +3278,200 @@ function CleanBIExplorerContent() {
                                 {valuatorResult.businessDetails.confidenceLevel.toUpperCase()}
                               </Badge>
                             </div>
+
+                            {/* What-If Simulator Section - Mobile Optimized */}
+                            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
+                              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <LineChart className="w-4 h-4 text-[#10B981]" />
+                                <span className="text-xs sm:text-sm font-semibold text-white">What-If Simulator</span>
+                                <Badge className="text-[8px] sm:text-[9px] bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30">Beta</Badge>
+                              </div>
+                              <p className="text-[10px] sm:text-xs text-white/50 mb-3">
+                                Model scenarios: What if you add new machines or upgrade equipment?
+                              </p>
+                              
+                              {/* Scenario Controls */}
+                              <div className="grid grid-cols-2 gap-2 mb-3">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 text-[10px] sm:text-xs border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10"
+                                  onClick={() => {
+                                    const newMachine: EquipmentItem = {
+                                      id: `what-if-${Date.now()}`,
+                                      brand: 'speed_queen',
+                                      machineType: 'washer',
+                                      capacity: 'large',
+                                      ageYears: 0,
+                                      purchaseCost: 12000,
+                                      quantity: 1
+                                    };
+                                    setWhatIfScenario(prev => ({
+                                      ...prev,
+                                      addedMachines: [...prev.addedMachines, newMachine]
+                                    }));
+                                    toast({ title: "Added new machine to scenario", description: "New Speed Queen washer added" });
+                                  }}
+                                  data-testid="button-whatif-add-machine"
+                                >
+                                  <Plus className="w-3 h-3 mr-1" />
+                                  Add New Machine
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 text-[10px] sm:text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                                  onClick={() => {
+                                    if (valuatorEquipment.length > 0 && whatIfScenario.removedMachineIds.length < valuatorEquipment.length) {
+                                      const nextToRemove = valuatorEquipment.find(e => !whatIfScenario.removedMachineIds.includes(e.id));
+                                      if (nextToRemove) {
+                                        setWhatIfScenario(prev => ({
+                                          ...prev,
+                                          removedMachineIds: [...prev.removedMachineIds, nextToRemove.id]
+                                        }));
+                                        toast({ title: "Removed machine from scenario", description: `${BRAND_DISPLAY_NAMES[nextToRemove.brand]} ${MACHINE_TYPE_DISPLAY[nextToRemove.machineType]} removed` });
+                                      }
+                                    }
+                                  }}
+                                  data-testid="button-whatif-remove-machine"
+                                >
+                                  <Trash2 className="w-3 h-3 mr-1" />
+                                  Remove Oldest
+                                </Button>
+                              </div>
+
+                              {/* Scenario Summary */}
+                              {(whatIfScenario.addedMachines.length > 0 || whatIfScenario.removedMachineIds.length > 0) && (
+                                <div className="bg-[#10B981]/10 rounded-lg p-2 sm:p-3 mb-3 border border-[#10B981]/20">
+                                  <div className="text-[10px] sm:text-xs text-white/50 mb-1.5">Current Scenario:</div>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {whatIfScenario.addedMachines.map((m, idx) => (
+                                      <Badge 
+                                        key={`add-${idx}`} 
+                                        className="text-[9px] bg-green-500/20 text-green-400 border-green-500/30 cursor-pointer"
+                                        onClick={() => {
+                                          setWhatIfScenario(prev => ({
+                                            ...prev,
+                                            addedMachines: prev.addedMachines.filter((_, i) => i !== idx)
+                                          }));
+                                        }}
+                                      >
+                                        <Plus className="w-2.5 h-2.5 mr-0.5" />
+                                        {m.quantity}x {BRAND_DISPLAY_NAMES[m.brand]}
+                                        <X className="w-2.5 h-2.5 ml-1 hover:text-white" />
+                                      </Badge>
+                                    ))}
+                                    {whatIfScenario.removedMachineIds.map((id, idx) => {
+                                      const machine = valuatorEquipment.find(e => e.id === id);
+                                      return machine ? (
+                                        <Badge 
+                                          key={`rem-${idx}`} 
+                                          className="text-[9px] bg-red-500/20 text-red-400 border-red-500/30 cursor-pointer"
+                                          onClick={() => {
+                                            setWhatIfScenario(prev => ({
+                                              ...prev,
+                                              removedMachineIds: prev.removedMachineIds.filter(rid => rid !== id)
+                                            }));
+                                          }}
+                                        >
+                                          <Trash2 className="w-2.5 h-2.5 mr-0.5" />
+                                          {BRAND_DISPLAY_NAMES[machine.brand]}
+                                          <X className="w-2.5 h-2.5 ml-1 hover:text-white" />
+                                        </Badge>
+                                      ) : null;
+                                    })}
+                                  </div>
+                                  
+                                  {/* Calculate What-If Button */}
+                                  <Button
+                                    size="sm"
+                                    className="w-full mt-2 h-7 text-[10px] sm:text-xs bg-[#10B981] hover:bg-[#059669] text-white"
+                                    onClick={async () => {
+                                      setIsCalculatingWhatIf(true);
+                                      try {
+                                        const response = await apiRequest('/api/cleanbi-explorer/valuator/what-if', {
+                                          method: 'POST',
+                                          body: JSON.stringify({
+                                            baseEquipment: valuatorEquipment,
+                                            scenario: whatIfScenario,
+                                            financials: {
+                                              annualRevenue: calcValues.annualRevenue || 200000,
+                                              annualExpenses: calcValues.operatingExpenses || 120000,
+                                              monthlyRent: 4000,
+                                              monthlyUtilities: 1500,
+                                              laborCosts: 2000
+                                            },
+                                            cleanbiScore: analysisResult.cleanbiScore,
+                                            cleanbiGrade: analysisResult.grade
+                                          })
+                                        });
+                                        
+                                        if (response.success) {
+                                          setWhatIfResult(response.comparison);
+                                          toast({ 
+                                            title: "What-If Analysis Complete", 
+                                            description: `Value ${response.comparison.valueDifference >= 0 ? 'increase' : 'decrease'}: $${Math.abs(response.comparison.valueDifference).toLocaleString()}`
+                                          });
+                                        }
+                                      } catch (error) {
+                                        console.error("What-If error:", error);
+                                        toast({ title: "Error", description: "Could not calculate scenario", variant: "destructive" });
+                                      } finally {
+                                        setIsCalculatingWhatIf(false);
+                                      }
+                                    }}
+                                    disabled={isCalculatingWhatIf}
+                                    data-testid="button-calculate-whatif"
+                                  >
+                                    {isCalculatingWhatIf ? (
+                                      <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Calculating...</>
+                                    ) : (
+                                      <><LineChart className="w-3 h-3 mr-1" />Calculate Impact</>
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+
+                              {/* What-If Results */}
+                              {whatIfResult && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10"
+                                >
+                                  <div className="text-[10px] sm:text-xs text-white/50 mb-2">Scenario Impact:</div>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="text-center">
+                                      <div className="text-[9px] text-white/40">Current Value</div>
+                                      <div className="text-sm sm:text-base font-bold text-white">${whatIfResult.currentValue?.toLocaleString() || valuatorResult.totalAssetValue.toLocaleString()}</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-[9px] text-white/40">New Value</div>
+                                      <div className="text-sm sm:text-base font-bold text-[#10B981]">${whatIfResult.newValue?.toLocaleString()}</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-center gap-1.5 mt-2 pt-2 border-t border-white/10">
+                                    <span className="text-[10px] text-white/50">Difference:</span>
+                                    <span className={`text-xs font-bold ${whatIfResult.valueDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      {whatIfResult.valueDifference >= 0 ? '+' : ''}${whatIfResult.valueDifference?.toLocaleString()}
+                                      <span className="text-[9px] ml-1">({whatIfResult.percentageChange?.toFixed(1)}%)</span>
+                                    </span>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="w-full mt-2 h-6 text-[10px] text-white/50 hover:text-white"
+                                    onClick={() => {
+                                      setWhatIfScenario({ addedMachines: [], removedMachineIds: [] });
+                                      setWhatIfResult(null);
+                                    }}
+                                    data-testid="button-clear-whatif"
+                                  >
+                                    Clear Scenario
+                                  </Button>
+                                </motion.div>
+                              )}
+                            </div>
                           </motion.div>
                         )}
                       </div>
