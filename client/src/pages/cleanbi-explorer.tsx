@@ -2911,7 +2911,7 @@ function CleanBIExplorerContent() {
                     <Button 
                       size="sm"
                       variant="outline"
-                      className="w-full border-amber-500/50 text-amber-500 hover:bg-amber-500/10 text-xs font-medium"
+                      className="w-full"
                       onClick={() => {
                         trackEvent("cleanbi_cta_larry", "engagement", undefined, { 
                           address: analysisResult.address,
