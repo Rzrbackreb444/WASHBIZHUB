@@ -25,8 +25,11 @@ import { calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
 import { enrichCLEANBIData } from "./cleanbi-data-enrichment";
 import { cacheGet, cacheSet, generateCacheKey } from "./cleanbi-cache-layer";
 import { storage } from "./storage";
+import { requireTier } from "./middleware/tier-enforcement";
 
 const router = Router();
+
+router.use(requireTier("starter"));
 
 interface BulkLocationResult {
   address: string;

@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { useSubscription, getTierDisplayName, getTierPrice, getTierColor } from 
 import { apiRequest } from "@/lib/queryClient";
 import { PLATFORM_TIERS, type PlatformTier } from "@/lib/tier-config";
 import { Link } from "wouter";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   CreditCard,
   Crown,
@@ -27,7 +28,24 @@ import {
   Clock,
   AlertCircle,
   ChevronLeft,
+  MapPin,
+  History,
+  Lock,
+  XCircle,
+  TrendingUp,
+  Activity,
 } from "lucide-react";
+
+interface UserActivityData {
+  recentAnalyses: Array<{
+    id: string;
+    address: string;
+    reportType: string;
+    date: string;
+  }>;
+  thisMonthCount: number;
+  quotaResetDate: string;
+}
 
 export default function AccountSubscription() {
   const { user, isLoading: authLoading } = useAuth();
@@ -43,8 +61,15 @@ export default function AccountSubscription() {
     isLoading: quotaLoading,
   } = useUsageQuota();
 
+  const { data: activityData, isLoading: activityLoading } = useQuery<UserActivityData>({
+    queryKey: ["/api/user/activity"],
+    enabled: !!user,
+    staleTime: 60000,
+  });
+
   const currentTierConfig = PLATFORM_TIERS[currentTier as PlatformTier] || PLATFORM_TIERS.free;
   const tierPrice = getTierPrice(currentTier);
+  const highestTier = currentTier === 'enterprise';
 
   const createSubscriptionMutation = useMutation({
     mutationFn: async (tierId: string) => {
@@ -117,6 +142,25 @@ export default function AccountSubscription() {
 
   const isTrialActive = user.stripeSubscriptionId && user.subscriptionTier !== "free" && !user.stripeCustomerId;
   const hasActiveSubscription = !!user.stripeSubscriptionId;
+
+  const allTierFeatures = [
+    { key: 'cleanbiUnlimited', text: 'Unlimited CLEANBI Analyses', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'categoryBreakdowns', text: 'Full Category Breakdowns', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'aiRecommendations', text: 'AI-Powered Recommendations', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: '3dFlyover', text: '3D Aerial View Flyovers', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'walkScore', text: 'Walk Score & Transit Score', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'solarAnalysis', text: 'Solar Potential Analysis', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'pdfExport', text: 'Export PDF Reports', tiers: ['starter', 'pro', 'enterprise'] },
+    { key: 'roiCalculators', text: 'ROI & Valuation Calculators', tiers: ['pro', 'enterprise'] },
+    { key: 'monteCarlo', text: 'Monte Carlo Simulations', tiers: ['pro', 'enterprise'] },
+    { key: 'bulkAnalysis', text: 'Bulk Location Analysis', tiers: ['pro', 'enterprise'] },
+    { key: 'apiAccess', text: 'API Access', tiers: ['pro', 'enterprise'] },
+    { key: 'ownershipData', text: 'Ownership & Lien Data', tiers: ['enterprise'] },
+    { key: 'whiteLabel', text: 'White-Label Reports', tiers: ['enterprise'] },
+    { key: 'teamCollab', text: 'Team Collaboration', tiers: ['enterprise'] },
+  ];
+
+  const isFeatureIncluded = (tiers: string[]) => tiers.includes(currentTier);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
@@ -207,6 +251,84 @@ export default function AccountSubscription() {
                     ))}
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-feature-comparison">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Feature Comparison
+                </CardTitle>
+                <CardDescription>See what's included in your plan vs. upgrades</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {allTierFeatures.map((feature) => {
+                    const included = isFeatureIncluded(feature.tiers);
+                    const upgradeTier = !included ? feature.tiers[0] : null;
+                    
+                    return (
+                      <div
+                        key={feature.key}
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          included ? 'bg-primary/5' : 'bg-muted/30'
+                        }`}
+                        data-testid={`feature-row-${feature.key}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {included ? (
+                            <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                          ) : (
+                            <Lock className="w-5 h-5 text-muted-foreground shrink-0" />
+                          )}
+                          <span className={included ? '' : 'text-muted-foreground'}>{feature.text}</span>
+                        </div>
+                        {!included && upgradeTier && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => createSubscriptionMutation.mutate(upgradeTier)}
+                            disabled={createSubscriptionMutation.isPending}
+                            className="shrink-0"
+                            data-testid={`button-unlock-${feature.key}`}
+                          >
+                            Unlock with {PLATFORM_TIERS[upgradeTier as PlatformTier]?.name}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {!highestTier && (
+                  <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#C8A661]/10 to-primary/10 border border-[#C8A661]/20">
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div>
+                        <h4 className="font-semibold flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-[#C8A661]" />
+                          Unlock All Features
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Upgrade to get the most out of CLEANBI
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => createSubscriptionMutation.mutate(tierLevel < 1 ? 'starter' : tierLevel < 2 ? 'pro' : 'enterprise')}
+                        disabled={createSubscriptionMutation.isPending}
+                        className="bg-[#C8A661] hover:bg-[#C8A661]/90 text-white"
+                        data-testid="button-upgrade-main"
+                      >
+                        {createSubscriptionMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Crown className="w-4 h-4 mr-2" />
+                        )}
+                        Upgrade Now
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -306,6 +428,132 @@ export default function AccountSubscription() {
           </div>
 
           <div className="space-y-6">
+            <Card data-testid="card-usage-stats">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-primary" />
+                  Usage Statistics
+                </CardTitle>
+                <CardDescription>Your CLEANBI usage this billing period</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center p-4 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10">
+                  <p className="text-sm text-muted-foreground mb-1">CLEANBI Analyses Used</p>
+                  {quotaLoading ? (
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                  ) : isCleanbiUnlimited ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Sparkles className="w-5 h-5 text-[#C8A661]" />
+                      <span className="text-3xl font-bold text-[#C8A661]">Unlimited</span>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-3xl font-bold" data-testid="text-usage-count">
+                        {cleanbiUsed} <span className="text-muted-foreground text-lg font-normal">/ {cleanbiLimit}</span>
+                      </p>
+                      <Progress value={cleanbiPercentUsed} className="h-3 mt-3" />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {cleanbiRemaining > 0
+                          ? `${cleanbiRemaining} analyses remaining today`
+                          : "Daily limit reached"}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      This Month
+                    </span>
+                    <span className="font-medium" data-testid="text-monthly-count">
+                      {activityLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : activityData?.thisMonthCount || 0} analyses
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Quota Resets
+                    </span>
+                    <span className="font-medium" data-testid="text-reset-date">
+                      {activityData?.quotaResetDate 
+                        ? format(new Date(activityData.quotaResetDate), 'MMM d, yyyy')
+                        : 'End of billing period'
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                {!isCleanbiUnlimited && (
+                  <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                    <p className="text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      Upgrade to get unlimited daily analyses
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-recent-activity">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  Recent Activity
+                </CardTitle>
+                <CardDescription>Your latest CLEANBI analyses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {activityLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : activityData?.recentAnalyses && activityData.recentAnalyses.length > 0 ? (
+                  <div className="space-y-3">
+                    {activityData.recentAnalyses.slice(0, 5).map((analysis, i) => (
+                      <div
+                        key={analysis.id}
+                        className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                        data-testid={`activity-item-${i}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <MapPin className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate" title={analysis.address}>
+                            {analysis.address}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(analysis.date), { addSuffix: true })}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {analysis.reportType}
+                        </Badge>
+                      </div>
+                    ))}
+                    <Link href="/score-history">
+                      <Button variant="ghost" className="w-full mt-2" size="sm" data-testid="button-view-history">
+                        View Full History
+                        <ArrowRight className="w-3 h-3 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <MapPin className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No analyses yet</p>
+                    <Link href="/cleanbi">
+                      <Button variant="outline" size="sm" className="mt-3" data-testid="button-start-analyzing">
+                        Start Analyzing Locations
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <Card data-testid="card-billing">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -354,90 +602,6 @@ export default function AccountSubscription() {
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            <Card data-testid="card-usage">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Usage This Period
-                </CardTitle>
-                <CardDescription>CLEANBI analyses and feature usage</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">CLEANBI Analyses</span>
-                    <span className="text-sm text-muted-foreground" data-testid="text-cleanbi-usage">
-                      {quotaLoading ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : isCleanbiUnlimited ? (
-                        <span className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-[#C8A661]" />
-                          Unlimited
-                        </span>
-                      ) : (
-                        `${cleanbiUsed} / ${cleanbiLimit}`
-                      )}
-                    </span>
-                  </div>
-                  {!isCleanbiUnlimited && (
-                    <>
-                      <Progress value={cleanbiPercentUsed} className="h-2" />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {cleanbiRemaining > 0
-                          ? `${cleanbiRemaining} analyses remaining today`
-                          : "Daily limit reached - resets tomorrow"}
-                      </p>
-                    </>
-                  )}
-                </div>
-
-                {currentTierConfig.limits.apiCalls !== 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">API Calls</span>
-                      <span className="text-sm text-muted-foreground" data-testid="text-api-usage">
-                        {currentTierConfig.limits.apiCalls === "unlimited" ? (
-                          <span className="flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-[#C8A661]" />
-                            Unlimited
-                          </span>
-                        ) : (
-                          `0 / ${currentTierConfig.limits.apiCalls}`
-                        )}
-                      </span>
-                    </div>
-                    {currentTierConfig.limits.apiCalls !== "unlimited" && (
-                      <Progress value={0} className="h-2" />
-                    )}
-                  </div>
-                )}
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Plan Limits</h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-2 rounded-lg bg-muted/50">
-                      <p className="text-muted-foreground">Saved Reports</p>
-                      <p className="font-medium" data-testid="text-saved-reports-limit">
-                        {currentTierConfig.limits.savedReports === "unlimited"
-                          ? "Unlimited"
-                          : currentTierConfig.limits.savedReports}
-                      </p>
-                    </div>
-                    <div className="p-2 rounded-lg bg-muted/50">
-                      <p className="text-muted-foreground">Team Members</p>
-                      <p className="font-medium" data-testid="text-team-members-limit">
-                        {currentTierConfig.limits.teamMembers === "unlimited"
-                          ? "Unlimited"
-                          : currentTierConfig.limits.teamMembers}
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 

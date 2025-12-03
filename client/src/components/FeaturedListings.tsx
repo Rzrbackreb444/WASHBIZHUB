@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight, Target } from "lucide-react";
-import { Link } from "wouter";
+import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight, Target, Loader2 } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { LazyImage } from "@/components/LazyImage";
 import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
 
@@ -54,6 +55,9 @@ const FEATURED_LISTINGS: FeaturedListing[] = [
 ];
 
 export function FeaturedListings() {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [, navigate] = useLocation();
+
   return (
     <section className="py-16 bg-gradient-to-b from-background to-muted/50">
       <div className="max-w-6xl mx-auto px-4">
@@ -167,16 +171,23 @@ export function FeaturedListings() {
                           Contact Broker
                         </Button>
                       </div>
-                      <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`}>
-                        <Button 
+                      <Button 
                           variant="outline" 
                           className="w-full gap-2 border-accent/50 text-accent hover:bg-accent/10"
                           data-testid={`button-cleanbi-analyze-${listing.id}`}
+                          disabled={loadingId === listing.id}
+                          onClick={() => {
+                            setLoadingId(listing.id);
+                            navigate(`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`);
+                          }}
                         >
-                          <MapPin className="w-4 h-4" />
-                          Analyze with CLEANBI
+                          {loadingId === listing.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <MapPin className="w-4 h-4" />
+                          )}
+                          {loadingId === listing.id ? "Analyzing..." : "Analyze with CLEANBI"}
                         </Button>
-                      </Link>
                     </div>
                   </CardContent>
                 </div>

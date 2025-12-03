@@ -1,8 +1,9 @@
-import { Link } from "wouter";
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, ChevronRight, Target } from "lucide-react";
+import { MapPin, DollarSign, ChevronRight, Target, Loader2 } from "lucide-react";
 
 const FEATURED_LISTINGS = [
   {
@@ -44,6 +45,9 @@ const FEATURED_LISTINGS = [
 ];
 
 export function FeaturedListingsCarousel() {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [, navigate] = useLocation();
+
   return (
     <section className="py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -82,17 +86,24 @@ export function FeaturedListingsCarousel() {
                   <Link href="/laundromat-listings">
                     <Button size="sm" variant="default" className="w-full">View Details</Button>
                   </Link>
-                  <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`}>
-                    <Button 
+                  <Button 
                       size="sm" 
                       variant="outline" 
                       className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10"
                       data-testid={`button-cleanbi-analyze-${listing.id}`}
+                      disabled={loadingId === listing.id}
+                      onClick={() => {
+                        setLoadingId(listing.id);
+                        navigate(`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`);
+                      }}
                     >
-                      <MapPin className="w-3 h-3 mr-1" />
-                      CLEANBI Score
+                      {loadingId === listing.id ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <MapPin className="w-3 h-3 mr-1" />
+                      )}
+                      {loadingId === listing.id ? "Loading..." : "CLEANBI Score"}
                     </Button>
-                  </Link>
                 </div>
               </CardContent>
             </Card>

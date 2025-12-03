@@ -17,6 +17,7 @@ import { Router, Request, Response } from "express";
 import { db } from "./db";
 import { storage } from "./storage";
 import { cacheGet, cacheSet, generateCacheKey } from "./cleanbi-cache-layer";
+import { attachTierInfo } from "./middleware/tier-enforcement";
 import { geocodeAddress } from "./geocoding-service";
 import { enrichCLEANBIData, type SubscriptionTier } from "./cleanbi-data-enrichment";
 import { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
@@ -43,6 +44,8 @@ import crypto from "crypto";
 import { eq, and, gte, sql } from "drizzle-orm";
 
 const router = Router();
+
+router.use(attachTierInfo());
 
 // ========================================
 // TYPES & INTERFACES

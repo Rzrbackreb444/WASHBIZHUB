@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { 
   Store, MapPin, DollarSign, TrendingUp, Search, Plus, Building2, BarChart3, 
   MessageSquare, Settings, Zap, Filter, Home, Target, CheckCircle2, 
-  ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase
+  ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
@@ -71,6 +71,7 @@ export default function LaundromatListings() {
   const [includesRealEstate, setIncludesRealEstate] = useState<boolean | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<string>("featured");
+  const [cleanbiLoadingId, setCleanbiLoadingId] = useState<string | null>(null);
 
   const { data: listings = [] } = useQuery<LaundroListing[]>({
     queryKey: ["/api/laundromat-listings"],
@@ -535,16 +536,23 @@ export default function LaundromatListings() {
                     >
                       View Details
                     </Button>
-                    <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address || listing.location + ", " + listing.state)}`}>
-                      <Button 
+                    <Button 
                         variant="outline" 
                         className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10"
                         data-testid={`button-cleanbi-analyze-${listing.id}`}
+                        disabled={cleanbiLoadingId === listing.id}
+                        onClick={() => {
+                          setCleanbiLoadingId(listing.id);
+                          setLocation(`/cleanbi-explorer?address=${encodeURIComponent(listing.address || listing.location + ", " + listing.state)}`);
+                        }}
                       >
-                        <MapPin className="w-4 h-4 mr-1" />
-                        CLEANBI Score
+                        {cleanbiLoadingId === listing.id ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <MapPin className="w-4 h-4 mr-1" />
+                        )}
+                        {cleanbiLoadingId === listing.id ? "Analyzing..." : "CLEANBI Score"}
                       </Button>
-                    </Link>
                   </div>
 
                   {/* Quick Funding Link */}
