@@ -593,6 +593,10 @@ export const blogPosts = pgTable("blog_posts", {
   currentRanking: integer("current_ranking"), // Google position for target keyword
   lastRankingCheck: timestamp("last_ranking_check"),
   
+  // ===== VISIBILITY ADD-ON LINK =====
+  sourceListingId: varchar("source_listing_id"), // If generated from a listing's paid visibility add-on
+  tenantId: varchar("tenant_id").references(() => tenants.id), // Multi-tenant support
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
@@ -2254,6 +2258,7 @@ export const listings = pgTable("listings", {
   // Social Share Cards (Open Graph optimization)
   socialCardsGenerated: boolean("social_cards_generated").default(false),
   socialCardsGeneratedAt: timestamp("social_cards_generated_at"),
+  socialCardsData: text("social_cards_data"), // JSON with OG, Twitter, and structured data
   ogImageUrl: text("og_image_url"),
   
   // Visibility Bundle Tier (what they paid for)

@@ -2948,6 +2948,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+  
+  // Get visibility jobs for an order (admin or owner)
+  app.get("/api/visibility-jobs/:orderId", isAuthenticated, async (req: any, res) => {
+    try {
+      const jobs = await db.select()
+        .from(visibilityJobs)
+        .where(eq(visibilityJobs.orderId, req.params.orderId))
+        .orderBy(desc(visibilityJobs.createdAt));
+      
+      res.json(jobs);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Manually trigger job processing (admin only)
+  app.post("/api/visibility-jobs/process", isAdmin, async (req, res) => {
+    try {
+      const { processOrderJobs, processPendingJobs } = await import("./visibility-automation");
+      
+      const { orderId } = req.body;
+      
+      if (orderId) {
+        await processOrderJobs(orderId);
+        res.json({ message: `Jobs for order ${orderId} processed` });
+      } else {
+        const processed = await processPendingJobs();
+        res.json({ message: `${processed} pending jobs processed` });
+      }
+    } catch (error: any) {
+      console.error('Job processing error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Retry a failed job (admin only)
+  app.post("/api/visibility-jobs/:jobId/retry", isAdmin, async (req, res) => {
+    try {
+      const { processVisibilityJob } = await import("./visibility-automation");
+      
+      // Reset job status to pending
+      await db.update(visibilityJobs)
+        .set({ status: 'pending', errorMessage: null })
+        .where(eq(visibilityJobs.id, req.params.jobId));
+      
+      const result = await processVisibilityJob(req.params.jobId);
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
 
   // ==================== COURSES (PREMIUM LEARNING PLATFORM) ====================
   

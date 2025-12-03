@@ -463,6 +463,16 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           });
           
           console.log(`✅ Visibility add-on ${addOnName} activated for listing ${listingId}`);
+          
+          // Trigger async job processing for non-carousel features
+          if (jobsToCreate.length > 0) {
+            // Process jobs asynchronously (don't await - let webhook complete quickly)
+            import("./visibility-automation").then(({ processOrderJobs }) => {
+              processOrderJobs(updatedOrder.id).catch((err: Error) => {
+                console.error(`❌ Async job processing failed: ${err.message}`);
+              });
+            });
+          }
         } catch (error: any) {
           console.error(`❌ Failed to fulfill visibility add-on: ${error.message}`);
         }
