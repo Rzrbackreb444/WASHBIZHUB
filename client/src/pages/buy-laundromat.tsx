@@ -67,7 +67,7 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
         )}
         
         {listing.featured && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
+          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground shadow-lg">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
