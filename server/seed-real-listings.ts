@@ -2,15 +2,32 @@ import { db } from "./db";
 import { listings, listingFinancials, listingEquipment } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
-// Real verified listings from industry sources
+// Real verified listings from industry sources with actual images
 const realListings = [
   {
     listing: {
       businessType: "laundromat",
       listingType: "broker",
       title: "Modern Coin Laundry - 6226 S. Western Ave",
-      description: `Newly remodeled laundromat in prime Los Angeles location with excellent demographics. This 2,070 sq ft facility features state-of-the-art Girbau equipment with Kiosoft card payment system. Located in a high-traffic neighborhood corner with exceptional visibility and parking. Population of 43,000+ within 1-mile radius with 65%+ Hispanic demographics and high renter concentration (45%+). 15-year lease in place with two 5-year options. Site analysis score of 58 points (Excellent Location). Premium opportunity for experienced operators or investors.`,
-      tagline: "Excellent LA Location with New Equipment & Strong Demographics",
+      description: `Newly remodeled laundromat in prime Los Angeles location with excellent demographics. This 2,070 sq ft facility features state-of-the-art Girbau equipment with Kiosoft card payment system. Located in a high-traffic neighborhood corner with exceptional visibility and parking. Population of 43,000+ within 1-mile radius with 65%+ Hispanic demographics and high renter concentration (45%+). 15-year lease in place with two 5-year options. Site analysis score of 58 points (Excellent Location). Premium opportunity for experienced operators or investors.
+
+EQUIPMENT HIGHLIGHTS:
+• 25 Girbau high-efficiency washers (23-80 lb capacity)
+• 12 Speed Queen stack dryers (24 pockets)
+• Kiosoft card payment system with 2 kiosks
+• All equipment installed in 2024 - like new condition
+
+LEASE TERMS:
+• 15-year lease with two 5-year options
+• $3,000/month base rent (NNN)
+• Landlord extremely motivated
+
+FINANCIALS:
+• Gross Revenue: $348,000/year ($29,000/month average)
+• Net Operating Income: $180,060/year
+• Cash Flow After Debt: $127,792/year
+• ROI: 63.90%`,
+      tagline: "Excellent LA Location with New Equipment & Strong Demographics - $29K Monthly Revenue",
       priceOriginal: "650000",
       currency: "USD",
       priceInUSD: "650000",
@@ -28,6 +45,7 @@ const realListings = [
       latitude: "33.9825",
       longitude: "-118.3087",
       addressVisibility: "public",
+      featuredImage: "/attached_assets/Dexter-Newport_Laundry_1764780894403.png",
       status: "active",
       featured: true,
       prioritySearch: true,

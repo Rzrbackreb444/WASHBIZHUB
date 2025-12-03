@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import compression from "compression";
+import path from "path";
 import { registerRoutes } from "./routes";
 import { registerSitemapRoutes } from "./sitemap";
 import { registerPosRoutes } from "./pos-routes";
@@ -60,6 +61,12 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Serve attached_assets as static files for real listing images
+app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets'), {
+  maxAge: '30d',
+  etag: true,
+}));
 
 declare module 'http' {
   interface IncomingMessage {
