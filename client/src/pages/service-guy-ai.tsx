@@ -626,12 +626,33 @@ export default function ServiceGuyAI() {
                               Required Parts (Real Part Numbers)
                             </h4>
                             <div className="flex flex-wrap gap-2">
-                              {code.requiredParts.map((part, i) => (
-                                <Badge key={i} variant="outline" className="font-mono text-xs">
-                                  {part}
-                                </Badge>
-                              ))}
+                              {code.requiredParts.map((part, i) => {
+                                const partId = part.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                                const amazonSearchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(part)}&tag=washbizhub-20`;
+                                return (
+                                  <a 
+                                    key={i}
+                                    href={amazonSearchUrl}
+                                    target="_blank"
+                                    rel="sponsored noopener noreferrer"
+                                    className="group"
+                                    data-testid={`link-amazon-part-${code.code}-${partId}`}
+                                  >
+                                    <Badge 
+                                      variant="outline" 
+                                      className="font-mono text-xs hover:bg-amber-500/20 hover:border-amber-500 hover:text-amber-600 transition-colors cursor-pointer"
+                                    >
+                                      {part}
+                                      <span className="ml-1 opacity-60 group-hover:opacity-100 text-amber-600">→</span>
+                                    </Badge>
+                                  </a>
+                                );
+                              })}
                             </div>
+                            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1" data-testid={`text-affiliate-notice-${code.code}`}>
+                              <span className="text-amber-500">★</span>
+                              Click any part to find on Amazon (affiliate link)
+                            </p>
                           </div>
                           <div className="flex items-center gap-6 text-sm text-muted-foreground border-t pt-4">
                             <div className="flex items-center gap-1">

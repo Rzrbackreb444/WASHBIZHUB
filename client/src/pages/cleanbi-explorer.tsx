@@ -2869,6 +2869,26 @@ function CleanBIExplorerContent() {
                       : " Get expert guidance to maximize potential."}
                   </p>
                   
+                  {/* Featured CTA: AI Consultation Council */}
+                  <Button 
+                    size="default"
+                    variant="default"
+                    className="w-full mb-3"
+                    onClick={() => {
+                      trackEvent("cleanbi_cta_council", "engagement", undefined, { 
+                        address: analysisResult.address,
+                        grade: analysisResult.grade,
+                        score: analysisResult.cleanbiScore 
+                      });
+                      trackConversion("council_intent", undefined, { source: "cleanbi_explorer" });
+                      setLocation(`/ai-consultation-council?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}&grade=${analysisResult.grade}`);
+                    }}
+                    data-testid="button-cta-ai-council"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Get Expert AI Council Analysis — From $49
+                  </Button>
+
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       size="sm"
@@ -2891,19 +2911,19 @@ function CleanBIExplorerContent() {
                     <Button 
                       size="sm"
                       variant="outline"
-                      className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/10 h-9 text-xs font-medium"
+                      className="w-full border-amber-500/50 text-amber-500 hover:bg-amber-500/10 text-xs font-medium"
                       onClick={() => {
-                        trackEvent("cleanbi_cta_consultation", "engagement", undefined, { 
+                        trackEvent("cleanbi_cta_larry", "engagement", undefined, { 
                           address: analysisResult.address,
                           grade: analysisResult.grade,
                           score: analysisResult.cleanbiScore 
                         });
-                        setLocation(`/consultation?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}`);
+                        setLocation(`/larry-larsen?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}`);
                       }}
-                      data-testid="button-cta-consultation"
+                      data-testid="button-cta-larry"
                     >
-                      <Phone className="w-3.5 h-3.5 mr-1.5" />
-                      Book Consult
+                      <Crown className="w-3.5 h-3.5 mr-1.5" />
+                      Talk to Larry ($397)
                     </Button>
                     
                     <Button 

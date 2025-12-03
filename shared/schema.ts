@@ -2231,6 +2231,11 @@ export const listings = pgTable("listings", {
   cleanbiReportId: varchar("cleanbi_report_id"), // Link to pre-generated CLEANBI report
   hasValuationReport: boolean("has_valuation_report").default(false),
   
+  // Larry Larsen Verification
+  larryVerified: boolean("larry_verified").default(false), // Verified by Larry Larsen
+  larryVerifiedAt: timestamp("larry_verified_at"),
+  larryVerificationNotes: text("larry_verification_notes"), // Larry's notes/recommendations
+  
   // Listing Depth & Completeness (for adaptive wizard)
   detailLevel: text("detail_level").notNull().default("quick"), // "quick", "standard", "full"
   completenessScore: integer("completeness_score").default(0), // 0-100 based on fields filled
