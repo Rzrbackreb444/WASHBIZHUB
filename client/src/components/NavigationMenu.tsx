@@ -27,49 +27,32 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { 
-  Menu, LogOut, Search, X, ChevronRight,
-  FileText, Brain, Users, Calculator, Wallet, BookOpen,
-  MapPin, Building2, DollarSign, Truck, Navigation, ClipboardCheck,
-  ShoppingCart, Wand2, BookMarked, Bot, Wrench, Palette, FileStack,
-  Store, PlusCircle, Package, Handshake, Megaphone
+  Menu, LogOut, Search, X, ChevronRight, Sparkles,
+  MapPin, Building2, DollarSign, Calculator, Palette,
+  ShoppingCart, Package, Handshake,
+  BookOpen, GraduationCap, HelpCircle, Wallet,
+  BarChart3, Zap
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
-const PLAN_LINKS = [
-  { href: "/sba-readiness", label: "SBA Readiness Check", icon: ClipboardCheck, desc: "Check loan eligibility" },
-  { href: "/business-plan-generator", label: "Business Plan Generator", icon: FileText, desc: "AI-powered plans" },
-  { href: "/ai-consultation", label: "AI Consultation", icon: Brain, desc: "Strategic guidance" },
-  { href: "/larry-larsen", label: "Expert Consulting", icon: Users, desc: "1-on-1 with pros" },
-  { href: "/calculators", label: "ROI Calculator", icon: Calculator, desc: "Financial projections" },
-  { href: "/startup-funding", label: "Funding Options", icon: Wallet, desc: "Explore financing" },
-  { href: "/blog", label: "Insights", icon: BookOpen, desc: "Industry articles" },
+const PRODUCTS_LINKS = [
+  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
+  { href: "/valuation-calculator", label: "Valuation Suite", icon: DollarSign, desc: "Business appraisal tools" },
+  { href: "/calculators", label: "ROI Calculators", icon: Calculator, desc: "Financial projections" },
+  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
 ];
 
-const EVALUATE_LINKS = [
-  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Full map intelligence", featured: true },
-  { href: "/laundromat-listings", label: "Listings", icon: Building2, desc: "Browse for sale" },
-  { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, desc: "What's it worth?" },
-  { href: "/distributor-locator", label: "Distributors", icon: Truck, desc: "Find equipment" },
-  { href: "/laundromat-locator", label: "Locator", icon: Navigation, desc: "Find laundromats" },
-  { href: "/resources", label: "Due Diligence", icon: ClipboardCheck, desc: "Verify deals" },
+const MARKETPLACE_LINKS = [
+  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings" },
+  { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Package, desc: "Buy & sell equipment" },
+  { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
 ];
 
-const OPERATE_LINKS = [
-  { href: "/equipment-marketplace", label: "Marketplace", icon: ShoppingCart, desc: "Buy & sell equipment" },
-  { href: "/equipment-wizard", label: "Equipment Wizard", icon: Wand2, desc: "Find the right fit" },
-  { href: "/equipment-guides", label: "Equipment Guides", icon: BookMarked, desc: "Maintenance tips" },
-  { href: "/service-guy-ai", label: "Service AI", icon: Bot, desc: "AI technician help" },
-  { href: "/equipment-diagnostics", label: "Diagnostics", icon: Wrench, desc: "Troubleshoot issues" },
-  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Layout planning" },
-  { href: "/resources", label: "Resources", icon: FileStack, desc: "Operator toolkit" },
-];
-
-const PARTNER_LINKS = [
-  { href: "/sell", label: "Sell Your Laundromat", icon: Store, desc: "List your business" },
-  { href: "/listing-form", label: "Add Listing", icon: PlusCircle, desc: "Post for sale" },
-  { href: "/list-equipment", label: "Sell Equipment", icon: Package, desc: "Equipment listings" },
-  { href: "/vendor-form", label: "Vendor Partnership", icon: Handshake, desc: "Join our network" },
-  { href: "/advertise", label: "Advertising", icon: Megaphone, desc: "Promote your brand" },
+const RESOURCES_LINKS = [
+  { href: "/blog", label: "Industry Blog", icon: BookOpen, desc: "News & insights" },
+  { href: "/courses", label: "Education Hub", icon: GraduationCap, desc: "Courses & training" },
+  { href: "/startup-funding", label: "Funding Options", icon: Wallet, desc: "SBA, financing & more" },
+  { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
 ];
 
 interface NavLinkItem {
@@ -88,7 +71,7 @@ function DropdownLink({ href, label, icon: Icon, desc, featured, onClick }: NavL
         onClick={onClick}
         className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
           featured 
-            ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/20 hover:border-[#b8860b]/40' 
+            ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/30 hover:border-[#b8860b]/50 hover:from-[#b8860b]/15' 
             : 'hover:bg-[#1e3a5f]/5'
         }`}
         data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -105,6 +88,7 @@ function DropdownLink({ href, label, icon: Icon, desc, featured, onClick }: NavL
         <div className="flex-1 min-w-0">
           <span className={`block text-sm font-semibold ${featured ? 'text-[#b8860b]' : 'text-gray-900'} group-hover:text-[#1e3a5f]`}>
             {label}
+            {featured && <Sparkles className="inline-block w-3 h-3 ml-1.5 text-[#b8860b]" />}
           </span>
           {desc && (
             <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
@@ -147,7 +131,7 @@ export function NavigationMenu() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openAccordions, setOpenAccordions] = useState<string[]>(["plan"]);
+  const [openAccordions, setOpenAccordions] = useState<string[]>(["products"]);
   
   const firstFocusableRef = useRef<HTMLInputElement>(null);
 
@@ -194,31 +178,40 @@ export function NavigationMenu() {
       </a>
       
       <header className="sticky top-0 z-50">
-        {/* Top utility bar */}
-        <div className="bg-[#0f2744] text-white/70 border-b border-white/10">
+        {/* Top utility bar - slim and professional */}
+        <div className="bg-[#0a1929] text-white/60 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-8 flex items-center justify-between text-xs">
-              <span className="hidden sm:inline">nick@washbizhub.com</span>
-              <span className="sm:hidden text-[#b8860b]">WashBizHub</span>
+              <div className="flex items-center gap-4">
+                <span className="hidden sm:inline">The #1 Laundromat Intelligence Platform</span>
+                <span className="sm:hidden text-[#b8860b] font-medium">WashBizHub</span>
+              </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <ThemeToggle />
                 
                 {isLoading ? (
                   <div className="w-12 h-4 bg-white/10 rounded animate-pulse" />
                 ) : isAuthenticated && user ? (
-                  <button
-                    onClick={() => logout()}
-                    className="flex items-center gap-1.5 hover:text-[#b8860b] transition-colors px-2 py-1"
-                    data-testid="button-logout"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Sign Out</span>
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <Link href="/account/subscription">
+                      <span className="text-white/70 hover:text-[#b8860b] transition-colors cursor-pointer hidden sm:inline">
+                        {user.email}
+                      </span>
+                    </Link>
+                    <button
+                      onClick={() => logout()}
+                      className="flex items-center gap-1.5 hover:text-[#b8860b] transition-colors"
+                      data-testid="button-logout"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Sign Out</span>
+                    </button>
+                  </div>
                 ) : (
                   <a 
                     href="/api/login"
-                    className="hover:text-[#b8860b] transition-colors px-2 py-1"
+                    className="hover:text-[#b8860b] transition-colors"
                     data-testid="link-login"
                   >
                     Sign In
@@ -229,14 +222,15 @@ export function NavigationMenu() {
           </div>
         </div>
 
-        {/* Main nav bar - Premium Navy */}
+        {/* Main nav bar - Premium Navy with clear hierarchy */}
         <div className="bg-[#1e3a5f] border-b border-[#2a4a73]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="h-16 flex items-center justify-between gap-4">
+            <div className="h-16 flex items-center justify-between gap-6">
+              {/* Logo */}
               <Link 
                 href="/" 
                 data-testid="link-logo" 
-                className="shrink-0 flex items-center"
+                className="shrink-0 flex items-center gap-2"
               >
                 <img 
                   src={logoUrl} 
@@ -246,31 +240,38 @@ export function NavigationMenu() {
                   width={40}
                   height={40}
                 />
+                <span className="hidden sm:block text-white font-bold text-lg tracking-tight">
+                  WashBizHub
+                </span>
               </Link>
 
-              {/* Desktop navigation */}
-              <nav className="hidden lg:flex items-center gap-1">
+              {/* Desktop navigation - 4 pillars */}
+              <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
                 <NavMenu>
                   <NavigationMenuList className="gap-0">
+                    {/* Products */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
-                        data-testid="dropdown-plan"
+                        data-testid="dropdown-products"
                       >
-                        Plan
+                        Products
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
                           <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Plan Your Journey</span>
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
+                              <BarChart3 className="w-3.5 h-3.5" />
+                              Intelligence Tools
+                            </span>
                           </div>
                           <div className="space-y-1">
-                            {PLAN_LINKS.map((link) => (
+                            {PRODUCTS_LINKS.map((link) => (
                               <DropdownLink key={link.href} {...link} />
                             ))}
                           </div>
@@ -278,25 +279,29 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* Marketplace */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
-                        data-testid="dropdown-evaluate"
+                        data-testid="dropdown-marketplace"
                       >
-                        Evaluate
+                        Marketplace
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
                           <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Evaluate Opportunities</span>
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
+                              <ShoppingCart className="w-3.5 h-3.5" />
+                              Buy & Sell
+                            </span>
                           </div>
                           <div className="space-y-1">
-                            {EVALUATE_LINKS.map((link) => (
+                            {MARKETPLACE_LINKS.map((link) => (
                               <DropdownLink key={link.href} {...link} />
                             ))}
                           </div>
@@ -304,25 +309,29 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* Resources */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
-                        data-testid="dropdown-operate"
+                        data-testid="dropdown-resources"
                       >
-                        Operate
+                        Resources
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
                           <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Operate & Grow</span>
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
+                              <BookOpen className="w-3.5 h-3.5" />
+                              Learn & Grow
+                            </span>
                           </div>
                           <div className="space-y-1">
-                            {OPERATE_LINKS.map((link) => (
+                            {RESOURCES_LINKS.map((link) => (
                               <DropdownLink key={link.href} {...link} />
                             ))}
                           </div>
@@ -330,41 +339,27 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* Pricing - Direct link */}
                     <NavigationMenuItem>
-                      <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
-                        data-testid="dropdown-partner"
-                      >
-                        Partner
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <motion.div 
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[320px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                      <Link href="/pricing">
+                        <NavigationMenuLink 
+                          className="h-10 px-4 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md inline-flex items-center transition-colors"
+                          data-testid="link-nav-pricing"
                         >
-                          <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider">Partner With Us</span>
-                          </div>
-                          <div className="space-y-1">
-                            {PARTNER_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
-                          </div>
-                        </motion.div>
-                      </NavigationMenuContent>
+                          Pricing
+                        </NavigationMenuLink>
+                      </Link>
                     </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavMenu>
               </nav>
 
               {/* Right side actions */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex h-10 w-10 text-white/80 hover:text-white hover:bg-white/10"
+                  className="hidden md:flex h-9 w-9 text-white/70 hover:text-white hover:bg-white/10"
                   onClick={() => setSearchOpen(!searchOpen)}
                   aria-label="Search"
                   data-testid="button-search"
@@ -372,13 +367,14 @@ export function NavigationMenu() {
                   <Search className="w-4 h-4" />
                 </Button>
 
-                <Link href="/signup">
+                {/* Primary CTA - Gold CLEANBI button */}
+                <Link href="/cleanbi-explorer">
                   <Button 
-                    size="sm"
-                    className="hidden sm:flex h-10 px-5 font-semibold bg-[#b8860b] hover:bg-[#9a7209] text-white border-0"
-                    data-testid="button-start-trial"
+                    className="hidden sm:flex h-10 px-5 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg shadow-[#b8860b]/25 transition-all duration-300"
+                    data-testid="button-cleanbi-cta"
                   >
-                    Get Started
+                    <Zap className="w-4 h-4 mr-2" />
+                    Try CLEANBI Free
                   </Button>
                 </Link>
 
@@ -405,14 +401,25 @@ export function NavigationMenu() {
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="right" className="w-[300px] sm:w-[340px] p-0">
-                    <SheetHeader className="p-4 border-b">
-                      <SheetTitle className="flex items-center gap-3">
+                    <SheetHeader className="p-4 border-b bg-[#1e3a5f]">
+                      <SheetTitle className="flex items-center gap-3 text-white">
                         <img src={logoUrl} alt="" className="h-8 w-auto" />
-                        <span className="font-semibold">WashBizHub</span>
+                        <span className="font-bold">WashBizHub</span>
                       </SheetTitle>
                     </SheetHeader>
                     
                     <div className="p-4 space-y-4">
+                      {/* Mobile CLEANBI CTA - Full width, prominent */}
+                      <Link href="/cleanbi-explorer" onClick={closeMobileMenu}>
+                        <Button 
+                          className="w-full h-12 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg"
+                          data-testid="button-mobile-cleanbi-cta"
+                        >
+                          <Zap className="w-4 h-4 mr-2" />
+                          Try CLEANBI Free
+                        </Button>
+                      </Link>
+
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input 
@@ -425,32 +432,19 @@ export function NavigationMenu() {
                         />
                       </div>
 
-                      <div className="flex gap-2">
-                        <Link href="/cleanbi-explorer" onClick={closeMobileMenu} className="flex-1">
-                          <Button variant="outline" className="w-full h-10 text-sm font-medium">
-                            CLEANBI Explorer
-                          </Button>
-                        </Link>
-                        <Link href="/pricing" onClick={closeMobileMenu} className="flex-1">
-                          <Button className="w-full h-10 text-sm font-medium">
-                            Get Started
-                          </Button>
-                        </Link>
-                      </div>
-
                       <Accordion 
                         type="multiple" 
                         className="w-full" 
                         value={openAccordions}
                         onValueChange={setOpenAccordions}
                       >
-                        <AccordionItem value="plan" className="border-b border-border/50">
+                        <AccordionItem value="products" className="border-b border-border/50">
                           <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
-                            Plan
+                            Products
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
-                              {PLAN_LINKS.map((link) => (
+                              {PRODUCTS_LINKS.map((link) => (
                                 <MobileNavLink
                                   key={link.href}
                                   href={link.href}
@@ -464,13 +458,13 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="evaluate" className="border-b border-border/50">
+                        <AccordionItem value="marketplace" className="border-b border-border/50">
                           <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
-                            Evaluate
+                            Marketplace
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
-                              {EVALUATE_LINKS.map((link) => (
+                              {MARKETPLACE_LINKS.map((link) => (
                                 <MobileNavLink
                                   key={link.href}
                                   href={link.href}
@@ -484,33 +478,13 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="operate" className="border-b border-border/50">
+                        <AccordionItem value="resources" className="border-b border-border/50">
                           <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
-                            Operate
+                            Resources
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
-                              {OPERATE_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="partner" className="border-b-0">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
-                            Partner
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {PARTNER_LINKS.map((link) => (
+                              {RESOURCES_LINKS.map((link) => (
                                 <MobileNavLink
                                   key={link.href}
                                   href={link.href}
@@ -525,19 +499,35 @@ export function NavigationMenu() {
                         </AccordionItem>
                       </Accordion>
 
+                      {/* Pricing link */}
+                      <Link href="/pricing" onClick={closeMobileMenu}>
+                        <div className="flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors cursor-pointer">
+                          <span>Pricing</span>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </Link>
+
                       <div className="pt-4 border-t">
                         {isAuthenticated && user ? (
-                          <Button
-                            variant="ghost"
-                            className="w-full h-10 justify-start text-sm"
-                            onClick={() => {
-                              logout();
-                              closeMobileMenu();
-                            }}
-                            data-testid="button-mobile-logout"
-                          >
-                            Sign Out
-                          </Button>
+                          <div className="space-y-2">
+                            <Link href="/account/subscription" onClick={closeMobileMenu}>
+                              <div className="px-4 py-2 text-sm text-muted-foreground">
+                                {user.email}
+                              </div>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              className="w-full h-10 justify-start text-sm"
+                              onClick={() => {
+                                logout();
+                                closeMobileMenu();
+                              }}
+                              data-testid="button-mobile-logout"
+                            >
+                              <LogOut className="w-4 h-4 mr-2" />
+                              Sign Out
+                            </Button>
+                          </div>
                         ) : (
                           <Link href="/api/login" onClick={closeMobileMenu}>
                             <Button variant="outline" className="w-full h-10 text-sm">
@@ -557,7 +547,7 @@ export function NavigationMenu() {
           <AnimatePresence>
             {searchOpen && (
               <motion.div 
-                className="hidden md:block border-t bg-background"
+                className="hidden md:block border-t border-white/10 bg-[#0f2744]"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -565,10 +555,10 @@ export function NavigationMenu() {
               >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                   <div className="relative max-w-xl mx-auto">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                     <Input
-                      placeholder="Search tools, resources, listings..."
-                      className="pl-11 h-12 text-base"
+                      placeholder="Search tools, listings, resources..."
+                      className="pl-11 h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/15"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
