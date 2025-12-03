@@ -17,6 +17,7 @@ import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTransition } from "@/components/PageTransition";
 import AdminBar from "@/components/AdminBar";
+import { TrialBanner } from "@/components/monetization";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -304,6 +305,7 @@ const Vault = lazy(() => import("@/pages/vault"));
 const Resources = lazy(() => import("@/pages/resources"));
 const ResourceDetail = lazy(() => import("@/pages/resource-detail"));
 const Settings = lazy(() => import("@/pages/settings"));
+const AccountSubscription = lazy(() => import("@/pages/account-subscription"));
 const Login = lazy(() => import("@/pages/login"));
 const Signup = lazy(() => import("@/pages/signup"));
 const AuthVerify = lazy(() => import("@/pages/auth-verify"));
@@ -1162,6 +1164,11 @@ function Router() {
           <Settings />
         </Suspense>
       </Route>
+      <Route path="/account/subscription">
+        <Suspense fallback={<LoadingFallback />}>
+          <AccountSubscription />
+        </Suspense>
+      </Route>
       
       {/* Buyer Engagement */}
       <Route path="/buyer/dashboard">
@@ -1362,6 +1369,7 @@ const ROUTES_WITH_CUSTOM_FOOTER = new Set(['/']);
 function AppContent() {
   usePageTracking();
   const [location] = useLocation();
+  const { user, isAuthenticated } = useAuth();
   
   const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login', '/cleanbi-explorer'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
@@ -1371,6 +1379,9 @@ function AppContent() {
     return (
       <>
         <AdminBar />
+        {isAuthenticated && user?.trialEndDate && (
+          <TrialBanner trialEndDate={user.trialEndDate} />
+        )}
         <ScrollToTop />
         <Suspense fallback={null}>
           <DeferredAnalytics />
@@ -1389,6 +1400,9 @@ function AppContent() {
   return (
     <>
       <AdminBar />
+      {isAuthenticated && user?.trialEndDate && (
+        <TrialBanner trialEndDate={user.trialEndDate} />
+      )}
       <ScrollToTop />
       <Helmet>
         <script type="application/ld+json">

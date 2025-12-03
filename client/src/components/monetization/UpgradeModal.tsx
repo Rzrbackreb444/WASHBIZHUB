@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Zap, Crown, Building2, Check, ArrowRight, Sparkles,
-  MapPin, Calculator, TrendingUp, Users, Shield, Clock
+  MapPin, Calculator, TrendingUp, Users, Shield, Clock, Loader2
 } from "lucide-react";
-import { Link } from "wouter";
 import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
+import { useAuth } from "@/hooks/useAuth";
 import { PLATFORM_TIERS, type PlatformTier } from "@/lib/tier-config";
 import { trackEvent, trackConversion } from "@/lib/user-journey";
+import { useToast } from "@/hooks/use-toast";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -58,19 +59,55 @@ export function UpgradeModal({
   description
 }: UpgradeModalProps) {
   const { tier: currentTier } = useSubscription();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier);
+  const [isLoading, setIsLoading] = useState(false);
   
   const tierConfig = PLATFORM_TIERS[selectedTier];
   const TierIcon = TIER_ICONS[selectedTier];
   const benefits = UPGRADE_BENEFITS[selectedTier as keyof typeof UPGRADE_BENEFITS] || UPGRADE_BENEFITS.starter;
 
-  const handleUpgradeClick = () => {
+  const handleUpgradeClick = async () => {
+    setIsLoading(true);
+    
     trackConversion("upgrade_modal_click", tierConfig.price, { 
       tier: selectedTier, 
       feature,
       from: currentTier 
     });
-    onOpenChange(false);
+
+    try {
+      const response = await fetch("/api/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: selectedTier,
+          interval: "month",
+          userId: user?.id || "",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const data = await response.json();
+      
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Checkout Error",
+        description: "Unable to start checkout. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   const availableTiers: PlatformTier[] = ["starter", "pro", "enterprise"].filter(
@@ -153,16 +190,25 @@ export function UpgradeModal({
         </Card>
 
         <div className="space-y-3 pt-2">
-          <Link href="/pricing" onClick={handleUpgradeClick}>
-            <Button 
-              className="w-full btn-premium-gold text-white font-semibold h-12 group"
-              data-testid="button-upgrade-modal-cta"
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              Start 7-Day Free Trial
-              <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
+          <Button 
+            onClick={handleUpgradeClick}
+            disabled={isLoading}
+            className="w-full btn-premium-gold text-white font-semibold h-12 group"
+            data-testid="button-upgrade-modal-cta"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Preparing Checkout...
+              </>
+            ) : (
+              <>
+                <Zap className="h-4 w-4 mr-2" />
+                Start 7-Day Free Trial
+                <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </>
+            )}
+          </Button>
           
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">

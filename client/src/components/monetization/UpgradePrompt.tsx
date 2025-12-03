@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -203,22 +204,92 @@ export function UpgradePrompt({
   );
 }
 
-export function TrialBanner({ daysRemaining = 7 }: { daysRemaining?: number }) {
+interface TrialBannerProps {
+  daysRemaining?: number;
+  trialEndDate?: Date | string | null;
+}
+
+export function TrialBanner({ daysRemaining, trialEndDate }: TrialBannerProps) {
+  const [isDismissed, setIsDismissed] = useState(false);
+  
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem('trialBannerDismissed');
+    if (dismissed === 'true') {
+      setIsDismissed(true);
+    }
+  }, []);
+
+  const calculateDaysRemaining = (): number => {
+    if (daysRemaining !== undefined) {
+      return daysRemaining;
+    }
+    if (!trialEndDate) {
+      return 0;
+    }
+    const endDate = new Date(trialEndDate);
+    const now = new Date();
+    const diffTime = endDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
+  const days = calculateDaysRemaining();
+  
+  const isOnTrial = (): boolean => {
+    if (!trialEndDate) return false;
+    const endDate = new Date(trialEndDate);
+    return endDate > new Date();
+  };
+
+  const handleDismiss = () => {
+    sessionStorage.setItem('trialBannerDismissed', 'true');
+    setIsDismissed(true);
+  };
+
+  if (isDismissed || !isOnTrial()) {
+    return null;
+  }
+
   return (
-    <div className="w-full py-2 px-4 bg-gradient-to-r from-accent to-[#d4a030] text-white text-center text-sm font-medium">
+    <div 
+      className="w-full py-2 px-4 bg-gradient-to-r from-accent to-[#d4a030] text-white text-center text-sm font-medium relative"
+      data-testid="trial-banner"
+    >
       <span className="flex items-center justify-center gap-2">
         <Star className="h-4 w-4" />
-        {daysRemaining} days left in your free trial
+        {days} {days === 1 ? 'day' : 'days'} left in your free trial
         <Link href="/pricing">
           <Button 
             size="sm" 
             variant="outline" 
             className="h-6 px-2 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
+            data-testid="button-upgrade-trial"
           >
             Upgrade Now
           </Button>
         </Link>
       </span>
+      <button
+        onClick={handleDismiss}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
+        aria-label="Dismiss trial banner"
+        data-testid="button-dismiss-trial-banner"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="16" 
+          height="16" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
   );
 }

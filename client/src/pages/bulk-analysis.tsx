@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -428,7 +429,8 @@ export default function BulkAnalysis() {
   
   return (
     <AuthGuard title="Sign In for Bulk Analysis" description="Sign in to access this feature.">
-      <SEO
+      <FeatureGate feature="bulk-analysis">
+        <SEO
         title="Bulk Analysis Tool | Enterprise Location Intelligence at Scale"
         description="Analyze 100+ locations at once with our enterprise bulk analysis tool. CSV/Excel upload, Google Sheets integration, custom scoring, and API access for private equity firms, REITs, and franchise networks."
         canonicalUrl="/bulk-analysis"
@@ -1168,6 +1170,7 @@ export default function BulkAnalysis() {
           </div>
         </div>
       </div>
+      </FeatureGate>
     </AuthGuard>
   );
 }

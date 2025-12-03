@@ -3,6 +3,7 @@ import { useLocation, useSearch } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -225,7 +226,8 @@ export default function BusinessPlanGenerator() {
 
   return (
     <AuthGuard title="Sign In to Generate Business Plans" description="Sign in to access this feature.">
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <FeatureGate feature="business-plan-generator">
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}
         <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
@@ -797,6 +799,7 @@ export default function BusinessPlanGenerator() {
         )}
       </div>
     </div>
+      </FeatureGate>
     </AuthGuard>
   );
 }

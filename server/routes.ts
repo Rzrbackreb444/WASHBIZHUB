@@ -2576,12 +2576,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { tierId, interval = 'month', userId } = req.body;
       
       // Define subscription tiers with Stripe price IDs
+      // Pricing must match client/src/lib/tier-config.ts
       const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string }> = {
         'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID },
         'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID },
         'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: process.env.STRIPE_STARTER_PRICE_ID },
-        'pro': { name: 'CLEANBI Pro', amount: 9700, priceId: process.env.STRIPE_PRO_PRICE_ID },
-        'enterprise': { name: 'CLEANBI Enterprise', amount: 49900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID },
+        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: process.env.STRIPE_PRO_PRICE_ID },
+        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID },
       };
       
       const tier = subscriptionTiers[tierId] || subscriptionTiers['pro'];
@@ -2611,6 +2612,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cancel_url: `${baseUrl}/pricing`,
         metadata: {
           tierId,
+          tier: tierId,
+          tierName: tier.name,
           userId: userId || '',
           type: 'subscription',
         },

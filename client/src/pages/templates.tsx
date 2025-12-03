@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { FeatureGate } from "@/components/monetization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -329,8 +330,9 @@ export default function Templates() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <SEO
+    <FeatureGate feature="templates-premium">
+      <div className="min-h-screen bg-background">
+        <SEO
         title="Laundromat Business Plan Templates | P&L, Due Diligence Checklists"
         description="Download professional laundromat business plan templates, P&L spreadsheets, due diligence checklists, financial models, and operations guides. Free and premium templates for coin laundry owners."
         canonicalUrl="/templates"
@@ -780,5 +782,6 @@ export default function Templates() {
         </DialogContent>
       </Dialog>
     </div>
+    </FeatureGate>
   );
 }

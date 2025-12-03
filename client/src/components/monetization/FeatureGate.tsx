@@ -168,7 +168,9 @@ function getFeatureTitle(feature: string): string {
   const titles: Record<string, string> = {
     "cleanbi-full": "Unlock Full CLEANBI Analysis",
     "cleanbi-unlimited": "Unlimited CLEANBI Analyses",
+    "cleanbi-bulk": "Enterprise Bulk Analysis",
     "calculators-all": "Access All Calculators",
+    "calculators-advanced": "Advanced Pro Calculators",
     "calculators-export": "Export Calculator Results",
     "ai-council-basic": "AI Consulting Council",
     "ai-council-unlimited": "Unlimited AI Consultations",
@@ -183,6 +185,7 @@ function getFeatureTitle(feature: string): string {
     "funding-match": "Get Funding Matches",
     "business-plan-generator": "AI Business Plan Generator",
     "templates-premium": "Premium Templates Library",
+    "bulk-analysis": "Enterprise Bulk Analysis",
   };
   return titles[feature] || "Premium Feature";
 }
@@ -191,7 +194,9 @@ function getFeatureDescription(feature: string): string {
   const descriptions: Record<string, string> = {
     "cleanbi-full": "Get detailed breakdowns, AI recommendations, and export-ready reports for any location.",
     "cleanbi-unlimited": "Run unlimited location analyses without daily restrictions.",
+    "cleanbi-bulk": "Analyze hundreds of locations at once with enterprise-grade batch processing.",
     "calculators-all": "Access our complete suite of 80+ industry-specific calculators.",
+    "calculators-advanced": "Access advanced ROI and Valuation calculators with detailed projections.",
     "calculators-export": "Export your calculations as professional PDF reports.",
     "ai-council-basic": "Get insights from our panel of AI experts modeled on industry veterans.",
     "ai-council-unlimited": "Unlimited conversations with our AI consulting council.",
@@ -206,6 +211,7 @@ function getFeatureDescription(feature: string): string {
     "funding-match": "Get matched with lenders based on your profile.",
     "business-plan-generator": "Generate SBA-ready business plans with AI assistance.",
     "templates-premium": "Access professionally designed templates for every business need.",
+    "bulk-analysis": "Process up to 500 locations per batch with custom scoring, API access, and portfolio reports.",
   };
   return descriptions[feature] || "Upgrade to access this premium feature.";
 }

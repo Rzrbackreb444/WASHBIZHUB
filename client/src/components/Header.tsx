@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GlobalSearchTrigger } from "@/components/GlobalSearch";
+import { UsageIndicator } from "@/components/UsageIndicator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -205,6 +206,10 @@ export function Header() {
                         </span>
                       </div>
                       
+                      <div className="hidden sm:block">
+                        <UsageIndicator compact />
+                      </div>
+                      
                       <Button 
                         onClick={() => window.location.href = '/api/logout'}
                         variant="ghost"
@@ -362,6 +367,10 @@ export function Header() {
                       
                       {isAuthenticated && (
                         <>
+                          <div className="flex items-center justify-between px-4 py-2 mb-2 bg-muted/50 rounded-lg">
+                            <span className="text-sm text-card-foreground/70 dark:text-white/70 font-medium">CLEANBI Usage</span>
+                            <UsageIndicator />
+                          </div>
                           <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
                             <Button 
                               variant="ghost"
