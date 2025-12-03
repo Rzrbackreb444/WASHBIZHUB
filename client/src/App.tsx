@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTransition } from "@/components/PageTransition";
 import AdminBar from "@/components/AdminBar";
 import { TrialBanner } from "@/components/monetization";
+import { ExitIntentModal } from "@/components/ExitIntentModal";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -1472,6 +1473,7 @@ function App() {
               <TooltipProvider>
                 <AppContent />
                 <Toaster />
+                <ExitIntentModal />
               </TooltipProvider>
             </ThemeProvider>
           </TenantProvider>
