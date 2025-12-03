@@ -268,3 +268,126 @@ If you cannot read the display or find no error codes, return empty arrays/null 
     throw new Error("Failed to process image with Vision AI");
   }
 }
+
+/**
+ * Generate valuation narrative for CLEANBI Valuator
+ * Provides professional analysis and insights based on equipment, financials, and location data
+ */
+export async function generateValuationNarrative(input: {
+  totalAssetValue: number;
+  equipmentFMV: number;
+  propertyValue: number;
+  businessValue: number;
+  cleanbiGrade: 'A' | 'B' | 'C' | 'Needs Work';
+  cleanbiScore: number;
+  ebitdaMultiple: number;
+  ebitda: number;
+  equipmentDetails: {
+    totalMachines: number;
+    weightedAge: number;
+    dominantBrand: string;
+  };
+  locationFactors?: {
+    walkScore?: number;
+    transitScore?: number;
+    competitorCount?: number;
+    populationDensity?: number;
+  };
+}): Promise<{
+  executiveSummary: string;
+  strengthsAnalysis: string;
+  risksAnalysis: string;
+  recommendations: string[];
+  confidenceStatement: string;
+}> {
+  const prompt = `As a senior M&A advisor specializing in laundromat acquisitions, provide a professional valuation narrative.
+
+VALUATION DATA:
+- Total Asset Value: $${input.totalAssetValue.toLocaleString()}
+- Equipment Fair Market Value: $${input.equipmentFMV.toLocaleString()}
+- Property Value: $${input.propertyValue.toLocaleString()}
+- Business Value: $${input.businessValue.toLocaleString()}
+- CLEANBI Grade: ${input.cleanbiGrade} (Score: ${input.cleanbiScore}/100)
+- EBITDA Multiple Applied: ${input.ebitdaMultiple}x
+- Annual EBITDA: $${input.ebitda.toLocaleString()}
+
+EQUIPMENT PROFILE:
+- Total Machines: ${input.equipmentDetails.totalMachines}
+- Weighted Average Age: ${input.equipmentDetails.weightedAge.toFixed(1)} years
+- Dominant Brand: ${input.equipmentDetails.dominantBrand}
+
+${input.locationFactors ? `LOCATION FACTORS:
+- Walk Score: ${input.locationFactors.walkScore || 'N/A'}
+- Transit Score: ${input.locationFactors.transitScore || 'N/A'}
+- Nearby Competitors: ${input.locationFactors.competitorCount || 'N/A'}
+- Population Density: ${input.locationFactors.populationDensity ? input.locationFactors.populationDensity.toLocaleString() + '/sq mi' : 'N/A'}` : ''}
+
+Generate a professional valuation narrative with:
+1. Executive Summary (2-3 sentences covering the opportunity quality)
+2. Key Strengths Analysis (what drives value)
+3. Risk Factors (areas of concern)
+4. 3-4 Specific Recommendations for the buyer
+5. Confidence Statement about the valuation accuracy
+
+Return ONLY valid JSON in this exact format:
+{
+  "executiveSummary": "This Grade ${input.cleanbiGrade} laundromat...",
+  "strengthsAnalysis": "The key value drivers include...",
+  "risksAnalysis": "Notable risks include...",
+  "recommendations": ["Recommendation 1", "Recommendation 2", "Recommendation 3"],
+  "confidenceStatement": "This valuation has..."
+}
+
+Keep each section concise (2-3 sentences max). Be specific and data-driven.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/) || [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      return {
+        executiveSummary: parsed.executiveSummary || `This Grade ${input.cleanbiGrade} laundromat represents a ${input.cleanbiGrade === 'A' || input.cleanbiGrade === 'B' ? 'solid' : 'developing'} investment opportunity with a total asset value of $${input.totalAssetValue.toLocaleString()}.`,
+        strengthsAnalysis: parsed.strengthsAnalysis || "The equipment profile and financial metrics indicate operational stability.",
+        risksAnalysis: parsed.risksAnalysis || "Standard due diligence is recommended to verify all financial claims.",
+        recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [
+          "Verify P&L statements against bank deposits",
+          "Inspect equipment condition and maintenance records",
+          "Analyze competitor pricing in the market"
+        ],
+        confidenceStatement: parsed.confidenceStatement || `This valuation is based on the ${input.ebitdaMultiple}x EBITDA multiple typical for Grade ${input.cleanbiGrade} locations.`
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini valuation response:", parseError);
+      return {
+        executiveSummary: `This Grade ${input.cleanbiGrade} laundromat with ${input.equipmentDetails.totalMachines} machines represents a ${input.cleanbiGrade === 'A' ? 'premium' : input.cleanbiGrade === 'B' ? 'solid' : 'developing'} opportunity at $${input.totalAssetValue.toLocaleString()}.`,
+        strengthsAnalysis: `Key value drivers include the ${input.equipmentDetails.dominantBrand} equipment fleet and ${input.ebitdaMultiple}x EBITDA valuation.`,
+        risksAnalysis: `Equipment age of ${input.equipmentDetails.weightedAge.toFixed(1)} years should be factored into capital planning.`,
+        recommendations: [
+          "Verify financial statements with 3+ years of tax returns",
+          "Conduct thorough equipment inspection",
+          "Analyze local competition and market trends"
+        ],
+        confidenceStatement: `Valuation confidence is ${input.cleanbiGrade === 'A' || input.cleanbiGrade === 'B' ? 'high' : 'moderate'} based on provided data.`
+      };
+    }
+  } catch (error) {
+    console.error("Gemini valuation narrative error:", error);
+    return {
+      executiveSummary: `This Grade ${input.cleanbiGrade} location is valued at $${input.totalAssetValue.toLocaleString()} based on equipment, property, and business fundamentals.`,
+      strengthsAnalysis: "Equipment and financial metrics drive the valuation.",
+      risksAnalysis: "Standard due diligence recommended.",
+      recommendations: [
+        "Verify all financial claims",
+        "Inspect equipment condition",
+        "Analyze market competition"
+      ],
+      confidenceStatement: "Valuation based on provided data and industry multiples."
+    };
+  }
+}

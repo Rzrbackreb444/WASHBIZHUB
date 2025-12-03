@@ -548,6 +548,14 @@ function CleanBIExplorerContent() {
   }>({ addedMachines: [], removedMachineIds: [] });
   const [whatIfResult, setWhatIfResult] = useState<any | null>(null);
   const [isCalculatingWhatIf, setIsCalculatingWhatIf] = useState(false);
+  const [valuatorNarrative, setValuatorNarrative] = useState<{
+    executiveSummary: string;
+    strengthsAnalysis: string;
+    risksAnalysis: string;
+    recommendations: string[];
+    confidenceStatement: string;
+  } | null>(null);
+  const [isGeneratingNarrative, setIsGeneratingNarrative] = useState(false);
   
   // Auto-calculate deal verdict when financial values change
   useEffect(() => {
@@ -3277,6 +3285,132 @@ function CleanBIExplorerContent() {
                               >
                                 {valuatorResult.businessDetails.confidenceLevel.toUpperCase()}
                               </Badge>
+                            </div>
+
+                            {/* AI Valuation Insights Section */}
+                            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
+                              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                                <div className="flex items-center gap-2">
+                                  <Brain className="w-4 h-4 text-[#8B5CF6]" />
+                                  <span className="text-xs sm:text-sm font-semibold text-white">AI Insights</span>
+                                  <Badge className="text-[8px] sm:text-[9px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Gemini</Badge>
+                                </div>
+                                {!valuatorNarrative && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                                    onClick={async () => {
+                                      setIsGeneratingNarrative(true);
+                                      try {
+                                        const dominantBrand = valuatorEquipment.reduce((acc, item) => {
+                                          acc[item.brand] = (acc[item.brand] || 0) + item.quantity;
+                                          return acc;
+                                        }, {} as Record<string, number>);
+                                        const topBrand = Object.entries(dominantBrand).sort((a, b) => b[1] - a[1])[0]?.[0] || 'mixed';
+                                        
+                                        const response = await apiRequest('/api/cleanbi-explorer/valuator/narrative', {
+                                          method: 'POST',
+                                          body: JSON.stringify({
+                                            totalAssetValue: valuatorResult.totalAssetValue,
+                                            equipmentFMV: valuatorResult.equipmentFMV,
+                                            propertyValue: valuatorResult.propertyValue,
+                                            businessValue: valuatorResult.businessValue,
+                                            cleanbiGrade: analysisResult.grade,
+                                            cleanbiScore: analysisResult.cleanbiScore,
+                                            ebitdaMultiple: valuatorResult.businessDetails.ebitdaMultiple,
+                                            ebitda: valuatorResult.businessDetails.ebitda,
+                                            equipmentDetails: {
+                                              totalMachines: valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0),
+                                              weightedAge: valuatorResult.equipmentBreakdown.weightedAge,
+                                              dominantBrand: topBrand
+                                            },
+                                            locationFactors: {
+                                              walkScore: analysisResult.walkScore,
+                                              transitScore: analysisResult.transitScore,
+                                              competitorCount: analysisResult.competitorCount,
+                                              populationDensity: analysisResult.populationDensity
+                                            }
+                                          })
+                                        });
+                                        
+                                        if (response.success) {
+                                          setValuatorNarrative(response.narrative);
+                                          trackEvent("valuator_narrative_generated", "engagement");
+                                        }
+                                      } catch (error) {
+                                        console.error("Narrative error:", error);
+                                        toast({ title: "Error", description: "Could not generate AI insights", variant: "destructive" });
+                                      } finally {
+                                        setIsGeneratingNarrative(false);
+                                      }
+                                    }}
+                                    disabled={isGeneratingNarrative}
+                                    data-testid="button-generate-narrative"
+                                  >
+                                    {isGeneratingNarrative ? (
+                                      <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Analyzing...</>
+                                    ) : (
+                                      <><Sparkles className="w-3 h-3 mr-1" />Generate</>
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
+
+                              {/* Narrative Content */}
+                              {valuatorNarrative ? (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="space-y-2 sm:space-y-3"
+                                >
+                                  {/* Executive Summary */}
+                                  <div className="bg-[#8B5CF6]/10 rounded-lg p-2 sm:p-3 border border-[#8B5CF6]/20">
+                                    <div className="text-[10px] sm:text-xs text-[#8B5CF6] font-medium mb-1">Executive Summary</div>
+                                    <p className="text-[10px] sm:text-xs text-white/80 leading-relaxed">{valuatorNarrative.executiveSummary}</p>
+                                  </div>
+
+                                  {/* Strengths & Risks Grid */}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div className="bg-green-500/10 rounded-lg p-2 sm:p-3 border border-green-500/20">
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <ThumbsUp className="w-3 h-3 text-green-400" />
+                                        <span className="text-[10px] sm:text-xs text-green-400 font-medium">Strengths</span>
+                                      </div>
+                                      <p className="text-[9px] sm:text-[10px] text-white/70 leading-relaxed">{valuatorNarrative.strengthsAnalysis}</p>
+                                    </div>
+                                    <div className="bg-orange-500/10 rounded-lg p-2 sm:p-3 border border-orange-500/20">
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <AlertCircle className="w-3 h-3 text-orange-400" />
+                                        <span className="text-[10px] sm:text-xs text-orange-400 font-medium">Risks</span>
+                                      </div>
+                                      <p className="text-[9px] sm:text-[10px] text-white/70 leading-relaxed">{valuatorNarrative.risksAnalysis}</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Recommendations */}
+                                  <div className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10">
+                                    <div className="text-[10px] sm:text-xs text-white/50 font-medium mb-1.5">Recommendations</div>
+                                    <ul className="space-y-1">
+                                      {valuatorNarrative.recommendations.map((rec, idx) => (
+                                        <li key={idx} className="flex items-start gap-1.5 text-[9px] sm:text-[10px] text-white/70">
+                                          <Check className="w-3 h-3 text-[#8B5CF6] shrink-0 mt-0.5" />
+                                          <span>{rec}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  {/* Confidence Statement */}
+                                  <div className="text-center">
+                                    <p className="text-[9px] sm:text-[10px] text-white/40 italic">{valuatorNarrative.confidenceStatement}</p>
+                                  </div>
+                                </motion.div>
+                              ) : (
+                                <p className="text-[10px] sm:text-xs text-white/40 text-center py-3">
+                                  Click "Generate" to get AI-powered insights on this valuation
+                                </p>
+                              )}
                             </div>
 
                             {/* What-If Simulator Section - Mobile Optimized */}
