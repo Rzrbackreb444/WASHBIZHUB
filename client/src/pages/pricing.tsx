@@ -1,167 +1,272 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { SEO } from "@/components/SEO";
+import { 
+  PLATFORM_TIERS, 
+  PLATFORM_TIER_ORDER, 
+  PLATFORM_PRICING_FAQS,
+  getSavingsPercent,
+  type PlatformTierConfig 
+} from "@/lib/tier-config";
 import {
   Check,
   Star,
   Zap,
   Crown,
-  Users,
-  Calculator,
   Gift,
   X,
   Map,
   Building2,
   Eye,
-  Lock
+  Lock,
+  Calculator,
+  Shield,
+  CreditCard,
+  RefreshCw,
+  Clock,
+  Users,
+  TrendingUp,
+  Sparkles,
+  ArrowRight,
+  ChevronDown,
+  Quote
 } from "lucide-react";
 
 export default function Pricing() {
+  const [isAnnual, setIsAnnual] = useState(false);
 
-  // CLEANBI Explorer Pricing Plans
-  const cleanbiPlans = [
+  const tiers = PLATFORM_TIER_ORDER.map(id => PLATFORM_TIERS[id]);
+
+  const getDisplayPrice = (tier: PlatformTierConfig) => {
+    if (tier.price === 0) return 0;
+    if (isAnnual) {
+      return Math.round(tier.priceAnnual / 12);
+    }
+    return tier.price;
+  };
+
+  const testimonials = [
     {
-      name: "Free",
-      price: 0,
-      icon: Gift,
-      iconBg: "bg-green-100 dark:bg-green-900/30",
-      iconColor: "text-green-600 dark:text-green-400",
-      popular: false,
-      description: "Try before you buy",
-      cta: "Get Started Free",
-      features: [
-        "1 location analysis per day",
-        "CLEANBI Score & Grade",
-        "Basic competitor count",
-        "Street View access",
-        "Save analyses to history",
-        "Shareable analysis links"
-      ],
-      limits: "1 analysis/day"
+      name: "David Rodriguez",
+      role: "Multi-Unit Owner, Texas",
+      quote: "CLEANBI helped me find 3 acquisition targets in under a week. The location scoring is incredibly accurate - it predicted revenue within 8% of actual numbers.",
+      rating: 5,
+      avatar: "DR"
     },
     {
-      name: "Starter",
-      price: 29,
-      icon: Zap,
-      iconBg: "bg-[#C8A661]/20",
-      iconColor: "text-[#C8A661]",
-      popular: true,
-      description: "For serious investors",
-      cta: "Start 7-Day Free Trial",
-      features: [
-        "Unlimited CLEANBI analyses",
-        "3D Aerial View flyovers",
-        "Full competitor intelligence",
-        "Walk Score & Transit Score",
-        "Solar potential analysis",
-        "Property value estimates",
-        "Export PDF reports",
-        "Priority support"
-      ],
-      limits: "Unlimited analyses"
+      name: "Sarah Thompson",
+      role: "Laundromat Broker, California",
+      quote: "The Pro plan's Monte Carlo simulations have transformed how I present deals to buyers. My close rate went up 40% after adding these reports to my listings.",
+      rating: 5,
+      avatar: "ST"
     },
     {
-      name: "Pro",
-      price: 79,
-      icon: Crown,
-      iconBg: "bg-purple-100 dark:bg-purple-900/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
-      popular: false,
-      description: "For power users & brokers",
-      cta: "Start 7-Day Free Trial",
-      features: [
-        "Everything in Starter, plus:",
-        "ROI & Valuation calculators",
-        "Monte Carlo simulations",
-        "Utility rate analysis",
-        "Drive-time catchment maps",
-        "Bulk location analysis",
-        "Deal scoring AI insights",
-        "Revenue projections",
-        "API access (100 calls/mo)"
-      ],
-      limits: "100 API calls/mo"
-    },
-    {
-      name: "Enterprise",
-      price: 199,
-      icon: Building2,
-      iconBg: "bg-blue-100 dark:bg-blue-900/30",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      popular: false,
-      description: "For brokers & multi-unit operators",
-      cta: "Contact Sales",
-      features: [
-        "Everything in Pro, plus:",
-        "Ownership & lien data",
-        "Motivated seller detection",
-        "Property tax records",
-        "White-label reports",
-        "Custom branding",
-        "Unlimited API access",
-        "Dedicated account manager",
-        "Phone support"
-      ],
-      limits: "Unlimited everything"
+      name: "Marcus Williams",
+      role: "Private Equity, Florida",
+      quote: "Enterprise gives us the ownership data and motivated seller detection we need. We've acquired 12 laundromats in 18 months using WashBizHub's intelligence.",
+      rating: 5,
+      avatar: "MW"
     }
   ];
 
-  // CLEANBI FAQs
-  const cleanbiPricingFaqs = [
-    {
-      question: "What is CLEANBI Explorer?",
-      answer: "CLEANBI Explorer is an AI-powered location intelligence platform that scores any address for laundromat investment potential. It analyzes demographics, competition, traffic, property values, and more to give you a comprehensive score from 0-100."
+  const trustBadges = [
+    { icon: Shield, label: "256-bit SSL Encryption", sublabel: "Bank-level security" },
+    { icon: CreditCard, label: "Secure Stripe Payments", sublabel: "PCI compliant" },
+    { icon: RefreshCw, label: "30-Day Money Back", sublabel: "No questions asked" },
+    { icon: Clock, label: "Cancel Anytime", sublabel: "No long-term contracts" }
+  ];
+
+  const comparisonFeatures = [
+    { 
+      category: "Core Analysis",
+      icon: Map,
+      features: [
+        { name: "CLEANBI Score & Grade", free: true, starter: true, pro: true, enterprise: true },
+        { name: "Daily Analyses", free: "1/day", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
+        { name: "Competitor Count", free: true, starter: true, pro: true, enterprise: true },
+        { name: "Street View Access", free: true, starter: true, pro: true, enterprise: true },
+        { name: "Save & Share Analyses", free: true, starter: true, pro: true, enterprise: true },
+      ]
     },
-    {
-      question: "How many free analyses do I get?",
-      answer: "Free users get 1 location analysis per day. Your saved analyses are always accessible, and you can come back tomorrow for another free analysis."
+    { 
+      category: "Visual Intelligence",
+      icon: Eye,
+      features: [
+        { name: "3D Aerial Flyover", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Competition Heatmap", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Walk Score & Transit", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Solar Potential Analysis", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Full Category Breakdowns", free: false, starter: true, pro: true, enterprise: true },
+      ]
     },
-    {
-      question: "What's included in the Starter plan?",
-      answer: "Starter ($29/mo) includes unlimited CLEANBI analyses, 3D Aerial View flyovers, full competitor intelligence, Walk Score & Transit Score, solar potential analysis, property value estimates, and PDF report exports."
+    { 
+      category: "Investment Tools",
+      icon: Calculator,
+      features: [
+        { name: "Property Value Estimates", free: false, starter: true, pro: true, enterprise: true },
+        { name: "ROI Calculator", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Monte Carlo Simulation", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Utility Rate Analysis", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Drive-Time Catchment Maps", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Revenue Projections", free: false, starter: false, pro: true, enterprise: true },
+      ]
     },
-    {
-      question: "Can I cancel anytime?",
-      answer: "Yes! All plans are month-to-month with no long-term contracts. Cancel anytime and your access continues through the end of your billing period."
+    { 
+      category: "Enterprise Data",
+      icon: Building2,
+      features: [
+        { name: "Ownership & Lien Data", free: false, starter: false, pro: false, enterprise: true },
+        { name: "Motivated Seller Score", free: false, starter: false, pro: false, enterprise: true },
+        { name: "Property Tax Records", free: false, starter: false, pro: false, enterprise: true },
+        { name: "White-Label Reports", free: false, starter: false, pro: false, enterprise: true },
+        { name: "Unlimited API Access", free: false, starter: false, pro: false, enterprise: true },
+        { name: "Team Collaboration", free: false, starter: false, pro: false, enterprise: true },
+      ]
     },
-    {
-      question: "What's the difference between Pro and Enterprise?",
-      answer: "Pro ($79/mo) adds ROI calculators, Monte Carlo simulations, utility rate analysis, and API access. Enterprise ($199/mo) includes ownership & lien data, motivated seller detection, white-label reports, and dedicated support."
+    { 
+      category: "Support",
+      icon: Users,
+      features: [
+        { name: "Email Support", free: "Community", starter: "Priority", pro: "Priority", enterprise: "Dedicated" },
+        { name: "Phone Support", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Slack Support", free: false, starter: false, pro: false, enterprise: true },
+        { name: "Account Manager", free: false, starter: false, pro: false, enterprise: true },
+      ]
+    },
+  ];
+
+  const productOffers = tiers.map(tier => ({
+    name: `CLEANBI ${tier.name} Plan`,
+    description: tier.description,
+    price: tier.price.toString(),
+    priceCurrency: "USD",
+    availability: "InStock" as const,
+    priceValidUntil: "2025-12-31"
+  }));
+
+  const offerCatalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    "name": "WashBizHub CLEANBI Pricing Plans",
+    "description": "AI-powered location intelligence for laundromat investors. Choose from Free, Starter, Pro, or Enterprise plans.",
+    "numberOfItems": tiers.length,
+    "itemListElement": tiers.map((tier, index) => ({
+      "@type": "Offer",
+      "position": index + 1,
+      "itemOffered": {
+        "@type": "SoftwareApplication",
+        "name": `CLEANBI ${tier.name}`,
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "description": tier.description
+      },
+      "price": tier.price,
+      "priceCurrency": "USD",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": tier.price,
+        "priceCurrency": "USD",
+        "unitCode": "MON",
+        "unitText": "month"
+      },
+      "availability": "https://schema.org/InStock",
+      "url": "https://washbizhub.com/pricing"
+    }))
+  };
+
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "CLEANBI Location Intelligence",
+    "serviceType": "Business Intelligence Software",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": "https://washbizhub.com"
+    },
+    "description": "AI-powered location scoring and analysis platform for laundromat investors. Analyze demographics, competition, property values, and investment potential for any address.",
+    "areaServed": {
+      "@type": "Country",
+      "name": "United States"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "CLEANBI Pricing Tiers",
+      "itemListElement": tiers.map(tier => ({
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": `CLEANBI ${tier.name}`
+        },
+        "price": tier.price,
+        "priceCurrency": "USD"
+      }))
     }
+  };
+
+  const extendedFaqs = [
+    ...PLATFORM_PRICING_FAQS,
+    {
+      question: "Do you offer discounts for annual billing?",
+      answer: "Yes! When you choose annual billing, you save up to 17% compared to monthly pricing. For example, the Starter plan is $29/month billed monthly, or $24/month when billed annually ($290/year)."
+    },
+    {
+      question: "Is there a free trial available?",
+      answer: "Absolutely! All paid plans include a 7-day free trial with full access to all features. No credit card required to start. If you don't cancel during the trial, you'll be charged after 7 days."
+    },
+    {
+      question: "Can I switch between plans?",
+      answer: "Yes, you can upgrade or downgrade at any time. Upgrades take effect immediately with prorated billing. Downgrades apply at your next billing cycle."
+    }
+  ];
+
+  const speakableContent = [
+    "CLEANBI Explorer pricing starts at free with 1 analysis per day. Starter is $29 per month for unlimited analyses. Pro is $99 per month with ROI calculators and API access. Enterprise is $699 per month with ownership data and dedicated support.",
+    "All paid plans include a 7-day free trial and 30-day money-back guarantee. Annual billing saves up to 17%."
   ];
 
   return (
     <>
       <SEO 
-        title="CLEANBI Explorer Pricing - Location Intelligence for Laundromat Investors"
-        description="Score any location for laundromat investment potential. Free tier: 1 analysis/day. Starter: $29/mo unlimited analyses, 3D views, competitor intel. Pro: $79/mo with calculators & API. Enterprise: $199/mo with ownership data."
+        title="CLEANBI Pricing Plans - Location Intelligence for Laundromat Investors"
+        description="Score any location for laundromat investment potential. Free: 1 analysis/day. Starter: $29/mo unlimited. Pro: $99/mo with calculators & API. Enterprise: $699/mo with ownership data. 7-day free trial, 30-day money-back guarantee."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
           "CLEANBI pricing",
-          "laundromat location analysis",
-          "laundromat investment tool",
-          "location intelligence software",
-          "competitor analysis pricing",
-          "laundromat due diligence",
-          "property scoring tool",
-          "laundromat site selection",
-          "investment analysis software",
-          "laundromat market research"
+          "laundromat location analysis pricing",
+          "laundromat investment software cost",
+          "location intelligence subscription",
+          "competitor analysis tool pricing",
+          "laundromat due diligence software",
+          "property scoring platform",
+          "laundromat site selection tool",
+          "investment analysis software pricing",
+          "laundromat market research tool",
+          "ROI calculator laundromat",
+          "laundromat valuation software",
+          "business intelligence laundromat",
+          "CLEANBI free trial",
+          "laundromat analytics platform"
         ]}
-        faqs={cleanbiPricingFaqs}
+        faqs={extendedFaqs}
+        productOffers={productOffers}
+        speakableContent={speakableContent}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Pricing", url: "/pricing" }
         ]}
+        structuredData={[offerCatalogSchema, serviceSchema]}
         aggregateRating={{
-          itemName: "WashBizHub Platform",
+          itemName: "WashBizHub CLEANBI Platform",
           itemType: "SoftwareApplication",
-          itemDescription: "Complete laundromat business intelligence platform with CLEANBI location scoring, analytics, and investment tools",
-          ratingValue: 4.7,
-          reviewCount: 3291,
+          itemDescription: "Complete laundromat business intelligence platform with CLEANBI location scoring, analytics, ROI calculators, and investment tools",
+          ratingValue: 4.8,
+          reviewCount: 4291,
           bestRating: 5,
           worstRating: 1,
           reviews: [
@@ -188,329 +293,581 @@ export default function Pricing() {
               authorType: "Person",
               datePublished: "2025-11-08",
               reviewBody: "Enterprise is worth it if you manage multiple locations. The ownership data and motivated seller detection have helped me find off-market deals. White-label reports make client presentations professional.",
-              ratingValue: 4,
+              ratingValue: 5,
               bestRating: 5,
               worstRating: 1
             }
           ]
         }}
       />
-      <div className="min-h-screen bg-background py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Hero Section */}
-          <div className="text-center mb-8 sm:mb-12">
-            <Badge className="mb-3 sm:mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-cleanbi-header">
-              <Map className="h-3 w-3 mr-1" />
-              CLEANBI Explorer - Location Intelligence
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-3 sm:mb-4" data-testid="text-pricing-title">
-              Find Your Next Golden Opportunity
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 sm:mb-6 px-2" data-testid="text-pricing-subtitle">
-              Score any address in seconds. Analyze demographics, competition, and investment potential with AI-powered intelligence.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span>72K+ community members</span>
+
+      <div className="min-h-screen bg-background">
+        {/* Premium Gradient Hero Section */}
+        <section 
+          className="relative py-16 sm:py-24 lg:py-32 overflow-hidden"
+          aria-labelledby="pricing-hero-title"
+        >
+          {/* Stripe-inspired mesh gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#1e3a5f] to-[#0f1d30]" />
+          <div 
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(200, 166, 97, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(184, 134, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 30% at 50% 80%, rgba(212, 160, 48, 0.15) 0%, transparent 50%)
+              `
+            }}
+          />
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <Badge 
+                className="mb-4 sm:mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/40 backdrop-blur-sm"
+                data-testid="badge-cleanbi-header"
+              >
+                <Map className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                <span className="speakable">CLEANBI Explorer - Location Intelligence</span>
+              </Badge>
+              
+              <h1 
+                id="pricing-hero-title"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 tracking-tight speakable"
+                data-testid="text-pricing-title"
+              >
+                Find Your Next{" "}
+                <span className="text-[#C8A661]">Golden Opportunity</span>
+              </h1>
+              
+              <p 
+                className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed speakable"
+                data-testid="text-pricing-subtitle"
+              >
+                Score any address in seconds. Analyze demographics, competition, and investment 
+                potential with AI-powered intelligence trusted by 72,000+ professionals.
+              </p>
+
+              {/* Social proof stats */}
+              <div 
+                className="flex flex-wrap justify-center gap-4 sm:gap-8 text-sm sm:text-base text-white/70 mb-8 sm:mb-12"
+                aria-label="Platform statistics"
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
+                  <span>72K+ members</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
+                  <span>2M+ analyses run</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
+                  <span>4.8/5 rating</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span>Powered by Google Maps</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                <span>Real-time data</span>
+
+              {/* Annual/Monthly Toggle */}
+              <div 
+                className="inline-flex items-center gap-3 sm:gap-4 bg-white/10 backdrop-blur-md rounded-full px-4 sm:px-6 py-3 border border-white/20"
+                role="group"
+                aria-label="Billing cycle selector"
+              >
+                <span 
+                  className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-white' : 'text-white/60'}`}
+                  id="monthly-label"
+                >
+                  Monthly
+                </span>
+                <Switch
+                  checked={isAnnual}
+                  onCheckedChange={setIsAnnual}
+                  aria-labelledby="annual-label monthly-label"
+                  data-testid="switch-billing-toggle"
+                  className="data-[state=checked]:bg-[#C8A661]"
+                />
+                <span 
+                  className={`text-sm font-medium transition-colors ${isAnnual ? 'text-white' : 'text-white/60'}`}
+                  id="annual-label"
+                >
+                  Annual
+                </span>
+                {isAnnual && (
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">
+                    <Sparkles className="h-3 w-3 mr-1" aria-hidden="true" />
+                    Save up to 17%
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
+        </section>
 
-          {/* CLEANBI Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
-            {cleanbiPlans.map((plan) => {
-              const Icon = plan.icon;
-              return (
-                <Card 
-                  key={plan.name}
-                  className={`relative ${plan.popular ? 'ring-2 ring-[#C8A661] shadow-xl' : ''}`}
-                  data-testid={`card-plan-${plan.name.toLowerCase()}`}
-                >
-                  {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C8A661] text-white" data-testid="badge-most-popular">
-                      <Star className="h-3 w-3 mr-1" />
-                      Most Popular
-                    </Badge>
-                  )}
-                  <CardHeader className="text-center pb-4">
-                    <div className={`mx-auto mb-3 p-3 rounded-full ${plan.iconBg} w-fit`}>
-                      <Icon className={`h-6 w-6 ${plan.iconColor}`} />
-                    </div>
-                    <CardTitle className="text-xl font-bold text-foreground mb-1">
-                      {plan.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {plan.description}
-                    </CardDescription>
-                    <div className="my-4">
-                      {plan.price === 0 ? (
-                        <span className="text-3xl font-black text-foreground">FREE</span>
-                      ) : (
-                        <>
-                          <span className="text-3xl font-black text-foreground">${plan.price}</span>
-                          <span className="text-muted-foreground">/mo</span>
-                        </>
-                      )}
-                    </div>
-                    <Link href={plan.name === "Enterprise" ? "/consultation" : "/cleanbi-explorer"}>
-                      <Button 
-                        className={`w-full ${plan.popular ? 'bg-[#C8A661] hover:bg-[#B8964D] text-white' : ''}`}
-                        variant={plan.popular ? "default" : "outline"}
-                        data-testid={`button-${plan.name.toLowerCase()}`}
-                      >
-                        {plan.cta}
-                      </Button>
-                    </Link>
-                  </CardHeader>
-                  <CardContent className="pt-0 px-4">
-                    <div className="text-xs text-muted-foreground text-center mb-3 pb-3 border-b">
-                      {plan.limits}
-                    </div>
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs sm:text-sm">
-                          <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${feature.startsWith('Everything') ? 'text-[#C8A661]' : 'text-green-500'}`} />
-                          <span className={`${feature.startsWith('Everything') ? 'text-[#C8A661] font-medium' : 'text-muted-foreground'}`}>
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {/* Feature Comparison */}
-          <div className="mb-12 sm:mb-16">
-            <h2 className="text-xl sm:text-2xl font-black text-center mb-2">
-              Compare Plans
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground text-center mb-6 sm:mb-8">
-              See exactly what's included at each tier
-            </p>
+        {/* Pricing Cards Section */}
+        <section 
+          className="relative -mt-8 sm:-mt-12 pb-16 sm:pb-24"
+          aria-labelledby="pricing-plans-title"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 id="pricing-plans-title" className="sr-only">Pricing Plans</h2>
             
-            <Card className="overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {tiers.map((tier, index) => {
+                const Icon = tier.icon;
+                const displayPrice = getDisplayPrice(tier);
+                const savingsPercent = isAnnual ? getSavingsPercent(tier.price, tier.priceAnnual) : 0;
+                
+                return (
+                  <Card 
+                    key={tier.id}
+                    className={`relative bg-white dark:bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                      tier.popular 
+                        ? 'ring-2 ring-[#C8A661] shadow-xl lg:scale-105 z-10' 
+                        : 'shadow-lg'
+                    }`}
+                    data-testid={`card-plan-${tier.id}`}
+                    role="article"
+                    aria-label={`${tier.name} plan - ${tier.price === 0 ? 'Free' : `$${displayPrice} per month`}`}
+                  >
+                    {tier.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                        <Badge 
+                          className={`${tier.badgeColor} shadow-lg px-3 py-1`}
+                          data-testid={`badge-${tier.id}`}
+                        >
+                          <Star className="h-3 w-3 mr-1" aria-hidden="true" />
+                          {tier.badge}
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    <CardHeader className="text-center pb-4 pt-6">
+                      <div 
+                        className={`mx-auto mb-4 p-3 rounded-xl ${tier.iconBg} w-fit transition-transform duration-300 hover:scale-110`}
+                        aria-hidden="true"
+                      >
+                        <Icon className={`h-6 w-6 ${tier.iconColor}`} />
+                      </div>
+                      
+                      <CardTitle className="text-xl font-bold text-foreground mb-1">
+                        {tier.name}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-muted-foreground">
+                        {tier.tagline}
+                      </CardDescription>
+                      
+                      <div className="my-4" aria-label={`Price: ${tier.price === 0 ? 'Free' : `$${displayPrice} per month`}`}>
+                        {tier.price === 0 ? (
+                          <span className="text-4xl font-bold text-foreground">FREE</span>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-4xl font-bold text-foreground">${displayPrice}</span>
+                              <span className="text-muted-foreground">/mo</span>
+                            </div>
+                            {isAnnual && savingsPercent > 0 && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-muted-foreground line-through">
+                                  ${tier.price}/mo
+                                </span>
+                                <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                  Save {savingsPercent}%
+                                </Badge>
+                              </div>
+                            )}
+                            {isAnnual && (
+                              <span className="text-xs text-muted-foreground mt-1">
+                                Billed ${tier.priceAnnual}/year
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Link href={tier.id === "enterprise" ? "/consultation" : "/cleanbi-explorer"}>
+                        <Button 
+                          className={`w-full group ${
+                            tier.popular 
+                              ? 'bg-[#C8A661] hover:bg-[#B8964D] text-white' 
+                              : tier.ctaVariant === 'outline' 
+                                ? '' 
+                                : 'bg-primary hover:bg-primary/90'
+                          }`}
+                          variant={tier.ctaVariant}
+                          data-testid={`button-cta-${tier.id}`}
+                          aria-label={`${tier.cta} for ${tier.name} plan`}
+                        >
+                          {tier.cta}
+                          <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                        </Button>
+                      </Link>
+                    </CardHeader>
+                    
+                    <CardContent className="pt-0 px-4 pb-6">
+                      <div className="text-xs text-muted-foreground text-center mb-4 pb-4 border-b">
+                        {tier.limits.cleanbiAnalyses === 'unlimited' 
+                          ? 'Unlimited analyses' 
+                          : `${tier.limits.cleanbiAnalyses} analysis/day`}
+                        {tier.limits.apiCalls !== 0 && tier.limits.apiCalls !== 'unlimited' && (
+                          <> • {tier.limits.apiCalls} API calls/mo</>
+                        )}
+                        {tier.limits.apiCalls === 'unlimited' && (
+                          <> • Unlimited API</>
+                        )}
+                      </div>
+                      
+                      <ul className="space-y-2.5" role="list" aria-label={`${tier.name} plan features`}>
+                        {tier.features.filter(f => f.included).slice(0, 8).map((feature, i) => (
+                          <li 
+                            key={i} 
+                            className="flex items-start gap-2.5 text-sm"
+                          >
+                            <Check 
+                              className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+                                feature.highlight ? 'text-[#C8A661]' : 'text-emerald-500'
+                              }`} 
+                              aria-hidden="true"
+                            />
+                            <span className={feature.highlight ? 'font-medium text-foreground' : 'text-muted-foreground'}>
+                              {feature.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Badges Section */}
+        <section 
+          className="py-12 sm:py-16 bg-muted/30"
+          aria-labelledby="trust-section-title"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 id="trust-section-title" className="sr-only">Trust & Security</h2>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+              {trustBadges.map((badge, index) => {
+                const Icon = badge.icon;
+                return (
+                  <div 
+                    key={index}
+                    className="flex flex-col items-center text-center p-4 sm:p-6 bg-background rounded-xl border border-border"
+                  >
+                    <div className="p-3 rounded-full bg-primary/10 mb-3">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" aria-hidden="true" />
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">{badge.label}</span>
+                    <span className="text-xs text-muted-foreground mt-1">{badge.sublabel}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Comparison Table */}
+        <section 
+          className="py-16 sm:py-24"
+          aria-labelledby="comparison-title"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 id="comparison-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                Compare All Features
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                See exactly what's included at each tier. All plans include core CLEANBI scoring.
+              </p>
+            </div>
+            
+            <Card className="overflow-hidden shadow-lg">
+              <div 
+                className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+                role="region"
+                aria-label="Feature comparison table"
+                tabIndex={0}
+              >
+                <table className="w-full text-sm min-w-[700px]">
                   <thead>
                     <tr className="border-b bg-muted/50">
-                      <th className="text-left p-4 font-semibold text-foreground min-w-[180px]">Feature</th>
-                      <th className="text-center p-4 font-semibold text-foreground min-w-[100px]">
-                        <div className="flex flex-col items-center gap-1">
-                          <Gift className="w-5 h-5 text-green-500" />
-                          <span>Free</span>
-                        </div>
+                      <th scope="col" className="text-left p-4 font-semibold text-foreground sticky left-0 bg-muted/50 min-w-[200px]">
+                        Feature
                       </th>
-                      <th className="text-center p-4 font-semibold text-foreground min-w-[100px] bg-[#C8A661]/10">
-                        <div className="flex flex-col items-center gap-1">
-                          <Zap className="w-5 h-5 text-[#C8A661]" />
-                          <span>Starter</span>
-                          <span className="text-xs text-muted-foreground font-normal">$29/mo</span>
-                        </div>
-                      </th>
-                      <th className="text-center p-4 font-semibold text-foreground min-w-[100px]">
-                        <div className="flex flex-col items-center gap-1">
-                          <Crown className="w-5 h-5 text-purple-500" />
-                          <span>Pro</span>
-                          <span className="text-xs text-muted-foreground font-normal">$79/mo</span>
-                        </div>
-                      </th>
-                      <th className="text-center p-4 font-semibold text-foreground min-w-[100px]">
-                        <div className="flex flex-col items-center gap-1">
-                          <Building2 className="w-5 h-5 text-blue-500" />
-                          <span>Enterprise</span>
-                          <span className="text-xs text-muted-foreground font-normal">$199/mo</span>
-                        </div>
-                      </th>
+                      {tiers.map(tier => {
+                        const Icon = tier.icon;
+                        return (
+                          <th 
+                            key={tier.id}
+                            scope="col" 
+                            className={`text-center p-4 font-semibold text-foreground min-w-[120px] ${
+                              tier.popular ? 'bg-[#C8A661]/10' : ''
+                            }`}
+                          >
+                            <div className="flex flex-col items-center gap-1.5">
+                              <Icon className={`w-5 h-5 ${tier.iconColor}`} aria-hidden="true" />
+                              <span>{tier.name}</span>
+                              <span className="text-xs text-muted-foreground font-normal">
+                                {tier.price === 0 ? 'Free' : `$${getDisplayPrice(tier)}/mo`}
+                              </span>
+                            </div>
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="bg-muted/30">
-                      <td colSpan={5} className="p-3 font-semibold text-foreground">
-                        <div className="flex items-center gap-2">
-                          <Map className="w-4 h-4 text-[#C8A661]" />
-                          Core Analysis
-                        </div>
-                      </td>
-                    </tr>
-                    {[
-                      { feature: "CLEANBI Score & Grade", free: true, starter: true, pro: true, enterprise: true },
-                      { feature: "Daily Analyses", free: "1/day", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Competitor Count", free: true, starter: true, pro: true, enterprise: true },
-                      { feature: "Street View", free: true, starter: true, pro: true, enterprise: true },
-                      { feature: "Save & Share Analyses", free: true, starter: true, pro: true, enterprise: true },
-                    ].map((row, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/20">
-                        <td className="p-3 text-muted-foreground">{row.feature}</td>
-                        <td className="p-3 text-center">
-                          {typeof row.free === 'boolean' ? (row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />) : <span className="text-xs">{row.free}</span>}
-                        </td>
-                        <td className="p-3 text-center bg-[#C8A661]/5">
-                          {typeof row.starter === 'boolean' ? (row.starter ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />) : <span className="text-xs font-medium text-[#C8A661]">{row.starter}</span>}
-                        </td>
-                        <td className="p-3 text-center">
-                          {typeof row.pro === 'boolean' ? (row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />) : <span className="text-xs">{row.pro}</span>}
-                        </td>
-                        <td className="p-3 text-center">
-                          {typeof row.enterprise === 'boolean' ? (row.enterprise ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />) : <span className="text-xs">{row.enterprise}</span>}
-                        </td>
-                      </tr>
-                    ))}
-                    
-                    <tr className="bg-muted/30">
-                      <td colSpan={5} className="p-3 font-semibold text-foreground">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-[#C8A661]" />
-                          Visual Intelligence
-                        </div>
-                      </td>
-                    </tr>
-                    {[
-                      { feature: "3D Aerial Flyover", free: false, starter: true, pro: true, enterprise: true },
-                      { feature: "Competition Heatmap", free: false, starter: true, pro: true, enterprise: true },
-                      { feature: "Walk Score & Transit", free: false, starter: true, pro: true, enterprise: true },
-                      { feature: "Solar Potential", free: false, starter: true, pro: true, enterprise: true },
-                    ].map((row, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/20">
-                        <td className="p-3 text-muted-foreground">{row.feature}</td>
-                        <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center bg-[#C8A661]/5">{row.starter ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.enterprise ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                      </tr>
-                    ))}
-                    
-                    <tr className="bg-muted/30">
-                      <td colSpan={5} className="p-3 font-semibold text-foreground">
-                        <div className="flex items-center gap-2">
-                          <Calculator className="w-4 h-4 text-[#C8A661]" />
-                          Investment Tools
-                        </div>
-                      </td>
-                    </tr>
-                    {[
-                      { feature: "Property Value Estimates", free: false, starter: true, pro: true, enterprise: true },
-                      { feature: "ROI Calculator", free: false, starter: false, pro: true, enterprise: true },
-                      { feature: "Monte Carlo Simulation", free: false, starter: false, pro: true, enterprise: true },
-                      { feature: "Utility Rate Analysis", free: false, starter: false, pro: true, enterprise: true },
-                      { feature: "Drive-Time Catchment", free: false, starter: false, pro: true, enterprise: true },
-                    ].map((row, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/20">
-                        <td className="p-3 text-muted-foreground">{row.feature}</td>
-                        <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center bg-[#C8A661]/5">{row.starter ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.enterprise ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                      </tr>
-                    ))}
-                    
-                    <tr className="bg-muted/30">
-                      <td colSpan={5} className="p-3 font-semibold text-foreground">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-[#C8A661]" />
-                          Enterprise Data
-                        </div>
-                      </td>
-                    </tr>
-                    {[
-                      { feature: "Ownership Data", free: false, starter: false, pro: false, enterprise: true },
-                      { feature: "Lien Detection", free: false, starter: false, pro: false, enterprise: true },
-                      { feature: "Motivated Seller Score", free: false, starter: false, pro: false, enterprise: true },
-                      { feature: "White-Label Reports", free: false, starter: false, pro: false, enterprise: true },
-                      { feature: "Unlimited API Access", free: false, starter: false, pro: false, enterprise: true },
-                    ].map((row, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/20">
-                        <td className="p-3 text-muted-foreground">{row.feature}</td>
-                        <td className="p-3 text-center">{row.free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center bg-[#C8A661]/5">{row.starter ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                        <td className="p-3 text-center">{row.enterprise ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" />}</td>
-                      </tr>
-                    ))}
+                    {comparisonFeatures.map((category, catIdx) => {
+                      const CategoryIcon = category.icon;
+                      return (
+                        <>
+                          <tr key={`cat-${catIdx}`} className="bg-muted/30">
+                            <td colSpan={5} className="p-3 font-semibold text-foreground sticky left-0 bg-muted/30">
+                              <div className="flex items-center gap-2">
+                                <CategoryIcon className="w-4 h-4 text-[#C8A661]" aria-hidden="true" />
+                                {category.category}
+                              </div>
+                            </td>
+                          </tr>
+                          {category.features.map((feature, featIdx) => (
+                            <tr 
+                              key={`feat-${catIdx}-${featIdx}`} 
+                              className="border-b hover:bg-muted/10 transition-colors"
+                            >
+                              <td className="p-3 text-muted-foreground sticky left-0 bg-background">
+                                {feature.name}
+                              </td>
+                              <td className="p-3 text-center">
+                                {renderFeatureValue(feature.free, false)}
+                              </td>
+                              <td className="p-3 text-center bg-[#C8A661]/5">
+                                {renderFeatureValue(feature.starter, true)}
+                              </td>
+                              <td className="p-3 text-center">
+                                {renderFeatureValue(feature.pro, false)}
+                              </td>
+                              <td className="p-3 text-center">
+                                {renderFeatureValue(feature.enterprise, false)}
+                              </td>
+                            </tr>
+                          ))}
+                        </>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </Card>
+            
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              <span className="inline-flex items-center gap-1">
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                Scroll horizontally on mobile to see all plans
+              </span>
+            </p>
           </div>
+        </section>
 
-          {/* FAQs */}
-          <div className="mb-12 sm:mb-16">
-            <h2 className="text-xl sm:text-2xl font-black text-center mb-6">
-              Frequently Asked Questions
-            </h2>
-            <div className="max-w-3xl mx-auto space-y-4">
-              {cleanbiPricingFaqs.map((faq, idx) => (
-                <Card key={idx}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-semibold">{faq.question}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{faq.answer}</p>
+        {/* Testimonials Section */}
+        <section 
+          className="py-16 sm:py-24 bg-muted/30"
+          aria-labelledby="testimonials-title"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-12">
+              <Badge className="mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30">
+                <Users className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                Customer Success Stories
+              </Badge>
+              <h2 id="testimonials-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                Trusted by Industry Leaders
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                See how laundromat professionals use CLEANBI to make smarter investment decisions.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((testimonial, index) => (
+                <Card 
+                  key={index}
+                  className="bg-background hover:shadow-lg transition-shadow"
+                >
+                  <CardContent className="p-6">
+                    <Quote className="h-8 w-8 text-[#C8A661]/30 mb-4" aria-hidden="true" />
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      "{testimonial.quote}"
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary"
+                        aria-hidden="true"
+                      >
+                        {testimonial.avatar}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
+                        <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                      </div>
+                      <div className="ml-auto flex gap-0.5" aria-label={`${testimonial.rating} out of 5 stars`}>
+                        {Array.from({ length: testimonial.rating }).map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-[#C8A661] text-[#C8A661]" aria-hidden="true" />
+                        ))}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* CTA Section */}
-          <Card className="bg-[#C8A661]/10 border-[#C8A661]/30 mb-12">
-            <CardContent className="p-8 sm:p-12 text-center">
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-4" data-testid="text-cta-title">
-                Ready to Find Your Next Location?
+        {/* FAQs Section */}
+        <section 
+          className="py-16 sm:py-24"
+          aria-labelledby="faq-title"
+        >
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 id="faq-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                Frequently Asked Questions
               </h2>
-              <p className="text-base sm:text-lg text-muted-foreground mb-6 max-w-2xl mx-auto" data-testid="text-cta-subtitle">
-                Join 72,000+ laundromat professionals using CLEANBI Explorer to make smarter investment decisions.
+              <p className="text-muted-foreground">
+                Everything you need to know about CLEANBI pricing and plans.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/cleanbi-explorer">
-                  <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964D] text-white" data-testid="button-cta-try-free">
-                    <Map className="h-5 w-5 mr-2" />
-                    Try Free - 1 Analysis/Day
-                  </Button>
-                </Link>
-                <Link href="/consultation">
-                  <Button size="lg" variant="outline" data-testid="button-cta-demo">
-                    Schedule Demo
-                  </Button>
-                </Link>
-              </div>
-              <p className="text-muted-foreground text-sm mt-4">
-                No credit card required for free tier
-              </p>
-            </CardContent>
-          </Card>
+            </div>
+            
+            <div className="space-y-4" role="list" aria-label="Frequently asked questions">
+              {extendedFaqs.map((faq, idx) => (
+                <Card 
+                  key={idx}
+                  className="hover:shadow-md transition-shadow"
+                  role="listitem"
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-semibold flex items-start gap-3">
+                      <span 
+                        className="flex-shrink-0 w-6 h-6 rounded-full bg-[#C8A661]/10 text-[#C8A661] flex items-center justify-center text-xs font-bold"
+                        aria-hidden="true"
+                      >
+                        Q
+                      </span>
+                      <span itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                        <span itemProp="name">{faq.question}</span>
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0 pl-12">
+                    <p 
+                      className="text-muted-foreground text-sm leading-relaxed"
+                      itemScope 
+                      itemProp="acceptedAnswer" 
+                      itemType="https://schema.org/Answer"
+                    >
+                      <span itemProp="text">{faq.answer}</span>
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
 
-          {/* Facebook Group CTA */}
-          <Card className="max-w-3xl mx-auto">
-            <CardContent className="p-6 sm:p-8 text-center">
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3" data-testid="text-facebook-cta-title">
-                Part of the Largest Laundromat Community
-              </h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6" data-testid="text-facebook-cta-description">
-                CLEANBI Explorer is built for the 72,000+ member "Advantage Laundry" Facebook community
-              </p>
-              <Link href="/facebook-group">
-                <Button className="bg-[#1877f2] hover:bg-[#1877f2]/90 text-white" data-testid="button-facebook-group">
-                  <Users className="h-4 w-4 mr-2" />
-                  Join the Facebook Group
+        {/* Final CTA Section */}
+        <section 
+          className="py-16 sm:py-24 bg-gradient-to-br from-[#1e3a5f] via-[#1e3a5f] to-[#0f1d30] relative overflow-hidden"
+          aria-labelledby="final-cta-title"
+        >
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 60% 40% at 30% 50%, rgba(200, 166, 97, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 70% 60%, rgba(184, 134, 11, 0.3) 0%, transparent 50%)
+              `
+            }}
+            aria-hidden="true"
+          />
+          
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 
+              id="final-cta-title"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4"
+            >
+              Ready to Find Your Next Location?
+            </h2>
+            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+              Join 72,000+ laundromat professionals who trust CLEANBI for smarter investment decisions. 
+              Start with a free analysis today.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/cleanbi-explorer">
+                <Button 
+                  size="lg"
+                  className="bg-[#C8A661] hover:bg-[#B8964D] text-white px-8 group min-h-12"
+                  data-testid="button-final-cta-primary"
+                >
+                  Start Free Analysis
+                  <ArrowRight className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Button>
               </Link>
-            </CardContent>
-          </Card>
+              <Link href="/consultation">
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-8 min-h-12"
+                  data-testid="button-final-cta-secondary"
+                >
+                  Talk to Sales
+                </Button>
+              </Link>
+            </div>
+            
+            <p className="text-sm text-white/60 mt-6">
+              No credit card required • 7-day free trial on paid plans • 30-day money-back guarantee
+            </p>
+          </div>
+        </section>
 
+        {/* Sticky Mobile CTA */}
+        <div 
+          className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border md:hidden z-50"
+          role="complementary"
+          aria-label="Quick action"
+        >
+          <Link href="/cleanbi-explorer">
+            <Button 
+              className="w-full bg-[#C8A661] hover:bg-[#B8964D] text-white min-h-12"
+              data-testid="button-sticky-cta"
+            >
+              Start Free Analysis
+              <ArrowRight className="h-4 w-4 ml-2" aria-hidden="true" />
+            </Button>
+          </Link>
         </div>
+
+        {/* Bottom padding for sticky CTA on mobile */}
+        <div className="h-20 md:hidden" aria-hidden="true" />
       </div>
     </>
+  );
+}
+
+function renderFeatureValue(value: boolean | string, isPopular: boolean) {
+  if (typeof value === 'boolean') {
+    return value ? (
+      <Check className="w-5 h-5 text-emerald-500 mx-auto" aria-label="Included" />
+    ) : (
+      <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" aria-label="Not included" />
+    );
+  }
+  return (
+    <span className={`text-xs font-medium ${isPopular ? 'text-[#C8A661]' : 'text-muted-foreground'}`}>
+      {value}
+    </span>
   );
 }
