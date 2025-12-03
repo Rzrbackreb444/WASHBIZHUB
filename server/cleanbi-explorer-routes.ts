@@ -2695,61 +2695,80 @@ router.get("/valuator/depreciation-curves", async (req: Request, res: Response) 
  * Generate AI-powered valuation narrative using Gemini
  * Requires Pro tier
  */
+const narrativeInputSchema = z.object({
+  totalAssetValue: z.number().positive(),
+  equipmentFMV: z.number().positive(),
+  propertyValue: z.number().optional().default(0),
+  businessValue: z.number().optional().default(0),
+  cleanbiGrade: z.enum(['A', 'B', 'C', 'Needs Work']),
+  cleanbiScore: z.number().min(0).max(100).optional().default(75),
+  ebitdaMultiple: z.number().positive().optional().default(3.0),
+  ebitda: z.number().optional().default(0),
+  equipmentDetails: z.object({
+    totalMachines: z.number().optional().default(0),
+    weightedAge: z.number().optional().default(0),
+    dominantBrand: z.string().optional().default('mixed')
+  }).optional(),
+  locationFactors: z.object({
+    walkScore: z.number().optional(),
+    transitScore: z.number().optional(),
+    competitorCount: z.number().optional(),
+    populationDensity: z.number().optional()
+  }).optional()
+});
+
 router.post("/valuator/narrative", async (req: Request, res: Response) => {
   try {
     const { generateValuationNarrative } = await import("./gemini");
     const { BRAND_DISPLAY_NAMES } = await import("./cleanbi-valuator-service");
+    const { canAccessFeature } = await import("./feature-access");
     
+    // Tier enforcement - Pro tier or higher required
     const user = req.user;
-    if (!user?.isPro) {
+    const hasAccess = user?.isPro || user?.isEnterprise || 
+      (user?.email && ['nick@washbizhub.com', 'thelaundromatfb@gmail.com', 'rzrbackreb444@gmail.com'].includes(user.email));
+    
+    if (!hasAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Pro tier required',
-        tier: user?.tier || 'free'
+        error: 'Pro tier required for AI insights',
+        tier: user?.tier || 'free',
+        upgradeRequired: true
       });
     }
     
-    const { 
-      totalAssetValue,
-      equipmentFMV,
-      propertyValue,
-      businessValue,
-      cleanbiGrade,
-      cleanbiScore,
-      ebitdaMultiple,
-      ebitda,
-      equipmentDetails,
-      locationFactors
-    } = req.body;
-    
-    // Validate required fields
-    if (!totalAssetValue || !equipmentFMV || !cleanbiGrade) {
+    // Validate input with Zod
+    const parseResult = narrativeInputSchema.safeParse(req.body);
+    if (!parseResult.success) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required valuation data'
+        error: 'Invalid valuation data',
+        details: parseResult.error.flatten()
       });
     }
     
+    const input = parseResult.data;
+    
     // Get dominant brand display name
-    const dominantBrand = equipmentDetails?.dominantBrand 
-      ? (BRAND_DISPLAY_NAMES[equipmentDetails.dominantBrand as keyof typeof BRAND_DISPLAY_NAMES] || equipmentDetails.dominantBrand)
+    const dominantBrand = input.equipmentDetails?.dominantBrand 
+      ? (BRAND_DISPLAY_NAMES[input.equipmentDetails.dominantBrand as keyof typeof BRAND_DISPLAY_NAMES] || input.equipmentDetails.dominantBrand)
       : 'Mixed';
     
     const narrative = await generateValuationNarrative({
-      totalAssetValue,
-      equipmentFMV,
-      propertyValue: propertyValue || 0,
-      businessValue: businessValue || 0,
-      cleanbiGrade,
-      cleanbiScore: cleanbiScore || 75,
-      ebitdaMultiple: ebitdaMultiple || 3.0,
-      ebitda: ebitda || 0,
+      totalAssetValue: input.totalAssetValue,
+      equipmentFMV: input.equipmentFMV,
+      propertyValue: input.propertyValue || 0,
+      businessValue: input.businessValue || 0,
+      cleanbiGrade: input.cleanbiGrade,
+      cleanbiScore: input.cleanbiScore || 75,
+      ebitdaMultiple: input.ebitdaMultiple || 3.0,
+      ebitda: input.ebitda || 0,
       equipmentDetails: {
-        totalMachines: equipmentDetails?.totalMachines || 0,
-        weightedAge: equipmentDetails?.weightedAge || 0,
+        totalMachines: input.equipmentDetails?.totalMachines || 0,
+        weightedAge: input.equipmentDetails?.weightedAge || 0,
         dominantBrand
       },
-      locationFactors
+      locationFactors: input.locationFactors
     });
     
     return res.json({
@@ -2759,10 +2778,18 @@ router.post("/valuator/narrative", async (req: Request, res: Response) => {
     
   } catch (error: any) {
     console.error('❌ Narrative generation error:', error);
+    // Return a graceful fallback on error
     return res.status(500).json({
       success: false,
       error: 'Failed to generate narrative',
-      message: error.message
+      message: 'AI narrative generation temporarily unavailable',
+      fallback: {
+        executiveSummary: 'Valuation analysis temporarily unavailable. Please try again.',
+        strengthsAnalysis: 'Unable to generate strengths analysis at this time.',
+        risksAnalysis: 'Unable to generate risk analysis at this time.',
+        recommendations: ['Contact support if this issue persists'],
+        confidenceStatement: 'Narrative generation encountered an error.'
+      }
     });
   }
 });
