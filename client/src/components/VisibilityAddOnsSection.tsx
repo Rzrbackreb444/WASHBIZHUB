@@ -185,6 +185,7 @@ export function VisibilityAddOnsSection() {
     <section 
       className="py-16 sm:py-24 bg-muted/30" 
       aria-labelledby="visibility-addons-title"
+      data-testid="section-visibility-addons"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
