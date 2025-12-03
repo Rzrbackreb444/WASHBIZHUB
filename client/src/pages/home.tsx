@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
+import { CredibilityBar } from "@/components/CredibilityBar";
 import {
   FeaturesSection,
   TrustSignalsSection,
@@ -542,40 +543,64 @@ export default function Home() {
         {/* PREMIUM HERO - With hero image background */}
         <PremiumHero />
         
-        {/* FEATURES - Clean, Reliable, Profitable, Community */}
-        <FeaturesSection />
+        {/* CREDIBILITY BAR - Trust signals below hero */}
+        <CredibilityBar />
         
-        {/* TRUST SIGNALS - Live stats from database */}
-        <TrustSignalsSection />
+        {/* CHOOSE YOUR PATH - Journey tiles for different user types */}
+        <section className="py-16 md:py-20 bg-white" data-testid="section-journey-paths">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-3">
+                What Brings You Here Today?
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Pick your path - we'll show you exactly what you need
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {journeyPaths.map((path) => {
+                const Icon = path.icon;
+                const colors = colorClasses[path.color];
+                return (
+                  <Link key={path.id} href={path.link}>
+                    <Card 
+                      className={`p-6 h-full border-2 ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group bg-white`}
+                      data-testid={`card-journey-${path.id}`}
+                    >
+                      <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg}`}>
+                        <Icon className={`h-6 w-6 ${colors.text}`} />
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        {path.headline}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {path.description}
+                      </p>
+                      <ul className="space-y-2 mb-4">
+                        {path.features.map((feature, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                            <CheckCircle className={`w-4 h-4 ${colors.text} flex-shrink-0`} />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className={`flex items-center ${colors.text} text-sm font-semibold group-hover:translate-x-1 transition-transform`}>
+                        Explore
+                        <ArrowRight className="ml-1.5 h-4 w-4" />
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
         
-        {/* TEMPLATES & GUIDES */}
-        <TemplatesSection />
-        
-        {/* MARKETPLACE - Listings & Vendors */}
+        {/* MARKETPLACE - Featured listings */}
         <MarketplaceSection />
         
-        {/* FEATURED VENDOR BANNER */}
-        <FeaturedVendorBanner />
-        
-        {/* FINANCING SECTION */}
-        <FinancingSection />
-        
-        {/* CALCULATOR HIGHLIGHT */}
-        <CalculatorHighlight />
-        
-        {/* ANALYZE ANY LOCATION */}
-        <AnalyzeLocationSection />
-        
-        {/* EDUCATION - Learn from Experts */}
-        <EducationSection />
-        
-        {/* SHOP - Operator Essentials */}
-        <ShopSection />
-        
-        {/* COMMUNITY SECTION */}
-        <CommunitySection />
-        
-        {/* CTA SECTION */}
+        {/* CTA SECTION - Final conversion */}
         <CTASection />
         
         {/* PREMIUM FOOTER */}
