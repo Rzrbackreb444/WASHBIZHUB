@@ -778,10 +778,10 @@ export default function Home() {
         <FeaturedListingsCarousel />
         
         {/* EXPERT SERVICES FUNNEL - AI Council → Larry → Funding */}
-        <section className="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950" data-testid="section-expert-services">
+        <section className="py-16 md:py-20 bg-gradient-to-br from-background via-muted/60 to-background dark:from-background dark:via-muted/40 dark:to-background" data-testid="section-expert-services">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-12">
-              <Badge className="mb-4 bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" data-testid="badge-expert-services">
+              <Badge variant="outline" className="mb-4" data-testid="badge-expert-services">
                 <Sparkles className="w-3 h-3 mr-1.5" />
                 Premium Expert Services
               </Badge>
