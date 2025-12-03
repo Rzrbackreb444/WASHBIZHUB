@@ -2,13 +2,17 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SEO } from "@/components/SEO";
+
+// Import real photos
+import larryPhoto from "@assets/image_1764794151942.png";
+import nickPhoto from "@assets/Nick_1764794186641.jpg";
 import { 
   Award, Users, BookOpen, Target, CheckCircle2, ArrowRight,
   Star, Calendar, Handshake, TrendingUp, Building2, Wrench,
   GraduationCap, Scale, ShieldCheck, MapPin, Clock, Quote,
-  Facebook, Crown, Sparkles, Heart, Zap, Globe, FileSearch
+  Facebook, Crown, Sparkles, Heart, Zap, Globe, FileSearch, HeartPulse
 } from "lucide-react";
 
 // Comprehensive keyword-rich content for SEO
@@ -186,6 +190,11 @@ export default function OurPartnership() {
               {/* Nick */}
               <div className="text-center group">
                 <Avatar className="w-36 h-36 md:w-44 md:h-44 mx-auto shadow-2xl shadow-primary/20 border-4 border-primary/30 group-hover:border-primary/50 transition-colors">
+                  <AvatarImage 
+                    src={nickPhoto} 
+                    alt="Nick Kremers - Stroked-Out Sasquatch"
+                    className="object-cover object-top"
+                  />
                   <AvatarFallback className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 text-5xl md:text-6xl font-bold text-white">
                     NK
                   </AvatarFallback>
@@ -206,6 +215,11 @@ export default function OurPartnership() {
               {/* Larry */}
               <div className="text-center group">
                 <Avatar className="w-36 h-36 md:w-44 md:h-44 mx-auto shadow-2xl shadow-amber-500/20 border-4 border-amber-500/30 group-hover:border-amber-500/50 transition-colors">
+                  <AvatarImage 
+                    src={larryPhoto} 
+                    alt="Larry Larsen - Laundromat Larry"
+                    className="object-cover"
+                  />
                   <AvatarFallback className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 text-5xl md:text-6xl font-bold text-white">
                     LL
                   </AvatarFallback>
@@ -348,6 +362,11 @@ export default function OurPartnership() {
               <Card className="p-8 border-amber-500/20 hover:border-amber-500/40 transition-colors" data-testid="card-larry-bio">
                 <div className="flex items-start gap-6 mb-6">
                   <Avatar className="w-20 h-20 shadow-lg shadow-amber-500/20 border-2 border-amber-500/30">
+                    <AvatarImage 
+                      src={larryPhoto} 
+                      alt="Larry Larsen - Laundromat Larry"
+                      className="object-cover"
+                    />
                     <AvatarFallback className="bg-gradient-to-br from-amber-400 to-amber-600 text-2xl font-bold text-white">
                       LL
                     </AvatarFallback>
@@ -417,6 +436,11 @@ export default function OurPartnership() {
               <Card className="p-8 border-primary/20 hover:border-primary/40 transition-colors" data-testid="card-nick-bio">
                 <div className="flex items-start gap-6 mb-6">
                   <Avatar className="w-20 h-20 shadow-lg shadow-primary/20 border-2 border-primary/30">
+                    <AvatarImage 
+                      src={nickPhoto} 
+                      alt="Nick Kremers - Stroked-Out Sasquatch"
+                      className="object-cover object-top"
+                    />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-bold text-white">
                       NK
                     </AvatarFallback>
@@ -433,13 +457,28 @@ export default function OurPartnership() {
 
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   Nick Kremers represents the <strong className="text-foreground">third generation</strong> of the Kremers 
-                  laundromat legacy. His grandfather <strong className="text-foreground">Jerry</strong> pioneered coin-op 
-                  routes across Arkansas backroads, while his father mastered <strong className="text-foreground">Dexter 
-                  equipment repairs</strong> and operations. Nick grew up learning the business from the ground up—from 
-                  coin hauling to machine diagnostics. After surviving a <strong className="text-foreground">stroke at age 
-                  36</strong>, he channeled his recovery into building <strong className="text-foreground">WashBizHub</strong> 
-                  and creating the industry's most advanced location intelligence tools.
+                  laundromat legacy. His grandfather <strong className="text-foreground">Jerry</strong> ran Speed Queen routes 
+                  through Arkansas, while his father <strong className="text-foreground">Guy</strong> ran 
+                  <strong className="text-foreground"> Kremers Laundry Equipment Company</strong>—selling, repairing, and 
+                  designing laundromats. Nick grew up in the back of a service truck; his first toolkit came before his 
+                  first report card.
                 </p>
+
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Heart className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        On <strong className="text-foreground">December 3, 2018</strong>, a hemorrhagic stroke at age 36 changed 
+                        everything. Left side paralyzed. Craniotomy with 50 staples. Doctors said he'd 
+                        <em className="text-foreground"> "probably never walk normally again."</em> Nick refused to accept that 
+                        verdict—going from <strong className="text-foreground">0% function to 90% recovery</strong>. He channeled 
+                        that same grit into building <strong className="text-primary">WashBizHub</strong> and creating the 
+                        industry's most advanced location intelligence tools.
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="mb-6">
                   <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
