@@ -155,17 +155,17 @@ export default function ListYourLaundromat() {
             to discuss next steps and verify your listing details.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/">
-              <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/">
                 Return Home
-              </Button>
-            </Link>
-            <Link href="/cleanbi-explorer">
-              <Button size="lg" className="bg-[#b8860b] hover:bg-[#9a7209]">
+              </Link>
+            </Button>
+            <Button size="lg" className="bg-[#b8860b] hover:bg-[#9a7209]" asChild>
+              <Link href="/cleanbi-explorer">
                 Get CLEANBI Score
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
