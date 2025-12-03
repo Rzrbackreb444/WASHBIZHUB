@@ -66,6 +66,9 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **SEO & Marketing:** Includes an AI-generated blog suite, global email capture, and global SEO/AEO tracking.
 - **Regional Pricing System:** PPP-adjusted pricing for 220+ countries with multi-currency support.
 - **Deal Flow & Funding:** Features a "Deal Flow Dashboard" and a "Funding Marketplace" with integrated partners.
+- **Laundromat Marketplace (/buy-laundromat):** Verified listings marketplace with CLEANBI analysis on every card. Features real verified listings with broker information, price filtering, and search. All leads route to consult@washbizhub.com.
+- **Broker Directory (/brokers):** Featured brokers including Lawrence Larsen "Laundromat Larry" (DRE 49460). Verified broker profiles with contact options and listing counts.
+- **Sell Your Laundromat (/sell-your-laundromat):** Seller assistance page with listing form and direct contact to consult@washbizhub.com.
 - **Business Directory:** A "Verified Directory" for service providers.
 - **Advertising & Promotions:** Includes a Facebook Group Advertising System and a Promo Code System.
 - **WordPress-Style AdminBar:** Fixed top navigation for authenticated admin users, offering quick access, content editing, and user management.

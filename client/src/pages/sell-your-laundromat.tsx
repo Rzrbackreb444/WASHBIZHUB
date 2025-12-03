@@ -6,8 +6,11 @@ import { SEO } from "@/components/SEO";
 import { 
   Users, TrendingUp, DollarSign, Shield, Clock, CheckCircle, 
   ArrowRight, Star, Zap, Crown, ChevronRight, MessageSquare,
-  Eye, BarChart3, Target, Sparkles, FileEdit, PartyPopper
+  Eye, BarChart3, Target, Sparkles, FileEdit, PartyPopper, Phone, Mail
 } from "lucide-react";
+
+const CONSULT_EMAIL = "consult@washbizhub.com";
+const OWNER_PHONE = "479-883-4314";
 
 const buyerStats = {
   activeUsers: 120,
@@ -406,11 +409,17 @@ export default function SellYourLaundromat() {
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="/consultation">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-lg px-8 py-6 border-slate-600 hover:bg-slate-800">
-                  Talk to an Expert First
+              <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="w-full sm:w-auto gap-2 text-lg px-8 py-6 border-slate-600 hover:bg-slate-800"
+                  onClick={() => {
+                    window.location.href = `mailto:${CONSULT_EMAIL}?subject=${encodeURIComponent("Help Selling My Laundromat")}&body=${encodeURIComponent("Hi,\n\nI'm interested in selling my laundromat and would like to speak with an expert.\n\nPlease contact me at your earliest convenience.\n\nThank you!")}`;
+                  }}
+                >
+                  <Mail className="w-5 h-5" />
+                  Talk to an Expert
                 </Button>
-              </Link>
             </div>
           </div>
         </section>
