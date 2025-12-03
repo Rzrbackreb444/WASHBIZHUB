@@ -3453,6 +3453,95 @@ Create engaging, well-researched content that provides value to laundromat owner
     res.json(LISTING_TIER_BENEFITS);
   });
   
+  // Public listing submission endpoint (no auth required for initial inquiry)
+  app.post("/api/listing-submissions", async (req, res) => {
+    try {
+      const { 
+        businessName, address, city, state, zipCode, 
+        askingPrice, monthlyRevenue, squareFootage, numberOfMachines,
+        yearEstablished, leaseRemaining, ownerName, email, phone,
+        description, sellingReason, listingType 
+      } = req.body;
+      
+      // Validate required fields
+      if (!businessName || !address || !city || !state || !zipCode || !askingPrice || !ownerName || !email || !phone || !description) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      // Create draft listing for review
+      const slugify = (text: string) => text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+      
+      const shortId = Math.random().toString(36).substring(2, 8);
+      const slug = `${slugify(businessName)}-${slugify(city)}-${shortId}`;
+      
+      // Parse price
+      const priceNum = parseFloat(askingPrice.replace(/[$,]/g, '')) || 0;
+      
+      const listing = await storage.createListing({
+        businessType: "laundromat",
+        listingType: listingType || "owner",
+        title: businessName,
+        description: `${description}\n\nSelling Reason: ${sellingReason || 'Not specified'}`,
+        tagline: `${city}, ${state} - ${numberOfMachines ? numberOfMachines + ' machines' : ''} ${squareFootage ? squareFootage + ' sq ft' : ''}`.trim(),
+        priceOriginal: priceNum.toString(),
+        currency: "USD",
+        priceInUSD: priceNum.toString(),
+        priceVisibility: "public",
+        country: "US",
+        region: state,
+        city: city,
+        generalLocation: `${city}, ${state}`,
+        exactAddress: `${address}, ${city}, ${state} ${zipCode}`,
+        addressVisibility: "general",
+        status: "pending", // Pending review
+        slug,
+        seoTitle: `${businessName} For Sale - ${city}, ${state}`,
+        seoDescription: description.substring(0, 160),
+        detailLevel: "standard",
+        completenessScore: 50,
+      });
+      
+      // Send notification email to admin
+      try {
+        const { sendEmail } = await import('./email-service');
+        await sendEmail({
+          to: 'consult@washbizhub.com',
+          subject: `New Listing Submission: ${businessName}`,
+          html: `
+            <h2>New Laundromat Listing Submission</h2>
+            <p><strong>Business:</strong> ${businessName}</p>
+            <p><strong>Location:</strong> ${address}, ${city}, ${state} ${zipCode}</p>
+            <p><strong>Asking Price:</strong> ${askingPrice}</p>
+            <p><strong>Monthly Revenue:</strong> ${monthlyRevenue || 'Not provided'}</p>
+            <p><strong>Square Feet:</strong> ${squareFootage || 'Not provided'}</p>
+            <p><strong>Machines:</strong> ${numberOfMachines || 'Not provided'}</p>
+            <p><strong>Year Established:</strong> ${yearEstablished || 'Not provided'}</p>
+            <p><strong>Lease Remaining:</strong> ${leaseRemaining || 'Not provided'}</p>
+            <hr/>
+            <p><strong>Contact:</strong> ${ownerName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <hr/>
+            <p><strong>Description:</strong></p>
+            <p>${description}</p>
+            <p><strong>Reason for Selling:</strong> ${sellingReason || 'Not provided'}</p>
+          `,
+        });
+      } catch (emailError) {
+        console.error('Failed to send listing notification email:', emailError);
+      }
+      
+      res.json({ success: true, listingId: listing.id });
+    } catch (error: any) {
+      console.error('Listing submission error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/listings", async (req, res) => {
     try {
       const status = req.query.status as string | undefined;
