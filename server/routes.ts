@@ -21,7 +21,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -929,6 +929,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(featuredListings);
     } catch (error: any) {
       console.error("Error fetching featured listings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Featured Carousel Listings - includes financial data and prioritizes paid carousel spots
+  app.get("/api/listings/featured-carousel", async (_req, res) => {
+    try {
+      // Get listings that are either carousel-featured (paid) or regular featured
+      const carouselListings = await db
+        .select({
+          id: listings.id,
+          title: listings.title,
+          city: listings.city,
+          region: listings.region,
+          country: listings.country,
+          priceInUSD: listings.priceInUSD,
+          priceOriginal: listings.priceOriginal,
+          currency: listings.currency,
+          priceVisibility: listings.priceVisibility,
+          featuredImage: listings.featuredImage,
+          featured: listings.featured,
+          carouselFeatured: listings.carouselFeatured,
+          tagline: listings.tagline,
+          slug: listings.slug,
+          exactAddress: listings.exactAddress,
+          brokerName: listings.brokerName,
+          brokerPhone: listings.brokerPhone,
+          status: listings.status,
+          visibilityBoost: listings.visibilityBoost,
+        })
+        .from(listings)
+        .where(
+          and(
+            eq(listings.status, 'active'),
+            or(
+              eq(listings.carouselFeatured, true),
+              eq(listings.featured, true)
+            )
+          )
+        )
+        .orderBy(
+          desc(listings.carouselFeatured), // Paid carousel spots first
+          desc(listings.visibilityBoost),
+          desc(listings.featured),
+          desc(listings.createdAt)
+        )
+        .limit(6);
+      
+      // Get financials for these listings
+      const listingIds = carouselListings.map(l => l.id);
+      
+      let financialsMap: Record<string, any> = {};
+      if (listingIds.length > 0) {
+        const financials = await db
+          .select({
+            listingId: listingFinancials.listingId,
+            monthlyGross: listingFinancials.averageMonthlyRevenueOriginal,
+            annualRevenue: listingFinancials.grossRevenueOriginal,
+            cashFlow: listingFinancials.cashFlowOriginal,
+          })
+          .from(listingFinancials)
+          .where(
+            sql`${listingFinancials.listingId} = ANY(${listingIds})`
+          );
+        
+        financials.forEach(f => {
+          if (f.listingId) {
+            financialsMap[f.listingId] = {
+              monthlyGross: f.monthlyGross,
+              annualRevenue: f.annualRevenue,
+              cashFlow: f.cashFlow,
+            };
+          }
+        });
+      }
+      
+      // Merge financials with listings
+      const result = carouselListings.map(listing => ({
+        ...listing,
+        financials: financialsMap[listing.id] || null,
+      }));
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error fetching carousel listings:", error);
       res.status(500).json({ error: error.message });
     }
   });
