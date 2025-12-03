@@ -622,40 +622,38 @@ export default function Pricing() {
                   <tbody>
                     {comparisonFeatures.map((category, catIdx) => {
                       const CategoryIcon = category.icon;
-                      return (
-                        <>
-                          <tr key={`cat-${catIdx}`} className="bg-muted/30">
-                            <td colSpan={5} className="p-3 font-semibold text-foreground sticky left-0 bg-muted/30">
-                              <div className="flex items-center gap-2">
-                                <CategoryIcon className="w-4 h-4 text-[#C8A661]" aria-hidden="true" />
-                                {category.category}
-                              </div>
+                      return [
+                        <tr key={`cat-${catIdx}`} className="bg-muted/30">
+                          <td colSpan={5} className="p-3 font-semibold text-foreground sticky left-0 bg-muted/30">
+                            <div className="flex items-center gap-2">
+                              <CategoryIcon className="w-4 h-4 text-[#C8A661]" aria-hidden="true" />
+                              {category.category}
+                            </div>
+                          </td>
+                        </tr>,
+                        ...category.features.map((feature, featIdx) => (
+                          <tr 
+                            key={`feat-${catIdx}-${featIdx}`} 
+                            className="border-b hover:bg-muted/10 transition-colors"
+                          >
+                            <td className="p-3 text-muted-foreground sticky left-0 bg-background">
+                              {feature.name}
+                            </td>
+                            <td className="p-3 text-center">
+                              {renderFeatureValue(feature.free, false)}
+                            </td>
+                            <td className="p-3 text-center bg-[#C8A661]/5">
+                              {renderFeatureValue(feature.starter, true)}
+                            </td>
+                            <td className="p-3 text-center">
+                              {renderFeatureValue(feature.pro, false)}
+                            </td>
+                            <td className="p-3 text-center">
+                              {renderFeatureValue(feature.enterprise, false)}
                             </td>
                           </tr>
-                          {category.features.map((feature, featIdx) => (
-                            <tr 
-                              key={`feat-${catIdx}-${featIdx}`} 
-                              className="border-b hover:bg-muted/10 transition-colors"
-                            >
-                              <td className="p-3 text-muted-foreground sticky left-0 bg-background">
-                                {feature.name}
-                              </td>
-                              <td className="p-3 text-center">
-                                {renderFeatureValue(feature.free, false)}
-                              </td>
-                              <td className="p-3 text-center bg-[#C8A661]/5">
-                                {renderFeatureValue(feature.starter, true)}
-                              </td>
-                              <td className="p-3 text-center">
-                                {renderFeatureValue(feature.pro, false)}
-                              </td>
-                              <td className="p-3 text-center">
-                                {renderFeatureValue(feature.enterprise, false)}
-                              </td>
-                            </tr>
-                          ))}
-                        </>
-                      );
+                        ))
+                      ];
                     })}
                   </tbody>
                 </table>
