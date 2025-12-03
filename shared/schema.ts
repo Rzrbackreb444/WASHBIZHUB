@@ -2231,6 +2231,36 @@ export const listings = pgTable("listings", {
   detailLevel: text("detail_level").notNull().default("quick"), // "quick", "standard", "full"
   completenessScore: integer("completeness_score").default(0), // 0-100 based on fields filled
   
+  // ===== PAID VISIBILITY ADD-ONS =====
+  // These are activated upon Stripe payment completion
+  
+  // Featured Carousel (homepage rotation)
+  carouselFeatured: boolean("carousel_featured").default(false),
+  carouselFeaturedAt: timestamp("carousel_featured_at"),
+  carouselExpiresAt: timestamp("carousel_expires_at"), // 30 days from activation
+  
+  // Auto-Generated SEO Blog Post
+  autoBlogEnabled: boolean("auto_blog_enabled").default(false),
+  autoBlogPostId: varchar("auto_blog_post_id").references(() => blogPosts.id),
+  autoBlogGeneratedAt: timestamp("auto_blog_generated_at"),
+  
+  // Search Engine Indexing
+  indexNowSubmitted: boolean("index_now_submitted").default(false),
+  indexNowSubmittedAt: timestamp("index_now_submitted_at"),
+  googleIndexingSubmitted: boolean("google_indexing_submitted").default(false),
+  googleIndexingSubmittedAt: timestamp("google_indexing_submitted_at"),
+  googleIndexingStatus: text("google_indexing_status"), // "submitted", "indexed", "failed"
+  
+  // Social Share Cards (Open Graph optimization)
+  socialCardsGenerated: boolean("social_cards_generated").default(false),
+  socialCardsGeneratedAt: timestamp("social_cards_generated_at"),
+  ogImageUrl: text("og_image_url"),
+  
+  // Visibility Bundle Tier (what they paid for)
+  visibilityPackage: text("visibility_package"), // "basic", "pro", "ultimate"
+  visibilityPurchasedAt: timestamp("visibility_purchased_at"),
+  visibilityStripePaymentId: text("visibility_stripe_payment_id"),
+  
   // Metrics
   viewCount: integer("view_count").default(0).notNull(),
   inquiryCount: integer("inquiry_count").default(0).notNull(),
@@ -2423,6 +2453,136 @@ export const insertListingMediaSchema = createInsertSchema(listingMedia).omit({
 
 export type InsertListingMedia = z.infer<typeof insertListingMediaSchema>;
 export type ListingMedia = typeof listingMedia.$inferSelect;
+
+// ============================================
+// LISTING VISIBILITY ADD-ONS & ORDERS
+// Paid visibility features to increase listing exposure
+// ============================================
+
+export const visibilityAddOns = pgTable("visibility_add_ons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Product Info
+  name: text("name").notNull(), // "Featured Carousel", "Auto SEO Blog", etc.
+  slug: text("slug").notNull().unique(), // "carousel", "auto-blog", "index-now", "google-indexing", "social-cards"
+  description: text("description"),
+  
+  // Pricing
+  priceUSD: decimal("price_usd", { precision: 10, scale: 2 }).notNull(),
+  stripePriceId: text("stripe_price_id"), // Stripe Price ID
+  stripeProductId: text("stripe_product_id"), // Stripe Product ID
+  
+  // Duration
+  durationDays: integer("duration_days").default(30), // How long the add-on lasts
+  isOneTime: boolean("is_one_time").default(true), // One-time or subscription
+  
+  // Feature flags
+  includesCarousel: boolean("includes_carousel").default(false),
+  includesAutoBlog: boolean("includes_auto_blog").default(false),
+  includesIndexNow: boolean("includes_index_now").default(false),
+  includesGoogleIndexing: boolean("includes_google_indexing").default(false),
+  includesSocialCards: boolean("includes_social_cards").default(false),
+  visibilityBoostLevel: integer("visibility_boost_level").default(0), // 0-5
+  
+  // Status
+  active: boolean("active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertVisibilityAddOnSchema = createInsertSchema(visibilityAddOns).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVisibilityAddOn = z.infer<typeof insertVisibilityAddOnSchema>;
+export type VisibilityAddOn = typeof visibilityAddOns.$inferSelect;
+
+// Visibility Orders (purchase records)
+export const visibilityOrders = pgTable("visibility_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Relationships
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  addOnId: varchar("add_on_id").references(() => visibilityAddOns.id).notNull(),
+  
+  // Stripe
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+  
+  // Pricing
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("USD"),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "paid", "fulfilled", "failed", "refunded"
+  
+  // Fulfillment tracking
+  fulfilledAt: timestamp("fulfilled_at"),
+  fulfillmentDetails: jsonb("fulfillment_details"), // { carouselEnabled: true, blogPostId: "...", etc. }
+  
+  // Duration
+  activatedAt: timestamp("activated_at"),
+  expiresAt: timestamp("expires_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  listingIdx: index("visibility_orders_listing_idx").on(table.listingId),
+  userIdx: index("visibility_orders_user_idx").on(table.userId),
+  statusIdx: index("visibility_orders_status_idx").on(table.status),
+}));
+
+export const insertVisibilityOrderSchema = createInsertSchema(visibilityOrders).omit({
+  id: true,
+  fulfilledAt: true,
+  createdAt: true,
+});
+
+export type InsertVisibilityOrder = z.infer<typeof insertVisibilityOrderSchema>;
+export type VisibilityOrder = typeof visibilityOrders.$inferSelect;
+
+// Visibility automation jobs (for async processing)
+export const visibilityJobs = pgTable("visibility_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  orderId: varchar("order_id").references(() => visibilityOrders.id).notNull(),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  
+  // Job type
+  jobType: text("job_type").notNull(), // "carousel", "auto-blog", "index-now", "google-indexing", "social-cards"
+  
+  // Status
+  status: text("status").notNull().default("pending"), // "pending", "processing", "completed", "failed"
+  attempts: integer("attempts").default(0),
+  maxAttempts: integer("max_attempts").default(3),
+  
+  // Results
+  result: jsonb("result"),
+  error: text("error"),
+  
+  // Timing
+  scheduledAt: timestamp("scheduled_at").defaultNow(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  orderIdx: index("visibility_jobs_order_idx").on(table.orderId),
+  statusIdx: index("visibility_jobs_status_idx").on(table.status),
+}));
+
+export const insertVisibilityJobSchema = createInsertSchema(visibilityJobs).omit({
+  id: true,
+  attempts: true,
+  startedAt: true,
+  completedAt: true,
+  createdAt: true,
+});
+
+export type InsertVisibilityJob = z.infer<typeof insertVisibilityJobSchema>;
+export type VisibilityJob = typeof visibilityJobs.$inferSelect;
 
 // Broker Portfolios (Brokers managing multiple listings)
 export const brokerProfiles = pgTable("broker_profiles", {
