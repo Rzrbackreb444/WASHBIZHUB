@@ -383,6 +383,7 @@ function CleanBIExplorerContent() {
   const [showStreetView, setShowStreetView] = useState(false);
   const [showAerialView, setShowAerialView] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPostAnalysisModal, setShowPostAnalysisModal] = useState(false);
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [historyExpanded, setHistoryExpanded] = useState(true);
@@ -836,7 +837,12 @@ function CleanBIExplorerContent() {
         }));
         setDealVerdict(null);
         
-        quota.refetch();
+        quota.refetch().then((refetchResult) => {
+          const updatedQuota = refetchResult.data;
+          if (updatedQuota?.quota?.remainingToday === 0 && userTier === "free") {
+            setTimeout(() => setShowPostAnalysisModal(true), 1500);
+          }
+        });
         
         saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -1044,7 +1050,12 @@ function CleanBIExplorerContent() {
         }));
         setDealVerdict(null);
         
-        quota.refetch();
+        quota.refetch().then((refetchResult) => {
+          const updatedQuota = refetchResult.data;
+          if (updatedQuota?.quota?.remainingToday === 0 && userTier === "free") {
+            setTimeout(() => setShowPostAnalysisModal(true), 1500);
+          }
+        });
         
         const saved = saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -1771,6 +1782,15 @@ function CleanBIExplorerContent() {
         suggestedTier="starter"
         title="Unlock Unlimited CLEANBI Analyses"
         description="Get unlimited location analyses, 3D aerial views, competitor intel, and PDF exports."
+      />
+
+      <UpgradeModal
+        open={showPostAnalysisModal}
+        onOpenChange={setShowPostAnalysisModal}
+        feature="CLEANBI Explorer"
+        suggestedTier="starter"
+        title="You've Used All 3 Free Analyses!"
+        description="Great job exploring! Upgrade to Starter for unlimited analyses, PDF exports, competitor intel, and more."
       />
 
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
