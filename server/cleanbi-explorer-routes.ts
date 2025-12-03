@@ -357,6 +357,163 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
 }
 
 // ========================================
+// REVIEW SENTIMENT ANALYSIS
+// ========================================
+
+interface ReviewSentiment {
+  overallSentiment: "positive" | "mixed" | "negative";
+  sentimentScore: number; // 0-100
+  positiveThemes: string[];
+  negativeThemes: string[];
+  reviewHighlights: { text: string; sentiment: "positive" | "negative" }[];
+  strengthsCount: number;
+  weaknessesCount: number;
+}
+
+/**
+ * Analyze competitor reviews for sentiment and themes
+ * Uses Google Places API to fetch reviews, then analyzes them
+ */
+async function analyzeCompetitorReviews(placeId: string): Promise<ReviewSentiment | null> {
+  const cacheKey = generateCacheKey("review_sentiment", placeId);
+  const cached = await cacheGet<ReviewSentiment>(cacheKey);
+  if (cached) {
+    console.log(`✅ Review sentiment cache hit for ${placeId}`);
+    return cached;
+  }
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    // Fetch place details with reviews
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?` +
+      `place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.status !== "OK" || !data.result?.reviews) {
+      return null;
+    }
+
+    const reviews = data.result.reviews || [];
+    
+    // Sentiment keywords for laundromat industry
+    const positiveKeywords = [
+      "clean", "friendly", "fast", "convenient", "affordable", "nice", "great", "excellent",
+      "helpful", "easy", "spacious", "modern", "new", "well-maintained", "quiet", "safe",
+      "parking", "24/7", "open late", "good prices", "staff", "attendant", "organized"
+    ];
+    
+    const negativeKeywords = [
+      "dirty", "broken", "expensive", "slow", "rude", "old", "crowded", "smell", "sketchy",
+      "unsafe", "homeless", "loud", "no change", "out of order", "wait", "machines broken",
+      "overpriced", "no parking", "hot", "cold", "no ac", "no heat", "bugs", "roaches"
+    ];
+
+    let positiveCount = 0;
+    let negativeCount = 0;
+    const foundPositive: Set<string> = new Set();
+    const foundNegative: Set<string> = new Set();
+    const highlights: { text: string; sentiment: "positive" | "negative" }[] = [];
+
+    reviews.forEach((review: any) => {
+      const text = (review.text || "").toLowerCase();
+      const rating = review.rating || 3;
+      
+      // Check for positive keywords
+      positiveKeywords.forEach(keyword => {
+        if (text.includes(keyword)) {
+          positiveCount++;
+          foundPositive.add(keyword);
+        }
+      });
+      
+      // Check for negative keywords
+      negativeKeywords.forEach(keyword => {
+        if (text.includes(keyword)) {
+          negativeCount++;
+          foundNegative.add(keyword);
+        }
+      });
+
+      // Add review highlights (first 100 chars of notable reviews)
+      if (rating >= 4 && highlights.filter(h => h.sentiment === "positive").length < 2) {
+        highlights.push({
+          text: review.text?.slice(0, 100) + (review.text?.length > 100 ? "..." : ""),
+          sentiment: "positive"
+        });
+      } else if (rating <= 2 && highlights.filter(h => h.sentiment === "negative").length < 2) {
+        highlights.push({
+          text: review.text?.slice(0, 100) + (review.text?.length > 100 ? "..." : ""),
+          sentiment: "negative"
+        });
+      }
+    });
+
+    // Calculate overall sentiment
+    const totalMentions = positiveCount + negativeCount;
+    const sentimentRatio = totalMentions > 0 ? positiveCount / totalMentions : 0.5;
+    const sentimentScore = Math.round(sentimentRatio * 100);
+    
+    let overallSentiment: "positive" | "mixed" | "negative";
+    if (sentimentScore >= 65) overallSentiment = "positive";
+    else if (sentimentScore >= 40) overallSentiment = "mixed";
+    else overallSentiment = "negative";
+
+    // Map keywords to readable themes
+    const themeMap: Record<string, string> = {
+      "clean": "Cleanliness",
+      "friendly": "Friendly Staff",
+      "fast": "Fast Service",
+      "convenient": "Convenience",
+      "affordable": "Affordable Pricing",
+      "modern": "Modern Equipment",
+      "spacious": "Spacious Layout",
+      "parking": "Good Parking",
+      "24/7": "24/7 Access",
+      "dirty": "Cleanliness Issues",
+      "broken": "Equipment Problems",
+      "expensive": "High Prices",
+      "slow": "Slow Machines",
+      "old": "Outdated Equipment",
+      "crowded": "Overcrowded",
+      "unsafe": "Safety Concerns",
+      "no parking": "Parking Issues",
+      "machines broken": "Machine Reliability"
+    };
+
+    const positiveThemes = Array.from(foundPositive)
+      .map(k => themeMap[k] || k.charAt(0).toUpperCase() + k.slice(1))
+      .slice(0, 5);
+    
+    const negativeThemes = Array.from(foundNegative)
+      .map(k => themeMap[k] || k.charAt(0).toUpperCase() + k.slice(1))
+      .slice(0, 5);
+
+    const result: ReviewSentiment = {
+      overallSentiment,
+      sentimentScore,
+      positiveThemes,
+      negativeThemes,
+      reviewHighlights: highlights,
+      strengthsCount: positiveCount,
+      weaknessesCount: negativeCount
+    };
+
+    // Cache for 6 hours
+    await cacheSet(cacheKey, result, CACHE_TTL.placeDetails);
+    console.log(`✅ Review sentiment analyzed: ${overallSentiment} (${sentimentScore}/100)`);
+    
+    return result;
+  } catch (error) {
+    console.error("Review sentiment analysis error:", error);
+    return null;
+  }
+}
+
+// ========================================
 // GOOGLE AERIAL VIEW API
 // ========================================
 
@@ -787,6 +944,12 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
     // Get Street View URL
     const streetViewUrl = getStreetViewUrl(input.lat, input.lng);
     
+    // Get review sentiment analysis (for paid users)
+    let sentiment: ReviewSentiment | null = null;
+    if (tier !== "free") {
+      sentiment = await analyzeCompetitorReviews(input.placeId);
+    }
+    
     // Build analysis result
     const analysis: ExplorerAnalysis = {
       id: generateAnalysisId(),
@@ -831,6 +994,7 @@ router.post("/analyze-competitor", async (req: Request, res: Response) => {
       trafficScore: analysis.trafficScore,
       opportunityLevel: analysis.opportunityLevel,
       streetViewUrl: analysis.streetViewUrl,
+      sentiment,
       tier,
       remainingDaily
     });

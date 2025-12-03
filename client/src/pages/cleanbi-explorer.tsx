@@ -63,7 +63,9 @@ import {
   Bike,
   Sun,
   Bolt,
-  Gauge
+  Gauge,
+  MessageSquare,
+  Lightbulb
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +90,16 @@ declare global {
   }
 }
 
+interface ReviewSentiment {
+  overallSentiment: "positive" | "mixed" | "negative";
+  sentimentScore: number;
+  positiveThemes: string[];
+  negativeThemes: string[];
+  reviewHighlights: { text: string; sentiment: "positive" | "negative" }[];
+  strengthsCount: number;
+  weaknessesCount: number;
+}
+
 interface AnalysisResult {
   id?: string;
   address: string;
@@ -109,6 +121,7 @@ interface AnalysisResult {
   bikeScore?: number | null;
   bikeDescription?: string | null;
   timestamp?: number;
+  sentiment?: ReviewSentiment | null;
 }
 
 interface Competitor {
@@ -1178,7 +1191,8 @@ export default function CleanBIExplorer() {
           trafficScore: data.trafficScore || 75,
           opportunityLevel: data.opportunityLevel || "moderate",
           streetViewUrl: data.streetViewUrl,
-          aerialViewUrl: data.aerialViewUrl
+          aerialViewUrl: data.aerialViewUrl,
+          sentiment: data.sentiment || null
         };
         
         setCompetitorAnalysis(result);
@@ -2119,27 +2133,105 @@ export default function CleanBIExplorer() {
                   <TabsContent value="score" className="mt-0 space-y-2">
                     <div className="flex items-center justify-between mb-2">
                       <div className="text-xs text-white/50">CLEANBI™ 7-Factor Analysis</div>
-                      <Badge variant="outline" className="text-[10px] border-white/20 text-white/40">Based on Location Data</Badge>
+                      {userTier === "free" ? (
+                        <Badge className="text-[10px] bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30">
+                          <Lock className="w-2.5 h-2.5 mr-1" />
+                          Starter
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] border-white/20 text-white/40">Based on Location Data</Badge>
+                      )}
                     </div>
-                    {CLEANBI_CATEGORIES.map((cat) => {
-                      const Icon = cat.icon;
-                      const score = categoryScores[cat.key] || 0;
-                      return (
-                        <div key={cat.key} className="bg-white/5 rounded-lg p-2.5">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2">
-                              <Icon className="w-4 h-4 text-[#b8860b]" />
-                              <span className="text-sm font-medium text-white">{cat.name}</span>
+                    
+                    {/* For free users: show first 2 subscores, blur the rest */}
+                    {userTier === "free" ? (
+                      <div className="relative">
+                        {/* First 2 subscores visible */}
+                        {CLEANBI_CATEGORIES.slice(0, 2).map((cat) => {
+                          const Icon = cat.icon;
+                          const score = categoryScores[cat.key] || 0;
+                          return (
+                            <div key={cat.key} className="bg-white/5 rounded-lg p-2.5 mb-2">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center gap-2">
+                                  <Icon className="w-4 h-4 text-[#b8860b]" />
+                                  <span className="text-sm font-medium text-white">{cat.name}</span>
+                                </div>
+                                <span className="text-sm font-bold" style={{ color: GRADE_COLORS[score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "Needs Work"] }}>
+                                  {score}
+                                </span>
+                              </div>
+                              <Progress value={score} className="h-1.5" />
+                              <div className="text-xs text-white/40 mt-1">{cat.description}</div>
                             </div>
-                            <span className="text-sm font-bold" style={{ color: GRADE_COLORS[score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "Needs Work"] }}>
-                              {score}
-                            </span>
+                          );
+                        })}
+                        
+                        {/* Blurred remaining subscores */}
+                        <div className="relative">
+                          <div className="blur-sm pointer-events-none opacity-50">
+                            {CLEANBI_CATEGORIES.slice(2).map((cat) => {
+                              const Icon = cat.icon;
+                              const score = categoryScores[cat.key] || 0;
+                              return (
+                                <div key={cat.key} className="bg-white/5 rounded-lg p-2.5 mb-2">
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                      <Icon className="w-4 h-4 text-[#b8860b]" />
+                                      <span className="text-sm font-medium text-white">{cat.name}</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-white/60">
+                                      ••
+                                    </span>
+                                  </div>
+                                  <Progress value={50} className="h-1.5" />
+                                  <div className="text-xs text-white/40 mt-1">{cat.description}</div>
+                                </div>
+                              );
+                            })}
                           </div>
-                          <Progress value={score} className="h-1.5" />
-                          <div className="text-xs text-white/40 mt-1">{cat.description}</div>
+                          
+                          {/* Upgrade CTA Overlay */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-black/70 to-black/90 rounded-lg">
+                            <div className="text-center p-4">
+                              <Lock className="w-6 h-6 text-[#b8860b] mx-auto mb-2" />
+                              <h4 className="text-white font-semibold text-sm mb-1">5 More Subscores</h4>
+                              <p className="text-white/60 text-xs mb-3">Equipment, Adaptability, Numbers, Brand & Intelligence</p>
+                              <Button 
+                                size="sm"
+                                className="bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium"
+                                onClick={() => setShowUpgradePrompt(true)}
+                                data-testid="button-unlock-subscores"
+                              >
+                                <Crown className="w-3.5 h-3.5 mr-1.5" />
+                                Unlock All — $29/mo
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ) : (
+                      /* Full subscores for paid users */
+                      CLEANBI_CATEGORIES.map((cat) => {
+                        const Icon = cat.icon;
+                        const score = categoryScores[cat.key] || 0;
+                        return (
+                          <div key={cat.key} className="bg-white/5 rounded-lg p-2.5">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <Icon className="w-4 h-4 text-[#b8860b]" />
+                                <span className="text-sm font-medium text-white">{cat.name}</span>
+                              </div>
+                              <span className="text-sm font-bold" style={{ color: GRADE_COLORS[score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "Needs Work"] }}>
+                                {score}
+                              </span>
+                            </div>
+                            <Progress value={score} className="h-1.5" />
+                            <div className="text-xs text-white/40 mt-1">{cat.description}</div>
+                          </div>
+                        );
+                      })
+                    )}
                   </TabsContent>
 
                   {/* Competition Tab */}
@@ -3613,6 +3705,132 @@ export default function CleanBIExplorer() {
                     )}
                   </p>
                 </div>
+
+                {/* Review Sentiment Analysis - Premium Feature */}
+                {competitorAnalysis.sentiment ? (
+                  <div className="bg-gradient-to-br from-purple-500/10 to-transparent rounded-xl p-4 border border-purple-500/20">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-medium text-white">Review Sentiment</span>
+                      </div>
+                      <Badge 
+                        className={`text-xs ${
+                          competitorAnalysis.sentiment.overallSentiment === "positive" 
+                            ? "bg-green-500/20 text-green-400 border-green-500/30"
+                            : competitorAnalysis.sentiment.overallSentiment === "negative"
+                              ? "bg-red-500/20 text-red-400 border-red-500/30"
+                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                        }`}
+                      >
+                        {competitorAnalysis.sentiment.overallSentiment.charAt(0).toUpperCase() + competitorAnalysis.sentiment.overallSentiment.slice(1)}
+                      </Badge>
+                    </div>
+                    
+                    {/* Sentiment Score Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-white/50 mb-1">
+                        <span>Customer Satisfaction</span>
+                        <span className={
+                          competitorAnalysis.sentiment.sentimentScore >= 65 ? "text-green-400" :
+                          competitorAnalysis.sentiment.sentimentScore >= 40 ? "text-yellow-400" : "text-red-400"
+                        }>{competitorAnalysis.sentiment.sentimentScore}%</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-500 ${
+                            competitorAnalysis.sentiment.sentimentScore >= 65 ? "bg-green-500" :
+                            competitorAnalysis.sentiment.sentimentScore >= 40 ? "bg-yellow-500" : "bg-red-500"
+                          }`}
+                          style={{ width: `${competitorAnalysis.sentiment.sentimentScore}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Themes Grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      {/* Strengths */}
+                      <div>
+                        <div className="flex items-center gap-1 text-xs text-green-400 mb-1.5">
+                          <ThumbsUp className="w-3 h-3" />
+                          <span>Strengths ({competitorAnalysis.sentiment.strengthsCount})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {competitorAnalysis.sentiment.positiveThemes.length > 0 ? (
+                            competitorAnalysis.sentiment.positiveThemes.slice(0, 3).map((theme, i) => (
+                              <Badge key={i} variant="outline" className="text-[10px] border-green-500/30 text-green-400 mr-1">
+                                {theme}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-xs text-white/30">No clear strengths</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Weaknesses */}
+                      <div>
+                        <div className="flex items-center gap-1 text-xs text-red-400 mb-1.5">
+                          <ThumbsDown className="w-3 h-3" />
+                          <span>Weaknesses ({competitorAnalysis.sentiment.weaknessesCount})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {competitorAnalysis.sentiment.negativeThemes.length > 0 ? (
+                            competitorAnalysis.sentiment.negativeThemes.slice(0, 3).map((theme, i) => (
+                              <Badge key={i} variant="outline" className="text-[10px] border-red-500/30 text-red-400 mr-1">
+                                {theme}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-xs text-white/30">No clear weaknesses</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Opportunity Callout */}
+                    {competitorAnalysis.sentiment.negativeThemes.length > 0 && (
+                      <div className="bg-[#b8860b]/10 rounded-lg p-2 border border-[#b8860b]/20">
+                        <div className="flex items-start gap-2">
+                          <Lightbulb className="w-4 h-4 text-[#b8860b] mt-0.5 shrink-0" />
+                          <p className="text-xs text-white/70">
+                            <span className="text-[#b8860b] font-medium">Opportunity:</span> Customers complain about {competitorAnalysis.sentiment.negativeThemes[0]?.toLowerCase()}. 
+                            Excel here to win their business.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : userTier === "free" ? (
+                  <div className="relative">
+                    <div className="blur-sm pointer-events-none opacity-50">
+                      <div className="bg-gradient-to-br from-purple-500/10 to-transparent rounded-xl p-4 border border-purple-500/20">
+                        <div className="flex items-center gap-2 mb-3">
+                          <MessageSquare className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm font-medium text-white">Review Sentiment</span>
+                        </div>
+                        <div className="h-2 bg-white/10 rounded-full mb-3" />
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-white/5 rounded p-2 h-16" />
+                          <div className="bg-white/5 rounded p-2 h-16" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <Lock className="w-5 h-5 text-[#b8860b] mb-1" />
+                      <p className="text-xs text-white/70 mb-2">Sentiment Analysis</p>
+                      <Button 
+                        size="sm"
+                        className="bg-[#b8860b] hover:bg-[#d4a030] text-black text-xs"
+                        onClick={() => setShowUpgradePrompt(true)}
+                        data-testid="button-unlock-sentiment"
+                      >
+                        <Crown className="w-3 h-3 mr-1" />
+                        Unlock — $29/mo
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
 
                 {/* Action Buttons */}
                 <div className="space-y-2">
