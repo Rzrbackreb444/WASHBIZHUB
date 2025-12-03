@@ -2689,4 +2689,82 @@ router.get("/valuator/depreciation-curves", async (req: Request, res: Response) 
   }
 });
 
+/**
+ * POST /api/cleanbi-explorer/valuator/narrative
+ * 
+ * Generate AI-powered valuation narrative using Gemini
+ * Requires Pro tier
+ */
+router.post("/valuator/narrative", async (req: Request, res: Response) => {
+  try {
+    const { generateValuationNarrative } = await import("./gemini");
+    const { BRAND_DISPLAY_NAMES } = await import("./cleanbi-valuator-service");
+    
+    const user = req.user;
+    if (!user?.isPro) {
+      return res.status(403).json({
+        success: false,
+        error: 'Pro tier required',
+        tier: user?.tier || 'free'
+      });
+    }
+    
+    const { 
+      totalAssetValue,
+      equipmentFMV,
+      propertyValue,
+      businessValue,
+      cleanbiGrade,
+      cleanbiScore,
+      ebitdaMultiple,
+      ebitda,
+      equipmentDetails,
+      locationFactors
+    } = req.body;
+    
+    // Validate required fields
+    if (!totalAssetValue || !equipmentFMV || !cleanbiGrade) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required valuation data'
+      });
+    }
+    
+    // Get dominant brand display name
+    const dominantBrand = equipmentDetails?.dominantBrand 
+      ? (BRAND_DISPLAY_NAMES[equipmentDetails.dominantBrand as keyof typeof BRAND_DISPLAY_NAMES] || equipmentDetails.dominantBrand)
+      : 'Mixed';
+    
+    const narrative = await generateValuationNarrative({
+      totalAssetValue,
+      equipmentFMV,
+      propertyValue: propertyValue || 0,
+      businessValue: businessValue || 0,
+      cleanbiGrade,
+      cleanbiScore: cleanbiScore || 75,
+      ebitdaMultiple: ebitdaMultiple || 3.0,
+      ebitda: ebitda || 0,
+      equipmentDetails: {
+        totalMachines: equipmentDetails?.totalMachines || 0,
+        weightedAge: equipmentDetails?.weightedAge || 0,
+        dominantBrand
+      },
+      locationFactors
+    });
+    
+    return res.json({
+      success: true,
+      narrative
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Narrative generation error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate narrative',
+      message: error.message
+    });
+  }
+});
+
 export default router;
