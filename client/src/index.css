@@ -623,6 +623,117 @@
   transform: translateY(-1px);
 }
 
+/* ============================================
+   CLEANBI EXPLORER FEATURED NAV BUTTON
+   Premium gold gradient with pulse animation
+   ============================================ */
+@keyframes cleanbi-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(43 89% 38% / 0.4), 0 4px 12px hsl(43 89% 38% / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px hsl(43 89% 38% / 0), 0 4px 16px hsl(43 89% 38% / 0.4);
+  }
+}
+
+@keyframes cleanbi-icon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px hsl(43 89% 48% / 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px hsl(43 89% 58% / 0.9));
+  }
+}
+
+@keyframes cleanbi-shine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.cleanbi-featured-nav {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, hsl(43 95% 35%) 0%, hsl(43 89% 38%) 50%, hsl(43 85% 32%) 100%);
+  border: 1px solid hsl(43 89% 45% / 0.5);
+  border-radius: 9999px;
+  box-shadow: 0 0 0 0 hsl(43 89% 38% / 0.4), 0 4px 12px hsl(43 89% 38% / 0.3);
+  animation: cleanbi-pulse 2.5s ease-in-out infinite;
+  transition: transform 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cleanbi-featured-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent 0%, hsl(43 80% 65% / 0.3) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: cleanbi-shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.cleanbi-featured-nav:hover {
+  transform: scale(1.03);
+  background: linear-gradient(135deg, hsl(43 95% 40%) 0%, hsl(43 89% 42%) 50%, hsl(43 85% 36%) 100%);
+  animation-play-state: paused;
+}
+
+.cleanbi-featured-nav .cleanbi-icon {
+  animation: cleanbi-icon-glow 2s ease-in-out infinite;
+}
+
+/* Mobile version - full width CTA */
+.cleanbi-featured-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, hsl(43 95% 35%) 0%, hsl(43 89% 38%) 50%, hsl(43 85% 32%) 100%);
+  border: 2px solid hsl(43 89% 50% / 0.6);
+  border-radius: 1rem;
+  box-shadow: 0 0 0 0 hsl(43 89% 38% / 0.4), 0 6px 20px hsl(43 89% 38% / 0.35);
+  animation: cleanbi-pulse 2.5s ease-in-out infinite;
+  transition: transform 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cleanbi-featured-mobile:hover {
+  transform: scale(1.02);
+  background: linear-gradient(135deg, hsl(43 95% 40%) 0%, hsl(43 89% 42%) 50%, hsl(43 85% 36%) 100%);
+}
+
+.cleanbi-featured-mobile .cleanbi-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: cleanbi-icon-glow 2s ease-in-out infinite;
+}
+
+/* Dark mode adjustments */
+.dark .cleanbi-featured-nav,
+.dark .cleanbi-featured-mobile {
+  background: linear-gradient(135deg, hsl(43 95% 40%) 0%, hsl(43 89% 45%) 50%, hsl(43 85% 38%) 100%);
+  border-color: hsl(43 89% 55% / 0.6);
+}
+
 /* Premium Input Styles */
 .input-premium {
   border: 2px solid hsl(var(--input));

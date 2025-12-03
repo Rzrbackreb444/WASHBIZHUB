@@ -826,7 +826,7 @@ export const WashBizHubWebSite = generateWebSiteSchema({
       queryInput: "required name=search_term_string"
     },
     {
-      target: `${BASE_URL}/cleanbi-auto?address={address_string}`,
+      target: `${BASE_URL}/cleanbi-explorer?address={address_string}`,
       queryInput: "required name=address_string"
     },
     {

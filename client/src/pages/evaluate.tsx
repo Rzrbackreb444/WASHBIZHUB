@@ -198,7 +198,7 @@ export default function EvaluatePage() {
                 Powerful tools to analyze and compare laundromat opportunities
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <Link href="/cleanbi-auto">
+                <Link href="/cleanbi-explorer">
                   <Button 
                     size="lg"
                     className="bg-green-500 text-white hover-elevate active-elevate-2 font-semibold"
@@ -246,7 +246,7 @@ export default function EvaluatePage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/cleanbi-auto">
+                <Link href="/cleanbi-explorer">
                   <Button 
                     size="lg"
                     className="bg-green-500 text-white hover-elevate active-elevate-2 font-semibold"

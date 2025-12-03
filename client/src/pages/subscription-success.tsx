@@ -126,7 +126,7 @@ export default function SubscriptionSuccess() {
             </div>
 
             <div className="grid gap-4">
-              <Link href="/cleanbi-auto">
+              <Link href="/cleanbi-explorer">
                 <Button 
                   className="w-full justify-between bg-accent hover:bg-accent/90 text-accent-foreground"
                   data-testid="button-go-cleanbi"

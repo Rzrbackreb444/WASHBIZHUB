@@ -42,7 +42,7 @@ export function StickyActionBar() {
             </div>
 
             <div className="flex items-center justify-center gap-2 sm:gap-3 flex-1 sm:flex-none">
-              <Link href="/cleanbi-auto">
+              <Link href="/cleanbi-explorer">
                 <Button 
                   size="sm" 
                   className="bg-[#39CCCC] text-[#001F3F] hover:bg-[#2db8b8] font-semibold text-xs sm:text-sm"
@@ -130,7 +130,7 @@ export function FloatingCTAButton() {
             <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Quick Actions
             </div>
-            <Link href="/cleanbi-auto">
+            <Link href="/cleanbi-explorer">
               <Button 
                 size="sm" 
                 className="w-full justify-start bg-[#39CCCC] text-[#001F3F] hover:bg-[#2db8b8]"

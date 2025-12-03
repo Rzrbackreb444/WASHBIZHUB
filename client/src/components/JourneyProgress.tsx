@@ -31,7 +31,7 @@ const JOURNEY_STAGES: JourneyStage[] = [
       { id: "first_visit", name: "First Visit", completed: true, action: "/" },
       { id: "read_blog", name: "Read an Article", completed: true, action: "/blog" },
       { id: "use_calculator", name: "Use a Calculator", completed: true, action: "/calculators" },
-      { id: "cleanbi_score", name: "Run CLEANBI Analysis", completed: false, action: "/cleanbi-auto" },
+      { id: "cleanbi_score", name: "Run CLEANBI Analysis", completed: false, action: "/cleanbi-explorer" },
     ],
   },
   {
@@ -54,7 +54,7 @@ const JOURNEY_STAGES: JourneyStage[] = [
     progress: 0,
     unlocked: false,
     milestones: [
-      { id: "detailed_report", name: "Generate Full Report", completed: false, action: "/cleanbi-auto" },
+      { id: "detailed_report", name: "Generate Full Report", completed: false, action: "/cleanbi-explorer" },
       { id: "valuation", name: "Run Valuation", completed: false, action: "/valuation-calculator" },
       { id: "roi_analysis", name: "Complete ROI Analysis", completed: false, action: "/roi-calculator" },
       { id: "due_diligence", name: "Review Due Diligence", completed: false, action: "/resources" },

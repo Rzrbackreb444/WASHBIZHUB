@@ -249,7 +249,7 @@ export default function ScoreHistory() {
                     : "Try adjusting your search or filters"}
                 </p>
                 {scores.length === 0 && (
-                  <Link href="/cleanbi-auto">
+                  <Link href="/cleanbi-explorer">
                     <Button className="bg-gold-500 hover:bg-gold-600 text-black font-bold" data-testid="button-start-analyzing">
                       <Sparkles className="w-4 h-4 mr-2" />
                       Start Analyzing
@@ -329,7 +329,7 @@ export default function ScoreHistory() {
                           {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Link href={`/cleanbi-auto?address=${encodeURIComponent(score.address)}`}>
+                          <Link href={`/cleanbi-explorer?address=${encodeURIComponent(score.address)}`}>
                             <Button size="sm" variant="ghost" className="text-white/70 hover:text-white h-8 w-8 p-0" data-testid={`button-view-${score.id}`}>
                               <Eye className="w-4 h-4" />
                             </Button>

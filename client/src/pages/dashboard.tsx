@@ -73,7 +73,7 @@ const ONBOARDING_STEPS = [
 const QUICK_ACTIONS = [
   { label: "POS Command Center", href: "/pos", icon: Monitor, description: "Manage orders, customers & machines", color: "bg-blue-500/10 text-blue-600" },
   { label: "Customer Portal", href: "/customer-portal", icon: Users, description: "Self-service for your customers", color: "bg-teal-500/10 text-teal-600" },
-  { label: "CLEANBI Score", href: "/cleanbi-auto", icon: BarChart3, description: "Analyze any location instantly", color: "bg-purple-500/10 text-purple-600" },
+  { label: "CLEANBI Explorer", href: "/cleanbi-explorer", icon: BarChart3, description: "Full map intelligence system", color: "bg-purple-500/10 text-purple-600" },
   { label: "Score History", href: "/score-history", icon: TrendingUp, description: "View your CLEANBI analysis history", color: "bg-indigo-500/10 text-indigo-600" },
   { label: "Referral Program", href: "/referral-program", icon: Gift, description: "Earn rewards for referrals", color: "bg-gold-500/10 text-gold-600" },
   { label: "Service Guy AI", href: "/service-guy-ai", icon: Bot, description: "AI equipment troubleshooting", color: "bg-orange-500/10 text-orange-600" },

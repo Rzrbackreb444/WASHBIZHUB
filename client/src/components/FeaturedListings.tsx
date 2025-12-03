@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight } from "lucide-react";
+import { Star, MapPin, DollarSign, TrendingUp, Phone, ArrowRight, Target } from "lucide-react";
 import { Link } from "wouter";
 import { LazyImage } from "@/components/LazyImage";
 import newportImage from "@assets/Dexter Laundromat_1763779877618.jpg";
@@ -11,6 +11,7 @@ interface FeaturedListing {
   name: string;
   location: string;
   state: string;
+  address: string;
   image?: string;
   price: string;
   annualRevenue: string;
@@ -30,6 +31,7 @@ const FEATURED_LISTINGS: FeaturedListing[] = [
     name: "Newport Laundry",
     location: "Newport Beach",
     state: "California",
+    address: "1205 Balboa Blvd, Newport Beach, CA 92661",
     image: newportImage,
     price: "$200,000",
     annualRevenue: "$82,753",
@@ -152,17 +154,29 @@ export function FeaturedListings() {
                     </div>
 
                     {/* CTA */}
-                    <div className="flex gap-3 pt-4 border-t">
-                      <Link href="/laundromat-listings">
-                        <Button className="gap-2 flex-1">
-                          View Details
-                          <ArrowRight className="w-4 h-4" />
+                    <div className="flex flex-col gap-3 pt-4 border-t">
+                      <div className="flex gap-3">
+                        <Link href="/laundromat-listings">
+                          <Button className="gap-2 flex-1">
+                            View Details
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Button variant="outline" className="gap-2 flex-1">
+                          <Phone className="w-4 h-4" />
+                          Contact Broker
+                        </Button>
+                      </div>
+                      <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`}>
+                        <Button 
+                          variant="outline" 
+                          className="w-full gap-2 border-accent/50 text-accent hover:bg-accent/10"
+                          data-testid={`button-cleanbi-analyze-${listing.id}`}
+                        >
+                          <MapPin className="w-4 h-4" />
+                          Analyze with CLEANBI
                         </Button>
                       </Link>
-                      <Button variant="outline" className="gap-2 flex-1">
-                        <Phone className="w-4 h-4" />
-                        Contact Broker
-                      </Button>
                     </div>
                   </CardContent>
                 </div>

@@ -83,6 +83,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ListingAnalyzer } from "@/components/ListingAnalyzer";
+import { useUsageQuota } from "@/hooks/useUsageQuota";
+import { UpgradeModal } from "@/components/monetization/UpgradeModal";
+import { UsageLimitBanner } from "@/components/monetization/UpgradePrompt";
 
 declare global {
   interface Window {
@@ -354,6 +357,11 @@ export default function CleanBIExplorer() {
   const markersRef = useRef<any[]>([]);
   const savedMarkersRef = useRef<any[]>([]);
   
+  const quota = useUsageQuota();
+  const userTier = quota.tier.toLowerCase() as "free" | "starter" | "pro" | "enterprise";
+  const remainingAnalyses = quota.remaining;
+  const isAtLimit = quota.isAtLimit;
+  
   const [businessName, setBusinessName] = useState("");
   const [address, setAddress] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -363,10 +371,8 @@ export default function CleanBIExplorer() {
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([]);
   const [showStreetView, setShowStreetView] = useState(false);
   const [showAerialView, setShowAerialView] = useState(false);
-  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
-  const [userTier, setUserTier] = useState<"free" | "starter" | "pro" | "enterprise">("free");
-  const [remainingAnalyses, setRemainingAnalyses] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
@@ -725,7 +731,7 @@ export default function CleanBIExplorer() {
           description: `You've used your free analysis today. Upgrade for unlimited access!`,
           variant: "destructive"
         });
-        setShowUpgradePrompt(true);
+        setShowUpgradeModal(true);
         setIsAnalyzing(false);
         return;
       }
@@ -776,8 +782,7 @@ export default function CleanBIExplorer() {
         }));
         setDealVerdict(null);
         
-        if (data.tier) setUserTier(data.tier);
-        if (typeof data.remainingDaily === "number") setRemainingAnalyses(data.remainingDaily);
+        quota.refetch();
         
         saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -881,7 +886,7 @@ export default function CleanBIExplorer() {
           description: `You've used your free analysis today. Upgrade for unlimited access!`,
           variant: "destructive"
         });
-        setShowUpgradePrompt(true);
+        setShowUpgradeModal(true);
         setIsAnalyzing(false);
         return;
       }
@@ -943,9 +948,7 @@ export default function CleanBIExplorer() {
         }));
         setDealVerdict(null);
         
-        // Track tier and remaining analyses for premium indicators
-        if (data.tier) setUserTier(data.tier);
-        if (typeof data.remainingDaily === "number") setRemainingAnalyses(data.remainingDaily);
+        quota.refetch();
         
         const saved = saveAnalysis(result);
         setSavedAnalyses(getStoredAnalyses());
@@ -1660,6 +1663,23 @@ export default function CleanBIExplorer() {
         }}
       />
 
+      {isAtLimit && (
+        <UsageLimitBanner 
+          used={quota.used} 
+          limit={quota.limit} 
+          feature="CLEANBI analyses" 
+        />
+      )}
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        feature="CLEANBI Explorer"
+        suggestedTier="starter"
+        title="Unlock Unlimited CLEANBI Analyses"
+        description="Get unlimited location analyses, 3D aerial views, competitor intel, and PDF exports."
+      />
+
       <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
         {/* Left Sidebar - Premium Navy Gradient */}
         <motion.div 
@@ -1901,7 +1921,7 @@ export default function CleanBIExplorer() {
                         ) : userTier === "free" && (
                           <div 
                             className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
-                            onClick={() => setShowUpgradePrompt(true)}
+                            onClick={() => setShowUpgradeModal(true)}
                             data-testid="solar-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
@@ -1954,7 +1974,7 @@ export default function CleanBIExplorer() {
                         ) : userTier === "free" && (
                           <div 
                             className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
-                            onClick={() => setShowUpgradePrompt(true)}
+                            onClick={() => setShowUpgradeModal(true)}
                             data-testid="property-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
@@ -2008,7 +2028,7 @@ export default function CleanBIExplorer() {
                         ) : (userTier === "free" || userTier === "starter") && (
                           <div 
                             className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
-                            onClick={() => setShowUpgradePrompt(true)}
+                            onClick={() => setShowUpgradeModal(true)}
                             data-testid="utility-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
@@ -2070,7 +2090,7 @@ export default function CleanBIExplorer() {
                         ) : (userTier === "free" || userTier === "starter") && (
                           <div 
                             className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
-                            onClick={() => setShowUpgradePrompt(true)}
+                            onClick={() => setShowUpgradeModal(true)}
                             data-testid="catchment-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
@@ -2100,7 +2120,7 @@ export default function CleanBIExplorer() {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={userTier === "free" ? () => setShowUpgradePrompt(true) : fetchAerialView}
+                        onClick={userTier === "free" ? () => setShowUpgradeModal(true) : fetchAerialView}
                         className={`flex-1 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#b8860b]/50" : ""}`}
                         data-testid="button-aerial-view"
                       >
@@ -2200,7 +2220,7 @@ export default function CleanBIExplorer() {
                               <Button 
                                 size="sm"
                                 className="bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium"
-                                onClick={() => setShowUpgradePrompt(true)}
+                                onClick={() => setShowUpgradeModal(true)}
                                 data-testid="button-unlock-subscores"
                               >
                                 <Crown className="w-3.5 h-3.5 mr-1.5" />
@@ -2363,7 +2383,7 @@ export default function CleanBIExplorer() {
                             <Button 
                               size="sm"
                               className="bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium"
-                              onClick={() => setShowUpgradePrompt(true)}
+                              onClick={() => setShowUpgradeModal(true)}
                               data-testid="button-unlock-financials"
                             >
                               <Crown className="w-3.5 h-3.5 mr-1.5" />
@@ -2504,7 +2524,7 @@ export default function CleanBIExplorer() {
                       <Button 
                         variant="outline" 
                         className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
-                        onClick={() => setShowUpgradePrompt(true)}
+                        onClick={() => setShowUpgradeModal(true)}
                         data-testid="button-calc-upgrade"
                       >
                         <Crown className="w-3 h-3 mr-1.5" />
@@ -2684,7 +2704,7 @@ export default function CleanBIExplorer() {
                         <Button 
                           variant="outline"
                           className="w-full h-9 text-xs border-[#b8860b]/30 text-[#b8860b] hover:bg-[#b8860b]/10"
-                          onClick={() => setShowUpgradePrompt(true)}
+                          onClick={() => setShowUpgradeModal(true)}
                           data-testid="button-export-upgrade"
                         >
                           <Lock className="w-3 h-3 mr-1.5" />
@@ -3062,7 +3082,7 @@ export default function CleanBIExplorer() {
                   {remainingAnalyses === 0 ? (
                     <Button
                       size="sm"
-                      onClick={() => setShowUpgradePrompt(true)}
+                      onClick={() => setShowUpgradeModal(true)}
                       className="w-full bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium text-xs h-8"
                       data-testid="button-upgrade-sidebar"
                     >
@@ -3073,7 +3093,7 @@ export default function CleanBIExplorer() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setShowUpgradePrompt(true)}
+                      onClick={() => setShowUpgradeModal(true)}
                       className="w-full text-[#b8860b] hover:text-white hover:bg-[#b8860b]/20 text-xs h-8"
                       data-testid="button-upgrade-sidebar"
                     >
@@ -3351,77 +3371,6 @@ export default function CleanBIExplorer() {
         )}
         </AnimatePresence>
 
-        {/* Upgrade Prompt Modal */}
-        <AnimatePresence>
-        {showUpgradePrompt && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm"
-            data-testid="modal-upgrade"
-          >
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full max-w-md bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] rounded-2xl overflow-hidden border border-[#b8860b]/30 shadow-2xl backdrop-blur-md"
-            >
-              <button
-                onClick={() => setShowUpgradePrompt(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 border border-white/10 transition-colors"
-                data-testid="button-close-upgrade"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              
-              <div className="p-8 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center shadow-xl">
-                  <Zap className="w-10 h-10 text-white" />
-                </div>
-                
-                <h2 className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>You've Hit Your Daily Limit</h2>
-                <p className="text-white/60 mb-6 font-medium">
-                  Free users get 1 location analysis per day. Upgrade to unlock unlimited analyses, 3D Aerial Views, revenue projections, and premium insights.
-                </p>
-                
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-left bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                    <span className="text-white/80 text-sm font-medium">Unlimited CLEANBI™ analyses</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-left bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                    <span className="text-white/80 text-sm font-medium">3D Aerial View flyovers</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-left bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                    <span className="text-white/80 text-sm font-medium">Detailed competitor intelligence</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-left bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                    <span className="text-white/80 text-sm font-medium">Export PDF reports</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-12 text-lg font-medium mb-3 shadow-xl"
-                  onClick={() => window.location.href = "/pricing"}
-                  data-testid="button-upgrade-now"
-                >
-                  Upgrade to Starter - $29/mo
-                </Button>
-                
-                <p className="text-white/40 text-xs font-medium">
-                  Your saved analyses are still accessible. Come back tomorrow for 3 more free analyses!
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-        </AnimatePresence>
 
         {/* Email Capture Gate Modal */}
         <AnimatePresence>
@@ -3822,7 +3771,7 @@ export default function CleanBIExplorer() {
                       <Button 
                         size="sm"
                         className="bg-[#b8860b] hover:bg-[#d4a030] text-black text-xs"
-                        onClick={() => setShowUpgradePrompt(true)}
+                        onClick={() => setShowUpgradeModal(true)}
                         data-testid="button-unlock-sentiment"
                       >
                         <Crown className="w-3 h-3 mr-1" />

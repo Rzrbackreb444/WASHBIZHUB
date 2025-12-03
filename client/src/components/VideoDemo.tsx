@@ -108,7 +108,7 @@ export function VideoDemo({ isOpen, onClose }: VideoDemoProps) {
                 </div>
                 <div className="flex-1 mx-4">
                   <div className="bg-white rounded-md px-3 py-1 text-sm text-slate-500 border">
-                    washbizhub.com/cleanbi-auto
+                    washbizhub.com/cleanbi-explorer
                   </div>
                 </div>
               </div>

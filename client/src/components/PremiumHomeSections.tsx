@@ -461,9 +461,9 @@ export function MarketplaceSection() {
                               </Button>
                             </Link>
                             <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.city + ', ' + listing.region)}`}>
-                              <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid={`button-cleanbi-analysis-${listing.id}`}>
-                                <Target className="w-4 h-4 mr-2" />
-                                Get Full CLEANBI Analysis
+                              <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid={`button-cleanbi-analyze-${listing.id}`}>
+                                <MapPin className="w-4 h-4 mr-2" />
+                                Analyze with CLEANBI
                               </Button>
                             </Link>
                           </div>

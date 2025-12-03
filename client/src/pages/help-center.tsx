@@ -141,7 +141,7 @@ const categories: FAQCategory[] = [
 ];
 
 const popularArticles = [
-  { title: "Getting Started with CLEANBI", icon: Target, href: "/cleanbi-auto" },
+  { title: "Getting Started with CLEANBI", icon: Target, href: "/cleanbi-explorer" },
   { title: "Understanding Laundromat Valuations", icon: Calculator, href: "/valuation-calculator" },
   { title: "How to Read a CLEANBI Report", icon: FileText, href: "/cleanbi-reports" },
   { title: "Subscription Plan Comparison", icon: CreditCard, href: "/pricing" },
