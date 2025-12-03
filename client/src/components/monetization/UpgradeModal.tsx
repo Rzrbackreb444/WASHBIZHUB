@@ -1,0 +1,210 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Zap, Crown, Building2, Check, ArrowRight, Sparkles,
+  MapPin, Calculator, TrendingUp, Users, Shield, Clock
+} from "lucide-react";
+import { Link } from "wouter";
+import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
+import { PLATFORM_TIERS, type PlatformTier } from "@/lib/tier-config";
+import { trackEvent, trackConversion } from "@/lib/user-journey";
+
+interface UpgradeModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  feature?: string;
+  suggestedTier?: PlatformTier;
+  title?: string;
+  description?: string;
+}
+
+const TIER_ICONS = {
+  free: Zap,
+  starter: Zap,
+  pro: Crown,
+  enterprise: Building2,
+};
+
+const UPGRADE_BENEFITS = {
+  starter: [
+    { icon: MapPin, text: "Unlimited CLEANBI location analyses" },
+    { icon: Calculator, text: "Full category breakdowns & AI insights" },
+    { icon: TrendingUp, text: "3D aerial views & competition heatmaps" },
+    { icon: Shield, text: "PDF export & priority email support" },
+  ],
+  pro: [
+    { icon: MapPin, text: "Everything in Starter, plus..." },
+    { icon: Calculator, text: "ROI & Valuation calculators" },
+    { icon: TrendingUp, text: "Monte Carlo risk simulations" },
+    { icon: Shield, text: "API access (500 calls/month)" },
+  ],
+  enterprise: [
+    { icon: MapPin, text: "Everything in Pro, plus..." },
+    { icon: Users, text: "Ownership & lien data lookup" },
+    { icon: TrendingUp, text: "Motivated seller detection" },
+    { icon: Shield, text: "White-label reports & unlimited API" },
+  ],
+};
+
+export function UpgradeModal({
+  open,
+  onOpenChange,
+  feature,
+  suggestedTier = "starter",
+  title,
+  description
+}: UpgradeModalProps) {
+  const { tier: currentTier } = useSubscription();
+  const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier);
+  
+  const tierConfig = PLATFORM_TIERS[selectedTier];
+  const TierIcon = TIER_ICONS[selectedTier];
+  const benefits = UPGRADE_BENEFITS[selectedTier as keyof typeof UPGRADE_BENEFITS] || UPGRADE_BENEFITS.starter;
+
+  const handleUpgradeClick = () => {
+    trackConversion("upgrade_modal_click", tierConfig.price, { 
+      tier: selectedTier, 
+      feature,
+      from: currentTier 
+    });
+    onOpenChange(false);
+  };
+
+  const availableTiers: PlatformTier[] = ["starter", "pro", "enterprise"].filter(
+    t => PLATFORM_TIERS[t as PlatformTier].price > (PLATFORM_TIERS[currentTier as PlatformTier]?.price || 0)
+  ) as PlatformTier[];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg bg-card border-border">
+        <DialogHeader className="text-center pb-2">
+          <div className="mx-auto mb-3 p-3 rounded-full bg-accent/10 w-fit">
+            <Sparkles className="h-6 w-6 text-accent" />
+          </div>
+          
+          <DialogTitle className="text-2xl font-bold text-card-foreground">
+            {title || "Unlock Premium Features"}
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            {description || "Upgrade to access advanced tools and grow your business faster."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {availableTiers.length > 1 && (
+          <div className="flex justify-center gap-2 py-2">
+            {availableTiers.map((tier) => {
+              const config = PLATFORM_TIERS[tier];
+              return (
+                <Button
+                  key={tier}
+                  variant={selectedTier === tier ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedTier(tier)}
+                  className={selectedTier === tier ? "bg-accent text-accent-foreground" : ""}
+                  data-testid={`button-select-tier-${tier}`}
+                >
+                  {config.name}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        <Card className="border-accent/30 bg-gradient-to-br from-card to-accent/5">
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${tierConfig.iconBg}`}>
+                  <TierIcon className={`h-5 w-5 ${tierConfig.iconColor}`} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-card-foreground">{tierConfig.name}</h3>
+                  <p className="text-sm text-muted-foreground">{tierConfig.tagline}</p>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-2xl font-bold text-card-foreground">
+                  ${tierConfig.price}
+                  <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                </div>
+                {tierConfig.popular && (
+                  <Badge className="bg-accent/20 text-accent border-accent/30 text-xs">
+                    Most Popular
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              {benefits.map((benefit, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm">
+                  <div className="p-1 rounded bg-accent/10">
+                    <benefit.icon className="h-3.5 w-3.5 text-accent" />
+                  </div>
+                  <span className="text-card-foreground">{benefit.text}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-3 pt-2">
+          <Link href="/pricing" onClick={handleUpgradeClick}>
+            <Button 
+              className="w-full btn-premium-gold text-white font-semibold h-12 group"
+              data-testid="button-upgrade-modal-cta"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Start 7-Day Free Trial
+              <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
+          
+          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              30-day guarantee
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              Cancel anytime
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function useUpgradeModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalProps, setModalProps] = useState<Partial<UpgradeModalProps>>({});
+
+  const openUpgradeModal = (props?: Partial<UpgradeModalProps>) => {
+    setModalProps(props || {});
+    setIsOpen(true);
+    trackEvent("upgrade_modal_opened", "engagement", undefined, props);
+  };
+
+  const closeUpgradeModal = () => {
+    setIsOpen(false);
+    setModalProps({});
+  };
+
+  return {
+    isOpen,
+    openUpgradeModal,
+    closeUpgradeModal,
+    UpgradeModalComponent: () => (
+      <UpgradeModal
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        {...modalProps}
+      />
+    ),
+  };
+}

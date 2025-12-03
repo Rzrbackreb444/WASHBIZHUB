@@ -52,10 +52,7 @@ const fadeInItem = {
 function SignupSkeleton() {
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        background: "linear-gradient(135deg, hsl(210 57% 15% / 0.03) 0%, hsl(43 89% 38% / 0.05) 50%, hsl(210 57% 15% / 0.03) 100%)"
-      }}
+      className="min-h-screen flex items-center justify-center p-4 auth-gradient-bg"
       data-testid="skeleton-signup"
     >
       <div className="w-full max-w-md space-y-6">
@@ -299,9 +296,9 @@ export default function Signup() {
 
   const passwordStrength = useMemo(() => {
     if (!password) return null;
-    if (password.length < 8) return { label: "Too short", color: "text-red-500", bgColor: "bg-red-500" };
-    if (password.length < 12) return { label: "Good", color: "text-amber-500", bgColor: "bg-amber-500" };
-    return { label: "Strong", color: "text-green-500", bgColor: "bg-green-500" };
+    if (password.length < 8) return { label: "Too short", color: "text-red-500 dark:text-red-400", bgColor: "bg-red-500 dark:bg-red-400" };
+    if (password.length < 12) return { label: "Good", color: "text-amber-500 dark:text-amber-400", bgColor: "bg-amber-500 dark:bg-amber-400" };
+    return { label: "Strong", color: "text-green-500 dark:text-green-400", bgColor: "bg-green-500 dark:bg-green-400" };
   }, [password]);
 
   const passwordsMatch = useMemo(() => {
@@ -333,10 +330,7 @@ export default function Signup() {
       />
 
       <div 
-        className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8"
-        style={{
-          background: "linear-gradient(135deg, hsl(210 57% 15% / 0.03) 0%, hsl(43 89% 38% / 0.05) 50%, hsl(210 57% 15% / 0.03) 100%)"
-        }}
+        className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 auth-gradient-bg"
       >
         <motion.div 
           className="w-full max-w-md space-y-6"
@@ -638,7 +632,7 @@ export default function Signup() {
                           />
                           {passwordsMatch && (
                             <CheckCircle2 
-                              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" 
+                              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 dark:text-green-400" 
                               aria-hidden="true"
                             />
                           )}

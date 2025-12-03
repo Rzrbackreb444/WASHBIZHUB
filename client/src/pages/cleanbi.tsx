@@ -60,10 +60,10 @@ export default function CleanBI() {
   const avgScore = totalScore / 7;
   
   const getGrade = (score: number) => {
-    if (score >= 85) return { grade: "A", color: "text-green-400", bg: "bg-green-400/20" };
-    if (score >= 70) return { grade: "B", color: "text-yellow-400", bg: "bg-yellow-400/20" };
-    if (score >= 50) return { grade: "C", color: "text-orange-400", bg: "bg-orange-400/20" };
-    return { grade: "Needs Work", color: "text-red-400", bg: "bg-red-400/20" };
+    if (score >= 85) return { grade: "A", color: "text-green-600 dark:text-green-400", bg: "bg-green-600/20 dark:bg-green-400/20" };
+    if (score >= 70) return { grade: "B", color: "text-lime-600 dark:text-lime-400", bg: "bg-lime-600/20 dark:bg-lime-400/20" };
+    if (score >= 50) return { grade: "C", color: "text-amber-500 dark:text-amber-400", bg: "bg-amber-500/20 dark:bg-amber-400/20" };
+    return { grade: "Needs Work", color: "text-[#C8A661]", bg: "bg-[#C8A661]/20" };
   };
 
   const gradeInfo = getGrade(avgScore);

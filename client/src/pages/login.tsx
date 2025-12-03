@@ -50,10 +50,7 @@ const fadeInItem = {
 function LoginSkeleton() {
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        background: "linear-gradient(135deg, hsl(210 57% 15% / 0.03) 0%, hsl(43 89% 38% / 0.05) 50%, hsl(210 57% 15% / 0.03) 100%)"
-      }}
+      className="min-h-screen flex items-center justify-center p-4 auth-gradient-bg"
       data-testid="skeleton-login"
     >
       <div className="w-full max-w-md space-y-6">
@@ -265,10 +262,7 @@ export default function Login() {
       />
 
       <div 
-        className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8"
-        style={{
-          background: "linear-gradient(135deg, hsl(210 57% 15% / 0.03) 0%, hsl(43 89% 38% / 0.05) 50%, hsl(210 57% 15% / 0.03) 100%)"
-        }}
+        className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 auth-gradient-bg"
       >
         <motion.div 
           className="w-full max-w-md space-y-6"

@@ -54,23 +54,23 @@ export function Header() {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-[#b8860b] focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-accent focus:text-accent-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-accent-foreground focus:ring-offset-2"
         data-testid="link-skip-to-content"
       >
         Skip to main content
       </a>
       
       {/* Stripe-style top announcement bar */}
-      <div className="bg-[#1e3a5f]" data-testid="trust-bar">
+      <div className="bg-primary" data-testid="trust-bar">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-center py-2.5 gap-4 sm:gap-8 text-xs sm:text-sm">
-            <span className="text-white/80 hidden sm:inline">220+ Countries</span>
-            <span className="text-white/40 hidden sm:inline">|</span>
-            <span className="text-white font-medium">72,000+ Members</span>
-            <span className="text-white/40 hidden md:inline">|</span>
-            <span className="text-white/80 hidden md:inline">50+ Business Tools</span>
-            <span className="text-white/40 hidden lg:inline">|</span>
-            <span className="text-[#d4a030] font-semibold hidden lg:inline">#1 Laundromat Platform</span>
+            <span className="text-primary-foreground/80 hidden sm:inline">220+ Countries</span>
+            <span className="text-primary-foreground/40 hidden sm:inline">|</span>
+            <span className="text-primary-foreground font-medium">72,000+ Members</span>
+            <span className="text-primary-foreground/40 hidden md:inline">|</span>
+            <span className="text-primary-foreground/80 hidden md:inline">50+ Business Tools</span>
+            <span className="text-primary-foreground/40 hidden lg:inline">|</span>
+            <span className="text-accent font-semibold hidden lg:inline">#1 Laundromat Platform</span>
           </div>
         </div>
       </div>
@@ -260,12 +260,12 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="w-[320px] sm:w-[380px] bg-background border-l border-border p-0"
+                  className="w-[320px] sm:w-[380px] bg-card dark:bg-card border-l border-border p-0"
                   data-testid="nav-mobile-drawer"
                 >
                   <div className="flex flex-col h-full">
                     <SheetHeader className="p-6 border-b border-border">
-                      <SheetTitle className="text-foreground text-xl font-bold">
+                      <SheetTitle className="text-card-foreground dark:text-white text-xl font-bold">
                         Menu
                       </SheetTitle>
                       <SheetDescription className="sr-only">
@@ -281,8 +281,8 @@ export function Header() {
                             <div 
                               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                                 location === link.href || location.startsWith(link.href + '?')
-                                  ? 'bg-accent/10 text-accent border border-accent/20'
-                                  : 'text-foreground hover:bg-muted'
+                                  ? 'bg-accent/15 text-accent dark:text-accent border border-accent/30'
+                                  : 'text-card-foreground dark:text-white/90 hover:bg-muted dark:hover:bg-white/10'
                               }`}
                               onClick={() => setMobileMenuOpen(false)}
                               data-testid={`link-mobile-${link.href.replace('/', '')}-quick`}
@@ -301,24 +301,24 @@ export function Header() {
                           onOpenChange={() => toggleSection('more')}
                         >
                           <CollapsibleTrigger 
-                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-muted transition-colors"
+                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-muted dark:hover:bg-white/10 transition-colors"
                             data-testid="button-mobile-section-more"
                           >
-                            <span className="text-muted-foreground font-medium text-sm">
+                            <span className="text-card-foreground/70 dark:text-white/70 font-medium text-sm">
                               More Options
                             </span>
                             <ChevronRight 
-                              className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                              className={`w-4 h-4 text-card-foreground/70 dark:text-white/70 transition-transform duration-200 ${
                                 expandedSections.includes('more') ? 'rotate-90' : ''
                               }`} 
                               aria-hidden="true" 
                             />
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="bg-muted/50">
+                          <CollapsibleContent className="bg-muted/30 dark:bg-white/5">
                             {secondaryLinks.map((link) => (
                               <Link href={link.href} key={link.href}>
                                 <div 
-                                  className="px-6 pl-10 py-3 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer text-sm font-medium"
+                                  className="px-6 pl-10 py-3 text-card-foreground/80 dark:text-white/80 hover:bg-muted dark:hover:bg-white/10 hover:text-card-foreground dark:hover:text-white transition-colors cursor-pointer text-sm font-medium"
                                   onClick={() => setMobileMenuOpen(false)}
                                   data-testid={`link-mobile-${link.href.replace('/', '')}`}
                                 >
@@ -332,7 +332,7 @@ export function Header() {
                     </div>
                     
                     {/* Bottom actions */}
-                    <div className="p-6 border-t border-border space-y-3 bg-muted/50">
+                    <div className="p-6 border-t border-border space-y-3 bg-muted/30 dark:bg-white/5">
                       {!isAuthenticated && (
                         <Button 
                           onClick={() => {
@@ -340,7 +340,7 @@ export function Header() {
                             window.location.href = '/api/login';
                           }}
                           variant="outline"
-                          className="w-full justify-center font-medium"
+                          className="w-full justify-center font-medium text-card-foreground dark:text-white border-border dark:border-white/20"
                           data-testid="button-mobile-login"
                         >
                           <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -365,7 +365,7 @@ export function Header() {
                           <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
                             <Button 
                               variant="ghost"
-                              className="w-full justify-start text-muted-foreground hover:text-foreground"
+                              className="w-full justify-start text-card-foreground/80 dark:text-white/80 hover:text-card-foreground dark:hover:text-white"
                               data-testid="button-mobile-settings"
                             >
                               <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -378,7 +378,7 @@ export function Header() {
                               window.location.href = '/api/logout';
                             }}
                             variant="ghost"
-                            className="w-full justify-start text-muted-foreground hover:text-foreground"
+                            className="w-full justify-start text-card-foreground/80 dark:text-white/80 hover:text-card-foreground dark:hover:text-white"
                             data-testid="button-mobile-logout"
                           >
                             <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
