@@ -679,13 +679,40 @@ export default function OurPartnership() {
                 </p>
               </div>
               <a 
-                href="https://www.facebook.com/groups/laundromats" 
+                href="https://facebook.com/groups/thelaundromat" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
                 <Button size="lg" variant="secondary" className="font-bold" data-testid="button-join-facebook">
                   <Facebook className="w-5 h-5 mr-2" />
                   Join the Community
+                </Button>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Seller CTA - Help Selling */}
+        <section className="py-16 bg-gradient-to-r from-green-600 to-emerald-700" data-testid="section-seller-cta">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                  <span className="text-white/80 text-sm font-medium">300+ Deals Brokered</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  Need Help Selling Your Laundromat?
+                </h2>
+                <p className="text-white/80 max-w-xl">
+                  With Larry's 50+ years of brokerage experience and access to 72,000+ qualified buyers, 
+                  we'll help you sell your laundromat quickly and at the right price.
+                </p>
+              </div>
+              <a href="mailto:consult@washbizhub.com?subject=I%20Want%20to%20Sell%20My%20Laundromat">
+                <Button size="lg" className="bg-white text-green-700 hover:bg-white/90 font-bold" data-testid="button-sell-contact">
+                  <Building2 className="w-5 h-5 mr-2" />
+                  Contact Us to Sell
                 </Button>
               </a>
             </div>
@@ -749,7 +776,7 @@ export default function OurPartnership() {
                 }
               ],
               "sameAs": [
-                "https://www.facebook.com/groups/laundromats"
+                "https://facebook.com/groups/thelaundromat"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
