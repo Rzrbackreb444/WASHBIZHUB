@@ -27,6 +27,7 @@ import { JourneyProgress } from "@/components/JourneyProgress";
 import { DealScout, DealScoutBanner } from "@/components/DealScout";
 import { FoundingMemberBanner } from "@/components/FoundingMember";
 import { HomeSkeleton } from "@/components/Skeletons";
+import { DueDiligenceChecklistModal } from "@/components/DueDiligenceChecklistModal";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -1337,65 +1338,13 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* EXIT INTENT POPUP */}
-      {showExitIntent && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" data-testid="exit-intent-popup">
-          <Card className="max-w-md w-full p-6 bg-card relative animate-in zoom-in-95">
-            <button 
-              onClick={() => setShowExitIntent(false)}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
-              data-testid="button-close-exit-intent"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 mb-4">
-                <FileText className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Wait! Don't Leave Empty-Handed
-              </h3>
-              <p className="text-muted-foreground">
-                Get our free "7-Point Due Diligence Checklist" - the same one used by 8,000+ investors.
-              </p>
-            </div>
-            
-            <ul className="space-y-2 mb-6">
-              <li className="flex items-center gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                Location red flags to watch for
-              </li>
-              <li className="flex items-center gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                Financial verification steps
-              </li>
-              <li className="flex items-center gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                Equipment inspection guide
-              </li>
-              <li className="flex items-center gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                Lease negotiation tips
-              </li>
-            </ul>
-            
-            <Link href="/subscribe">
-              <Button className="w-full mb-3" data-testid="button-get-checklist">
-                <FileText className="w-4 h-4 mr-2" />
-                Get Free Checklist
-              </Button>
-            </Link>
-            <button 
-              onClick={() => setShowExitIntent(false)}
-              className="w-full text-sm text-muted-foreground hover:text-foreground"
-              data-testid="button-no-thanks"
-            >
-              No thanks, I'll skip this
-            </button>
-          </Card>
-        </div>
-      )}
+      {/* EXIT INTENT - Premium Due Diligence Checklist Modal */}
+      <DueDiligenceChecklistModal
+        isOpen={showExitIntent}
+        onClose={() => setShowExitIntent(false)}
+        onSuccess={() => setShowExitIntent(false)}
+        source="exit_intent"
+      />
     </>
   );
 }

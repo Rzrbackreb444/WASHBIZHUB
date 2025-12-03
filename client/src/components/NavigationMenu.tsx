@@ -31,7 +31,8 @@ import {
   MapPin, Building2, DollarSign, Calculator, Palette,
   ShoppingCart, Package, Handshake,
   BookOpen, GraduationCap, HelpCircle, Wallet,
-  BarChart3, Zap
+  BarChart3, Zap, Landmark, Factory, CreditCard, 
+  Briefcase, TrendingUp, PiggyBank, Receipt
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
@@ -51,8 +52,17 @@ const MARKETPLACE_LINKS = [
 const RESOURCES_LINKS = [
   { href: "/blog", label: "Industry Blog", icon: BookOpen, desc: "News & insights" },
   { href: "/courses", label: "Education Hub", icon: GraduationCap, desc: "Courses & training" },
-  { href: "/startup-funding", label: "Funding Options", icon: Wallet, desc: "SBA, financing & more" },
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
+];
+
+const FUNDING_LINKS = [
+  { href: "/funding", label: "Funding Hub", icon: DollarSign, desc: "Compare all 7 lenders", featured: true },
+  { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, desc: "No business history required" },
+  { href: "/funding?tab=acquisitions", label: "Acquisition & SBA", icon: Briefcase, desc: "10-25 year terms" },
+  { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Same-day approval" },
+  { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Landmark, desc: "Up to 80% LTV" },
+  { href: "/funding?tab=fastcash", label: "Fast Capital & MCA", icon: TrendingUp, desc: "Same-day funding" },
+  { href: "/gokapital", label: "GoKapital Partner", icon: Building2, desc: "Commercial RE specialist" },
 ];
 
 interface NavLinkItem {
@@ -339,6 +349,36 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* Funding - 7 Lending Partners */}
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger 
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        data-testid="dropdown-funding"
+                      >
+                        Funding
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[380px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-3 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
+                              <Wallet className="w-3.5 h-3.5" />
+                              7 Trusted Lending Partners
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {FUNDING_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+
                     {/* Pricing - Direct link */}
                     <NavigationMenuItem>
                       <Link href="/pricing">
@@ -485,6 +525,29 @@ export function NavigationMenu() {
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
                               {RESOURCES_LINKS.map((link) => (
+                                <MobileNavLink
+                                  key={link.href}
+                                  href={link.href}
+                                  label={link.label}
+                                  isActive={isActive(link.href)}
+                                  onClick={closeMobileMenu}
+                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                />
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="funding" className="border-b border-border/50">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                            <span className="flex items-center gap-2">
+                              <DollarSign className="w-4 h-4 text-[#b8860b]" />
+                              Funding
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent className="pb-2">
+                            <div className="space-y-1">
+                              {FUNDING_LINKS.map((link) => (
                                 <MobileNavLink
                                   key={link.href}
                                   href={link.href}
