@@ -135,7 +135,7 @@ export function PremiumHero() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#b8860b]/20 border border-[#b8860b]/30 text-[#b8860b] text-sm font-semibold tracking-wide uppercase"
               >
                 <Star className="w-4 h-4 fill-current" />
-                #1 Laundromat Intelligence Platform
+                Your Laundromat Headquarters
               </span>
             </motion.div>
             
@@ -145,10 +145,10 @@ export function PremiumHero() {
               style={{ fontFamily: 'var(--font-bebas)' }}
             >
               <span className="block text-[clamp(3rem,8vw,5.25rem)] tracking-tight">
-                THE COMMAND CENTER
+                KNOW BEFORE YOU BUY
               </span>
               <span className="block text-[clamp(2rem,5vw,3rem)] text-white/70 tracking-wide mt-2">
-                FOR LAUNDROMAT SUCCESS
+                SCORE ANY LOCATION INSTANTLY
               </span>
             </motion.h1>
             
@@ -156,30 +156,31 @@ export function PremiumHero() {
               variants={itemVariants}
               className="text-xl lg:text-2xl text-white/70 leading-relaxed mb-10 font-light"
             >
-              Plan acquisitions. Evaluate locations. Operate profitably. 
-              Everything you need to build a thriving laundromat empire.
+              Enter any address and get an instant investment grade. 
+              Our AI analyzes demographics, competition, traffic patterns, 
+              and 50+ data points to reveal hidden opportunities.
             </motion.p>
             
             <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-12">
-              <Link href="/cleanbi-auto">
+              <Link href="/cleanbi-explorer">
                 <Button 
                   size="lg"
                   className="h-14 px-8 text-base font-semibold bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-xl shadow-[#b8860b]/25 transition-all duration-300 hover:shadow-2xl hover:shadow-[#b8860b]/30 hover:-translate-y-0.5"
                   data-testid="button-analyze-location"
                 >
-                  Analyze Any Location
+                  Score Any Location Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/templates">
+              <Link href="/pricing">
                 <Button 
                   variant="outline" 
                   size="lg"
                   className="h-14 px-8 text-base font-semibold border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300"
-                  data-testid="button-get-templates"
+                  data-testid="button-view-plans"
                 >
                   <Play className="mr-2 h-4 w-4" />
-                  Watch Demo
+                  See Plans & Pricing
                 </Button>
               </Link>
             </motion.div>

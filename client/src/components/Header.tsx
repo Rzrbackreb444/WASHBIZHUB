@@ -8,12 +8,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GlobalSearchTrigger } from "@/components/GlobalSearch";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const primaryNavLinks = [
-  { href: "/cleanbi", label: "CLEANBI™", icon: MapPin },
+  { href: "/cleanbi-explorer", label: "Score Any Location", icon: MapPin, highlight: true },
   { href: "/directory", label: "Directory", icon: FolderOpen },
   { href: "/funding", label: "Funding", icon: DollarSign },
   { href: "/calculators", label: "Calculators", icon: Calculator },
@@ -75,12 +75,12 @@ export function Header() {
         </div>
       </div>
       
-      {/* Stripe-style clean white header */}
+      {/* Stripe-style clean header with dark mode support */}
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 bg-white ${
+        className={`sticky top-0 z-50 transition-all duration-300 bg-background ${
           isScrolled 
-            ? 'shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)]' 
-            : 'border-b border-gray-100'
+            ? 'shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_4px_12px_rgba(0,0,0,0.2)]' 
+            : 'border-b border-border'
         }`}
         data-testid="header-main"
       >
@@ -102,7 +102,7 @@ export function Header() {
                   width={40}
                   height={40}
                 />
-                <span className="hidden sm:block text-xl font-bold text-[#1e3a5f] tracking-tight">
+                <span className="hidden sm:block text-xl font-bold text-primary dark:text-foreground tracking-tight">
                   WashBizHub
                 </span>
               </div>
@@ -114,9 +114,11 @@ export function Header() {
                 <Link href={link.href} key={link.href}>
                   <span 
                     className={`px-3.5 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-                      location === link.href || location.startsWith(link.href + '?')
-                        ? 'text-[#b8860b] bg-[#b8860b]/5' 
-                        : 'text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-50'
+                      (link as any).highlight
+                        ? 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm'
+                        : location === link.href || location.startsWith(link.href + '?')
+                          ? 'text-accent bg-accent/10' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     }`}
                     data-testid={`link-nav-${link.href.replace('/', '')}-quick`}
                   >
@@ -134,8 +136,8 @@ export function Header() {
                 <button
                   className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-md transition-colors ${
                     megaMenuOpen
-                      ? 'text-[#1e3a5f] bg-gray-50'
-                      : 'text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-50'
+                      ? 'text-foreground bg-muted'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                   onClick={() => setMegaMenuOpen(!megaMenuOpen)}
                   aria-expanded={megaMenuOpen}
@@ -157,11 +159,11 @@ export function Header() {
                   }`}
                   data-testid="mega-menu-panel"
                 >
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-xl p-2 min-w-[220px]">
+                  <div className="bg-popover border border-border rounded-xl shadow-xl p-2 min-w-[220px]">
                     {secondaryLinks.map((link) => (
                       <Link href={link.href} key={link.href}>
                         <div 
-                          className="px-4 py-2.5 text-sm text-gray-700 rounded-lg transition-colors hover:bg-gray-50 hover:text-[#1e3a5f] cursor-pointer font-medium"
+                          className="px-4 py-2.5 text-sm text-popover-foreground rounded-lg transition-colors hover:bg-muted hover:text-foreground cursor-pointer font-medium"
                           onClick={() => setMegaMenuOpen(false)}
                           data-testid={`link-nav-${link.href.replace('/', '')}`}
                         >
@@ -188,7 +190,7 @@ export function Header() {
                         <Button 
                           variant="ghost"
                           size="icon"
-                          className="text-gray-500 hover:text-[#1e3a5f] hover:bg-gray-100"
+                          className="text-muted-foreground hover:text-foreground"
                           aria-label="Settings"
                           data-testid="button-settings"
                         >
@@ -196,7 +198,7 @@ export function Header() {
                         </Button>
                       </Link>
                       
-                      <div className="hidden md:flex items-center gap-2 text-gray-600 text-sm px-3 py-1.5 bg-gray-100 rounded-full">
+                      <div className="hidden md:flex items-center gap-2 text-muted-foreground text-sm px-3 py-1.5 bg-muted rounded-full">
                         <User className="h-4 w-4" aria-hidden="true" />
                         <span className="font-medium max-w-[100px] truncate">
                           {user?.firstName || user?.email || 'User'}
@@ -207,7 +209,7 @@ export function Header() {
                         onClick={() => window.location.href = '/api/logout'}
                         variant="ghost"
                         size="sm"
-                        className="hidden sm:flex text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-100"
+                        className="hidden sm:flex text-muted-foreground hover:text-foreground"
                         data-testid="button-logout"
                       >
                         <LogOut className="h-4 w-4 mr-1.5" aria-hidden="true" />
@@ -219,7 +221,7 @@ export function Header() {
                       onClick={() => window.location.href = '/api/login'}
                       variant="ghost"
                       size="sm"
-                      className="hidden sm:flex text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-100 font-medium"
+                      className="hidden sm:flex text-muted-foreground hover:text-foreground font-medium"
                       data-testid="button-login"
                     >
                       <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
@@ -249,7 +251,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-100"
+                    className="lg:hidden text-muted-foreground hover:text-foreground"
                     aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                     data-testid="button-mobile-menu"
                   >
@@ -258,14 +260,17 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="w-[320px] sm:w-[380px] bg-white border-l border-gray-200 p-0"
+                  className="w-[320px] sm:w-[380px] bg-background border-l border-border p-0"
                   data-testid="nav-mobile-drawer"
                 >
                   <div className="flex flex-col h-full">
-                    <SheetHeader className="p-6 border-b border-gray-100">
-                      <SheetTitle className="text-[#1e3a5f] text-xl font-bold">
+                    <SheetHeader className="p-6 border-b border-border">
+                      <SheetTitle className="text-foreground text-xl font-bold">
                         Menu
                       </SheetTitle>
+                      <SheetDescription className="sr-only">
+                        Navigation menu with links to all WashBizHub sections
+                      </SheetDescription>
                     </SheetHeader>
                     
                     <div className="flex-1 overflow-y-auto">
@@ -276,8 +281,8 @@ export function Header() {
                             <div 
                               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                                 location === link.href || location.startsWith(link.href + '?')
-                                  ? 'bg-[#b8860b]/10 text-[#b8860b] border border-[#b8860b]/20'
-                                  : 'text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-accent/10 text-accent border border-accent/20'
+                                  : 'text-foreground hover:bg-muted'
                               }`}
                               onClick={() => setMobileMenuOpen(false)}
                               data-testid={`link-mobile-${link.href.replace('/', '')}-quick`}
@@ -290,30 +295,30 @@ export function Header() {
                       </div>
 
                       {/* Secondary Links */}
-                      <div className="border-t border-gray-100 py-2">
+                      <div className="border-t border-border py-2">
                         <Collapsible 
                           open={expandedSections.includes('more')}
                           onOpenChange={() => toggleSection('more')}
                         >
                           <CollapsibleTrigger 
-                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-gray-50 transition-colors"
+                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-muted transition-colors"
                             data-testid="button-mobile-section-more"
                           >
-                            <span className="text-gray-500 font-medium text-sm">
+                            <span className="text-muted-foreground font-medium text-sm">
                               More Options
                             </span>
                             <ChevronRight 
-                              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                              className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
                                 expandedSections.includes('more') ? 'rotate-90' : ''
                               }`} 
                               aria-hidden="true" 
                             />
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="bg-gray-50">
+                          <CollapsibleContent className="bg-muted/50">
                             {secondaryLinks.map((link) => (
                               <Link href={link.href} key={link.href}>
                                 <div 
-                                  className="px-6 pl-10 py-3 text-gray-600 hover:bg-gray-100 hover:text-[#1e3a5f] transition-colors cursor-pointer text-sm font-medium"
+                                  className="px-6 pl-10 py-3 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer text-sm font-medium"
                                   onClick={() => setMobileMenuOpen(false)}
                                   data-testid={`link-mobile-${link.href.replace('/', '')}`}
                                 >
@@ -327,7 +332,7 @@ export function Header() {
                     </div>
                     
                     {/* Bottom actions */}
-                    <div className="p-6 border-t border-gray-100 space-y-3 bg-gray-50">
+                    <div className="p-6 border-t border-border space-y-3 bg-muted/50">
                       {!isAuthenticated && (
                         <Button 
                           onClick={() => {
@@ -335,7 +340,7 @@ export function Header() {
                             window.location.href = '/api/login';
                           }}
                           variant="outline"
-                          className="w-full justify-center text-[#1e3a5f] border-[#1e3a5f]/20 hover:bg-[#1e3a5f]/5 font-medium"
+                          className="w-full justify-center font-medium"
                           data-testid="button-mobile-login"
                         >
                           <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -360,7 +365,7 @@ export function Header() {
                           <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
                             <Button 
                               variant="ghost"
-                              className="w-full justify-start text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-100"
+                              className="w-full justify-start text-muted-foreground hover:text-foreground"
                               data-testid="button-mobile-settings"
                             >
                               <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -373,7 +378,7 @@ export function Header() {
                               window.location.href = '/api/logout';
                             }}
                             variant="ghost"
-                            className="w-full justify-start text-gray-600 hover:text-[#1e3a5f] hover:bg-gray-100"
+                            className="w-full justify-start text-muted-foreground hover:text-foreground"
                             data-testid="button-mobile-logout"
                           >
                             <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
