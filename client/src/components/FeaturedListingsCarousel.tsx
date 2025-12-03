@@ -2,13 +2,14 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, ChevronRight } from "lucide-react";
+import { MapPin, DollarSign, ChevronRight, Target } from "lucide-react";
 
 const FEATURED_LISTINGS = [
   {
     id: "1",
     name: "Modern Laundromat - Dallas, TX",
     location: "Dallas, TX",
+    address: "2847 Main St, Dallas, TX 75201",
     revenue: "$15,000/month",
     type: "Laundromat",
     excerpt: "Updated equipment, high foot traffic location, established customer base"
@@ -17,6 +18,7 @@ const FEATURED_LISTINGS = [
     id: "2",
     name: "Car Wash - Oklahoma City",
     location: "Oklahoma City, OK",
+    address: "1520 NW Expressway, Oklahoma City, OK 73118",
     revenue: "$22,000/month",
     type: "Car Wash",
     excerpt: "Automatic wash system, 8 bays, loyal customer base, growth potential"
@@ -25,6 +27,7 @@ const FEATURED_LISTINGS = [
     id: "3",
     name: "Dry Cleaning & Laundry Combo",
     location: "Little Rock, AR",
+    address: "4200 W Markham St, Little Rock, AR 72205",
     revenue: "$18,500/month",
     type: "Multi-Service",
     excerpt: "Diversified revenue streams, professional staff, established brand"
@@ -33,6 +36,7 @@ const FEATURED_LISTINGS = [
     id: "4",
     name: "Premium Laundromat - Dallas Area",
     location: "Dallas, TX",
+    address: "8350 Park Lane, Dallas, TX 75231",
     revenue: "$19,000/month",
     type: "Laundromat",
     excerpt: "New construction, premium amenities, strong demographic area"
@@ -74,9 +78,22 @@ export function FeaturedListingsCarousel() {
                   </div>
                 </div>
                 <p className="text-xs text-white/60">{listing.excerpt}</p>
-                <Link href="/laundromat-listings">
-                  <Button size="sm" variant="default" className="w-full">View Details</Button>
-                </Link>
+                <div className="space-y-2">
+                  <Link href="/laundromat-listings">
+                    <Button size="sm" variant="default" className="w-full">View Details</Button>
+                  </Link>
+                  <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`}>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10"
+                      data-testid={`button-cleanbi-analyze-${listing.id}`}
+                    >
+                      <MapPin className="w-3 h-3 mr-1" />
+                      CLEANBI Score
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           ))}

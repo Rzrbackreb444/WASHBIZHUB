@@ -538,11 +538,11 @@ export default function LaundromatListings() {
                     <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address || listing.location + ", " + listing.state)}`}>
                       <Button 
                         variant="outline" 
-                        className="w-full border-white/20 text-white hover:bg-white/10"
-                        data-testid={`button-analyze-${listing.id}`}
+                        className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10"
+                        data-testid={`button-cleanbi-analyze-${listing.id}`}
                       >
-                        <Target className="w-4 h-4 mr-1" />
-                        Analyze
+                        <MapPin className="w-4 h-4 mr-1" />
+                        CLEANBI Score
                       </Button>
                     </Link>
                   </div>

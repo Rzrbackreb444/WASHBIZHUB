@@ -251,7 +251,7 @@ export function LazyCleanbiDemo() {
               <span>Demo estimates for 20-washer store. Actual projections vary by location.</span>
             </div>
           </div>
-          <Link href="/cleanbi-auto">
+          <Link href="/cleanbi-explorer">
             <Button className="w-full h-10 sm:h-12 bg-[#39CCCC] hover:bg-[#2db8b8] text-[#001F3F] font-bold rounded-xl text-sm sm:text-base" data-testid="button-get-full-report">
               <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Get Full Report

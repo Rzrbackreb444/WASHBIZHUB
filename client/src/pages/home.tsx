@@ -203,7 +203,7 @@ export default function Home() {
     "potentialAction": [
       {
         "@type": "SearchAction",
-        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/cleanbi-auto?address={search_term_string}` },
+        "target": { "@type": "EntryPoint", "urlTemplate": `${baseUrl}/cleanbi-explorer?address={search_term_string}` },
         "query-input": "required name=search_term_string"
       },
       {
@@ -310,7 +310,7 @@ export default function Home() {
     "description": "Free and premium tools for laundromat buyers, owners, and investors",
     "numberOfItems": 8,
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-auto` },
+      { "@type": "ListItem", "position": 1, "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-explorer` },
       { "@type": "ListItem", "position": 2, "name": "Laundromat Valuation Calculator", "url": `${baseUrl}/calculators` },
       { "@type": "ListItem", "position": 3, "name": "Laundromat ROI Calculator", "url": `${baseUrl}/calculators` },
       { "@type": "ListItem", "position": 4, "name": "Laundromats For Sale", "url": `${baseUrl}/laundromat-listings` },
@@ -379,7 +379,7 @@ export default function Home() {
     "name": "Main Navigation",
     "hasPart": [
       { "@type": "SiteNavigationElement", "name": "Laundromats For Sale", "url": `${baseUrl}/laundromat-listings` },
-      { "@type": "SiteNavigationElement", "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-auto` },
+      { "@type": "SiteNavigationElement", "name": "CLEANBI Location Score", "url": `${baseUrl}/cleanbi-explorer` },
       { "@type": "SiteNavigationElement", "name": "Laundromat Calculators", "url": `${baseUrl}/calculators` },
       { "@type": "SiteNavigationElement", "name": "Laundromat Blog", "url": `${baseUrl}/blog` },
       { "@type": "SiteNavigationElement", "name": "Laundromat Courses", "url": `${baseUrl}/courses` },
@@ -917,7 +917,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/cleanbi-auto">
+              <Link href="/cleanbi-explorer">
                 <Button size="lg" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-try-cleanbi">
                   <Zap className="w-5 h-5 mr-2" />
                   Get Your Free Score
@@ -968,7 +968,7 @@ export default function Home() {
               72,000+ owners and investors trust WashBizHub to find winning locations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/cleanbi-auto">
+              <Link href="/cleanbi-explorer">
                 <Button size="lg" variant="secondary" className="w-full sm:w-auto px-8 font-semibold" data-testid="button-get-started">
                   Score a Location Free
                 </Button>
@@ -985,7 +985,7 @@ export default function Home() {
 
       {/* STICKY MOBILE CTA - Hidden for premium layout */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-50 hidden" data-testid="sticky-mobile-cta">
-        <Link href="/cleanbi-auto">
+        <Link href="/cleanbi-explorer">
           <Button className="w-full font-semibold" size="lg" data-testid="button-sticky-cta">
             <Zap className="w-5 h-5 mr-2" />
             Score a Location Free

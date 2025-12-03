@@ -146,7 +146,7 @@ function getRecommendationsByJourney(journey: JourneyType): Recommendation[] {
       {
         title: 'Score a Location with CLEANBI',
         description: 'AI-powered location analysis and scoring',
-        path: '/cleanbi-auto',
+        path: '/cleanbi-explorer',
         icon: MapPin,
         priority: 'high',
       },

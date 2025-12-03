@@ -14,7 +14,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import logoUrl from "@assets/6_1764040628012.png";
 
 const primaryNavLinks = [
-  { href: "/cleanbi-explorer", label: "Score Any Location", icon: MapPin, highlight: true },
   { href: "/directory", label: "Directory", icon: FolderOpen },
   { href: "/funding", label: "Funding", icon: DollarSign },
   { href: "/calculators", label: "Calculators", icon: Calculator },
@@ -110,16 +109,25 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation - Stripe style */}
-            <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
+            <nav className="hidden lg:flex items-center gap-2" role="navigation" aria-label="Main navigation">
+              {/* Featured CLEANBI Explorer - THE main feature */}
+              <Link href="/cleanbi-explorer">
+                <span 
+                  className="cleanbi-featured-nav"
+                  data-testid="link-nav-cleanbi-explorer-featured"
+                >
+                  <MapPin className="w-4 h-4 cleanbi-icon" aria-hidden="true" />
+                  Score Any Location
+                </span>
+              </Link>
+              
               {primaryNavLinks.map((link) => (
                 <Link href={link.href} key={link.href}>
                   <span 
                     className={`px-3.5 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-                      (link as any).highlight
-                        ? 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm'
-                        : location === link.href || location.startsWith(link.href + '?')
-                          ? 'text-accent bg-accent/10' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      location === link.href || location.startsWith(link.href + '?')
+                        ? 'text-accent bg-accent/10' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     }`}
                     data-testid={`link-nav-${link.href.replace('/', '')}-quick`}
                   >
@@ -279,8 +287,21 @@ export function Header() {
                     </SheetHeader>
                     
                     <div className="flex-1 overflow-y-auto">
+                      {/* Featured CLEANBI Explorer - Primary CTA */}
+                      <div className="p-4 pb-2">
+                        <Link href="/cleanbi-explorer" onClick={() => setMobileMenuOpen(false)}>
+                          <div 
+                            className="cleanbi-featured-mobile"
+                            data-testid="link-mobile-cleanbi-explorer-featured"
+                          >
+                            <MapPin className="cleanbi-icon" aria-hidden="true" />
+                            Score Any Location
+                          </div>
+                        </Link>
+                      </div>
+                      
                       {/* Primary Links */}
-                      <div className="p-4 space-y-1">
+                      <div className="p-4 pt-2 space-y-1">
                         {primaryNavLinks.map((link) => (
                           <Link href={link.href} key={link.href}>
                             <div 

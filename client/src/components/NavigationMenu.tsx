@@ -46,7 +46,7 @@ const PLAN_LINKS = [
 ];
 
 const EVALUATE_LINKS = [
-  { href: "/cleanbi-auto", label: "CLEANBI Score", icon: MapPin, desc: "Location intelligence", featured: true },
+  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Full map intelligence", featured: true },
   { href: "/laundromat-listings", label: "Listings", icon: Building2, desc: "Browse for sale" },
   { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, desc: "What's it worth?" },
   { href: "/distributor-locator", label: "Distributors", icon: Truck, desc: "Find equipment" },
@@ -426,9 +426,9 @@ export function NavigationMenu() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Link href="/cleanbi-auto" onClick={closeMobileMenu} className="flex-1">
+                        <Link href="/cleanbi-explorer" onClick={closeMobileMenu} className="flex-1">
                           <Button variant="outline" className="w-full h-10 text-sm font-medium">
-                            CLEANBI
+                            CLEANBI Explorer
                           </Button>
                         </Link>
                         <Link href="/pricing" onClick={closeMobileMenu} className="flex-1">

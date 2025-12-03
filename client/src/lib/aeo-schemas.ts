@@ -228,7 +228,7 @@ export function generateWebsiteSchema() {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": `${BASE_URL}/cleanbi-auto?address={address_string}`
+          "urlTemplate": `${BASE_URL}/cleanbi-explorer?address={address_string}`
         },
         "query-input": "required name=address_string"
       }
@@ -365,7 +365,7 @@ export const CLEANBI_FAQ_SCHEMA = generateFAQSchema([
   },
   {
     question: "How do I get a CLEANBI score?",
-    answer: "Simply visit washbizhub.com/cleanbi-auto, enter any address (business or residential), and click 'Calculate CLEANBI Score'. You'll receive an instant 0-100 score with A/B/C grade (no D or F grades - everything below C is 'Needs Work'), breakdown by category, and AI recommendations in seconds. No login required."
+    answer: "Simply visit washbizhub.com/cleanbi-explorer, enter any address (business or residential), and click 'Calculate CLEANBI Score'. You'll receive an instant 0-100 score with A/B/C grade (no D or F grades - everything below C is 'Needs Work'), breakdown by category, and AI recommendations in seconds. No login required."
   },
   {
     question: "What is the CLEANBI Chrome extension?",
@@ -382,8 +382,8 @@ export const CLEANBI_HOWTO_SCHEMA = generateHowToSchema(
   "Step-by-step guide to score any business or property location worldwide using the free CLEANBI tool",
   [
     {
-      name: "Visit CLEANBI Auto Calculator",
-      text: "Go to washbizhub.com/cleanbi-auto to access the free universal address scoring tool."
+      name: "Visit CLEANBI Explorer",
+      text: "Go to washbizhub.com/cleanbi-explorer to access the free universal address scoring tool."
     },
     {
       name: "Enter the Address",
@@ -422,7 +422,7 @@ export const CLEANBI_SOFTWARE_SCHEMA = generateSoftwareSchema({
   price: "0",
   rating: 4.9,
   ratingCount: 2847,
-  url: "/cleanbi-auto"
+  url: "/cleanbi-explorer"
 });
 
 // ============================================

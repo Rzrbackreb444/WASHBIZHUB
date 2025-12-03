@@ -16,7 +16,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, DollarSign, TrendingUp, Building,
-  Filter, Search, Droplets, Car, Shirt, Sparkles
+  Filter, Search, Droplets, Car, Shirt, Sparkles, Target
 } from "lucide-react";
 
 interface Listing {
@@ -329,6 +329,19 @@ function ListingCard({ listing }: { listing: Listing }) {
               <span>{listing.dryers} Dryers</span>
             </div>
           )}
+          
+          <Link href={`/cleanbi-explorer?address=${encodeURIComponent(listing.address || `${listing.city}, ${listing.state}`)}`}>
+            <Button 
+              size="sm"
+              variant="outline" 
+              className="w-full mt-3 border-accent/50 text-accent hover:bg-accent/10"
+              data-testid={`button-cleanbi-analyze-${listing.id}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MapPin className="w-3 h-3 mr-1" />
+              Analyze with CLEANBI
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </Link>
