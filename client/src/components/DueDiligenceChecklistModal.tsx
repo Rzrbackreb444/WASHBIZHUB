@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, CheckCircle2, FileSearch, Calculator, 
   Building2, FileText, Shield, TrendingUp, Users,
-  Download, Star, Award
+  Download, Star, Award, MapPin
 } from "lucide-react";
 
 interface DueDiligenceChecklistModalProps {
@@ -23,45 +23,45 @@ interface DueDiligenceChecklistModalProps {
 const checklistSteps = [
   { 
     number: "01", 
-    title: "Financial Review", 
+    title: "Financial Verification", 
     icon: Calculator,
-    description: "Tax returns, P&L statements, bank deposits"
+    description: "3 years tax returns, bank deposits, P&L reconciliation"
   },
   { 
     number: "02", 
-    title: "Equipment Audit", 
+    title: "Equipment Assessment", 
     icon: Building2,
-    description: "Age, condition, maintenance records"
+    description: "Age, condition, remaining life, maintenance logs"
   },
   { 
     number: "03", 
-    title: "Lease Analysis", 
+    title: "Lease & Real Estate", 
     icon: FileText,
-    description: "Terms, rent increases, renewal options"
+    description: "Terms, CAM, rent escalations, renewal options"
   },
   { 
     number: "04", 
-    title: "Market Research", 
+    title: "Market & Competition", 
     icon: FileSearch,
-    description: "Competition, demographics, traffic"
+    description: "CLEANBI score, competitor mapping, demographics"
   },
   { 
     number: "05", 
-    title: "Legal Check", 
+    title: "Legal & Compliance", 
     icon: Shield,
-    description: "Permits, zoning, environmental"
+    description: "Permits, ADA, environmental, zoning verification"
   },
   { 
     number: "06", 
-    title: "Operations Review", 
+    title: "Operations Analysis", 
     icon: Users,
-    description: "Staffing, utilities, maintenance costs"
+    description: "Utility costs, staffing, vendor contracts, TPD metrics"
   },
   { 
     number: "07", 
-    title: "Growth Analysis", 
+    title: "Valuation & Upside", 
     icon: TrendingUp,
-    description: "Upside potential, improvement opportunities"
+    description: "SDE multiples, growth potential, improvement ROI"
   },
 ];
 
@@ -136,20 +136,58 @@ export function DueDiligenceChecklistModal({
         </VisuallyHidden>
         
         {submitted ? (
-          <div className="p-12 text-center bg-gradient-to-br from-emerald-500/10 via-background to-emerald-500/5" data-testid="dd-success-state">
+          <div className="p-8 sm:p-10 text-center bg-gradient-to-br from-emerald-500/10 via-background to-emerald-500/5" data-testid="dd-success-state">
             <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30" data-testid="dd-success-checkmark">
               <CheckCircle2 className="w-10 h-10 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-foreground mb-3" data-testid="dd-success-title">You're All Set!</h3>
-            <p className="text-muted-foreground">Check your inbox for your free 7-point due diligence checklist.</p>
-            <p className="text-sm text-muted-foreground/70 mt-2">Join 2,500+ buyers who've used this checklist.</p>
-            <Button 
-              onClick={handleClose}
-              className="mt-6"
-              data-testid="button-dd-close"
-            >
-              Close
-            </Button>
+            <h3 className="text-2xl font-bold text-foreground mb-2" data-testid="dd-success-title">Your Checklist is On Its Way!</h3>
+            <p className="text-muted-foreground mb-6">Check your inbox in the next few minutes for your free 7-point due diligence checklist.</p>
+            
+            {/* Next Steps */}
+            <div className="bg-muted/30 rounded-xl p-5 mb-6 text-left">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                While You Wait, Here's What to Do Next:
+              </h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                  <span>Score your target location with <strong className="text-foreground">CLEANBI Explorer</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                  <span>Browse <strong className="text-foreground">verified listings</strong> in our marketplace</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                  <span>Compare <strong className="text-foreground">7 funding partners</strong> for financing</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={() => {
+                  handleClose();
+                  window.location.href = '/cleanbi-explorer';
+                }}
+                className="flex-1 bg-gradient-to-r from-primary to-blue-700 hover:from-primary/90 hover:to-blue-700/90"
+                data-testid="button-dd-explore"
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Try CLEANBI Free
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleClose}
+                className="flex-1"
+                data-testid="button-dd-close"
+              >
+                Close
+              </Button>
+            </div>
+            
+            <p className="text-xs text-muted-foreground/60 mt-4">Join 2,500+ buyers who've used this checklist to evaluate deals.</p>
           </div>
         ) : (
           <>

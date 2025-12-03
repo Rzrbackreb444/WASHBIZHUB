@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearch } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -223,7 +224,17 @@ const FUNDING_CATEGORIES = {
 };
 
 export default function Funding() {
-  const [activeTab, setActiveTab] = useState("startup");
+  const searchString = useSearch();
+  const validTabs = ["startup", "acquisitions", "equipment", "realestate", "fastcash"];
+  
+  // Parse initial tab from URL query parameter
+  const getInitialTab = () => {
+    const params = new URLSearchParams(searchString);
+    const tabParam = params.get("tab");
+    return tabParam && validTabs.includes(tabParam) ? tabParam : "startup";
+  };
+  
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [consultationOpen, setConsultationOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -234,6 +245,15 @@ export default function Funding() {
     message: ""
   });
   const { toast } = useToast();
+  
+  // Update tab when URL query parameter changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const tabParam = params.get("tab");
+    if (tabParam && validTabs.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchString]);
 
   const handleConsultationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

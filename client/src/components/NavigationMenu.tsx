@@ -61,8 +61,9 @@ const FUNDING_LINKS = [
   { href: "/funding?tab=acquisitions", label: "Acquisition & SBA", icon: Briefcase, desc: "10-25 year terms" },
   { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Same-day approval" },
   { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Landmark, desc: "Up to 80% LTV" },
-  { href: "/funding?tab=fastcash", label: "Fast Capital & MCA", icon: TrendingUp, desc: "Same-day funding" },
-  { href: "/gokapital", label: "GoKapital Partner", icon: Building2, desc: "Commercial RE specialist" },
+  { href: "/funding?tab=fastcash", label: "Working Capital & MCA", icon: TrendingUp, desc: "Same-day funding" },
+  { href: "/funding?tab=fastcash", label: "AR Financing", icon: Receipt, desc: "Invoice & receivables" },
+  { href: "/funding?tab=acquisitions", label: "Term Loans", icon: CreditCard, desc: "Fixed monthly payments" },
 ];
 
 interface NavLinkItem {
