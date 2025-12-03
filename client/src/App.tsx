@@ -172,6 +172,8 @@ const SRAProductionConsole = lazy(() => import("@/pages/sra/production-console")
 
 // Marketplace & Equipment
 const Marketplace = lazy(() => import("@/pages/marketplace"));
+const BuyLaundromat = lazy(() => import("@/pages/buy-laundromat"));
+const Brokers = lazy(() => import("@/pages/brokers"));
 const Classifieds = lazy(() => import("@/pages/classifieds"));
 const ClassifiedsSubmit = lazy(() => import("@/pages/classifieds-submit"));
 const EquipmentMarketplace = lazy(() => import("@/pages/equipment-marketplace"));
@@ -821,6 +823,16 @@ function Router() {
       <Route path="/marketplace">
         <Suspense fallback={<LoadingFallback />}>
           <Marketplace />
+        </Suspense>
+      </Route>
+      <Route path="/buy-laundromat">
+        <Suspense fallback={<LoadingFallback />}>
+          <BuyLaundromat />
+        </Suspense>
+      </Route>
+      <Route path="/brokers">
+        <Suspense fallback={<LoadingFallback />}>
+          <Brokers />
         </Suspense>
       </Route>
       <Route path="/marketplace-landing">

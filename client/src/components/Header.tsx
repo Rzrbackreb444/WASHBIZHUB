@@ -2,7 +2,8 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { 
   Menu, LogIn, LogOut, User, ChevronDown, ChevronRight,
-  Settings as SettingsIcon, Zap, MapPin, FolderOpen, DollarSign, Calculator, CreditCard
+  Settings as SettingsIcon, Zap, MapPin, FolderOpen, DollarSign, Calculator, CreditCard,
+  Store, Users, HelpCircle, Building2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,15 +15,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import logoUrl from "@assets/6_1764040628012.png";
 
 const primaryNavLinks = [
+  { href: "/buy-laundromat", label: "Buy", icon: Store },
+  { href: "/brokers", label: "Brokers", icon: Users },
   { href: "/directory", label: "Directory", icon: FolderOpen },
   { href: "/funding", label: "Funding", icon: DollarSign },
-  { href: "/calculators", label: "Calculators", icon: Calculator },
-  { href: "/pricing", label: "Pricing", icon: CreditCard },
 ];
 
 const secondaryLinks = [
+  { href: "/calculators", label: "Calculators" },
   { href: "/utility-bill-auditor", label: "Utility Bill Auditor" },
   { href: "/blog", label: "Industry Blog" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About Us" },
 ];
 
@@ -242,6 +245,20 @@ export function Header() {
                     </Button>
                   )}
                   
+                  {/* Need Help Selling CTA */}
+                  <Link href="/sell-your-laundromat" className="hidden md:block">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium"
+                      data-testid="button-sell-help"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                      <span className="hidden lg:inline">Need Help Selling?</span>
+                      <span className="lg:hidden">Sell</span>
+                    </Button>
+                  </Link>
+                  
                   {(!user?.isPro) && (
                     <Link href="/pricing" className="hidden sm:block">
                       <Button 
@@ -373,6 +390,18 @@ export function Header() {
                           Sign in with Replit
                         </Button>
                       )}
+                      
+                      {/* Need Help Selling CTA - Mobile */}
+                      <Link href="/sell-your-laundromat" onClick={() => setMobileMenuOpen(false)}>
+                        <Button 
+                          variant="outline"
+                          className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium"
+                          data-testid="button-mobile-sell-help"
+                        >
+                          <HelpCircle className="w-4 h-4 mr-2" aria-hidden="true" />
+                          Need Help Selling?
+                        </Button>
+                      </Link>
                       
                       {(!user?.isPro) && (
                         <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>

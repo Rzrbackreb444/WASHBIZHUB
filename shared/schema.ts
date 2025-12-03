@@ -2216,6 +2216,13 @@ export const listings = pgTable("listings", {
   requiresNDA: boolean("requires_nda").notNull().default(false),
   ndaDocument: text("nda_document"), // URL to NDA template
   
+  // Broker Information (for broker listings)
+  brokerName: text("broker_name"), // e.g., "Lawrence Larsen"
+  brokerPhone: text("broker_phone"), // e.g., "714-390-9969"
+  brokerEmail: text("broker_email"), // e.g., "larry@laundromat123.com"
+  brokerLicense: text("broker_license"), // e.g., "CA DRE 49460"
+  brokerCompany: text("broker_company"), // e.g., "Laundromat Larry"
+  
   // Premium Features
   cleanbiReportId: varchar("cleanbi_report_id"), // Link to pre-generated CLEANBI report
   hasValuationReport: boolean("has_valuation_report").default(false),

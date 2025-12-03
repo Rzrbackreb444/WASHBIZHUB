@@ -199,6 +199,137 @@ Contact: 218-255-0096 | kristinewalshrealestate@gmail.com`,
       { equipmentType: "dryer", brand: "Various", model: "Commercial Dryer", capacity: 30, quantity: 6, condition: "good", yearInstalled: 2018, turnsPerDay: 4 },
       { equipmentType: "payment_system", brand: "Coin-Op", model: "Quarter Slots", capacity: 0, quantity: 1, condition: "good", yearInstalled: 2018 },
     ]
+  },
+  {
+    listing: {
+      businessType: "laundromat",
+      listingType: "broker",
+      title: "Newport Beach Fluff & Fold Opportunity - 200 30th Street",
+      description: `UNIQUE ORANGE COUNTY OPPORTUNITY - Develop a fluff & fold/pickup & delivery business in one of California's most desirable locations!
+
+This is NOT your typical laundromat - this is an opportunity to build a premium wash-and-fold service in affluent Newport Beach. The owner advises current income covers overhead but the REAL opportunity lies in developing fluff & fold services for the high-income demographic.
+
+BROKER: Lawrence Larsen "Laundromat Larry" - 50+ years experience
+Phone: 714-390-9969 | CA DRE 49460 | Insurance DOI: 0553938
+Larry has owned 50+ laundromats, designed 135+ stores, and distributed millions in equipment nationally.
+
+PROPERTY HIGHLIGHTS:
+• Prime Newport Beach location - high-income demographics
+• Recently upgraded with new Dexter equipment
+• New roof, exterior paint, and signage
+• Dual payment system: Coin + PayRange mobile
+• Full security camera system with Ubiquiti network
+• 20-year lease available for qualified buyers
+
+EQUIPMENT (All Dexter):
+• 2 Dexter T800 (80lb) @ $8.50/load
+• 6 Dexter T600 (60lb) @ $6.75/load
+• 8 Dexter T400 (40lb) @ $5.00/load
+• 8 Stack Dryers @ $0.25/4min
+• Standard Change Makers (2 hoppers + bill sorter)
+• Seaga vending with soap
+
+IT INFRASTRUCTURE:
+• Ubiquiti Dream Machine Pro with 11 cameras
+• CyberPower battery backup
+• Ring doorbell for virtual attendant
+• Samsung 43" TV with Loop.Net music/rules
+
+LEASE TERMS (Graduated - landlord motivated):
+• Years 1-3: $4,000 + $1,722 NNN = $5,722/mo
+• Years 4-6: $4,500 + $1,722 NNN = $6,222/mo
+• Years 7-12: $5,400 + $1,722 NNN = $7,122/mo
+• Years 13-20+: $5,562 + $1,722 NNN = $7,284/mo
+
+FINANCIALS (8-month verified Jan-Aug):
+• Total Income: $82,752 ($10,344/mo avg)
+• Cash: $43,263 | PayRange: $39,516
+• Gross Profit: $80,410 (after COGS)
+• Total Expenses: $69,017
+• Net Ordinary Income: $11,393
+
+Owner acquired for $200,000 and invested in new roof, paint, signs, and Dexter equipment upgrade.`,
+      tagline: "Prime Newport Beach Location - Fluff & Fold Development Opportunity - 20-Year Lease Available",
+      priceOriginal: "250000",
+      currency: "USD",
+      priceInUSD: "250000",
+      priceVisibility: "public",
+      includesRealEstate: false,
+      ownerFinancing: true,
+      country: "US",
+      region: "CA",
+      city: "Newport Beach",
+      generalLocation: "Orange County - Newport Beach",
+      exactAddress: "200 30th Street, Newport Beach, CA",
+      latitude: "33.6189",
+      longitude: "-117.9298",
+      addressVisibility: "public",
+      featuredImage: "/attached_assets/Dexter-Newport_Laundry_1764784750639.png",
+      status: "active",
+      featured: true,
+      prioritySearch: true,
+      visibilityBoost: 3,
+      subscriptionTier: "diamond",
+      mediaLimit: 50,
+      videoLimit: 10,
+      seoTitle: "Laundromat For Sale Newport Beach CA - Fluff & Fold Opportunity | Premium Location",
+      seoDescription: "Prime Newport Beach laundromat for sale. Dexter equipment, 20-year lease available. Perfect for fluff & fold development in affluent Orange County location.",
+      seoKeywords: ["laundromat for sale newport beach", "orange county laundromat for sale", "fluff and fold business for sale", "dexter laundry equipment"],
+      slug: "newport-beach-fluff-fold-opportunity-200-30th-street",
+      requiresNDA: false,
+      hasValuationReport: true,
+      detailLevel: "full",
+      completenessScore: 90,
+      listedAt: new Date(),
+      brokerName: "Lawrence Larsen",
+      brokerPhone: "714-390-9969",
+      brokerEmail: "larry@laundromat123.com",
+      brokerLicense: "CA DRE 49460",
+    },
+    financials: {
+      grossRevenueOriginal: "124128",
+      netRevenueOriginal: "17089",
+      averageMonthlyRevenueOriginal: "10344",
+      grossRevenueUSD: "124128",
+      netRevenueUSD: "17089",
+      averageMonthlyRevenueUSD: "10344",
+      rentOriginal: "5722",
+      utilitiesOriginal: "1564",
+      laborOriginal: "642",
+      maintenanceOriginal: "624",
+      insuranceOriginal: "200",
+      otherExpensesOriginal: "878",
+      totalExpensesOriginal: "8627",
+      rentUSD: "5722",
+      utilitiesUSD: "1564",
+      laborUSD: "642",
+      maintenanceUSD: "624",
+      insuranceUSD: "200",
+      otherExpensesUSD: "878",
+      totalExpensesUSD: "8627",
+      netIncomeOriginal: "17089",
+      ebitdaOriginal: "17089",
+      cashFlowOriginal: "17089",
+      netIncomeUSD: "17089",
+      ebitdaUSD: "17089",
+      cashFlowUSD: "17089",
+      profitMargin: "13.77",
+      roi: "6.84",
+      paybackPeriodMonths: 175,
+      financialYear: 2024,
+      currency: "USD",
+      verified: true,
+    },
+    equipment: [
+      { equipmentType: "washer", brand: "Dexter", model: "T800", capacity: 80, quantity: 2, condition: "excellent", yearInstalled: 2023, turnsPerDay: 4, notes: "$8.50/load" },
+      { equipmentType: "washer", brand: "Dexter", model: "T600", capacity: 60, quantity: 6, condition: "excellent", yearInstalled: 2023, turnsPerDay: 4, notes: "$6.75/load" },
+      { equipmentType: "washer", brand: "Dexter", model: "T400", capacity: 40, quantity: 8, condition: "excellent", yearInstalled: 2023, turnsPerDay: 4, notes: "$5.00/load" },
+      { equipmentType: "dryer", brand: "Dexter", model: "Stack Dryer", capacity: 45, quantity: 8, condition: "excellent", yearInstalled: 2023, turnsPerDay: 4, notes: "$0.25/4min - $1.00 vend" },
+      { equipmentType: "payment_system", brand: "Standard", model: "Change Maker 600", capacity: 0, quantity: 2, condition: "excellent", yearInstalled: 2023, notes: "2 hoppers + bill sorter" },
+      { equipmentType: "payment_system", brand: "PayRange", model: "Mobile Payment", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2023, notes: "App-based payment" },
+      { equipmentType: "vending", brand: "Seaga", model: "N2G4000", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2023, notes: "Soap dispenser with side unit" },
+      { equipmentType: "security", brand: "Ubiquiti", model: "Dream Machine Pro", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2023, notes: "11 cameras - G3/G4 Bullet & Dome" },
+    ]
   }
 ];
 
