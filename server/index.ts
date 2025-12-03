@@ -375,6 +375,98 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           console.error(`❌ Failed to activate listing subscription: ${error.message}`);
         }
       }
+      
+      // Visibility add-on purchase - Trigger fulfillment automation
+      if (metadata.type === "visibility_addon" && metadata.listingId && metadata.addOnId) {
+        try {
+          const { db } = await import("./db");
+          const { listings, visibilityOrders, visibilityJobs } = await import("@shared/schema");
+          const { eq, and } = await import("drizzle-orm");
+          
+          const listingId = metadata.listingId;
+          const addOnId = metadata.addOnId;
+          const addOnSlug = metadata.addOnSlug || '';
+          const addOnName = metadata.addOnName || 'Visibility Add-on';
+          const durationDays = parseInt(metadata.durationDays || '30');
+          
+          // Update order status to paid
+          const [updatedOrder] = await db.update(visibilityOrders)
+            .set({ 
+              status: 'paid',
+              stripePaymentIntentId: paymentIntentId,
+              activatedAt: new Date(),
+              expiresAt: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000),
+            })
+            .where(eq(visibilityOrders.stripeCheckoutSessionId, session.id))
+            .returning();
+          
+          if (!updatedOrder) {
+            console.error(`❌ Visibility order not found for session ${session.id}`);
+            return res.json({ received: true });
+          }
+          
+          console.log(`✅ Visibility order ${updatedOrder.id} marked as paid`);
+          
+          // Schedule fulfillment jobs based on add-on features
+          const jobsToCreate: { jobType: string; orderId: string; listingId: string }[] = [];
+          
+          if (metadata.includesCarousel === 'true') {
+            jobsToCreate.push({ jobType: 'carousel', orderId: updatedOrder.id, listingId });
+          }
+          if (metadata.includesAutoBlog === 'true') {
+            jobsToCreate.push({ jobType: 'auto-blog', orderId: updatedOrder.id, listingId });
+          }
+          if (metadata.includesIndexNow === 'true') {
+            jobsToCreate.push({ jobType: 'index-now', orderId: updatedOrder.id, listingId });
+          }
+          if (metadata.includesGoogleIndexing === 'true') {
+            jobsToCreate.push({ jobType: 'google-indexing', orderId: updatedOrder.id, listingId });
+          }
+          if (metadata.includesSocialCards === 'true') {
+            jobsToCreate.push({ jobType: 'social-cards', orderId: updatedOrder.id, listingId });
+          }
+          
+          // Insert all fulfillment jobs
+          if (jobsToCreate.length > 0) {
+            await db.insert(visibilityJobs).values(jobsToCreate);
+            console.log(`📋 Created ${jobsToCreate.length} visibility fulfillment jobs for order ${updatedOrder.id}`);
+          }
+          
+          // Immediately fulfill carousel (toggle flag) if included
+          if (metadata.includesCarousel === 'true') {
+            await db.update(listings)
+              .set({ 
+                carouselFeatured: true,
+                featured: true,
+                carouselExpiresAt: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000),
+              })
+              .where(eq(listings.id, listingId));
+            console.log(`🎠 Carousel feature enabled for listing ${listingId}`);
+          }
+          
+          // Log activity
+          await logActivity('visibility_purchase', `Visibility add-on purchased: ${addOnName}`, session.customer_email || metadata.userEmail || undefined, {
+            type: 'visibility_addon',
+            addOnId,
+            addOnName,
+            listingId,
+            amount: amountTotal / 100,
+            jobsCreated: jobsToCreate.length,
+          });
+          
+          // Send notification
+          await notifyPurchase({
+            type: 'visibility_addon',
+            productName: addOnName,
+            amount: amountTotal,
+            customerEmail: session.customer_email || metadata.userEmail,
+          });
+          
+          console.log(`✅ Visibility add-on ${addOnName} activated for listing ${listingId}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to fulfill visibility add-on: ${error.message}`);
+        }
+      }
     }
 
     // Handle subscription creation - CLEANBI tier sync

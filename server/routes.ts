@@ -21,7 +21,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -990,9 +990,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cashFlow: listingFinancials.cashFlowOriginal,
           })
           .from(listingFinancials)
-          .where(
-            sql`${listingFinancials.listingId} = ANY(${listingIds})`
-          );
+          .where(inArray(listingFinancials.listingId, listingIds));
         
         financials.forEach(f => {
           if (f.listingId) {
@@ -2765,6 +2763,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ url: portalSession.url });
     } catch (error: any) {
       console.error('Customer portal error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ==================== VISIBILITY ADD-ONS (LISTING PROMOTION) ====================
+  
+  // Get all available visibility add-ons
+  app.get("/api/visibility-addons", async (req, res) => {
+    try {
+      const addOns = await db.select()
+        .from(visibilityAddOns)
+        .where(eq(visibilityAddOns.active, true))
+        .orderBy(asc(visibilityAddOns.sortOrder));
+      res.json(addOns);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Create Stripe Checkout for visibility add-on purchase
+  app.post("/api/visibility-addons/checkout", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { addOnId, listingId } = req.body;
+      
+      if (!addOnId || !listingId) {
+        return res.status(400).json({ message: "addOnId and listingId are required" });
+      }
+      
+      // Get the add-on
+      const [addOn] = await db.select()
+        .from(visibilityAddOns)
+        .where(and(
+          eq(visibilityAddOns.id, addOnId),
+          eq(visibilityAddOns.active, true)
+        ))
+        .limit(1);
+      
+      if (!addOn) {
+        return res.status(404).json({ message: "Add-on not found" });
+      }
+      
+      // Verify listing exists and belongs to user
+      const [listing] = await db.select()
+        .from(listings)
+        .where(eq(listings.id, listingId))
+        .limit(1);
+      
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      
+      // Get user info
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, currentUser.userId)
+      });
+      
+      const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+      const priceInCents = Math.round(parseFloat(addOn.priceUSD) * 100);
+      
+      // Create or retrieve Stripe customer
+      let customerId = user?.stripeCustomerId;
+      if (!customerId && user?.email) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          metadata: { userId: currentUser.userId }
+        });
+        customerId = customer.id;
+        await db.update(users)
+          .set({ stripeCustomerId: customer.id })
+          .where(eq(users.id, currentUser.userId));
+      }
+      
+      // Create Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        customer: customerId || undefined,
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: addOn.name,
+                description: addOn.description || `Visibility add-on for your listing`,
+              },
+              unit_amount: priceInCents,
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${baseUrl}/visibility-success?session_id={CHECKOUT_SESSION_ID}&listing_id=${listingId}`,
+        cancel_url: `${baseUrl}/buy-laundromat/${listingId}`,
+        metadata: {
+          type: 'visibility_addon',
+          addOnId: addOn.id,
+          addOnSlug: addOn.slug,
+          addOnName: addOn.name,
+          listingId,
+          listingTitle: listing.title || 'Listing',
+          userId: currentUser.userId,
+          userEmail: user?.email || '',
+          durationDays: addOn.durationDays?.toString() || '30',
+          includesCarousel: addOn.includesCarousel ? 'true' : 'false',
+          includesAutoBlog: addOn.includesAutoBlog ? 'true' : 'false',
+          includesIndexNow: addOn.includesIndexNow ? 'true' : 'false',
+          includesGoogleIndexing: addOn.includesGoogleIndexing ? 'true' : 'false',
+          includesSocialCards: addOn.includesSocialCards ? 'true' : 'false',
+        },
+        allow_promotion_codes: true,
+      });
+      
+      // Create pending order
+      await db.insert(visibilityOrders).values({
+        listingId,
+        userId: currentUser.userId,
+        addOnId: addOn.id,
+        stripeCheckoutSessionId: session.id,
+        amountPaid: addOn.priceUSD,
+        currency: 'USD',
+        status: 'pending',
+      });
+      
+      console.log(`📦 Visibility add-on checkout created: ${addOn.name} for listing ${listingId}`);
+      
+      res.json({ 
+        checkoutUrl: session.url,
+        sessionId: session.id 
+      });
+    } catch (error: any) {
+      console.error('Visibility add-on checkout error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Get visibility orders for a listing
+  app.get("/api/visibility-orders/listing/:listingId", isAuthenticated, async (req: any, res) => {
+    try {
+      const orders = await db.select({
+        order: visibilityOrders,
+        addOn: visibilityAddOns,
+      })
+        .from(visibilityOrders)
+        .leftJoin(visibilityAddOns, eq(visibilityOrders.addOnId, visibilityAddOns.id))
+        .where(eq(visibilityOrders.listingId, req.params.listingId))
+        .orderBy(desc(visibilityOrders.createdAt));
+      
+      res.json(orders);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Get user's visibility orders
+  app.get("/api/visibility-orders/my-orders", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const orders = await db.select({
+        order: visibilityOrders,
+        addOn: visibilityAddOns,
+        listing: listings,
+      })
+        .from(visibilityOrders)
+        .leftJoin(visibilityAddOns, eq(visibilityOrders.addOnId, visibilityAddOns.id))
+        .leftJoin(listings, eq(visibilityOrders.listingId, listings.id))
+        .where(eq(visibilityOrders.userId, currentUser.userId))
+        .orderBy(desc(visibilityOrders.createdAt));
+      
+      res.json(orders);
+    } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
