@@ -760,10 +760,53 @@ function CleanBIExplorerContent() {
           setPendingCompetitors(data.competitors || []);
           setShowEmailGate(true);
           
+          // Still show markers on map even when email gate is displayed
           if (mapInstance.current && result) {
             const center = { lat: result.lat, lng: result.lng };
             mapInstance.current.setCenter(center);
             mapInstance.current.setZoom(14);
+            
+            // Clear existing markers and add new ones
+            markersRef.current.forEach(m => m.setMap(null));
+            markersRef.current = [];
+            
+            // Main location marker
+            const mainMarker = new window.google.maps.Marker({
+              position: center,
+              map: mapInstance.current,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 22,
+                fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+                fillOpacity: 1,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 4
+              },
+              zIndex: 1000,
+              animation: window.google.maps.Animation.DROP
+            });
+            markersRef.current.push(mainMarker);
+            
+            // Competitor markers
+            if (layers.competition && data.competitors) {
+              data.competitors.forEach((comp: Competitor) => {
+                const marker = new window.google.maps.Marker({
+                  position: { lat: comp.lat, lng: comp.lng },
+                  map: mapInstance.current,
+                  icon: {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: "#EF4444",
+                    fillOpacity: 0.8,
+                    strokeColor: "#FFFFFF",
+                    strokeWeight: 2
+                  },
+                  title: comp.name,
+                  zIndex: 500
+                });
+                markersRef.current.push(marker);
+              });
+            }
           }
           
           setIsAnalyzing(false);
@@ -916,11 +959,53 @@ function CleanBIExplorerContent() {
           setPendingCompetitors(data.competitors || []);
           setShowEmailGate(true);
           
-          // Still update the map to show location
+          // Still show markers on map even when email gate is displayed
           if (mapInstance.current && result) {
             const center = { lat: result.lat, lng: result.lng };
             mapInstance.current.setCenter(center);
             mapInstance.current.setZoom(14);
+            
+            // Clear existing markers and add new ones
+            markersRef.current.forEach(m => m.setMap(null));
+            markersRef.current = [];
+            
+            // Main location marker
+            const mainMarker = new window.google.maps.Marker({
+              position: center,
+              map: mapInstance.current,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 22,
+                fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+                fillOpacity: 1,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 4
+              },
+              zIndex: 1000,
+              animation: window.google.maps.Animation.DROP
+            });
+            markersRef.current.push(mainMarker);
+            
+            // Competitor markers
+            if (layers.competition && data.competitors) {
+              data.competitors.forEach((comp: Competitor) => {
+                const marker = new window.google.maps.Marker({
+                  position: { lat: comp.lat, lng: comp.lng },
+                  map: mapInstance.current,
+                  icon: {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: "#EF4444",
+                    fillOpacity: 0.8,
+                    strokeColor: "#FFFFFF",
+                    strokeWeight: 2
+                  },
+                  title: comp.name,
+                  zIndex: 500
+                });
+                markersRef.current.push(marker);
+              });
+            }
           }
           
           setIsAnalyzing(false);
