@@ -38,6 +38,16 @@ import {
   type PropertyData,
   type DistanceMatrixData
 } from "./cleanbi-intelligence-service";
+import {
+  calculateTotalValuation,
+  calculateTotalEquipmentFMV,
+  calculateBusinessValue,
+  calculateWhatIfScenario,
+  type ValuatorInput,
+  type EquipmentItem,
+  type TotalValuation,
+  type WhatIfScenario
+} from "./cleanbi-valuator-service";
 import { newsletterSubscribers, cleanbiUsage } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
@@ -2378,6 +2388,304 @@ router.get("/check-feature", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("❌ Feature check error:", error);
     return res.status(500).json({ success: false, error: "Feature check failed" });
+  }
+});
+
+// ========================================
+// VALUATOR API - PRO+ TIER FEATURE
+// ========================================
+
+/**
+ * Zod schemas for valuator API validation
+ */
+const equipmentItemSchema = z.object({
+  id: z.string(),
+  machineType: z.enum(['washer', 'dryer', 'combo', 'folder', 'ironer']),
+  brand: z.enum([
+    'speed_queen', 'dexter', 'maytag', 'lg', 'electrolux', 'huebsch',
+    'wascomat', 'continental_girbau', 'ipso', 'alliance', 'adc',
+    'unimac', 'primus', 'fagor', 'other'
+  ]),
+  model: z.string(),
+  capacity: z.enum(['small', 'medium', 'large', 'extra_large', 'mega']),
+  ageYears: z.number().min(0).max(30),
+  purchaseCost: z.number().min(0),
+  quantity: z.number().min(1).max(100),
+  condition: z.enum(['excellent', 'good', 'fair', 'poor']).optional(),
+  hasCardSystem: z.boolean().optional(),
+  monthlyRevenue: z.number().optional()
+});
+
+const valuatorInputSchema = z.object({
+  equipment: z.array(equipmentItemSchema),
+  financials: z.object({
+    annualRevenue: z.number().min(0),
+    annualExpenses: z.number().min(0),
+    monthlyRent: z.number().min(0),
+    monthlyUtilities: z.number().min(0),
+    laborCosts: z.number().min(0)
+  }),
+  propertyValue: z.number().min(0),
+  cleanbiScore: z.number().min(0).max(100),
+  cleanbiGrade: z.enum(['A', 'B', 'C', 'Needs Work']),
+  locationFactors: z.object({
+    walkScore: z.number().optional(),
+    transitScore: z.number().optional(),
+    competitorCount: z.number().optional(),
+    populationDensity: z.number().optional()
+  }).optional()
+});
+
+const whatIfSchema = z.object({
+  baseInput: valuatorInputSchema,
+  addedMachines: z.array(equipmentItemSchema),
+  removedMachineIds: z.array(z.string()),
+  revenueAssumption: z.enum(['conservative', 'moderate', 'optimistic']).optional()
+});
+
+/**
+ * POST /api/cleanbi-explorer/valuator
+ * 
+ * Calculate comprehensive laundromat valuation including:
+ * - Equipment Fair Market Value (with brand-specific depreciation)
+ * - Business Value (EBITDA × CLEANBI-grade multiple)
+ * - Property Value (from ATTOM or user input)
+ * - Total Asset Value with adjustments
+ * 
+ * PRO+ tier required
+ */
+router.post("/valuator", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    // Check tier access (Pro+ required)
+    if (tier !== 'pro' && tier !== 'enterprise') {
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: 'pro',
+        message: 'The CLEANBI Valuator requires Pro tier. Calculate equipment FMV, business value, and What-If scenarios.',
+        upgradeUrl: '/pricing'
+      });
+    }
+    
+    // Validate request body
+    const validation = valuatorInputSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid valuation input',
+        details: validation.error.errors
+      });
+    }
+    
+    const input = validation.data as ValuatorInput;
+    
+    // Check cache first
+    const cacheKey = generateCacheKey('valuator', JSON.stringify({
+      equipment: input.equipment.map(e => e.id).sort(),
+      financials: input.financials,
+      cleanbiScore: input.cleanbiScore
+    }));
+    
+    const cached = await cacheGet(cacheKey);
+    if (cached) {
+      console.log('📊 Valuator cache hit');
+      return res.json({
+        success: true,
+        valuation: cached,
+        cached: true
+      });
+    }
+    
+    // Calculate valuation
+    const valuation = calculateTotalValuation(input);
+    
+    // Calculate equipment breakdown
+    const equipmentBreakdown = calculateTotalEquipmentFMV(input.equipment);
+    
+    // Calculate business valuation details
+    const businessDetails = calculateBusinessValue(
+      input.financials.annualRevenue,
+      input.financials.annualExpenses,
+      input.cleanbiScore,
+      input.cleanbiGrade
+    );
+    
+    const result = {
+      ...valuation,
+      equipmentBreakdown: {
+        totalFMV: equipmentBreakdown.totalFMV,
+        totalOriginalCost: equipmentBreakdown.totalOriginalCost,
+        weightedAge: equipmentBreakdown.weightedAge,
+        brandBreakdown: equipmentBreakdown.brandBreakdown,
+        typeBreakdown: equipmentBreakdown.typeBreakdown,
+        items: equipmentBreakdown.valuations.map(v => ({
+          id: v.item.id,
+          machineType: v.item.machineType,
+          brand: v.item.brand,
+          quantity: v.item.quantity,
+          currentValue: v.currentValue,
+          fairMarketValue: v.fairMarketValue,
+          depreciationRate: v.depreciationRate,
+          remainingLifeYears: v.remainingLifeYears
+        }))
+      },
+      businessDetails: {
+        ebitda: businessDetails.ebitda,
+        ebitdaMultiple: businessDetails.ebitdaMultiple,
+        ebitdaMultipleRange: businessDetails.ebitdaMultipleRange,
+        businessValue: businessDetails.businessValue,
+        businessValueRange: businessDetails.businessValueRange,
+        cleanbiGrade: businessDetails.cleanbiGrade,
+        confidenceLevel: businessDetails.confidenceLevel
+      }
+    };
+    
+    // Cache for 1 hour
+    await cacheSet(cacheKey, result, 3600);
+    
+    console.log(`📊 Valuator calculated: Equipment $${valuation.equipmentFMV.toLocaleString()}, Business $${valuation.businessValue.toLocaleString()}, Total $${valuation.totalAssetValue.toLocaleString()}`);
+    
+    return res.json({
+      success: true,
+      valuation: result,
+      cached: false
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Valuator API error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Valuation calculation failed',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/cleanbi-explorer/valuator/what-if
+ * 
+ * Calculate What-If scenario with machine additions/removals
+ * Shows ROI, payback period, and valuation delta
+ * 
+ * PRO+ tier required
+ */
+router.post("/valuator/what-if", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.claims?.sub || null;
+    const tier = await getUserTier(userId) as UserTier;
+    
+    // Check tier access (Pro+ required)
+    if (tier !== 'pro' && tier !== 'enterprise') {
+      return res.json({
+        success: false,
+        gated: true,
+        requiredTier: 'pro',
+        message: 'What-If Simulator requires Pro tier. Model the impact of adding or removing equipment.',
+        upgradeUrl: '/pricing'
+      });
+    }
+    
+    // Validate request body
+    const validation = whatIfSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid What-If scenario input',
+        details: validation.error.errors
+      });
+    }
+    
+    const { baseInput, addedMachines, removedMachineIds, revenueAssumption } = validation.data;
+    
+    // Calculate base valuation for comparison
+    const baseValuation = calculateTotalValuation(baseInput as ValuatorInput);
+    
+    // Calculate What-If scenario
+    const scenario = calculateWhatIfScenario(
+      baseInput as ValuatorInput,
+      addedMachines as EquipmentItem[],
+      removedMachineIds,
+      revenueAssumption || 'moderate'
+    );
+    
+    // Calculate deltas
+    const valuationDelta = scenario.newValuation.totalAssetValue - baseValuation.totalAssetValue;
+    const equipmentDelta = scenario.newValuation.equipmentFMV - baseValuation.equipmentFMV;
+    const businessDelta = scenario.newValuation.businessValue - baseValuation.businessValue;
+    
+    console.log(`📊 What-If scenario: Capital $${scenario.capitalRequired.toLocaleString()}, ROI ${scenario.roiEstimate}%, Payback ${scenario.paybackMonths} months`);
+    
+    return res.json({
+      success: true,
+      scenario: {
+        ...scenario,
+        baseValuation: {
+          equipmentFMV: baseValuation.equipmentFMV,
+          businessValue: baseValuation.businessValue,
+          totalAssetValue: baseValuation.totalAssetValue
+        },
+        deltas: {
+          total: valuationDelta,
+          equipment: equipmentDelta,
+          business: businessDelta,
+          revenueChange: scenario.assumedRevenueChange
+        }
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('❌ What-If API error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'What-If calculation failed',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/cleanbi-explorer/valuator/depreciation-curves
+ * 
+ * Get depreciation curve data for all brands
+ * Used by frontend to show depreciation charts
+ * 
+ * No tier restriction - public data
+ */
+router.get("/valuator/depreciation-curves", async (req: Request, res: Response) => {
+  try {
+    const { getBrandInfo, BRAND_DISPLAY_NAMES, CAPACITY_DISPLAY_NAMES, MACHINE_TYPE_DISPLAY_NAMES } = await import("./cleanbi-valuator-service");
+    
+    const brands = Object.keys(BRAND_DISPLAY_NAMES) as Array<keyof typeof BRAND_DISPLAY_NAMES>;
+    
+    const curves = brands.map(brand => {
+      const info = getBrandInfo(brand);
+      return {
+        brand,
+        displayName: BRAND_DISPLAY_NAMES[brand],
+        residualAt5: info.residualAt5,
+        residualAt10: info.residualAt10,
+        usefulLife: info.usefulLife,
+        qualityMultiplier: info.qualityMultiplier,
+        annualMaintenance: info.annualMaintenance
+      };
+    });
+    
+    return res.json({
+      success: true,
+      curves,
+      capacities: CAPACITY_DISPLAY_NAMES,
+      machineTypes: MACHINE_TYPE_DISPLAY_NAMES
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Depreciation curves API error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to get depreciation curves'
+    });
   }
 });
 

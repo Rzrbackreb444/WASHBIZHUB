@@ -27,6 +27,7 @@ import {
   X,
   Star,
   TrendingUp,
+  TrendingDown,
   Target,
   Sparkles,
   Globe,
@@ -71,7 +72,14 @@ import {
   Briefcase,
   BookmarkPlus,
   ArrowRight,
-  Check
+  Check,
+  Plus,
+  Minus,
+  WashingMachine,
+  CircleDollarSign,
+  Wrench,
+  RefreshCw,
+  LineChart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -222,6 +230,96 @@ interface IntelligenceReport {
   featuresUnlocked: string[];
   featuresGated: string[];
 }
+
+type MachineType = 'washer' | 'dryer' | 'combo' | 'folder' | 'ironer';
+type MachineBrand = 
+  | 'speed_queen' | 'dexter' | 'maytag' | 'lg' | 'electrolux' | 'huebsch'
+  | 'wascomat' | 'continental_girbau' | 'ipso' | 'alliance' | 'adc'
+  | 'unimac' | 'primus' | 'fagor' | 'other';
+type MachineCapacity = 'small' | 'medium' | 'large' | 'extra_large' | 'mega';
+
+interface EquipmentItem {
+  id: string;
+  machineType: MachineType;
+  brand: MachineBrand;
+  model: string;
+  capacity: MachineCapacity;
+  ageYears: number;
+  purchaseCost: number;
+  quantity: number;
+  condition?: 'excellent' | 'good' | 'fair' | 'poor';
+  hasCardSystem?: boolean;
+  monthlyRevenue?: number;
+}
+
+interface ValuatorResult {
+  equipmentFMV: number;
+  propertyValue: number;
+  businessValue: number;
+  totalAssetValue: number;
+  valuationRange: { min: number; max: number };
+  adjustments: Array<{ reason: string; amount: number; percentage: number; direction: 'increase' | 'decrease' }>;
+  equipmentBreakdown: {
+    totalFMV: number;
+    totalOriginalCost: number;
+    weightedAge: number;
+    brandBreakdown: Record<string, { count: number; value: number }>;
+    typeBreakdown: Record<string, { count: number; value: number }>;
+    items: Array<{
+      id: string;
+      machineType: string;
+      brand: string;
+      quantity: number;
+      currentValue: number;
+      fairMarketValue: number;
+      depreciationRate: number;
+      remainingLifeYears: number;
+    }>;
+  };
+  businessDetails: {
+    ebitda: number;
+    ebitdaMultiple: number;
+    ebitdaMultipleRange: { min: number; max: number };
+    businessValue: number;
+    businessValueRange: { min: number; max: number };
+    cleanbiGrade: string;
+    confidenceLevel: 'high' | 'medium' | 'low';
+  };
+}
+
+const BRAND_DISPLAY_NAMES: Record<MachineBrand, string> = {
+  speed_queen: 'Speed Queen',
+  dexter: 'Dexter',
+  maytag: 'Maytag',
+  lg: 'LG Commercial',
+  electrolux: 'Electrolux',
+  huebsch: 'Huebsch',
+  wascomat: 'Wascomat',
+  continental_girbau: 'Continental Girbau',
+  ipso: 'IPSO',
+  alliance: 'Alliance',
+  adc: 'ADC',
+  unimac: 'UniMac',
+  primus: 'Primus',
+  fagor: 'Fagor',
+  other: 'Other'
+};
+
+const CAPACITY_DISPLAY_NAMES: Record<MachineCapacity, string> = {
+  small: 'Small (15-20 lbs)',
+  medium: 'Medium (20-30 lbs)',
+  large: 'Large (30-40 lbs)',
+  extra_large: 'Extra Large (40-60 lbs)',
+  mega: 'Mega (60-80+ lbs)'
+};
+
+const MACHINE_TYPE_DISPLAY: Record<MachineType, string> = {
+  washer: 'Washer',
+  dryer: 'Dryer',
+  combo: 'Combo',
+  folder: 'Folder',
+  ironer: 'Ironer'
+};
 
 const GRADE_COLORS: Record<string, string> = {
   "A": "#22C55E",
@@ -435,6 +533,19 @@ function CleanBIExplorerContent() {
   const [loadingGapAnalysis, setLoadingGapAnalysis] = useState(false);
   const [gapMarkers, setGapMarkers] = useState<any[]>([]);
   const [gapZoneCircles, setGapZoneCircles] = useState<any[]>([]);
+  
+  // Valuator State - Equipment inventory and valuation
+  const [valuatorEquipment, setValuatorEquipment] = useState<EquipmentItem[]>([]);
+  const [valuatorResult, setValuatorResult] = useState<ValuatorResult | null>(null);
+  const [isCalculatingValuation, setIsCalculatingValuation] = useState(false);
+  const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState<EquipmentItem | null>(null);
+  const [whatIfScenario, setWhatIfScenario] = useState<{
+    addedMachines: EquipmentItem[];
+    removedMachineIds: string[];
+  }>({ addedMachines: [], removedMachineIds: [] });
+  const [whatIfResult, setWhatIfResult] = useState<any | null>(null);
+  const [isCalculatingWhatIf, setIsCalculatingWhatIf] = useState(false);
   
   // Auto-calculate deal verdict when financial values change
   useEffect(() => {
@@ -1892,13 +2003,18 @@ function CleanBIExplorerContent() {
 
                 {/* Detail Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-6 bg-white/5 backdrop-blur-sm mb-3 rounded-xl border border-white/10">
+                  <TabsList className="w-full grid grid-cols-7 bg-white/5 backdrop-blur-sm mb-3 rounded-xl border border-white/10">
                     <TabsTrigger value="overview" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Overview</TabsTrigger>
                     <TabsTrigger value="score" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
                     <TabsTrigger value="compete" className="text-[10px] px-1 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Compete</TabsTrigger>
                     <TabsTrigger value="financials" className="text-[10px] px-1 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-financials">
                       <Calculator className="w-3 h-3" />
                       Calc
+                    </TabsTrigger>
+                    <TabsTrigger value="valuator" className="text-[10px] px-1 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-valuator">
+                      <CircleDollarSign className="w-3 h-3" />
+                      Value
+                      {(userTier === "free" || userTier === "starter") && <Crown className="w-2.5 h-2.5 text-[#8B5CF6]" />}
                     </TabsTrigger>
                     <TabsTrigger value="deal" className="text-[10px] px-1 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center gap-0.5 rounded-lg" data-testid="tab-deal">
                       <Scale className="w-3 h-3" />
@@ -2848,6 +2964,316 @@ function CleanBIExplorerContent() {
                         <span>{analysisResult.competitorCount <= 3 ? "Low competition = pricing power" : "Differentiation strategy recommended"}</span>
                       </div>
                     </div>
+                  </TabsContent>
+
+                  {/* VALUATOR TAB - PRO+ FEATURE */}
+                  <TabsContent value="valuator" className="mt-0 space-y-3" data-testid="valuator-tab-content">
+                    {(userTier === "free" || userTier === "starter") ? (
+                      <div className="bg-gradient-to-br from-[#8B5CF6]/10 to-transparent rounded-lg p-6 border border-[#8B5CF6]/30 text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center">
+                          <CircleDollarSign className="w-8 h-8 text-[#8B5CF6]" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">CLEANBI Valuator</h3>
+                        <p className="text-sm text-white/70 mb-4 max-w-xs mx-auto">
+                          Calculate equipment FMV, business value with EBITDA multiples tied to your CLEANBI grade, and model What-If scenarios.
+                        </p>
+                        <div className="flex flex-wrap gap-2 justify-center mb-4">
+                          <Badge variant="outline" className="text-[10px] border-[#8B5CF6]/30 text-[#8B5CF6]">
+                            <WashingMachine className="w-3 h-3 mr-1" />
+                            Equipment FMV
+                          </Badge>
+                          <Badge variant="outline" className="text-[10px] border-[#8B5CF6]/30 text-[#8B5CF6]">
+                            <TrendingUp className="w-3 h-3 mr-1" />
+                            EBITDA Multiple
+                          </Badge>
+                          <Badge variant="outline" className="text-[10px] border-[#8B5CF6]/30 text-[#8B5CF6]">
+                            <LineChart className="w-3 h-3 mr-1" />
+                            What-If Simulator
+                          </Badge>
+                        </div>
+                        <Button 
+                          size="sm"
+                          className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+                          onClick={() => setShowUpgradeModal(true)}
+                          data-testid="button-valuator-upgrade"
+                        >
+                          <Crown className="w-3.5 h-3.5 mr-1.5" />
+                          Upgrade to Pro — $99/mo
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Valuator Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <CircleDollarSign className="w-5 h-5 text-[#8B5CF6]" />
+                            <span className="text-sm font-semibold text-white">CLEANBI Valuator</span>
+                            <Badge className="text-[9px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Pro</Badge>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                            onClick={() => setShowAddEquipmentModal(true)}
+                            data-testid="button-add-equipment"
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add Equipment
+                          </Button>
+                        </div>
+
+                        {/* Equipment Inventory Section */}
+                        {valuatorEquipment.length === 0 ? (
+                          <div className="bg-white/5 rounded-lg p-4 text-center border border-dashed border-white/20">
+                            <WashingMachine className="w-10 h-10 mx-auto mb-2 text-white/30" />
+                            <p className="text-sm text-white/50 mb-3">No equipment added yet</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs"
+                              onClick={() => setShowAddEquipmentModal(true)}
+                              data-testid="button-add-first-equipment"
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Add Your First Machine
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="text-xs text-white/50 mb-2">Equipment Inventory ({valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0)} machines)</div>
+                            <ScrollArea className="max-h-40">
+                              <div className="space-y-1.5">
+                                {valuatorEquipment.map((item) => (
+                                  <div 
+                                    key={item.id}
+                                    className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2 hover:bg-white/8 transition-colors"
+                                    data-testid={`equipment-item-${item.id}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div className={`w-7 h-7 rounded-md flex items-center justify-center ${item.machineType === 'washer' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                        <WashingMachine className="w-4 h-4" />
+                                      </div>
+                                      <div>
+                                        <div className="text-xs font-medium text-white">
+                                          {item.quantity}x {BRAND_DISPLAY_NAMES[item.brand]} {MACHINE_TYPE_DISPLAY[item.machineType]}
+                                        </div>
+                                        <div className="text-[10px] text-white/50">
+                                          {CAPACITY_DISPLAY_NAMES[item.capacity]} • {item.ageYears}yr old • ${item.purchaseCost.toLocaleString()}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-6 w-6 text-white/40 hover:text-white"
+                                        onClick={() => {
+                                          setEditingEquipment(item);
+                                          setShowAddEquipmentModal(true);
+                                        }}
+                                        data-testid={`button-edit-equipment-${item.id}`}
+                                      >
+                                        <Wrench className="w-3 h-3" />
+                                      </Button>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-6 w-6 text-red-400/60 hover:text-red-400"
+                                        onClick={() => {
+                                          setValuatorEquipment(prev => prev.filter(e => e.id !== item.id));
+                                          toast({ title: "Equipment removed" });
+                                        }}
+                                        data-testid={`button-delete-equipment-${item.id}`}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        )}
+
+                        {/* Calculate Valuation Button */}
+                        {valuatorEquipment.length > 0 && (
+                          <Button
+                            className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] hover:from-[#7C3AED] hover:to-[#5B21B6] text-white"
+                            onClick={async () => {
+                              setIsCalculatingValuation(true);
+                              try {
+                                const propertyValue = intelligenceData?.propertyValue?.estimatedValue || 0;
+                                const response = await apiRequest('/api/cleanbi-explorer/valuator', {
+                                  method: 'POST',
+                                  body: JSON.stringify({
+                                    equipment: valuatorEquipment,
+                                    financials: {
+                                      annualRevenue: calcValues.annualRevenue || 200000,
+                                      annualExpenses: calcValues.operatingExpenses || 120000,
+                                      monthlyRent: 4000,
+                                      monthlyUtilities: 1500,
+                                      laborCosts: 2000
+                                    },
+                                    propertyValue,
+                                    cleanbiScore: analysisResult.cleanbiScore,
+                                    cleanbiGrade: analysisResult.grade as 'A' | 'B' | 'C' | 'Needs Work',
+                                    locationFactors: {
+                                      walkScore: analysisResult.walkScore,
+                                      transitScore: analysisResult.transitScore || undefined,
+                                      competitorCount: analysisResult.competitorCount,
+                                      populationDensity: analysisResult.populationDensity
+                                    }
+                                  })
+                                });
+                                
+                                if (response.success) {
+                                  setValuatorResult(response.valuation);
+                                  toast({ title: "Valuation calculated!", description: `Total asset value: $${response.valuation.totalAssetValue.toLocaleString()}` });
+                                  trackEvent("valuator_calculated", "engagement", response.valuation.totalAssetValue);
+                                } else {
+                                  toast({ title: "Valuation failed", description: response.error || "Please try again", variant: "destructive" });
+                                }
+                              } catch (error) {
+                                console.error("Valuation error:", error);
+                                toast({ title: "Error", description: "Could not calculate valuation", variant: "destructive" });
+                              } finally {
+                                setIsCalculatingValuation(false);
+                              }
+                            }}
+                            disabled={isCalculatingValuation}
+                            data-testid="button-calculate-valuation"
+                          >
+                            {isCalculatingValuation ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Calculating...
+                              </>
+                            ) : (
+                              <>
+                                <CircleDollarSign className="w-4 h-4 mr-2" />
+                                Calculate Valuation
+                              </>
+                            )}
+                          </Button>
+                        )}
+
+                        {/* Valuation Results */}
+                        {valuatorResult && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-3"
+                          >
+                            {/* Total Valuation */}
+                            <div className="bg-gradient-to-br from-[#8B5CF6]/20 to-transparent rounded-lg p-4 border border-[#8B5CF6]/30">
+                              <div className="text-xs text-white/50 mb-1">Total Asset Value</div>
+                              <div className="text-3xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                                ${valuatorResult.totalAssetValue.toLocaleString()}
+                              </div>
+                              <div className="text-xs text-white/40 mt-1">
+                                Range: ${valuatorResult.valuationRange.min.toLocaleString()} - ${valuatorResult.valuationRange.max.toLocaleString()}
+                              </div>
+                            </div>
+
+                            {/* Value Breakdown */}
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="bg-white/5 rounded-lg p-3 text-center">
+                                <WashingMachine className="w-4 h-4 mx-auto mb-1 text-blue-400" />
+                                <div className="text-xs text-white/50">Equipment FMV</div>
+                                <div className="text-sm font-bold text-white">${valuatorResult.equipmentFMV.toLocaleString()}</div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3 text-center">
+                                <Building2 className="w-4 h-4 mx-auto mb-1 text-green-400" />
+                                <div className="text-xs text-white/50">Property</div>
+                                <div className="text-sm font-bold text-white">${valuatorResult.propertyValue.toLocaleString()}</div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3 text-center">
+                                <TrendingUp className="w-4 h-4 mx-auto mb-1 text-[#8B5CF6]" />
+                                <div className="text-xs text-white/50">Business</div>
+                                <div className="text-sm font-bold text-white">${valuatorResult.businessValue.toLocaleString()}</div>
+                              </div>
+                            </div>
+
+                            {/* EBITDA Details */}
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs text-white/50">EBITDA Multiple</span>
+                                <Badge 
+                                  className="text-[10px]"
+                                  style={{ 
+                                    backgroundColor: GRADE_COLORS[valuatorResult.businessDetails.cleanbiGrade] + "33",
+                                    color: GRADE_COLORS[valuatorResult.businessDetails.cleanbiGrade]
+                                  }}
+                                >
+                                  Grade {valuatorResult.businessDetails.cleanbiGrade}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="text-2xl font-bold text-[#8B5CF6]">{valuatorResult.businessDetails.ebitdaMultiple}x</div>
+                                <div className="text-xs text-white/40">
+                                  (Range: {valuatorResult.businessDetails.ebitdaMultipleRange.min}x - {valuatorResult.businessDetails.ebitdaMultipleRange.max}x)
+                                </div>
+                              </div>
+                              <div className="text-xs text-white/50 mt-1">
+                                EBITDA: ${valuatorResult.businessDetails.ebitda.toLocaleString()}/yr
+                              </div>
+                            </div>
+
+                            {/* Adjustments */}
+                            {valuatorResult.adjustments.length > 0 && (
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="text-xs text-white/50 mb-2">Valuation Adjustments</div>
+                                <div className="space-y-1">
+                                  {valuatorResult.adjustments.map((adj, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs">
+                                      <span className="text-white/70">{adj.reason}</span>
+                                      <span className={adj.direction === 'increase' ? 'text-green-400' : 'text-red-400'}>
+                                        {adj.direction === 'increase' ? '+' : '-'}${adj.amount.toLocaleString()} ({adj.percentage}%)
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Equipment Age & Depreciation */}
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-white/50">Weighted Equipment Age</span>
+                                <span className="text-white font-medium">{valuatorResult.equipmentBreakdown.weightedAge.toFixed(1)} years</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs mt-1">
+                                <span className="text-white/50">Original Cost</span>
+                                <span className="text-white/70">${valuatorResult.equipmentBreakdown.totalOriginalCost.toLocaleString()}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs mt-1">
+                                <span className="text-white/50">Depreciation</span>
+                                <span className="text-red-400">
+                                  -${(valuatorResult.equipmentBreakdown.totalOriginalCost - valuatorResult.equipmentBreakdown.totalFMV).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Confidence Level */}
+                            <div className="flex items-center justify-center gap-2 text-xs">
+                              <span className="text-white/40">Confidence:</span>
+                              <Badge 
+                                variant="outline"
+                                className={`text-[10px] ${
+                                  valuatorResult.businessDetails.confidenceLevel === 'high' 
+                                    ? 'border-green-500/30 text-green-400'
+                                    : valuatorResult.businessDetails.confidenceLevel === 'medium'
+                                    ? 'border-yellow-500/30 text-yellow-400'
+                                    : 'border-red-500/30 text-red-400'
+                                }`}
+                              >
+                                {valuatorResult.businessDetails.confidenceLevel.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
                   </TabsContent>
                 </Tabs>
 
