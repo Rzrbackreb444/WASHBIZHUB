@@ -35,6 +35,7 @@ import {
   ChevronDown,
   Quote
 } from "lucide-react";
+import { VisibilityAddOnsSection } from "@/components/VisibilityAddOnsSection";
 
 export default function Pricing() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -773,6 +774,9 @@ export default function Pricing() {
             </div>
           </div>
         </section>
+
+        {/* Visibility Add-Ons for Sellers */}
+        <VisibilityAddOnsSection />
 
         {/* Final CTA Section */}
         <section 
