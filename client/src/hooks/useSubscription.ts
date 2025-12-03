@@ -55,8 +55,18 @@ const FEATURE_TIERS: Record<string, SubscriptionTier> = {
   // Calculators
   "calculators-basic": "free",
   "calculators-all": "starter",
+  "calculators-advanced": "pro",
   "calculators-export": "pro",
   "calculators-white-label": "enterprise",
+  
+  // Business Plan Generator
+  "business-plan-generator": "starter",
+  
+  // Templates & Downloads
+  "templates-premium": "starter",
+  
+  // Bulk Analysis
+  "bulk-analysis": "enterprise",
   
   // AI Consultation Council
   "ai-council-trial": "free",

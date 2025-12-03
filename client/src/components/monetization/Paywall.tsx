@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +40,10 @@ export function Paywall({
   previewLines = 3
 }: PaywallProps) {
   const { canAccessTier, tier: currentTier, isLoading } = useSubscription();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const hasTrackedRef = useRef(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const tierConfig = PLATFORM_TIERS[requiredTier];
   const TierIcon = TIER_ICONS[requiredTier] || Lock;
@@ -60,6 +65,43 @@ export function Paywall({
       hasTrackedRef.current = true;
     }
   }, [isLoading, requiredTier, currentTier, title, canAccessTier]);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    trackConversion("paywall_click", tierConfig?.price || 0, { tier: requiredTier });
+
+    try {
+      const response = await fetch("/api/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: requiredTier,
+          interval: "month",
+          userId: user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const data = await response.json();
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Checkout Error",
+        description: "Unable to start checkout. Please try again.",
+        variant: "destructive",
+      });
+      setCheckoutLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -131,17 +173,25 @@ export function Paywall({
               <span className="text-muted-foreground">/month</span>
             </div>
             
-            <Link href="/pricing">
-              <Button 
-                className="w-full max-w-sm btn-premium-gold text-white font-semibold h-12 group"
-                data-testid={`button-paywall-upgrade-${requiredTier}`}
-                onClick={() => trackConversion("paywall_click", tierConfig?.price || 0, { tier: requiredTier })}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Start 7-Day Free Trial
-                <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
+            <Button 
+              className="w-full max-w-sm btn-premium-gold text-white font-semibold h-12 group"
+              data-testid={`button-paywall-upgrade-${requiredTier}`}
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Preparing Checkout...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start 7-Day Free Trial
+                  <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
+            </Button>
             
             <div className="flex items-center justify-center gap-6 pt-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
@@ -188,6 +238,47 @@ export function HardPaywall({
   redirectTo?: string;
 }) {
   const { canAccessTier, isLoading } = useSubscription();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    const tierConfig = PLATFORM_TIERS[requiredTier];
+    trackConversion("hard_paywall_click", tierConfig?.price || 0, { tier: requiredTier });
+
+    try {
+      const response = await fetch("/api/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: requiredTier,
+          interval: "month",
+          userId: user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const data = await response.json();
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Checkout Error",
+        description: "Unable to start checkout. Please try again.",
+        variant: "destructive",
+      });
+      setCheckoutLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -220,15 +311,24 @@ export function HardPaywall({
         </CardHeader>
         
         <CardContent className="text-center space-y-4">
-          <Link href={redirectTo}>
-            <Button 
-              className="w-full btn-premium-gold text-white font-semibold h-12"
-              data-testid="button-hard-paywall-upgrade"
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              View Plans & Upgrade
-            </Button>
-          </Link>
+          <Button 
+            className="w-full btn-premium-gold text-white font-semibold h-12"
+            data-testid="button-hard-paywall-upgrade"
+            onClick={handleCheckout}
+            disabled={checkoutLoading}
+          >
+            {checkoutLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Preparing Checkout...
+              </>
+            ) : (
+              <>
+                <Zap className="h-4 w-4 mr-2" />
+                View Plans & Upgrade
+              </>
+            )}
+          </Button>
           
           <Link href="/">
             <Button variant="ghost" className="w-full text-muted-foreground">
@@ -251,6 +351,47 @@ export function SoftPaywall({
   ctaText?: string;
 }) {
   const { canAccessTier, isLoading } = useSubscription();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    const tierConfig = PLATFORM_TIERS[requiredTier];
+    trackConversion("soft_paywall_click", tierConfig?.price || 0, { tier: requiredTier });
+
+    try {
+      const response = await fetch("/api/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: requiredTier,
+          interval: "month",
+          userId: user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const data = await response.json();
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Checkout Error",
+        description: "Unable to start checkout. Please try again.",
+        variant: "destructive",
+      });
+      setCheckoutLoading(false);
+    }
+  };
 
   if (isLoading) {
     return null;
@@ -278,15 +419,21 @@ export function SoftPaywall({
         </div>
       </div>
       
-      <Link href="/pricing">
-        <Button 
-          className="btn-premium-gold text-white"
-          data-testid="button-soft-paywall-upgrade"
-        >
-          <Zap className="h-4 w-4 mr-1.5" />
-          {ctaText}
-        </Button>
-      </Link>
+      <Button 
+        className="btn-premium-gold text-white"
+        data-testid="button-soft-paywall-upgrade"
+        onClick={handleCheckout}
+        disabled={checkoutLoading}
+      >
+        {checkoutLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            <Zap className="h-4 w-4 mr-1.5" />
+            {ctaText}
+          </>
+        )}
+      </Button>
     </div>
   );
 }

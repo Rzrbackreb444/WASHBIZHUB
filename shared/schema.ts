@@ -60,6 +60,7 @@ export const users = pgTable("users", {
   subscriptionTier: text("subscription_tier").default("free"), // "free", "accelerate", "scale", "summit"
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  trialEndDate: timestamp("trial_end_date"), // End date of free trial period
   
   // AI Consultant subscription (separate from platform subscription)
   aiConsultantTier: text("ai_consultant_tier").default("free"), // "free", "pro", "enterprise"
