@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -116,6 +116,66 @@ const stats = [
   { value: "50+", label: "Business Tools" },
   { value: "4.9", label: "User Rating", icon: Star }
 ];
+
+interface JourneyPath {
+  id: string;
+  icon: React.ElementType;
+  headline: string;
+  description: string;
+  features: string[];
+  link: string;
+  color: string;
+}
+
+interface ColorClass {
+  bg: string;
+  border: string;
+  text: string;
+  hover: string;
+}
+
+function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPath[]; colorClasses: Record<string, ColorClass> }) {
+  const [, setLocation] = useLocation();
+  
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {journeyPaths.map((path) => {
+        const Icon = path.icon;
+        const colors = colorClasses[path.color];
+        return (
+          <Card 
+            key={path.id}
+            onClick={() => setLocation(path.link)}
+            className={`p-6 h-full border-2 ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group bg-white`}
+            data-testid={`card-journey-${path.id}`}
+          >
+            <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg}`}>
+              <Icon className={`h-6 w-6 ${colors.text}`} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {path.headline}
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              {path.description}
+            </p>
+            <ul className="space-y-2 mb-4">
+              {path.features.map((feature, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                  <CheckCircle className={`w-4 h-4 ${colors.text} flex-shrink-0`} />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <div className={`flex items-center ${colors.text} text-sm font-semibold group-hover:translate-x-1 transition-transform`}>
+              Explore
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -558,42 +618,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {journeyPaths.map((path) => {
-                const Icon = path.icon;
-                const colors = colorClasses[path.color];
-                return (
-                  <Link key={path.id} href={path.link}>
-                    <Card 
-                      className={`p-6 h-full border-2 ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group bg-white`}
-                      data-testid={`card-journey-${path.id}`}
-                    >
-                      <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg}`}>
-                        <Icon className={`h-6 w-6 ${colors.text}`} />
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {path.headline}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        {path.description}
-                      </p>
-                      <ul className="space-y-2 mb-4">
-                        {path.features.map((feature, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                            <CheckCircle className={`w-4 h-4 ${colors.text} flex-shrink-0`} />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className={`flex items-center ${colors.text} text-sm font-semibold group-hover:translate-x-1 transition-transform`}>
-                        Explore
-                        <ArrowRight className="ml-1.5 h-4 w-4" />
-                      </div>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+            <JourneyCards journeyPaths={journeyPaths} colorClasses={colorClasses} />
           </div>
         </section>
         
