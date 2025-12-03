@@ -21,6 +21,8 @@ import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg
 import consultingImage from "@assets/laundromat_consulting_1764705500502.png";
 import aerialViewHD from "@assets/laundromat_aerial_view_hd_1764705500502.jpg";
 import aerialView from "@assets/laundromat_aerial_view_1764705500503.jpg";
+import aadvantageLogo from "@assets/image_1764781537875.png";
+import aadvantageMarketing from "@assets/aadvantage_marketing_dexter_dryer_1764781473596.jpg";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -514,22 +516,61 @@ export function MarketplaceSection() {
                 </div>
               </Card>
 
-              {/* Vendor Spotlight */}
-              <Card className="p-8 border border-gray-200 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-                <p className="text-xs font-semibold tracking-[0.15em] text-gray-400 uppercase mb-6">Vendor Spotlight</p>
-                <div className="border-b border-gray-100 pb-6 mb-6">
+              {/* Vendor Spotlight - AAdvantage Laundry Systems */}
+              <Card className="p-8 border-2 border-[#b8860b]/30 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <p className="text-xs font-semibold tracking-[0.15em] text-[#b8860b] uppercase mb-4">Featured Partner</p>
+                <div className="flex items-center justify-center mb-4">
+                  <img 
+                    src={aadvantageLogo} 
+                    alt="AAdvantage Laundry Systems" 
+                    className="h-16 object-contain"
+                  />
+                </div>
+                <div className="border-b border-gray-100 pb-4 mb-4">
                   <h3 
-                    className="text-lg font-bold text-[#1e3a5f] uppercase"
+                    className="text-lg font-bold text-[#1e3a5f] uppercase text-center"
                     style={{ fontFamily: 'var(--font-bebas)' }}
                   >
-                    Speed Queen
+                    AAdvantage Laundry Systems
                   </h3>
-                  <Badge variant="outline" className="mt-3 text-xs">Equipment</Badge>
+                  <div className="flex justify-center gap-2 mt-3">
+                    <Badge variant="outline" className="text-xs">Equipment</Badge>
+                    <Badge variant="outline" className="text-xs">Dexter Authorized</Badge>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-6 leading-relaxed">Commercial laundry equipment - washers, dryers, and parts</p>
-                <Button variant="outline" className="w-full border-gray-300 hover:border-[#1e3a5f]" data-testid="button-vendor-spotlight-visit">
-                  Visit Store <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed text-center">Premium commercial laundry equipment, parts, and service</p>
+                <a 
+                  href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid="button-vendor-spotlight-visit">
+                    Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+              </Card>
+              
+              {/* List Your Business CTA */}
+              <Card className="overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300">
+                <div className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-[#1e3a5f]" />
+                  </div>
+                  <h3 
+                    className="text-lg font-bold text-[#1e3a5f] uppercase mb-2"
+                    style={{ fontFamily: 'var(--font-bebas)' }}
+                  >
+                    List Your Business
+                  </h3>
+                  <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+                    Reach 72,000+ laundromat owners and operators
+                  </p>
+                  <Link href="/list-your-laundromat">
+                    <Button variant="outline" className="w-full border-[#1e3a5f] text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white" data-testid="button-list-your-business">
+                      List Your Services <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </Card>
             </motion.div>
           </motion.div>
@@ -583,8 +624,8 @@ export function FeaturedVendorBanner() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
                   <img 
-                    src={twinCitiesInterior} 
-                    alt="Modern laundromat interior" 
+                    src={aadvantageMarketing} 
+                    alt="AAdvantage Dexter T-450 Express Stack Washer-Dryer" 
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/90 md:block hidden" />
@@ -593,29 +634,49 @@ export function FeaturedVendorBanner() {
                 <div className="md:col-span-2 p-8 bg-gradient-to-r from-white to-[#b8860b]/5">
                   <div className="flex flex-col h-full justify-center">
                     <Badge className="bg-[#b8860b] text-white w-fit mb-6 shadow-lg">
-                      <Star className="w-3 h-3 mr-1" /> Featured Vendor
+                      <Star className="w-3 h-3 mr-1" /> Featured Partner
                     </Badge>
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
-                      <div className="w-28 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-400 shrink-0 shadow-inner">
-                        PAYRANGE
+                      <div className="shrink-0 bg-white p-3 rounded-xl shadow-inner">
+                        <img 
+                          src={aadvantageLogo} 
+                          alt="AAdvantage Laundry Systems" 
+                          className="h-14 w-auto object-contain"
+                        />
                       </div>
                       <div className="flex-1">
                         <h3 
                           className="text-xl font-bold text-[#1e3a5f] uppercase"
                           style={{ fontFamily: 'var(--font-bebas)' }}
                         >
-                          PayRange
+                          AAdvantage Laundry Systems
                         </h3>
-                        <p className="text-gray-800 font-medium text-lg">Mobile Payment Solutions</p>
-                        <p className="text-sm text-gray-600 mt-1">Contactless payment systems for modern laundromats</p>
+                        <p className="text-gray-800 font-medium text-lg">Premium Commercial Equipment</p>
+                        <p className="text-sm text-gray-600 mt-1">Authorized Dexter dealer - washers, dryers, parts & service</p>
                         <div className="flex flex-wrap gap-2 mt-3">
-                          <Badge variant="outline" className="text-xs">Mobile Payment Readers</Badge>
-                          <Badge variant="outline" className="text-xs">App Integration</Badge>
+                          <Badge variant="outline" className="text-xs">Dexter Authorized</Badge>
+                          <Badge variant="outline" className="text-xs">Sales & Service</Badge>
+                          <Badge variant="outline" className="text-xs">Financing Available</Badge>
                         </div>
                       </div>
-                      <Link href="/vendors">
+                      <a 
+                        href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
                         <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white shrink-0 shadow-lg px-6 py-3" data-testid="button-featured-vendor-storefront">
-                          Visit Storefront <ArrowRight className="ml-2 h-4 w-4" />
+                          Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4">
+                      <p className="text-sm text-gray-600">
+                        Want to feature your business here?
+                      </p>
+                      <Link href="/list-your-laundromat">
+                        <Button variant="outline" size="sm" className="border-[#1e3a5f] text-[#1e3a5f]" data-testid="button-list-your-business-banner">
+                          <Building2 className="w-4 h-4 mr-2" />
+                          List Your Business or Services
                         </Button>
                       </Link>
                     </div>
