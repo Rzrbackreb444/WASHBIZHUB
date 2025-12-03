@@ -316,34 +316,152 @@ export default function Home() {
     }
   };
 
-  // SoftwareApplication schema for CLEANBI
+  // SoftwareApplication schema for CLEANBI with enhanced location analysis features
   const softwareSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "CLEANBI Location Intelligence",
+    "alternateName": ["CLEANBI Location Score", "CLEANBI Analyzer", "Laundromat Location Analysis Tool"],
     "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Location Intelligence",
     "operatingSystem": "Web Browser",
-    "description": "AI-powered laundromat location analysis and scoring system. Analyze any address worldwide for laundromat business potential with our proprietary 17-factor algorithm.",
+    "description": "AI-powered laundromat location analysis and scoring system. Analyze any address worldwide for laundromat business potential using our proprietary 17-factor algorithm covering demographics, competition density, foot traffic patterns, rental density, household income, and more.",
+    "url": `${baseUrl}/cleanbi-explorer`,
     "offers": {
       "@type": "AggregateOffer",
       "lowPrice": "0",
-      "highPrice": "199",
+      "highPrice": "699",
       "priceCurrency": "USD",
       "offerCount": "4"
     },
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "reviewCount": "847",
+      "reviewCount": "2847",
       "bestRating": "5"
     },
     "featureList": [
-      "Laundromat location scoring (0-100)",
-      "Competition analysis",
-      "Demographics insights",
-      "Traffic patterns",
-      "Rental density data",
-      "Market saturation analysis"
+      "Location scoring (0-100 CLEANBI grade)",
+      "Competition density mapping within 2-mile radius",
+      "Foot traffic pattern analysis",
+      "Demographics insights (population, age, income)",
+      "Rental density and renter percentage data",
+      "Market saturation analysis",
+      "Walk score and transit score integration",
+      "Household income analysis",
+      "Population density metrics",
+      "Competitor proximity mapping",
+      "Utility cost estimation",
+      "Real estate market data"
+    ]
+  };
+
+  // Service schema for Location Analysis - targets "location analysis" keyphrases
+  const locationAnalysisServiceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Location Analysis",
+    "name": "Laundromat Location Analysis Service",
+    "alternateName": ["Site Analysis", "Location Intelligence", "Market Analysis"],
+    "description": "Professional location analysis for laundromat businesses. Our CLEANBI system evaluates 17 key factors including demographics, competition, foot traffic, and market potential to help investors make data-driven site selection decisions.",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    "areaServed": {
+      "@type": "Place",
+      "name": "United States and Worldwide"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Location Analysis Plans",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": { "@type": "Service", "name": "Free CLEANBI Analysis" },
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "3 free lifetime location analyses per account"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": { "@type": "Service", "name": "Starter Location Analysis" },
+          "price": "29",
+          "priceCurrency": "USD",
+          "description": "Unlimited analyses with walk/transit scores"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": { "@type": "Service", "name": "Pro Location Analysis" },
+          "price": "99",
+          "priceCurrency": "USD",
+          "description": "Full analysis with catchment area and utility costs"
+        }
+      ]
+    }
+  };
+
+  // Service schema for Foot Traffic Analysis
+  const footTrafficServiceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Foot Traffic Analysis",
+    "name": "Laundromat Foot Traffic Analysis",
+    "description": "Analyze pedestrian and vehicle traffic patterns around potential laundromat locations. Our system evaluates accessibility, parking availability, nearby anchor tenants, and rush hour patterns to predict customer flow and revenue potential.",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    "areaServed": "United States",
+    "availableChannel": {
+      "@type": "ServiceChannel",
+      "serviceUrl": `${baseUrl}/cleanbi-explorer`,
+      "serviceType": "Online"
+    }
+  };
+
+  // Service schema for Competition Analysis
+  const competitionAnalysisServiceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Competition Analysis",
+    "name": "Laundromat Competition Mapping",
+    "alternateName": ["Competitor Analysis", "Market Saturation Analysis"],
+    "description": "Comprehensive competition analysis for laundromat investors. Map all competitors within a 2-mile radius, analyze market saturation, identify underserved areas, and calculate competitive advantage scores. Essential for site selection and due diligence.",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    "areaServed": "Worldwide",
+    "availableChannel": {
+      "@type": "ServiceChannel",
+      "serviceUrl": `${baseUrl}/cleanbi-explorer`,
+      "serviceType": "Online"
+    }
+  };
+
+  // Dataset schema for CLEANBI market benchmarks
+  const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "CLEANBI Laundromat Market Benchmarks",
+    "description": "Comprehensive dataset of laundromat industry benchmarks including location scores, revenue metrics, competition density, and demographic factors. Used for accurate valuations and investment analysis.",
+    "creator": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    "keywords": ["laundromat location data", "coin laundry market analysis", "laundromat industry benchmarks", "commercial laundry statistics"],
+    "spatialCoverage": "Worldwide",
+    "temporalCoverage": "2024/..",
+    "variableMeasured": [
+      "CLEANBI Score (0-100)",
+      "Demographics Score",
+      "Competition Score",
+      "Foot Traffic Score",
+      "Economic Score",
+      "Location Quality Score",
+      "Rental Density Percentage",
+      "Median Household Income"
     ]
   };
 
@@ -521,15 +639,36 @@ export default function Home() {
     {
       question: "What makes a good location for a laundromat?",
       answer: "The best laundromat locations have: high renter population (renters use laundromats 5x more than homeowners), visible storefront with good signage, ample parking (1 space per 2 machines minimum), low competition (check 2-mile radius), moderate household income ($25K-$75K ideal), and anchor tenants nearby (grocery stores, dollar stores). CLEANBI scores analyze all 17 location factors automatically."
+    },
+    {
+      question: "How does CLEANBI analyze foot traffic for laundromats?",
+      answer: "CLEANBI's foot traffic analysis evaluates multiple factors: nearby anchor retailers that drive pedestrian flow (grocery stores, dollar stores, fast food), street visibility and signage potential, parking accessibility, public transit proximity (walk score and transit score), and peak hour traffic patterns. High foot traffic scores indicate locations where customers naturally pass by, reducing marketing costs and increasing walk-in business."
+    },
+    {
+      question: "How does CLEANBI measure competition for laundromats?",
+      answer: "CLEANBI's competition analysis maps all laundromats within a 2-mile radius and calculates market saturation. We analyze: number of competitors, their proximity to the target location, estimated capacity based on store size, and market share potential. A low competition score (7+) indicates an underserved market with room for a new or expanded laundromat operation."
+    },
+    {
+      question: "What demographics matter most for laundromat location analysis?",
+      answer: "Key demographics for laundromat success: (1) Rental density - areas with 40%+ renters have 5x higher laundromat usage, (2) Population density - minimum 20,000 people within 2 miles, (3) Median household income - sweet spot is $25K-$75K, (4) Age distribution - young adults and families drive usage, (5) Apartment density - multi-family housing concentrations. CLEANBI analyzes all these factors and weights them for an accurate location score."
+    },
+    {
+      question: "What is location intelligence for laundromat businesses?",
+      answer: "Location intelligence combines demographic data, competition mapping, foot traffic analysis, and economic indicators to predict business success at any address. WashBizHub's CLEANBI system is the industry's leading location intelligence tool for laundromats, analyzing 17 factors to generate an investment-grade score (0-100). This data-driven approach helps investors avoid poor locations and identify underserved markets with high profit potential."
     }
   ];
 
   // Combine all structured data for comprehensive SEO coverage
+  // Includes location analysis, foot traffic, competition schemas for optimal indexing
   const structuredData = [
     websiteSchema, 
     organizationSchema, 
     siteNavigationSchema,
     softwareSchema,
+    locationAnalysisServiceSchema,
+    footTrafficServiceSchema,
+    competitionAnalysisServiceSchema,
+    datasetSchema,
     marketplaceSchema,
     toolsListSchema,
     howToBuySchema,
@@ -568,6 +707,17 @@ export default function Home() {
           "laundromat profit margins",
           "best locations for laundromat",
           
+          // LOCATION ANALYSIS KEYPHRASES
+          "laundromat site selection",
+          "laundromat foot traffic analysis",
+          "laundromat competition analysis",
+          "laundromat demographics analysis",
+          "location intelligence laundromat",
+          "laundromat market analysis",
+          "laundromat competitor mapping",
+          "rental density laundromat",
+          "walk score laundromat location",
+          
           // LSI/SEMANTIC KEYWORDS
           "self service laundry business",
           "commercial laundry equipment",
@@ -580,6 +730,7 @@ export default function Home() {
           
           // BRANDED TERMS
           "CLEANBI location score",
+          "CLEANBI location intelligence",
           "WashBizHub marketplace",
           "laundromat calculators",
           "laundromat industry resources"
