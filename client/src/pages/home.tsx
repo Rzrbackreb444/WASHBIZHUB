@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
 import { CredibilityBar } from "@/components/CredibilityBar";
+import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
 import {
   FeaturesSection,
   TrustSignalsSection,
@@ -773,8 +774,8 @@ export default function Home() {
           </div>
         </section>
         
-        {/* MARKETPLACE - Featured listings */}
-        <MarketplaceSection />
+        {/* FEATURED LISTINGS CAROUSEL - Real verified listings */}
+        <FeaturedListingsCarousel />
         
         {/* CTA SECTION - Final conversion */}
         <CTASection />

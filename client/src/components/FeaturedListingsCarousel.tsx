@@ -1,115 +1,320 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, ChevronRight, Target, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from '@/components/ui/carousel';
+import { 
+  Building2, MapPin, DollarSign, Star, ArrowRight, 
+  TrendingUp, ChevronRight, Sparkles
+} from 'lucide-react';
+import type { Listing } from '@shared/schema';
 
-const FEATURED_LISTINGS = [
-  {
-    id: "1",
-    name: "Modern Laundromat - Dallas, TX",
-    location: "Dallas, TX",
-    address: "2847 Main St, Dallas, TX 75201",
-    revenue: "$15,000/month",
-    type: "Laundromat",
-    excerpt: "Updated equipment, high foot traffic location, established customer base"
-  },
-  {
-    id: "2",
-    name: "Car Wash - Oklahoma City",
-    location: "Oklahoma City, OK",
-    address: "1520 NW Expressway, Oklahoma City, OK 73118",
-    revenue: "$22,000/month",
-    type: "Car Wash",
-    excerpt: "Automatic wash system, 8 bays, loyal customer base, growth potential"
-  },
-  {
-    id: "3",
-    name: "Dry Cleaning & Laundry Combo",
-    location: "Little Rock, AR",
-    address: "4200 W Markham St, Little Rock, AR 72205",
-    revenue: "$18,500/month",
-    type: "Multi-Service",
-    excerpt: "Diversified revenue streams, professional staff, established brand"
-  },
-  {
-    id: "4",
-    name: "Premium Laundromat - Dallas Area",
-    location: "Dallas, TX",
-    address: "8350 Park Lane, Dallas, TX 75231",
-    revenue: "$19,000/month",
-    type: "Laundromat",
-    excerpt: "New construction, premium amenities, strong demographic area"
-  }
-];
+const CONSULT_EMAIL = 'consult@washbizhub.com';
 
-export function FeaturedListingsCarousel() {
-  const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [, navigate] = useLocation();
+interface ListingWithDetails extends Listing {
+  financials?: {
+    monthlyGross?: string;
+    annualRevenue?: string;
+    cashFlow?: string;
+  };
+}
+
+function formatPrice(price: string | null | undefined): string {
+  if (!price) return "Contact for Price";
+  const num = parseFloat(price);
+  if (isNaN(num)) return "Contact for Price";
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(0)}K`;
+  return `$${num.toLocaleString()}`;
+}
+
+function ListingSlide({ listing }: { listing: ListingWithDetails }) {
+  const price = listing.priceInUSD || listing.priceOriginal;
+  const cleanbiUrl = `/cleanbi-explorer?address=${encodeURIComponent(
+    listing.exactAddress || `${listing.city}, ${listing.region}`
+  )}`;
 
   return (
-    <section className="py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Featured Laundromat Listings</h2>
-            <p className="text-white/70">High-performing businesses ready for acquisition in Dallas, Oklahoma, and Arkansas</p>
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-card to-card/80 shadow-xl h-full">
+      <div className="relative aspect-[16/9] overflow-hidden">
+        {listing.featuredImage ? (
+          <img 
+            src={listing.featuredImage} 
+            alt={listing.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+            <Building2 className="w-20 h-20 text-muted-foreground/50" />
           </div>
-          <Link href="/laundromat-listings">
-            <Button variant="outline" className="gap-2">
-              View All Listings <ChevronRight className="w-4 h-4" />
+        )}
+        
+        <div className="absolute top-3 left-3">
+          <Badge className="bg-accent text-accent-foreground shadow-lg">
+            <Star className="w-3 h-3 mr-1" />
+            Featured
+          </Badge>
+        </div>
+        
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">
+          <div className="text-white">
+            <div className="text-3xl font-bold mb-1">
+              {formatPrice(price)}
+            </div>
+            <div className="flex items-center gap-2 text-white/80">
+              <MapPin className="w-4 h-4" />
+              <span>{listing.city}, {listing.region}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <CardContent className="p-5">
+        <h3 className="font-bold text-lg line-clamp-2 mb-3">
+          {listing.title}
+        </h3>
+        
+        {listing.tagline && (
+          <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+            {listing.tagline}
+          </p>
+        )}
+        
+        {listing.financials?.monthlyGross && (
+          <div className="flex items-center gap-2 text-sm bg-green-500/10 text-green-600 dark:text-green-400 rounded-md px-3 py-2 mb-4">
+            <TrendingUp className="w-4 h-4" />
+            <span className="font-medium">${listing.financials.monthlyGross}/mo revenue</span>
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <Link href={`/listing/${listing.slug || listing.id}`} className="flex-1">
+            <Button className="w-full" data-testid={`button-view-listing-${listing.id}`}>
+              View Details
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </Link>
+          <Link href={cleanbiUrl}>
+            <Button 
+              variant="outline" 
+              className="cleanbi-featured-nav"
+              data-testid={`button-carousel-cleanbi-${listing.id}`}
+            >
+              <Sparkles className="w-4 h-4" />
             </Button>
           </Link>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {FEATURED_LISTINGS.map(listing => (
-            <Card key={listing.id} className="bg-white/10 backdrop-blur border-white/20 hover-elevate transition-all group">
-              <CardHeader>
-                <Badge variant="outline" className="w-fit mb-2 text-xs">{listing.type}</Badge>
-                <CardTitle className="text-base text-white group-hover:text-accent transition-colors">{listing.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2 text-sm text-white/70">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{listing.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    <span>{listing.revenue} revenue</span>
-                  </div>
-                </div>
-                <p className="text-xs text-white/60">{listing.excerpt}</p>
-                <div className="space-y-2">
-                  <Link href="/laundromat-listings">
-                    <Button size="sm" variant="default" className="w-full">View Details</Button>
-                  </Link>
-                  <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10"
-                      data-testid={`button-cleanbi-analyze-${listing.id}`}
-                      disabled={loadingId === listing.id}
-                      onClick={() => {
-                        setLoadingId(listing.id);
-                        navigate(`/cleanbi-explorer?address=${encodeURIComponent(listing.address)}`);
-                      }}
-                    >
-                      {loadingId === listing.id ? (
-                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                      ) : (
-                        <MapPin className="w-3 h-3 mr-1" />
-                      )}
-                      {loadingId === listing.id ? "Loading..." : "CLEANBI Score"}
-                    </Button>
-                </div>
+function ListYourLaundromatSlide() {
+  return (
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-xl h-full">
+      <div className="flex flex-col justify-center items-center text-center p-8 h-full min-h-[400px]">
+        <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-6">
+          <Building2 className="w-10 h-10" />
+        </div>
+        
+        <h3 className="text-2xl md:text-3xl font-bold mb-4">
+          List Your Laundromat
+        </h3>
+        
+        <p className="text-primary-foreground/80 mb-6 max-w-sm">
+          Get your laundromat in front of thousands of qualified buyers. 
+          Featured listings sell 3x faster.
+        </p>
+        
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <Link href="/sell-your-laundromat">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="w-full"
+              data-testid="button-carousel-list-laundromat"
+            >
+              Start Selling
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+          <a href={`mailto:${CONSULT_EMAIL}?subject=Listing%20Inquiry`}>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="w-full border-white/30 text-white hover:bg-white/10"
+              data-testid="button-carousel-contact-sell"
+            >
+              Talk to an Expert
+            </Button>
+          </a>
+        </div>
+        
+        <div className="mt-6 flex items-center gap-4 text-sm text-primary-foreground/70">
+          <div className="flex items-center gap-1">
+            <Star className="w-4 h-4 fill-current" />
+            <span>Free Valuation</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <DollarSign className="w-4 h-4" />
+            <span>No Upfront Fees</span>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function CarouselSkeleton() {
+  return (
+    <div className="w-full">
+      <div className="flex gap-4 overflow-hidden">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3">
+            <Card className="overflow-hidden">
+              <Skeleton className="aspect-[16/9] w-full" />
+              <CardContent className="p-5 space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-10 w-full" />
               </CardContent>
             </Card>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function FeaturedListingsCarousel() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  
+  const { data: listings, isLoading } = useQuery<ListingWithDetails[]>({
+    queryKey: ['/api/listings/featured-carousel'],
+  });
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+    
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) return;
+    
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [api]);
+
+  const scrollTo = useCallback((index: number) => {
+    api?.scrollTo(index);
+  }, [api]);
+
+  if (isLoading) {
+    return (
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Featured Opportunities</h2>
+            <p className="text-muted-foreground">Verified laundromat listings with real financials</p>
+          </div>
+          <CarouselSkeleton />
+        </div>
+      </section>
+    );
+  }
+
+  const featuredListings = listings || [];
+  const totalSlides = featuredListings.length + 1;
+
+  return (
+    <section className="py-12 bg-muted/30" data-testid="section-featured-carousel">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-3">
+            <Star className="w-3 h-3 mr-1" />
+            Featured Listings
+          </Badge>
+          <h2 className="text-3xl font-bold mb-2">Investment Opportunities</h2>
+          <p className="text-muted-foreground">
+            Verified laundromat listings with real financials and CLEANBI analysis
+          </p>
+        </div>
+        
+        <Carousel
+          setApi={setApi}
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {featuredListings.map((listing) => (
+              <CarouselItem 
+                key={listing.id} 
+                className="pl-4 basis-full md:basis-1/2 lg:basis-1/3"
+              >
+                <ListingSlide listing={listing} />
+              </CarouselItem>
+            ))}
+            <CarouselItem className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+              <ListYourLaundromatSlide />
+            </CarouselItem>
+          </CarouselContent>
+          
+          <div className="hidden md:block">
+            <CarouselPrevious className="left-0 -translate-x-1/2" />
+            <CarouselNext className="right-0 translate-x-1/2" />
+          </div>
+        </Carousel>
+        
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollTo(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                current === index 
+                  ? 'bg-primary w-6' 
+                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+              data-testid={`button-carousel-dot-${index}`}
+            />
           ))}
+        </div>
+        
+        <div className="text-center mt-8">
+          <Link href="/buy-laundromat">
+            <Button variant="outline" size="lg" data-testid="button-view-all-listings">
+              View All Listings
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
   );
 }
+
+export default FeaturedListingsCarousel;
