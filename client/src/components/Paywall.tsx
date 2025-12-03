@@ -17,13 +17,20 @@ import {
 import { cn } from "@/lib/utils";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
-type SubscriptionTier = "free" | "accelerate" | "scale" | "summit";
+type SubscriptionTier = "free" | "starter" | "pro" | "enterprise";
+
+// Support legacy tier names
+const TIER_MIGRATION: Record<string, SubscriptionTier> = {
+  accelerate: "starter",
+  scale: "pro",
+  summit: "enterprise",
+};
 
 const TIER_ORDER: Record<SubscriptionTier, number> = {
   free: 0,
-  accelerate: 1,
-  scale: 2,
-  summit: 3,
+  starter: 1,
+  pro: 2,
+  enterprise: 3,
 };
 
 const TIER_DETAILS: Record<SubscriptionTier, {
@@ -42,56 +49,55 @@ const TIER_DETAILS: Record<SubscriptionTier, {
     borderColor: "border-muted",
     price: "$0",
   },
-  accelerate: {
-    name: "Accelerate",
+  starter: {
+    name: "Starter",
     icon: Zap,
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
     borderColor: "border-blue-500/30",
-    price: "$249/mo",
+    price: "$29/mo",
   },
-  scale: {
-    name: "Scale",
+  pro: {
+    name: "Pro",
     icon: TrendingUp,
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-    borderColor: "border-primary/30",
-    price: "$499/mo",
+    color: "text-[#b8860b]",
+    bgColor: "bg-[#b8860b]/10",
+    borderColor: "border-[#b8860b]/30",
+    price: "$99/mo",
   },
-  summit: {
-    name: "Summit",
+  enterprise: {
+    name: "Enterprise",
     icon: Crown,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/30",
-    price: "$899/mo",
+    color: "text-[#1e3a5f]",
+    bgColor: "bg-[#1e3a5f]/10",
+    borderColor: "border-[#1e3a5f]/30",
+    price: "$699/mo",
   },
 };
 
 const DEFAULT_BENEFITS: Record<SubscriptionTier, string[]> = {
   free: [],
-  accelerate: [
-    "Basic POS System",
-    "Website Builder (5 templates)",
-    "50+ Business Calculators",
-    "Design Studio 2D",
-    "Vendor Marketplace Access",
+  starter: [
+    "10 full CLEANBI analyses/mo",
+    "All 9 calculators",
+    "5 AI Council questions/mo",
+    "Equipment Mix Optimizer",
+    "Funding Matcher access",
   ],
-  scale: [
-    "Everything in Accelerate",
-    "Up to 5 Locations",
-    "IoT Machine Monitoring",
-    "CLEANBI™ Scoring",
-    "AI Consultant Access",
-    "Professional Analytics Suite",
+  pro: [
+    "Everything in Starter",
+    "Unlimited CLEANBI analyses",
+    "Revenue Forecaster with seasonality",
+    "Due Diligence Verifier",
+    "One-Click Competitor Analysis",
+    "Priority support",
   ],
-  summit: [
-    "Everything in Scale",
-    "Unlimited Locations",
-    "White-label Platform",
-    "Custom Branding",
-    "API Access",
-    "Dedicated Account Manager",
+  enterprise: [
+    "Everything in Pro",
+    "CLEANBI API access",
+    "Bulk analysis (portfolio mode)",
+    "Broker dashboard",
+    "Dedicated account manager",
   ],
 };
 
