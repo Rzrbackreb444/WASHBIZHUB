@@ -180,8 +180,9 @@ export const CLEANBI_PRICING_TIERS = {
     price: 0,
     interval: 'month',
     features: {
-      reportsPerDay: 1, // AGGRESSIVE: Only 1 per day for free users
-      reportsPerMonth: 5, // Total cap per month
+      reportsTotal: 3, // 3 FREE ANALYSES TOTAL (lifetime) - then must upgrade
+      reportsPerDay: -1, // No daily limit - just total
+      reportsPerMonth: -1, // No monthly limit - just total
       basicScore: true, // Show score only - no breakdown
       detailedBreakdown: false, // Requires Pro
       competitorAnalysis: false, // Requires Pro
@@ -367,8 +368,10 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
   allowed: boolean;
   remainingToday: number;
   remainingMonth: number;
+  remainingTotal: number;
   dailyLimit: number;
   monthlyLimit: number;
+  totalLimit: number;
   requiresUpgrade: boolean;
   reason?: string;
 }> {
@@ -379,8 +382,10 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
       allowed: true,
       remainingToday: -1,
       remainingMonth: -1,
+      remainingTotal: -1,
       dailyLimit: -1,
       monthlyLimit: -1,
+      totalLimit: -1,
       requiresUpgrade: false,
       reason: "Platform Admin - Unlimited Access"
     };
@@ -389,36 +394,72 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
   const tierConfig = CLEANBI_PRICING_TIERS[tier];
   const features = tierConfig.features as any;
   
-  // Get daily and monthly limits
+  // Get limits
+  const totalLimit = features.reportsTotal ?? -1; // Lifetime total (FREE tier = 3)
   const dailyLimit = features.reportsPerDay ?? -1;
   const monthlyLimit = features.reportsPerMonth ?? features.apiCallsPerMonth ?? -1;
   
-  // Unlimited plans (Pro, Enterprise)
+  // FREE tier: Check TOTAL LIFETIME limit (3 analyses total)
+  if (tier === 'FREE' && totalLimit !== -1) {
+    const totalUsage = await getUserUsageTotal(userId);
+    const remaining = Math.max(0, totalLimit - totalUsage);
+    
+    if (totalUsage >= totalLimit) {
+      return {
+        allowed: false,
+        remainingToday: 0,
+        remainingMonth: 0,
+        remainingTotal: 0,
+        dailyLimit: -1,
+        monthlyLimit: -1,
+        totalLimit,
+        requiresUpgrade: true,
+        reason: `You've used all ${totalLimit} free analyses. Upgrade to Starter for unlimited access!`
+      };
+    }
+    
+    return {
+      allowed: true,
+      remainingToday: remaining, // For display compatibility
+      remainingMonth: remaining,
+      remainingTotal: remaining,
+      dailyLimit: totalLimit, // For display compatibility (shows as "X remaining")
+      monthlyLimit: -1,
+      totalLimit,
+      requiresUpgrade: false
+    };
+  }
+  
+  // Paid plans: Unlimited (Pro, Enterprise)
   if (dailyLimit === -1 && monthlyLimit === -1) {
     return {
       allowed: true,
       remainingToday: -1,
       remainingMonth: -1,
+      remainingTotal: -1,
       dailyLimit: -1,
       monthlyLimit: -1,
+      totalLimit: -1,
       requiresUpgrade: false
     };
   }
   
-  // Get usage stats
+  // Get usage stats for paid tiers with monthly limits
   const monthlyUsage = await getUserUsageThisMonth(userId);
   const dailyUsage = await getUserUsageToday(userId);
   
-  // Check daily limit first (more restrictive for free tier)
+  // Check daily limit first (if applicable)
   if (dailyLimit !== -1 && dailyUsage >= dailyLimit) {
     return {
       allowed: false,
       remainingToday: 0,
       remainingMonth: Math.max(0, monthlyLimit - monthlyUsage.total),
+      remainingTotal: -1,
       dailyLimit,
       monthlyLimit,
+      totalLimit: -1,
       requiresUpgrade: true,
-      reason: `Daily limit reached (${dailyLimit}/day). Upgrade to Pro for unlimited reports.`
+      reason: `Daily limit reached (${dailyLimit}/day). Upgrade for more reports.`
     };
   }
   
@@ -428,10 +469,12 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
       allowed: false,
       remainingToday: 0,
       remainingMonth: 0,
+      remainingTotal: -1,
       dailyLimit,
       monthlyLimit,
+      totalLimit: -1,
       requiresUpgrade: true,
-      reason: `Monthly limit reached (${monthlyLimit}/month). Upgrade to Pro for more reports.`
+      reason: `Monthly limit reached (${monthlyLimit}/month). Upgrade for more reports.`
     };
   }
   
@@ -439,8 +482,10 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
     allowed: true,
     remainingToday: dailyLimit === -1 ? -1 : Math.max(0, dailyLimit - dailyUsage),
     remainingMonth: monthlyLimit === -1 ? -1 : Math.max(0, monthlyLimit - monthlyUsage.total),
+    remainingTotal: -1,
     dailyLimit,
     monthlyLimit,
+    totalLimit: -1,
     requiresUpgrade: false
   };
 }
@@ -459,6 +504,16 @@ export async function getUserUsageToday(userId: string): Promise<number> {
         gte(cleanbiUsage.timestamp, todayStart)
       )
     );
+  
+  return result[0]?.count || 0;
+}
+
+// Get TOTAL LIFETIME usage for a user (for free tier limit)
+export async function getUserUsageTotal(userId: string): Promise<number> {
+  const result = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(cleanbiUsage)
+    .where(eq(cleanbiUsage.userId, userId));
   
   return result[0]?.count || 0;
 }
