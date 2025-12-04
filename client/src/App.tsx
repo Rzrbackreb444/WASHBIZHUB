@@ -279,10 +279,8 @@ const InsurancePartners = lazy(() => import("@/pages/insurance-partners"));
 const LarryLarsen = lazy(() => import("@/pages/larry-larsen"));
 const OurPartnership = lazy(() => import("@/pages/our-partnership"));
 
-// Order & Londr
+// Order Portal
 const LaundryOrderPortal = lazy(() => import("@/pages/laundry-order-portal"));
-const LondrDemo = lazy(() => import("@/pages/londr-demo"));
-const LondrPartnership = lazy(() => import("@/pages/londr-partnership"));
 
 // CLEANBI Auto
 const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
@@ -623,7 +621,7 @@ function Router() {
         </Suspense>
       </Route>
 
-      {/* Order & Londr */}
+      {/* Order Portal */}
       <Route path="/order">
         <Suspense fallback={<LoadingFallback />}>
           <LaundryOrderPortal />
@@ -632,26 +630,6 @@ function Router() {
       <Route path="/laundry-order">
         <Suspense fallback={<LoadingFallback />}>
           <LaundryOrderPortal />
-        </Suspense>
-      </Route>
-      <Route path="/demo/londr">
-        <Suspense fallback={<LoadingFallback />}>
-          <LondrDemo />
-        </Suspense>
-      </Route>
-      <Route path="/londr-demo">
-        <Suspense fallback={<LoadingFallback />}>
-          <LondrDemo />
-        </Suspense>
-      </Route>
-      <Route path="/londr">
-        <Suspense fallback={<LoadingFallback />}>
-          <LondrPartnership />
-        </Suspense>
-      </Route>
-      <Route path="/partners/londr">
-        <Suspense fallback={<LoadingFallback />}>
-          <LondrPartnership />
         </Suspense>
       </Route>
 
