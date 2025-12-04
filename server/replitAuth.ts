@@ -194,6 +194,42 @@ const ADMIN_EMAILS = [
   "thelaundromatfb@gmail.com"
 ];
 
+/**
+ * Optional authentication middleware - populates req.user if logged in
+ * but doesn't reject anonymous requests. Use for routes that work for
+ * both authenticated and anonymous users with different limits.
+ */
+export const optionalAuth: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+
+  // If not authenticated, continue without user
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !user?.expires_at) {
+    return next();
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (now <= user.expires_at) {
+    return next();
+  }
+
+  // Try to refresh token if expired
+  const refreshToken = user.refresh_token;
+  if (!refreshToken) {
+    // Token expired and can't refresh, continue as anonymous
+    return next();
+  }
+
+  try {
+    const config = await getOidcConfig();
+    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+    updateUserSession(user, tokenResponse);
+    return next();
+  } catch (error) {
+    // Token refresh failed, continue as anonymous
+    return next();
+  }
+};
+
 export const isAdmin: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
