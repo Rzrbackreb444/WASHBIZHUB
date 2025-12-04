@@ -23,6 +23,7 @@ const primaryNavLinks = [
 ];
 
 const secondaryLinks = [
+  { href: "/list-on-washbizhub", label: "List on WashBizHub", featured: true },
   { href: "/calculators", label: "Calculators" },
   { href: "/utility-bill-auditor", label: "Utility Bill Auditor" },
   { href: "/blog", label: "Industry Blog" },
@@ -176,7 +177,11 @@ export function Header() {
                     {secondaryLinks.map((link) => (
                       <Link href={link.href} key={link.href}>
                         <div 
-                          className="px-4 py-2.5 text-sm text-popover-foreground rounded-lg transition-colors hover:bg-muted hover:text-foreground cursor-pointer font-medium"
+                          className={`px-4 py-2.5 text-sm rounded-lg transition-colors cursor-pointer font-medium ${
+                            (link as any).featured 
+                              ? 'text-accent bg-accent/10 hover:bg-accent/20' 
+                              : 'text-popover-foreground hover:bg-muted hover:text-foreground'
+                          }`}
                           onClick={() => setMegaMenuOpen(false)}
                           data-testid={`link-nav-${link.href.replace('/', '')}`}
                         >
