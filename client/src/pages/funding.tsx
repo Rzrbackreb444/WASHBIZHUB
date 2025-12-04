@@ -1,38 +1,30 @@
 import { useState, useEffect } from "react";
 import { useSearch, Link } from "wouter";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  DollarSign, Building2, TrendingUp, CheckCircle2, ExternalLink, Shield,
+  DollarSign, Building2, CheckCircle2, Shield,
   Zap, Clock, Star, Briefcase, Factory, Landmark, PiggyBank, Users,
   ArrowRight, Mail, Phone, CreditCard, Loader2
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { FundingPartnerCard, FundingPartner } from "@/components/FundingPartnerCard";
 
-interface FundingPartner {
-  id: string;
-  name: string;
-  type: string;
+const FUNDING_CATEGORIES: Record<string, {
+  title: string;
+  subtitle: string;
   description: string;
-  minAmount: string;
-  maxAmount: string;
-  approvalSpeed: string;
-  minCredit: string;
-  bestFor: string[];
-  alsoOffers: string[];
-  affiliateUrl: string;
-  isPrimary?: boolean;
-  specialFeature?: string;
-}
-
-const FUNDING_CATEGORIES = {
+  icon: typeof PiggyBank;
+  color: string;
+  partners: FundingPartner[];
+}> = {
   startup: {
     title: "Startup Funding",
     subtitle: "Launch Your First Laundromat",
@@ -45,29 +37,61 @@ const FUNDING_CATEGORIES = {
         name: "Preferred Funding Group",
         type: "Personal Credit-Based Financing",
         description: "Leverage your personal credit to fund your first laundromat. 0% intro rates on business credit cards, no business revenue required. Perfect for startups with 700+ personal credit.",
-        minAmount: "$50,000",
-        maxAmount: "$500,000",
-        approvalSpeed: "60 seconds pre-approval",
-        minCredit: "700+",
+        requirements: {
+          minCreditScore: "700+",
+          timeInBusiness: "N/A (Startup OK)",
+          minAnnualRevenue: "None required",
+          downPayment: "Varies by product"
+        },
+        loanDetails: {
+          minAmount: "$50,000",
+          maxAmount: "$500,000",
+          termLength: "1-5 years",
+          approvalSpeed: "60 seconds pre-approval",
+          interestRate: "0% intro available"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "Not required",
+          financials: "Personal credit report",
+          other: ["Valid ID", "Proof of address"]
+        },
         bestFor: ["First-time buyers", "No business history", "High personal credit"],
         alsoOffers: ["0% intro business credit cards", "Personal term loans", "Unsecured lines of credit"],
         affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
         isPrimary: true,
-        specialFeature: "No business revenue required"
+        specialFeature: "No business revenue required",
+        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "Secure application"]
       },
       {
         id: "gokapital-startup",
         name: "GoKapital",
         type: "Startup Using Business Credit",
         description: "Alternative startup funding for those building business credit. Fast approvals with flexible terms for new laundromat owners.",
-        minAmount: "$25,000",
-        maxAmount: "$250,000",
-        approvalSpeed: "24-48 hours",
-        minCredit: "500+",
+        requirements: {
+          minCreditScore: "500+",
+          timeInBusiness: "N/A (Startup OK)",
+          minAnnualRevenue: "None required",
+          downPayment: "10-20%"
+        },
+        loanDetails: {
+          minAmount: "$25,000",
+          maxAmount: "$250,000",
+          termLength: "1-3 years",
+          approvalSpeed: "24-48 hours",
+          interestRate: "8-18%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "Not required for startups",
+          financials: "Business plan",
+          other: ["Valid ID", "Business registration"]
+        },
         bestFor: ["Building business credit", "Lower personal credit", "Fast funding needs"],
         alsoOffers: ["Equipment financing", "Bridge loans", "Commercial RE"],
         affiliateUrl: "gokapital-form",
-        specialFeature: "Works with 500+ credit"
+        specialFeature: "Works with 500+ credit",
+        trustSignals: ["A+ BBB Rating", "500+ laundromats funded"]
       }
     ]
   },
@@ -83,29 +107,61 @@ const FUNDING_CATEGORIES = {
         name: "South End Capital",
         type: "Preferred SBA Lender (Stearns Bank)",
         description: "Division of $3.2B Stearns Bank. Preferred SBA lender with $0 guarantee fees on loans up to $1M through 2025. Story-based underwriting for complex situations.",
-        minAmount: "$1,000",
-        maxAmount: "$15,000,000",
-        approvalSpeed: "Same day - 48 hours",
-        minCredit: "600+",
+        requirements: {
+          minCreditScore: "650+",
+          timeInBusiness: "6+ months (or acquisition)",
+          minAnnualRevenue: "$50,000+",
+          downPayment: "10% (SBA)"
+        },
+        loanDetails: {
+          minAmount: "$1,000",
+          maxAmount: "$15,000,000",
+          termLength: "10-25 years (SBA)",
+          approvalSpeed: "Same day - 48 hours",
+          interestRate: "Prime + 2.75%"
+        },
+        documentation: {
+          bankStatements: "3-6 months",
+          taxReturns: "2-3 years",
+          financials: "P&L, Balance Sheet",
+          other: ["Business plan", "Purchase agreement"]
+        },
         bestFor: ["SBA loans under $1M", "Lower credit scores", "Complex situations"],
         alsoOffers: ["Equipment financing", "Conventional loans", "Fast capital"],
         affiliateUrl: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat",
         isPrimary: true,
-        specialFeature: "$0 SBA fees up to $1M"
+        specialFeature: "$0 SBA fees up to $1M",
+        trustSignals: ["$3.2B Stearns Bank", "Preferred SBA Lender", "Story-based underwriting"]
       },
       {
         id: "national-business-capital",
         name: "National Business Capital",
         type: "Large Acquisitions ($1M+)",
         description: "Access 75+ lenders through one application. Specialists in SBA 7(a) loans with dedicated advisors for complex, multi-unit acquisitions.",
-        minAmount: "$100,000",
-        maxAmount: "$10,000,000",
-        approvalSpeed: "24-48 hours",
-        minCredit: "580+",
+        requirements: {
+          minCreditScore: "650+",
+          timeInBusiness: "2+ years",
+          minAnnualRevenue: "$100,000+",
+          downPayment: "10-20%"
+        },
+        loanDetails: {
+          minAmount: "$100,000",
+          maxAmount: "$10,000,000",
+          termLength: "10-25 years",
+          approvalSpeed: "24-48 hours",
+          interestRate: "Prime + 2.75% (SBA)"
+        },
+        documentation: {
+          bankStatements: "6 months",
+          taxReturns: "3 years",
+          financials: "Full financials",
+          other: ["Business plan", "Projections", "Purchase agreement"]
+        },
         bestFor: ["$1M+ acquisitions", "Multi-unit portfolios", "Experienced operators"],
         alsoOffers: ["SBA 7(a) loans", "Term loans", "Equipment financing"],
         affiliateUrl: "consultation",
-        specialFeature: "Dedicated acquisition advisor"
+        specialFeature: "Dedicated acquisition advisor",
+        trustSignals: ["75+ lender network", "Dedicated advisors", "Inc. 5000 company"]
       }
     ]
   },
@@ -121,28 +177,60 @@ const FUNDING_CATEGORIES = {
         name: "ROK Financial",
         type: "Fast Equipment Lending",
         description: "LoanTech-powered platform with 75+ lenders. Processes 80% faster than traditional banks. Same-day to 48-hour funding available.",
-        minAmount: "$5,000",
-        maxAmount: "$5,000,000",
-        approvalSpeed: "4 hours (80% of apps)",
-        minCredit: "550+",
+        requirements: {
+          minCreditScore: "550+",
+          timeInBusiness: "2+ years (for SBA)",
+          minAnnualRevenue: "Any revenue",
+          downPayment: "0-10%"
+        },
+        loanDetails: {
+          minAmount: "$5,000",
+          maxAmount: "$5,000,000",
+          termLength: "2-7 years",
+          approvalSpeed: "4 hours (80% of apps)",
+          interestRate: "6-24%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "1-2 years",
+          financials: "Equipment quote",
+          other: ["Valid ID", "Voided check"]
+        },
         bestFor: ["Fast equipment funding", "Multiple offers", "Lower credit scores"],
         alsoOffers: ["Term loans", "Lines of credit", "Revenue-based financing"],
         affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1",
         isPrimary: true,
-        specialFeature: "Same-day funding available"
+        specialFeature: "Same-day funding available",
+        trustSignals: ["75+ lender network", "80% faster processing", "A+ BBB Rating"]
       },
       {
         id: "south-end-equipment",
         name: "South End Capital",
         type: "Equipment & SBA Financing",
         description: "Same-day equipment funding through Stearns Bank. No prepayment penalties and story-based underwriting for unique situations.",
-        minAmount: "$1,000",
-        maxAmount: "$500,000",
-        approvalSpeed: "Same day",
-        minCredit: "600+",
+        requirements: {
+          minCreditScore: "650+",
+          timeInBusiness: "6+ months",
+          minAnnualRevenue: "$50,000+",
+          downPayment: "0-10%"
+        },
+        loanDetails: {
+          minAmount: "$1,000",
+          maxAmount: "$500,000",
+          termLength: "2-7 years",
+          approvalSpeed: "Same day",
+          interestRate: "7-15%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "1-2 years",
+          financials: "Equipment invoice",
+          other: ["Valid ID"]
+        },
         bestFor: ["Quick equipment needs", "No prepayment penalty", "SBA equipment loans"],
         alsoOffers: ["SBA 7(a)", "Conventional loans", "Working capital"],
-        affiliateUrl: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat"
+        affiliateUrl: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat",
+        trustSignals: ["$3.2B Stearns Bank", "No prepayment penalty", "Same-day funding"]
       }
     ]
   },
@@ -158,28 +246,60 @@ const FUNDING_CATEGORIES = {
         name: "GoKapital",
         type: "Commercial Real Estate Specialist",
         description: "Premier commercial real estate lender with fast approvals. Up to 80% LTV, DSCR loans available. Specializes in laundromat property purchases and investment properties.",
-        minAmount: "$100,000",
-        maxAmount: "$50,000,000",
-        approvalSpeed: "24-48 hours",
-        minCredit: "500+",
+        requirements: {
+          minCreditScore: "500+",
+          timeInBusiness: "N/A for DSCR",
+          minAnnualRevenue: "Property cash flow",
+          downPayment: "20-25%"
+        },
+        loanDetails: {
+          minAmount: "$100,000",
+          maxAmount: "$50,000,000",
+          termLength: "5-30 years",
+          approvalSpeed: "24-48 hours",
+          interestRate: "6.5-10%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "2 years (or DSCR)",
+          financials: "Property appraisal",
+          other: ["Purchase contract", "Rent roll (if applicable)"]
+        },
         bestFor: ["Property purchases", "Bridge financing", "Investment properties"],
         alsoOffers: ["Bridge loans", "Equipment financing", "Business term loans"],
         affiliateUrl: "gokapital-form",
         isPrimary: true,
-        specialFeature: "Up to 80% LTV"
+        specialFeature: "Up to 80% LTV",
+        trustSignals: ["A+ BBB Rating", "$500M+ funded", "DSCR loans available"]
       },
       {
         id: "rok-realestate",
         name: "ROK Financial",
         type: "Commercial RE Marketplace",
         description: "Access 75+ lenders for commercial real estate financing. Competitive rates with fast processing for qualified borrowers.",
-        minAmount: "$50,000",
-        maxAmount: "$5,000,000",
-        approvalSpeed: "24-72 hours",
-        minCredit: "580+",
+        requirements: {
+          minCreditScore: "580+",
+          timeInBusiness: "1+ year",
+          minAnnualRevenue: "$100,000+",
+          downPayment: "15-25%"
+        },
+        loanDetails: {
+          minAmount: "$50,000",
+          maxAmount: "$5,000,000",
+          termLength: "5-25 years",
+          approvalSpeed: "24-72 hours",
+          interestRate: "6-12%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "2 years",
+          financials: "Property financials",
+          other: ["Appraisal", "Environmental report"]
+        },
         bestFor: ["Multiple lender options", "Fast processing", "Refinancing"],
         alsoOffers: ["Equipment financing", "Term loans", "Lines of credit"],
-        affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1"
+        affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1",
+        trustSignals: ["75+ lender network", "Fast processing", "Competitive rates"]
       }
     ]
   },
@@ -195,29 +315,61 @@ const FUNDING_CATEGORIES = {
         name: "Advance Funds Network",
         type: "Same-Day Funding Specialist",
         description: "Same-day funding since 2007. Best for urgent working capital needs when speed matters. Revenue-based repayment with no minimum credit score.",
-        minAmount: "$5,000",
-        maxAmount: "$2,000,000",
-        approvalSpeed: "Same day",
-        minCredit: "No minimum",
+        requirements: {
+          minCreditScore: "No minimum",
+          timeInBusiness: "6+ months",
+          minAnnualRevenue: "$120,000+",
+          downPayment: "None"
+        },
+        loanDetails: {
+          minAmount: "$5,000",
+          maxAmount: "$2,000,000",
+          termLength: "3-18 months",
+          approvalSpeed: "Same day",
+          interestRate: "Factor rate 1.1-1.5"
+        },
+        documentation: {
+          bankStatements: "4 months",
+          taxReturns: "Not required",
+          financials: "None required",
+          other: ["Valid ID", "Voided check"]
+        },
         bestFor: ["Emergency capital", "Cash flow gaps", "Any credit situation"],
         alsoOffers: ["Merchant cash advance", "Equipment financing", "AR financing"],
         affiliateUrl: "https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3",
         isPrimary: true,
-        specialFeature: "No minimum credit score"
+        specialFeature: "No minimum credit score",
+        trustSignals: ["Since 2007", "Same-day funding", "A+ BBB Rating"]
       },
       {
         id: "david-allen-capital",
         name: "David Allen Capital",
         type: "Revenue-Based Funding Platform",
         description: "BankBreezy platform connects to 20+ funders with one application. Zero-interest early payoff options and competitive rates.",
-        minAmount: "$10,000",
-        maxAmount: "$2,000,000",
-        approvalSpeed: "24 hours",
-        minCredit: "500+",
+        requirements: {
+          minCreditScore: "500+",
+          timeInBusiness: "6+ months",
+          minAnnualRevenue: "$120,000+",
+          downPayment: "None"
+        },
+        loanDetails: {
+          minAmount: "$10,000",
+          maxAmount: "$2,000,000",
+          termLength: "3-24 months",
+          approvalSpeed: "24 hours",
+          interestRate: "Factor rate 1.1-1.4"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "Not required",
+          financials: "None required",
+          other: ["Valid ID"]
+        },
         bestFor: ["Revenue-based funding", "Early payoff savings", "Multiple offers"],
         alsoOffers: ["Equipment financing", "Invoice factoring", "Lines of credit"],
         affiliateUrl: "https://davidallencapital.com/nicholaskremers",
-        specialFeature: "Zero-interest early payoff"
+        specialFeature: "Zero-interest early payoff",
+        trustSignals: ["20+ funder network", "Early payoff options", "Fast approvals"]
       }
     ]
   }
@@ -227,7 +379,6 @@ export default function Funding() {
   const searchString = useSearch();
   const validTabs = ["startup", "acquisitions", "equipment", "realestate", "fastcash"];
   
-  // Parse initial tab from URL query parameter
   const getInitialTab = () => {
     const params = new URLSearchParams(searchString);
     const tabParam = params.get("tab");
@@ -246,7 +397,6 @@ export default function Funding() {
   });
   const { toast } = useToast();
   
-  // Update tab when URL query parameter changes
   useEffect(() => {
     const params = new URLSearchParams(searchString);
     const tabParam = params.get("tab");
@@ -259,7 +409,6 @@ export default function Funding() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Create mailto link with form data
     const subject = encodeURIComponent(`Acquisition Consultation Request - ${formData.fundingAmount}`);
     const body = encodeURIComponent(
       `Name: ${formData.name}\n` +
@@ -281,7 +430,7 @@ export default function Funding() {
     setIsSubmitting(false);
   };
 
-  const handlePrequalify = (partner: FundingPartner) => {
+  const handleApply = (partner: FundingPartner) => {
     if (partner.affiliateUrl === "consultation") {
       setConsultationOpen(true);
     } else if (partner.affiliateUrl === "gokapital-form") {
@@ -336,7 +485,6 @@ export default function Funding() {
       />
 
       <div className="min-h-screen bg-white">
-        {/* Premium Hero Section */}
         <div className="mesh-gradient-hero py-20 px-6">
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
@@ -352,7 +500,6 @@ export default function Funding() {
               From startup to acquisition, find the right financing for your laundromat. Compare rates, terms, and get pre-qualified in minutes.
             </p>
             
-            {/* Premium Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
               {[
                 { value: "$5K-$50M", label: "Funding Range" },
@@ -369,7 +516,6 @@ export default function Funding() {
           </div>
         </div>
 
-        {/* Funding Type Tabs */}
         <div className="max-w-6xl mx-auto px-4 py-16">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-3">What type of funding do you need?</h2>
@@ -396,7 +542,6 @@ export default function Funding() {
 
             {Object.entries(FUNDING_CATEGORIES).map(([key, category]) => (
               <TabsContent key={key} value={key} className="mt-0">
-                {/* Category Header */}
                 <div className={`bg-gradient-to-r ${category.color} rounded-xl p-6 md:p-8 text-white mb-8`}>
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-white/20 rounded-lg">
@@ -410,7 +555,6 @@ export default function Funding() {
                   </div>
                 </div>
 
-                {/* SBA Loans Promo Banner for Acquisitions Tab */}
                 {key === "acquisitions" && (
                   <Card className="mb-6 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white border-0">
                     <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -434,106 +578,17 @@ export default function Funding() {
                   </Card>
                 )}
 
-                {/* Partner Cards */}
                 <div className="space-y-6">
-                  {category.partners.map((partner, idx) => (
-                    <Card 
-                      key={partner.id} 
-                      className={`overflow-hidden ${partner.isPrimary ? 'ring-2 ring-[#b8860b] shadow-lg' : ''}`}
-                      data-testid={`card-partner-${partner.id}`}
-                    >
-                      {partner.isPrimary && (
-                        <div className="bg-gradient-to-r from-[#b8860b] to-[#d4a030] text-white text-center py-2 text-sm font-medium">
-                          <Star className="w-4 h-4 inline mr-1" />
-                          Recommended Partner for {category.title}
-                        </div>
-                      )}
-                      <CardHeader className="pb-4">
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                          <div className="flex-1">
-                            <CardTitle className="text-xl mb-1">{partner.name}</CardTitle>
-                            <CardDescription className="text-base">{partner.type}</CardDescription>
-                          </div>
-                          {partner.specialFeature && (
-                            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 whitespace-nowrap self-start">
-                              <CheckCircle2 className="w-3 h-3 mr-1" />
-                              {partner.specialFeature}
-                            </Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-6">
-                        <p className="text-slate-600 dark:text-slate-400">{partner.description}</p>
-                        
-                        {/* Key Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Funding Range</div>
-                            <div className="font-semibold text-slate-900 dark:text-white">{partner.minAmount} - {partner.maxAmount}</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Approval Speed</div>
-                            <div className="font-semibold text-slate-900 dark:text-white">{partner.approvalSpeed}</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Min Credit</div>
-                            <div className="font-semibold text-slate-900 dark:text-white">{partner.minCredit}</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Best For</div>
-                            <div className="font-semibold text-slate-900 dark:text-white text-sm">{partner.bestFor[0]}</div>
-                          </div>
-                        </div>
-
-                        {/* Best For & Also Offers */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Best For:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {partner.bestFor.map((item, i) => (
-                                <Badge key={i} variant="secondary" className="text-xs">
-                                  {item}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Also Offers:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {partner.alsoOffers.map((item, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {item}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* CTA Button */}
-                        <Button 
-                          onClick={() => handlePrequalify(partner)}
-                          className={`w-full md:w-auto ${partner.isPrimary ? 'bg-[#b8860b] hover:bg-[#a07609]' : ''}`}
-                          size="lg"
-                          data-testid={`button-prequalify-${partner.id}`}
-                        >
-                          {partner.affiliateUrl === "consultation" ? (
-                            <>
-                              <Mail className="w-4 h-4 mr-2" />
-                              Request Consultation
-                            </>
-                          ) : (
-                            <>
-                              Get Pre-Qualified
-                              <ExternalLink className="w-4 h-4 ml-2" />
-                            </>
-                          )}
-                        </Button>
-                      </CardContent>
-                    </Card>
+                  {category.partners.map((partner) => (
+                    <FundingPartnerCard 
+                      key={partner.id}
+                      partner={partner} 
+                      onApply={handleApply}
+                      showDocumentation={true}
+                    />
                   ))}
                 </div>
 
-                {/* Need Help Section */}
                 <Card className="mt-8 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border-slate-200 dark:border-slate-700">
                   <CardContent className="p-6 md:p-8 text-center">
                     <Users className="w-10 h-10 mx-auto mb-4 text-[#b8860b]" />
@@ -556,7 +611,6 @@ export default function Funding() {
           </Tabs>
         </div>
 
-        {/* How It Works */}
         <div className="bg-slate-100 dark:bg-slate-900/50 py-16 px-4">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">How It Works</h2>
@@ -585,7 +639,6 @@ export default function Funding() {
           </div>
         </div>
 
-        {/* Trust Badges */}
         <div className="py-12 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex flex-wrap justify-center gap-6 items-center text-slate-500 dark:text-slate-400">
@@ -610,7 +663,6 @@ export default function Funding() {
         </div>
       </div>
 
-      {/* Consultation Dialog */}
       <Dialog open={consultationOpen} onOpenChange={setConsultationOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
