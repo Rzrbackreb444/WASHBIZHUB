@@ -18,6 +18,7 @@ import { db } from "./db";
 import { storage } from "./storage";
 import { cacheGet, cacheSet, generateCacheKey } from "./cleanbi-cache-layer";
 import { attachTierInfo } from "./middleware/tier-enforcement";
+import { optionalAuth } from "./replitAuth";
 import { geocodeAddress } from "./geocoding-service";
 import { enrichCLEANBIData, type SubscriptionTier } from "./cleanbi-data-enrichment";
 import { calculateCLEANBIMasterScore, calculateQuickCLEANBIScore } from "./cleanbi-master-formulas";
@@ -55,6 +56,9 @@ import { eq, and, gte, sql } from "drizzle-orm";
 
 const router = Router();
 
+// Apply optional auth first to populate req.user for authenticated users
+// This allows rate limiting to use user ID instead of IP for logged-in users
+router.use(optionalAuth);
 router.use(attachTierInfo());
 
 // ========================================
