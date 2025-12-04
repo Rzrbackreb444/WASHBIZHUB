@@ -33,41 +33,71 @@ const FUNDING_CATEGORIES: Record<string, {
     color: "from-orange-600 to-amber-600",
     partners: [
       {
-        id: "preferred-funding-group",
+        id: "preferred-term-loans",
         name: "Preferred Funding Group",
-        type: "Personal Credit-Based Financing",
-        description: "Leverage your personal credit to fund your first laundromat. 0% intro rates on business credit cards, no business revenue required. Perfect for startups with 700+ personal credit.",
+        type: "5 or 7 Year Term Loans (Personal Credit)",
+        description: "Unsecured term loans based on personal credit strength. Fixed monthly payments with no collateral required. Rates from 9-15% based on credit profile. Funding in 7-15 business days.",
         requirements: {
-          minCreditScore: "700+",
+          minCreditScore: "680+ (all 3 bureaus)",
           timeInBusiness: "N/A (Startup OK)",
-          minAnnualRevenue: "None required",
-          downPayment: "Varies by product"
+          minAnnualRevenue: "$50,000+ taxable income",
+          downPayment: "None required"
         },
         loanDetails: {
           minAmount: "$50,000",
           maxAmount: "$500,000",
-          termLength: "1-5 years",
-          approvalSpeed: "60 seconds pre-approval",
-          interestRate: "0% intro available"
+          termLength: "5-7 years",
+          approvalSpeed: "7-15 business days",
+          interestRate: "9-15%"
         },
         documentation: {
           bankStatements: "3 months",
-          taxReturns: "Not required",
-          financials: "Personal credit report",
+          taxReturns: "2 years personal",
+          financials: "Personal credit report (all 3 bureaus)",
           other: ["Valid ID", "Proof of address"]
         },
-        bestFor: ["First-time buyers", "No business history", "High personal credit"],
-        alsoOffers: ["0% intro business credit cards", "Personal term loans", "Unsecured lines of credit"],
+        bestFor: ["First-time buyers", "Strong personal credit", "No business history needed"],
+        alsoOffers: ["Fixed monthly payment", "No prepayment penalty", "Full liquidity immediately"],
         affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
         isPrimary: true,
-        specialFeature: "No business revenue required",
-        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "Secure application"]
+        specialFeature: "No assets or collateral required",
+        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"]
+      },
+      {
+        id: "preferred-business-credit",
+        name: "Preferred Funding Group",
+        type: "Business Credit Card Program",
+        description: "0% interest for 6-12 months on business credit cards. Reports only to your business credit - protects personal credit. Stated income with no upfront fees.",
+        requirements: {
+          minCreditScore: "700+ (all 3 bureaus)",
+          timeInBusiness: "Established Business Entity",
+          minAnnualRevenue: "Stated income",
+          downPayment: "None required"
+        },
+        loanDetails: {
+          minAmount: "$25,000",
+          maxAmount: "$500,000",
+          termLength: "Revolving",
+          approvalSpeed: "60 seconds pre-approval",
+          interestRate: "0% for 6-12 months"
+        },
+        documentation: {
+          bankStatements: "Not required",
+          taxReturns: "Not required",
+          financials: "Personal credit report",
+          other: ["Business registration", "Valid ID"]
+        },
+        bestFor: ["Building business credit", "0% intro rates", "Protecting personal credit"],
+        alsoOffers: ["Reports only to business", "Multiple card approvals", "Immediate liquidity"],
+        affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
+        specialFeature: "0% interest for 6-12 months",
+        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"]
       },
       {
         id: "gokapital-startup",
         name: "GoKapital",
         type: "Startup Using Business Credit",
-        description: "Alternative startup funding for those building business credit. Fast approvals with flexible terms for new laundromat owners.",
+        description: "Alternative startup funding utilizing business credit. Fast approvals with flexible terms for new laundromat owners. A+ BBB rated with 500+ laundromats funded.",
         requirements: {
           minCreditScore: "500+",
           timeInBusiness: "N/A (Startup OK)",
@@ -87,11 +117,11 @@ const FUNDING_CATEGORIES: Record<string, {
           financials: "Business plan",
           other: ["Valid ID", "Business registration"]
         },
-        bestFor: ["Building business credit", "Lower personal credit", "Fast funding needs"],
+        bestFor: ["Building business credit", "Lower personal credit OK", "Fast funding needs"],
         alsoOffers: ["Equipment financing", "Bridge loans", "Commercial RE"],
-        affiliateUrl: "gokapital-form",
+        affiliateUrl: "/gokapital",
         specialFeature: "Works with 500+ credit",
-        trustSignals: ["A+ BBB Rating", "500+ laundromats funded"]
+        trustSignals: ["A+ BBB Rating", "500+ laundromats funded", "Fast 24-48hr approval"]
       }
     ]
   },
@@ -267,7 +297,7 @@ const FUNDING_CATEGORIES: Record<string, {
         },
         bestFor: ["Property purchases", "Bridge financing", "Investment properties"],
         alsoOffers: ["Bridge loans", "Equipment financing", "Business term loans"],
-        affiliateUrl: "gokapital-form",
+        affiliateUrl: "/gokapital",
         isPrimary: true,
         specialFeature: "Up to 80% LTV",
         trustSignals: ["A+ BBB Rating", "$500M+ funded", "DSCR loans available"]
@@ -433,8 +463,9 @@ export default function Funding() {
   const handleApply = (partner: FundingPartner) => {
     if (partner.affiliateUrl === "consultation") {
       setConsultationOpen(true);
-    } else if (partner.affiliateUrl === "gokapital-form") {
-      window.open("/gokapital", "_blank");
+    } else if (partner.affiliateUrl.startsWith("/")) {
+      // Internal pages like /gokapital
+      window.open(partner.affiliateUrl, "_blank");
     } else {
       window.open(partner.affiliateUrl, "_blank");
     }
