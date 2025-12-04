@@ -9,6 +9,9 @@ import { SEO } from "@/components/SEO";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+// Nick's author image for EEAT optimization
+import nickAuthorImage from "@assets/Nick_1764813439401.jpg";
+
 export default function BlogPost() {
   const params = useParams<{ id: string }>();
   const { data: post, isLoading, error } = useBlogPost(params.id || "");
@@ -106,17 +109,38 @@ export default function BlogPost() {
 
   const readingTime = Math.ceil(postContent.length / 1500) || 3;
 
+  // Focus keyphrases for enhanced SEO targeting
+  const focusKeyphrases = Array.isArray(post.focusKeyphrases) ? post.focusKeyphrases as string[] : [];
+  const allKeywords = [...new Set([...metaKeywordsList, ...focusKeyphrases])];
+
+  // EEAT author information for enhanced trust signals
+  // Default to Nick (founder) for maximum EEAT credibility
+  const isNickAuthor = authorName === "Nick" || authorName === "WashBizHub Research Team" || authorName === "Nick @ WashBizHub";
+  const authorInfo = {
+    name: isNickAuthor ? "Nick" : authorName,
+    expertise: isNickAuthor ? "Founder & Laundromat Industry Expert" : "Laundromat Industry Expert",
+    credentials: isNickAuthor 
+      ? "Founder of WashBizHub - The #1 laundromat resource hub. Industry veteran with expertise in laundromat valuation, operations, and the CLEANBI property intelligence system."
+      : "WashBizHub Research Team - Combining decades of industry experience with data-driven analysis"
+  };
+  
+
   return (
     <>
       <SEO
         title={`${post.metaTitle || post.title} | WashBizHub Blog`}
         description={post.metaDescription || postExcerpt}
-        keywords={metaKeywordsList.length > 0 ? metaKeywordsList : [post.category || "laundromat", "business"]}
+        keywords={allKeywords.length > 0 ? allKeywords : [post.category || "laundromat", "business"]}
         canonicalUrl={`/blog/${post.slug || post.id}`}
         structuredData={[articleSchema, breadcrumbSchema]}
         ogImage={post.ogImage || post.featuredImage || undefined}
         ogType="article"
         twitterCard="summary_large_image"
+        author={authorInfo}
+        datePublished={post.datePublished?.toString()}
+        dateModified={post.dateModified?.toString()}
+        articleSection={post.category}
+        speakableSelectors={["h1", "[data-testid='text-post-title']", "[data-testid='content-body']"]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Blog", url: "/blog" },
@@ -191,18 +215,45 @@ export default function BlogPost() {
             </CardContent>
           </Card>
 
-          <div className="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
+          <div className="bg-white/5 rounded-xl p-6 mb-8 border border-white/10" itemScope itemType="https://schema.org/Person">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <User className="w-8 h-8 text-accent" />
-              </div>
+              {isNickAuthor ? (
+                <img 
+                  src={nickAuthorImage} 
+                  alt="Nick - Founder of WashBizHub"
+                  className="w-16 h-16 rounded-full object-cover object-[center_25%] flex-shrink-0 border-2 border-accent/30"
+                  itemProp="image"
+                />
+              ) : post.authorImage ? (
+                <img 
+                  src={post.authorImage} 
+                  alt={authorName}
+                  className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                  itemProp="image"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <User className="w-8 h-8 text-accent" />
+                </div>
+              )}
               <div>
-                <h3 className="text-white font-bold text-lg" data-testid="text-author-name">
-                  {authorName}
+                <h3 className="text-white font-bold text-lg" data-testid="text-author-name" itemProp="name">
+                  {isNickAuthor ? "Nick" : authorName}
                 </h3>
-                <p className="text-white/60 text-sm mt-1">
-                  Expert insights from the #1 laundromat resource hub. Our team combines decades of industry experience with data-driven analysis to help laundromat owners succeed.
+                <p className="text-accent text-sm font-medium" itemProp="jobTitle">
+                  {isNickAuthor ? "Founder & Laundromat Industry Expert" : "Laundromat Industry Expert"}
                 </p>
+                <p className="text-white/60 text-sm mt-2" itemProp="description">
+                  {isNickAuthor 
+                    ? "Founder of WashBizHub - The #1 laundromat resource hub. Industry veteran with expertise in laundromat valuation, operations, and the CLEANBI property intelligence system."
+                    : "Expert insights from the #1 laundromat resource hub. Our team combines decades of industry experience with data-driven analysis to help laundromat owners succeed."
+                  }
+                </p>
+                <div className="flex items-center gap-4 mt-3 text-xs text-white/50">
+                  <span>Verified Expert</span>
+                  <span>•</span>
+                  <span>{isNickAuthor ? "WashBizHub Founder" : "WashBizHub Research Team"}</span>
+                </div>
               </div>
             </div>
           </div>
