@@ -77,6 +77,10 @@ export function registerSitemapRoutes(app: Express) {
     <loc>${baseUrl}/sitemap-vendors.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-states.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
 </sitemapindex>`;
 
     res.header('Content-Type', 'application/xml');
@@ -281,6 +285,68 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/privacy', lastmod: today, changefreq: 'monthly', priority: 0.4 },
       { loc: '/terms-of-service', lastmod: today, changefreq: 'monthly', priority: 0.4 },
       { loc: '/terms', lastmod: today, changefreq: 'monthly', priority: 0.4 },
+      
+      // ============================================================================
+      // SEO CALCULATOR LANDING PAGES (0.85-0.9)
+      // ============================================================================
+      { loc: '/landing/roi-calculator', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/landing/valuation-calculator', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/landing/utility-bill', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      
+      // ============================================================================
+      // STATE-SPECIFIC SELL YOUR LAUNDROMAT LANDING PAGES (0.85)
+      // High-quality, localized content for all 50 states
+      // ============================================================================
+      { loc: '/sell-laundromat/alabama', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/alaska', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/arizona', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/arkansas', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/california', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/sell-laundromat/colorado', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/connecticut', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/delaware', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/florida', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/sell-laundromat/georgia', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/hawaii', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/idaho', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/illinois', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/indiana', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/iowa', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/kansas', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/kentucky', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/louisiana', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/maine', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/maryland', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/massachusetts', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/michigan', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/minnesota', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/mississippi', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/missouri', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/montana', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/nebraska', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/nevada', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/new-hampshire', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/new-jersey', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/new-mexico', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/new-york', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/sell-laundromat/north-carolina', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/north-dakota', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/ohio', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/oklahoma', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/oregon', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/pennsylvania', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/rhode-island', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/south-carolina', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/south-dakota', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/tennessee', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/texas', lastmod: today, changefreq: 'monthly', priority: 0.9 },
+      { loc: '/sell-laundromat/utah', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/vermont', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/virginia', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/washington', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/west-virginia', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/wisconsin', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/sell-laundromat/wyoming', lastmod: today, changefreq: 'monthly', priority: 0.85 },
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -723,6 +789,49 @@ ${vendorUrls.map(url => `  <url>
     res.send(xml);
   });
 
+  // Dedicated states sitemap for sell-laundromat state pages
+  app.get('/sitemap-states.xml', async (req, res) => {
+    const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+    const host = req.headers.host || 'washbizhub.com';
+    const baseUrl = `${protocol}://${host}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    // All 50 US states for sell-laundromat landing pages
+    const states = [
+      'alabama', 'alaska', 'arizona', 'arkansas', 'california',
+      'colorado', 'connecticut', 'delaware', 'florida', 'georgia',
+      'hawaii', 'idaho', 'illinois', 'indiana', 'iowa',
+      'kansas', 'kentucky', 'louisiana', 'maine', 'maryland',
+      'massachusetts', 'michigan', 'minnesota', 'mississippi', 'missouri',
+      'montana', 'nebraska', 'nevada', 'new-hampshire', 'new-jersey',
+      'new-mexico', 'new-york', 'north-carolina', 'north-dakota', 'ohio',
+      'oklahoma', 'oregon', 'pennsylvania', 'rhode-island', 'south-carolina',
+      'south-dakota', 'tennessee', 'texas', 'utah', 'vermont',
+      'virginia', 'washington', 'west-virginia', 'wisconsin', 'wyoming'
+    ];
+
+    // High-value states get higher priority
+    const highValueStates = ['california', 'texas', 'florida', 'new-york', 'illinois'];
+
+    const stateUrls: SitemapUrl[] = states.map(state => ({
+      loc: `/sell-laundromat/${state}`,
+      lastmod: today,
+      changefreq: 'monthly' as const,
+      priority: highValueStates.includes(state) ? 0.9 : 0.85
+    }));
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${stateUrls.map(url => `  <url>
+    <loc>${escapeXml(baseUrl + url.loc)}</loc>${url.lastmod ? `\n    <lastmod>${url.lastmod}</lastmod>` : ''}${url.changefreq ? `\n    <changefreq>${url.changefreq}</changefreq>` : ''}${url.priority ? `\n    <priority>${url.priority}</priority>` : ''}
+  </url>`).join('\n')}
+</urlset>`;
+
+    res.header('Content-Type', 'application/xml');
+    res.header('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  });
+
   // Enhanced robots.txt with all sitemaps
   app.get('/robots.txt', (req, res) => {
     const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
@@ -748,6 +857,7 @@ Sitemap: ${baseUrl}/sitemap-resources.xml
 Sitemap: ${baseUrl}/sitemap-courses.xml
 Sitemap: ${baseUrl}/sitemap-forum.xml
 Sitemap: ${baseUrl}/sitemap-vendors.xml
+Sitemap: ${baseUrl}/sitemap-states.xml
 
 # ============================================================================
 # ALLOW - Important public pages for crawling

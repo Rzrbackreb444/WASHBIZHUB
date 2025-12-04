@@ -327,6 +327,7 @@ const MarketplaceLanding = lazy(() => import("@/pages/landing/marketplace-landin
 const ROICalculatorLanding = lazy(() => import("@/pages/landing/roi-calculator-landing"));
 const ValuationCalculatorLanding = lazy(() => import("@/pages/landing/valuation-calculator-landing"));
 const UtilityBillLanding = lazy(() => import("@/pages/landing/utility-bill-landing"));
+const SellLaundromatStatePage = lazy(() => import("@/pages/landing/sell-laundromat-state"));
 const PlanPage = lazy(() => import("@/pages/plan"));
 const EvaluatePage = lazy(() => import("@/pages/evaluate"));
 const OperatePage = lazy(() => import("@/pages/operate"));
@@ -863,6 +864,11 @@ function Router() {
       <Route path="/landing/utility-bill">
         <Suspense fallback={<LoadingFallback />}>
           <UtilityBillLanding />
+        </Suspense>
+      </Route>
+      <Route path="/sell-laundromat/:state">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellLaundromatStatePage />
         </Suspense>
       </Route>
       <Route path="/equipment">
