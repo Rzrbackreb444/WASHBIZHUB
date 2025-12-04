@@ -469,6 +469,14 @@ function CleanBIExplorerContent() {
   const heatmapLayer = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const savedMarkersRef = useRef<any[]>([]);
+  const sidebarViewportRef = useRef<HTMLDivElement>(null);
+  
+  // Helper to scroll sidebar to top after analysis
+  const scrollSidebarToTop = () => {
+    setTimeout(() => {
+      sidebarViewportRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
   
   const quota = useUsageQuota();
   const userTier = quota.tier.toLowerCase() as "free" | "starter" | "pro" | "enterprise";
@@ -489,6 +497,7 @@ function CleanBIExplorerContent() {
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [historyExpanded, setHistoryExpanded] = useState(true);
+  const [planExpanded, setPlanExpanded] = useState(false);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
   const [showSavedMarkers, setShowSavedMarkers] = useState(true);
   
@@ -750,6 +759,7 @@ function CleanBIExplorerContent() {
     setAnalysisResult(saved);
     setCategoryScores(generateCategoryScores(saved.cleanbiScore, saved));
     setActiveTab("overview");
+    scrollSidebarToTop();
     
     if (mapInstance.current) {
       mapInstance.current.setCenter({ lat: saved.lat, lng: saved.lng });
@@ -815,6 +825,7 @@ function CleanBIExplorerContent() {
     setAnalysisResult(pendingAnalysis);
     setCompetitors(pendingCompetitors);
     setCategoryScores(generateCategoryScores(pendingAnalysis.cleanbiScore, pendingAnalysis));
+    scrollSidebarToTop();
     
     // Clear pending state and close modal
     setPendingAnalysis(null);
@@ -831,6 +842,7 @@ function CleanBIExplorerContent() {
     setAnalysisResult(pendingAnalysis);
     setCompetitors(pendingCompetitors);
     setCategoryScores(generateCategoryScores(pendingAnalysis.cleanbiScore, pendingAnalysis));
+    scrollSidebarToTop();
     
     setPendingAnalysis(null);
     setPendingCompetitors([]);
@@ -941,6 +953,7 @@ function CleanBIExplorerContent() {
         setAnalysisResult(result);
         setCompetitors(data.competitors || []);
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        scrollSidebarToTop();
         
         const populationServed = Math.min(result.populationDensity * 0.78, 25000);
         const baseRevenue = populationServed * 18;
@@ -1144,6 +1157,7 @@ function CleanBIExplorerContent() {
         setAnalysisResult(result);
         setCompetitors(data.competitors || []);
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
+        scrollSidebarToTop();
         
         // Auto-populate calculator values from analysis using realistic laundromat formulas
         // Typical laundromat: $15-25 revenue per capita served annually
@@ -1703,6 +1717,7 @@ function CleanBIExplorerContent() {
         setCategoryScores(generateCategoryScores(result.cleanbiScore, result));
         setCompetitors(data.competitors || []);
         setActiveTab("overview");
+        scrollSidebarToTop();
         
         // Save analysis
         const saved = saveAnalysis(result);
@@ -1920,10 +1935,10 @@ function CleanBIExplorerContent() {
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className={`absolute top-0 left-0 bottom-0 z-20 bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-r border-white/10 transition-all duration-300 flex flex-col backdrop-blur-md ${sidebarOpen ? "w-[400px]" : "w-0 overflow-hidden"}`}
+          className={`absolute top-0 left-0 bottom-0 z-20 bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-r border-white/10 transition-all duration-300 flex flex-col backdrop-blur-md ${sidebarOpen ? "w-[320px]" : "w-0 overflow-hidden"}`}
           data-testid="sidebar-panel"
         >
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1" viewportRef={sidebarViewportRef}>
 
             {/* Empty State - Click to Analyze CTA */}
             <AnimatePresence>
@@ -1976,7 +1991,7 @@ function CleanBIExplorerContent() {
             )}
             </AnimatePresence>
 
-            {/* Analysis Result */}
+            {/* Analysis Result - Compact */}
             <AnimatePresence>
             {analysisResult && (
               <motion.div 
@@ -1984,28 +1999,28 @@ function CleanBIExplorerContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="p-3 sm:p-6 border-b border-white/10"
+                className="px-3 py-2 border-b border-white/10"
                 data-testid="analysis-result-panel"
               >
-                {/* Score Header - Premium Grade Display - Mobile Optimized */}
+                {/* Score Header - Compact Display */}
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="flex items-center gap-3 sm:gap-4 mb-4"
+                  className="flex items-center gap-3 mb-3"
                 >
                   <div 
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold text-white shadow-xl border border-white/10 shrink-0"
+                    className="w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-xl border border-white/10 shrink-0"
                     style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] || "#b8860b", fontFamily: "'Bebas Neue', sans-serif" }}
                     data-testid="grade-badge"
                   >
                     {analysisResult.grade}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-3xl sm:text-4xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{analysisResult.cleanbiScore}</div>
-                    <div className="text-xs sm:text-sm text-white/50 font-medium">CLEANBI™ Score</div>
+                    <div className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{analysisResult.cleanbiScore}</div>
+                    <div className="text-[10px] text-white/50 font-medium">CLEANBI™ Score</div>
                     <Badge 
-                      className={`mt-1 text-[10px] sm:text-xs ${OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.pulse ? "animate-pulse" : ""}`}
+                      className={`mt-0.5 text-[9px] ${OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.pulse ? "animate-pulse" : ""}`}
                       style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] + "33", color: GRADE_COLORS[analysisResult.grade] }}
                     >
                       {OPPORTUNITY_LABELS[analysisResult.opportunityLevel]?.text}
@@ -2013,9 +2028,9 @@ function CleanBIExplorerContent() {
                   </div>
                 </motion.div>
 
-                {/* Detail Tabs - Mobile Optimized */}
+                {/* Detail Tabs - Compact */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-3 rounded-xl border border-white/10 gap-0.5 p-1">
+                  <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-2 rounded-lg border border-white/10 gap-0.5 p-0.5">
                     <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Overview</span>
                       <span className="sm:hidden">Info</span>
@@ -2044,83 +2059,82 @@ function CleanBIExplorerContent() {
                     </TabsTrigger>
                   </TabsList>
 
-                  {/* Overview Tab */}
-                  <TabsContent value="overview" className="mt-0 space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1.5 text-white/50 text-xs mb-1">
-                          <Building2 className="w-3.5 h-3.5" />
+                  {/* Overview Tab - Compact */}
+                  <TabsContent value="overview" className="mt-0 space-y-2">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="flex items-center gap-1 text-white/50 text-[10px] mb-0.5">
+                          <Building2 className="w-3 h-3" />
                           Competitors
                         </div>
-                        <div className="text-2xl font-bold text-white">{analysisResult.competitorCount}</div>
-                        <div className="text-xs text-white/40">in {searchRadius[0]} mi radius</div>
+                        <div className="text-lg font-bold text-white">{analysisResult.competitorCount}</div>
+                        <div className="text-[10px] text-white/40">in {searchRadius[0]} mi radius</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1.5 text-white/50 text-xs mb-1">
-                          <Users className="w-3.5 h-3.5" />
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="flex items-center gap-1 text-white/50 text-[10px] mb-0.5">
+                          <Users className="w-3 h-3" />
                           Population
                         </div>
-                        <div className="text-2xl font-bold text-white">{(analysisResult.populationDensity / 1000).toFixed(1)}K</div>
-                        <div className="text-xs text-white/40">per sq mile</div>
+                        <div className="text-lg font-bold text-white">{(analysisResult.populationDensity / 1000).toFixed(1)}K</div>
+                        <div className="text-[10px] text-white/40">per sq mile</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1.5 text-white/50 text-xs mb-1">
-                          <DollarSign className="w-3.5 h-3.5" />
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="flex items-center gap-1 text-white/50 text-[10px] mb-0.5">
+                          <DollarSign className="w-3 h-3" />
                           Median Income
                         </div>
-                        <div className="text-2xl font-bold text-white">${(analysisResult.medianIncome / 1000).toFixed(0)}K</div>
-                        <div className="text-xs text-white/40">household</div>
+                        <div className="text-lg font-bold text-white">${(analysisResult.medianIncome / 1000).toFixed(0)}K</div>
+                        <div className="text-[10px] text-white/40">household</div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1.5 text-white/50 text-xs mb-1">
-                          <TrendingUp className="w-3.5 h-3.5" />
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="flex items-center gap-1 text-white/50 text-[10px] mb-0.5">
+                          <TrendingUp className="w-3 h-3" />
                           Traffic Score
                         </div>
-                        <div className="text-2xl font-bold text-white">{analysisResult.trafficScore}</div>
-                        <div className="text-xs text-white/40">out of 100</div>
+                        <div className="text-lg font-bold text-white">{analysisResult.trafficScore}</div>
+                        <div className="text-[10px] text-white/40">out of 100</div>
                       </div>
                     </div>
 
-                    {/* Walk Score Section - Premium Feature Showcase */}
+                    {/* Walk Score Section - Compact */}
                     {analysisResult.walkScore !== undefined && (
-                      <div className="bg-gradient-to-r from-[#b8860b]/10 to-transparent rounded-lg p-3 border border-[#b8860b]/20">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Footprints className="w-4 h-4 text-[#b8860b]" />
-                            <span className="text-sm font-medium text-white">Walkability Intelligence</span>
+                      <div className="bg-gradient-to-r from-[#b8860b]/10 to-transparent rounded-lg p-2 border border-[#b8860b]/20">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Footprints className="w-3.5 h-3.5 text-[#b8860b]" />
+                            <span className="text-xs font-medium text-white">Walkability Intelligence</span>
                           </div>
-                          <Badge variant="outline" className="text-[10px] border-[#b8860b]/30 text-[#b8860b]">Walk Score API</Badge>
                         </div>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-3 gap-1.5">
                           <div className="text-center">
-                            <div className="text-xl font-bold" style={{ color: analysisResult.walkScore >= 70 ? "#22C55E" : analysisResult.walkScore >= 50 ? "#FBBF24" : "#EF4444" }}>
+                            <div className="text-lg font-bold" style={{ color: analysisResult.walkScore >= 70 ? "#22C55E" : analysisResult.walkScore >= 50 ? "#FBBF24" : "#EF4444" }}>
                               {analysisResult.walkScore}
                             </div>
-                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
-                              <Footprints className="w-3 h-3" />
+                            <div className="text-[9px] text-white/50 flex items-center justify-center gap-0.5">
+                              <Footprints className="w-2.5 h-2.5" />
                               Walk
                             </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-xl font-bold" style={{ color: (analysisResult.transitScore || 0) >= 70 ? "#22C55E" : (analysisResult.transitScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
+                            <div className="text-lg font-bold" style={{ color: (analysisResult.transitScore || 0) >= 70 ? "#22C55E" : (analysisResult.transitScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
                               {analysisResult.transitScore ?? "—"}
                             </div>
-                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
-                              <Train className="w-3 h-3" />
+                            <div className="text-[9px] text-white/50 flex items-center justify-center gap-0.5">
+                              <Train className="w-2.5 h-2.5" />
                               Transit
                             </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-xl font-bold" style={{ color: (analysisResult.bikeScore || 0) >= 70 ? "#22C55E" : (analysisResult.bikeScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
+                            <div className="text-lg font-bold" style={{ color: (analysisResult.bikeScore || 0) >= 70 ? "#22C55E" : (analysisResult.bikeScore || 0) >= 50 ? "#FBBF24" : "#EF4444" }}>
                               {analysisResult.bikeScore ?? "—"}
                             </div>
-                            <div className="text-[10px] text-white/50 flex items-center justify-center gap-1">
-                              <Bike className="w-3 h-3" />
+                            <div className="text-[9px] text-white/50 flex items-center justify-center gap-0.5">
+                              <Bike className="w-2.5 h-2.5" />
                               Bike
                             </div>
                           </div>
                         </div>
-                        <div className="text-xs text-white/60 mt-2 text-center">
+                        <div className="text-[10px] text-white/60 mt-1 text-center truncate">
                           {analysisResult.walkDescription || "Walkability data"}
                         </div>
                       </div>
@@ -3629,29 +3643,24 @@ function CleanBIExplorerContent() {
                   </TabsContent>
                 </Tabs>
 
-                {/* Next Steps CTAs - Action Chaining Section */}
+                {/* Next Steps CTAs - Compact Action Section */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-4 bg-gradient-to-br from-[#1e3a5f]/80 to-[#0f1d2f]/80 rounded-xl p-4 border border-[#b8860b]/30"
+                  className="mt-2 bg-gradient-to-br from-[#1e3a5f]/80 to-[#0f1d2f]/80 rounded-lg p-2.5 border border-[#b8860b]/30"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <ArrowRight className="w-4 h-4 text-[#b8860b]" />
-                    <span className="text-sm font-semibold text-white">Ready to Take Action?</span>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-[#b8860b]" />
+                    <span className="text-xs font-semibold text-white">Ready to Take Action?</span>
+                    <span className="text-[10px] text-[#b8860b] font-medium ml-auto">Grade {analysisResult.grade}</span>
                   </div>
-                  <p className="text-xs text-white/60 mb-4">
-                    This location scores a <span className="text-[#b8860b] font-medium">Grade {analysisResult.grade}</span>. 
-                    {analysisResult.grade === "A" || analysisResult.grade === "B" 
-                      ? " Move forward with confidence." 
-                      : " Get expert guidance to maximize potential."}
-                  </p>
                   
-                  {/* Featured CTA: AI Consultation Council */}
+                  {/* Featured CTA: AI Consultation */}
                   <Button 
-                    size="default"
+                    size="sm"
                     variant="default"
-                    className="w-full mb-3"
+                    className="w-full mb-2 h-8"
                     onClick={() => {
                       trackEvent("cleanbi_cta_council", "engagement", undefined, { 
                         address: analysisResult.address,
@@ -3663,14 +3672,14 @@ function CleanBIExplorerContent() {
                     }}
                     data-testid="button-cta-ai-council"
                   >
-                    <Users className="w-4 h-4 mr-2" />
-                    Get Expert AI Council Analysis — From $49
+                    <Users className="w-3.5 h-3.5 mr-1.5" />
+                    <span className="text-xs">Get Expert AI Council Analysis — $49</span>
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5">
                     <Button 
                       size="sm"
-                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium"
+                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-7 text-[10px] font-medium"
                       onClick={() => {
                         trackEvent("cleanbi_cta_funding", "engagement", undefined, { 
                           address: analysisResult.address,
@@ -3682,32 +3691,14 @@ function CleanBIExplorerContent() {
                       }}
                       data-testid="button-cta-funding"
                     >
-                      <Banknote className="w-3.5 h-3.5 mr-1.5" />
+                      <Banknote className="w-3 h-3 mr-1" />
                       Get Funding
                     </Button>
                     
                     <Button 
                       size="sm"
                       variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        trackEvent("cleanbi_cta_larry", "engagement", undefined, { 
-                          address: analysisResult.address,
-                          grade: analysisResult.grade,
-                          score: analysisResult.cleanbiScore 
-                        });
-                        setLocation(`/larry-larsen?address=${encodeURIComponent(analysisResult.address)}&score=${analysisResult.cleanbiScore}`);
-                      }}
-                      data-testid="button-cta-larry"
-                    >
-                      <Crown className="w-3.5 h-3.5 mr-1.5" />
-                      Talk to Larry ($397)
-                    </Button>
-                    
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10 h-9 text-xs font-medium"
+                      className="h-7 text-[10px]"
                       onClick={() => {
                         trackEvent("cleanbi_cta_broker", "engagement", undefined, { 
                           address: analysisResult.address,
@@ -3718,129 +3709,68 @@ function CleanBIExplorerContent() {
                       }}
                       data-testid="button-cta-broker"
                     >
-                      <Briefcase className="w-3.5 h-3.5 mr-1.5" />
+                      <Briefcase className="w-3 h-3 mr-1" />
                       Find Broker
-                    </Button>
-                    
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10 h-9 text-xs font-medium"
-                      onClick={async () => {
-                        trackEvent("cleanbi_cta_save_dashboard", "engagement", undefined, { 
-                          address: analysisResult.address,
-                          grade: analysisResult.grade,
-                          score: analysisResult.cleanbiScore 
-                        });
-                        
-                        if (!user) {
-                          toast({
-                            title: "Sign in required",
-                            description: "Create an account to save analyses to your dashboard.",
-                          });
-                          setLocation("/login?redirect=/cleanbi-explorer");
-                          return;
-                        }
-                        
-                        try {
-                          const savedItem = saveAnalysis(analysisResult);
-                          setSavedAnalyses(getStoredAnalyses());
-                          
-                          await apiRequest("/api/cleanbi-explorer/save-analysis", {
-                            method: "POST",
-                            body: JSON.stringify({
-                              address: analysisResult.address,
-                              lat: analysisResult.lat,
-                              lng: analysisResult.lng,
-                              score: analysisResult.cleanbiScore,
-                              grade: analysisResult.grade,
-                              competitorCount: analysisResult.competitorCount,
-                              populationDensity: analysisResult.populationDensity,
-                              medianIncome: analysisResult.medianIncome,
-                              trafficScore: analysisResult.trafficScore,
-                              opportunityLevel: analysisResult.opportunityLevel,
-                            })
-                          }).catch(() => {});
-                          
-                          toast({
-                            title: "Analysis Saved",
-                            description: "Added to your dashboard & history.",
-                          });
-                        } catch {
-                          toast({
-                            title: "Saved Locally",
-                            description: "Analysis saved to your browser history.",
-                          });
-                        }
-                      }}
-                      data-testid="button-cta-save"
-                    >
-                      <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
-                      Save Analysis
                     </Button>
                   </div>
                   
-                  {analysisResult.grade === "A" && (
-                    <div className="mt-3 flex items-center gap-2 text-xs text-green-400 bg-green-500/10 rounded-lg px-3 py-2">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Grade A locations sell fast — act quickly!</span>
-                    </div>
-                  )}
-                  
-                  {/* Equipment Partner Cross-Sell */}
+                  {/* Equipment Partner Cross-Sell - Compact */}
                   <CLEANBICrossSellCompact />
                 </motion.div>
               </motion.div>
             )}
             </AnimatePresence>
 
-            {/* Map Layers */}
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center gap-2 mb-3">
-                <Layers className="w-4 h-4 text-[#b8860b]" />
-                <span className="text-sm font-medium text-white">Map Layers</span>
+            {/* Map Layers - Compact */}
+            <div className="px-3 py-2 border-b border-white/10">
+              <div className="flex items-center gap-2 mb-2">
+                <Layers className="w-3.5 h-3.5 text-[#b8860b]" />
+                <span className="text-xs font-medium text-white">Map Layers</span>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm text-white/70 flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
                     Competition
                   </Label>
                   <Switch 
                     checked={layers.competition} 
                     onCheckedChange={() => toggleLayer("competition")}
+                    className="scale-75"
                     data-testid="switch-layer-competition"
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm text-white/70 flex items-center gap-2">
-                    <Flame className="w-3 h-3 text-orange-500" />
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+                    <Flame className="w-2.5 h-2.5 text-orange-500" />
                     Opportunity Heatmap
                   </Label>
                   <Switch 
                     checked={layers.opportunities} 
                     onCheckedChange={() => toggleLayer("opportunities")}
+                    className="scale-75"
                     data-testid="switch-layer-opportunities"
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm text-white/70 flex items-center gap-2">
-                    <History className="w-3 h-3 text-[#b8860b]" />
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+                    <History className="w-2.5 h-2.5 text-[#b8860b]" />
                     Saved Locations
                   </Label>
                   <Switch 
                     checked={layers.savedLocations} 
                     onCheckedChange={() => toggleLayer("savedLocations")}
+                    className="scale-75"
                     data-testid="switch-layer-saved"
                   />
                 </div>
               </div>
 
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm text-white/70">Search Radius</Label>
-                  <span className="text-sm font-medium text-[#b8860b]">{searchRadius[0]} miles</span>
+              <div className="mt-2">
+                <div className="flex items-center justify-between mb-1">
+                  <Label className="text-xs text-white/70">Search Radius</Label>
+                  <span className="text-xs font-medium text-[#b8860b]">{searchRadius[0]} mi</span>
                 </div>
                 <Slider
                   value={searchRadius}
@@ -3854,15 +3784,15 @@ function CleanBIExplorerContent() {
               </div>
             </div>
 
-            {/* Market Gap Finder Section */}
-            <Collapsible className="p-4 border-b border-white/10">
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3">
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-[#b8860b]" />
-                  <span className="text-sm font-medium text-white">Market Gap Finder</span>
-                  <Badge variant="outline" className="text-[10px] border-[#b8860b]/50 text-[#b8860b] px-1.5 py-0">NEW</Badge>
+            {/* Market Gap Finder Section - Compact */}
+            <Collapsible className="px-3 py-2 border-b border-white/10">
+              <CollapsibleTrigger className="flex items-center justify-between w-full mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-[#b8860b]" />
+                  <span className="text-xs font-medium text-white">Market Gap Finder</span>
+                  <Badge variant="outline" className="text-[8px] border-[#b8860b]/50 text-[#b8860b] px-1 py-0">NEW</Badge>
                 </div>
-                <ChevronDown className="w-4 h-4 text-white/50" />
+                <ChevronDown className="w-3.5 h-3.5 text-white/50" />
               </CollapsibleTrigger>
               
               <CollapsibleContent className="space-y-4" forceMount={undefined}>
@@ -4036,14 +3966,14 @@ function CleanBIExplorerContent() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Saved Analyses History */}
-            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="p-4 border-b border-white/10">
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3">
-                <div className="flex items-center gap-2">
-                  <History className="w-4 h-4 text-[#b8860b]" />
-                  <span className="text-sm font-medium text-white">Your Analyses ({savedAnalyses.length})</span>
+            {/* Saved Analyses History - Compact */}
+            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="px-3 py-2 border-b border-white/10">
+              <CollapsibleTrigger className="flex items-center justify-between w-full mb-2">
+                <div className="flex items-center gap-1.5">
+                  <History className="w-3.5 h-3.5 text-[#b8860b]" />
+                  <span className="text-xs font-medium text-white">Your Analyses ({savedAnalyses.length})</span>
                 </div>
-                {historyExpanded ? <ChevronUp className="w-4 h-4 text-white/50" /> : <ChevronDown className="w-4 h-4 text-white/50" />}
+                {historyExpanded ? <ChevronUp className="w-3.5 h-3.5 text-white/50" /> : <ChevronDown className="w-3.5 h-3.5 text-white/50" />}
               </CollapsibleTrigger>
               
               <CollapsibleContent>
@@ -4107,16 +4037,16 @@ function CleanBIExplorerContent() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Tier Comparison Panel - Upgrade CTA */}
-            <div className="p-4 border-b border-white/10">
-              <div className="bg-gradient-to-br from-[#1e3a5f]/60 to-[#0f1d2f]/60 rounded-xl p-4 border border-[#b8860b]/30">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-[#b8860b]" />
-                    <span className="text-sm font-semibold text-white">Your Plan</span>
-                  </div>
+            {/* Tier Comparison Panel - Collapsible Upgrade CTA */}
+            <Collapsible open={planExpanded} onOpenChange={setPlanExpanded} className="px-3 py-2 border-b border-white/10">
+              <CollapsibleTrigger className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-1.5">
+                  <Crown className="w-3.5 h-3.5 text-[#b8860b]" />
+                  <span className="text-xs font-medium text-white">Your Plan</span>
+                </div>
+                <div className="flex items-center gap-2">
                   <Badge 
-                    className={`text-xs ${
+                    className={`text-[10px] ${
                       userTier === "enterprise" ? "bg-purple-500/20 text-purple-400 border-purple-500/30" :
                       userTier === "pro" ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
                       userTier === "starter" ? "bg-green-500/20 text-green-400 border-green-500/30" :
@@ -4127,185 +4057,92 @@ function CleanBIExplorerContent() {
                      userTier === "pro" ? "Pro" :
                      userTier === "starter" ? "Starter" : "Free"}
                   </Badge>
+                  {planExpanded ? <ChevronUp className="w-3.5 h-3.5 text-white/50" /> : <ChevronDown className="w-3.5 h-3.5 text-white/50" />}
                 </div>
-                
-                {/* Current Features */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-xs text-white/70">
-                    <Check className="w-3 h-3 text-green-400" />
-                    <span>Basic location scoring</span>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent>
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                    <Check className="w-2.5 h-2.5 text-green-400" />
+                    <span>Basic scoring</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-white/70">
-                    <Check className="w-3 h-3 text-green-400" />
+                  <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                    <Check className="w-2.5 h-2.5 text-green-400" />
                     <span>Competitor mapping</span>
                   </div>
                   {userTier !== "free" && (
                     <>
-                      <div className="flex items-center gap-2 text-xs text-white/70">
-                        <Check className="w-3 h-3 text-green-400" />
+                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                        <Check className="w-2.5 h-2.5 text-green-400" />
                         <span>Unlimited analyses</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-white/70">
-                        <Check className="w-3 h-3 text-green-400" />
+                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                        <Check className="w-2.5 h-2.5 text-green-400" />
                         <span>Financial projections</span>
                       </div>
                     </>
                   )}
                   {(userTier === "pro" || userTier === "enterprise") && (
                     <>
-                      <div className="flex items-center gap-2 text-xs text-white/70">
-                        <Check className="w-3 h-3 text-green-400" />
-                        <span>AI-powered insights</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-white/70">
-                        <Check className="w-3 h-3 text-green-400" />
-                        <span>Google Sheets export</span>
+                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                        <Check className="w-2.5 h-2.5 text-green-400" />
+                        <span>AI insights & Sheets export</span>
                       </div>
                     </>
                   )}
                 </div>
                 
-                {/* Locked Features - Only for non-enterprise users */}
                 {userTier !== "enterprise" && (
-                  <>
-                    <Separator className="my-3 bg-white/10" />
-                    <div className="text-xs text-white/50 mb-2">
-                      {userTier === "free" ? "Unlock with Starter:" : 
-                       userTier === "starter" ? "Unlock with Pro:" : 
-                       "Unlock with Enterprise:"}
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      {userTier === "free" && (
-                        <>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Unlimited daily analyses</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Financial ROI calculator</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Deal scoring & valuation</span>
-                          </div>
-                        </>
-                      )}
-                      {userTier === "starter" && (
-                        <>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>AI investment insights</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Export to Google Sheets</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Review sentiment analysis</span>
-                          </div>
-                        </>
-                      )}
-                      {userTier === "pro" && (
-                        <>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>White-label reports</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>API access</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40">
-                            <Lock className="w-3 h-3 text-[#b8860b]/60" />
-                            <span>Priority support</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    
-                    <Button 
-                      size="sm"
-                      className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium"
-                      onClick={() => {
-                        trackEvent("cleanbi_tier_upgrade_click", "conversion", undefined, {
-                          currentTier: userTier,
-                          targetTier: userTier === "free" ? "starter" : userTier === "starter" ? "pro" : "enterprise"
-                        });
-                        setShowUpgradeModal(true);
-                      }}
-                      data-testid="button-tier-upgrade"
-                    >
-                      <Crown className="w-3.5 h-3.5 mr-1.5" />
-                      {userTier === "free" ? "Upgrade — $29/mo" :
-                       userTier === "starter" ? "Go Pro — $99/mo" :
-                       "Enterprise — $699/mo"}
-                    </Button>
-                  </>
+                  <Button 
+                    size="sm"
+                    className="w-full mt-2 bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-7 text-[10px] font-medium"
+                    onClick={() => {
+                      trackEvent("cleanbi_tier_upgrade_click", "conversion", undefined, {
+                        currentTier: userTier,
+                        targetTier: userTier === "free" ? "starter" : userTier === "starter" ? "pro" : "enterprise"
+                      });
+                      setShowUpgradeModal(true);
+                    }}
+                    data-testid="button-tier-upgrade"
+                  >
+                    <Crown className="w-3 h-3 mr-1" />
+                    {userTier === "free" ? "Upgrade $29/mo" :
+                     userTier === "starter" ? "Go Pro $99/mo" :
+                     "Enterprise $699/mo"}
+                  </Button>
                 )}
-              </div>
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-            {/* Search Section - At Bottom */}
-            <div className="p-4">
-              {/* Free Tier Usage Indicator */}
+            {/* Search Section - Compact */}
+            <div className="px-3 py-2">
+              {/* Free Tier Usage - Inline compact */}
               {userTier === "free" && (
-                <div className={`mb-3 rounded-lg p-3 border ${remainingAnalyses === 0 ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/10"}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Zap className={`w-4 h-4 ${remainingAnalyses === 0 ? "text-red-400" : "text-[#b8860b]"}`} />
-                      <span>Daily Analysis</span>
-                    </div>
+                <div className={`mb-2 rounded-lg p-2 border ${remainingAnalyses === 0 ? "bg-red-500/10 border-red-500/30" : "bg-white/5 border-white/10"}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-white/60">Daily Analysis</span>
                     <Badge 
                       variant="outline" 
-                      className={`text-xs ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#b8860b]/50 text-[#b8860b]"}`}
+                      className={`text-[10px] ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#b8860b]/50 text-[#b8860b]"}`}
                     >
-                      {remainingAnalyses !== null ? (remainingAnalyses === 0 ? "Used" : "1 left") : "1 free/day"}
+                      {remainingAnalyses !== null ? (remainingAnalyses === 0 ? "Used" : "1 left") : "1/day"}
                     </Badge>
                   </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
-                    <div 
-                      className={`h-full transition-all duration-300 ${remainingAnalyses === 0 ? "bg-red-500" : "bg-gradient-to-r from-[#b8860b] to-[#8b6914]"}`}
-                      style={{ width: `${remainingAnalyses === 0 ? 0 : 100}%` }}
-                    />
-                  </div>
-                  {remainingAnalyses === 0 ? (
-                    <Button
-                      size="sm"
-                      onClick={() => setShowUpgradeModal(true)}
-                      className="w-full bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium text-xs h-8"
-                      data-testid="button-upgrade-sidebar"
-                    >
-                      <Crown className="w-3.5 h-3.5 mr-1.5" />
-                      Unlock Unlimited — $29/mo
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShowUpgradeModal(true)}
-                      className="w-full text-[#b8860b] hover:text-white hover:bg-[#b8860b]/20 text-xs h-8"
-                      data-testid="button-upgrade-sidebar"
-                    >
-                      <Crown className="w-3.5 h-3.5 mr-1.5" />
-                      Upgrade for Unlimited
-                    </Button>
-                  )}
                 </div>
               )}
 
               {/* Listing URL Analyzer */}
-              <div className="mb-4">
+              <div className="mb-2">
                 <ListingAnalyzer 
                   onAnalyzeAddress={analyzeFromListing}
                   isAnalyzing={isAnalyzing}
                 />
               </div>
 
-              <div className="relative flex items-center mb-4">
+              <div className="relative flex items-center mb-2">
                 <div className="flex-1 h-px bg-white/10"></div>
-                <span className="px-3 text-xs text-white/40">or enter address directly</span>
+                <span className="px-2 text-[10px] text-white/40">or enter address directly</span>
                 <div className="flex-1 h-px bg-white/10"></div>
               </div>
 
@@ -4313,43 +4150,43 @@ function CleanBIExplorerContent() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
-                className="bg-gradient-to-br from-[#b8860b]/20 to-[#8b6914]/20 backdrop-blur-md rounded-2xl p-4 border border-[#b8860b]/30 shadow-xl"
+                className="bg-gradient-to-br from-[#b8860b]/20 to-[#8b6914]/20 backdrop-blur-md rounded-xl p-3 border border-[#b8860b]/30 shadow-xl"
               >
-                <div className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#b8860b]" />
+                <div className="text-xs font-medium text-white mb-2 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#b8860b]" />
                   Analyze Any Location
                 </div>
                 
                 {/* Business Name Field */}
-                <div className="mb-3">
-                  <label className="block text-xs font-medium text-white/60 mb-1.5">
+                <div className="mb-2">
+                  <label className="block text-[10px] font-medium text-white/60 mb-1">
                     Business Name <span className="text-white/40">(optional)</span>
                   </label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <Building2 className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
                     <Input
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       placeholder="e.g., Spin City Laundry"
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-10 text-sm"
+                      className="pl-8 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-8 text-xs"
                       data-testid="input-explorer-business-name"
                     />
                   </div>
                 </div>
                 
                 {/* Address Field */}
-                <div className="mb-4">
-                  <label className="block text-xs font-medium text-white/60 mb-1.5">
+                <div className="mb-2">
+                  <label className="block text-[10px] font-medium text-white/60 mb-1">
                     Street Address <span className="text-[#b8860b]">*</span>
                   </label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
                     <Input
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
                       placeholder="123 Main St, City, State ZIP"
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-10 text-sm"
+                      className="pl-8 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-8 text-xs"
                       data-testid="input-explorer-address"
                     />
                   </div>
@@ -4358,17 +4195,17 @@ function CleanBIExplorerContent() {
                 <Button 
                   onClick={analyzeLocation}
                   disabled={isAnalyzing || !address.trim()}
-                  className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-11 text-sm font-medium disabled:opacity-50 shadow-xl"
+                  className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium disabled:opacity-50 shadow-xl"
                   data-testid="button-analyze-location"
                 >
                   {isAnalyzing ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                       Analyzing...
                     </>
                   ) : (
                     <>
-                      <Zap className="w-4 h-4 mr-2" />
+                      <Zap className="w-3.5 h-3.5 mr-1.5" />
                       Analyze Location
                     </>
                   )}
@@ -4376,30 +4213,30 @@ function CleanBIExplorerContent() {
               </motion.div>
             </div>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-white/10 mt-auto backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-xs text-white/40">
-                <Sparkles className="w-3 h-3 text-[#b8860b]" />
-                <span className="font-medium">CLEANBI™ Proprietary Technology</span>
+            {/* Footer - Compact */}
+            <div className="px-3 py-2 border-t border-white/10 mt-auto backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] text-white/30">
+                <Sparkles className="w-2.5 h-2.5 text-[#b8860b]" />
+                <span>CLEANBI™ Proprietary</span>
               </div>
             </div>
           </ScrollArea>
         </motion.div>
 
-        {/* Sidebar Toggle */}
+        {/* Sidebar Toggle - Gold gradient for visibility */}
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-56 z-30 w-6 h-12 bg-gradient-to-r from-[#1e3a5f] to-[#0f1d2f] border border-white/10 rounded-r-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all backdrop-blur-md shadow-xl ${sidebarOpen ? "left-[400px]" : "left-0"}`}
+          className={`absolute top-56 z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl ${sidebarOpen ? "left-[320px]" : "left-0"}`}
           data-testid="button-toggle-sidebar"
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </motion.button>
 
         {/* Main Map Area */}
-        <div className={`flex-1 relative transition-all duration-300 ${sidebarOpen ? "ml-[400px]" : "ml-0"}`}>
+        <div className={`flex-1 relative transition-all duration-300 ${sidebarOpen ? "ml-[320px]" : "ml-0"}`}>
           <div 
             ref={mapRef}
             className="absolute inset-0"
