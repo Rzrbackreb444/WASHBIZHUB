@@ -164,7 +164,7 @@ export function EquipmentCarousel({ showListCTA = true, maxItems = 10 }: Equipme
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const { data: equipment, isLoading } = useQuery<EquipmentListing[]>({
-    queryKey: ['/api/equipment-listings', { status: 'active' }],
+    queryKey: ['/api/equipment-listings'],
   });
 
   const handleScroll = () => {
