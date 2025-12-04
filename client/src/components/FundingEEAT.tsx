@@ -188,7 +188,7 @@ export function RelatedFundingPaths({ currentPath, title = "Explore Other Fundin
 
 export function FundingDisclaimer() {
   return (
-    <div className="p-4 bg-muted/30 rounded-lg border text-xs text-muted-foreground space-y-2">
+    <div className="p-4 bg-muted/50 dark:bg-muted/30 rounded-lg border text-xs text-foreground/80 dark:text-foreground/90 space-y-2">
       <p className="font-medium text-foreground">Important Disclosure</p>
       <p>
         WashBizHub connects entrepreneurs with financing partners. We receive referral compensation 

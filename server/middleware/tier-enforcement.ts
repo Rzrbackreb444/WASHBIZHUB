@@ -9,6 +9,8 @@
  *   import { requireTier } from "./middleware/tier-enforcement";
  *   router.post("/analyze", requireTier("starter"), async (req, res) => { ... });
  * 
+ * Admin Bypass: Platform owner emails always have full access
+ * 
  * © 2025 WashBizHub. All Rights Reserved.
  */
 
@@ -16,6 +18,13 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import { storage } from "../storage";
 
 export type SubscriptionTier = "free" | "starter" | "pro" | "enterprise";
+
+// Platform owner emails with full admin access (bypass all tier checks)
+const ADMIN_BYPASS_EMAILS = [
+  "nick@washbizhub.com",
+  "thelaundromatfb@gmail.com",
+  "rzrbackreb444@gmail.com"
+];
 
 const TIER_LEVELS: Record<SubscriptionTier, number> = {
   free: 0,
@@ -60,6 +69,17 @@ async function getUserIdFromRequest(req: Request): Promise<string | null> {
   return user.claims?.sub || user.sub || null;
 }
 
+async function getUserEmailFromRequest(req: Request): Promise<string | null> {
+  const user = req.user as any;
+  if (!user) return null;
+  return user.claims?.email || user.email || null;
+}
+
+function isAdminBypass(email: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_BYPASS_EMAILS.includes(email.toLowerCase());
+}
+
 async function getUserTier(userId: string): Promise<SubscriptionTier> {
   try {
     const user = await storage.getUser(userId);
@@ -88,6 +108,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = await getUserIdFromRequest(req);
+      const userEmail = await getUserEmailFromRequest(req);
       
       if (!userId) {
         return res.status(401).json({
@@ -95,6 +116,15 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
           message: "Please log in to access this feature",
           code: "AUTH_REQUIRED",
         });
+      }
+
+      // Admin bypass: Platform owners always have full access
+      if (isAdminBypass(userEmail)) {
+        console.log(`[Tier Enforcement] Admin bypass granted for ${userEmail}`);
+        (req as any).userTier = "enterprise";
+        (req as any).userId = userId;
+        (req as any).isAdminBypass = true;
+        return next();
       }
 
       const userTier = await getUserTier(userId);

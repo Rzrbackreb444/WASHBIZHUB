@@ -29,7 +29,8 @@ import { requireTier } from "./middleware/tier-enforcement";
 
 const router = Router();
 
-router.use(requireTier("starter"));
+// Enterprise-grade bulk analysis requires Enterprise tier
+router.use(requireTier("enterprise"));
 
 interface BulkLocationResult {
   address: string;

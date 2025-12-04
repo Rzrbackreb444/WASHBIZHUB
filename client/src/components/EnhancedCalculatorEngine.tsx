@@ -511,7 +511,7 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
                           <h4 className="font-semibold text-sm text-green-500 mb-2">✓ Key Insights:</h4>
                           <ul className="space-y-1">
                             {enhanced.insights.map((insight, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <li key={idx} className="flex items-start gap-2 text-sm text-foreground/90">
                                 <span className="text-green-500 mt-0.5">•</span>
                                 <span>{insight}</span>
                               </li>
@@ -524,7 +524,7 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
                           <h4 className="font-semibold text-sm text-yellow-500 mb-2">⚠ Warnings:</h4>
                           <ul className="space-y-1">
                             {enhanced.warnings.map((warning, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <li key={idx} className="flex items-start gap-2 text-sm text-foreground/90">
                                 <span className="text-yellow-500 mt-0.5">•</span>
                                 <span>{warning}</span>
                               </li>
@@ -542,7 +542,7 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
 
         {/* Tips Section */}
         {config.tips && config.tips.length > 0 && (
-          <Card className="mt-8 bg-muted/30 border-border">
+          <Card className="mt-8 bg-accent/5 dark:bg-accent/10 border-accent/20">
             <CardHeader>
               <CardTitle className="text-lg">Pro Tips & Industry Insights</CardTitle>
             </CardHeader>
@@ -550,8 +550,8 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
               <ul className="space-y-2">
                 {config.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
-                    <span className="text-sm text-muted-foreground">{tip}</span>
+                    <span className="text-accent mt-1">•</span>
+                    <span className="text-sm text-foreground">{tip}</span>
                   </li>
                 ))}
               </ul>

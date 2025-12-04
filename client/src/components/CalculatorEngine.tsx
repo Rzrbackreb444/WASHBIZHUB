@@ -409,7 +409,7 @@ export function CalculatorEngine({ config, onSave }: CalculatorEngineProps) {
 
         {/* Tips Section */}
         {config.tips && config.tips.length > 0 && (
-          <Card className="mt-8 bg-muted/30 border-border">
+          <Card className="mt-8 bg-accent/5 dark:bg-accent/10 border-accent/20">
             <CardHeader>
               <CardTitle className="text-lg">Pro Tips & Industry Insights</CardTitle>
             </CardHeader>
@@ -417,8 +417,8 @@ export function CalculatorEngine({ config, onSave }: CalculatorEngineProps) {
               <ul className="space-y-2">
                 {config.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
-                    <span className="text-sm text-muted-foreground">{tip}</span>
+                    <span className="text-accent mt-1">•</span>
+                    <span className="text-sm text-foreground">{tip}</span>
                   </li>
                 ))}
               </ul>
