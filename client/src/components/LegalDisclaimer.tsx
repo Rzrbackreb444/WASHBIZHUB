@@ -9,7 +9,7 @@ interface LegalDisclaimerProps {
 export function LegalDisclaimer({ variant = "full", className = "" }: LegalDisclaimerProps) {
   if (variant === "compact") {
     return (
-      <div className={`flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg ${className}`}>
+      <div className={`flex items-start gap-2 text-xs text-foreground/80 dark:text-foreground/90 bg-amber-500/10 dark:bg-amber-500/15 p-3 rounded-lg border border-amber-500/20 ${className}`}>
         <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
         <p>
           <strong>Educational Content Only.</strong> Always consult a licensed professional technician before attempting repairs. 

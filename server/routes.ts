@@ -31,6 +31,7 @@ import { analyzeUtilityBill, compareBills, type UtilityBillData } from "./utilit
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
+import { requireTier } from "./middleware/tier-enforcement";
 import { 
   antiScrapingMiddleware, 
   honeypotEndpoint, 
@@ -218,14 +219,6 @@ async function getCurrentUser(req: any): Promise<{ userId: string; user: any; is
   };
 }
 
-// Subscription tier levels for access control
-const SUBSCRIPTION_TIER_LEVELS: Record<string, number> = {
-  free: 0,
-  accelerate: 1,
-  scale: 2,
-  summit: 3,
-};
-
 // Listing premium subscription tier benefits
 const LISTING_TIER_BENEFITS = {
   free: { mediaLimit: 5, videoLimit: 0, featured: false, prioritySearch: false, analytics: false },
@@ -240,41 +233,6 @@ const LISTING_TIER_PRICING: Record<string, { name: string; amount: number; price
   showcase: { name: 'Showcase Listing', amount: 8900, priceId: process.env.STRIPE_LISTING_SHOWCASE_PRICE_ID },
   diamond: { name: 'Diamond Listing', amount: 19900, priceId: process.env.STRIPE_LISTING_DIAMOND_PRICE_ID },
 };
-
-// Middleware to check subscription tier access
-export function requiresSubscriptionTier(minTier: "free" | "accelerate" | "scale" | "summit") {
-  return async (req: any, res: any, next: any) => {
-    try {
-      const currentUser = await getCurrentUser(req);
-      
-      if (!currentUser) {
-        return res.status(401).json({ 
-          error: "Authentication required",
-          requiredTier: minTier 
-        });
-      }
-
-      const userTier = (currentUser.user.subscriptionTier as string) || "free";
-      const userLevel = SUBSCRIPTION_TIER_LEVELS[userTier] ?? 0;
-      const requiredLevel = SUBSCRIPTION_TIER_LEVELS[minTier] ?? 0;
-
-      if (userLevel >= requiredLevel) {
-        return next();
-      }
-
-      return res.status(403).json({
-        error: "Upgrade required",
-        message: `This feature requires ${minTier} tier or higher`,
-        currentTier: userTier,
-        requiredTier: minTier,
-        upgradeUrl: `/pricing?feature=${req.path}`
-      });
-    } catch (error) {
-      console.error("Subscription check error:", error);
-      return res.status(500).json({ error: "Failed to verify subscription" });
-    }
-  };
-}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -1183,8 +1141,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // CLEANBI AI Insights (requires Accelerate tier or higher)
-  app.post("/api/cleanbi/:id/insights", isAuthenticated, requiresSubscriptionTier("accelerate"), async (req: any, res) => {
+  // CLEANBI AI Insights (requires Starter tier or higher)
+  app.post("/api/cleanbi/:id/insights", isAuthenticated, requireTier("starter"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4691,7 +4649,8 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/templates/:id/download", isAuthenticated, async (req: any, res) => {
+  // Template download (requires Starter tier for premium templates)
+  app.post("/api/templates/:id/download", isAuthenticated, requireTier("starter"), async (req: any, res) => {
     try {
       const templateId = req.params.id;
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
@@ -5983,8 +5942,8 @@ Disallow: /private/`;
     }
   });
 
-  // POST /api/business-plan/create-checkout - Create Stripe checkout for business plan
-  app.post("/api/business-plan/create-checkout", async (req, res) => {
+  // POST /api/business-plan/create-checkout - Create Stripe checkout for business plan (requires Starter tier)
+  app.post("/api/business-plan/create-checkout", isAuthenticated, requireTier("starter"), async (req, res) => {
     try {
       const { businessName, email } = req.body;
       
@@ -6026,8 +5985,8 @@ Disallow: /private/`;
     }
   });
 
-  // POST /api/business-plan/verify-payment - Verify Stripe payment before generating plan
-  app.post("/api/business-plan/verify-payment", async (req, res) => {
+  // POST /api/business-plan/verify-payment - Verify Stripe payment before generating plan (requires Starter tier)
+  app.post("/api/business-plan/verify-payment", isAuthenticated, requireTier("starter"), async (req, res) => {
     try {
       const { sessionId } = req.body;
       
@@ -6058,8 +6017,8 @@ Disallow: /private/`;
     }
   });
 
-  // POST /api/business-plan/generate - AI Business Plan Generator (requires verified payment)
-  app.post("/api/business-plan/generate", async (req, res) => {
+  // POST /api/business-plan/generate - AI Business Plan Generator (requires Starter tier + verified payment)
+  app.post("/api/business-plan/generate", isAuthenticated, requireTier("starter"), async (req, res) => {
     try {
       const {
         businessName,
@@ -12221,8 +12180,8 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ==================== KDP BOOK EXPORT ====================
   
-  // Get export metadata for a project (preview before export)
-  app.get("/api/ai-studio/export/:projectId/metadata", isAuthenticated, async (req: any, res) => {
+  // Get export metadata for a project (preview before export) - requires Pro tier
+  app.get("/api/ai-studio/export/:projectId/metadata", isAuthenticated, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -12250,8 +12209,8 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  // Export project as PDF
-  app.post("/api/ai-studio/export/pdf", isAuthenticated, async (req: any, res) => {
+  // Export project as PDF (requires Pro tier)
+  app.post("/api/ai-studio/export/pdf", isAuthenticated, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -12290,8 +12249,8 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  // Export project as DOCX
-  app.post("/api/ai-studio/export/docx", isAuthenticated, async (req: any, res) => {
+  // Export project as DOCX (requires Pro tier)
+  app.post("/api/ai-studio/export/docx", isAuthenticated, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {

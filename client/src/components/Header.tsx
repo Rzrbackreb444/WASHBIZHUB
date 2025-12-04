@@ -296,7 +296,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-white dark:text-muted-foreground hover:text-white/80 dark:hover:text-foreground"
+                    className="lg:hidden text-foreground hover:text-foreground/80"
                     aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                     data-testid="button-mobile-menu"
                   >
@@ -310,7 +310,7 @@ export function Header() {
                 >
                   <div className="flex flex-col h-full">
                     <SheetHeader className="p-6 border-b border-border">
-                      <SheetTitle className="text-card-foreground dark:text-white text-xl font-bold">
+                      <SheetTitle className="text-foreground text-xl font-bold">
                         Menu
                       </SheetTitle>
                       <SheetDescription className="sr-only">
@@ -339,8 +339,8 @@ export function Header() {
                             <div 
                               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                                 location === link.href || location.startsWith(link.href + '?')
-                                  ? 'bg-accent/15 text-accent dark:text-accent border border-accent/30'
-                                  : 'text-card-foreground dark:text-white/90 hover:bg-muted dark:hover:bg-white/10'
+                                  ? 'bg-accent/15 text-accent border border-accent/30'
+                                  : 'text-foreground hover:bg-muted'
                               }`}
                               onClick={() => setMobileMenuOpen(false)}
                               data-testid={`link-mobile-${link.href.replace('/', '')}-quick`}
@@ -359,24 +359,24 @@ export function Header() {
                           onOpenChange={() => toggleSection('more')}
                         >
                           <CollapsibleTrigger 
-                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-muted dark:hover:bg-white/10 transition-colors"
+                            className="flex items-center justify-between w-full px-6 py-3 text-left hover:bg-muted transition-colors"
                             data-testid="button-mobile-section-more"
                           >
-                            <span className="text-card-foreground/70 dark:text-white/70 font-medium text-sm">
+                            <span className="text-foreground/80 font-medium text-sm">
                               More Options
                             </span>
                             <ChevronRight 
-                              className={`w-4 h-4 text-card-foreground/70 dark:text-white/70 transition-transform duration-200 ${
+                              className={`w-4 h-4 text-foreground/80 transition-transform duration-200 ${
                                 expandedSections.includes('more') ? 'rotate-90' : ''
                               }`} 
                               aria-hidden="true" 
                             />
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="bg-muted/30 dark:bg-white/5">
+                          <CollapsibleContent className="bg-muted/50 dark:bg-muted/30">
                             {secondaryLinks.map((link) => (
                               <Link href={link.href} key={link.href}>
                                 <div 
-                                  className="px-6 pl-10 py-3 text-card-foreground/80 dark:text-white/80 hover:bg-muted dark:hover:bg-white/10 hover:text-card-foreground dark:hover:text-white transition-colors cursor-pointer text-sm font-medium"
+                                  className="px-6 pl-10 py-3 text-foreground/90 hover:bg-muted hover:text-foreground transition-colors cursor-pointer text-sm font-medium"
                                   onClick={() => setMobileMenuOpen(false)}
                                   data-testid={`link-mobile-${link.href.replace('/', '')}`}
                                 >
@@ -390,7 +390,7 @@ export function Header() {
                     </div>
                     
                     {/* Bottom actions */}
-                    <div className="p-6 border-t border-border space-y-3 bg-muted/30 dark:bg-white/5">
+                    <div className="p-6 border-t border-border space-y-3 bg-muted/50 dark:bg-muted/30">
                       {!isAuthenticated && (
                         <Button 
                           onClick={() => {
@@ -398,7 +398,7 @@ export function Header() {
                             window.location.href = '/api/login';
                           }}
                           variant="outline"
-                          className="w-full justify-center font-medium text-card-foreground dark:text-white border-border dark:border-white/20"
+                          className="w-full justify-center font-medium text-foreground border-border"
                           data-testid="button-mobile-login"
                         >
                           <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -432,14 +432,14 @@ export function Header() {
                       
                       {isAuthenticated && (
                         <>
-                          <div className="flex items-center justify-between px-4 py-2 mb-2 bg-muted/50 rounded-lg">
-                            <span className="text-sm text-card-foreground/70 dark:text-white/70 font-medium">CLEANBI Usage</span>
+                          <div className="flex items-center justify-between px-4 py-2 mb-2 bg-background/80 dark:bg-background/50 rounded-lg border border-border/50">
+                            <span className="text-sm text-foreground/90 font-medium">CLEANBI Usage</span>
                             <UsageIndicator />
                           </div>
                           <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
                             <Button 
                               variant="ghost"
-                              className="w-full justify-start text-card-foreground/80 dark:text-white/80 hover:text-card-foreground dark:hover:text-white"
+                              className="w-full justify-start text-foreground/90 hover:text-foreground"
                               data-testid="button-mobile-settings"
                             >
                               <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -452,7 +452,7 @@ export function Header() {
                               window.location.href = '/api/logout';
                             }}
                             variant="ghost"
-                            className="w-full justify-start text-card-foreground/80 dark:text-white/80 hover:text-card-foreground dark:hover:text-white"
+                            className="w-full justify-start text-foreground/90 hover:text-foreground"
                             data-testid="button-mobile-logout"
                           >
                             <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
