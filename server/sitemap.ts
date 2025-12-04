@@ -159,10 +159,6 @@ export function registerSitemapRoutes(app: Express) {
       // ============================================================================
       // PARTNER & LANDING PAGES (0.75-0.85)
       // ============================================================================
-      { loc: '/londr', lastmod: today, changefreq: 'weekly', priority: 0.85 },
-      { loc: '/londr-demo', lastmod: today, changefreq: 'weekly', priority: 0.8 },
-      { loc: '/londr-partnership', lastmod: today, changefreq: 'monthly', priority: 0.8 },
-      { loc: '/partners/londr', lastmod: today, changefreq: 'monthly', priority: 0.75 },
       { loc: '/consultation', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       { loc: '/consultation-landing', lastmod: today, changefreq: 'weekly', priority: 0.8 },
       { loc: '/consultant-inquiry', lastmod: today, changefreq: 'monthly', priority: 0.7 },
