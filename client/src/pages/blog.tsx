@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
+import { defaultBlogImages, laundromatImages } from "@/lib/laundromat-images";
 
 export default function Blog() {
   const [activeTab, setActiveTab] = useState("browse");
@@ -241,41 +242,57 @@ export default function Blog() {
             ) : (
               <>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {posts.map((post) => (
-                    <Card 
-                      key={post.id} 
-                      className="bg-white/10 backdrop-blur border-white/20 hover-elevate active-elevate-2"
-                      data-testid={`card-post-${post.id}`}
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <Badge variant="outline" className="text-white/70 border-white/30">
+                  {posts.map((post) => {
+                    const categoryImage = defaultBlogImages[post.category] || defaultBlogImages.default;
+                    const featuredImage = post.featuredImage || categoryImage.src;
+                    const imageAlt = post.featuredImageAlt || categoryImage.alt;
+                    
+                    return (
+                      <Card 
+                        key={post.id} 
+                        className="bg-white/10 backdrop-blur border-white/20 hover-elevate active-elevate-2 overflow-hidden"
+                        data-testid={`card-post-${post.id}`}
+                      >
+                        <div className="relative h-40 overflow-hidden">
+                          <img 
+                            src={featuredImage} 
+                            alt={imageAlt}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          <Badge 
+                            variant="outline" 
+                            className="absolute top-3 left-3 text-white border-white/50 bg-black/30 backdrop-blur-sm"
+                          >
                             {post.category}
                           </Badge>
                         </div>
-                        <CardTitle className="text-white text-xl">{post.title}</CardTitle>
-                        <CardDescription className="text-white/70">
-                          {post.content.substring(0, 120)}...
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex justify-between items-center text-sm text-white/60">
-                          <span>Published</span>
-                          <Link href={`/blog/${post.slug || post.id}`}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-accent hover:text-accent/90 gap-1"
-                              data-testid={`button-read-${post.id}`}
-                            >
-                              Read More
-                              <ArrowRight className="w-3 h-3" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        <CardHeader className="pt-4">
+                          <CardTitle className="text-white text-xl line-clamp-2">{post.title}</CardTitle>
+                          <CardDescription className="text-white/70 line-clamp-2">
+                            {(post.excerpt || post.content || "").substring(0, 120)}...
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between items-center text-sm text-white/60">
+                            <span>Published</span>
+                            <Link href={`/blog/${post.slug || post.id}`}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-accent hover:text-accent/90 gap-1"
+                                data-testid={`button-read-${post.id}`}
+                              >
+                                Read More
+                                <ArrowRight className="w-3 h-3" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </>
             )}
