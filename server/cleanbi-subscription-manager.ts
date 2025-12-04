@@ -234,10 +234,10 @@ export const CLEANBI_PRICING_TIERS = {
       ownershipData: false,
       motivatedSellerScore: false
     },
-    stripeProductId: 'prod_cleanbi_starter',
-    stripePriceId: 'price_cleanbi_starter_monthly',
+    stripeProductId: process.env.STRIPE_PRODUCT_STARTER || 'prod_cleanbi_starter',
+    stripePriceId: process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_cleanbi_starter_monthly',
     annualPrice: 290, // 2 months free
-    annualStripePriceId: 'price_cleanbi_starter_annual'
+    annualStripePriceId: process.env.STRIPE_PRICE_STARTER_ANNUAL || 'price_cleanbi_starter_annual'
   },
   
   // ========================================
@@ -276,10 +276,10 @@ export const CLEANBI_PRICING_TIERS = {
       ownershipData: false,
       motivatedSellerScore: false
     },
-    stripeProductId: 'prod_cleanbi_pro',
-    stripePriceId: 'price_cleanbi_pro_monthly',
+    stripeProductId: process.env.STRIPE_PRODUCT_PRO || 'prod_cleanbi_pro',
+    stripePriceId: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_cleanbi_pro_monthly',
     annualPrice: 990, // 2 months free
-    annualStripePriceId: 'price_cleanbi_pro_annual'
+    annualStripePriceId: process.env.STRIPE_PRICE_PRO_ANNUAL || 'price_cleanbi_pro_annual'
   },
   
   // ========================================
@@ -322,10 +322,10 @@ export const CLEANBI_PRICING_TIERS = {
       propertyTaxRecords: true, // Enterprise only
       teamCollaboration: true // Enterprise only - unlimited team members
     },
-    stripeProductId: 'prod_cleanbi_enterprise',
-    stripePriceId: 'price_cleanbi_enterprise_monthly',
+    stripeProductId: process.env.STRIPE_PRODUCT_ENTERPRISE || 'prod_cleanbi_enterprise',
+    stripePriceId: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || 'price_cleanbi_enterprise_monthly',
     annualPrice: 6990, // 2 months free
-    annualStripePriceId: 'price_cleanbi_enterprise_annual'
+    annualStripePriceId: process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || 'price_cleanbi_enterprise_annual'
   },
   
   // ========================================
