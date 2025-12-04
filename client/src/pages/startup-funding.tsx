@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Zap, CheckCircle, DollarSign, Lightbulb } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
 
 const STARTUP_PARTNERS = [
   {
@@ -218,6 +219,10 @@ export default function StartupFunding() {
           </div>
         </div>
 
+        <div className="max-w-4xl mx-auto px-6 -mt-6 relative z-10">
+          <TrustSignals variant="horizontal" />
+        </div>
+
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
           <div>
             <h2 className="text-3xl font-bold mb-8">Getting Started as a First-Time Owner</h2>
@@ -411,6 +416,14 @@ export default function StartupFunding() {
               </a>
             </div>
           </div>
+
+          <AuthorExpertise variant="full" />
+
+          <RelatedFundingPaths currentPath="/startup-funding" />
+
+          <ConsultationCTA />
+
+          <FundingDisclaimer />
         </div>
       </div>
     </>

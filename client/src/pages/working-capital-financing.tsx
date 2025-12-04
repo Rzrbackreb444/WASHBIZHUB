@@ -3,6 +3,67 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, CheckCircle, DollarSign, Zap } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
+
+const WORKING_CAPITAL_KEYWORDS = [
+  'laundromat working capital',
+  'laundromat business line of credit',
+  'laundromat cash flow financing',
+  'working capital loan for laundromat',
+  'laundromat bridge loan',
+  'laundromat revenue based financing',
+  'fast business funding laundromat',
+  'laundromat operational funding'
+];
+
+const WORKING_CAPITAL_FAQS = [
+  {
+    question: "What is working capital financing for laundromats?",
+    answer: "Working capital financing provides quick cash for laundromat operations including inventory, payroll, marketing, and repairs. Unlike equipment loans, working capital is flexible and can be used for any business expense. Approvals in 24-48 hours with amounts from $5K-$500K."
+  },
+  {
+    question: "How fast can I get working capital?",
+    answer: "Most working capital lenders approve in 24-48 hours and fund within 1-3 business days. Some same-day funding is available for urgent needs. The streamlined process requires minimal documentation compared to traditional bank loans."
+  },
+  {
+    question: "What are the requirements for working capital?",
+    answer: "Typical requirements include: 6+ months in business, $10K+ monthly revenue, 500+ credit score (varies by lender), and 3-6 months of bank statements. Revenue-based options have more flexible credit requirements."
+  },
+  {
+    question: "Is working capital or a term loan better for my laundromat?",
+    answer: "Working capital is better for short-term needs (inventory, repairs, payroll gaps) with faster approval. Term loans are better for larger investments with fixed monthly payments. Many operators use both - working capital for flexibility and term loans for major purchases."
+  }
+];
+
+const WORKING_CAPITAL_HOWTO = {
+  name: "How to Get Working Capital for Your Laundromat",
+  description: "Quick guide to securing working capital funding for laundromat operations, inventory, and growth.",
+  totalTime: "PT48H",
+  steps: [
+    {
+      name: "Gather Bank Statements",
+      text: "Collect your last 3-6 months of business bank statements showing revenue and cash flow."
+    },
+    {
+      name: "Calculate Your Funding Need",
+      text: "Determine how much working capital you need and what you'll use it for (inventory, payroll, marketing, repairs)."
+    },
+    {
+      name: "Apply with Lending Partner",
+      text: "Submit application with Advance Funds Network or MyPartner.io. Applications take 10-15 minutes."
+    },
+    {
+      name: "Receive Funding",
+      text: "Get approved in 24-48 hours and receive funds within 1-3 business days."
+    }
+  ]
+};
+
+const WORKING_CAPITAL_BREADCRUMBS = [
+  { name: "Home", url: "/" },
+  { name: "Funding", url: "/funding" },
+  { name: "Working Capital", url: "/working-capital-financing" }
+];
 
 const WC_PARTNERS = [
   {
@@ -37,10 +98,18 @@ export default function WorkingCapitalFinancing() {
   return (
     <>
       <SEO
-        title="Working Capital Loans for Laundromats | Business Cash Flow Financing"
-        description="Get quick working capital funding for laundromat operations, inventory, staffing, and growth. Approvals in 24-48 hours. $5K-$500K available."
+        title="Working Capital Loans for Laundromats | Fast Business Cash Flow Financing"
+        description="Get quick working capital funding for laundromat operations, inventory, staffing, and growth. Approvals in 24-48 hours. $5K-$500K available. Revenue-based options."
         canonicalUrl="/working-capital-financing"
-        keywords={['working capital', 'business cash flow', 'laundromat loans', 'operational funding', 'inventory financing']}
+        keywords={WORKING_CAPITAL_KEYWORDS}
+        faqs={WORKING_CAPITAL_FAQS}
+        howTo={WORKING_CAPITAL_HOWTO}
+        breadcrumbs={WORKING_CAPITAL_BREADCRUMBS}
+        author={{
+          name: "Nicholas Kremers",
+          expertise: "Laundromat Industry Advisor",
+          credentials: "Founder of WashBizHub, helping entrepreneurs with laundromat financing solutions"
+        }}
       />
 
       <div className="min-h-screen bg-background">
@@ -59,6 +128,11 @@ export default function WorkingCapitalFinancing() {
               Revenue-based & traditional options available
             </Badge>
           </div>
+        </div>
+
+        {/* Trust Signals */}
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <TrustSignals variant="horizontal" />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
@@ -220,7 +294,7 @@ export default function WorkingCapitalFinancing() {
               {WC_PARTNERS.map((partner, idx) => (
                 <Card key={idx} data-testid={`card-partner-${idx}`} className={idx === 0 ? 'border-green-500 border-2' : ''}>
                   <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2 gap-4">
                       <div>
                         <CardTitle>{partner.name}</CardTitle>
                         <CardDescription>{partner.description}</CardDescription>
@@ -280,6 +354,17 @@ export default function WorkingCapitalFinancing() {
                 </Button>
               </a>
             </div>
+          </div>
+
+          {/* EEAT Signals Section */}
+          <div className="space-y-16">
+            <AuthorExpertise variant="full" />
+            
+            <RelatedFundingPaths currentPath="/working-capital-financing" />
+            
+            <ConsultationCTA />
+            
+            <FundingDisclaimer />
           </div>
         </div>
       </div>

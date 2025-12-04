@@ -18,6 +18,7 @@ import {
   HelpCircle, Star, Users, Landmark, Calculator
 } from "lucide-react";
 import { Link } from "wouter";
+import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
 
 const SBA_PARTNERS: FundingPartner[] = [
   {
@@ -260,6 +261,11 @@ export default function SBALoans() {
           { name: "Funding", url: "/funding" },
           { name: "SBA Loans", url: "/sba-loans" }
         ]}
+        author={{
+          name: "Nicholas Kremers",
+          expertise: "Laundromat Industry Advisor",
+          credentials: "Founder of WashBizHub, helping entrepreneurs secure laundromat financing"
+        }}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -276,6 +282,9 @@ export default function SBALoans() {
                 <Badge className="bg-[#b8860b] text-white mb-4">
                   <Landmark className="w-3 h-3 mr-1" /> Government-Backed Financing
                 </Badge>
+                <div className="mb-6">
+                  <TrustSignals variant="horizontal" />
+                </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                   SBA Loans for{' '}
                   <span className="text-[#b8860b]">Laundromat</span>{' '}
@@ -554,7 +563,23 @@ export default function SBALoans() {
             </div>
           </div>
 
-          <div className="mt-16 text-center text-sm text-muted-foreground">
+          <div className="mt-16">
+            <AuthorExpertise variant="full" />
+          </div>
+
+          <div className="mt-16">
+            <RelatedFundingPaths currentPath="/sba-loans" />
+          </div>
+
+          <div className="mt-16">
+            <ConsultationCTA />
+          </div>
+
+          <div className="mt-16">
+            <FundingDisclaimer />
+          </div>
+
+          <div className="mt-8 text-center text-sm text-muted-foreground">
             <p>
               * $0 SBA guarantee fees apply to loans under $1M through South End Capital (Stearns Bank) through 2025. 
               Terms and conditions apply. WashBizHub may receive compensation from lending partners for referrals.

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle, DollarSign, Zap } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
 
 const EQUIPMENT_PARTNERS = [
   {
@@ -219,9 +220,9 @@ export default function EquipmentFinancing() {
         breadcrumbs={EQUIPMENT_FINANCING_BREADCRUMBS}
         structuredData={FINANCIAL_SERVICE_SCHEMA}
         author={{
-          name: "WashBizHub",
-          expertise: "Laundromat Industry Expert",
-          credentials: "Leading laundromat resource platform with financing partnerships"
+          name: "Nicholas Kremers",
+          expertise: "Laundromat Industry Advisor",
+          credentials: "Founder of WashBizHub, helping entrepreneurs secure laundromat equipment financing"
         }}
       />
 
@@ -240,6 +241,10 @@ export default function EquipmentFinancing() {
               Lender-verified programs specifically for laundromats
             </Badge>
           </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <TrustSignals />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
@@ -464,6 +469,14 @@ export default function EquipmentFinancing() {
               </a>
             </div>
           </div>
+
+          <AuthorExpertise variant="full" />
+
+          <RelatedFundingPaths currentPath="/equipment-financing" />
+
+          <ConsultationCTA />
+
+          <FundingDisclaimer />
         </div>
       </div>
     </>
