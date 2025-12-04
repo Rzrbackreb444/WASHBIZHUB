@@ -2716,14 +2716,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { tierId, interval = 'month', userId, skipTrial = false } = req.body;
       
+      // Check if using test mode (test Stripe key starts with sk_test_)
+      const isTestMode = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_');
+      
+      // Get price ID from environment with strict mode validation
+      // In test mode, MUST use TESTING_* price IDs (no fallback to live prices)
+      // In live mode, use STRIPE_* price IDs
+      const getPrice = (baseName: string): string | undefined => {
+        if (isTestMode) {
+          const testPriceId = process.env[`TESTING_STRIPE_PRICE_${baseName}_MONTHLY`];
+          if (!testPriceId) {
+            console.warn(`[Stripe] Missing TESTING_STRIPE_PRICE_${baseName}_MONTHLY - test checkout may fail`);
+          }
+          return testPriceId;
+        }
+        return process.env[`STRIPE_${baseName}_PRICE_ID`] || process.env[`STRIPE_PRICE_${baseName}_MONTHLY`];
+      };
+      
       // Define subscription tiers with Stripe price IDs
       // Pricing must match client/src/lib/tier-config.ts
       const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string; trialDays: number }> = {
         'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID, trialDays: 7 },
         'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID, trialDays: 7 },
-        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: process.env.STRIPE_STARTER_PRICE_ID, trialDays: 7 },
-        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: process.env.STRIPE_PRO_PRICE_ID, trialDays: 7 },
-        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID, trialDays: 14 },
+        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: getPrice('STARTER'), trialDays: 7 },
+        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: getPrice('PRO'), trialDays: 7 },
+        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: getPrice('ENTERPRISE'), trialDays: 14 },
       };
       
       const tier = subscriptionTiers[tierId] || subscriptionTiers['pro'];
