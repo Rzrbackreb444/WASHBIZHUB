@@ -8,9 +8,10 @@ import { useBlogPost, useBlogPosts } from "@/hooks/use-blog";
 import { SEO } from "@/components/SEO";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { defaultBlogImages, laundromatImages } from "@/lib/laundromat-images";
 
-// Nick's author image for EEAT optimization
-import nickAuthorImage from "@assets/Nick_1764813439401.jpg";
+// Nick's author image for EEAT optimization  
+const nickAuthorImage = laundromatImages.nickFounder.src;
 
 export default function BlogPost() {
   const params = useParams<{ id: string }>();
@@ -58,6 +59,11 @@ export default function BlogPost() {
   const postExcerpt = post.excerpt || postContent.substring(0, 160);
   const authorName = post.authorName || post.author || "WashBizHub Research Team";
   const metaKeywordsList = Array.isArray(post.metaKeywords) ? post.metaKeywords : [];
+  
+  // Get default featured image based on category for SEO
+  const categoryImage = defaultBlogImages[post.category || ""] || defaultBlogImages.default;
+  const featuredImage = post.featuredImage || categoryImage.src;
+  const featuredImageAlt = post.featuredImageAlt || categoryImage.alt;
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -183,16 +189,14 @@ export default function BlogPost() {
               </div>
             </div>
 
-            {post.featuredImage && (
-              <div className="rounded-xl overflow-hidden mb-8">
-                <img
-                  src={post.featuredImage}
-                  alt={post.featuredImageAlt || post.title}
-                  className="w-full h-64 md:h-96 object-cover"
-                  data-testid="img-featured"
-                />
-              </div>
-            )}
+            <div className="rounded-xl overflow-hidden mb-8">
+              <img
+                src={featuredImage}
+                alt={featuredImageAlt}
+                className="w-full h-64 md:h-96 object-cover"
+                data-testid="img-featured"
+              />
+            </div>
           </header>
 
           <Card className="bg-white/10 backdrop-blur border-white/20 mb-8">
