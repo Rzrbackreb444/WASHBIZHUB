@@ -3206,9 +3206,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(503).json({ message: "Payment service unavailable" });
       }
 
+      // Use real Stripe price ID if available, fallback to dynamic pricing
+      const academyPriceId = process.env.STRIPE_PRICE_ACADEMY_BUNDLE;
+      
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
-        line_items: [
+        line_items: academyPriceId ? [
+          { price: academyPriceId, quantity: 1 }
+        ] : [
           {
             price_data: {
               currency: "usd",
@@ -3216,7 +3221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 name: "Laundry Tech Academy - Complete Bundle",
                 description: "All 4 certification levels: Attendant Essentials, Certified Tech, Advanced Tech, and Master Tech. Save $598!",
               },
-              unit_amount: 99900, // $999.00
+              unit_amount: 99900,
             },
             quantity: 1,
           },
@@ -10054,18 +10059,26 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       let productDescription = "";
       let successPath = "/vault?success=true";
       
+      // Template price ID mapping for individual purchases
+      const templatePriceIds: Record<string, string | undefined> = {
+        'due-diligence': process.env.STRIPE_PRICE_TEMPLATE_DUE_DILIGENCE,
+        'grand-opening': process.env.STRIPE_PRICE_TEMPLATE_GRAND_OPENING,
+        'employee-handbook': process.env.STRIPE_PRICE_TEMPLATE_EMPLOYEE_HANDBOOK,
+        'wdf-manual': process.env.STRIPE_PRICE_TEMPLATE_WDF_MANUAL,
+      };
+      
       if (type === "bundle") {
-        // Full Vault bundle - $997
+        // Full Vault bundle - $997 - use real Stripe price if available
         productName = "The Operator's Vault - Complete Bundle";
         productDescription = "All 20 premium laundromat templates ($5,917 value)";
-        lineItems = [{
+        const bundlePriceId = process.env.STRIPE_PRICE_VAULT_BUNDLE;
+        lineItems = bundlePriceId ? [
+          { price: bundlePriceId, quantity: 1 }
+        ] : [{
           price_data: {
             currency: "usd",
-            product_data: {
-              name: productName,
-              description: productDescription,
-            },
-            unit_amount: 99700, // $997
+            product_data: { name: productName, description: productDescription },
+            unit_amount: 99700,
           },
           quantity: 1,
         }];
@@ -10074,7 +10087,6 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         // Individual template purchase - templateId is guaranteed by validation
         const template = vaultTemplates.find(t => t.id === templateId);
         if (!template) {
-          // This should never happen due to schema validation, but handle defensively
           return res.status(400).json(
             createErrorResponse('TEMPLATE_NOT_FOUND', 'Template not found')
           );
@@ -10082,14 +10094,14 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         
         productName = template.name;
         productDescription = `Premium laundromat template from The Operator's Vault`;
-        lineItems = [{
+        const templatePriceId = templatePriceIds[templateId!];
+        lineItems = templatePriceId ? [
+          { price: templatePriceId, quantity: 1 }
+        ] : [{
           price_data: {
             currency: "usd",
-            product_data: {
-              name: productName,
-              description: productDescription,
-            },
-            unit_amount: template.price * 100, // Convert to cents
+            product_data: { name: productName, description: productDescription },
+            unit_amount: template.price * 100,
           },
           quantity: 1,
         }];
@@ -10161,6 +10173,14 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         );
       }
       
+      // CLEANBI report price IDs from Stripe
+      const cleanbiPriceIds: Record<string, string | undefined> = {
+        quick: process.env.STRIPE_PRICE_CLEANBI_QUICK,
+        standard: process.env.STRIPE_PRICE_CLEANBI_STANDARD,
+        pro: process.env.STRIPE_PRICE_CLEANBI_PRO,
+        enterprise: process.env.STRIPE_PRICE_CLEANBI_ENTERPRISE,
+      };
+      
       // GUEST CHECKOUT PATTERN: Intentional for e-commerce
       const userEmail = req.user?.claims?.email || req.user?.email || undefined;
       const userId = req.user?.claims?.sub || req.user?.sub || 'guest';
@@ -10170,19 +10190,25 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
         : `${req.protocol}://${req.hostname}`;
       
+      // Use real Stripe price ID if available, fallback to dynamic pricing
+      const priceId = cleanbiPriceIds[tier];
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = priceId ? [
+        { price: priceId, quantity: 1 }
+      ] : [{
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `CLEANBI ${tierConfig.name}`,
+            description: `${tierConfig.description} for: ${address}`,
+          },
+          unit_amount: tierConfig.price,
+        },
+        quantity: 1,
+      }];
+      
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
-        line_items: [{
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `CLEANBI ${tierConfig.name}`,
-              description: `${tierConfig.description} for: ${address}`,
-            },
-            unit_amount: tierConfig.price,
-          },
-          quantity: 1,
-        }],
+        line_items: lineItems,
         mode: "payment",
         success_url: `${baseUrl}/cleanbi-reports?success=true&tier=${tier}&address=${encodeURIComponent(address)}`,
         cancel_url: `${baseUrl}/cleanbi-reports`,
