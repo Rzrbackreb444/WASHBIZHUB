@@ -7321,10 +7321,19 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   app.get("/api/equipment-listings", async (req, res) => {
     try {
       const { category, condition, status = "active" } = req.query;
-      const result = await db.select().from(equipmentListings)
-        .where(eq(equipmentListings.status, status as string))
-        .orderBy(desc(equipmentListings.createdAt));
-      res.json(result);
+      const result = await db.execute(sql`
+        SELECT id, user_id as "userId", title, description, category, brand, model, 
+               condition, year_manufactured as "yearManufactured", images, videos, 
+               price, price_negotiable as "priceNegotiable", city, state, 
+               zip_code as "zipCode", contact_name as "contactName", 
+               contact_email as "contactEmail", contact_phone as "contactPhone", 
+               status, views, inquiries, 
+               created_at as "createdAt", updated_at as "updatedAt"
+        FROM equipment_listings 
+        WHERE status = ${status}
+        ORDER BY created_at DESC
+      `);
+      res.json(result.rows || []);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -7364,16 +7373,27 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   // GET /api/equipment-listings/:id - Get single listing
   app.get("/api/equipment-listings/:id", async (req, res) => {
     try {
-      const result = await db.select().from(equipmentListings)
-        .where(eq(equipmentListings.id, req.params.id));
-      if (!result[0]) {
+      const result = await db.execute(sql`
+        SELECT id, user_id as "userId", title, description, category, brand, model, 
+               condition, year_manufactured as "yearManufactured", images, videos, 
+               price, price_negotiable as "priceNegotiable", city, state, 
+               zip_code as "zipCode", contact_name as "contactName", 
+               contact_email as "contactEmail", contact_phone as "contactPhone", 
+               status, views, inquiries, 
+               created_at as "createdAt", updated_at as "updatedAt"
+        FROM equipment_listings 
+        WHERE id = ${req.params.id}
+      `);
+      if (!result.rows || result.rows.length === 0) {
         return res.status(404).json({ error: "Listing not found" });
       }
       // Increment views
-      await db.update(equipmentListings)
-        .set({ views: sql`${equipmentListings.views} + 1` })
-        .where(eq(equipmentListings.id, req.params.id));
-      res.json(result[0]);
+      await db.execute(sql`
+        UPDATE equipment_listings 
+        SET views = views + 1 
+        WHERE id = ${req.params.id}
+      `);
+      res.json(result.rows[0]);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
