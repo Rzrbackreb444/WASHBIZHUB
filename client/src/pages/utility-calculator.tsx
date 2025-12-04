@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,7 +248,13 @@ export default function UtilityCalculator() {
   };
 
   return (
-    <>
+    <AuthGuard title="Sign In to Use Utility Calculator" description="Sign in to access this calculator and track your usage.">
+      <FeatureGate 
+        feature="calculators-all"
+        blurContent={true}
+        title="Utility Cost Calculator & UPG Tracker"
+        description="Access all calculators including utility cost analysis, UPG tracking, and industry benchmarks."
+      >
       <SEO
         title="Utility Cost Calculator & UPG Tracker | Laundromat Utility Analysis"
         description="Calculate utility costs per load and track your UPG (Utilities as % of Gross). Industry benchmarks, cost projections, and actionable recommendations for laundromat operators. 88% of operators cite rising utilities as their #1 pain point."
@@ -718,10 +726,12 @@ export default function UtilityCalculator() {
                     </Card>
 
                     <div className="flex justify-end">
-                      <Button onClick={exportCalculations} variant="outline" data-testid="button-export">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export Analysis
-                      </Button>
+                      <FeatureGate feature="calculators-export" showUpgradePrompt={false}>
+                        <Button onClick={exportCalculations} variant="outline" data-testid="button-export">
+                          <Download className="w-4 h-4 mr-2" />
+                          Export Analysis
+                        </Button>
+                      </FeatureGate>
                     </div>
                   </div>
                 </div>
@@ -1113,6 +1123,7 @@ export default function UtilityCalculator() {
           </div>
         </section>
       </div>
-    </>
+      </FeatureGate>
+    </AuthGuard>
   );
 }
