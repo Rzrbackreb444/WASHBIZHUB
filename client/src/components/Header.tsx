@@ -78,16 +78,8 @@ export function Header() {
             </div>
             <div className="flex items-center gap-4 sm:gap-6">
               <a 
-                href="tel:479-883-4314" 
-                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden sm:flex items-center gap-1.5"
-                data-testid="link-phone"
-              >
-                <span className="hidden md:inline">(479) 883-4314</span>
-                <span className="md:hidden">Call Us</span>
-              </a>
-              <a 
                 href="mailto:consult@washbizhub.com" 
-                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden md:flex items-center gap-1.5"
+                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden sm:flex items-center gap-1.5"
                 data-testid="link-email"
               >
                 consult@washbizhub.com
