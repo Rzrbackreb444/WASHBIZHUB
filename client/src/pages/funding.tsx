@@ -119,7 +119,7 @@ const FUNDING_CATEGORIES: Record<string, {
         },
         bestFor: ["Building business credit", "Lower personal credit OK", "Fast funding needs"],
         alsoOffers: ["Equipment financing", "Bridge loans", "Commercial RE"],
-        affiliateUrl: "/gokapital",
+        affiliateUrl: "mailto:deals@gokapital.com?cc=consult@washbizhub.com&subject=Laundromat%20Startup%20Funding%20-%20Nicholas%20Kremers%20Referral",
         specialFeature: "Works with 500+ credit",
         trustSignals: ["A+ BBB Rating", "500+ laundromats funded", "Fast 24-48hr approval"]
       }
@@ -463,10 +463,14 @@ export default function Funding() {
   const handleApply = (partner: FundingPartner) => {
     if (partner.affiliateUrl === "consultation") {
       setConsultationOpen(true);
+    } else if (partner.affiliateUrl.startsWith("mailto:")) {
+      // Email links open in same window
+      window.location.href = partner.affiliateUrl;
     } else if (partner.affiliateUrl.startsWith("/")) {
       // Internal pages like /gokapital
       window.open(partner.affiliateUrl, "_blank");
     } else {
+      // External URLs open in new tab
       window.open(partner.affiliateUrl, "_blank");
     }
   };
