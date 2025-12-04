@@ -250,9 +250,9 @@ export function Header() {
                   ) : (
                     <Button 
                       onClick={() => window.location.href = '/api/login'}
-                      variant="ghost"
+                      variant="default"
                       size="sm"
-                      className="hidden sm:flex text-muted-foreground hover:text-foreground font-medium"
+                      className="hidden sm:flex font-medium"
                       data-testid="button-login"
                     >
                       <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
@@ -397,12 +397,12 @@ export function Header() {
                             setMobileMenuOpen(false);
                             window.location.href = '/api/login';
                           }}
-                          variant="outline"
-                          className="w-full justify-center font-medium text-foreground border-border"
+                          variant="default"
+                          className="w-full justify-center font-medium"
                           data-testid="button-mobile-login"
                         >
                           <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
-                          Sign in with Replit
+                          Sign in
                         </Button>
                       )}
                       
