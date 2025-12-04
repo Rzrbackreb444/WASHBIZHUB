@@ -440,6 +440,23 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    const result = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return result[0];
+  }
+
+  async getBlogPostsBySubcategory(subcategory: string): Promise<BlogPost[]> {
+    return db.select().from(blogPosts)
+      .where(eq(blogPosts.subcategory, subcategory))
+      .orderBy(desc(blogPosts.createdAt));
+  }
+
+  async getBlogPostsBySubcategoryPrefix(prefix: string): Promise<BlogPost[]> {
+    return db.select().from(blogPosts)
+      .where(sql`${blogPosts.subcategory} LIKE ${prefix + '%'}`)
+      .orderBy(desc(blogPosts.createdAt));
+  }
+
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
     const result = await db.insert(blogPosts).values(post).returning();
     return result[0];
@@ -455,6 +472,10 @@ export class DbStorage implements IStorage {
       .update(blogPosts)
       .set({ views: sql`${blogPosts.views} + 1` })
       .where(eq(blogPosts.id, id));
+  }
+
+  async deleteBlogPost(id: string): Promise<void> {
+    await db.delete(blogPosts).where(eq(blogPosts.id, id));
   }
 
   // ============================================================================

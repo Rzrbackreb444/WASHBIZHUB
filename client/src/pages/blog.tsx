@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Sparkles, Plus, Loader2 } from "lucide-react";
+import { FileText, Sparkles, Plus, Loader2, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
@@ -260,14 +261,17 @@ export default function Blog() {
                       <CardContent>
                         <div className="flex justify-between items-center text-sm text-white/60">
                           <span>Published</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-accent hover:text-accent/90"
-                            data-testid={`button-read-${post.id}`}
-                          >
-                            Read More
-                          </Button>
+                          <Link href={`/blog/${post.slug || post.id}`}>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-accent hover:text-accent/90 gap-1"
+                              data-testid={`button-read-${post.id}`}
+                            >
+                              Read More
+                              <ArrowRight className="w-3 h-3" />
+                            </Button>
+                          </Link>
                         </div>
                       </CardContent>
                     </Card>

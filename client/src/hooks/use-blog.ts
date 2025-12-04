@@ -37,3 +37,41 @@ export function useGenerateBlogContent() {
     },
   });
 }
+
+export function useBlogPost(idOrSlug: string) {
+  return useQuery<BlogPost>({
+    queryKey: ["/api/blog", "post", idOrSlug],
+    queryFn: async () => {
+      const response = await fetch(`/api/blog/${idOrSlug}`);
+      if (!response.ok) throw new Error("Failed to fetch post");
+      return response.json();
+    },
+    enabled: !!idOrSlug,
+  });
+}
+
+export function useUpdateBlogPost() {
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<InsertBlogPost> & { id: string }) => {
+      return apiRequest("PATCH", `/api/blog/${id}`, data);
+    },
+    onSuccess: (_data, variables) => {
+      // Invalidate both the list and the specific post
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog", "post", variables.id] });
+    },
+  });
+}
+
+export function useDeleteBlogPost() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/blog/${id}`);
+    },
+    onSuccess: (_data, id) => {
+      // Invalidate both the list and the specific post
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog", "post", id] });
+    },
+  });
+}

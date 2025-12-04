@@ -119,7 +119,8 @@ export function SEO({
   const baseUrl = import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com');
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const canonical = canonicalUrl ? `${baseUrl}${canonicalUrl}` : `${baseUrl}${currentPath}`;
-  const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
+  const safeOgImage = ogImage || "/washbizhub-og-image.png";
+  const ogImageUrl = safeOgImage.startsWith("http") ? safeOgImage : `${baseUrl}${safeOgImage}`;
   const currentDate = new Date().toISOString();
 
   // Organization structured data for E-E-A-T
