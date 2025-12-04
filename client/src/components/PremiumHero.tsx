@@ -1,21 +1,10 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation } from "lucide-react";
+import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import heroImage from "@assets/big_dexter_laundromat_1764704943944.jpg";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
-
-const INDUSTRY_PARTNERS = [
-  "Speed Queen",
-  "Dexter Laundry", 
-  "Huebsch",
-  "Electrolux",
-  "Maytag Commercial",
-  "Alliance Laundry",
-  "PayRange",
-  "Ecolab"
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -454,23 +443,21 @@ export function PremiumHero() {
         transition={{ duration: 0.8, delay: 1.2 }}
         className="relative border-t border-white/10 bg-[#0f2744]/80 backdrop-blur-sm"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <p className="text-[10px] sm:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.3em] text-white/40 uppercase text-center mb-4 sm:mb-6">
-            Trusted by Industry Leaders
-          </p>
-          <div className="flex flex-wrap justify-center gap-x-6 sm:gap-x-12 gap-y-2 sm:gap-y-4">
-            {INDUSTRY_PARTNERS.map((partner, i) => (
-              <motion.span 
-                key={partner}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.4 + i * 0.1 }}
-                className="text-xs sm:text-sm font-bold text-white/30 hover:text-[#b8860b] transition-colors duration-300 uppercase tracking-[0.1em] sm:tracking-[0.15em] cursor-pointer"
-                style={{ fontFamily: 'var(--font-bebas)' }}
-              >
-                {partner}
-              </motion.span>
-            ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+          <div className="flex flex-wrap justify-center items-center gap-x-4 sm:gap-x-8 gap-y-2">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-xs sm:text-sm text-white/50 font-medium">
+                Trusted by 72,000+ Industry Professionals
+              </span>
+            </div>
+            <div className="hidden sm:block w-px h-4 bg-white/20" />
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#b8860b]" />
+              <span className="text-xs sm:text-sm text-white/50 font-medium">
+                Owners, Operators & Brokers
+              </span>
+            </div>
           </div>
         </div>
       </motion.div>
