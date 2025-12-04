@@ -105,6 +105,8 @@ import { UsageLimitBanner } from "@/components/monetization/UpgradePrompt";
 import { trackEvent, trackConversion } from "@/lib/user-journey";
 import { PLATFORM_TIERS } from "@/lib/tier-config";
 import { useAuth } from "@/hooks/useAuth";
+import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
+import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
 
 declare global {
   interface Window {
@@ -3784,6 +3786,9 @@ function CleanBIExplorerContent() {
                       <span>Grade A locations sell fast — act quickly!</span>
                     </div>
                   )}
+                  
+                  {/* Equipment Partner Cross-Sell */}
+                  <CLEANBICrossSellCompact />
                 </motion.div>
               </motion.div>
             )}
@@ -5195,6 +5200,9 @@ function CleanBIExplorerContent() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* CLEANBI Help Chat Widget */}
+        <CLEANBIHelpChat />
       </div>
     </>
   );
