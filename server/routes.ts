@@ -1218,13 +1218,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/blog/:id", async (req, res) => {
+  app.get("/api/blog/:idOrSlug", async (req, res) => {
     try {
-      const post = await storage.getBlogPost(req.params.id);
+      // Try to find by ID first, then by slug
+      let post = await storage.getBlogPost(req.params.idOrSlug);
+      if (!post) {
+        post = await storage.getBlogPostBySlug(req.params.idOrSlug);
+      }
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
-      await storage.incrementBlogViews(req.params.id);
+      await storage.incrementBlogViews(post.id);
       res.json(post);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1241,6 +1245,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/blog/:idOrSlug", isAdmin, async (req, res) => {
+    try {
+      // Find post by ID or slug
+      let post = await storage.getBlogPost(req.params.idOrSlug);
+      if (!post) {
+        post = await storage.getBlogPostBySlug(req.params.idOrSlug);
+      }
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Validate update data using partial schema
+      const validated = insertBlogPostSchema.partial().parse(req.body);
+      const updatedPost = await storage.updateBlogPost(post.id, validated);
+      res.json(updatedPost);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/blog/:idOrSlug", isAdmin, async (req, res) => {
+    try {
+      // Find post by ID or slug
+      let post = await storage.getBlogPost(req.params.idOrSlug);
+      if (!post) {
+        post = await storage.getBlogPostBySlug(req.params.idOrSlug);
+      }
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      await storage.deleteBlogPost(post.id);
+      res.json({ message: "Post deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box } from "lucide-react";
-import equipmentCoverUrl from "@assets/Equipment_Cover_1764811509641.png";
+import equipmentCoverUrl from "@assets/Untitled_design_(26)_1764811756099.png";
 
 interface AmazonProduct {
   asin: string;
@@ -259,7 +259,7 @@ export default function EquipmentMarketplace() {
             <img 
               src={equipmentCoverUrl} 
               alt="Commercial laundromat washers and dryers lineup" 
-              className="w-full h-48 md:h-64 object-cover"
+              className="w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center">
               <div className="px-8 text-white">
