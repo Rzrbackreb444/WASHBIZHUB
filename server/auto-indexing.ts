@@ -209,50 +209,81 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
 }
 
 /**
- * Submit URL using IndexNow protocol (Bing, Yahoo, Yandex, DuckDuckGo)
+ * IndexNow endpoints - try multiple for redundancy
+ * Note: All these endpoints share the same IndexNow protocol
+ */
+const INDEXNOW_ENDPOINTS = [
+  { name: "Yandex", url: "https://yandex.com/indexnow" },
+  { name: "Seznam", url: "https://search.seznam.cz/indexnow" },
+  { name: "Bing/IndexNow.org", url: "https://api.indexnow.org/indexnow" },
+  { name: "Naver", url: "https://searchadvisor.naver.com/indexnow" },
+];
+
+/**
+ * Submit URL using IndexNow protocol (Bing, Yahoo, Yandex, DuckDuckGo, Seznam, Naver)
+ * Tries multiple endpoints for redundancy - success on ANY endpoint counts as success
  */
 export async function submitViaIndexNow(
   url: string,
   apiKey: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    const indexNowUrl = "https://api.indexnow.org/indexnow";
-    const hostname = new URL(url).hostname;
-    
-    const payload = {
-      host: hostname,
-      key: apiKey,
-      keyLocation: `https://${hostname}/${apiKey}.txt`,
-      urlList: [url],
+): Promise<{ success: boolean; message: string; details?: Record<string, boolean> }> {
+  const hostname = new URL(url).hostname;
+  const keyLocation = `https://${hostname}/${apiKey}.txt`;
+  
+  const results: Record<string, boolean> = {};
+  let anySuccess = false;
+  const messages: string[] = [];
+  
+  // Try all endpoints in parallel for speed
+  await Promise.all(
+    INDEXNOW_ENDPOINTS.map(async (endpoint) => {
+      try {
+        const payload = {
+          host: hostname,
+          key: apiKey,
+          keyLocation,
+          urlList: [url],
+        };
+
+        const response = await fetch(endpoint.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok || response.status === 200 || response.status === 202) {
+          results[endpoint.name] = true;
+          anySuccess = true;
+          console.log(`✅ IndexNow (${endpoint.name}) success: ${url}`);
+        } else {
+          results[endpoint.name] = false;
+          const errorText = await response.text();
+          console.log(`⚠️ IndexNow (${endpoint.name}) failed: ${response.status}`);
+        }
+      } catch (error) {
+        results[endpoint.name] = false;
+        console.log(`⚠️ IndexNow (${endpoint.name}) error: ${error instanceof Error ? error.message : 'Unknown'}`);
+      }
+    })
+  );
+  
+  const successfulEngines = Object.entries(results)
+    .filter(([_, success]) => success)
+    .map(([name]) => name);
+  
+  if (anySuccess) {
+    return {
+      success: true,
+      message: `URL indexed via: ${successfulEngines.join(", ")}`,
+      details: results,
     };
-
-    const response = await fetch(indexNowUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      console.log(`✅ IndexNow submission successful: ${url}`);
-      return {
-        success: true,
-        message: "URL submitted to Bing, Yahoo, Yandex, DuckDuckGo",
-      };
-    } else {
-      const errorText = await response.text();
-      console.error(`IndexNow submission failed for ${url}:`, errorText);
-      return {
-        success: false,
-        message: `HTTP ${response.status}: ${errorText}`,
-      };
-    }
-  } catch (error) {
-    console.error("IndexNow submission failed:", error);
+  } else {
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: "All IndexNow endpoints failed - key may need propagation time",
+      details: results,
     };
   }
 }
