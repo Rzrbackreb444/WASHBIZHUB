@@ -134,13 +134,14 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/funding-matcher', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       
       // ============================================================================
-      // FUNDING PAGES (0.8-0.9)
+      // FUNDING PAGES (0.8-0.9) - ENHANCED SEO/AEO/EEAT
       // ============================================================================
       { loc: '/funding', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/sba-loans', lastmod: today, changefreq: 'weekly', priority: 0.9 },
       { loc: '/equipment-financing', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       { loc: '/real-estate-financing', lastmod: today, changefreq: 'weekly', priority: 0.85 },
-      { loc: '/working-capital-financing', lastmod: today, changefreq: 'weekly', priority: 0.8 },
-      { loc: '/startup-funding', lastmod: today, changefreq: 'weekly', priority: 0.8 },
+      { loc: '/working-capital-financing', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/startup-funding', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       { loc: '/acquisitions-funding', lastmod: today, changefreq: 'weekly', priority: 0.8 },
       { loc: '/gokapital', lastmod: today, changefreq: 'monthly', priority: 0.85 },
       { loc: '/insurance-partners', lastmod: today, changefreq: 'monthly', priority: 0.7 },
