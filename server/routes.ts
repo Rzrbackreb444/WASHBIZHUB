@@ -8065,6 +8065,46 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // POST /api/ai/cleanbi-help - CLEANBI-focused chat assistant (no auth required, rate limited)
+  app.post("/api/ai/cleanbi-help", rateLimiter("/api/ai/cleanbi-help", 15, 60), async (req, res) => {
+    try {
+      const { message, systemPrompt, conversationHistory } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Use OpenAI for CLEANBI help (fast, focused responses)
+      const { aiProviderService } = await import("./ai-providers");
+      
+      const messages = [
+        { role: "system" as const, content: systemPrompt || "You are a CLEANBI location analysis expert." },
+        ...(conversationHistory || []).map((m: any) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
+        { role: "user" as const, content: message },
+      ];
+
+      const response = await aiProviderService.chat({
+        messages,
+        provider: "openai",
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+        maxTokens: 800,
+      });
+
+      res.json({
+        content: response.content,
+        provider: "openai",
+        model: "gpt-4o-mini",
+      });
+    } catch (error: any) {
+      console.error("CLEANBI help chat error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate response" });
+    }
+  });
+
   // GET /api/ai/health - Check AI provider availability (admin only)
   app.get("/api/ai/health", async (req, res) => {
     try {

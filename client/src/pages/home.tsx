@@ -30,6 +30,7 @@ import { FoundingMemberBanner } from "@/components/FoundingMember";
 import { HomeSkeleton } from "@/components/Skeletons";
 import { HomepageNewsletter } from "@/components/HomepageNewsletter";
 import { TrustSignals } from "@/components/TrustSignals";
+import { CombinedPartnershipSection } from "@/components/PartnershipBanners";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -910,6 +911,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+        
+        {/* PARTNERSHIP SECTION - Funding & Equipment Partners */}
+        <CombinedPartnershipSection />
         
         {/* CTA SECTION - Final conversion */}
         <CTASection />
