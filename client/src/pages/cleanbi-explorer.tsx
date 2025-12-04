@@ -874,8 +874,8 @@ function CleanBIExplorerContent() {
       
       if (data.rateLimited) {
         toast({ 
-          title: "Daily Limit Reached", 
-          description: `You've used your free analysis today. Upgrade for unlimited access!`,
+          title: "Analysis Limit Reached", 
+          description: `You've used all your free analyses. Upgrade for unlimited access!`,
           variant: "destructive"
         });
         setShowUpgradeModal(true);
@@ -1074,11 +1074,11 @@ function CleanBIExplorerContent() {
 
       const data = await response.json();
       
-      // Handle rate limit (1 free analysis per day)
+      // Handle rate limit (5 free analyses total)
       if (data.rateLimited) {
         toast({ 
-          title: "Daily Limit Reached", 
-          description: `You've used your free analysis today. Upgrade for unlimited access!`,
+          title: "Analysis Limit Reached", 
+          description: `You've used all your free analyses. Upgrade for unlimited access!`,
           variant: "destructive"
         });
         setShowUpgradeModal(true);

@@ -255,7 +255,7 @@ const TESTIMONIALS = [
 const FAQS = [
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes 3 CLEANBI Explorer analyses per day, basic valuation calculator access, ROI calculator, and access to our industry resources library. Perfect for getting started and exploring the platform.",
+    a: "The free plan includes 5 CLEANBI analyses total, basic valuation calculator access, ROI calculator, and access to our industry resources library. Perfect for getting started and exploring the platform.",
   },
   {
     q: "Can I upgrade or downgrade anytime?",

@@ -271,7 +271,7 @@ export default function CleanbiAuto() {
         // Handle quota exceeded errors (403)
         if (response.status === 403 && data.error === 'quota_exceeded') {
           setShowQuotaExceeded(true);
-          setQuotaMessage(data.message || "You've reached your daily limit");
+          setQuotaMessage(data.message || "You've reached your analysis limit");
           
           if (data.requiresLogin) {
             toast({
@@ -536,7 +536,7 @@ export default function CleanbiAuto() {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
-                  <CardTitle className="text-lg text-red-700 dark:text-red-300">Daily Limit Reached</CardTitle>
+                  <CardTitle className="text-lg text-red-700 dark:text-red-300">Analysis Limit Reached</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -552,7 +552,7 @@ export default function CleanbiAuto() {
                   <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      Unlimited CLEANBI reports per day
+                      Unlimited CLEANBI reports
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-500" />

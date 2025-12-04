@@ -110,10 +110,10 @@ interface HeatmapPoint {
 // ========================================
 
 const TIER_RATE_LIMITS: Record<string, { perMinute: number; perDay: number }> = {
-  free: { perMinute: 1, perDay: 1 },        // 1 analysis per day - creates urgency, hooks with score
+  free: { perMinute: 1, perDay: 5 },        // 5 analyses total - creates urgency, hooks with score
   starter: { perMinute: 20, perDay: 100 },  // $29/mo - serious investors
-  pro: { perMinute: 50, perDay: 500 },      // $79/mo - power users
-  enterprise: { perMinute: 200, perDay: 5000 } // Custom - brokers/consultants
+  pro: { perMinute: 50, perDay: 500 },      // $99/mo - power users
+  enterprise: { perMinute: 200, perDay: 5000 } // $699/mo - brokers/consultants
 };
 
 // ========================================
@@ -712,7 +712,7 @@ router.post("/analyze", async (req: Request, res: Response) => {
     
     if (!rateCheck.allowed) {
       const limitMessage = rateCheck.limitType === "daily" 
-        ? `Daily limit reached (${TIER_RATE_LIMITS[tier]?.perDay || 3}/day for ${tier} tier)`
+        ? `Analysis limit reached (${TIER_RATE_LIMITS[tier]?.perDay || 5} total for ${tier} tier)`
         : `Too many requests (${TIER_RATE_LIMITS[tier]?.perMinute || 3}/minute for ${tier} tier)`;
       
       // Return 200 with rateLimited flag for graceful frontend handling

@@ -980,7 +980,7 @@ export default function CompetitorDashboard() {
                               Upgrade to Pro to see all competitors, sentiment analysis, and set up alerts
                             </p>
                             <Button className="bg-accent text-primary" data-testid="button-upgrade-pro">
-                              Upgrade to Pro - $79/mo
+                              Upgrade to Pro - $99/mo
                             </Button>
                           </CardContent>
                         </Card>

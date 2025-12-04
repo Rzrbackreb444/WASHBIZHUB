@@ -231,7 +231,7 @@ const PREMIUM_CLEANBI_BLOGS: PremiumBlogPost[] = [
 <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
 <h3 itemprop="name">How much does CLEANBI cost?</h3>
 <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-<p itemprop="text">CLEANBI offers a free tier with one analysis per day. Premium plans start at $29/month for unlimited analyses, with Pro and Enterprise tiers offering advanced features like PDF reports, API access, and portfolio tracking. <a href="${WASHBIZHUB_URL}/pricing">See all plans →</a></p>
+<p itemprop="text">CLEANBI offers a free tier with 5 analyses total. Premium plans start at $29/month for unlimited analyses, with Pro ($99/mo) and Enterprise ($699/mo) tiers offering advanced features like PDF reports, API access, and portfolio tracking. <a href="${WASHBIZHUB_URL}/pricing">See all plans →</a></p>
 </div>
 </div>
 
@@ -272,7 +272,7 @@ const PREMIUM_CLEANBI_BLOGS: PremiumBlogPost[] = [
           "name": "How much does CLEANBI cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "CLEANBI offers a free tier with one analysis per day. Premium plans start at $29/month for unlimited analyses."
+            "text": "CLEANBI offers a free tier with 5 analyses total. Premium plans start at $29/month for unlimited analyses."
           }
         }
       ]
@@ -724,7 +724,7 @@ const PREMIUM_CLEANBI_BLOGS: PremiumBlogPost[] = [
 <p>In a competitive market, waiting 4 weeks for a consulting study means losing deals. CLEANBI lets you screen dozens of opportunities in an afternoon, focusing your time on the most promising locations.</p>
 
 <h3>Cost Efficiency</h3>
-<p>At $79/month for unlimited analyses, a Pro subscription pays for itself if it helps you avoid just one bad deal—or find one good one faster.</p>
+<p>At $99/month for unlimited analyses, a Pro subscription pays for itself if it helps you avoid just one bad deal—or find one good one faster.</p>
 
 <h3>Standardized Comparison</h3>
 <p>Consulting studies from different firms use different methodologies, making comparisons difficult. CLEANBI's standardized scoring means you can directly compare Location A to Location B, even if they're in different cities.</p>
@@ -750,7 +750,7 @@ const PREMIUM_CLEANBI_BLOGS: PremiumBlogPost[] = [
 <p>Let's do the math on a typical laundromat acquisition:</p>
 <ul>
 <li><strong>Average laundromat purchase price:</strong> $200,000</li>
-<li><strong>CLEANBI Pro annual cost:</strong> $948 ($79/month)</li>
+<li><strong>CLEANBI Pro annual cost:</strong> $1,188 ($99/month)</li>
 <li><strong>Traditional consulting cost:</strong> $10,000</li>
 </ul>
 <p>If CLEANBI helps you negotiate just 5% off the purchase price (by identifying location weaknesses), that's $10,000 in savings—paying for itself immediately while also avoiding a $10,000 consulting fee.</p>
@@ -875,10 +875,10 @@ const PREMIUM_CLEANBI_BLOGS: PremiumBlogPost[] = [
 <h2>Compare Plans</h2>
 <table>
 <thead>
-<tr><th>Feature</th><th>Free</th><th>Starter ($29/mo)</th><th>Pro ($79/mo)</th><th>Enterprise ($199/mo)</th></tr>
+<tr><th>Feature</th><th>Free</th><th>Starter ($29/mo)</th><th>Pro ($99/mo)</th><th>Enterprise ($699/mo)</th></tr>
 </thead>
 <tbody>
-<tr><td>Analyses per day</td><td>1</td><td>10</td><td>Unlimited</td><td>Unlimited</td></tr>
+<tr><td>Analyses</td><td>5 total</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
 <tr><td>Competitor mapping</td><td>Basic</td><td>Enhanced</td><td>Advanced + Heat Maps</td><td>All features</td></tr>
 <tr><td>PDF Reports</td><td>—</td><td>5/month</td><td>Unlimited</td><td>Unlimited + White-label</td></tr>
 <tr><td>Portfolio tracking</td><td>—</td><td>25 locations</td><td>Unlimited</td><td>Unlimited</td></tr>

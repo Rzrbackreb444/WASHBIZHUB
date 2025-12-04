@@ -114,11 +114,11 @@ const signupFaqs = [
   },
   {
     question: "Is WashBizHub free to use?",
-    answer: "Yes! WashBizHub offers a generous free tier that includes 1 CLEANBI analysis per day, access to all calculators, community forum access, and educational resources."
+    answer: "Yes! WashBizHub offers a generous free tier that includes 5 CLEANBI analyses total, access to all calculators, community forum access, and educational resources."
   },
   {
     question: "What do I get with a free account?",
-    answer: "Free accounts include daily CLEANBI location analysis, access to ROI calculators, valuation tools, the community forum, educational courses, and marketplace browsing."
+    answer: "Free accounts include 5 CLEANBI location analyses, access to ROI calculators, valuation tools, the community forum, educational courses, and marketplace browsing."
   },
   {
     question: "Is my information secure when signing up?",
@@ -161,7 +161,7 @@ const signupStructuredData = {
 const freeTierBenefits = [
   { 
     icon: BarChart3, 
-    text: "1 CLEANBI analysis daily",
+    text: "5 CLEANBI analyses total",
     description: "AI-powered location scoring"
   },
   { 
