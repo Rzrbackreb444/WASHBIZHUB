@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearch } from "wouter";
+import { useSearch, Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -409,6 +409,30 @@ export default function Funding() {
                     </div>
                   </div>
                 </div>
+
+                {/* SBA Loans Promo Banner for Acquisitions Tab */}
+                {key === "acquisitions" && (
+                  <Card className="mb-6 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white border-0">
+                    <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/20 rounded-lg">
+                          <Landmark className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold">Looking for SBA 7(a) Loans?</h3>
+                          <p className="text-white/80 text-sm">
+                            Visit our dedicated SBA Loans page for detailed requirements, a lender matching quiz, and side-by-side comparisons.
+                          </p>
+                        </div>
+                      </div>
+                      <Link href="/sba-loans">
+                        <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white whitespace-nowrap" data-testid="link-sba-loans">
+                          View SBA Loans Guide <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Partner Cards */}
                 <div className="space-y-6">
