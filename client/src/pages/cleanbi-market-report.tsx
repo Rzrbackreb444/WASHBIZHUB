@@ -94,12 +94,12 @@ export default function CLEANBIMarketReport() {
             
             <div className="flex flex-wrap gap-4">
               <Link href="/cleanbi-explorer">
-                <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] hover:from-[#a07608] hover:to-[#c49940] text-white">
+                <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] hover:from-[#a07608] hover:to-[#c49940] text-white" data-testid="button-analyze-location">
                   <Target className="w-5 h-5 mr-2" />
                   Analyze Any Location
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" data-testid="button-download-pdf">
                 <Download className="w-5 h-5 mr-2" />
                 Download PDF Report
               </Button>
@@ -195,7 +195,7 @@ export default function CLEANBIMarketReport() {
                   <h2 className="text-2xl font-bold">Top 10 Markets for Laundromat Investment</h2>
                   <p className="text-muted-foreground">Ranked by CLEANBI score and opportunity density</p>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" data-testid="button-share-report">
                   <Share2 className="w-4 h-4 mr-2" />
                   Share Report
                 </Button>
@@ -252,7 +252,7 @@ export default function CLEANBIMarketReport() {
                         </div>
 
                         <Link href={`/cleanbi-explorer?city=${market.city}&state=${market.state}`}>
-                          <Button size="sm" variant="ghost">
+                          <Button size="sm" variant="ghost" data-testid={`button-explore-${market.city.toLowerCase()}`}>
                             <ArrowRight className="w-4 h-4" />
                           </Button>
                         </Link>
@@ -407,13 +407,13 @@ export default function CLEANBIMarketReport() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <Link href="/cleanbi-explorer">
-                      <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] text-white">
+                      <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] text-white" data-testid="button-try-cleanbi">
                         <Target className="w-5 h-5 mr-2" />
                         Try CLEANBI Free
                       </Button>
                     </Link>
                     <Link href="/consultation">
-                      <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                      <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" data-testid="button-book-consultation">
                         Book Expert Consultation
                       </Button>
                     </Link>
