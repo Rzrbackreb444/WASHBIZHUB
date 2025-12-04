@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -200,34 +200,61 @@ function CarouselSkeleton() {
 export function FeaturedListingsCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const autoplayPausedRef = useRef(false);
+  const autoplayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const { data: listings, isLoading } = useQuery<ListingWithDetails[]>({
     queryKey: ['/api/listings/featured-carousel'],
+    staleTime: 60000,
   });
 
+  const pauseAutoplay = useCallback(() => {
+    autoplayPausedRef.current = true;
+    if (autoplayTimeoutRef.current) {
+      clearTimeout(autoplayTimeoutRef.current);
+    }
+    autoplayTimeoutRef.current = setTimeout(() => {
+      autoplayPausedRef.current = false;
+    }, 15000);
+  }, []);
+
   useEffect(() => {
     if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
 
     setCurrent(api.selectedScrollSnap());
-    
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap());
-    });
+    api.on('select', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+    };
   }, [api]);
 
   useEffect(() => {
     if (!api) return;
     
+    const onPointerDown = () => pauseAutoplay();
+    api.on('pointerDown', onPointerDown);
+    
     const interval = setInterval(() => {
-      api.scrollNext();
+      if (!autoplayPausedRef.current) {
+        api.scrollNext();
+      }
     }, 10000);
     
-    return () => clearInterval(interval);
-  }, [api]);
+    return () => {
+      api.off('pointerDown', onPointerDown);
+      clearInterval(interval);
+    };
+  }, [api, pauseAutoplay]);
 
   const scrollTo = useCallback((index: number) => {
+    pauseAutoplay();
     api?.scrollTo(index);
-  }, [api]);
+  }, [api, pauseAutoplay]);
 
   if (isLoading) {
     return (
@@ -265,6 +292,7 @@ export function FeaturedListingsCarousel() {
           opts={{
             align: "start",
             loop: true,
+            dragFree: false,
           }}
           className="w-full"
         >
