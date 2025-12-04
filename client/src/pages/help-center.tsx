@@ -34,7 +34,7 @@ const categories: FAQCategory[] = [
       },
       {
         q: "How many CLEANBI analyses can I run?",
-        a: "Free users get 1 analysis per day. Starter ($29/mo) gets 50/month, Pro ($79/mo) gets unlimited analyses, and Enterprise ($199/mo) includes API access. Admin emails (nick@washbizhub.com, thelaundromatfb@gmail.com, rzrbackreb444@gmail.com) have unlimited quotas."
+        a: "Free users get 5 analyses total. Starter ($29/mo) and Pro ($99/mo) get unlimited analyses. Enterprise ($699/mo) includes API access and team collaboration. Admin emails have unlimited quotas."
       },
       {
         q: "What's the difference between A, B, C grades and 'Needs Work'?",

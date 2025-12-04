@@ -595,7 +595,7 @@ export default function CleanbiAuto() {
                         data-testid="button-signup-modal"
                       >
                         <ArrowRight className="w-4 h-4 mr-2" />
-                        Sign Up Free (1/day)
+                        Sign Up Free (5 analyses)
                       </Button>
                     )}
                   </div>
@@ -606,7 +606,7 @@ export default function CleanbiAuto() {
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   data-testid="button-dismiss-quota"
                 >
-                  Dismiss and try again tomorrow
+                  Dismiss
                 </button>
               </CardContent>
             </Card>
