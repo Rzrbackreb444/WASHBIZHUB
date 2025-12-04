@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box } from "lucide-react";
-import { Advertisement } from "@/components/Advertisement";
+import equipmentCoverUrl from "@assets/Equipment_Cover_1764811509641.png";
 
 interface AmazonProduct {
   asin: string;
@@ -254,8 +254,20 @@ export default function EquipmentMarketplace() {
             </p>
           </header>
 
-          {/* Featured Partner Ad */}
-          <Advertisement placement="marketplace" />
+          {/* Hero Image */}
+          <div className="relative rounded-xl overflow-hidden shadow-lg">
+            <img 
+              src={equipmentCoverUrl} 
+              alt="Commercial laundromat washers and dryers lineup" 
+              className="w-full h-48 md:h-64 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center">
+              <div className="px-8 text-white">
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">Quality Commercial Equipment</h2>
+                <p className="text-white/90 max-w-md">Find washers, dryers, folding tables, and supplies from trusted brands with Prime delivery</p>
+              </div>
+            </div>
+          </div>
 
           {/* Search & Category Filter */}
           <Card>
