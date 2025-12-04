@@ -1788,7 +1788,7 @@ function CleanBIExplorerContent() {
           },
           {
             question: "Is CLEANBI Explorer free to use?",
-            answer: "Yes! You get 1 free location analysis per day. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription."
+            answer: "Yes! You get 5 free location analyses total to try CLEANBI. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription starting at $29/month."
           },
           {
             question: "What's included in the competition analysis?",
@@ -1821,7 +1821,7 @@ function CleanBIExplorerContent() {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD",
-            "description": "1 free analysis per day, premium unlimited access available"
+            "description": "5 free analyses total, premium unlimited access from $29/month"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -5204,7 +5204,7 @@ export default function CleanBIExplorer() {
   return (
     <AuthGuard
       title="CLEANBI Explorer Access"
-      description="Sign in to access the CLEANBI Explorer and analyze laundromat locations. Free account includes 1 analysis per day."
+      description="Sign in to access the CLEANBI Explorer and analyze laundromat locations. Free account includes 5 location analyses."
     >
       <CleanBIExplorerContent />
     </AuthGuard>
