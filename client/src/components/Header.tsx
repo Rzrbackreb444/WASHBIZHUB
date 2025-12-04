@@ -287,7 +287,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-muted-foreground hover:text-foreground"
+                    className="lg:hidden text-white dark:text-muted-foreground hover:text-white/80 dark:hover:text-foreground"
                     aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                     data-testid="button-mobile-menu"
                   >
