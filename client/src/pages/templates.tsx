@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { FeatureGate } from "@/components/monetization";
+import { FeatureGate, InlineUpgradePrompt } from "@/components/monetization";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -205,10 +206,13 @@ const TEMPLATE_FAQS = [
 
 export default function Templates() {
   const { user } = useAuth();
+  const { hasFeatureAccess } = useSubscription();
   const [, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+  
+  const canDownloadPremium = hasFeatureAccess("templates-premium").hasAccess;
 
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ["/api/templates"],
@@ -330,7 +334,6 @@ export default function Templates() {
   };
 
   return (
-    <FeatureGate feature="templates-premium">
       <div className="min-h-screen bg-background">
         <SEO
         title="Laundromat Business Plan Templates | P&L, Due Diligence Checklists"
@@ -629,29 +632,38 @@ export default function Templates() {
                                 ${template.price || "9.99"}
                               </span>
                             </div>
-                            {user?.isPro && (
+                            {canDownloadPremium && (
                               <Badge variant="secondary" className="text-xs">
                                 Included with Pro
                               </Badge>
                             )}
                           </div>
-                          <Button
-                            className="w-full gap-2"
-                            size="sm"
-                            data-testid={`button-download-template-${template.id}`}
-                          >
-                            {user?.isPro ? (
-                              <>
+                          {canDownloadPremium ? (
+                            <Button
+                              className="w-full gap-2"
+                              size="sm"
+                              data-testid={`button-download-template-${template.id}`}
+                            >
+                              <Download className="w-4 h-4" />
+                              Download Now
+                            </Button>
+                          ) : (
+                            <FeatureGate 
+                              feature="templates-premium"
+                              showUpgradePrompt={true}
+                              title="Premium Template"
+                              description="Upgrade to download this premium template and access our full library."
+                            >
+                              <Button
+                                className="w-full gap-2"
+                                size="sm"
+                                data-testid={`button-download-template-${template.id}`}
+                              >
                                 <Download className="w-4 h-4" />
                                 Download Now
-                              </>
-                            ) : (
-                              <>
-                                <ShoppingCart className="w-4 h-4" />
-                                Purchase for ${template.price || "9.99"}
-                              </>
-                            )}
-                          </Button>
+                              </Button>
+                            </FeatureGate>
+                          )}
                         </div>
                       ) : (
                         <Button
@@ -756,10 +768,22 @@ export default function Templates() {
                 <div className="border-t pt-4 flex gap-3">
                   {previewTemplate.isPremium ? (
                     <>
-                      <Button className="flex-1 gap-2" data-testid="button-dialog-purchase">
-                        <ShoppingCart className="w-4 h-4" />
-                        Purchase for ${previewTemplate.price || "9.99"}
-                      </Button>
+                      {canDownloadPremium ? (
+                        <Button className="flex-1 gap-2" data-testid="button-dialog-download">
+                          <Download className="w-4 h-4" />
+                          Download Now
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="flex-1 gap-2" 
+                          variant="outline"
+                          onClick={() => setLocation("/pricing")}
+                          data-testid="button-dialog-upgrade"
+                        >
+                          <Lock className="w-4 h-4" />
+                          Upgrade to Download
+                        </Button>
+                      )}
                       <Button variant="outline" onClick={() => setPreviewTemplate(null)} data-testid="button-dialog-close">
                         Close
                       </Button>
@@ -782,6 +806,5 @@ export default function Templates() {
         </DialogContent>
       </Dialog>
     </div>
-    </FeatureGate>
   );
 }

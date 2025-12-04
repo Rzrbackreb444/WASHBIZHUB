@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -397,15 +398,17 @@ export default function CalculatorsSuite() {
                           <Share2 className="w-4 h-4 mr-1" />
                           Share
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="border-[#39CCCC]/30 text-[#39CCCC] hover:bg-[#39CCCC]/10"
-                          data-testid="button-export"
-                        >
-                          <Download className="w-4 h-4 mr-1" />
-                          PDF
-                        </Button>
+                        <FeatureGate feature="calculators-export" showUpgradePrompt={false}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-[#39CCCC]/30 text-[#39CCCC] hover:bg-[#39CCCC]/10"
+                            data-testid="button-export"
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            PDF
+                          </Button>
+                        </FeatureGate>
                       </div>
                     </div>
                   </CardHeader>

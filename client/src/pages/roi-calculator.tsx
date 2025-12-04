@@ -238,14 +238,16 @@ export default function ROICalculator() {
               Calculate cash-on-cash returns, break-even timeline, and 5-year projections for your laundromat investment
             </p>
             <div className="mt-6">
-              <PDFExportButton
-                contentRef={contentRef}
-                fileName="ROI_Analysis"
-                title="Export PDF Report"
-                variant="outline"
-                className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
-                data-testid="button-export-pdf"
-              />
+              <FeatureGate feature="calculators-export" showUpgradePrompt={false}>
+                <PDFExportButton
+                  contentRef={contentRef}
+                  fileName="ROI_Analysis"
+                  title="Export PDF Report"
+                  variant="outline"
+                  className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
+                  data-testid="button-export-pdf"
+                />
+              </FeatureGate>
             </div>
           </div>
 

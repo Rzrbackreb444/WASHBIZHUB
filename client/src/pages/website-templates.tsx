@@ -7,18 +7,23 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, Rocket, Star, Users, Check } from "lucide-react";
+import { Eye, Rocket, Star, Users, Check, Lock, Sparkles } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Link } from "wouter";
 import type { WebsiteTemplate } from "@shared/schema";
 
 export default function WebsiteTemplatesPage() {
   const { toast } = useToast();
+  const { hasFeatureAccess } = useSubscription();
   const [selectedTemplate, setSelectedTemplate] = useState<WebsiteTemplate | null>(null);
   const [deployDialogOpen, setDeployDialogOpen] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [subdomain, setSubdomain] = useState("");
   const [industry, setIndustry] = useState<string>("all");
+  
+  const canAccessPremiumTemplates = hasFeatureAccess("templates-premium").hasAccess;
   
   // Fetch templates
   const { data: templates, isLoading } = useQuery<WebsiteTemplate[]>({
@@ -187,15 +192,27 @@ export default function WebsiteTemplatesPage() {
                       Preview
                     </Button>
                   )}
-                  <Button 
-                    className="flex-1"
-                    onClick={() => handleDeploy(template)}
-                    disabled={template.isPro || false}
-                    data-testid={`button-deploy-${template.id}`}
-                  >
-                    <Rocket className="w-4 h-4 mr-2" />
-                    {template.isPro ? "Pro Only" : "Deploy"}
-                  </Button>
+                  {template.isPro && !canAccessPremiumTemplates ? (
+                    <Link href="/pricing" className="flex-1">
+                      <Button 
+                        className="w-full"
+                        variant="outline"
+                        data-testid={`button-upgrade-${template.id}`}
+                      >
+                        <Lock className="w-4 h-4 mr-2" />
+                        Upgrade to Deploy
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="flex-1"
+                      onClick={() => handleDeploy(template)}
+                      data-testid={`button-deploy-${template.id}`}
+                    >
+                      <Rocket className="w-4 h-4 mr-2" />
+                      Deploy
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
