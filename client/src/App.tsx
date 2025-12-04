@@ -324,6 +324,9 @@ const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
 const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
 const TermsOfService = lazy(() => import("@/pages/terms"));
 const MarketplaceLanding = lazy(() => import("@/pages/landing/marketplace-landing"));
+const ROICalculatorLanding = lazy(() => import("@/pages/landing/roi-calculator-landing"));
+const ValuationCalculatorLanding = lazy(() => import("@/pages/landing/valuation-calculator-landing"));
+const UtilityBillLanding = lazy(() => import("@/pages/landing/utility-bill-landing"));
 const PlanPage = lazy(() => import("@/pages/plan"));
 const EvaluatePage = lazy(() => import("@/pages/evaluate"));
 const OperatePage = lazy(() => import("@/pages/operate"));
@@ -845,6 +848,21 @@ function Router() {
       <Route path="/marketplace-landing">
         <Suspense fallback={<LoadingFallback />}>
           <MarketplaceLanding />
+        </Suspense>
+      </Route>
+      <Route path="/landing/roi-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <ROICalculatorLanding />
+        </Suspense>
+      </Route>
+      <Route path="/landing/valuation-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <ValuationCalculatorLanding />
+        </Suspense>
+      </Route>
+      <Route path="/landing/utility-bill">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityBillLanding />
         </Suspense>
       </Route>
       <Route path="/equipment">
