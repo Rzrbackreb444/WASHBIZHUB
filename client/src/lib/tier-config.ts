@@ -404,8 +404,12 @@ export const PLATFORM_PRICING_FAQS = [
     answer: "CLEANBI is our proprietary AI-powered location intelligence system that scores any address for laundromat investment potential. It analyzes 6 key factors: Competition, Location, Equipment, Accessibility, Neighborhood, and Business metrics to give you a comprehensive A-F grade."
   },
   {
+    question: "Do I need a credit card to start?",
+    answer: "No credit card is needed for the Free tier - just sign up and start analyzing locations immediately. For paid plans (Starter, Pro, Enterprise), we require a credit card to start your 7-day free trial. You won't be charged until after the trial ends, and you can cancel anytime before then."
+  },
+  {
     question: "How does the free trial work?",
-    answer: "Start your 7-day free trial with full access to all Starter or Pro features. No credit card required to start. Cancel anytime during the trial and you won't be charged."
+    answer: "Paid plans include a 7-day free trial with full access to all features. A credit card is required to start the trial for verification, but you won't be charged until day 8. Enterprise plans get a 14-day trial. Cancel anytime during the trial and you won't be charged."
   },
   {
     question: "Can I upgrade or downgrade anytime?",

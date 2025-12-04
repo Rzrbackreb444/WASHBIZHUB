@@ -501,6 +501,26 @@ export default function Pricing() {
                           <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                         </Button>
                       </Link>
+                      
+                      {/* Credit card requirement indicator */}
+                      <p className="text-xs text-muted-foreground text-center mt-2" data-testid={`text-cc-${tier.id}`}>
+                        {tier.price === 0 ? (
+                          <span className="flex items-center justify-center gap-1">
+                            <Gift className="h-3 w-3 text-emerald-500" aria-hidden="true" />
+                            No credit card required
+                          </span>
+                        ) : tier.id === 'enterprise' ? (
+                          <span className="flex items-center justify-center gap-1">
+                            <CreditCard className="h-3 w-3" aria-hidden="true" />
+                            14-day free trial • CC required
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-1">
+                            <CreditCard className="h-3 w-3" aria-hidden="true" />
+                            7-day free trial • CC required
+                          </span>
+                        )}
+                      </p>
                     </CardHeader>
                     
                     <CardContent className="pt-0 px-4 pb-6">

@@ -2693,29 +2693,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== STRIPE SUBSCRIPTION ====================
   
   // Create Stripe Checkout Session for subscription
+  // HYBRID APPROACH: Free tier = no CC required, Paid tiers = CC required with 7-day trial
   app.post("/api/create-subscription", async (req, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
       }
       
-      const { tierId, interval = 'month', userId } = req.body;
+      const { tierId, interval = 'month', userId, skipTrial = false } = req.body;
       
       // Define subscription tiers with Stripe price IDs
       // Pricing must match client/src/lib/tier-config.ts
-      const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string }> = {
-        'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID },
-        'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID },
-        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: process.env.STRIPE_STARTER_PRICE_ID },
-        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: process.env.STRIPE_PRO_PRICE_ID },
-        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID },
+      const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string; trialDays: number }> = {
+        'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID, trialDays: 7 },
+        'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID, trialDays: 7 },
+        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: process.env.STRIPE_STARTER_PRICE_ID, trialDays: 7 },
+        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: process.env.STRIPE_PRO_PRICE_ID, trialDays: 7 },
+        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID, trialDays: 14 },
       };
       
       const tier = subscriptionTiers[tierId] || subscriptionTiers['pro'];
       const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
       
-      // Create Checkout Session
-      const session = await stripe.checkout.sessions.create({
+      // Build session configuration with trial period
+      const sessionConfig: any = {
         mode: 'subscription',
         payment_method_types: ['card'],
         line_items: [
@@ -2742,9 +2743,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tierName: tier.name,
           userId: userId || '',
           type: 'subscription',
+          hasTrial: (!skipTrial && tier.trialDays > 0) ? 'true' : 'false',
         },
         allow_promotion_codes: true,
-      });
+      };
+      
+      // Add trial period for paid tiers (CC required upfront, but no charge for trial period)
+      if (!skipTrial && tier.trialDays > 0) {
+        sessionConfig.subscription_data = {
+          trial_period_days: tier.trialDays,
+          metadata: {
+            tierId,
+            tierName: tier.name,
+            trialDays: tier.trialDays.toString(),
+          }
+        };
+      }
+      
+      // Create Checkout Session with trial
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       res.json({ 
         checkoutUrl: session.url,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Star, Zap, Loader2, Crown, Rocket } from "lucide-react";
+import { CheckCircle, Star, Zap, Loader2, Crown, Rocket, CreditCard, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -17,6 +17,7 @@ interface SubscriptionTier {
   features: string[];
   popular?: boolean;
   icon: typeof Star;
+  trialDays?: number;
 }
 
 export default function Subscribe() {
@@ -31,31 +32,32 @@ export default function Subscribe() {
     {
       id: 'starter',
       name: 'Starter',
-      price: 49,
+      price: 29,
       description: 'Perfect for first-time buyers',
       icon: Star,
+      trialDays: 7,
       features: [
-        "5 CLEANBI Reports/month",
+        "Unlimited CLEANBI analyses",
         "Full property analysis",
-        "Competition mapping",
-        "Basic support",
-        "Export to PDF",
+        "AI-powered recommendations",
+        "3D Aerial View flyovers",
+        "Export PDF reports",
       ],
     },
     {
       id: 'pro',
       name: 'Pro',
-      price: 149,
+      price: 99,
       description: 'For serious investors',
       icon: Zap,
       popular: true,
+      trialDays: 7,
       features: [
-        "25 CLEANBI Reports/month",
-        "Advanced AI insights",
-        "Revenue projections",
-        "Market comparisons",
-        "Priority support",
-        "API access (100 calls)",
+        "Everything in Starter",
+        "ROI & Valuation calculators",
+        "Monte Carlo simulations",
+        "Drive-time catchment maps",
+        "API access (500 calls/mo)",
       ],
     },
     {
@@ -64,13 +66,13 @@ export default function Subscribe() {
       price: 699,
       description: 'For portfolios & brokers',
       icon: Crown,
+      trialDays: 14,
       features: [
-        "Unlimited CLEANBI Reports",
+        "Everything in Pro",
+        "Ownership & lien data",
+        "Motivated seller detection",
         "White-label reports",
-        "Custom branding",
-        "Dedicated account manager",
-        "API access (unlimited)",
-        "Team seats (5 included)",
+        "Unlimited API access",
       ],
     },
     {
@@ -79,13 +81,13 @@ export default function Subscribe() {
       price: 149,
       description: 'Complete POS system',
       icon: Rocket,
+      trialDays: 7,
       features: [
         "Unlimited transactions",
         "AI predictive maintenance",
         "Dynamic pricing engine",
         "Multi-location support",
         "Real-time analytics",
-        "IoT machine integration",
       ],
     },
   ];
@@ -192,9 +194,15 @@ export default function Subscribe() {
                         Processing...
                       </>
                     ) : (
-                      `Get ${tier.name}`
+                      `Start ${tier.trialDays || 7}-Day Free Trial`
                     )}
                   </Button>
+                  
+                  {/* Trial info with CC requirement */}
+                  <p className="text-xs text-white/60 text-center mt-3 flex items-center justify-center gap-1">
+                    <CreditCard className="h-3 w-3" />
+                    Credit card required • No charge until trial ends
+                  </p>
                 </CardContent>
               </Card>
             );
@@ -202,9 +210,16 @@ export default function Subscribe() {
         </div>
 
         <div className="text-center text-white/60 max-w-2xl mx-auto">
-          <p className="mb-4">
-            All plans include a 14-day money-back guarantee. Cancel anytime.
-          </p>
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
+            <span className="flex items-center gap-1">
+              <Shield className="h-4 w-4 text-emerald-400" />
+              30-day money-back guarantee
+            </span>
+            <span className="flex items-center gap-1">
+              <CreditCard className="h-4 w-4" />
+              Cancel anytime during trial
+            </span>
+          </div>
           <p className="text-sm">
             Already a subscriber?{' '}
             <Link href="/account" className="text-accent hover:underline">
