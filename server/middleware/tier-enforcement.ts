@@ -43,8 +43,8 @@ const TIER_NAMES: Record<SubscriptionTier, string> = {
 const TIER_PRICING: Record<SubscriptionTier, string> = {
   free: "$0/mo",
   starter: "$29/mo",
-  pro: "$79/mo",
-  enterprise: "Custom",
+  pro: "$99/mo",
+  enterprise: "$699/mo",
 };
 
 function getTierLevel(tier: string | null | undefined): number {

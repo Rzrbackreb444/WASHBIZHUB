@@ -548,7 +548,7 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
       monthlyLimit,
       totalLimit: -1,
       requiresUpgrade: true,
-      reason: `Daily limit reached (${dailyLimit}/day). Upgrade for more reports.`
+      reason: `Analysis limit reached (${dailyLimit} analyses). Upgrade for more reports.`
     };
   }
   

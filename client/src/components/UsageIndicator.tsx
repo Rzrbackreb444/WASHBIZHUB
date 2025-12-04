@@ -40,9 +40,9 @@ export function UsageIndicator({
       openUpgradeModal({
         feature: "cleanbi-unlimited",
         suggestedTier: "starter",
-        title: isAtLimit ? "Daily Limit Reached" : "Unlock Unlimited CLEANBI",
+        title: isAtLimit ? "Analysis Limit Reached" : "Unlock Unlimited CLEANBI",
         description: isAtLimit 
-          ? "You've used your free daily CLEANBI analysis. Upgrade for unlimited access."
+          ? "You've used all your free CLEANBI analyses. Upgrade for unlimited access."
           : "Upgrade to get unlimited location analyses and advanced insights."
       });
     }
@@ -74,9 +74,9 @@ export function UsageIndicator({
       return `${tier} tier - Unlimited CLEANBI analyses`;
     }
     if (isAtLimit) {
-      return "Daily limit reached. Click to upgrade for unlimited analyses.";
+      return "Analysis limit reached. Click to upgrade for unlimited analyses.";
     }
-    return `${remaining} of ${limit} CLEANBI analyses remaining today`;
+    return `${remaining} of ${limit} CLEANBI analyses remaining`;
   };
 
   if (isLoading) {

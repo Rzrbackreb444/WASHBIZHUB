@@ -454,8 +454,8 @@ export default function AccountSubscription() {
                       <Progress value={cleanbiPercentUsed} className="h-3 mt-3" />
                       <p className="text-xs text-muted-foreground mt-2">
                         {cleanbiRemaining > 0
-                          ? `${cleanbiRemaining} analyses remaining today`
-                          : "Daily limit reached"}
+                          ? `${cleanbiRemaining} analyses remaining`
+                          : "Limit reached"}
                       </p>
                     </>
                   )}
@@ -489,7 +489,7 @@ export default function AccountSubscription() {
                   <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
                     <p className="text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
-                      Upgrade to get unlimited daily analyses
+                      Upgrade to get unlimited analyses
                     </p>
                   </div>
                 )}

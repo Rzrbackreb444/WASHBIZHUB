@@ -82,7 +82,7 @@ const categories: FAQCategory[] = [
     faqs: [
       {
         q: "What subscription plans are available?",
-        a: "We offer 4 tiers: Free (1 CLEANBI/day, basic calculators), Starter ($29/mo - 50 CLEANBI/month, all calculators), Pro ($79/mo - unlimited CLEANBI, PDF reports, API access), Enterprise ($199/mo - team features, white-label, priority support)."
+        a: "We offer 4 tiers: Free (5 CLEANBI analyses total, basic calculators), Starter ($29/mo - unlimited analyses, all calculators), Pro ($99/mo - unlimited analyses, PDF reports, ROI calculators, API access), Enterprise ($699/mo - everything in Pro plus ownership data, team features, white-label, priority support)."
       },
       {
         q: "Do you offer annual discounts?",

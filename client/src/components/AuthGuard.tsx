@@ -51,7 +51,7 @@ export function AuthGuard({
               Sign In to Continue
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              Free account includes 1 CLEANBI analysis per day
+              Free account includes 5 CLEANBI analyses total
             </p>
           </CardContent>
         </Card>

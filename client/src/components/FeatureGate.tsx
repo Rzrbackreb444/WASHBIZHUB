@@ -112,13 +112,13 @@ interface TierBadgeProps {
 export function TierBadge({ tier, showLabel = true }: TierBadgeProps) {
   const variants: Record<SubscriptionTier, "default" | "secondary" | "outline"> = {
     free: "outline",
-    accelerate: "secondary",
-    scale: "default",
-    summit: "default",
+    starter: "secondary",
+    pro: "default",
+    enterprise: "default",
   };
 
   return (
-    <Badge variant={variants[tier]} className={tier === "summit" ? "bg-amber-500 hover:bg-amber-600" : ""}>
+    <Badge variant={variants[tier]} className={tier === "enterprise" ? "bg-amber-500 hover:bg-amber-600" : ""}>
       {showLabel && getTierDisplayName(tier)}
     </Badge>
   );

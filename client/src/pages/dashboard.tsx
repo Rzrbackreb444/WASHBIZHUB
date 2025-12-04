@@ -83,9 +83,9 @@ const QUICK_ACTIONS = [
 
 const TIER_INFO: Record<string, { icon: any; label: string; color: string }> = {
   free: { icon: Gift, label: "Free", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  accelerate: { icon: Zap, label: "Accelerate", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
-  scale: { icon: TrendingUp, label: "Scale", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400" },
-  summit: { icon: Crown, label: "Summit", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
+  starter: { icon: Zap, label: "Starter", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+  pro: { icon: TrendingUp, label: "Pro", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400" },
+  enterprise: { icon: Crown, label: "Enterprise", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
 };
 
 export default function Dashboard() {

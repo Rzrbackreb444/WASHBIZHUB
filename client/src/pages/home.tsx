@@ -605,7 +605,7 @@ export default function Home() {
     },
     {
       question: "What is the CLEANBI location score?",
-      answer: "CLEANBI is WashBizHub's proprietary location intelligence system that rates any address from 0-100 for business potential. Our 17-factor algorithm analyzes: rental density, household income, competition saturation, traffic patterns, parking availability, demographics, and more. Scores 85+ indicate excellent opportunities, 70-84 good potential, 55-69 fair, and below 55 needs strategic consideration. One free analysis per day."
+      answer: "CLEANBI is WashBizHub's proprietary location intelligence system that rates any address from 0-100 for business potential. Our 17-factor algorithm analyzes: rental density, household income, competition saturation, traffic patterns, parking availability, demographics, and more. Scores 85+ indicate excellent opportunities, 70-84 good potential, 55-69 fair, and below 55 needs strategic consideration. Free tier includes 5 analyses total."
     },
     {
       question: "What is the average ROI for a laundromat?",
@@ -1116,7 +1116,7 @@ export default function Home() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-foreground">Free</div>
                   <div className="text-3xl font-bold text-accent mt-1">$0</div>
-                  <p className="text-sm text-muted-foreground mt-2">1 CLEANBI/day, basic tools</p>
+                  <p className="text-sm text-muted-foreground mt-2">5 CLEANBI total, basic tools</p>
                   <Link href="/subscribe">
                     <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-free-tier">
                       Get Started
@@ -1146,7 +1146,7 @@ export default function Home() {
               <Card className="p-5 border border-border/50 bg-card">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-foreground">Pro</div>
-                  <div className="text-3xl font-bold text-accent mt-1">$79<span className="text-base font-normal text-muted-foreground">/mo</span></div>
+                  <div className="text-3xl font-bold text-accent mt-1">$99<span className="text-base font-normal text-muted-foreground">/mo</span></div>
                   <p className="text-sm text-muted-foreground mt-2">AI insights, bulk analysis</p>
                   <Link href="/pricing">
                     <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-pro-tier">
@@ -1160,7 +1160,7 @@ export default function Home() {
               <Card className="p-5 border border-border/50 bg-card">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-foreground">Enterprise</div>
-                  <div className="text-3xl font-bold text-accent mt-1">$199<span className="text-base font-normal text-muted-foreground">/mo</span></div>
+                  <div className="text-3xl font-bold text-accent mt-1">$699<span className="text-base font-normal text-muted-foreground">/mo</span></div>
                   <p className="text-sm text-muted-foreground mt-2">API access, white-label</p>
                   <Link href="/pricing">
                     <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-enterprise-tier">
