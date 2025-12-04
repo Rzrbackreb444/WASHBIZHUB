@@ -4994,10 +4994,17 @@ Disallow: /private/`;
   });
 
   // ==================== SEO: INDEXNOW KEY FILE ====================
+  // Standard location
   app.get("/indexnow-key.txt", (_req, res) => {
     const key = getIndexNowKey();
     res.header('Content-Type', 'text/plain');
     res.send(key);
+  });
+  
+  // IndexNow requires the key file at /{key}.txt format for verification
+  app.get("/d8dd574359317a7a428e5402f039fd0a.txt", (_req, res) => {
+    res.header('Content-Type', 'text/plain');
+    res.send("d8dd574359317a7a428e5402f039fd0a");
   });
 
   // ==================== VENDOR MARKETPLACE ====================
