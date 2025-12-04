@@ -87,6 +87,20 @@ const multerUpload = multer({
     }
   }
 });
+
+// Configure multer for image uploads (broker flyers, listing images)
+const multerImageUpload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max for images
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files (JPEG, PNG, GIF, WebP) are allowed'));
+    }
+  }
+});
 import {
   insertDesignSchema,
   insertCleanbiScoreSchema,
@@ -11013,6 +11027,39 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("PDF extraction error:", error);
       res.status(500).json({ error: "PDF extraction failed", message: error.message });
+    }
+  });
+
+  // ========== AI LISTING IMAGE ANALYZER ==========
+  // Extracts listing data from broker flyer images using Gemini Vision
+  const { analyzeListingImage } = await import('./listing-image-analyzer');
+  
+  app.post("/api/listings/analyze-image", multerImageUpload.single("image"), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file uploaded" });
+      }
+
+      const imageBase64 = req.file.buffer.toString("base64");
+      const mimeType = req.file.mimetype || "image/jpeg";
+
+      console.log(`📸 Analyzing listing image: ${req.file.originalname} (${mimeType})`);
+
+      const extractedData = await analyzeListingImage(imageBase64, mimeType);
+
+      console.log(`✅ Extracted listing data with ${Math.round(extractedData.confidence * 100)}% confidence`);
+
+      res.json({
+        success: true,
+        data: extractedData,
+        message: `Successfully extracted listing data with ${Math.round(extractedData.confidence * 100)}% confidence`
+      });
+    } catch (error: any) {
+      console.error("Listing image analysis error:", error);
+      res.status(500).json({ 
+        error: "Image analysis failed", 
+        message: error.message || "Unable to extract listing data from image"
+      });
     }
   });
 

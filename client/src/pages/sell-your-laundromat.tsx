@@ -232,7 +232,7 @@ export default function SellYourLaundromat() {
                 Our buyers come pre-qualified and ready to move.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
                 <Link href="/listing-form">
                   <Button size="lg" className="w-full sm:w-auto gap-2 bg-green-600 hover:bg-green-700 text-lg px-8 py-6" data-testid="button-list-free">
                     List for Free
@@ -242,6 +242,16 @@ export default function SellYourLaundromat() {
                 <Link href="/cleanbi">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-lg px-8 py-6 border-slate-600 hover:bg-slate-800" data-testid="button-get-valuation">
                     Get Free Valuation First
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="flex justify-center mb-12">
+                <Link href="/add-listing-from-image">
+                  <Button variant="ghost" className="gap-2 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10" data-testid="button-quick-list">
+                    <Sparkles className="w-4 h-4" />
+                    Have a broker flyer? Upload image for instant listing
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </div>
