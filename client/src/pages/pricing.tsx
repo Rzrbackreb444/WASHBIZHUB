@@ -87,7 +87,7 @@ export default function Pricing() {
       icon: Map,
       features: [
         { name: "CLEANBI Score & Grade", free: true, starter: true, pro: true, enterprise: true },
-        { name: "Daily Analyses", free: "1/day", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
+        { name: "Location Analyses", free: "5 total", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
         { name: "Competitor Count", free: true, starter: true, pro: true, enterprise: true },
         { name: "Street View Access", free: true, starter: true, pro: true, enterprise: true },
         { name: "Save & Share Analyses", free: true, starter: true, pro: true, enterprise: true },
@@ -226,7 +226,7 @@ export default function Pricing() {
   ];
 
   const speakableContent = [
-    "CLEANBI Explorer pricing starts at free with 1 analysis per day. Starter is $29 per month for unlimited analyses. Pro is $99 per month with ROI calculators and API access. Enterprise is $699 per month with ownership data and dedicated support.",
+    "CLEANBI Explorer pricing starts at free with 5 location analyses. Starter is $29 per month for unlimited analyses. Pro is $99 per month with ROI calculators and API access. Enterprise is $699 per month with ownership data and dedicated support.",
     "All paid plans include a 7-day free trial and 30-day money-back guarantee. Annual billing saves up to 17%."
   ];
 
@@ -234,7 +234,7 @@ export default function Pricing() {
     <>
       <SEO 
         title="CLEANBI Pricing Plans - Location Intelligence for Laundromat Investors"
-        description="Score any location for laundromat investment potential. Free: 1 analysis/day. Starter: $29/mo unlimited. Pro: $99/mo with calculators & API. Enterprise: $699/mo with ownership data. 7-day free trial, 30-day money-back guarantee."
+        description="Score any location for laundromat investment potential. Free: 5 analyses total. Starter: $29/mo unlimited. Pro: $99/mo with calculators & API. Enterprise: $699/mo with ownership data. 7-day free trial, 30-day money-back guarantee."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
