@@ -236,6 +236,7 @@ const CityLanding = lazy(() => import("@/pages/city-landing"));
 const AddListing = lazy(() => import("@/pages/add-listing"));
 const SellYourLaundromat = lazy(() => import("@/pages/sell-your-laundromat"));
 const ListingForm = lazy(() => import("@/pages/listing-form"));
+const AddListingFromImage = lazy(() => import("@/pages/add-listing-from-image"));
 const VendorForm = lazy(() => import("@/pages/vendor-form"));
 const ListingDetail = lazy(() => import("@/pages/listing-detail"));
 const FeaturedListings = lazy(() => import("@/pages/featured-listings"));
@@ -383,7 +384,7 @@ function Router() {
       </Route>
       <Route path="/sell-your-laundromat">
         <Suspense fallback={<LoadingFallback />}>
-          <ListYourLaundromat />
+          <SellYourLaundromat />
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
@@ -1047,6 +1048,11 @@ function Router() {
       <Route path="/listing-form">
         <Suspense fallback={<LoadingFallback />}>
           <ListingForm />
+        </Suspense>
+      </Route>
+      <Route path="/add-listing-from-image">
+        <Suspense fallback={<LoadingFallback />}>
+          <AddListingFromImage />
         </Suspense>
       </Route>
       
