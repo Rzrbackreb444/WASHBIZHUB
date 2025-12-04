@@ -68,14 +68,31 @@ export function Header() {
       {/* Stripe-style top announcement bar */}
       <div className="bg-primary" data-testid="trust-bar">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center py-2.5 gap-4 sm:gap-8 text-xs sm:text-sm">
-            <span className="text-primary-foreground/80 hidden sm:inline">220+ Countries</span>
-            <span className="text-primary-foreground/40 hidden sm:inline">|</span>
-            <span className="text-primary-foreground font-medium">72,000+ Members</span>
-            <span className="text-primary-foreground/40 hidden md:inline">|</span>
-            <span className="text-primary-foreground/80 hidden md:inline">50+ Business Tools</span>
-            <span className="text-primary-foreground/40 hidden lg:inline">|</span>
-            <span className="text-accent font-semibold hidden lg:inline">#1 Laundromat Platform</span>
+          <div className="flex items-center justify-between py-2.5 text-xs sm:text-sm">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span className="text-primary-foreground font-medium">72,000+ Members</span>
+              <span className="text-primary-foreground/40 hidden sm:inline">|</span>
+              <span className="text-primary-foreground/80 hidden sm:inline">50+ Business Tools</span>
+              <span className="text-primary-foreground/40 hidden lg:inline">|</span>
+              <span className="text-accent font-semibold hidden lg:inline">#1 Laundromat Platform</span>
+            </div>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <a 
+                href="tel:479-883-4314" 
+                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden sm:flex items-center gap-1.5"
+                data-testid="link-phone"
+              >
+                <span className="hidden md:inline">(479) 883-4314</span>
+                <span className="md:hidden">Call Us</span>
+              </a>
+              <a 
+                href="mailto:consult@washbizhub.com" 
+                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden md:flex items-center gap-1.5"
+                data-testid="link-email"
+              >
+                consult@washbizhub.com
+              </a>
+            </div>
           </div>
         </div>
       </div>
