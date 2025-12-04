@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2024-06-20" as any });
+// Initialize Stripe only if secret key is available
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" as any })
+  : null;
 
 // ============================================================================
 // ADVERTISING PRODUCTS/PRICING
