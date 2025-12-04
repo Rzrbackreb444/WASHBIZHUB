@@ -185,6 +185,8 @@ const EquipmentDiagnostics = lazy(() => import("@/pages/equipment-diagnostics"))
 const EquipmentFinancing = lazy(() => import("@/pages/equipment-financing"));
 const ListEquipment = lazy(() => import("@/pages/list-equipment"));
 const ListSupplies = lazy(() => import("@/pages/list-supplies"));
+const ListServices = lazy(() => import("@/pages/list-services"));
+const ListOnWashBizHub = lazy(() => import("@/pages/list-on-washbizhub"));
 
 // Superstore
 const Superstore = lazy(() => import("@/pages/superstore"));
@@ -880,6 +882,16 @@ function Router() {
       <Route path="/list-supplies">
         <Suspense fallback={<LoadingFallback />}>
           <ListSupplies />
+        </Suspense>
+      </Route>
+      <Route path="/list-services">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListServices />
+        </Suspense>
+      </Route>
+      <Route path="/list-on-washbizhub">
+        <Suspense fallback={<LoadingFallback />}>
+          <ListOnWashBizHub />
         </Suspense>
       </Route>
 

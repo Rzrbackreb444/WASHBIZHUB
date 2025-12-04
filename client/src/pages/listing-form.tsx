@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,9 +81,14 @@ const DEPTH_OPTIONS: { value: DetailLevel; label: string; description: string; i
 export default function ListingForm() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const [detailLevel, setDetailLevel] = useState<DetailLevel | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [createdListing, setCreatedListing] = useState<Listing | null>(null);
+  
+  const searchParams = new URLSearchParams(search);
+  const saleType = searchParams.get('type');
+  const includesRealEstateDefault = saleType === 'with-real-estate';
   
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingFormSchema),
@@ -95,13 +100,21 @@ export default function ListingForm() {
       country: 'US',
       addressVisibility: 'general',
       ownerFinancing: false,
-      includesRealEstate: false,
+      includesRealEstate: includesRealEstateDefault,
       requiresNDA: false,
       tagline: '',
       description: '',
       detailLevel: 'quick',
     },
   });
+  
+  useEffect(() => {
+    if (saleType === 'with-real-estate') {
+      form.setValue('includesRealEstate', true);
+    } else {
+      form.setValue('includesRealEstate', false);
+    }
+  }, [saleType, form]);
 
   const getSteps = (level: DetailLevel) => {
     const base = ['essentials'];
@@ -227,10 +240,24 @@ export default function ListingForm() {
             </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 text-center">
-              <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30 px-3 py-1 mb-4">
-                <Crown className="w-3.5 h-3.5 mr-1" />
-                Seller Portal
-              </Badge>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Badge className="bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30 px-3 py-1">
+                  <Crown className="w-3.5 h-3.5 mr-1" />
+                  Seller Portal
+                </Badge>
+                {saleType && (
+                  <Badge 
+                    variant="outline" 
+                    className={`${
+                      saleType === 'with-real-estate' 
+                        ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' 
+                        : 'border-blue-500/50 text-blue-400 bg-blue-500/10'
+                    }`}
+                  >
+                    {saleType === 'with-real-estate' ? 'With Real Estate' : 'Asset Sale Only'}
+                  </Badge>
+                )}
+              </div>
               <h1 className="text-3xl sm:text-4xl font-black text-white mb-3">
                 Create Your Listing
               </h1>
@@ -341,9 +368,23 @@ export default function ListingForm() {
                 Change
               </Button>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">
-              Create Your Listing
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl sm:text-4xl font-black text-white">
+                Create Your Listing
+              </h1>
+              {saleType && (
+                <Badge 
+                  variant="outline" 
+                  className={`${
+                    saleType === 'with-real-estate' 
+                      ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' 
+                      : 'border-blue-500/50 text-blue-400 bg-blue-500/10'
+                  }`}
+                >
+                  {saleType === 'with-real-estate' ? 'With Real Estate' : 'Asset Sale'}
+                </Badge>
+              )}
+            </div>
             <p className="text-white/70 mb-6">
               Reach 72,000+ qualified buyers on the #1 laundromat marketplace
             </p>

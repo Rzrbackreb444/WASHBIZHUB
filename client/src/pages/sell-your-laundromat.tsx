@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,11 +7,49 @@ import { SEO } from "@/components/SEO";
 import { 
   Users, TrendingUp, DollarSign, Shield, Clock, CheckCircle, 
   ArrowRight, Star, Zap, Crown, ChevronRight, MessageSquare,
-  Eye, BarChart3, Target, Sparkles, FileEdit, PartyPopper, Phone, Mail
+  Eye, BarChart3, Target, Sparkles, FileEdit, PartyPopper, Phone, Mail,
+  Building2, Package, Key, HelpCircle
 } from "lucide-react";
 
 const CONSULT_EMAIL = "consult@washbizhub.com";
 const OWNER_PHONE = "479-883-4314";
+
+const saleTypes = [
+  {
+    id: "asset-sale",
+    title: "Asset Sale Only",
+    subtitle: "Equipment + Lease Assignment",
+    description: "Sell your equipment, customer base, and assign your lease to the buyer. You don't own the real estate.",
+    icon: Package,
+    color: "from-blue-500 to-blue-600",
+    features: [
+      "Equipment inventory included",
+      "Customer base transfer",
+      "Lease assignment to buyer",
+      "Faster closing process",
+      "Lower transaction costs"
+    ],
+    avgPrice: "$75K - $300K",
+    timeline: "30-60 days"
+  },
+  {
+    id: "with-real-estate",
+    title: "Business + Real Estate",
+    subtitle: "Complete Property Sale",
+    description: "Sell your entire operation including the building and land. Maximum value for owner-operators.",
+    icon: Building2,
+    color: "from-emerald-500 to-emerald-600",
+    features: [
+      "Building & land included",
+      "All equipment included",
+      "No landlord negotiations",
+      "Higher total sale price",
+      "Attractive to investors"
+    ],
+    avgPrice: "$500K - $2M+",
+    timeline: "60-120 days"
+  }
+];
 
 const buyerStats = {
   activeUsers: 120,
@@ -155,6 +194,8 @@ const faqs = [
 ];
 
 export default function SellYourLaundromat() {
+  const [selectedSaleType, setSelectedSaleType] = useState<string | null>(null);
+
   return (
     <>
       <SEO 
@@ -219,6 +260,104 @@ export default function SellYourLaundromat() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Sale Type Selector */}
+        <section className="py-16 border-t border-slate-800 bg-slate-900/50">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <Badge variant="outline" className="mb-4 border-amber-500/30 text-amber-400">
+                <HelpCircle className="w-3 h-3 mr-1" />
+                First, tell us about your sale
+              </Badge>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                What are you selling?
+              </h2>
+              <p className="text-slate-400 max-w-xl mx-auto">
+                Choose your sale type to get the right valuation and connect with the right buyers
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {saleTypes.map((type) => (
+                <Card 
+                  key={type.id}
+                  className={`relative cursor-pointer transition-all duration-300 ${
+                    selectedSaleType === type.id 
+                      ? 'ring-2 ring-green-500 bg-slate-800/80' 
+                      : 'border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50'
+                  }`}
+                  onClick={() => setSelectedSaleType(type.id)}
+                  data-testid={`sale-type-${type.id}`}
+                >
+                  {selectedSaleType === type.id && (
+                    <div className="absolute -top-3 -right-3">
+                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                  )}
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-lg bg-gradient-to-br ${type.color}`}>
+                        <type.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-white text-lg">{type.title}</CardTitle>
+                        <p className="text-sm text-slate-400 mt-1">{type.subtitle}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-slate-300">{type.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-3 py-3 border-y border-slate-700/50">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Typical Price</p>
+                        <p className="text-lg font-bold text-white">{type.avgPrice}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Timeline</p>
+                        <p className="text-lg font-bold text-white">{type.timeline}</p>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-2">
+                      {type.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm text-slate-400">
+                          <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {selectedSaleType && (
+              <div className="mt-8 text-center">
+                <Link href={`/listing-form?type=${selectedSaleType}`}>
+                  <Button size="lg" className="gap-2 bg-green-600 hover:bg-green-700 text-lg px-8 py-6" data-testid="button-continue-listing">
+                    Continue to List Your {selectedSaleType === 'asset-sale' ? 'Business' : 'Property'}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            <div className="mt-8 text-center">
+              <p className="text-slate-500 text-sm">
+                Not sure which option fits your situation?{" "}
+                <a 
+                  href={`mailto:${CONSULT_EMAIL}?subject=Help%20Choosing%20Sale%20Type`}
+                  className="text-green-400 hover:text-green-300 underline"
+                >
+                  Talk to an expert
+                </a>
+              </p>
             </div>
           </div>
         </section>
