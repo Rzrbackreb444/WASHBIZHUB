@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle, DollarSign, Building2, TrendingUp } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
 
 const RE_PARTNERS = [
   {
@@ -209,9 +210,9 @@ export default function RealEstateFinancing() {
         breadcrumbs={REAL_ESTATE_BREADCRUMBS}
         structuredData={FINANCIAL_SERVICE_SCHEMA}
         author={{
-          name: "WashBizHub",
-          expertise: "Laundromat Industry Expert",
-          credentials: "Leading laundromat resource platform with commercial real estate financing partnerships"
+          name: "Nicholas Kremers",
+          expertise: "Laundromat Industry Advisor",
+          credentials: "Founder of WashBizHub, helping entrepreneurs secure commercial real estate financing"
         }}
       />
 
@@ -230,6 +231,10 @@ export default function RealEstateFinancing() {
               Enterprise to SBA-backed programs available
             </Badge>
           </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <TrustSignals />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
@@ -466,6 +471,14 @@ export default function RealEstateFinancing() {
               </a>
             </div>
           </div>
+
+          <AuthorExpertise variant="full" />
+
+          <RelatedFundingPaths currentPath="/real-estate-financing" />
+
+          <ConsultationCTA />
+
+          <FundingDisclaimer />
         </div>
       </div>
     </>
