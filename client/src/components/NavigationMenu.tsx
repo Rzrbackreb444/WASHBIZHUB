@@ -44,6 +44,7 @@ const PRODUCTS_LINKS = [
 ];
 
 const MARKETPLACE_LINKS = [
+  { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Sparkles, desc: "Sell your business, equipment, or services", featured: true },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings" },
   { href: "/equipment-marketplace", label: "Equipment Marketplace", icon: Package, desc: "Buy & sell equipment" },
   { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
