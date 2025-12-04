@@ -7,6 +7,7 @@ import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
 import { CredibilityBar } from "@/components/CredibilityBar";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
+import { EquipmentCarousel } from "@/components/EquipmentCarousel";
 import {
   FeaturesSection,
   TrustSignalsSection,
@@ -764,6 +765,9 @@ export default function Home() {
         
         {/* FEATURED LISTINGS CAROUSEL - Real verified listings */}
         <FeaturedListingsCarousel />
+        
+        {/* EQUIPMENT MARKETPLACE CAROUSEL - Buy & Sell Equipment */}
+        <EquipmentCarousel showListCTA={true} />
         
         {/* EXPERT SERVICES FUNNEL - AI Council → Larry → Funding */}
         <section className="py-16 md:py-20 bg-gradient-to-br from-background via-muted/60 to-background dark:from-background dark:via-muted/40 dark:to-background" data-testid="section-expert-services">
