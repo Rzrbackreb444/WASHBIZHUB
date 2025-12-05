@@ -320,6 +320,7 @@ const Login = lazy(() => import("@/pages/login"));
 const Signup = lazy(() => import("@/pages/signup"));
 const AuthVerify = lazy(() => import("@/pages/auth-verify"));
 const ForgotPassword = lazy(() => import("@/pages/forgot-password"));
+const VerifyEmail = lazy(() => import("@/pages/verify-email"));
 const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
 const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
 const TermsOfService = lazy(() => import("@/pages/terms"));
@@ -1283,6 +1284,11 @@ function Router() {
       <Route path="/forgot-password">
         <Suspense fallback={<LoadingFallback />}>
           <ForgotPassword />
+        </Suspense>
+      </Route>
+      <Route path="/verify-email">
+        <Suspense fallback={<LoadingFallback />}>
+          <VerifyEmail />
         </Suspense>
       </Route>
 

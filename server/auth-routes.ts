@@ -78,8 +78,10 @@ router.post("/register", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Password must be at least 8 characters" });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if user already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    const existingUser = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
     
     if (existingUser.length > 0) {
       // Check if they have a password (email/password user) or just OAuth
@@ -102,6 +104,7 @@ router.post("/register", async (req: Request, res: Response) => {
         return res.json({ 
           success: true, 
           message: "Password added to your account",
+          emailVerified: existingUser[0].emailVerified,
           user: { 
             id: existingUser[0].id, 
             email: existingUser[0].email,
@@ -115,21 +118,86 @@ router.post("/register", async (req: Request, res: Response) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Generate verification token
+    const verificationToken = generateToken();
+    const tokenHash = await bcrypt.hash(verificationToken, 10);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Create new user
     const [newUser] = await db.insert(users).values({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       passwordHash,
       firstName: firstName || null,
       lastName: lastName || null,
       emailVerified: false,
+      emailVerificationToken: tokenHash,
+      emailVerificationExpires: expiresAt,
     }).returning();
 
-    // Set session
+    // Set session (user can use site but with limited access until verified)
     (req as any).session.userId = newUser.id;
+
+    // Send verification email
+    try {
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : (process.env.BASE_URL || 'https://washbizhub.com');
+      const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(normalizedEmail)}`;
+      
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
+            <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
+          </div>
+          
+          <h2 style="color: #333;">Welcome to WashBizHub, ${firstName || 'there'}!</h2>
+          
+          <p style="color: #555; font-size: 16px; line-height: 1.6;">
+            Thank you for creating an account. Please verify your email address by clicking the button below.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" 
+               style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Verify Email Address
+            </a>
+          </div>
+          
+          <p style="color: #555; font-size: 14px; line-height: 1.6;">
+            This link expires in 24 hours. After verification, you'll have full access to:
+          </p>
+          <ul style="color: #555; font-size: 14px; line-height: 1.8;">
+            <li>CLEANBI location analysis</li>
+            <li>ROI & valuation calculators</li>
+            <li>Laundromat marketplace</li>
+            <li>Community forum</li>
+            <li>Educational courses</li>
+          </ul>
+          
+          <p style="color: #888; font-size: 14px;">
+            If you didn't create this account, you can safely ignore this email.
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+          
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
+          </p>
+        </div>
+      `;
+      
+      await sendEmail(normalizedEmail, "Verify your WashBizHub email", emailHtml);
+      console.log(`✅ Verification email sent to ${normalizedEmail}`);
+    } catch (emailError: any) {
+      console.error("Failed to send verification email:", emailError);
+      // Don't fail registration if email fails, but log it
+    }
 
     res.json({ 
       success: true, 
-      message: "Account created successfully",
+      message: "Account created! Please check your email to verify your account.",
+      emailVerified: false,
       user: { 
         id: newUser.id, 
         email: newUser.email,
@@ -283,7 +351,9 @@ router.post("/magic-link/request", async (req: Request, res: Response) => {
     }
 
     // Build magic link URL
-    const baseUrl = `https://${req.hostname}`;
+    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+      : (process.env.BASE_URL || 'https://washbizhub.com');
     const magicLink = `${baseUrl}/auth/verify?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
 
     // Send email via Resend
@@ -381,7 +451,9 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
       .where(eq(users.id, user.id));
 
     // Build reset URL
-    const baseUrl = `https://${req.hostname}`;
+    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+      : (process.env.BASE_URL || 'https://washbizhub.com');
     const resetLink = `${baseUrl}/forgot-password?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
 
     // Send email
@@ -579,6 +651,185 @@ router.post("/magic-link/verify", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Magic link verify error:", error);
     res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
+
+// ==================== EMAIL VERIFICATION ====================
+
+// Verify email address (from registration link)
+router.post("/verify-email", async (req: Request, res: Response) => {
+  try {
+    const { token, email } = req.body;
+
+    if (!token || !email) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Find user by email
+    const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    if (user.emailVerified) {
+      return res.json({ 
+        success: true, 
+        message: "Email already verified! You can sign in.",
+        alreadyVerified: true
+      });
+    }
+
+    // Check if token exists and hasn't expired
+    if (!user.emailVerificationToken || !user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Verification link has expired. Please request a new one." });
+    }
+
+    if (new Date() > user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Verification link has expired. Please request a new one." });
+    }
+
+    // Verify token
+    const isValid = await bcrypt.compare(token, user.emailVerificationToken);
+    
+    if (!isValid) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    // Mark email as verified and clear token
+    await db.update(users)
+      .set({
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        emailVerified: true,
+      })
+      .where(eq(users.id, user.id));
+
+    // Set session if not already logged in
+    (req as any).session.userId = user.id;
+
+    res.json({ 
+      success: true, 
+      message: "Email verified successfully! Welcome to WashBizHub.",
+      user: { 
+        id: user.id, 
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailVerified: true,
+      }
+    });
+  } catch (error: any) {
+    console.error("Email verification error:", error);
+    res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
+
+// Resend verification email
+router.post("/resend-verification", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).session?.userId;
+    const { email } = req.body;
+    
+    let userEmail = email;
+    
+    // If user is logged in, get their email
+    if (userId) {
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (user) {
+        if (user.emailVerified) {
+          return res.json({ success: true, message: "Email already verified!" });
+        }
+        userEmail = user.email;
+      }
+    }
+
+    if (!userEmail) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const normalizedEmail = userEmail.toLowerCase().trim();
+
+    // Rate limiting
+    if (!checkRateLimit(normalizedEmail)) {
+      return res.status(429).json({ 
+        error: "Too many requests. Please wait 15 minutes before trying again." 
+      });
+    }
+
+    // Find user
+    const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      // Don't reveal if email exists
+      return res.json({ success: true, message: "If this email exists, a verification link will be sent." });
+    }
+
+    if (user.emailVerified) {
+      return res.json({ success: true, message: "Email already verified!" });
+    }
+
+    // Generate new verification token
+    const verificationToken = generateToken();
+    const tokenHash = await bcrypt.hash(verificationToken, 10);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await db.update(users)
+      .set({
+        emailVerificationToken: tokenHash,
+        emailVerificationExpires: expiresAt,
+      })
+      .where(eq(users.id, user.id));
+
+    // Send verification email
+    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+      : (process.env.BASE_URL || 'https://washbizhub.com');
+    const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(normalizedEmail)}`;
+    
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #C8A661; margin: 0;">WashBizHub</h1>
+          <p style="color: #666; margin-top: 5px;">The #1 Laundromat Industry Platform</p>
+        </div>
+        
+        <h2 style="color: #333;">Verify Your Email Address</h2>
+        
+        <p style="color: #555; font-size: 16px; line-height: 1.6;">
+          Click the button below to verify your email address and unlock full access to WashBizHub.
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationLink}" 
+             style="background-color: #C8A661; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Verify Email Address
+          </a>
+        </div>
+        
+        <p style="color: #888; font-size: 14px;">
+          This link expires in 24 hours. If you didn't request this, you can safely ignore this email.
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+        
+        <p style="color: #999; font-size: 12px; text-align: center;">
+          &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
+        </p>
+      </div>
+    `;
+    
+    await sendEmail(normalizedEmail, "Verify your WashBizHub email", emailHtml);
+
+    res.json({ 
+      success: true, 
+      message: "Verification email sent! Please check your inbox." 
+    });
+  } catch (error: any) {
+    console.error("Resend verification error:", error);
+    res.status(500).json({ error: "Failed to send verification email. Please try again." });
   }
 });
 

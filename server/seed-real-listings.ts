@@ -7,6 +7,116 @@ const realListings = [
   {
     listing: {
       businessType: "laundromat",
+      listingType: "owner",
+      title: "Brooklyn Coin Laundry - 740 Myrtle Ave",
+      description: `Prime Brooklyn laundromat opportunity in high-traffic Myrtle Avenue location! This well-established, recently renovated coin-operated laundromat offers excellent cash flow with approximately $4,000 weekly revenue (~$16,000/month).
+
+PROPERTY HIGHLIGHTS:
+• 740 Myrtle Ave, Brooklyn, NY - High-visibility corner location
+• Recently renovated interior with clean, welcoming atmosphere
+• Basement cleaned out and available for storage/expansion
+• Owner selling due to personal reasons - motivated seller!
+
+EQUIPMENT (37 Total Machines):
+• 17 Washers: 9 x 18 lb, 6 x 40 lb, 2 x 50 lb capacity
+• 20 Commercial Dryers
+• All machines refurbished from 2005
+• 100% coin-operated for simple, proven cash flow
+
+LEASE TERMS:
+• $5,000/month rent
+• 10 years remaining on lease - long-term stability
+• Excellent terms for new ownership
+
+FINANCIALS:
+• Asking Price: $220,000
+• Weekly Revenue: ~$4,000
+• Monthly Revenue: ~$16,000
+• Annual Revenue: ~$208,000
+
+Perfect for first-time buyers or experienced operators looking for a turnkey Brooklyn location with strong demographics and proven revenue.
+
+CONTACT: Steve - 516-669-1814 (call/text for more info)`,
+      tagline: "Renovated Brooklyn Laundromat - $4K Weekly Revenue - 10 Year Lease - Motivated Seller",
+      priceOriginal: "220000",
+      currency: "USD",
+      priceInUSD: "220000",
+      priceVisibility: "public",
+      includesRealEstate: false,
+      ownerFinancing: false,
+      country: "US",
+      region: "NY",
+      city: "Brooklyn",
+      generalLocation: "Brooklyn - Myrtle Avenue Corridor",
+      exactAddress: "740 Myrtle Ave, Brooklyn, NY",
+      latitude: "40.6944",
+      longitude: "-73.9537",
+      addressVisibility: "public",
+      featuredImage: "/attached_assets/image_1764920569059.png",
+      status: "active",
+      featured: true,
+      prioritySearch: true,
+      visibilityBoost: 3,
+      subscriptionTier: "showcase",
+      mediaLimit: 30,
+      videoLimit: 5,
+      seoTitle: "Laundromat For Sale Brooklyn NY - 740 Myrtle Ave | $220K",
+      seoDescription: "Brooklyn laundromat for sale on Myrtle Ave. $4K weekly revenue, 37 machines, 10-year lease, recently renovated. Motivated seller asking $220K.",
+      seoKeywords: ["laundromat for sale brooklyn", "coin laundry for sale nyc", "brooklyn laundromat investment", "myrtle ave laundromat"],
+      slug: "brooklyn-coin-laundry-740-myrtle-ave",
+      requiresNDA: false,
+      hasValuationReport: false,
+      detailLevel: "full",
+      completenessScore: 85,
+      listedAt: new Date(),
+      brokerName: "Steve (Owner)",
+      brokerPhone: "516-669-1814",
+    },
+    financials: {
+      grossRevenueOriginal: "208000",
+      netRevenueOriginal: "104000",
+      averageMonthlyRevenueOriginal: "16000",
+      grossRevenueUSD: "208000",
+      netRevenueUSD: "104000",
+      averageMonthlyRevenueUSD: "16000",
+      rentOriginal: "5000",
+      utilitiesOriginal: "3000",
+      laborOriginal: "0",
+      maintenanceOriginal: "800",
+      insuranceOriginal: "400",
+      otherExpensesOriginal: "800",
+      totalExpensesOriginal: "10000",
+      rentUSD: "5000",
+      utilitiesUSD: "3000",
+      laborUSD: "0",
+      maintenanceUSD: "800",
+      insuranceUSD: "400",
+      otherExpensesUSD: "800",
+      totalExpensesUSD: "10000",
+      netIncomeOriginal: "104000",
+      ebitdaOriginal: "104000",
+      cashFlowOriginal: "104000",
+      netIncomeUSD: "104000",
+      ebitdaUSD: "104000",
+      cashFlowUSD: "104000",
+      profitMargin: "50.00",
+      roi: "47.27",
+      paybackPeriodMonths: 25,
+      financialYear: 2024,
+      currency: "USD",
+      verified: false,
+    },
+    equipment: [
+      { equipmentType: "washer", brand: "Various", model: "Front Load 18lb", capacity: 18, quantity: 9, condition: "good", yearInstalled: 2005, turnsPerDay: 5, notes: "Refurbished" },
+      { equipmentType: "washer", brand: "Various", model: "Front Load 40lb", capacity: 40, quantity: 6, condition: "good", yearInstalled: 2005, turnsPerDay: 4, notes: "Refurbished" },
+      { equipmentType: "washer", brand: "Various", model: "Front Load 50lb", capacity: 50, quantity: 2, condition: "good", yearInstalled: 2005, turnsPerDay: 4, notes: "Refurbished" },
+      { equipmentType: "dryer", brand: "Various", model: "Commercial Dryer", capacity: 30, quantity: 20, condition: "good", yearInstalled: 2005, turnsPerDay: 5, notes: "Refurbished" },
+      { equipmentType: "payment_system", brand: "Coin-Op", model: "Quarter Slots", capacity: 0, quantity: 1, condition: "good", yearInstalled: 2005, notes: "All coin machine operation" },
+    ]
+  },
+  {
+    listing: {
+      businessType: "laundromat",
       listingType: "broker",
       title: "Modern Coin Laundry - 6226 S. Western Ave",
       description: `Newly remodeled laundromat in prime Los Angeles location with excellent demographics. This 2,070 sq ft facility features state-of-the-art Girbau equipment with Kiosoft card payment system. Located in a high-traffic neighborhood corner with exceptional visibility and parking. Population of 43,000+ within 1-mile radius with 65%+ Hispanic demographics and high renter concentration (45%+). 15-year lease in place with two 5-year options. Site analysis score of 58 points (Excellent Location). Premium opportunity for experienced operators or investors.

@@ -198,6 +198,8 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
@@ -272,12 +274,13 @@ export default function Signup() {
       }
 
       toast({
-        title: "Welcome to WashBizHub!",
-        description: "Your account has been created successfully.",
+        title: "Check Your Email!",
+        description: "We've sent a verification link to complete your registration.",
       });
 
+      setRegisteredEmail(email);
+      setRegistrationSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setLocation("/");
     } catch (err) {
       setError("Registration failed. Please try again.");
     } finally {
@@ -307,6 +310,140 @@ export default function Signup() {
 
   if (isLoading) {
     return <SignupSkeleton />;
+  }
+
+  if (registrationSuccess) {
+    return (
+      <>
+        <SEO
+          title="Check Your Email - WashBizHub"
+          description="Please verify your email to complete registration"
+          canonicalUrl="/signup"
+          ogType="website"
+        />
+        <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 auth-gradient-bg">
+          <motion.div 
+            className="w-full max-w-md space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className="text-center space-y-3"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex justify-center">
+                <div 
+                  className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center shadow-lg"
+                  aria-hidden="true"
+                >
+                  <Mail className="w-10 h-10 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Check Your Email</h1>
+              <p className="text-muted-foreground text-base sm:text-lg">
+                We've sent a verification link to
+              </p>
+              <p className="font-semibold text-foreground text-lg">
+                {registeredEmail}
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card className="shadow-lg border-border/50">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="p-4 bg-accent/5 border border-accent/20 rounded-lg space-y-2">
+                    <h3 className="font-medium text-sm">What's next?</h3>
+                    <ul className="text-sm text-muted-foreground space-y-1.5">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        Check your inbox for the verification email
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        Click the verification link in the email
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        You'll be automatically signed in
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="text-center text-sm text-muted-foreground">
+                    <p>
+                      Didn't receive the email? Check your spam folder or{" "}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch("/api/auth/email/resend-verification", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ email: registeredEmail }),
+                            });
+                            if (response.ok) {
+                              toast({
+                                title: "Verification email sent!",
+                                description: "Please check your inbox.",
+                              });
+                            }
+                          } catch (err) {
+                            toast({
+                              title: "Failed to resend",
+                              description: "Please try again later.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        className="text-primary hover:underline font-medium"
+                        data-testid="button-resend-verification"
+                      >
+                        resend it
+                      </button>
+                    </p>
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-11"
+                    onClick={() => {
+                      setRegistrationSuccess(false);
+                      setEmail("");
+                      setPassword("");
+                      setConfirmPassword("");
+                      setFirstName("");
+                      setLastName("");
+                    }}
+                    data-testid="button-back-to-signup"
+                  >
+                    Use a different email
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-center text-sm text-muted-foreground"
+            >
+              Already verified?{" "}
+              <Link href="/login" className="text-primary hover:underline font-medium">
+                Sign in
+              </Link>
+            </motion.p>
+          </motion.div>
+        </div>
+      </>
+    );
   }
 
   return (
