@@ -319,6 +319,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== GIF PICKER (Tenor API Proxy) ====================
+  
+  // Secure proxy for Tenor API - keeps API key on server side
+  const GIF_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  const gifCache: Map<string, { data: any; timestamp: number }> = new Map();
+  
+  app.get('/api/gifs', async (req, res) => {
+    try {
+      const tenorApiKey = process.env.TENOR_API_KEY;
+      if (!tenorApiKey) {
+        return res.status(503).json({ message: "GIF service not configured" });
+      }
+      
+      // Get and sanitize query parameter - only allow alphanumeric and spaces
+      const rawQuery = (req.query.q as string) || "";
+      const searchQuery = rawQuery.replace(/[^a-zA-Z0-9\s]/g, "").slice(0, 50);
+      const isTrending = !searchQuery;
+      
+      // Check cache first
+      const cacheKey = searchQuery || "__trending__";
+      const cached = gifCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < GIF_CACHE_TTL) {
+        return res.json(cached.data);
+      }
+      
+      // Build Tenor API URL
+      const baseUrl = isTrending
+        ? "https://tenor.googleapis.com/v2/featured"
+        : "https://tenor.googleapis.com/v2/search";
+      
+      const params = new URLSearchParams({
+        key: tenorApiKey,
+        client_key: "washbizhub",
+        limit: "20",
+        media_filter: "gif,tinygif,nanogif",
+        contentfilter: "medium",
+      });
+      
+      if (!isTrending) {
+        params.append("q", searchQuery);
+      }
+      
+      const response = await fetch(`${baseUrl}?${params.toString()}`);
+      
+      if (!response.ok) {
+        console.error("Tenor API error:", response.status, await response.text());
+        return res.status(502).json({ message: "Failed to fetch GIFs from provider" });
+      }
+      
+      const data = await response.json();
+      const gifs = data.results || [];
+      
+      // Cache the results
+      gifCache.set(cacheKey, { data: gifs, timestamp: Date.now() });
+      
+      // Cleanup old cache entries periodically
+      if (gifCache.size > 100) {
+        const now = Date.now();
+        for (const [key, value] of gifCache.entries()) {
+          if (now - value.timestamp > GIF_CACHE_TTL) {
+            gifCache.delete(key);
+          }
+        }
+      }
+      
+      res.json(gifs);
+    } catch (error) {
+      console.error("Error fetching GIFs:", error);
+      res.status(500).json({ message: "Failed to fetch GIFs" });
+    }
+  });
+  
   // ==================== PLATFORM STATS (Public) ====================
   
   // Get platform stats for homepage (cached for 5 minutes)
