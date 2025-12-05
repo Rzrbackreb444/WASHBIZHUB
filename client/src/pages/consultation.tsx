@@ -399,20 +399,44 @@ export default function Consultation() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold mb-2">Before Your Consultation:</h4>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• Confirmation call within 24 hours</li>
-                  <li>• Calendar invite with meeting details</li>
-                  <li>• Pre-consultation questionnaire</li>
-                  <li>• Payment link ($397)</li>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Confirmation call within 24 hours
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Calendar invite with meeting details
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Pre-consultation questionnaire
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Payment link ($397)
+                  </li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">During Your Session:</h4>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• 60-minute 1 on 1 consultation</li>
-                  <li>• Screen sharing for data review</li>
-                  <li>• Actionable recommendations</li>
-                  <li>• Follow-up resources provided</li>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    60-minute 1 on 1 consultation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Screen sharing for data review
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Actionable recommendations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    Follow-up resources provided
+                  </li>
                 </ul>
               </div>
             </div>
