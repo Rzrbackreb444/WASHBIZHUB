@@ -19,6 +19,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, DollarSign, CheckCircle, MessageSquare, TrendingUp } from "lucide-react";
+import { PageHero } from "@/components/PageHero";
 
 const consultationSchema = z.object({
   consultationType: z.string().min(1, "Please select a consultation type"),
@@ -145,19 +146,19 @@ export default function Consultation() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageHero
+        title="Expert Laundromat Consultation"
+        subtitle="Professional Guidance"
+        variant="consulting"
+        size="md"
+      >
+        <p className="text-white/80">
+          Get personalized guidance from industry experts with 50+ years combined experience.
+          <span className="block mt-2 text-[#C8A661] font-semibold">$397 per 60-minute session</span>
+        </p>
+      </PageHero>
+
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="text-page-title">
-            Expert Laundromat Consultation
-          </h1>
-          <p className="text-xl text-muted-foreground mb-4">
-            Get personalized guidance from industry experts
-          </p>
-          <div className="flex items-center justify-center gap-2 text-accent font-semibold">
-            <DollarSign className="w-5 h-5" />
-            <span>$397 per 60-minute session</span>
-          </div>
-        </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card>

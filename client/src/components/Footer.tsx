@@ -1,10 +1,12 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Mail, Package, ShoppingCart, BookOpen, CreditCard, Sparkles, Wrench, Calculator, DollarSign, MapPin, Palette, GraduationCap, HelpCircle } from "lucide-react";
+import { ExternalLink, Facebook, Mail, Package, ShoppingCart, BookOpen, CreditCard, Sparkles, Wrench, Calculator, DollarSign, MapPin, Palette, GraduationCap, HelpCircle, Phone, Building2 } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
+import cityBgImage from "@assets/stock_images/modern_city_skyline__f719cb12.jpg";
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
+const CONTACT_PHONE = "(479) 883-4314";
 
 const productsLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer", icon: MapPin, featured: true },
@@ -37,8 +39,15 @@ const pricingLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-[hsl(215,25%,16%)] py-12 border-t border-[hsl(45,38%,59%)/30]" data-testid="footer-main">
-      <div className="max-w-7xl mx-auto px-4">
+    <footer className="relative py-12 border-t border-[hsl(45,38%,59%)/30]" data-testid="footer-main">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${cityBgImage})` }}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 bg-[#0A1628]/90" aria-hidden="true" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
         
         {/* Logo & Tagline Section */}
         <div className="text-center mb-10 pb-8 border-b border-white/10">
