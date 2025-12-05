@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,16 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Helmet } from "react-helmet-async";
+import { PremiumChart } from "@/components/PremiumChart";
+import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { 
   DollarSign, CheckCircle2, Building2, Zap, Clock, Shield, 
   ArrowRight, Star, TrendingUp, ExternalLink, Phone, Mail,
   CreditCard, Loader2, Users, Award, Target, Truck, Factory,
   Briefcase, PiggyBank, FileText, Calculator, ChevronDown,
-  HelpCircle, Wrench, Receipt, Landmark, BadgeCheck
+  HelpCircle, Wrench, Receipt, Landmark, BadgeCheck, Eye, EyeOff
 } from "lucide-react";
 import fundingHeroImg from "@assets/WBH FUNDING MATCHER SEARCH IMAGE_1763780009740.png";
 
@@ -315,7 +319,46 @@ const FINANCING_TYPES = [
   }
 ];
 
-function calculateMatchScore(partner: FundingPartner, inputs: any): number {
+function getCreditTierLabel(score: number): { label: string; color: string } {
+  if (score >= 700) return { label: "Excellent", color: "text-green-400" };
+  if (score >= 650) return { label: "Very Good", color: "text-lime-400" };
+  if (score >= 600) return { label: "Good", color: "text-yellow-400" };
+  if (score >= 550) return { label: "Fair", color: "text-orange-400" };
+  return { label: "Challenged", color: "text-red-400" };
+}
+
+function getCreditSliderColor(score: number): string {
+  if (score >= 700) return "bg-green-500";
+  if (score >= 650) return "bg-lime-500";
+  if (score >= 600) return "bg-yellow-500";
+  if (score >= 550) return "bg-orange-500";
+  return "bg-red-500";
+}
+
+function getFallbackSuggestion(partner: FundingPartner, userCreditScore: number): string | null {
+  if (userCreditScore >= partner.minCredit) return null;
+  
+  if (userCreditScore < 600) {
+    return "Credit below 600? Consider Advance Funds Network (no minimum)";
+  } else if (userCreditScore < 650) {
+    return "Credit below 650? Consider David Allen Capital (500+) or GoKapital (500+)";
+  } else if (userCreditScore < 700) {
+    return "Credit below 700? Consider GoKapital (500+) or Advance Funds Network (any credit)";
+  }
+  return null;
+}
+
+function getMatchReason(partner: FundingPartner, inputs: any, creditScore: number): string {
+  const amount = parseFloat(inputs.loanAmount) || 0;
+  if (amount < partner.minLoan) return `Min loan: $${(partner.minLoan/1000).toFixed(0)}K`;
+  if (amount > partner.maxLoan) return `Max loan: $${partner.maxLoan >= 1000000 ? (partner.maxLoan/1000000).toFixed(0) + 'M' : (partner.maxLoan/1000).toFixed(0) + 'K'}`;
+  if (creditScore < partner.minCredit) return `Min credit: ${partner.minCredit}`;
+  if (partner.loanPurposes.includes(inputs.loanPurpose)) return `Best for: ${inputs.loanPurpose.replace(/-/g, ' ')}`;
+  if (inputs.urgency === "asap" && partner.fundingSpeed.includes("Same day")) return "Fast funding available";
+  return partner.bestFor[0] || "Good match";
+}
+
+function calculateMatchScore(partner: FundingPartner, inputs: any, creditScoreNumeric?: number): number {
   let score = 50;
   
   const amount = parseFloat(inputs.loanAmount) || 0;
@@ -326,7 +369,7 @@ function calculateMatchScore(partner: FundingPartner, inputs: any): number {
   if (partner.loanPurposes.includes(inputs.loanPurpose)) score += 20;
   
   const creditMap: Record<string, number> = { excellent: 750, good: 690, fair: 650, poor: 580, very_poor: 500 };
-  const userCredit = creditMap[inputs.creditScore] || 600;
+  const userCredit = creditScoreNumeric || creditMap[inputs.creditScore] || 600;
   if (userCredit >= partner.minCredit) score += 10;
   else score -= 15;
   
@@ -392,6 +435,34 @@ const faqStructuredData = {
   }))
 };
 
+const howToStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Find Laundromat Financing in 60 Seconds",
+  "description": "Use WashBizHub's Funding Matcher to compare 7 vetted lenders and find the best financing for your laundromat.",
+  "totalTime": "PT2M",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Enter Funding Requirements",
+      "text": "Specify how much funding you need, the purpose (acquisition, equipment, real estate), and your timeline."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Provide Your Profile",
+      "text": "Enter your credit score, time in business, and annual revenue to personalize matches."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Get Personalized Matches",
+      "text": "Receive instant recommendations from 7 vetted lenders sorted by match score."
+    }
+  ]
+};
+
 export default function FundingMatcher() {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -399,6 +470,8 @@ export default function FundingMatcher() {
   const [showResults, setShowResults] = useState(false);
   const [showGoKapitalForm, setShowGoKapitalForm] = useState(false);
   const [matchedPartners, setMatchedPartners] = useState<FundingPartner[]>([]);
+  const [creditScoreNumeric, setCreditScoreNumeric] = useState(650);
+  const [showPreview, setShowPreview] = useState(true);
   
   const [inputs, setInputs] = useState({
     loanAmount: "",
@@ -432,6 +505,16 @@ export default function FundingMatcher() {
     contactPhone: "",
   });
 
+  const liveMatches = useMemo(() => {
+    if (!inputs.loanAmount || !inputs.loanPurpose) return [];
+    return FUNDING_PARTNERS.map(partner => ({
+      ...partner,
+      matchScore: calculateMatchScore(partner, inputs, creditScoreNumeric)
+    }))
+    .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
+    .slice(0, 3);
+  }, [inputs.loanAmount, inputs.loanPurpose, inputs.urgency, creditScoreNumeric, inputs.timeInBusiness, inputs.annualRevenue]);
+
   const handleMatch = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -454,7 +537,7 @@ export default function FundingMatcher() {
           data: {
             loanAmount: inputs.loanAmount,
             loanPurpose: inputs.loanPurpose,
-            creditScore: inputs.creditScore,
+            creditScore: creditScoreNumeric,
             timeInBusiness: inputs.timeInBusiness,
             urgency: inputs.urgency,
             annualRevenue: inputs.annualRevenue,
@@ -464,7 +547,7 @@ export default function FundingMatcher() {
 
       const scored = FUNDING_PARTNERS.map(partner => ({
         ...partner,
-        matchScore: calculateMatchScore(partner, inputs)
+        matchScore: calculateMatchScore(partner, inputs, creditScoreNumeric)
       })).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
       setMatchedPartners(scored);
@@ -507,6 +590,18 @@ export default function FundingMatcher() {
   };
 
   const handlePartnerClick = (partner: FundingPartner) => {
+    fetch("/api/affiliate-click", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        partnerId: partner.id,
+        partnerName: partner.name,
+        creditScore: getCreditTierLabel(creditScoreNumeric),
+        loanAmount: inputs.loanAmount,
+        loanPurpose: inputs.loanPurpose
+      }),
+    }).catch(err => console.error("Affiliate click tracking error:", err));
+
     if (partner.affiliateUrl === "gokapital-form") {
       setShowGoKapitalForm(true);
       setGoKapitalForm(prev => ({
@@ -594,19 +689,55 @@ export default function FundingMatcher() {
           </div>
 
           <div>
-            <Label className="text-white/90 font-medium">Personal Credit Score (Estimate)</Label>
-            <Select value={inputs.creditScore} onValueChange={(val) => setInputs({ ...inputs, creditScore: val })}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-2" data-testid="select-credit-score">
-                <SelectValue placeholder="Select range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="excellent">Excellent (720+)</SelectItem>
-                <SelectItem value="good">Good (680-719)</SelectItem>
-                <SelectItem value="fair">Fair (640-679)</SelectItem>
-                <SelectItem value="poor">Below 640</SelectItem>
-                <SelectItem value="very_poor">Below 550 (Challenged)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="text-white/90 font-medium">Personal Credit Score</Label>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className={`text-4xl font-bold ${getCreditTierLabel(creditScoreNumeric).color}`}>
+                    {creditScoreNumeric}
+                  </span>
+                  <Badge className={`${getCreditSliderColor(creditScoreNumeric)} text-white`}>
+                    {getCreditTierLabel(creditScoreNumeric).label}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="relative">
+                <div className="absolute top-0 left-0 right-0 h-2 rounded-full overflow-hidden flex">
+                  <div className="bg-red-500 flex-1" />
+                  <div className="bg-orange-500 flex-1" />
+                  <div className="bg-yellow-500 flex-1" />
+                  <div className="bg-lime-500 flex-1" />
+                  <div className="bg-green-500 flex-1" />
+                  <div className="bg-green-600 flex-1" />
+                </div>
+                <Slider
+                  value={[creditScoreNumeric]}
+                  onValueChange={(val) => setCreditScoreNumeric(val[0])}
+                  min={500}
+                  max={800}
+                  step={10}
+                  className="w-full relative z-10"
+                  data-testid="slider-credit-score"
+                />
+              </div>
+              
+              <div className="flex justify-between text-xs text-white/40">
+                {[500, 550, 600, 650, 700, 750, 800].map(mark => (
+                  <span key={mark} className={creditScoreNumeric === mark ? 'text-accent font-bold' : ''}>
+                    {mark}
+                  </span>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-5 gap-1 text-center text-xs">
+                <div className="text-red-400">Challenged</div>
+                <div className="text-orange-400">Fair</div>
+                <div className="text-yellow-400">Good</div>
+                <div className="text-lime-400">Very Good</div>
+                <div className="text-green-400 col-span-1">Excellent</div>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -655,7 +786,7 @@ export default function FundingMatcher() {
               type="button" 
               onClick={() => setStep(3)}
               className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
-              disabled={!inputs.creditScore || !inputs.timeInBusiness}
+              disabled={!inputs.timeInBusiness}
               data-testid="button-next-step-2"
             >
               Continue <ArrowRight className="ml-2 h-4 w-4" />
@@ -739,7 +870,70 @@ export default function FundingMatcher() {
     </form>
   );
 
-  const renderResults = () => (
+  const renderLivePreview = () => {
+    if (liveMatches.length === 0) return null;
+    
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-white font-semibold text-sm flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-accent" />
+            Live Match Preview
+          </h4>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowPreview(!showPreview)}
+            className="text-white/60 hover:text-white h-6 px-2"
+          >
+            {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
+        
+        {showPreview && (
+          <div className="space-y-2">
+            {liveMatches.map((partner, idx) => {
+              const grade = getGrade(partner.matchScore || 0);
+              const reason = getMatchReason(partner, inputs, creditScoreNumeric);
+              return (
+                <div 
+                  key={partner.id}
+                  className="bg-white/10 rounded-lg p-3 flex items-center gap-3"
+                >
+                  <div className={`w-10 h-10 ${grade.color} rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0`}>
+                    {partner.matchScore}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white font-medium text-sm truncate">{partner.name}</div>
+                    <div className="text-white/50 text-xs truncate">{reason}</div>
+                  </div>
+                  {idx === 0 && (
+                    <Badge className="bg-accent/20 text-accent text-xs flex-shrink-0">Top</Badge>
+                  )}
+                </div>
+              );
+            })}
+            <p className="text-white/40 text-xs text-center">
+              Complete all steps to see full results
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderResults = () => {
+    const bestScore = matchedPartners[0]?.matchScore || 0;
+    const bestGrade = getGrade(bestScore);
+    
+    const chartData = matchedPartners.map(partner => ({
+      label: partner.name.split(' ')[0],
+      value: partner.matchScore || 0,
+      color: getGrade(partner.matchScore || 0).color.replace('bg-', '#').replace('-500', '').replace('green', '22c55e').replace('lime', '84cc16').replace('amber', 'f59e0b').replace('yellow', 'eab308')
+    }));
+    
+    return (
     <div className="space-y-6">
       <div className="text-center mb-6">
         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mb-2">
@@ -751,9 +945,51 @@ export default function FundingMatcher() {
         </p>
       </div>
 
+      <FeatureGate 
+        feature="funding_gauge" 
+        blurContent={true}
+        title="Match Score Analytics"
+        description="See visual gauges and charts for your funding matches"
+      >
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-4">
+              <h4 className="text-white font-semibold text-sm mb-2 text-center">Best Match Score</h4>
+              <PremiumChart
+                type="d3-gauge"
+                title="Best Match"
+                data={[{ label: "Best Match", value: bestScore }]}
+                height={180}
+                formatValue={(v) => `${v}%`}
+              />
+              <div className="text-center mt-2">
+                <Badge className={`${bestGrade.color} text-white`}>
+                  Grade {bestGrade.grade} - {bestGrade.label}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-4">
+              <h4 className="text-white font-semibold text-sm mb-2 text-center">All Partner Scores</h4>
+              <PremiumChart
+                type="bar"
+                title="Match Scores"
+                data={chartData}
+                height={180}
+                showLegend={false}
+                formatValue={(v) => `${v}%`}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </FeatureGate>
+
       <div className="space-y-4">
         {matchedPartners.map((partner, idx) => {
           const grade = getGrade(partner.matchScore || 0);
+          const fallbackSuggestion = getFallbackSuggestion(partner, creditScoreNumeric);
           return (
             <Card 
               key={partner.id} 
@@ -780,7 +1016,14 @@ export default function FundingMatcher() {
                       {idx === 0 && <Badge className="bg-accent/20 text-accent text-xs">Top Match</Badge>}
                     </div>
                     <p className="text-white/50 text-sm mb-2">{partner.type}</p>
-                    <p className="text-white/70 text-sm mb-3">{partner.description}</p>
+                    <p className="text-white/70 text-sm mb-2">{partner.description}</p>
+                    
+                    {fallbackSuggestion && (
+                      <p className="text-xs text-amber-400/80 mb-3 flex items-center gap-1">
+                        <HelpCircle className="h-3 w-3" />
+                        {fallbackSuggestion}
+                      </p>
+                    )}
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs">
                       <div className="bg-white/5 rounded p-2">
@@ -1135,6 +1378,9 @@ export default function FundingMatcher() {
         <script type="application/ld+json">
           {JSON.stringify(faqStructuredData)}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify(howToStructuredData)}
+        </script>
       </Helmet>
       
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
@@ -1177,12 +1423,56 @@ export default function FundingMatcher() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 -mt-8">
-          <Card className="bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
-            <CardContent className="p-6 sm:p-8">
-              {showGoKapitalForm ? renderGoKapitalForm() : showResults ? renderResults() : renderQuestionnaire()}
-            </CardContent>
-          </Card>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 -mt-8">
+          {!showResults && !showGoKapitalForm && (step === 1 || step === 2) && liveMatches.length > 0 ? (
+            <div className="grid lg:grid-cols-5 gap-6">
+              <Card className="lg:col-span-3 bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
+                <CardContent className="p-6 sm:p-8">
+                  {renderQuestionnaire()}
+                </CardContent>
+              </Card>
+              
+              <div className="lg:col-span-2">
+                <div className="hidden lg:block sticky top-20">
+                  <Card className="bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
+                    <CardContent className="p-4">
+                      {renderLivePreview()}
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div className="lg:hidden">
+                  <Collapsible defaultOpen={true}>
+                    <Card className="bg-gray-800/80 backdrop-blur border-white/10 shadow-xl">
+                      <CardContent className="p-4">
+                        <CollapsibleTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="w-full flex items-center justify-between text-white/80 hover:text-white p-0 h-auto"
+                          >
+                            <span className="flex items-center gap-2 text-sm font-semibold">
+                              <TrendingUp className="h-4 w-4 text-accent" />
+                              Live Match Preview
+                            </span>
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-4">
+                          {renderLivePreview()}
+                        </CollapsibleContent>
+                      </CardContent>
+                    </Card>
+                  </Collapsible>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Card className="max-w-4xl mx-auto bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
+              <CardContent className="p-6 sm:p-8">
+                {showGoKapitalForm ? renderGoKapitalForm() : showResults ? renderResults() : renderQuestionnaire()}
+              </CardContent>
+            </Card>
+          )}
 
           {!showResults && !showGoKapitalForm && (
             <>
