@@ -23,22 +23,22 @@ const calculatorLinks = [
 const marketplaceLinks = [
   { href: "/buy-laundromat", label: "Buy a Laundromat", testId: "link-footer-buy-laundromat" },
   { href: "/sell-your-laundromat", label: "Sell Your Business", testId: "link-footer-sell-business" },
-  { href: "/equipment-marketplace", label: "Equipment", testId: "link-footer-equipment" },
+  { href: "/equipment-financing", label: "AAdvantage Equipment", testId: "link-footer-aadvantage", featured: true },
   { href: "/directory", label: "Vendor Directory", testId: "link-footer-vendor-directory" },
 ];
 
 const resourcesLinks = [
+  { href: "/forum", label: "Community Forum", testId: "link-footer-forum", featured: true },
+  { href: "/blog", label: "Blog", testId: "link-footer-blog" },
   { href: "/courses", label: "Courses", testId: "link-footer-courses" },
   { href: "/book", label: "The Laundromat Bible", testId: "link-footer-laundromat-bible" },
-  { href: "/blog", label: "Blog", testId: "link-footer-blog" },
-  { href: "/help-center", label: "Help Center", testId: "link-footer-help-center" },
 ];
 
 const companyLinks = [
+  { href: "/larry-larsen", label: "Consult with Larry", testId: "link-footer-larry", featured: true },
   { href: "/pricing", label: "Pricing", testId: "link-footer-pricing" },
-  { href: "/our-partnership", label: "About Us", testId: "link-footer-about" },
-  { href: "/consultation", label: "Consulting", testId: "link-footer-consulting" },
   { href: "/brokers", label: "Brokers", testId: "link-footer-brokers" },
+  { href: "/our-partnership", label: "About Us", testId: "link-footer-about" },
 ];
 
 export function Footer() {
@@ -177,7 +177,11 @@ export function Footer() {
                   <li key={link.href}>
                     <Link href={link.href}>
                       <span 
-                        className="text-white/60 hover:text-white transition-colors cursor-pointer text-sm"
+                        className={`text-sm cursor-pointer transition-colors ${
+                          link.featured 
+                            ? "text-[#C8A661] hover:text-[#d4a030]" 
+                            : "text-white/60 hover:text-white"
+                        }`}
                         data-testid={link.testId}
                       >
                         {link.label}
@@ -196,7 +200,11 @@ export function Footer() {
                   <li key={link.href}>
                     <Link href={link.href}>
                       <span 
-                        className="text-white/60 hover:text-white transition-colors cursor-pointer text-sm"
+                        className={`text-sm cursor-pointer transition-colors ${
+                          link.featured 
+                            ? "text-[#C8A661] hover:text-[#d4a030]" 
+                            : "text-white/60 hover:text-white"
+                        }`}
                         data-testid={link.testId}
                       >
                         {link.label}
@@ -215,7 +223,11 @@ export function Footer() {
                   <li key={link.href}>
                     <Link href={link.href}>
                       <span 
-                        className="text-white/60 hover:text-white transition-colors cursor-pointer text-sm"
+                        className={`text-sm cursor-pointer transition-colors ${
+                          link.featured 
+                            ? "text-[#C8A661] hover:text-[#d4a030]" 
+                            : "text-white/60 hover:text-white"
+                        }`}
                         data-testid={link.testId}
                       >
                         {link.label}

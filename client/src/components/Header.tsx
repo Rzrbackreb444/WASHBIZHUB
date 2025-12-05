@@ -18,6 +18,7 @@ const navLinks = [
   { href: "/sell-your-laundromat", label: "Sell" },
   { href: "/forum", label: "Forum" },
   { href: "/larry-larsen", label: "Consult Larry" },
+  { href: "/equipment-financing", label: "Equipment" },
 ];
 
 const megaMenuSections = [
