@@ -13,10 +13,11 @@ import logoUrl from "@assets/6_1764040628012.png";
 
 const navLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™", featured: true },
+  { href: "/valuation-calculator", label: "Valuator" },
   { href: "/buy-laundromat", label: "Buy" },
   { href: "/sell-your-laundromat", label: "Sell" },
-  { href: "/funding", label: "Funding" },
-  { href: "/forum", label: "Community" },
+  { href: "/forum", label: "Forum" },
+  { href: "/larry-larsen", label: "Consult Larry" },
 ];
 
 const megaMenuSections = [
@@ -33,9 +34,9 @@ const megaMenuSections = [
     id: "tools",
     title: "Tools",
     items: [
-      { href: "/calculators", label: "Calculators", description: "ROI, valuation & more" },
+      { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's your laundromat worth?" },
+      { href: "/calculators", label: "All Calculators", description: "ROI, profit & more" },
       { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs" },
-      { href: "/equipment-diagnostics", label: "Diagnostics", description: "Troubleshoot machines" },
     ]
   },
   {
@@ -43,7 +44,7 @@ const megaMenuSections = [
     title: "Learn",
     items: [
       { href: "/blog", label: "Blog", description: "Expert insights & news" },
-      { href: "/courses", label: "Courses", description: "Learn from pros" },
+      { href: "/forum", label: "Community Forum", description: "Ask questions, share tips" },
       { href: "/book", label: "The Bible", description: "Complete guide" },
     ]
   },
@@ -51,9 +52,9 @@ const megaMenuSections = [
     id: "connect",
     title: "Connect",
     items: [
-      { href: "/our-partnership", label: "About Us", description: "Meet our founders" },
+      { href: "/larry-larsen", label: "Consult with Larry", featured: true, description: "Talk to Laundromat Larry" },
       { href: "/brokers", label: "Brokers", description: "Verified professionals" },
-      { href: "/consultation", label: "Consulting", description: "Expert guidance" },
+      { href: "/our-partnership", label: "About Us", description: "Meet our founders" },
     ]
   }
 ];
