@@ -834,15 +834,15 @@ export default function Home() {
                 </p>
                 <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2" data-testid="text-feature-larry-1">
-                    <CheckCircle className="w-4 h-4 text-accent-foreground" />
+                    <CheckCircle className="w-4 h-4 text-green-500" />
                     1 on 1 consultation
                   </li>
                   <li className="flex items-center gap-2" data-testid="text-feature-larry-2">
-                    <CheckCircle className="w-4 h-4 text-accent-foreground" />
+                    <CheckCircle className="w-4 h-4 text-green-500" />
                     Due diligence review
                   </li>
                   <li className="flex items-center gap-2" data-testid="text-feature-larry-3">
-                    <CheckCircle className="w-4 h-4 text-accent-foreground" />
+                    <CheckCircle className="w-4 h-4 text-green-500" />
                     Personalized recommendations
                   </li>
                 </ul>
