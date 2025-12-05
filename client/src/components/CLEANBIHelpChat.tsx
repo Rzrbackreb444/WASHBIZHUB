@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobileWithHydration } from "@/hooks/use-mobile";
 import { 
   MessageCircle, 
   X, 
@@ -114,7 +115,7 @@ KEY INSIGHTS TO SHARE:
 
 Always be encouraging and solution-oriented. If a score is low, explain what could improve it. Remember: we use positive language - no D or F grades.`;
 
-export const CLEANBIHelpChat = memo(function CLEANBIHelpChat() {
+const CLEANBIHelpChatDesktop = memo(function CLEANBIHelpChatDesktop() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -209,7 +210,7 @@ export const CLEANBIHelpChat = memo(function CLEANBIHelpChat() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 group"
+        className="fixed bottom-6 right-6 z-50 group flex"
         data-testid="button-open-cleanbi-help"
       >
         <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 rounded-full shadow-2xl border-2 border-amber-400/50 flex items-center gap-3 transition-all duration-300 hover:shadow-amber-500/30 hover:scale-105 active:scale-95">
@@ -398,3 +399,14 @@ export const CLEANBIHelpChat = memo(function CLEANBIHelpChat() {
     </Card>
   );
 });
+
+export function CLEANBIHelpChat() {
+  const { isMobile, isHydrated } = useIsMobileWithHydration();
+  // Return null if:
+  // 1. Not hydrated yet (SSR phase)
+  // 2. isMobile is undefined (pre-determination phase)
+  // 3. isMobile is true (mobile viewport)
+  // This prevents any momentary flash of desktop content on mobile
+  if (!isHydrated || isMobile === undefined || isMobile) return null;
+  return <CLEANBIHelpChatDesktop />;
+}
