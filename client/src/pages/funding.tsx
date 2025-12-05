@@ -33,10 +33,10 @@ const FUNDING_CATEGORIES: Record<string, {
     color: "from-[#C8A661] to-[#b8860b]",
     partners: [
       {
-        id: "preferred-term-loans",
+        id: "preferred-funding-group",
         name: "Preferred Funding Group",
-        type: "5 or 7 Year Term Loans (Personal Credit)",
-        description: "Unsecured term loans based on personal credit strength. Fixed monthly payments with no collateral required. Rates from 9-15% based on credit profile. Funding in 7-15 business days.",
+        type: "Personal Credit Loans + Business Credit Cards",
+        description: "Two funding paths in one: (1) Unsecured 5-7 year term loans based on personal credit with fixed payments, no collateral, rates from 9-15%. (2) Business credit cards with 0% interest for 6-12 months that report only to business credit. BBB Accredited with 10,000+ businesses funded.",
         requirements: {
           minCreditScore: "680+ (all 3 bureaus)",
           timeInBusiness: "N/A (Startup OK)",
@@ -44,11 +44,11 @@ const FUNDING_CATEGORIES: Record<string, {
           downPayment: "None required"
         },
         loanDetails: {
-          minAmount: "$50,000",
+          minAmount: "$25,000",
           maxAmount: "$500,000",
-          termLength: "5-7 years",
+          termLength: "5-7 years (term) or Revolving (cards)",
           approvalSpeed: "7-15 business days",
-          interestRate: "9-15%"
+          interestRate: "9-15% (term) or 0% intro (cards)"
         },
         documentation: {
           bankStatements: "3 months",
@@ -57,40 +57,10 @@ const FUNDING_CATEGORIES: Record<string, {
           other: ["Valid ID", "Proof of address"]
         },
         bestFor: ["First-time buyers", "Strong personal credit", "No business history needed"],
-        alsoOffers: ["Fixed monthly payment", "No prepayment penalty", "Full liquidity immediately"],
+        alsoOffers: ["0% intro business cards", "No prepayment penalty", "Protects personal credit with business cards"],
         affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
         isPrimary: true,
         specialFeature: "No assets or collateral required",
-        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"]
-      },
-      {
-        id: "preferred-business-credit",
-        name: "Preferred Funding Group",
-        type: "Business Credit Card Program",
-        description: "0% interest for 6-12 months on business credit cards. Reports only to your business credit - protects personal credit. Stated income with no upfront fees.",
-        requirements: {
-          minCreditScore: "700+ (all 3 bureaus)",
-          timeInBusiness: "Established Business Entity",
-          minAnnualRevenue: "Stated income",
-          downPayment: "None required"
-        },
-        loanDetails: {
-          minAmount: "$25,000",
-          maxAmount: "$500,000",
-          termLength: "Revolving",
-          approvalSpeed: "60 seconds pre-approval",
-          interestRate: "0% for 6-12 months"
-        },
-        documentation: {
-          bankStatements: "Not required",
-          taxReturns: "Not required",
-          financials: "Personal credit report",
-          other: ["Business registration", "Valid ID"]
-        },
-        bestFor: ["Building business credit", "0% intro rates", "Protecting personal credit"],
-        alsoOffers: ["Reports only to business", "Multiple card approvals", "Immediate liquidity"],
-        affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
-        specialFeature: "0% interest for 6-12 months",
         trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"]
       },
       {
