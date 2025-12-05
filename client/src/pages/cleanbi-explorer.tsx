@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
@@ -71,6 +71,7 @@ import {
   Phone,
   Briefcase,
   BookmarkPlus,
+  Bookmark,
   ArrowRight,
   Check,
   Plus,
@@ -119,6 +120,7 @@ import { PLATFORM_TIERS } from "@/lib/tier-config";
 import { useAuth } from "@/hooks/useAuth";
 import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 declare global {
   interface Window {
@@ -474,6 +476,7 @@ function CleanBIExplorerContent() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const isMobile = useIsMobile();
   const mapRef = useRef<HTMLDivElement>(null);
   const streetViewRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -482,6 +485,9 @@ function CleanBIExplorerContent() {
   const markersRef = useRef<any[]>([]);
   const savedMarkersRef = useRef<any[]>([]);
   const sidebarViewportRef = useRef<HTMLDivElement>(null);
+  
+  // Mobile-specific state
+  const [mobileAnalysisSheetOpen, setMobileAnalysisSheetOpen] = useState(false);
   
   // Helper to scroll sidebar to top after analysis
   const scrollSidebarToTop = () => {
@@ -634,6 +640,38 @@ function CleanBIExplorerContent() {
   
   const [searchRadius, setSearchRadius] = useState([5]);
   const [autoAnalyzeTriggered, setAutoAnalyzeTriggered] = useState(false);
+
+  // Auto-open mobile sheet when analysis completes
+  useEffect(() => {
+    if (isMobile && analysisResult) {
+      setMobileAnalysisSheetOpen(true);
+    }
+  }, [isMobile, analysisResult]);
+
+  // Memoized category scores calculation for performance
+  const memoizedCategoryScores = useMemo(() => {
+    if (!analysisResult) return {};
+    return generateCategoryScores(analysisResult.cleanbiScore, analysisResult);
+  }, [analysisResult?.cleanbiScore, analysisResult?.populationDensity, analysisResult?.medianIncome, analysisResult?.trafficScore, analysisResult?.competitorCount]);
+
+  // Memoized revenue projections for financial calculator
+  const memoizedRevenueProjections = useMemo(() => {
+    if (!analysisResult) return null;
+    const populationServed = Math.min(analysisResult.populationDensity * 0.78, 25000);
+    const baseRevenue = populationServed * 18;
+    const incomeMultiplier = Math.max(0.7, Math.min(1.4, analysisResult.medianIncome / 70000));
+    const competitionFactor = 1 / Math.max(1, analysisResult.competitorCount * 0.3);
+    const estimatedRevenue = Math.max(150000, Math.min(600000, baseRevenue * incomeMultiplier * competitionFactor));
+    const estimatedExpenses = estimatedRevenue * 0.58;
+    const estimatedNOI = estimatedRevenue - estimatedExpenses;
+    const estimatedValue = estimatedNOI * 2.5;
+    return {
+      revenue: Math.round(estimatedRevenue),
+      expenses: Math.round(estimatedExpenses),
+      noi: Math.round(estimatedNOI),
+      value: Math.round(estimatedValue)
+    };
+  }, [analysisResult?.populationDensity, analysisResult?.medianIncome, analysisResult?.competitorCount]);
 
   useEffect(() => {
     setSavedAnalyses(getStoredAnalyses());
@@ -1971,6 +2009,383 @@ function CleanBIExplorerContent() {
       />
 
       <div className="fixed inset-0 bg-[#0a0a14]" data-testid="cleanbi-explorer">
+        {/* Mobile Layout */}
+        {isMobile && (
+          <div className="h-full flex flex-col">
+            {/* Mobile Map - Full width at top */}
+            <div className="flex-1 relative min-h-[40vh]">
+              <div 
+                ref={mapRef}
+                className="absolute inset-0"
+                data-testid="explorer-map-mobile"
+              />
+              
+              {/* Mobile Floating Action Button */}
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                onClick={() => {
+                  if (analysisResult) {
+                    setMobileAnalysisSheetOpen(true);
+                  } else {
+                    const addressInput = document.querySelector('[data-testid="input-explorer-address-mobile"]') as HTMLInputElement;
+                    if (addressInput) {
+                      addressInput.focus();
+                    }
+                  }
+                }}
+                className={`fixed bottom-20 right-4 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#b8860b] to-[#8b6914] shadow-xl flex items-center justify-center text-white ${!analysisResult && !isAnalyzing ? 'animate-pulse' : ''}`}
+                data-testid="button-mobile-fab"
+              >
+                {isAnalyzing ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : analysisResult ? (
+                  <BarChart3 className="w-6 h-6" />
+                ) : (
+                  <Search className="w-6 h-6" />
+                )}
+              </motion.button>
+              
+              {/* Mobile Address Input Overlay */}
+              <div className="absolute top-4 left-4 right-4 z-30">
+                <div className="bg-gradient-to-br from-[#1e3a5f]/95 to-[#0f1d2f]/95 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-xl">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b8860b]" />
+                      <Input
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && analyzeLocation()}
+                        placeholder="Enter address to analyze..."
+                        className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-12 text-base"
+                        data-testid="input-explorer-address-mobile"
+                      />
+                    </div>
+                    <Button 
+                      onClick={analyzeLocation}
+                      disabled={isAnalyzing || !address.trim()}
+                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-12 px-4"
+                      data-testid="button-analyze-mobile"
+                    >
+                      {isAnalyzing ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Zap className="w-5 h-5" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Market Gap Legend on Mobile */}
+              <AnimatePresence>
+                {showMarketGaps && totalGapCount > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="absolute bottom-4 left-4 right-4 z-20 bg-gradient-to-br from-[#1e3a5f]/95 to-[#0f1d2f]/95 backdrop-blur-md border border-white/10 rounded-xl p-3 shadow-xl" 
+                    data-testid="market-gap-legend-mobile"
+                  >
+                    <div className="text-xs font-semibold text-white mb-2 flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-[#b8860b]" />
+                      Market Gap Legend
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-[10px]">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-full bg-[#b8860b]/30 border border-[#b8860b]" />
+                        <span className="text-white/70">Gap Zones</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-[#b8860b] fill-[#b8860b]" />
+                        <span className="text-white/70">Top Opportunities</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <span className="text-white/70">Competitors</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            {/* Mobile Analysis Sheet */}
+            <Sheet open={mobileAnalysisSheetOpen} onOpenChange={setMobileAnalysisSheetOpen}>
+              <SheetContent 
+                side="bottom" 
+                className="h-[85vh] bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-t border-white/10 rounded-t-3xl p-0"
+              >
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Location Analysis</SheetTitle>
+                  <SheetDescription>Analysis results for the selected location</SheetDescription>
+                </SheetHeader>
+                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-2" />
+                <ScrollArea className="h-[calc(85vh-24px)]" viewportRef={sidebarViewportRef}>
+                  {/* Mobile Analysis Results - Same content as sidebar but optimized for mobile */}
+                  <div className="p-4">
+                    {/* Score Hero on Mobile */}
+                    {analysisResult && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4"
+                      >
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="relative">
+                            <svg viewBox="0 0 36 36" className="w-24 h-24">
+                              <path
+                                d="M18 2.0845
+                                  a 15.9155 15.9155 0 0 1 0 31.831
+                                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="rgba(255,255,255,0.1)"
+                                strokeWidth="3"
+                              />
+                              <path
+                                d="M18 2.0845
+                                  a 15.9155 15.9155 0 0 1 0 31.831
+                                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke={GRADE_COLORS[analysisResult.grade]}
+                                strokeWidth="3"
+                                strokeDasharray={`${analysisResult.cleanbiScore}, 100`}
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-3xl font-bold text-white">{analysisResult.cleanbiScore}</span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge 
+                                className="text-sm px-3 py-1 font-semibold"
+                                style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] }}
+                              >
+                                Grade {analysisResult.grade}
+                              </Badge>
+                            </div>
+                            <p className="text-white/70 text-sm line-clamp-2">{analysisResult.address}</p>
+                            {analysisResult.businessName && (
+                              <p className="text-[#b8860b] text-sm font-medium mt-1">{analysisResult.businessName}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Action Buttons */}
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                          <Button
+                            onClick={() => setShowStreetView(true)}
+                            variant="outline"
+                            className="border-white/20 text-white hover:bg-white/10 min-h-11"
+                            data-testid="button-streetview-mobile"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Street View
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              const saved = saveAnalysis(analysisResult, competitors);
+                              setSavedAnalyses(saved);
+                              toast({ title: "Analysis saved!" });
+                            }}
+                            variant="outline"
+                            className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/10 min-h-11"
+                            data-testid="button-save-mobile"
+                          >
+                            <Bookmark className="w-4 h-4 mr-2" />
+                            Save
+                          </Button>
+                        </div>
+                        
+                        {/* Mobile Tabs */}
+                        <Tabs value={activeTab} onValueChange={setActiveTab}>
+                          <TabsList className="w-full overflow-x-auto flex gap-1 bg-white/5 p-1 rounded-lg mb-4 snap-x scroll-smooth">
+                            <TabsTrigger 
+                              value="overview" 
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                            >
+                              Overview
+                            </TabsTrigger>
+                            <TabsTrigger 
+                              value="competition"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                            >
+                              Competition
+                            </TabsTrigger>
+                            <TabsTrigger 
+                              value="demographics"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                            >
+                              Demographics
+                            </TabsTrigger>
+                            <TabsTrigger 
+                              value="financials"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                            >
+                              Financials
+                            </TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="overview" className="mt-0">
+                            {/* Key Metrics Grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="text-xs text-white/50 mb-1">Population</div>
+                                <div className="text-lg font-semibold text-white">{(analysisResult.populationDensity * 0.78).toLocaleString()}</div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="text-xs text-white/50 mb-1">Competitors</div>
+                                <div className="text-lg font-semibold text-white">{analysisResult.competitorCount}</div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="text-xs text-white/50 mb-1">Median Income</div>
+                                <div className="text-lg font-semibold text-white">${(analysisResult.medianIncome / 1000).toFixed(0)}K</div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="text-xs text-white/50 mb-1">Traffic Score</div>
+                                <div className="text-lg font-semibold text-white">{analysisResult.trafficScore}/100</div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="competition" className="mt-0">
+                            <div className="space-y-2">
+                              {competitors.length === 0 ? (
+                                <div className="text-center py-6 text-white/50">
+                                  <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                  <p className="text-sm">No competitors found nearby</p>
+                                </div>
+                              ) : (
+                                competitors.map((comp, idx) => (
+                                  <div key={idx} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+                                    <div>
+                                      <p className="text-sm font-medium text-white">{comp.name}</p>
+                                      <p className="text-xs text-white/50">{comp.distance} miles away</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs border-white/20 text-white/70">
+                                      {comp.rating ? `${comp.rating}★` : 'No rating'}
+                                    </Badge>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="demographics" className="mt-0">
+                            <div className="space-y-3">
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="text-xs text-white/50">Renter Percentage</span>
+                                  <span className="text-sm font-medium text-white">{analysisResult.renterPercentage || 45}%</span>
+                                </div>
+                                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-[#b8860b] to-[#d4a030]" 
+                                    style={{ width: `${analysisResult.renterPercentage || 45}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-white/50">Population Density</span>
+                                  <span className="text-sm font-medium text-white">{analysisResult.populationDensity.toLocaleString()}/sq mi</span>
+                                </div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-white/50">Walk Score</span>
+                                  <span className="text-sm font-medium text-white">{analysisResult.walkScore || analysisResult.trafficScore}/100</span>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="financials" className="mt-0">
+                            {memoizedRevenueProjections && (
+                              <div className="space-y-3">
+                                <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-lg p-3 border border-green-500/20">
+                                  <div className="text-xs text-green-400 mb-1">Est. Annual Revenue</div>
+                                  <div className="text-xl font-bold text-white">${memoizedRevenueProjections.revenue.toLocaleString()}</div>
+                                </div>
+                                <div className="bg-white/5 rounded-lg p-3">
+                                  <div className="text-xs text-white/50 mb-1">Est. Operating Expenses</div>
+                                  <div className="text-lg font-semibold text-white">${memoizedRevenueProjections.expenses.toLocaleString()}</div>
+                                </div>
+                                <div className="bg-white/5 rounded-lg p-3">
+                                  <div className="text-xs text-white/50 mb-1">Est. NOI</div>
+                                  <div className="text-lg font-semibold text-[#b8860b]">${memoizedRevenueProjections.noi.toLocaleString()}</div>
+                                </div>
+                                <div className="bg-gradient-to-br from-[#b8860b]/20 to-[#8b6914]/10 rounded-lg p-3 border border-[#b8860b]/20">
+                                  <div className="text-xs text-[#b8860b] mb-1">Estimated Value</div>
+                                  <div className="text-xl font-bold text-white">${memoizedRevenueProjections.value.toLocaleString()}</div>
+                                </div>
+                              </div>
+                            )}
+                          </TabsContent>
+                        </Tabs>
+                      </motion.div>
+                    )}
+                    
+                    {/* Loading state */}
+                    {isAnalyzing && (
+                      <div className="flex flex-col items-center justify-center py-12">
+                        <Loader2 className="w-12 h-12 text-[#b8860b] animate-spin mb-4" />
+                        <p className="text-white/70">Analyzing location...</p>
+                      </div>
+                    )}
+                    
+                    {/* Empty state */}
+                    {!analysisResult && !isAnalyzing && (
+                      <div className="text-center py-12">
+                        <MapPin className="w-12 h-12 text-[#b8860b] mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-white mb-2">No Analysis Yet</h3>
+                        <p className="text-white/60 text-sm mb-4">
+                          Enter an address above to analyze a location
+                        </p>
+                        <Button 
+                          onClick={() => setMobileAnalysisSheetOpen(false)}
+                          variant="outline"
+                          className="border-white/20 text-white hover:bg-white/10"
+                        >
+                          Close Panel
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </SheetContent>
+            </Sheet>
+            
+            {/* Mobile Bottom Bar */}
+            <div className="bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-t border-white/10 p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-white">CLEANBI™ Explorer</div>
+                  <div className="text-[10px] text-white/50">{remainingAnalyses} analyses left</div>
+                </div>
+              </div>
+              <Button
+                onClick={() => setMobileAnalysisSheetOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="text-white/70 hover:text-white hover:bg-white/10"
+                data-testid="button-view-analysis-mobile"
+              >
+                {analysisResult ? 'View Analysis' : 'Get Started'}
+                <ChevronUp className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        {/* Desktop Layout */}
+        {!isMobile && (
         <ResizablePanelGroup
           direction="horizontal"
           onLayout={handleSidebarResize}
@@ -4032,6 +4447,7 @@ function CleanBIExplorerContent() {
                     )}
                   </TabsContent>
                 </Tabs>
+                </div>
 
                 {/* Next Steps CTAs - Compact Action Section */}
                 <motion.div
@@ -4705,6 +5121,7 @@ function CleanBIExplorerContent() {
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
+        )}
 
         {/* Street View Modal */}
         <AnimatePresence>
