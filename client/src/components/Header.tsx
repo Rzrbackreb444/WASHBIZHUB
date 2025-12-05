@@ -1,11 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { 
-  Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X,
-  Settings as SettingsIcon, Zap, MapPin, FolderOpen, DollarSign, Calculator, 
-  Store, Users, HelpCircle, Handshake, MessageSquare, BookOpen, TrendingUp,
-  FileText, Wrench, BarChart3, Building2, Sparkles, Star
-} from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -16,55 +11,51 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { motion, AnimatePresence } from "framer-motion";
 import logoUrl from "@assets/6_1764040628012.png";
 
+const navLinks = [
+  { href: "/cleanbi-explorer", label: "CLEANBI™", featured: true },
+  { href: "/buy-laundromat", label: "Buy" },
+  { href: "/sell-your-laundromat", label: "Sell" },
+  { href: "/funding", label: "Funding" },
+  { href: "/forum", label: "Community" },
+];
+
 const megaMenuSections = [
   {
     id: "discover",
     title: "Discover",
     items: [
-      { href: "/cleanbi-explorer", label: "Score Any Location", icon: MapPin, featured: true, description: "AI-powered location analysis" },
-      { href: "/buy-laundromat", label: "Buy a Laundromat", icon: Store, description: "Browse listings for sale" },
-      { href: "/directory", label: "Business Directory", icon: FolderOpen, description: "Find vendors & services" },
+      { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", featured: true, description: "AI-powered location analysis" },
+      { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale" },
+      { href: "/directory", label: "Business Directory", description: "Find vendors & services" },
     ]
   },
   {
     id: "tools",
-    title: "Business Tools",
+    title: "Tools",
     items: [
-      { href: "/calculators", label: "Calculators Suite", icon: Calculator, description: "ROI, valuation & more" },
-      { href: "/utility-bill-auditor", label: "Utility Bill Auditor", icon: BarChart3, description: "Reduce operating costs" },
-      { href: "/equipment-diagnostics", label: "Equipment Diagnostics", icon: Wrench, description: "Troubleshoot machines" },
+      { href: "/calculators", label: "Calculators", description: "ROI, valuation & more" },
+      { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs" },
+      { href: "/equipment-diagnostics", label: "Diagnostics", description: "Troubleshoot machines" },
     ]
   },
   {
     id: "resources",
-    title: "Resources",
+    title: "Learn",
     items: [
-      { href: "/blog", label: "Industry Blog", icon: FileText, description: "Expert insights & news" },
-      { href: "/courses", label: "Academy", icon: BookOpen, description: "Learn from pros" },
-      { href: "/funding", label: "Funding Options", icon: TrendingUp, description: "Finance your growth" },
+      { href: "/blog", label: "Blog", description: "Expert insights & news" },
+      { href: "/courses", label: "Courses", description: "Learn from pros" },
+      { href: "/book", label: "The Bible", description: "Complete guide" },
     ]
   },
   {
     id: "connect",
     title: "Connect",
     items: [
-      { href: "/our-partnership", label: "Nick & Larry", icon: Handshake, description: "Meet our founders" },
-      { href: "/brokers", label: "Find Brokers", icon: Users, description: "Verified professionals" },
-      { href: "/forum", label: "Community Forum", icon: MessageSquare, description: "Join 72,000+ members" },
+      { href: "/our-partnership", label: "About Us", description: "Meet our founders" },
+      { href: "/brokers", label: "Brokers", description: "Verified professionals" },
+      { href: "/consultation", label: "Consulting", description: "Expert guidance" },
     ]
   }
-];
-
-const quickNavLinks = [
-  { href: "/cleanbi-explorer", label: "Score Location", icon: MapPin, featured: true },
-  { href: "/buy-laundromat", label: "Buy", icon: Store },
-  { href: "/forum", label: "Community", icon: MessageSquare },
-  { href: "/funding", label: "Funding", icon: DollarSign },
-];
-
-const featuredActions = [
-  { href: "/list-on-washbizhub", label: "List Your Business", icon: Star, primary: true },
-  { href: "/pricing", label: "View Pricing", icon: Sparkles },
 ];
 
 export function Header() {
@@ -108,33 +99,13 @@ export function Header() {
     hidden: { 
       opacity: 0, 
       y: -8,
-      scale: 0.96,
       transition: { duration: 0.15, ease: "easeIn" }
     },
     visible: { 
       opacity: 1, 
       y: 0,
-      scale: 1,
       transition: { duration: 0.2, ease: "easeOut" }
     }
-  };
-
-  const menuItemVariants = {
-    hidden: { opacity: 0, x: -8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: { delay: i * 0.03, duration: 0.15 }
-    })
-  };
-
-  const mobileItemVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: { delay: 0.1 + i * 0.05, duration: 0.2, ease: "easeOut" }
-    })
   };
 
   return (
@@ -147,178 +118,120 @@ export function Header() {
         Skip to main content
       </a>
       
-      {/* Top announcement bar */}
-      <div className="bg-primary" data-testid="header-trust-bar">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between py-2.5 text-xs sm:text-sm">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <span className="text-primary-foreground font-medium" data-testid="text-member-count">72,000+ Members</span>
-              <span className="text-primary-foreground/40 hidden sm:inline">|</span>
-              <span className="text-primary-foreground/80 hidden sm:inline" data-testid="text-tools-count">50+ Business Tools</span>
-              <span className="text-primary-foreground/40 hidden lg:inline">|</span>
-              <span className="text-accent font-semibold hidden lg:inline" data-testid="text-platform-rank">#1 Laundromat Platform</span>
-            </div>
-            <div className="flex items-center gap-4 sm:gap-6">
-              <a 
-                href="mailto:consult@washbizhub.com" 
-                className="text-primary-foreground/90 hover:text-primary-foreground font-medium hidden sm:flex items-center gap-1.5 transition-colors"
-                data-testid="link-email-contact"
-              >
-                consult@washbizhub.com
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main header with smooth sticky shadow */}
+      {/* Main header - clean, minimal */}
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md ${
+        className={`sticky top-0 z-50 transition-all duration-300 bg-background/98 backdrop-blur-md ${
           isScrolled 
-            ? 'shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_16px_rgba(0,0,0,0.08)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.4),0_6px_16px_rgba(0,0,0,0.3)]' 
+            ? 'shadow-sm border-b border-border/40' 
             : 'border-b border-border/60'
         }`}
         data-testid="header-main"
       >
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 gap-4">
-            {/* Logo with hover animation */}
+            {/* Logo */}
             <Link href="/" aria-label="WashBizHub Home">
-              <motion.div 
-                className="flex items-center gap-3 cursor-pointer rounded-lg py-1" 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.15 }}
+              <div 
+                className="flex items-center gap-2.5 cursor-pointer" 
                 data-testid="link-logo"
               >
                 <img 
                   src={logoUrl} 
                   alt="WashBizHub" 
-                  className="h-10 w-auto" 
+                  className="h-9 w-auto" 
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                 />
-                <span className="hidden sm:block text-xl font-bold text-primary dark:text-foreground tracking-tight">
+                <span className="hidden sm:block text-lg font-bold text-foreground tracking-tight">
                   WashBizHub
                 </span>
-              </motion.div>
+              </div>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Clean text-only */}
             <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
-              {/* Quick nav links with hover animations */}
-              {quickNavLinks.map((link, index) => (
+              {navLinks.map((link) => (
                 <Link href={link.href} key={link.href}>
-                  <motion.span 
-                    className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+                  <span 
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
                       link.featured
-                        ? 'cleanbi-featured-nav'
+                        ? 'text-[#C8A661] hover:text-[#d4a030] font-semibold'
                         : location === link.href || location.startsWith(link.href + '?')
-                          ? 'text-accent bg-accent/10' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                          ? 'text-foreground bg-muted' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
                     data-testid={`link-nav-${link.href.replace('/', '')}`}
                   >
-                    {link.featured && <link.icon className="w-4 h-4 cleanbi-icon" aria-hidden="true" />}
                     {link.label}
-                  </motion.span>
+                  </span>
                 </Link>
               ))}
 
-              {/* Mega Menu dropdown */}
+              {/* More dropdown */}
               <div 
                 className="relative"
                 ref={megaMenuRef}
                 onMouseEnter={() => setMegaMenuOpen(true)}
                 onMouseLeave={() => setMegaMenuOpen(false)}
               >
-                <motion.button
-                  className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                <button
+                  className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     megaMenuOpen
                       ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                   onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.98 }}
                   aria-expanded={megaMenuOpen}
                   aria-haspopup="true"
                   aria-label="More options menu"
                   data-testid="button-mega-menu-trigger"
                 >
                   More
-                  <motion.span
-                    animate={{ rotate: megaMenuOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
-                  </motion.span>
-                </motion.button>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                </button>
 
-                {/* Premium Mega Menu Panel */}
+                {/* Clean Mega Menu Panel */}
                 <AnimatePresence>
                   {megaMenuOpen && (
                     <motion.div 
-                      className="absolute top-full right-0 pt-3 z-50"
+                      className="absolute top-full right-0 pt-2 z-50"
                       variants={dropdownVariants}
                       initial="hidden"
                       animate="visible"
                       exit="hidden"
                       data-testid="mega-menu-panel"
                     >
-                      <div className="bg-popover border border-border/80 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/30 overflow-hidden min-w-[680px]">
-                        {/* Menu Grid */}
-                        <div className="p-5 grid grid-cols-2 gap-6">
-                          {megaMenuSections.map((section, sectionIndex) => (
+                      <div className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden min-w-[520px]">
+                        <div className="p-4 grid grid-cols-2 gap-6">
+                          {megaMenuSections.map((section) => (
                             <div key={section.id} data-testid={`mega-menu-section-${section.id}`}>
-                              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                                 {section.title}
                               </h3>
                               <div className="space-y-1">
-                                {section.items.map((item, itemIndex) => (
+                                {section.items.map((item) => (
                                   <Link href={item.href} key={item.href}>
-                                    <motion.div 
-                                      className={`group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+                                    <div 
+                                      className={`block p-2.5 rounded-md cursor-pointer transition-colors ${
                                         item.featured 
-                                          ? 'bg-gradient-to-r from-accent/10 to-accent/5 hover:from-accent/20 hover:to-accent/10 border border-accent/20' 
-                                          : 'hover:bg-muted/80'
+                                          ? 'bg-[#C8A661]/10 hover:bg-[#C8A661]/20' 
+                                          : 'hover:bg-muted'
                                       }`}
                                       onClick={() => setMegaMenuOpen(false)}
-                                      custom={sectionIndex * 3 + itemIndex}
-                                      variants={menuItemVariants}
-                                      initial="hidden"
-                                      animate="visible"
-                                      whileHover={{ x: 4 }}
-                                      transition={{ duration: 0.15 }}
                                       data-testid={`link-mega-${item.href.replace('/', '')}`}
                                     >
-                                      <div className={`flex-shrink-0 p-2 rounded-lg ${
-                                        item.featured 
-                                          ? 'bg-accent text-accent-foreground' 
-                                          : 'bg-muted text-muted-foreground group-hover:bg-accent/10 group-hover:text-accent'
-                                      } transition-colors`}>
-                                        <item.icon className="w-4 h-4" aria-hidden="true" />
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-medium ${
-                                          item.featured ? 'text-accent' : 'text-foreground'
-                                        }`}>
-                                          {item.label}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                          {item.description}
-                                        </p>
-                                      </div>
-                                      {item.featured && (
-                                        <Sparkles className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-1" aria-hidden="true" />
-                                      )}
-                                    </motion.div>
+                                      <p className={`text-sm font-medium ${
+                                        item.featured ? 'text-[#C8A661]' : 'text-foreground'
+                                      }`}>
+                                        {item.label}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                        {item.description}
+                                      </p>
+                                    </div>
                                   </Link>
                                 ))}
                               </div>
@@ -326,31 +239,13 @@ export function Header() {
                           ))}
                         </div>
 
-                        {/* Featured Actions Footer */}
-                        <div className="px-5 py-4 bg-muted/50 border-t border-border/60 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            {featuredActions.map((action) => (
-                              <motion.div
-                                key={action.href}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                              >
-                                <Button 
-                                  variant={action.primary ? "default" : "outline"}
-                                  size="sm"
-                                  className={action.primary ? "bg-accent hover:bg-accent/90 text-accent-foreground" : ""}
-                                  onClick={() => {
-                                    setMegaMenuOpen(false);
-                                    window.location.href = action.href;
-                                  }}
-                                  data-testid={`button-mega-${action.href.replace('/', '')}`}
-                                >
-                                  <action.icon className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
-                                  {action.label}
-                                </Button>
-                              </motion.div>
-                            ))}
-                          </div>
+                        {/* Simple footer */}
+                        <div className="px-4 py-3 bg-muted/30 border-t border-border/60 flex items-center justify-between">
+                          <Link href="/pricing">
+                            <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer">
+                              View Pricing →
+                            </span>
+                          </Link>
                           <span className="text-xs text-muted-foreground">
                             Press <kbd className="px-1.5 py-0.5 rounded bg-background border text-[10px] font-mono">/</kbd> to search
                           </span>
@@ -362,7 +257,7 @@ export function Header() {
               </div>
             </nav>
 
-            {/* Right side actions */}
+            {/* Right side actions - minimal */}
             <div className="flex items-center gap-2">
               <GlobalSearchTrigger />
               
@@ -383,16 +278,15 @@ export function Header() {
                         <SettingsIcon className="h-4 w-4" aria-hidden="true" />
                       </Button>
                       
-                      <motion.div 
-                        className="hidden md:flex items-center gap-2 text-muted-foreground text-sm px-3 py-1.5 bg-muted/80 rounded-full border border-border/50"
-                        whileHover={{ scale: 1.02 }}
+                      <div 
+                        className="hidden md:flex items-center gap-2 text-muted-foreground text-sm px-3 py-1.5 bg-muted/50 rounded-full"
                         data-testid="display-user-info"
                       >
-                        <User className="h-4 w-4" aria-hidden="true" />
-                        <span className="font-medium max-w-[100px] truncate">
-                          {user?.firstName || user?.email || 'User'}
+                        <User className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span className="font-medium max-w-[80px] truncate text-xs">
+                          {user?.firstName || user?.email?.split('@')[0] || 'User'}
                         </span>
-                      </motion.div>
+                      </div>
                       
                       <div className="hidden sm:block">
                         <UsageIndicator compact />
@@ -402,305 +296,197 @@ export function Header() {
                         onClick={() => window.location.href = '/api/logout'}
                         variant="ghost"
                         size="sm"
-                        className="hidden sm:flex text-muted-foreground hover:text-foreground"
+                        className="hidden sm:flex text-muted-foreground hover:text-foreground text-xs"
                         data-testid="button-logout"
                       >
-                        <LogOut className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                        <LogOut className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
                         <span className="hidden md:inline">Logout</span>
                       </Button>
                     </>
                   ) : (
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                      <Button 
-                        onClick={() => window.location.href = '/api/login'}
-                        variant="default"
-                        size="sm"
-                        className="hidden sm:flex font-medium"
-                        data-testid="button-login"
-                      >
-                        <LogIn className="h-4 w-4 mr-1.5" aria-hidden="true" />
-                        Sign in
-                      </Button>
-                    </motion.div>
+                    <Button 
+                      onClick={() => window.location.href = '/api/login'}
+                      variant="ghost"
+                      size="sm"
+                      className="hidden sm:flex text-sm"
+                      data-testid="button-login"
+                    >
+                      Sign in
+                    </Button>
                   )}
                   
-                  {/* Need Help Selling CTA */}
-                  <motion.div className="hidden md:block" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium"
-                      onClick={() => window.location.href = '/sell-your-laundromat'}
-                      data-testid="button-sell-help"
-                    >
-                      <HelpCircle className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                      <span className="hidden lg:inline">Need Help Selling?</span>
-                      <span className="lg:hidden">Sell</span>
-                    </Button>
-                  </motion.div>
-                  
                   {(!user?.isPro) && (
-                    <motion.div 
-                      className="hidden sm:block"
-                      whileHover={{ scale: 1.03 }} 
-                      whileTap={{ scale: 0.97 }}
+                    <Button 
+                      className="hidden sm:flex bg-[#C8A661] hover:bg-[#b8963d] text-white font-medium text-sm"
+                      size="sm"
+                      onClick={() => window.location.href = '/pricing'}
+                      data-testid="button-upgrade"
                     >
-                      <Button 
-                        className="btn-premium-gold text-white font-semibold rounded-lg px-4"
-                        size="sm"
-                        onClick={() => window.location.href = '/pricing'}
-                        data-testid="button-upgrade"
-                      >
-                        <Zap className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                        <span className="hidden lg:inline">Upgrade to Pro</span>
-                        <span className="lg:hidden">Pro</span>
-                      </Button>
-                    </motion.div>
+                      Upgrade
+                    </Button>
                   )}
                 </>
               )}
               
-              {/* Mobile menu with Sheet */}
+              {/* Mobile menu */}
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <motion.div whileTap={{ scale: 0.95 }}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="lg:hidden text-foreground hover:text-foreground/80"
-                      aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-                      data-testid="button-mobile-menu-trigger"
-                    >
-                      <Menu className="h-5 w-5" aria-hidden="true" />
-                    </Button>
-                  </motion.div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden text-foreground"
+                    aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                    data-testid="button-mobile-menu-trigger"
+                  >
+                    <Menu className="h-5 w-5" aria-hidden="true" />
+                  </Button>
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="w-[320px] sm:w-[380px] bg-card dark:bg-card border-l border-border p-0 overflow-hidden"
+                  className="w-[300px] bg-background border-l border-border p-0"
                   data-testid="mobile-drawer-panel"
                 >
                   <div className="flex flex-col h-full">
-                    {/* Mobile Header with Premium Close Button */}
-                    <div className="flex items-center justify-between p-5 border-b border-border bg-gradient-to-r from-muted/50 to-background">
+                    {/* Mobile Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-border">
                       <SheetHeader className="flex-1">
-                        <SheetTitle className="text-foreground text-xl font-bold flex items-center gap-2">
+                        <SheetTitle className="text-foreground text-lg font-bold flex items-center gap-2">
                           <img src={logoUrl} alt="" className="h-6 w-auto" />
                           Menu
                         </SheetTitle>
                         <SheetDescription className="sr-only">
-                          Navigation menu with links to all WashBizHub sections
+                          Navigation menu
                         </SheetDescription>
                       </SheetHeader>
                       <SheetClose asChild>
-                        <motion.button
-                          className="p-2 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                          whileHover={{ scale: 1.05, rotate: 90 }}
-                          whileTap={{ scale: 0.95 }}
+                        <button
+                          className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                           aria-label="Close menu"
                           data-testid="button-mobile-close"
                         >
-                          <X className="h-5 w-5" aria-hidden="true" />
-                        </motion.button>
+                          <X className="h-4 w-4" />
+                        </button>
                       </SheetClose>
                     </div>
-                    
-                    <div className="flex-1 overflow-y-auto">
-                      {/* Featured CLEANBI Explorer - Primary CTA */}
-                      <motion.div 
-                        className="p-4 pb-2"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        <Link href="/cleanbi-explorer" onClick={() => setMobileMenuOpen(false)}>
-                          <motion.div 
-                            className="cleanbi-featured-mobile"
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-                            data-testid="link-mobile-cleanbi-explorer"
-                          >
-                            <MapPin className="cleanbi-icon" aria-hidden="true" />
-                            Score Any Location
-                          </motion.div>
-                        </Link>
-                      </motion.div>
-                      
-                      {/* Mobile Menu Sections */}
-                      <div className="px-4 pt-2 space-y-4">
-                        {megaMenuSections.map((section, sectionIndex) => (
-                          <Collapsible 
-                            key={section.id}
-                            open={expandedSections.includes(section.id)}
-                            onOpenChange={() => toggleSection(section.id)}
-                          >
-                            <motion.div
-                              custom={sectionIndex}
-                              variants={mobileItemVariants}
-                              initial="hidden"
-                              animate="visible"
-                            >
-                              <CollapsibleTrigger 
-                                className="flex items-center justify-between w-full py-3 px-2 text-left rounded-lg hover:bg-muted/50 transition-colors group"
-                                data-testid={`button-mobile-section-${section.id}`}
-                              >
-                                <span className="text-foreground font-semibold text-sm">
-                                  {section.title}
-                                </span>
-                                <motion.span
-                                  animate={{ rotate: expandedSections.includes(section.id) ? 90 : 0 }}
-                                  transition={{ duration: 0.2 }}
+
+                    {/* Mobile Nav Links */}
+                    <div className="flex-1 overflow-y-auto py-4">
+                      {/* Primary Links */}
+                      <div className="px-4 mb-6">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                          Main
+                        </p>
+                        <div className="space-y-1">
+                          {navLinks.map((link) => (
+                            <SheetClose asChild key={link.href}>
+                              <Link href={link.href}>
+                                <span 
+                                  className={`block px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+                                    link.featured
+                                      ? 'text-[#C8A661] bg-[#C8A661]/10'
+                                      : location === link.href
+                                        ? 'text-foreground bg-muted'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                  }`}
+                                  data-testid={`link-mobile-${link.href.replace('/', '')}`}
                                 >
-                                  <ChevronRight 
-                                    className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" 
-                                    aria-hidden="true" 
-                                  />
-                                </motion.span>
-                              </CollapsibleTrigger>
-                              <CollapsibleContent>
-                                <AnimatePresence>
-                                  <motion.div 
-                                    className="pl-2 pt-1 pb-2 space-y-1"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    {section.items.map((item, itemIndex) => (
-                                      <Link href={item.href} key={item.href}>
-                                        <motion.div 
-                                          className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all cursor-pointer ${
-                                            item.featured
-                                              ? 'bg-accent/10 text-accent border border-accent/20'
-                                              : location === item.href 
-                                                ? 'bg-muted text-foreground'
-                                                : 'text-foreground/80 hover:bg-muted/60 hover:text-foreground'
-                                          }`}
-                                          onClick={() => setMobileMenuOpen(false)}
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{ opacity: 1, x: 0 }}
-                                          transition={{ delay: itemIndex * 0.05 }}
-                                          whileTap={{ scale: 0.98 }}
-                                          data-testid={`link-mobile-${item.href.replace('/', '')}`}
-                                        >
-                                          <div className={`p-1.5 rounded-md ${
-                                            item.featured 
-                                              ? 'bg-accent/20 text-accent' 
-                                              : 'bg-muted text-muted-foreground'
-                                          }`}>
-                                            <item.icon className="w-4 h-4" aria-hidden="true" />
-                                          </div>
-                                          <div className="flex-1">
-                                            <p className="font-medium">{item.label}</p>
-                                            <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-                                          </div>
-                                          <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                                        </motion.div>
-                                      </Link>
-                                    ))}
-                                  </motion.div>
-                                </AnimatePresence>
-                              </CollapsibleContent>
-                            </motion.div>
-                          </Collapsible>
-                        ))}
+                                  {link.label}
+                                </span>
+                              </Link>
+                            </SheetClose>
+                          ))}
+                        </div>
                       </div>
+
+                      {/* Collapsible Sections */}
+                      {megaMenuSections.map((section) => (
+                        <Collapsible
+                          key={section.id}
+                          open={expandedSections.includes(section.id)}
+                          onOpenChange={() => toggleSection(section.id)}
+                          className="px-4 mb-2"
+                        >
+                          <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
+                            <span>{section.title}</span>
+                            <ChevronRight className={`h-4 w-4 transition-transform ${
+                              expandedSections.includes(section.id) ? 'rotate-90' : ''
+                            }`} />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-1 ml-3 space-y-1">
+                            {section.items.map((item) => (
+                              <SheetClose asChild key={item.href}>
+                                <Link href={item.href}>
+                                  <span 
+                                    className={`block px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
+                                      item.featured
+                                        ? 'text-[#C8A661]'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                    }`}
+                                    data-testid={`link-mobile-mega-${item.href.replace('/', '')}`}
+                                  >
+                                    {item.label}
+                                  </span>
+                                </Link>
+                              </SheetClose>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      ))}
                     </div>
-                    
-                    {/* Bottom actions with gradient background */}
-                    <motion.div 
-                      className="p-5 border-t border-border space-y-3 bg-gradient-to-t from-muted/80 to-muted/30"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      {!isAuthenticated && (
-                        <motion.div whileTap={{ scale: 0.98 }}>
-                          <Button 
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              window.location.href = '/api/login';
-                            }}
-                            variant="default"
-                            className="w-full justify-center font-medium h-11"
-                            data-testid="button-mobile-login"
-                          >
-                            <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
-                            Sign in
-                          </Button>
-                        </motion.div>
+
+                    {/* Mobile Footer Actions */}
+                    <div className="p-4 border-t border-border space-y-3">
+                      {!isLoading && (
+                        <>
+                          {isAuthenticated ? (
+                            <>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                                <User className="h-4 w-4" />
+                                <span className="truncate">{user?.email}</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <SheetClose asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="flex-1 text-xs"
+                                    onClick={() => window.location.href = '/settings'}
+                                  >
+                                    Settings
+                                  </Button>
+                                </SheetClose>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1 text-xs"
+                                  onClick={() => window.location.href = '/api/logout'}
+                                >
+                                  Logout
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <Button 
+                              className="w-full"
+                              onClick={() => window.location.href = '/api/login'}
+                            >
+                              Sign in
+                            </Button>
+                          )}
+                          
+                          {(!user?.isPro) && (
+                            <SheetClose asChild>
+                              <Button 
+                                className="w-full bg-[#C8A661] hover:bg-[#b8963d] text-white"
+                                onClick={() => window.location.href = '/pricing'}
+                              >
+                                Upgrade to Pro
+                              </Button>
+                            </SheetClose>
+                          )}
+                        </>
                       )}
-                      
-                      {/* Need Help Selling CTA - Mobile */}
-                      <motion.div whileTap={{ scale: 0.98 }}>
-                        <Button 
-                          variant="outline"
-                          className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium h-11"
-                          onClick={() => {
-                            setMobileMenuOpen(false);
-                            window.location.href = '/sell-your-laundromat';
-                          }}
-                          data-testid="button-mobile-sell-help"
-                        >
-                          <HelpCircle className="w-4 h-4 mr-2" aria-hidden="true" />
-                          Need Help Selling?
-                        </Button>
-                      </motion.div>
-                      
-                      {(!user?.isPro) && (
-                        <motion.div whileTap={{ scale: 0.98 }}>
-                          <Button 
-                            className="w-full btn-premium-gold text-white font-semibold h-11"
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              window.location.href = '/pricing';
-                            }}
-                            data-testid="button-mobile-upgrade"
-                          >
-                            <Zap className="w-4 h-4 mr-2" aria-hidden="true" />
-                            Upgrade to Pro
-                          </Button>
-                        </motion.div>
-                      )}
-                      
-                      {isAuthenticated && (
-                        <motion.div 
-                          className="space-y-2 pt-2 border-t border-border/50"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.4 }}
-                        >
-                          <div className="flex items-center justify-between px-3 py-2.5 bg-background/80 dark:bg-background/50 rounded-xl border border-border/50">
-                            <span className="text-sm text-foreground/90 font-medium">CLEANBI Usage</span>
-                            <UsageIndicator />
-                          </div>
-                          <Button 
-                            variant="ghost"
-                            className="w-full justify-start text-foreground/90 hover:text-foreground h-10"
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              window.location.href = '/settings';
-                            }}
-                            data-testid="button-mobile-settings"
-                          >
-                            <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
-                            Settings
-                          </Button>
-                          <Button 
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              window.location.href = '/api/logout';
-                            }}
-                            variant="ghost"
-                            className="w-full justify-start text-foreground/90 hover:text-foreground h-10"
-                            data-testid="button-mobile-logout"
-                          >
-                            <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
-                            Sign out
-                          </Button>
-                        </motion.div>
-                      )}
-                    </motion.div>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -711,3 +497,5 @@ export function Header() {
     </>
   );
 }
+
+export default Header;

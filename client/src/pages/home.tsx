@@ -109,10 +109,10 @@ const journeyPaths = [
 ];
 
 const colorClasses: Record<string, { bg: string; border: string; text: string; hover: string }> = {
-  blue: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" },
-  green: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" },
-  orange: { bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-500", hover: "hover:border-amber-500/40" },
-  purple: { bg: "bg-accent/10", border: "border-accent/20", text: "text-accent", hover: "hover:border-accent/40" }
+  blue: { bg: "bg-muted", border: "border-border", text: "text-foreground", hover: "hover:border-[#C8A661]/50" },
+  green: { bg: "bg-muted", border: "border-border", text: "text-foreground", hover: "hover:border-[#C8A661]/50" },
+  orange: { bg: "bg-muted", border: "border-border", text: "text-foreground", hover: "hover:border-[#C8A661]/50" },
+  purple: { bg: "bg-muted", border: "border-border", text: "text-foreground", hover: "hover:border-[#C8A661]/50" }
 };
 
 const stats = [
@@ -151,27 +151,27 @@ function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPat
           <Card 
             key={path.id}
             onClick={() => setLocation(path.link)}
-            className={`p-6 h-full border-2 ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group bg-white`}
+            className={`p-6 h-full border ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group`}
             data-testid={`card-journey-${path.id}`}
           >
-            <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg}`}>
-              <Icon className={`h-6 w-6 ${colors.text}`} />
+            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#C8A661]/10">
+              <Icon className="h-5 w-5 text-[#C8A661]" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="text-lg font-bold text-foreground mb-2">
               {path.headline}
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {path.description}
             </p>
             <ul className="space-y-2 mb-4">
               {path.features.map((feature, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                  <CheckCircle className={`w-4 h-4 ${colors.text} flex-shrink-0`} />
+                <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-[#C8A661] flex-shrink-0" />
                   {feature}
                 </li>
               ))}
             </ul>
-            <div className={`flex items-center ${colors.text} text-sm font-semibold group-hover:translate-x-1 transition-transform`}>
+            <div className="flex items-center text-[#C8A661] text-sm font-semibold group-hover:translate-x-1 transition-transform">
               Explore
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </div>

@@ -74,7 +74,7 @@ interface NavLinkItem {
   featured?: boolean;
 }
 
-function DropdownLink({ href, label, icon: Icon, desc, featured }: NavLinkItem) {
+function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
   const handleClick = () => {
     window.location.href = href;
   };
@@ -91,33 +91,23 @@ function DropdownLink({ href, label, icon: Icon, desc, featured }: NavLinkItem) 
       type="button"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={`group w-full text-left flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#b8860b]/50 ${
+      className={`group w-full text-left flex items-center justify-between px-4 py-2.5 rounded-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#b8860b]/50 ${
         featured 
-          ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/30 hover:border-[#b8860b]/50 hover:from-[#b8860b]/15' 
-          : 'hover:bg-[#1e3a5f]/5'
+          ? 'bg-[#b8860b]/5 hover:bg-[#b8860b]/10' 
+          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
       }`}
       data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
       aria-label={`Navigate to ${label}`}
     >
-      {Icon && (
-        <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-          featured 
-            ? 'bg-[#b8860b]/20 text-[#b8860b] group-hover:bg-[#b8860b]/30' 
-            : 'bg-[#1e3a5f]/10 text-[#1e3a5f] group-hover:bg-[#1e3a5f]/20'
-        }`}>
-          <Icon className="w-4 h-4" />
-        </div>
-      )}
       <div className="flex-1 min-w-0">
-        <span className={`block text-sm font-semibold ${featured ? 'text-[#b8860b]' : 'text-gray-900 dark:text-gray-100'} group-hover:text-[#1e3a5f]`}>
+        <span className={`block text-sm font-medium ${featured ? 'text-[#b8860b]' : 'text-gray-900 dark:text-gray-100'}`}>
           {label}
-          {featured && <Sparkles className="inline-block w-3 h-3 ml-1.5 text-[#b8860b]" />}
         </span>
         {desc && (
           <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
         )}
       </div>
-      <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all mt-0.5" aria-hidden="true" />
+      <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
     </button>
   );
 }
@@ -291,9 +281,8 @@ export function NavigationMenu() {
                           transition={{ duration: 0.2 }}
                           className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
-                          <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
-                              <BarChart3 className="w-3.5 h-3.5" />
+                          <div className="mb-2 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Intelligence Tools
                             </span>
                           </div>
@@ -321,9 +310,8 @@ export function NavigationMenu() {
                           transition={{ duration: 0.2 }}
                           className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
-                          <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
-                              <ShoppingCart className="w-3.5 h-3.5" />
+                          <div className="mb-2 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Buy & Sell
                             </span>
                           </div>
@@ -351,9 +339,8 @@ export function NavigationMenu() {
                           transition={{ duration: 0.2 }}
                           className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
-                          <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
-                              <BookOpen className="w-3.5 h-3.5" />
+                          <div className="mb-2 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Learn & Grow
                             </span>
                           </div>
@@ -381,9 +368,8 @@ export function NavigationMenu() {
                           transition={{ duration: 0.2 }}
                           className="w-[380px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
                         >
-                          <div className="mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-[#1e3a5f] uppercase tracking-wider flex items-center gap-2">
-                              <Wallet className="w-3.5 h-3.5" />
+                          <div className="mb-2 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                               7 Trusted Lending Partners
                             </span>
                           </div>
@@ -557,10 +543,7 @@ export function NavigationMenu() {
 
                         <AccordionItem value="funding" className="border-b border-border/50">
                           <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
-                            <span className="flex items-center gap-2">
-                              <DollarSign className="w-4 h-4 text-[#b8860b]" />
-                              Funding
-                            </span>
+                            Funding
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
