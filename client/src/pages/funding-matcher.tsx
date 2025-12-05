@@ -14,7 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Helmet } from "react-helmet-async";
 import { PremiumChart } from "@/components/PremiumChart";
-import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { 
   DollarSign, CheckCircle2, Building2, Zap, Clock, Shield, 
   ArrowRight, Star, TrendingUp, ExternalLink, Phone, Mail,
@@ -88,7 +87,7 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     id: "national-business-capital",
     name: "National Business Capital",
     type: "SBA & Business Financing Marketplace",
-    description: "Access 75+ lenders through one application. Specialists in SBA 7(a) loans with the fastest SBA processing (45 days vs 90+ days typical).",
+    description: "Access 75+ lenders through one application. Specialists in SBA 7(a) loans with the fastest SBA processing (45 days vs 90+ days typical). Contact WashBizHub for a personalized consultation.",
     products: ["SBA 7(a) Loans", "SBA Express", "Term Loans", "Equipment Financing", "Lines of Credit", "Revenue-Based Financing"],
     minLoan: 10000,
     maxLoan: 10000000,
@@ -99,8 +98,8 @@ const FUNDING_PARTNERS: FundingPartner[] = [
     rates: "Prime + 2.75% (SBA) / 6-18% (Term)",
     bestFor: ["SBA loans", "Business acquisitions", "Established operators", "Portfolio expansion"],
     loanPurposes: ["business-acquisition", "equipment", "working-capital", "real-estate"],
-    affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1",
-    specialFeatures: ["75+ lender network", "90% approval rate", "Dedicated advisor", "Hybridge fast SBA"]
+    affiliateUrl: "nbc-form",
+    specialFeatures: ["75+ lender network", "90% approval rate", "Personal consultation", "Enterprise deals $500K+"]
   },
   {
     id: "south-end-capital",
@@ -469,6 +468,7 @@ export default function FundingMatcher() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showGoKapitalForm, setShowGoKapitalForm] = useState(false);
+  const [showNBCForm, setShowNBCForm] = useState(false);
   const [matchedPartners, setMatchedPartners] = useState<FundingPartner[]>([]);
   const [creditScoreNumeric, setCreditScoreNumeric] = useState(650);
   const [showPreview, setShowPreview] = useState(true);
@@ -610,10 +610,157 @@ export default function FundingMatcher() {
         contactEmail: inputs.email,
         contactPhone: inputs.phone,
       }));
+    } else if (partner.affiliateUrl === "nbc-form") {
+      setShowNBCForm(true);
     } else {
       window.open(partner.affiliateUrl, "_blank");
     }
   };
+
+  const handleNBCSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: inputs.email,
+          name: inputs.name,
+          phone: inputs.phone,
+          source: "nbc-consultation",
+          data: {
+            loanAmount: inputs.loanAmount,
+            loanPurpose: inputs.loanPurpose,
+            creditScore: creditScoreNumeric,
+            timeInBusiness: inputs.timeInBusiness,
+            annualRevenue: inputs.annualRevenue,
+            partner: "National Business Capital"
+          }
+        }),
+      });
+
+      toast({ 
+        title: "Consultation Request Sent!", 
+        description: "A WashBizHub funding specialist will contact you within 24 hours to discuss your National Business Capital options." 
+      });
+      setShowNBCForm(false);
+    } catch (error) {
+      toast({ title: "Error submitting request", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderNBCForm = () => (
+    <Card className="bg-white/5 border-white/10">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-[#1e3a5f] rounded-xl flex items-center justify-center">
+              <Landmark className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">National Business Capital</h3>
+              <p className="text-white/60 text-sm">Personal Consultation Request</p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowNBCForm(false)}
+            className="text-white/60 hover:text-white"
+          >
+            <ArrowRight className="h-5 w-5 rotate-180" />
+          </Button>
+        </div>
+
+        <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 mb-6">
+          <p className="text-accent text-sm">
+            <strong>Enterprise-Level Funding:</strong> National Business Capital specializes in SBA loans and large funding requests ($500K+). 
+            A WashBizHub funding specialist will personally connect you with the right NBC advisor for your needs.
+          </p>
+        </div>
+
+        <form onSubmit={handleNBCSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-white/90">Your Name</Label>
+              <Input
+                value={inputs.name}
+                onChange={(e) => setInputs({ ...inputs, name: e.target.value })}
+                className="bg-white/10 border-white/20 text-white mt-1"
+                required
+                data-testid="input-nbc-name"
+              />
+            </div>
+            <div>
+              <Label className="text-white/90">Email</Label>
+              <Input
+                type="email"
+                value={inputs.email}
+                onChange={(e) => setInputs({ ...inputs, email: e.target.value })}
+                className="bg-white/10 border-white/20 text-white mt-1"
+                required
+                data-testid="input-nbc-email"
+              />
+            </div>
+            <div>
+              <Label className="text-white/90">Phone</Label>
+              <Input
+                type="tel"
+                value={inputs.phone}
+                onChange={(e) => setInputs({ ...inputs, phone: e.target.value })}
+                className="bg-white/10 border-white/20 text-white mt-1"
+                required
+                data-testid="input-nbc-phone"
+              />
+            </div>
+            <div>
+              <Label className="text-white/90">Funding Amount</Label>
+              <Input
+                value={`$${parseFloat(inputs.loanAmount || "0").toLocaleString()}`}
+                className="bg-white/10 border-white/20 text-white mt-1"
+                disabled
+              />
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-lg p-4">
+            <h4 className="text-white font-semibold mb-2">Your Request Summary</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="text-white/60">Purpose:</div>
+              <div className="text-white">{inputs.loanPurpose.replace(/-/g, ' ')}</div>
+              <div className="text-white/60">Credit Score:</div>
+              <div className="text-white">{getCreditTierLabel(creditScoreNumeric)} ({creditScoreNumeric})</div>
+              <div className="text-white/60">Time in Business:</div>
+              <div className="text-white">{inputs.timeInBusiness || 'Not specified'}</div>
+              <div className="text-white/60">Annual Revenue:</div>
+              <div className="text-white">{inputs.annualRevenue || 'Not specified'}</div>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-[#1e3a5f] hover:bg-[#1e3a5f]/90 text-white font-bold py-3"
+            data-testid="button-submit-nbc"
+          >
+            {isSubmitting ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
+            ) : (
+              <>Request Free Consultation <ArrowRight className="ml-2 h-4 w-4" /></>
+            )}
+          </Button>
+
+          <p className="text-white/40 text-xs text-center">
+            Your information will be sent to consult@washbizhub.com. A funding specialist will contact you within 24 hours.
+          </p>
+        </form>
+      </CardContent>
+    </Card>
+  );
 
   const renderQuestionnaire = () => (
     <form onSubmit={handleMatch} className="space-y-6">
@@ -945,46 +1092,39 @@ export default function FundingMatcher() {
         </p>
       </div>
 
-      <FeatureGate 
-        feature="funding_gauge" 
-        blurContent={true}
-        title="Match Score Analytics"
-        description="See visual gauges and charts for your funding matches"
-      >
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-4">
-              <h4 className="text-white font-semibold text-sm mb-2 text-center">Best Match Score</h4>
-              <PremiumChart
-                type="d3-gauge"
-                title="Best Match"
-                data={[{ label: "Best Match", value: bestScore }]}
-                height={180}
-                formatValue={(v) => `${v}%`}
-              />
-              <div className="text-center mt-2">
-                <Badge className={`${bestGrade.color} text-white`}>
-                  Grade {bestGrade.grade} - {bestGrade.label}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-4">
-              <h4 className="text-white font-semibold text-sm mb-2 text-center">All Partner Scores</h4>
-              <PremiumChart
-                type="bar"
-                title="Match Scores"
-                data={chartData}
-                height={180}
-                showLegend={false}
-                formatValue={(v) => `${v}%`}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </FeatureGate>
+      <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className="p-4">
+            <h4 className="text-white font-semibold text-sm mb-2 text-center">Best Match Score</h4>
+            <PremiumChart
+              type="d3-gauge"
+              title="Best Match"
+              data={[{ label: "Best Match", value: bestScore }]}
+              height={180}
+              formatValue={(v) => `${v}%`}
+            />
+            <div className="text-center mt-2">
+              <Badge className={`${bestGrade.color} text-white`}>
+                Grade {bestGrade.grade} - {bestGrade.label}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className="p-4">
+            <h4 className="text-white font-semibold text-sm mb-2 text-center">All Partner Scores</h4>
+            <PremiumChart
+              type="bar"
+              title="Match Scores"
+              data={chartData}
+              height={180}
+              showLegend={false}
+              formatValue={(v) => `${v}%`}
+            />
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="space-y-4">
         {matchedPartners.map((partner, idx) => {
@@ -1424,7 +1564,7 @@ export default function FundingMatcher() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 -mt-8">
-          {!showResults && !showGoKapitalForm && (step === 1 || step === 2) && liveMatches.length > 0 ? (
+          {!showResults && !showGoKapitalForm && !showNBCForm && (step === 1 || step === 2) && liveMatches.length > 0 ? (
             <div className="grid lg:grid-cols-5 gap-6">
               <Card className="lg:col-span-3 bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
                 <CardContent className="p-6 sm:p-8">
@@ -1469,12 +1609,12 @@ export default function FundingMatcher() {
           ) : (
             <Card className="max-w-4xl mx-auto bg-gray-800/80 backdrop-blur border-white/10 shadow-2xl">
               <CardContent className="p-6 sm:p-8">
-                {showGoKapitalForm ? renderGoKapitalForm() : showResults ? renderResults() : renderQuestionnaire()}
+                {showGoKapitalForm ? renderGoKapitalForm() : showNBCForm ? renderNBCForm() : showResults ? renderResults() : renderQuestionnaire()}
               </CardContent>
             </Card>
           )}
 
-          {!showResults && !showGoKapitalForm && (
+          {!showResults && !showGoKapitalForm && !showNBCForm && (
             <>
               <section className="mt-16" aria-labelledby="financing-types-heading">
                 <h2 id="financing-types-heading" className="text-2xl font-bold text-white text-center mb-8">
