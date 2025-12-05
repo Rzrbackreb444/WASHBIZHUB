@@ -21,7 +21,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -61,6 +61,11 @@ import {
 } from "./content-indexing-hooks";
 import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
 import { optimizeBlogForSEO } from "./seo-optimizer";
+import { 
+  generateListingBlog, 
+  submitToIndexNow, 
+  submitToGoogleIndexing 
+} from "./visibility-automation";
 import { 
   performSearch, 
   trackSearchAnalytics, 
@@ -233,6 +238,172 @@ const LISTING_TIER_PRICING: Record<string, { name: string; amount: number; price
   showcase: { name: 'Showcase Listing', amount: 8900, priceId: process.env.STRIPE_LISTING_SHOWCASE_PRICE_ID },
   diamond: { name: 'Diamond Listing', amount: 19900, priceId: process.env.STRIPE_LISTING_DIAMOND_PRICE_ID },
 };
+
+// ==================== TIER-TRIGGERED AUTOMATION ====================
+// Automatically fulfill tier benefits when listing is created or upgraded
+
+interface TierAutomationResult {
+  tier: string;
+  benefitsApplied: string[];
+  blogGenerated?: { id: string; slug: string; title: string };
+  indexNowSubmitted?: boolean;
+  googleIndexingSubmitted?: boolean;
+  errors: string[];
+}
+
+async function applyTierBenefits(
+  listingId: string, 
+  tier: string, 
+  previousTier?: string | null
+): Promise<TierAutomationResult> {
+  const result: TierAutomationResult = {
+    tier,
+    benefitsApplied: [],
+    errors: [],
+  };
+
+  console.log(`🎯 [TIER AUTOMATION] Processing tier "${tier}" for listing ${listingId} (previous: ${previousTier || 'none'})`);
+
+  // Skip if tier is free or basic (no automation benefits)
+  if (tier === 'free' || tier === 'basic') {
+    console.log(`📋 [TIER AUTOMATION] Tier "${tier}" has no automation benefits, skipping`);
+    return result;
+  }
+
+  // Skip if tier hasn't changed (for updates)
+  if (previousTier && previousTier === tier) {
+    console.log(`📋 [TIER AUTOMATION] Tier unchanged, skipping automation`);
+    return result;
+  }
+
+  // Get listing data for automation
+  const [listing] = await db.select().from(listings).where(eq(listings.id, listingId)).limit(1);
+  if (!listing) {
+    result.errors.push('Listing not found');
+    console.error(`❌ [TIER AUTOMATION] Listing ${listingId} not found`);
+    return result;
+  }
+
+  const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+  const listingUrl = `${baseUrl}/buy-laundromat/${listingId}`;
+
+  try {
+    // SHOWCASE TIER: Featured flags + visibility boost (level 3)
+    if (tier === 'showcase' || tier === 'diamond') {
+      const visibilityLevel = tier === 'diamond' ? 5 : 3;
+      
+      await db.update(listings)
+        .set({
+          featured: true,
+          carouselFeatured: true,
+          carouselFeaturedAt: new Date(),
+          prioritySearch: true,
+          visibilityBoost: visibilityLevel,
+        })
+        .where(eq(listings.id, listingId));
+      
+      result.benefitsApplied.push(`featured: true`);
+      result.benefitsApplied.push(`carouselFeatured: true`);
+      result.benefitsApplied.push(`prioritySearch: true`);
+      result.benefitsApplied.push(`visibilityBoost: ${visibilityLevel}`);
+      
+      console.log(`✅ [TIER AUTOMATION] Applied showcase benefits for listing ${listingId}`);
+    }
+
+    // DIAMOND TIER: All showcase benefits PLUS AI blog + indexing
+    if (tier === 'diamond') {
+      // Generate AI blog post
+      try {
+        console.log(`📝 [TIER AUTOMATION] Generating AI blog for diamond listing ${listingId}`);
+        
+        const blog = await generateListingBlog({
+          id: listing.id,
+          title: listing.title || 'Laundromat Listing',
+          description: listing.description,
+          city: listing.city,
+          state: listing.region,
+          price: listing.priceOriginal?.toString() || null,
+          brokerName: listing.brokerName,
+        });
+
+        // Save blog post to database
+        const [savedBlog] = await db.insert(blogPosts).values({
+          title: blog.title,
+          slug: blog.slug,
+          content: blog.content,
+          excerpt: blog.excerpt,
+          metaTitle: blog.metaTitle,
+          metaDescription: blog.metaDescription,
+          category: 'listings',
+          authorName: 'WashBizHub AI',
+          published: true,
+          tenantId: listing.tenantId,
+        }).returning();
+
+        // Link blog to listing
+        await db.update(listings)
+          .set({
+            autoBlogEnabled: true,
+            autoBlogPostId: savedBlog?.id,
+            autoBlogGeneratedAt: new Date(),
+          })
+          .where(eq(listings.id, listingId));
+
+        result.blogGenerated = {
+          id: savedBlog?.id || '',
+          slug: blog.slug,
+          title: blog.title,
+        };
+        result.benefitsApplied.push(`autoBlog: generated (${blog.slug})`);
+        
+        console.log(`✅ [TIER AUTOMATION] AI blog generated: ${blog.title}`);
+
+        // Also submit blog to IndexNow
+        const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+        await submitToIndexNow(blogUrl);
+        console.log(`✅ [TIER AUTOMATION] Blog submitted to IndexNow: ${blogUrl}`);
+        
+      } catch (blogError: any) {
+        result.errors.push(`Blog generation failed: ${blogError.message}`);
+        console.error(`❌ [TIER AUTOMATION] Blog generation failed:`, blogError.message);
+      }
+
+      // Submit to IndexNow
+      try {
+        const indexNowResult = await submitToIndexNow(listingUrl);
+        result.indexNowSubmitted = indexNowResult.success;
+        result.benefitsApplied.push(`indexNow: ${indexNowResult.success ? 'submitted' : 'failed'}`);
+        console.log(`${indexNowResult.success ? '✅' : '⚠️'} [TIER AUTOMATION] IndexNow: ${indexNowResult.message}`);
+      } catch (indexError: any) {
+        result.errors.push(`IndexNow failed: ${indexError.message}`);
+        console.error(`❌ [TIER AUTOMATION] IndexNow error:`, indexError.message);
+      }
+
+      // Submit to Google Indexing API
+      try {
+        const googleResult = await submitToGoogleIndexing(listingUrl);
+        result.googleIndexingSubmitted = googleResult.success;
+        result.benefitsApplied.push(`googleIndexing: ${googleResult.success ? 'submitted' : 'failed'}`);
+        console.log(`${googleResult.success ? '✅' : '⚠️'} [TIER AUTOMATION] Google Indexing: ${googleResult.message}`);
+      } catch (googleError: any) {
+        result.errors.push(`Google Indexing failed: ${googleError.message}`);
+        console.error(`❌ [TIER AUTOMATION] Google Indexing error:`, googleError.message);
+      }
+    }
+
+  } catch (error: any) {
+    result.errors.push(`Automation failed: ${error.message}`);
+    console.error(`❌ [TIER AUTOMATION] Fatal error:`, error);
+  }
+
+  console.log(`🏁 [TIER AUTOMATION] Completed for listing ${listingId}:`, {
+    tier,
+    benefitsApplied: result.benefitsApplied.length,
+    errors: result.errors.length,
+  });
+
+  return result;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -4077,6 +4248,15 @@ Create engaging, well-researched content that provides value to laundromat owner
         triggerListingIndexing(listing.id, listing.slug || undefined);
       }
       
+      // TIER AUTOMATION: Apply tier benefits for showcase/diamond listings
+      const tier = validated.subscriptionTier || listing.subscriptionTier || 'free';
+      if (tier === 'showcase' || tier === 'diamond') {
+        // Run tier automation in background (don't block response)
+        applyTierBenefits(listing.id, tier).catch((err) => {
+          console.error(`❌ [POST /api/listings] Tier automation failed:`, err);
+        });
+      }
+      
       res.json(listing);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -4124,6 +4304,16 @@ Create engaging, well-researched content that provides value to laundromat owner
       const isNowActive = updated.status === 'active';
       if (wasNotActive && isNowActive) {
         triggerListingIndexing(updated.id, updated.slug || undefined);
+      }
+      
+      // TIER AUTOMATION: Detect tier upgrade and apply benefits
+      const previousTier = existing.subscriptionTier || 'free';
+      const newTier = validated.subscriptionTier || updated.subscriptionTier || 'free';
+      if ((newTier === 'showcase' || newTier === 'diamond') && previousTier !== newTier) {
+        // Run tier automation in background (don't block response)
+        applyTierBenefits(updated.id, newTier, previousTier).catch((err) => {
+          console.error(`❌ [PUT /api/listings/:id] Tier automation failed:`, err);
+        });
       }
       
       res.json(updated);
@@ -4174,6 +4364,16 @@ Create engaging, well-researched content that provides value to laundromat owner
       const isNowActive = updated.status === 'active';
       if (wasNotActive && isNowActive) {
         triggerListingIndexing(updated.id, updated.slug || undefined);
+      }
+      
+      // TIER AUTOMATION: Detect tier upgrade and apply benefits
+      const previousTier = existing.subscriptionTier || 'free';
+      const newTier = validated.subscriptionTier || updated.subscriptionTier || 'free';
+      if ((newTier === 'showcase' || newTier === 'diamond') && previousTier !== newTier) {
+        // Run tier automation in background (don't block response)
+        applyTierBenefits(updated.id, newTier, previousTier).catch((err) => {
+          console.error(`❌ [PATCH /api/listings/:id] Tier automation failed:`, err);
+        });
       }
       
       res.json(updated);

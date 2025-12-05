@@ -65,12 +65,17 @@ function ListingSlide({ listing }: { listing: ListingWithDetails }) {
           {listing.subscriptionTier === 'diamond' ? (
             <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-0">
               <Crown className="w-3 h-3 mr-1" />
-              Diamond
+              Diamond VIP
             </Badge>
           ) : listing.subscriptionTier === 'showcase' ? (
-            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg border-0">
+            <Badge className="bg-gradient-to-r from-[#C8A661] to-amber-500 text-white shadow-lg border-0">
               <Gem className="w-3 h-3 mr-1" />
               Showcase
+            </Badge>
+          ) : listing.subscriptionTier === 'basic' ? (
+            <Badge className="bg-emerald-500 text-white shadow-lg border-0">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              Enhanced
             </Badge>
           ) : (
             <Badge className="bg-accent text-accent-foreground shadow-lg">

@@ -3,8 +3,9 @@ import { db } from "./db";
 import { 
   users, listings, forumTopics, forumReplies, courses, enrollments,
   vendors, blogPosts, aiAgents, posTransactions, cleanbiUsage,
-  newsletterSubscribers, tenants
+  newsletterSubscribers, tenants, pageSeoMetadata
 } from "@shared/schema";
+import { z } from "zod";
 import { eq, sql, desc, count, sum, gte, and } from "drizzle-orm";
 
 const router = Router();
@@ -359,6 +360,111 @@ router.get("/dashboard/tenants", requireAdmin, async (req: Request, res: Respons
   } catch (error) {
     console.error("Tenants error:", error);
     res.json([]);
+  }
+});
+
+// ==================== PAGE SEO METADATA ====================
+
+// Get SEO metadata for a specific page
+router.get("/page-seo", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const pagePath = req.query.pagePath as string;
+    
+    if (!pagePath) {
+      return res.status(400).json({ error: "pagePath query parameter is required" });
+    }
+    
+    const [seoData] = await db.select()
+      .from(pageSeoMetadata)
+      .where(eq(pageSeoMetadata.pagePath, pagePath))
+      .limit(1);
+    
+    if (!seoData) {
+      return res.json({ 
+        pagePath,
+        title: "",
+        description: "",
+        keywords: []
+      });
+    }
+    
+    res.json(seoData);
+  } catch (error) {
+    console.error("Get page SEO error:", error);
+    res.status(500).json({ error: "Failed to fetch page SEO data" });
+  }
+});
+
+// Save/Update SEO metadata for a page
+router.post("/page-seo", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const inputSchema = z.object({
+      pagePath: z.string().min(1),
+      title: z.string().default(""),
+      description: z.string().default(""),
+      keywords: z.array(z.string()).default([])
+    });
+    
+    const parseResult = inputSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ 
+        error: "Invalid input", 
+        details: parseResult.error.flatten() 
+      });
+    }
+    
+    const { pagePath, title, description, keywords } = parseResult.data;
+    
+    const existingEntry = await db.select({ id: pageSeoMetadata.id })
+      .from(pageSeoMetadata)
+      .where(eq(pageSeoMetadata.pagePath, pagePath))
+      .limit(1);
+    
+    let result;
+    
+    if (existingEntry.length > 0) {
+      [result] = await db.update(pageSeoMetadata)
+        .set({
+          title,
+          description,
+          keywords: keywords as any,
+          isManuallyEdited: true,
+          lastEditedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(pageSeoMetadata.pagePath, pagePath))
+        .returning();
+    } else {
+      const pageType = pagePath.startsWith('/blog') ? 'blog' 
+        : pagePath.startsWith('/calculator') || pagePath.startsWith('/cleanbi') ? 'tool'
+        : pagePath.startsWith('/laundromat-listings') ? 'marketplace'
+        : pagePath.startsWith('/pricing') ? 'pricing'
+        : 'content';
+      
+      [result] = await db.insert(pageSeoMetadata)
+        .values({
+          pagePath,
+          pageType,
+          title,
+          description,
+          keywords: keywords as any,
+          faqs: [],
+          features: [],
+          reviews: [],
+          isManuallyEdited: true,
+          lastEditedAt: new Date()
+        })
+        .returning();
+    }
+    
+    res.json({ 
+      success: true, 
+      message: "SEO metadata saved successfully",
+      data: result 
+    });
+  } catch (error) {
+    console.error("Save page SEO error:", error);
+    res.status(500).json({ error: "Failed to save page SEO data" });
   }
 });
 
