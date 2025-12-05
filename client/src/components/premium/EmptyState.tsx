@@ -10,9 +10,17 @@ import {
   FileQuestion,
   PackageOpen,
   FolderOpen,
+  CheckCircle,
 } from "lucide-react";
+import {
+  EmptySearchIllustration,
+  NoDataIllustration,
+  ErrorIllustration,
+  ComingSoonIllustration,
+  SuccessIllustration,
+} from "./illustrations";
 
-type EmptyStateVariant = "no-data" | "error" | "no-results" | "coming-soon";
+type EmptyStateVariant = "no-data" | "error" | "no-results" | "coming-soon" | "success";
 
 interface EmptyStateProps {
   variant?: EmptyStateVariant;
@@ -28,6 +36,8 @@ interface EmptyStateProps {
     label: string;
     onClick: () => void;
   };
+  showIllustration?: boolean;
+  illustrationSize?: number;
   className?: string;
   testId?: string;
 }
@@ -54,10 +64,29 @@ const variantDefaults: Record<EmptyStateVariant, {
   },
   "coming-soon": {
     icon: Clock,
-    iconColor: "text-accent",
-    iconBg: "bg-accent/10",
+    iconColor: "text-[#b8860b]",
+    iconBg: "bg-[#b8860b]/10",
+  },
+  success: {
+    icon: CheckCircle,
+    iconColor: "text-[#b8860b]",
+    iconBg: "bg-[#b8860b]/10",
   },
 };
+
+function getIllustrationForVariant(
+  variant: EmptyStateVariant,
+  size: number
+): JSX.Element {
+  const illustrations: Record<EmptyStateVariant, JSX.Element> = {
+    "no-data": <NoDataIllustration size={size} />,
+    error: <ErrorIllustration size={size} />,
+    "no-results": <EmptySearchIllustration size={size} />,
+    "coming-soon": <ComingSoonIllustration size={size} />,
+    success: <SuccessIllustration size={size} />,
+  };
+  return illustrations[variant];
+}
 
 export function EmptyState({
   variant = "no-data",
@@ -66,6 +95,8 @@ export function EmptyState({
   description,
   primaryAction,
   secondaryAction,
+  showIllustration = false,
+  illustrationSize = 160,
   className,
   testId,
 }: EmptyStateProps) {
@@ -87,16 +118,24 @@ export function EmptyState({
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.3 }}
-        className={cn(
-          "flex items-center justify-center w-16 h-16 rounded-full mb-5",
-          defaults.iconBg
-        )}
+        className="mb-5"
         data-testid={`${testId || "empty-state"}-icon-container`}
       >
-        <IconComponent
-          className={cn("w-8 h-8", defaults.iconColor)}
-          data-testid={`${testId || "empty-state"}-icon`}
-        />
+        {showIllustration ? (
+          getIllustrationForVariant(variant, illustrationSize)
+        ) : (
+          <div
+            className={cn(
+              "flex items-center justify-center w-16 h-16 rounded-full",
+              defaults.iconBg
+            )}
+          >
+            <IconComponent
+              className={cn("w-8 h-8", defaults.iconColor)}
+              data-testid={`${testId || "empty-state"}-icon`}
+            />
+          </div>
+        )}
       </motion.div>
 
       <motion.div
@@ -190,6 +229,7 @@ export function NoDataState({
   title = "No data yet",
   description = "Get started by adding your first item.",
   icon,
+  showIllustration = true,
   ...props
 }: Partial<EmptyStateProps>) {
   return (
@@ -198,6 +238,7 @@ export function NoDataState({
       icon={icon || FolderOpen}
       title={title}
       description={description}
+      showIllustration={showIllustration}
       {...props}
     />
   );
@@ -206,6 +247,7 @@ export function NoDataState({
 export function ErrorState({
   title = "Something went wrong",
   description = "We encountered an error while loading. Please try again.",
+  showIllustration = true,
   ...props
 }: Partial<EmptyStateProps>) {
   return (
@@ -213,6 +255,7 @@ export function ErrorState({
       variant="error"
       title={title}
       description={description}
+      showIllustration={showIllustration}
       {...props}
     />
   );
@@ -222,6 +265,7 @@ export function NoResultsState({
   title = "No results found",
   description = "Try adjusting your search or filters to find what you're looking for.",
   icon,
+  showIllustration = true,
   ...props
 }: Partial<EmptyStateProps>) {
   return (
@@ -230,6 +274,7 @@ export function NoResultsState({
       icon={icon || FileQuestion}
       title={title}
       description={description}
+      showIllustration={showIllustration}
       {...props}
     />
   );
@@ -239,6 +284,7 @@ export function ComingSoonState({
   title = "Coming soon",
   description = "We're working on this feature. Check back soon!",
   icon,
+  showIllustration = true,
   ...props
 }: Partial<EmptyStateProps>) {
   return (
@@ -247,6 +293,24 @@ export function ComingSoonState({
       icon={icon || PackageOpen}
       title={title}
       description={description}
+      showIllustration={showIllustration}
+      {...props}
+    />
+  );
+}
+
+export function SuccessState({
+  title = "Success!",
+  description = "Your action was completed successfully.",
+  showIllustration = true,
+  ...props
+}: Partial<EmptyStateProps>) {
+  return (
+    <EmptyState
+      variant="success"
+      title={title}
+      description={description}
+      showIllustration={showIllustration}
       {...props}
     />
   );
