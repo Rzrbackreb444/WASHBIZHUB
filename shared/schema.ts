@@ -3607,6 +3607,175 @@ export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type ForumVote = typeof forumVotes.$inferSelect;
 
+// ==================== PREMIUM COMMUNITY FEATURES ====================
+
+// User Preferences - Notifications, Privacy, Display Settings
+export const userPreferences = pgTable("user_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  
+  // Notification Settings
+  emailNotifications: boolean("email_notifications").default(true),
+  emailDigest: text("email_digest").default("daily"), // "none", "daily", "weekly"
+  notifyOnReply: boolean("notify_on_reply").default(true),
+  notifyOnMention: boolean("notify_on_mention").default(true),
+  notifyOnFollow: boolean("notify_on_follow").default(true),
+  notifyOnReaction: boolean("notify_on_reaction").default(false),
+  notifyOnNewTopic: boolean("notify_on_new_topic").default(false), // In followed categories
+  
+  // Privacy Settings
+  showEmail: boolean("show_email").default(false),
+  showPhone: boolean("show_phone").default(false),
+  showActivity: boolean("show_activity").default(true),
+  showOnlineStatus: boolean("show_online_status").default(true),
+  allowDirectMessages: boolean("allow_direct_messages").default(true),
+  profileVisibility: text("profile_visibility").default("public"), // "public", "members", "private"
+  
+  // Display Settings
+  theme: text("theme").default("system"), // "light", "dark", "system"
+  fontSize: text("font_size").default("medium"), // "small", "medium", "large"
+  compactMode: boolean("compact_mode").default(false),
+  showAvatars: boolean("show_avatars").default(true),
+  animationsEnabled: boolean("animations_enabled").default(true),
+  
+  // Content Settings
+  defaultSortOrder: text("default_sort_order").default("recent"), // "recent", "popular", "trending"
+  postsPerPage: integer("posts_per_page").default(20),
+  autoPlayGifs: boolean("auto_play_gifs").default(true),
+  autoPlayVideos: boolean("auto_play_videos").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
+export type UserPreferences = typeof userPreferences.$inferSelect;
+
+// Forum Reactions - Emoji reactions beyond upvote/downvote
+export const forumReactions = pgTable("forum_reactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  entityType: text("entity_type").notNull(), // "topic" or "reply"
+  entityId: varchar("entity_id").notNull(),
+  reactionType: text("reaction_type").notNull(), // "like", "love", "helpful", "insightful", "fire", "clap", "thinking"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userEntityReactionIdx: uniqueIndex("forum_reactions_user_entity_type_idx").on(table.userId, table.entityType, table.entityId, table.reactionType),
+  entityIdx: index("forum_reactions_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export const insertForumReactionSchema = createInsertSchema(forumReactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertForumReaction = z.infer<typeof insertForumReactionSchema>;
+export type ForumReaction = typeof forumReactions.$inferSelect;
+
+// Forum Bookmarks - Save topics and replies
+export const forumBookmarks = pgTable("forum_bookmarks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  entityType: text("entity_type").notNull(), // "topic" or "reply"
+  entityId: varchar("entity_id").notNull(),
+  note: text("note"), // Optional personal note
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userEntityIdx: uniqueIndex("forum_bookmarks_user_entity_idx").on(table.userId, table.entityType, table.entityId),
+  userIdx: index("forum_bookmarks_user_idx").on(table.userId),
+}));
+
+export const insertForumBookmarkSchema = createInsertSchema(forumBookmarks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertForumBookmark = z.infer<typeof insertForumBookmarkSchema>;
+export type ForumBookmark = typeof forumBookmarks.$inferSelect;
+
+// Forum Follows - Follow topics, categories, or users
+export const forumFollows = pgTable("forum_follows", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  entityType: text("entity_type").notNull(), // "topic", "category", or "user"
+  entityId: varchar("entity_id").notNull(),
+  notifyOnActivity: boolean("notify_on_activity").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userEntityIdx: uniqueIndex("forum_follows_user_entity_idx").on(table.userId, table.entityType, table.entityId),
+  userIdx: index("forum_follows_user_idx").on(table.userId),
+  entityIdx: index("forum_follows_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export const insertForumFollowSchema = createInsertSchema(forumFollows).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertForumFollow = z.infer<typeof insertForumFollowSchema>;
+export type ForumFollow = typeof forumFollows.$inferSelect;
+
+// User Badges & Achievements
+export const userBadges = pgTable("user_badges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  badgeType: text("badge_type").notNull(), // "verified_owner", "expert", "top_contributor", "founding_member", "helpful", "premium"
+  badgeName: text("badge_name").notNull(),
+  badgeDescription: text("badge_description"),
+  badgeIcon: text("badge_icon"), // Icon name or emoji
+  badgeColor: text("badge_color"), // Hex color for display
+  
+  // For progress-based badges
+  progress: integer("progress").default(0),
+  maxProgress: integer("max_progress"),
+  
+  awardedAt: timestamp("awarded_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // Some badges may expire
+}, (table) => ({
+  userIdx: index("user_badges_user_idx").on(table.userId),
+  typeIdx: index("user_badges_type_idx").on(table.badgeType),
+}));
+
+export const insertUserBadgeSchema = createInsertSchema(userBadges).omit({
+  id: true,
+  awardedAt: true,
+});
+
+export type InsertUserBadge = z.infer<typeof insertUserBadgeSchema>;
+export type UserBadge = typeof userBadges.$inferSelect;
+
+// User Mentions in forum content
+export const forumMentions = pgTable("forum_mentions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  mentionedUserId: varchar("mentioned_user_id").references(() => users.id).notNull(),
+  mentionedByUserId: varchar("mentioned_by_user_id").references(() => users.id).notNull(),
+  entityType: text("entity_type").notNull(), // "topic" or "reply"
+  entityId: varchar("entity_id").notNull(),
+  isRead: boolean("is_read").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  mentionedUserIdx: index("forum_mentions_mentioned_user_idx").on(table.mentionedUserId),
+  entityIdx: index("forum_mentions_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export const insertForumMentionSchema = createInsertSchema(forumMentions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertForumMention = z.infer<typeof insertForumMentionSchema>;
+export type ForumMention = typeof forumMentions.$inferSelect;
+
 // ==================== PLATFORM SETTINGS ====================
 
 export const platformSettings = pgTable("platform_settings", {

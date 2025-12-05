@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -31,6 +33,9 @@ import {
   Video,
   Play,
   ZoomIn,
+  Upload,
+  Plus,
+  X,
 } from "lucide-react";
 import type { EnrichedForumTopic, EnrichedForumReply } from "@shared/schema";
 import { formatDistanceToNow, format } from "date-fns";
@@ -38,6 +43,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { SEO } from "@/components/SEO";
+import { FileUpload } from "@/components/FileUpload";
 
 export default function ForumTopicPage() {
   const params = useParams();
@@ -45,6 +51,9 @@ export default function ForumTopicPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState("");
+  const [replyFiles, setReplyFiles] = useState<{url: string; filename: string; contentType: string; size: number}[]>([]);
+  const [replyVideos, setReplyVideos] = useState<string[]>([]);
+  const [videoInput, setVideoInput] = useState("");
 
   const { data: topics } = useQuery<EnrichedForumTopic[]>({
     queryKey: ["/api/forum/topics"],
