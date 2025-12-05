@@ -36,7 +36,8 @@ import {
   Sparkles,
   ArrowRight,
   ChevronDown,
-  Quote
+  Quote,
+  Store
 } from "lucide-react";
 import { VisibilityAddOnsSection } from "@/components/VisibilityAddOnsSection";
 
@@ -405,13 +406,43 @@ export default function Pricing() {
           </div>
         </section>
 
-        {/* Pricing Cards Section */}
+        {/* Quick Navigation */}
+        <div className="bg-muted/30 py-4 border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <span className="text-muted-foreground">Jump to:</span>
+              <a href="#buyer-plans" className="text-primary hover:underline font-medium flex items-center gap-1">
+                <Map className="h-3 w-3" />
+                Buyer Intelligence Plans
+              </a>
+              <span className="text-muted-foreground">|</span>
+              <a href="#seller-plans" className="text-emerald-600 hover:underline font-medium flex items-center gap-1">
+                <Store className="h-3 w-3" />
+                Seller Listing Plans
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Buyer Intelligence Plans Section */}
         <section 
-          className="relative -mt-8 sm:-mt-12 pb-16 sm:pb-24"
+          className="relative pt-8 sm:pt-12 pb-16 sm:pb-24"
           aria-labelledby="pricing-plans-title"
+          id="buyer-plans"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 id="pricing-plans-title" className="sr-only">Pricing Plans</h2>
+            <div className="text-center mb-8 sm:mb-12">
+              <Badge className="mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30">
+                <Map className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                Buyer Intelligence Plans
+              </Badge>
+              <h2 id="pricing-plans-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                CLEANBI Explorer Plans
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                For investors and buyers analyzing locations. Score any address, analyze demographics, competition, and investment potential.
+              </p>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {tiers.map((tier, index) => {
@@ -692,22 +723,23 @@ export default function Pricing() {
           </div>
         </section>
 
-        {/* Listing Tiers Section - For Sellers */}
+        {/* Seller Listing Plans Section */}
         <section 
           className="py-16 sm:py-24 bg-gradient-to-br from-[#1e3a5f]/5 to-[#C8A661]/5"
           aria-labelledby="listing-tiers-title"
+          id="seller-plans"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-12">
-              <Badge className="mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30">
-                <Star className="h-3 w-3 mr-1.5" aria-hidden="true" />
-                For Sellers
+              <Badge className="mb-4 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                <Store className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                Seller Listing Plans
               </Badge>
               <h2 id="listing-tiers-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-                Listing Visibility Tiers
+                Sell Your Laundromat Faster
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Sell your laundromat faster with premium visibility. Higher tiers unlock auto-features that work for you 24/7.
+                Premium visibility tiers help you reach more buyers. Higher tiers unlock automation that works for you 24/7 — AI-generated blog posts, automatic search engine indexing, and featured carousel placement.
               </p>
             </div>
 
