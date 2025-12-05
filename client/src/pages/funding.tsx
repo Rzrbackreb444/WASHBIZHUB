@@ -30,7 +30,7 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Launch Your First Laundromat",
     description: "Perfect for first-time buyers with strong personal credit. Get funding without business history or revenue requirements.",
     icon: PiggyBank,
-    color: "from-orange-600 to-amber-600",
+    color: "from-[#C8A661] to-[#b8860b]",
     partners: [
       {
         id: "preferred-term-loans",
@@ -130,7 +130,7 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Buy an Existing Laundromat",
     description: "The best rates and longest terms for buying established laundromats. SBA loans offer 10-25 year terms with low down payments.",
     icon: Briefcase,
-    color: "from-blue-600 to-indigo-600",
+    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
     partners: [
       {
         id: "south-end-capital",
@@ -200,7 +200,7 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Finance Washers, Dryers & Systems",
     description: "Get the machines you need with flexible terms. Equipment serves as collateral, making approval easier than unsecured loans.",
     icon: Factory,
-    color: "from-emerald-600 to-teal-600",
+    color: "from-[#1e3a5f] to-[#C8A661]",
     partners: [
       {
         id: "rok-financial",
@@ -269,7 +269,7 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Purchase or Refinance Property",
     description: "Own your building instead of leasing. Commercial RE loans for laundromat property purchases, refinancing, and investment properties.",
     icon: Building2,
-    color: "from-purple-600 to-violet-600",
+    color: "from-[#1e3a5f] to-[#1e3a5f]/70",
     partners: [
       {
         id: "gokapital",

@@ -203,16 +203,16 @@ export default function StartupFunding() {
       />
 
       <div className="min-h-screen bg-background">
-        <div className="bg-gradient-to-r from-orange-900 via-orange-800 to-orange-900 text-white py-16 border-b border-orange-700">
+        <div className="bg-gradient-to-r from-[#1e3a5f] via-[#1e3a5f]/90 to-[#1e3a5f] text-white py-16 border-b border-[#1e3a5f]">
           <div className="max-w-4xl mx-auto px-6">
             <div className="flex items-center gap-3 mb-4">
               <Lightbulb className="w-8 h-8" />
               <h1 className="text-5xl font-bold">Startup Laundromat Funding</h1>
             </div>
-            <p className="text-xl text-orange-200 mb-4">
+            <p className="text-xl text-[#C8A661] mb-4">
               Launch your first laundromat. Personal or business credit options. Approvals in 24-48 hours.
             </p>
-            <Badge className="bg-orange-500/30 text-orange-100">
+            <Badge className="bg-[#C8A661]/30 text-[#C8A661]">
               <CheckCircle className="w-4 h-4 mr-2" />
               Perfect for first-time laundromat owners
             </Badge>
@@ -398,19 +398,19 @@ export default function StartupFunding() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-900 to-orange-800 text-white rounded-lg p-12 text-center">
+          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#1e3a5f]/90 text-white rounded-lg p-12 text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Launch Your Laundromat?</h2>
             <p className="mb-8 text-lg max-w-2xl mx-auto">
               Get pre-qualified in minutes. Both partners work with first-time operators.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a href="https://itsgokapital.com" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-orange-900 hover:bg-orange-50" data-testid="button-apply-gokapital">
+                <Button className="bg-[#C8A661] text-white hover:bg-[#b8860b]" data-testid="button-apply-gokapital">
                   Start with GoKapital (Business Credit)
                 </Button>
               </a>
               <a href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white text-orange-900 hover:bg-orange-50" data-testid="button-apply-preferred">
+                <Button className="bg-[#C8A661] text-white hover:bg-[#b8860b]" data-testid="button-apply-preferred">
                   Start with Preferred Funding (Personal Credit)
                 </Button>
               </a>

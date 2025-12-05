@@ -421,8 +421,8 @@ export default function SBALoans() {
               </p>
             </Card>
             <Card className="text-center p-6">
-              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 rounded-full bg-[#1e3a5f]/10 dark:bg-[#1e3a5f]/30 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-[#1e3a5f]" />
               </div>
               <h3 className="font-bold text-lg mb-2">Longer Terms</h3>
               <p className="text-sm text-muted-foreground">
