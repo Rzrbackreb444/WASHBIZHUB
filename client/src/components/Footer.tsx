@@ -41,11 +41,21 @@ export function Footer() {
   return (
     <footer className="relative py-12 border-t border-[hsl(45,38%,59%)/30]" data-testid="footer-main">
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
         style={{ backgroundImage: `url(${cityBgImage})` }}
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-[#0A1628]/90" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#152238] to-[#0f1d30]" aria-hidden="true" />
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 80% 50% at 10% 90%, rgba(200, 166, 97, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 90% 70%, rgba(184, 134, 11, 0.1) 0%, transparent 50%)
+          `
+        }}
+        aria-hidden="true"
+      />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4">
         
@@ -68,6 +78,26 @@ export function Footer() {
           <p className="text-teal-400/80 text-xs mt-2 font-medium">
             Everyone wants to own a laundromat. We help you find the right one.
           </p>
+        </div>
+
+        {/* Trust Stats - Eastern Funding Style */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-8 border-b border-white/10">
+          <div className="text-center p-4" data-testid="stat-community">
+            <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">72K+</div>
+            <div className="text-xs text-white/60 uppercase tracking-wider">Community Members</div>
+          </div>
+          <div className="text-center p-4" data-testid="stat-analyses">
+            <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">50K+</div>
+            <div className="text-xs text-white/60 uppercase tracking-wider">CLEANBI Analyses</div>
+          </div>
+          <div className="text-center p-4" data-testid="stat-funding">
+            <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">$500M+</div>
+            <div className="text-xs text-white/60 uppercase tracking-wider">Funding Facilitated</div>
+          </div>
+          <div className="text-center p-4" data-testid="stat-industry">
+            <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">50+ Yrs</div>
+            <div className="text-xs text-white/60 uppercase tracking-wider">Industry Experience</div>
+          </div>
         </div>
 
         {/* Main Navigation Grid - 4 columns matching nav pillars */}
