@@ -1,0 +1,157 @@
+SEO
+Readability
+Schema
+Social
+Focus keyphraseHelp on choosing the perfect focus keyphrase(Opens in a new browser tab)
+Get related keyphrases(Opens in a new browser tab)
+
+Search appearance
+Determine how your post should look in the search results.
+Preview as:
+Mobile resultDesktop result
+Url preview:
+
+violet-turkey-676500.hostingersite.com
+violet-turkey-676500.hostingersite.com
+SEO title preview:
+Laundromat Equipment Funding 2025: $10K–$250K with David Allen Capital - ...
+Meta description preview:
+Nov 7, 2025 － Please provide a meta description by editing the snippet below. If you don’t, Google will try to find a relevant part of your post to show in the search results.
+SEO title
+Generate SEO title
+Insert variable
+Title Page Separator Site title 
+
+Slug
+laundromat-equipment-funding-2025-10k-250k-with-david-allen-capital
+Meta description
+Generate meta description
+Insert variable
+
+
+
+SEO analysisEnter a focus keyphrase to calculate the SEO score
+Premium SEO Analysis
+Get deeper keyphrase insights and stronger headlines
+
+Synonyms & word form recognition: Write more natural, flowing content.
+Extra SEO assessments: See additional recommendation to improve your content.
+Unlock with Premium
+Analysis results
+
+Problems (9)
+Keyphrase in image alt attributes: This page does not have images, a keyphrase, or both. Add some images with alt attributes that include the keyphrase or synonyms!
+
+Keyphrase in introduction: Please add both a keyphrase and an introduction containing the keyphrase.
+
+Keyphrase in SEO title: Please add both a keyphrase and an SEO title beginning with the keyphrase.
+
+Keyphrase length: No focus keyphrase was set for this page. Set a keyphrase in order to calculate your SEO score.
+
+Keyphrase in meta description: Please add both a keyphrase and a meta description containing the keyphrase.
+
+Meta description length: No meta description has been specified. Search engines will display copy from the page instead. Make sure to write one!
+
+Previously used keyphrase: No focus keyphrase was set for this page. Please add a focus keyphrase you haven't used before on other content.
+
+Keyphrase in slug: Please add both a keyphrase and a slug containing the keyphrase.
+
+SEO title width: The SEO title is wider than the viewable limit. Try to make it shorter.
+
+
+Good results (6)
+Outbound links: Good job!
+
+Images: Good job!
+
+Internal links: You have enough internal links. Good job!
+
+Single title: You don't have multiple H1 headings, well done!
+
+Competing links: There are no links which use your keyphrase or synonym as their anchor text. Nice!
+
+Text length: The text contains 645 words. Good job!
+
+
+Add related keyphrase
+Premium
+
+Track SEO performance
+
+Content blocks
+New
+While writing your post, add custom Yoast blocks directly from here to enhance your content.
+AI Summarize
+New
+
+Estimated reading time
+
+Related links
+
+Table of contents
+
+Breadcrumbs
+FAQ
+How-to
+
+Internal linking suggestions
+Premium
+
+Cornerstone content
+Cornerstone content should be the most important and extensive articles on your site. Learn more about Cornerstone Content.(Opens in a new browser tab)
+
+Mark as cornerstone content
+Off
+
+Advanced
+Allow search engines to show this content in search results?
+Learn more about the no-index setting on our help page.(Opens in a new browser tab)
+
+Yes (current default for Posts)
+Should search engines follow links on this content?
+Learn more about the no-follow setting on our help page.(Opens in a new browser tab)
+
+Yes
+
+No
+Meta robots advanced
+Learn more about advanced meta robots settings on our help page.(Opens in a new browser tab)
+Breadcrumbs Title
+Learn more about the breadcrumbs title setting on our help page.(Opens in a new browser tab)
+Canonical URL
+Learn more about canonical URLs on our help page.(Opens in a new browser tab)
+
+Insights
+Prominent words
+With Yoast SEO Premium, this section will show you which words occur most often in your text. By checking these prominent words against your intended keyword(s), you'll know how to edit your text to be more focused.
+
+Unlock with Premium
+(Opens in a new browser tab)
+Read our ultimate guide to keyword research(Opens in a new browser tab) to learn more about keyword research and keyword strategy.
+
+Get1111 occurrences
+Yoast1010 occurrences
+SEO99 occurrences
+Premium88 occurrences
+to77 occurrences
+enjoy66 occurrences
+the55 occurrences
+benefits44 occurrences
+of33 occurrences
+prominent22 occurrences
+words11 occurrences
+Flesch reading ease
+Learn more about Flesch reading ease(Opens in a new browser tab)
+53.4
+out of 100
+
+The copy scores 53.4 in the test, which is considered fairly difficult to read. Try to make shorter sentences, using less difficult words to improve readability.(Opens in a new browser tab)
+Reading time
+Learn more about reading time(Opens in a new browser tab)
+4
+minutes
+
+Word count
+Learn more about word count(Opens in a new browser tab)
+645
+words

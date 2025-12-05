@@ -977,10 +977,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Featured Carousel Listings - includes financial data and prioritizes paid carousel spots
+  // Featured Carousel Listings - includes financial data and prioritizes by subscription tier
+  // Diamond tier auto-features to carousel, Showcase tier shows as featured, basic/free need manual featuring
   app.get("/api/listings/featured-carousel", async (_req, res) => {
     try {
-      // Get listings that are either carousel-featured (paid) or regular featured
+      // Get listings that are:
+      // 1. Diamond tier (auto-carousel featured)
+      // 2. Carousel-featured (manual paid)
+      // 3. Showcase tier (auto-featured)
+      // 4. Regular featured (manual)
       const carouselListings = await db
         .select({
           id: listings.id,
@@ -995,6 +1000,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           featuredImage: listings.featuredImage,
           featured: listings.featured,
           carouselFeatured: listings.carouselFeatured,
+          subscriptionTier: listings.subscriptionTier,
           tagline: listings.tagline,
           slug: listings.slug,
           exactAddress: listings.exactAddress,
@@ -1008,18 +1014,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           and(
             eq(listings.status, 'active'),
             or(
-              eq(listings.carouselFeatured, true),
-              eq(listings.featured, true)
+              eq(listings.subscriptionTier, 'diamond'),    // Auto-carousel for diamond tier
+              eq(listings.subscriptionTier, 'showcase'),   // Auto-featured for showcase tier
+              eq(listings.carouselFeatured, true),         // Manual carousel featuring
+              eq(listings.featured, true)                  // Manual featuring
             )
           )
         )
         .orderBy(
-          desc(listings.carouselFeatured), // Paid carousel spots first
+          // Priority order: Diamond > Carousel-featured > Showcase > Featured > Visibility > Date
+          sql`CASE WHEN ${listings.subscriptionTier} = 'diamond' THEN 1 ELSE 0 END DESC`,
+          desc(listings.carouselFeatured),
+          sql`CASE WHEN ${listings.subscriptionTier} = 'showcase' THEN 1 ELSE 0 END DESC`,
           desc(listings.visibilityBoost),
           desc(listings.featured),
           desc(listings.createdAt)
         )
-        .limit(6);
+        .limit(8);
       
       // Get financials for these listings
       const listingIds = carouselListings.map(l => l.id);

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard,
   Plus,
@@ -23,7 +26,10 @@ import {
   Home,
   User,
   Menu,
-  X
+  X,
+  Sparkles,
+  Wand2,
+  Loader2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,8 +37,27 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface EditContext {
   type: string;
@@ -64,10 +89,64 @@ function getEditContext(pathname: string): EditContext | null {
   return null;
 }
 
+const BLOG_CATEGORIES = [
+  "Industry News", "Guides", "Case Studies", "Tools", 
+  "Equipment", "Operations", "Marketing", "Finance", "Growth"
+];
+
 export default function AdminBar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quickGenOpen, setQuickGenOpen] = useState(false);
+  const [quickGenTopic, setQuickGenTopic] = useState("");
+  const [quickGenCategory, setQuickGenCategory] = useState("Guides");
+  const { toast } = useToast();
+
+  const quickGenerateMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/blog/ai-generate", {
+        keyword: quickGenTopic,
+        category: quickGenCategory.toLowerCase(),
+        aiProvider: "multi",
+        mode: "auto",
+        targetWordCount: 1500,
+        tone: "professional"
+      });
+      return response.json();
+    },
+    onSuccess: async (data) => {
+      const slug = data.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'new-post';
+      const postResponse = await apiRequest("POST", "/api/admin/blog/posts", {
+        title: data.title,
+        slug,
+        content: data.content,
+        excerpt: data.excerpt,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+        focusKeyphrase: data.focusKeyphrases?.[0],
+        category: quickGenCategory,
+        published: false,
+        featured: false
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      setQuickGenOpen(false);
+      setQuickGenTopic("");
+      toast({ 
+        title: "Blog Generated!", 
+        description: "New draft created. Opening editor..." 
+      });
+      setLocation('/admin/blog');
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Generation Failed", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  });
 
   if (!isAuthenticated || !user?.isAdmin) {
     return null;
@@ -158,8 +237,87 @@ export default function AdminBar() {
               >
                 <Megaphone className="w-4 h-4 mr-2" /> Advertisement
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-[#3c4043]" />
+              <DropdownMenuLabel className="text-[#8c8f91] text-xs px-2">AI Powered</DropdownMenuLabel>
+              <DropdownMenuItem 
+                className="hover:bg-[#32373c] hover:text-white focus:bg-[#32373c] focus:text-white cursor-pointer"
+                onClick={() => setQuickGenOpen(true)}
+                data-testid="admin-bar-ai-generate"
+              >
+                <Sparkles className="w-4 h-4 mr-2 text-amber-400" /> Quick Generate Blog
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Quick AI Generate Dialog */}
+          <Dialog open={quickGenOpen} onOpenChange={setQuickGenOpen}>
+            <DialogContent className="sm:max-w-md bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-white">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  AI Blog Generator
+                </DialogTitle>
+                <DialogDescription>
+                  Enter a topic and category to generate an SEO-optimized blog post.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="topic" className="text-sm">Topic / Keyword</Label>
+                  <Input
+                    id="topic"
+                    placeholder="e.g., Laundromat investment tips"
+                    value={quickGenTopic}
+                    onChange={(e) => setQuickGenTopic(e.target.value)}
+                    className="bg-[#32373c] border-[#3c4043] text-white"
+                    data-testid="input-quick-gen-topic"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-sm">Category</Label>
+                  <Select value={quickGenCategory} onValueChange={setQuickGenCategory}>
+                    <SelectTrigger className="bg-[#32373c] border-[#3c4043] text-white" data-testid="select-quick-gen-category">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1d2327] border-[#3c4043]">
+                      {BLOG_CATEGORIES.map(cat => (
+                        <SelectItem key={cat} value={cat} className="text-[#c3c4c7] hover:text-white focus:text-white focus:bg-[#32373c]">
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="ghost"
+                  onClick={() => setQuickGenOpen(false)}
+                  className="text-[#c3c4c7]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => quickGenerateMutation.mutate()}
+                  disabled={!quickGenTopic || quickGenerateMutation.isPending}
+                  className="bg-amber-500 hover:bg-amber-600 text-white gap-2"
+                  data-testid="button-quick-generate"
+                >
+                  {quickGenerateMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      Generate Blog
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Desktop Quick Links */}
           <div className="hidden lg:flex items-center gap-1">
