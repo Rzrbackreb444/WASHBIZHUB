@@ -27,22 +27,21 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
   return (
     <div className="mt-6 space-y-4" data-testid="section-cleanbi-cross-sell">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Zap className="w-5 h-5 text-amber-500" />
+      <div className="mb-4">
         <h3 className="text-lg font-bold text-white">Ready for Next Steps?</h3>
       </div>
       
       <div className="grid sm:grid-cols-2 gap-4">
         {/* Funding CTA */}
-        <Card className="bg-gradient-to-br from-emerald-600/30 to-teal-600/30 border-emerald-500/40" data-testid="card-cross-sell-funding">
+        <Card className="bg-gradient-to-br from-[#b8860b]/30 to-[#8B7355]/30 border-[#b8860b]/40" data-testid="card-cross-sell-funding">
           <CardContent className="p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
-                <Banknote className="h-5 w-5 text-emerald-400" />
+              <div className="h-10 w-10 rounded-lg bg-[#b8860b]/30 flex items-center justify-center">
+                <Banknote className="h-5 w-5 text-[#C8A661]" />
               </div>
               <div>
                 <h4 className="font-bold text-white">Need Funding?</h4>
-                <p className="text-xs text-emerald-300/80">$10K - $50M Available</p>
+                <p className="text-xs text-[#C8A661]/80">$10K - $50M Available</p>
               </div>
             </div>
             
@@ -65,7 +64,7 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
             </div>
 
             <Link href="/funding">
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" size="sm" data-testid="button-cross-sell-funding">
+              <Button className="w-full bg-[#b8860b] hover:bg-[#C8A661] text-white" size="sm" data-testid="button-cross-sell-funding">
                 Explore Funding
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -74,15 +73,15 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
         </Card>
 
         {/* Equipment CTA */}
-        <Card className="bg-gradient-to-br from-blue-600/30 to-indigo-600/30 border-blue-500/40" data-testid="card-cross-sell-equipment">
+        <Card className="bg-gradient-to-br from-[#1e3a5f]/50 to-[#0f1d30]/50 border-[#1e3a5f]/40" data-testid="card-cross-sell-equipment">
           <CardContent className="p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
-                <Wrench className="h-5 w-5 text-blue-400" />
+              <div className="h-10 w-10 rounded-lg bg-[#1e3a5f]/50 flex items-center justify-center">
+                <Wrench className="h-5 w-5 text-white/80" />
               </div>
               <div>
                 <h4 className="font-bold text-white">Need Equipment?</h4>
-                <p className="text-xs text-blue-300/80">TX, OK, LA, AR Coverage</p>
+                <p className="text-xs text-white/70">TX, OK, LA, AR Coverage</p>
               </div>
             </div>
             
@@ -105,7 +104,7 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
             </div>
 
             <a href={AADVANTAGE_LINK} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="sm" data-testid="button-cross-sell-equipment">
+              <Button className="w-full bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white" size="sm" data-testid="button-cross-sell-equipment">
                 Get Equipment Quote
                 <ExternalLink className="w-4 h-4 ml-2" />
               </Button>
@@ -116,17 +115,17 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
 
       {/* Score-specific message */}
       {score && score >= 70 && (
-        <Card className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border-amber-500/40" data-testid="card-cross-sell-hot">
+        <Card className="bg-gradient-to-r from-[#b8860b]/20 to-[#C8A661]/20 border-[#b8860b]/40" data-testid="card-cross-sell-hot">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <TrendingUp className="w-6 h-6 text-amber-400" />
+              <TrendingUp className="w-6 h-6 text-[#C8A661]" />
               <div>
                 <p className="font-bold text-white">
                   {grade === 'A' ? 'Gold Mine Alert!' : 'High Potential Location!'}
                 </p>
-                <p className="text-sm text-amber-200/80">
+                <p className="text-sm text-white/80">
                   This location scored {score}/100 — act fast before others discover it.
-                  <Link href="/consultation-landing" className="ml-2 text-amber-400 hover:text-amber-300 underline">
+                  <Link href="/consultation-landing" className="ml-2 text-[#C8A661] hover:text-[#b8860b] underline">
                     Talk to an expert →
                   </Link>
                 </p>
@@ -143,13 +142,13 @@ export function CLEANBICrossSellCompact() {
   return (
     <div className="flex flex-col sm:flex-row gap-3 mt-4 p-4 bg-white/5 rounded-lg border border-white/10" data-testid="section-cross-sell-compact">
       <Link href="/funding" className="flex-1">
-        <Button variant="outline" className="w-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10" size="sm" data-testid="button-compact-funding">
+        <Button variant="outline" className="w-full border-[#b8860b]/50 text-[#C8A661] hover:bg-[#b8860b]/10" size="sm" data-testid="button-compact-funding">
           <Banknote className="w-4 h-4 mr-2" />
           Get Funding ($10K-$50M)
         </Button>
       </Link>
       <a href={AADVANTAGE_LINK} target="_blank" rel="noopener noreferrer" className="flex-1">
-        <Button variant="outline" className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10" size="sm" data-testid="button-compact-equipment">
+        <Button variant="outline" className="w-full border-[#1e3a5f]/50 text-white/80 hover:bg-[#1e3a5f]/10" size="sm" data-testid="button-compact-equipment">
           <Wrench className="w-4 h-4 mr-2" />
           Equipment Quote (TX/OK/LA/AR)
         </Button>

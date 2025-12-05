@@ -209,13 +209,13 @@ export default function Home() {
     
     if (multiple <= 2.0) {
       verdict = "Great Deal - Below market value";
-      color = "text-green-500";
+      color = "text-[#22C55E]";
     } else if (multiple <= 3.0) {
       verdict = "Fair Price - At market value";
-      color = "text-amber-500";
+      color = "text-[#C8A661]";
     } else if (multiple <= 4.0) {
       verdict = "Premium Price - Negotiate down";
-      color = "text-orange-500";
+      color = "text-[#b8860b]";
     } else {
       verdict = "Overpriced - Walk away or negotiate hard";
       color = "text-red-500";
@@ -895,17 +895,17 @@ export default function Home() {
               </div>
               <ArrowRight className="w-4 h-4 hidden md:block" />
               <div className="flex items-center gap-2" data-testid="step-council">
-                <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">2</div>
+                <div className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center font-bold">2</div>
                 <span>Get AI Council Review</span>
               </div>
               <ArrowRight className="w-4 h-4 hidden md:block" />
               <div className="flex items-center gap-2" data-testid="step-larry">
-                <div className="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold">3</div>
+                <div className="w-8 h-8 rounded-full bg-[#C8A661] text-[#1e3a5f] flex items-center justify-center font-bold">3</div>
                 <span>Consult with Larry</span>
               </div>
               <ArrowRight className="w-4 h-4 hidden md:block" />
               <div className="flex items-center gap-2" data-testid="step-funding">
-                <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">4</div>
+                <div className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center font-bold">4</div>
                 <span>Secure Funding</span>
               </div>
             </div>
@@ -940,7 +940,7 @@ export default function Home() {
                       <p className="font-semibold text-gray-900">{testimonial.name}</p>
                       <p className="text-sm text-gray-600">{testimonial.location}</p>
                     </div>
-                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                    <Badge className="bg-[#b8860b]/10 text-[#b8860b] border-[#b8860b]/20">
                       {testimonial.dealSize}
                     </Badge>
                   </div>
@@ -954,7 +954,7 @@ export default function Home() {
         <section className="py-16 bg-gray-50 border-t border-b border-gray-200 hidden" data-testid="section-engagement">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
-              <Badge className="mb-3 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+              <Badge className="mb-3 bg-[#b8860b]/10 text-[#b8860b] border-[#b8860b]/20">
                 Live Intelligence
               </Badge>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
@@ -1036,7 +1036,7 @@ export default function Home() {
           <div className="max-w-2xl mx-auto px-6 lg:px-8">
             <Card className="p-6 md:p-8 bg-card border-2 border-accent/30">
               <div className="flex items-center gap-2 mb-4 justify-center">
-                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <AlertTriangle className="w-5 h-5 text-[#b8860b]" />
                 <h3 className="text-xl font-bold text-foreground">Quick Deal Check</h3>
               </div>
               <p className="text-muted-foreground text-center mb-6">
@@ -1188,7 +1188,7 @@ export default function Home() {
         <section className="py-12 bg-background border-t border-border/50 hidden" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex items-center gap-2 mb-6 justify-center">
-              <Flame className="w-5 h-5 text-orange-500" />
+              <Flame className="w-5 h-5 text-[#b8860b]" />
               <h3 className="text-xl font-bold text-foreground">Hot Markets This Week</h3>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
@@ -1298,8 +1298,8 @@ export default function Home() {
                 <span className="text-xs text-muted-foreground">See red flags instantly</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-purple-500" />
+                <div className="w-10 h-10 rounded-full bg-[#C8A661]/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-[#C8A661]" />
                 </div>
                 <span className="text-sm font-medium text-foreground">Negotiate Smarter</span>
                 <span className="text-xs text-muted-foreground">Data backs your offer</span>

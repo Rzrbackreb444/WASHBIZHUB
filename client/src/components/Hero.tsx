@@ -229,8 +229,7 @@ export function Hero() {
           
           {/* Left: Text Content */}
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
-              <Sparkles className="w-4 h-4 text-[#b8860b]" />
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
               <span className="text-sm font-medium text-[#1e3a5f]">The #1 Laundromat Intelligence Platform</span>
             </div>
             
@@ -270,19 +269,10 @@ export function Hero() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-500">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>72,000+ users</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span>4.9/5 rating</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Free to start</span>
-              </div>
+            <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-600">
+              <span>72,000+ users</span>
+              <span className="text-[#b8860b] font-medium">4.9/5 rating</span>
+              <span>Free to start</span>
             </div>
           </div>
 
@@ -436,7 +426,7 @@ export function Hero() {
               <div className="animate-in">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   {result.addressType === 'residential' ? (
-                    <HomeIcon className="w-6 h-6 text-amber-500" />
+                    <HomeIcon className="w-6 h-6 text-[#b8860b]" />
                   ) : (
                     <Building2 className="w-6 h-6 text-[#1e3a5f]" />
                   )}
