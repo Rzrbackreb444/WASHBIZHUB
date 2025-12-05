@@ -120,7 +120,7 @@ import { PLATFORM_TIERS } from "@/lib/tier-config";
 import { useAuth } from "@/hooks/useAuth";
 import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobileWithHydration } from "@/hooks/use-mobile";
 
 declare global {
   interface Window {
@@ -476,7 +476,14 @@ function CleanBIExplorerContent() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const isMobile = useIsMobile();
+  const { isMobile, isHydrated } = useIsMobileWithHydration();
+  
+  // Determine mobile status immediately on client using window.innerWidth as fallback
+  // This prevents desktop users from seeing the mobile hydration overlay
+  const showMobile = typeof window !== 'undefined' 
+    ? (isHydrated ? isMobile : window.innerWidth < 1024)
+    : false;
+  
   const mapRef = useRef<HTMLDivElement>(null);
   const streetViewRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -641,12 +648,12 @@ function CleanBIExplorerContent() {
   const [searchRadius, setSearchRadius] = useState([5]);
   const [autoAnalyzeTriggered, setAutoAnalyzeTriggered] = useState(false);
 
-  // Auto-open mobile sheet when analysis completes
+  // Auto-open mobile sheet when analysis completes on mobile
   useEffect(() => {
-    if (isMobile && analysisResult) {
+    if (showMobile && analysisResult) {
       setMobileAnalysisSheetOpen(true);
     }
-  }, [isMobile, analysisResult]);
+  }, [showMobile, analysisResult]);
 
   // Memoized category scores calculation for performance
   const memoizedCategoryScores = useMemo(() => {
@@ -2008,9 +2015,19 @@ function CleanBIExplorerContent() {
         description="Great job exploring! Upgrade to Starter for unlimited analyses, PDF exports, competitor intel, and more."
       />
 
+      {/* Mobile Loading Overlay - Only shows on mobile during hydration */}
+      {!isHydrated && showMobile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a14] text-white" data-testid="status-mobile-hydration">
+          <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+          <span className="text-sm uppercase tracking-[0.2em]">Calibrating mobile controls…</span>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div className="fixed inset-0 bg-[#0a0a14]" data-testid="cleanbi-explorer">
-        {/* Mobile Layout */}
-        {isMobile && (
+        {/* Ternary Layout - Only ONE layout is mounted at a time */}
+        {showMobile ? (
+          // Mobile layout - ONLY renders on mobile
           <div className="h-full flex flex-col">
             {/* Mobile Map - Full width at top */}
             <div className="flex-1 relative min-h-[40vh]">
@@ -2260,7 +2277,7 @@ function CleanBIExplorerContent() {
                                 </div>
                               ) : (
                                 competitors.map((comp, idx) => (
-                                  <div key={idx} className="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+                                  <div key={idx} className="bg-white/5 rounded-lg px-4 py-3 min-h-12 flex items-center justify-between">
                                     <div>
                                       <p className="text-sm font-medium text-white">{comp.name}</p>
                                       <p className="text-xs text-white/50">{comp.distance} miles away</p>
@@ -2348,7 +2365,7 @@ function CleanBIExplorerContent() {
                         <Button 
                           onClick={() => setMobileAnalysisSheetOpen(false)}
                           variant="outline"
-                          className="border-white/20 text-white hover:bg-white/10"
+                          className="border-white/20 text-white hover:bg-white/10 min-h-11"
                         >
                           Close Panel
                         </Button>
@@ -2373,8 +2390,7 @@ function CleanBIExplorerContent() {
               <Button
                 onClick={() => setMobileAnalysisSheetOpen(true)}
                 variant="ghost"
-                size="sm"
-                className="text-white/70 hover:text-white hover:bg-white/10"
+                className="text-white/70 hover:text-white hover:bg-white/10 min-h-11 text-sm"
                 data-testid="button-view-analysis-mobile"
               >
                 {analysisResult ? 'View Analysis' : 'Get Started'}
@@ -2382,15 +2398,13 @@ function CleanBIExplorerContent() {
               </Button>
             </div>
           </div>
-        )}
-        
-        {/* Desktop Layout */}
-        {!isMobile && (
-        <ResizablePanelGroup
-          direction="horizontal"
-          onLayout={handleSidebarResize}
-          className="h-full"
-        >
+        ) : (
+          // Desktop layout - ONLY renders on desktop
+          <ResizablePanelGroup
+            direction="horizontal"
+            onLayout={handleSidebarResize}
+            className="h-full"
+          >
           {/* Left Sidebar - Resizable Panel */}
           <ResizablePanel
             defaultSize={sidebarOpen ? sidebarSize : 0}
@@ -2620,19 +2634,19 @@ function CleanBIExplorerContent() {
                       className="flex gap-2"
                     >
                       <Button
-                        size="sm"
+                        size="default"
                         variant="outline"
-                        className="flex-1 h-8 text-xs border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
+                        className="flex-1 min-h-11 px-4 gap-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
                         onClick={shareAnalysis}
                         data-testid="button-share-analysis"
                       >
-                        <Share2 className="w-3.5 h-3.5 mr-1.5" />
+                        <Share2 className="w-4 h-4" />
                         Share
                       </Button>
                       <Button
-                        size="sm"
+                        size="default"
                         variant="outline"
-                        className="flex-1 h-8 text-xs border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
+                        className="flex-1 min-h-11 px-4 gap-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
                         onClick={() => {
                           toast({
                             title: "Export Coming Soon",
@@ -2641,12 +2655,12 @@ function CleanBIExplorerContent() {
                         }}
                         data-testid="button-export-pdf"
                       >
-                        <Printer className="w-3.5 h-3.5 mr-1.5" />
+                        <Printer className="w-4 h-4" />
                         Export
                       </Button>
                       <Button
-                        size="sm"
-                        className="flex-1 h-8 text-xs bg-[#b8860b] hover:bg-[#d4a030] text-white"
+                        size="default"
+                        className="flex-1 min-h-11 px-4 gap-2 bg-[#b8860b] hover:bg-[#d4a030] text-white"
                         onClick={() => {
                           saveAnalysis(analysisResult);
                           setSavedAnalyses(getStoredAnalyses());
@@ -2654,7 +2668,7 @@ function CleanBIExplorerContent() {
                         }}
                         data-testid="button-save-analysis"
                       >
-                        <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
+                        <BookmarkPlus className="w-4 h-4" />
                         Save
                       </Button>
                     </motion.div>
@@ -2667,29 +2681,29 @@ function CleanBIExplorerContent() {
                 {/* Detail Tabs - Compact */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-2 rounded-lg border border-white/10 gap-0.5 p-0.5">
-                    <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                    <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Overview</span>
                       <span className="sm:hidden">Info</span>
                     </TabsTrigger>
-                    <TabsTrigger value="score" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
-                    <TabsTrigger value="compete" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                    <TabsTrigger value="score" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
+                    <TabsTrigger value="compete" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Compete</span>
                       <span className="sm:hidden">Comp</span>
                     </TabsTrigger>
-                    <TabsTrigger value="financials" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-financials">
+                    <TabsTrigger value="financials" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#22C55E] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-financials">
                       <Calculator className="w-3 h-3" />
                       <span className="hidden sm:inline">Calc</span>
                     </TabsTrigger>
-                    <TabsTrigger value="valuator" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-valuator">
+                    <TabsTrigger value="valuator" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-valuator">
                       <CircleDollarSign className="w-3 h-3" />
                       <span className="hidden sm:inline">Value</span>
                       {(userTier === "free" || userTier === "starter") && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#8B5CF6]" />}
                     </TabsTrigger>
-                    <TabsTrigger value="deal" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-deal">
+                    <TabsTrigger value="deal" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#3B82F6] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg" data-testid="tab-deal">
                       <Scale className="w-3 h-3" />
                       <span className="hidden sm:inline">Deal</span>
                     </TabsTrigger>
-                    <TabsTrigger value="insights" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 py-1.5 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg">
+                    <TabsTrigger value="insights" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg">
                       AI
                       {userTier === "free" && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#b8860b]" />}
                     </TabsTrigger>
@@ -3050,40 +3064,40 @@ function CleanBIExplorerContent() {
                     {/* Action Buttons */}
                     <div className="flex gap-2">
                       <Button 
-                        size="sm" 
+                        size="default" 
                         variant="outline" 
                         onClick={initStreetView}
-                        className="flex-1 border-white/20 text-white hover:bg-white/10"
+                        className="flex-1 min-h-11 px-4 gap-2 border-white/20 text-white hover:bg-white/10"
                         data-testid="button-street-view"
                       >
-                        <Camera className="w-4 h-4 mr-1" />
+                        <Camera className="w-4 h-4" />
                         Street View
                       </Button>
                       <Button 
-                        size="sm" 
+                        size="default" 
                         variant="outline" 
                         onClick={userTier === "free" ? () => setShowUpgradeModal(true) : fetchAerialView}
-                        className={`flex-1 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#b8860b]/50" : ""}`}
+                        className={`flex-1 min-h-11 px-4 gap-2 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#b8860b]/50" : ""}`}
                         data-testid="button-aerial-view"
                       >
                         {userTier === "free" ? (
                           <>
-                            <Lock className="w-4 h-4 mr-1 text-[#b8860b]" />
+                            <Lock className="w-4 h-4 text-[#b8860b]" />
                             3D Flyover
-                            <Crown className="w-3 h-3 ml-1 text-[#b8860b]" />
+                            <Crown className="w-3 h-3 text-[#b8860b]" />
                           </>
                         ) : (
                           <>
-                            <Video className="w-4 h-4 mr-1" />
+                            <Video className="w-4 h-4" />
                             3D Flyover
                           </>
                         )}
                       </Button>
                       <Button 
-                        size="sm" 
+                        size="icon" 
                         variant="outline"
                         onClick={shareAnalysis}
-                        className="border-white/20 text-white hover:bg-white/10"
+                        className="min-h-11 min-w-11 border-white/20 text-white hover:bg-white/10"
                         data-testid="button-share-analysis"
                       >
                         <Share2 className="w-4 h-4" />
@@ -3294,23 +3308,23 @@ function CleanBIExplorerContent() {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <Button
-                            size="sm"
+                            size="default"
                             variant="outline"
-                            className="h-8 text-xs border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+                            className="min-h-11 px-4 gap-2 border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
                             onClick={() => toast({ title: "PDF Export", description: "Generating comprehensive PDF report..." })}
                             data-testid="button-export-pdf-score"
                           >
-                            <FileText className="w-3.5 h-3.5 mr-1.5" />
+                            <FileText className="w-4 h-4" />
                             PDF Report
                           </Button>
                           <Button
-                            size="sm"
+                            size="default"
                             variant="outline"
-                            className="h-8 text-xs border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+                            className="min-h-11 px-4 gap-2 border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
                             onClick={() => toast({ title: "CSV Export", description: "Generating raw data export..." })}
                             data-testid="button-export-csv-score"
                           >
-                            <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5" />
+                            <FileSpreadsheet className="w-4 h-4" />
                             CSV Data
                           </Button>
                         </div>
@@ -3336,10 +3350,10 @@ function CleanBIExplorerContent() {
                             key={comp.id}
                             onClick={() => analyzeCompetitor(comp)}
                             disabled={isAnalyzingCompetitor && selectedCompetitor?.id === comp.id}
-                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg p-3 transition-all duration-200 border border-transparent hover:border-[#b8860b]/30 group"
+                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 min-h-12 transition-all duration-200 border border-transparent hover:border-[#b8860b]/30 group"
                             data-testid={`button-analyze-competitor-${comp.id}`}
                           >
-                            <div className="flex items-start justify-between">
+                            <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-white text-sm truncate group-hover:text-[#b8860b] transition-colors">{comp.name}</div>
                                 <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
@@ -3850,7 +3864,7 @@ function CleanBIExplorerContent() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 w-full sm:w-auto"
+                            className="min-h-11 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 w-full sm:w-auto"
                             onClick={() => setShowAddEquipmentModal(true)}
                             data-testid="button-add-equipment"
                           >
@@ -3883,7 +3897,7 @@ function CleanBIExplorerContent() {
                                 {valuatorEquipment.map((item) => (
                                   <div 
                                     key={item.id}
-                                    className="flex items-center justify-between bg-white/5 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white/8 transition-colors"
+                                    className="flex items-center justify-between bg-white/5 rounded-lg px-2 sm:px-3 min-h-12 hover:bg-white/8 transition-colors"
                                     data-testid={`equipment-item-${item.id}`}
                                   >
                                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -3903,26 +3917,26 @@ function CleanBIExplorerContent() {
                                       <Button
                                         size="icon"
                                         variant="ghost"
-                                        className="h-6 w-6 text-white/40 hover:text-white"
+                                        className="min-h-11 min-w-11 text-white/40 hover:text-white"
                                         onClick={() => {
                                           setEditingEquipment(item);
                                           setShowAddEquipmentModal(true);
                                         }}
                                         data-testid={`button-edit-equipment-${item.id}`}
                                       >
-                                        <Wrench className="w-3 h-3" />
+                                        <Wrench className="w-4 h-4" />
                                       </Button>
                                       <Button
                                         size="icon"
                                         variant="ghost"
-                                        className="h-6 w-6 text-red-400/60 hover:text-red-400"
+                                        className="min-h-11 min-w-11 text-red-400/60 hover:text-red-400"
                                         onClick={() => {
                                           setValuatorEquipment(prev => prev.filter(e => e.id !== item.id));
                                           toast({ title: "Equipment removed" });
                                         }}
                                         data-testid={`button-delete-equipment-${item.id}`}
                                       >
-                                        <Trash2 className="w-3 h-3" />
+                                        <Trash2 className="w-4 h-4" />
                                       </Button>
                                     </div>
                                   </div>
@@ -4120,7 +4134,7 @@ function CleanBIExplorerContent() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="h-7 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                                    className="min-h-11 text-[10px] sm:text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
                                     onClick={async () => {
                                       if (!valuatorResult || !analysisResult) {
                                         toast({ title: "Valuation Required", description: "Calculate valuation first to generate AI insights", variant: "destructive" });
@@ -4264,7 +4278,7 @@ function CleanBIExplorerContent() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 text-[10px] sm:text-xs border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10"
+                                  className="min-h-11 text-[10px] sm:text-xs border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10"
                                   onClick={() => {
                                     const newMachine: EquipmentItem = {
                                       id: `what-if-${Date.now()}`,
@@ -4289,7 +4303,7 @@ function CleanBIExplorerContent() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 text-[10px] sm:text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                                  className="min-h-11 text-[10px] sm:text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
                                   onClick={() => {
                                     if (valuatorEquipment.length > 0 && whatIfScenario.removedMachineIds.length < valuatorEquipment.length) {
                                       const nextToRemove = valuatorEquipment.find(e => !whatIfScenario.removedMachineIds.includes(e.id));
@@ -4354,7 +4368,7 @@ function CleanBIExplorerContent() {
                                   {/* Calculate What-If Button */}
                                   <Button
                                     size="sm"
-                                    className="w-full mt-2 h-7 text-[10px] sm:text-xs bg-[#10B981] hover:bg-[#059669] text-white"
+                                    className="w-full mt-2 min-h-11 text-[10px] sm:text-xs bg-[#10B981] hover:bg-[#059669] text-white"
                                     onClick={async () => {
                                       setIsCalculatingWhatIf(true);
                                       try {
@@ -4429,7 +4443,7 @@ function CleanBIExplorerContent() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="w-full mt-2 h-6 text-[10px] text-white/50 hover:text-white"
+                                    className="w-full mt-2 min-h-11 text-[10px] text-white/50 hover:text-white"
                                     onClick={() => {
                                       setWhatIfScenario({ addedMachines: [], removedMachineIds: [] });
                                       setWhatIfResult(null);
@@ -4466,7 +4480,7 @@ function CleanBIExplorerContent() {
                   <Button 
                     size="sm"
                     variant="default"
-                    className="w-full mb-2 h-8"
+                    className="w-full mb-2 min-h-11"
                     onClick={() => {
                       trackEvent("cleanbi_cta_council", "engagement", undefined, { 
                         address: analysisResult.address,
@@ -4485,7 +4499,7 @@ function CleanBIExplorerContent() {
                   <div className="grid grid-cols-2 gap-1.5">
                     <Button 
                       size="sm"
-                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-7 text-[10px] font-medium"
+                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-11 text-[10px] font-medium"
                       onClick={() => {
                         trackEvent("cleanbi_cta_funding", "engagement", undefined, { 
                           address: analysisResult.address,
@@ -4504,7 +4518,7 @@ function CleanBIExplorerContent() {
                     <Button 
                       size="sm"
                       variant="outline"
-                      className="h-7 text-[10px]"
+                      className="min-h-11 text-[10px]"
                       onClick={() => {
                         trackEvent("cleanbi_cta_broker", "engagement", undefined, { 
                           address: analysisResult.address,
@@ -4534,43 +4548,52 @@ function CleanBIExplorerContent() {
                 <span className="text-xs font-medium text-white">Map Layers</span>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+              <div className="space-y-2">
+                <button 
+                  onClick={() => toggleLayer("competition")}
+                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                  data-testid="switch-layer-competition"
+                >
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
                     <div className="w-2 h-2 rounded-full bg-red-500" />
                     Competition
                   </Label>
                   <Switch 
                     checked={layers.competition} 
-                    onCheckedChange={() => toggleLayer("competition")}
-                    className="scale-75"
-                    data-testid="switch-layer-competition"
+                    onCheckedChange={() => {}}
+                    className="pointer-events-none"
                   />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+                </button>
+                <button 
+                  onClick={() => toggleLayer("opportunities")}
+                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                  data-testid="switch-layer-opportunities"
+                >
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
                     <Flame className="w-2.5 h-2.5 text-orange-500" />
                     Opportunity Heatmap
                   </Label>
                   <Switch 
                     checked={layers.opportunities} 
-                    onCheckedChange={() => toggleLayer("opportunities")}
-                    className="scale-75"
-                    data-testid="switch-layer-opportunities"
+                    onCheckedChange={() => {}}
+                    className="pointer-events-none"
                   />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5">
+                </button>
+                <button 
+                  onClick={() => toggleLayer("savedLocations")}
+                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                  data-testid="switch-layer-saved"
+                >
+                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
                     <History className="w-2.5 h-2.5 text-[#b8860b]" />
                     Saved Locations
                   </Label>
                   <Switch 
                     checked={layers.savedLocations} 
-                    onCheckedChange={() => toggleLayer("savedLocations")}
-                    className="scale-75"
-                    data-testid="switch-layer-saved"
+                    onCheckedChange={() => {}}
+                    className="pointer-events-none"
                   />
-                </div>
+                </button>
               </div>
 
               <div className="mt-2">
@@ -4750,13 +4773,13 @@ function CleanBIExplorerContent() {
                                     <Button 
                                       size="icon" 
                                       variant="ghost" 
-                                      className="h-6 w-6 text-[#b8860b] hover:bg-[#b8860b]/20 hover:text-[#d4a030]"
+                                      className="min-h-11 min-w-11 text-[#b8860b] hover:bg-[#b8860b]/20 hover:text-[#d4a030]"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         analyzeGapZone(opp);
                                       }}
                                     >
-                                      <Zap className="w-3 h-3" />
+                                      <Zap className="w-4 h-4" />
                                     </Button>
                                   </motion.div>
                                 ))}
@@ -4828,10 +4851,10 @@ function CleanBIExplorerContent() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="opacity-0 group-hover:opacity-100 h-7 w-7 text-white/40 hover:text-red-400 transition-opacity"
+                              className="opacity-0 group-hover:opacity-100 min-h-11 min-w-11 text-white/40 hover:text-red-400 transition-opacity"
                               onClick={(e) => handleDeleteSaved(saved.id, e)}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </motion.div>
@@ -4902,7 +4925,7 @@ function CleanBIExplorerContent() {
                 {userTier !== "enterprise" && (
                   <Button 
                     size="sm"
-                    className="w-full mt-2 bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-7 text-[10px] font-medium"
+                    className="w-full mt-2 bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-11 text-[10px] font-medium"
                     onClick={() => {
                       trackEvent("cleanbi_tier_upgrade_click", "conversion", undefined, {
                         currentTier: userTier,
@@ -5877,6 +5900,7 @@ function CleanBIExplorerContent() {
         {/* CLEANBI Help Chat Widget */}
         <CLEANBIHelpChat />
       </div>
+      )}
     </>
   );
 }
