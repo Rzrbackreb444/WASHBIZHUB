@@ -330,23 +330,25 @@ export function Header() {
                         <div className="px-5 py-4 bg-muted/50 border-t border-border/60 flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
                             {featuredActions.map((action) => (
-                              <Link href={action.href} key={action.href}>
-                                <motion.div
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
+                              <motion.div
+                                key={action.href}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                <Button 
+                                  variant={action.primary ? "default" : "outline"}
+                                  size="sm"
+                                  className={action.primary ? "bg-accent hover:bg-accent/90 text-accent-foreground" : ""}
+                                  onClick={() => {
+                                    setMegaMenuOpen(false);
+                                    window.location.href = action.href;
+                                  }}
+                                  data-testid={`button-mega-${action.href.replace('/', '')}`}
                                 >
-                                  <Button 
-                                    variant={action.primary ? "default" : "outline"}
-                                    size="sm"
-                                    className={action.primary ? "bg-accent hover:bg-accent/90 text-accent-foreground" : ""}
-                                    onClick={() => setMegaMenuOpen(false)}
-                                    data-testid={`button-mega-${action.href.replace('/', '')}`}
-                                  >
-                                    <action.icon className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
-                                    {action.label}
-                                  </Button>
-                                </motion.div>
-                              </Link>
+                                  <action.icon className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+                                  {action.label}
+                                </Button>
+                              </motion.div>
                             ))}
                           </div>
                           <span className="text-xs text-muted-foreground">
@@ -370,17 +372,16 @@ export function Header() {
                 <>
                   {isAuthenticated ? (
                     <>
-                      <Link href="/settings" className="hidden sm:block">
-                        <Button 
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground"
-                          aria-label="Settings"
-                          data-testid="button-settings"
-                        >
-                          <SettingsIcon className="h-4 w-4" aria-hidden="true" />
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="ghost"
+                        size="icon"
+                        className="hidden sm:flex text-muted-foreground hover:text-foreground"
+                        aria-label="Settings"
+                        onClick={() => window.location.href = '/settings'}
+                        data-testid="button-settings"
+                      >
+                        <SettingsIcon className="h-4 w-4" aria-hidden="true" />
+                      </Button>
                       
                       <motion.div 
                         className="hidden md:flex items-center gap-2 text-muted-foreground text-sm px-3 py-1.5 bg-muted/80 rounded-full border border-border/50"
@@ -424,38 +425,37 @@ export function Header() {
                   )}
                   
                   {/* Need Help Selling CTA */}
-                  <Link href="/sell-your-laundromat" className="hidden md:block">
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium"
-                        data-testid="button-sell-help"
-                      >
-                        <HelpCircle className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                        <span className="hidden lg:inline">Need Help Selling?</span>
-                        <span className="lg:hidden">Sell</span>
-                      </Button>
-                    </motion.div>
-                  </Link>
+                  <motion.div className="hidden md:block" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium"
+                      onClick={() => window.location.href = '/sell-your-laundromat'}
+                      data-testid="button-sell-help"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                      <span className="hidden lg:inline">Need Help Selling?</span>
+                      <span className="lg:hidden">Sell</span>
+                    </Button>
+                  </motion.div>
                   
                   {(!user?.isPro) && (
-                    <Link href="/pricing" className="hidden sm:block">
-                      <motion.div 
-                        whileHover={{ scale: 1.03 }} 
-                        whileTap={{ scale: 0.97 }}
+                    <motion.div 
+                      className="hidden sm:block"
+                      whileHover={{ scale: 1.03 }} 
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <Button 
+                        className="btn-premium-gold text-white font-semibold rounded-lg px-4"
+                        size="sm"
+                        onClick={() => window.location.href = '/pricing'}
+                        data-testid="button-upgrade"
                       >
-                        <Button 
-                          className="btn-premium-gold text-white font-semibold rounded-lg px-4"
-                          size="sm"
-                          data-testid="button-upgrade"
-                        >
-                          <Zap className="w-4 h-4 mr-1.5" aria-hidden="true" />
-                          <span className="hidden lg:inline">Upgrade to Pro</span>
-                          <span className="lg:hidden">Pro</span>
-                        </Button>
-                      </motion.div>
-                    </Link>
+                        <Zap className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                        <span className="hidden lg:inline">Upgrade to Pro</span>
+                        <span className="lg:hidden">Pro</span>
+                      </Button>
+                    </motion.div>
                   )}
                 </>
               )}
@@ -632,31 +632,35 @@ export function Header() {
                       )}
                       
                       {/* Need Help Selling CTA - Mobile */}
-                      <Link href="/sell-your-laundromat" onClick={() => setMobileMenuOpen(false)}>
-                        <motion.div whileTap={{ scale: 0.98 }}>
-                          <Button 
-                            variant="outline"
-                            className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium h-11"
-                            data-testid="button-mobile-sell-help"
-                          >
-                            <HelpCircle className="w-4 h-4 mr-2" aria-hidden="true" />
-                            Need Help Selling?
-                          </Button>
-                        </motion.div>
-                      </Link>
+                      <motion.div whileTap={{ scale: 0.98 }}>
+                        <Button 
+                          variant="outline"
+                          className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground font-medium h-11"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            window.location.href = '/sell-your-laundromat';
+                          }}
+                          data-testid="button-mobile-sell-help"
+                        >
+                          <HelpCircle className="w-4 h-4 mr-2" aria-hidden="true" />
+                          Need Help Selling?
+                        </Button>
+                      </motion.div>
                       
                       {(!user?.isPro) && (
-                        <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-                          <motion.div whileTap={{ scale: 0.98 }}>
-                            <Button 
-                              className="w-full btn-premium-gold text-white font-semibold h-11"
-                              data-testid="button-mobile-upgrade"
-                            >
-                              <Zap className="w-4 h-4 mr-2" aria-hidden="true" />
-                              Upgrade to Pro
-                            </Button>
-                          </motion.div>
-                        </Link>
+                        <motion.div whileTap={{ scale: 0.98 }}>
+                          <Button 
+                            className="w-full btn-premium-gold text-white font-semibold h-11"
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              window.location.href = '/pricing';
+                            }}
+                            data-testid="button-mobile-upgrade"
+                          >
+                            <Zap className="w-4 h-4 mr-2" aria-hidden="true" />
+                            Upgrade to Pro
+                          </Button>
+                        </motion.div>
                       )}
                       
                       {isAuthenticated && (
@@ -670,16 +674,18 @@ export function Header() {
                             <span className="text-sm text-foreground/90 font-medium">CLEANBI Usage</span>
                             <UsageIndicator />
                           </div>
-                          <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
-                            <Button 
-                              variant="ghost"
-                              className="w-full justify-start text-foreground/90 hover:text-foreground h-10"
-                              data-testid="button-mobile-settings"
-                            >
-                              <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
-                              Settings
-                            </Button>
-                          </Link>
+                          <Button 
+                            variant="ghost"
+                            className="w-full justify-start text-foreground/90 hover:text-foreground h-10"
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              window.location.href = '/settings';
+                            }}
+                            data-testid="button-mobile-settings"
+                          >
+                            <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+                            Settings
+                          </Button>
                           <Button 
                             onClick={() => {
                               setMobileMenuOpen(false);

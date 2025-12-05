@@ -1,6 +1,5 @@
 import { AlertTriangle, RefreshCw, Home, Database, Component } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
 
 export type ErrorFallbackVariant = "page" | "component" | "data-fetch";
 
@@ -47,7 +46,6 @@ export function ErrorFallback({
   description,
   showError = false,
 }: ErrorFallbackProps) {
-  const [, setLocation] = useLocation();
   const config = variantConfig[variant];
   const IconComponent = config.icon;
 
@@ -55,7 +53,7 @@ export function ErrorFallback({
     if (onGoHome) {
       onGoHome();
     } else {
-      setLocation("/");
+      window.location.href = "/";
     }
   };
 
