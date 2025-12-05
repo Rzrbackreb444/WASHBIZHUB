@@ -884,5 +884,224 @@ export function createSeoRoutes(storage: IStorage): Router {
     }
   });
 
+  // ==================== BLOG SEO HELPERS ====================
+
+  /**
+   * POST /api/seo/generate-meta
+   * Generate AI-powered meta title and description suggestions for blog posts
+   */
+  router.post("/generate-meta", async (req: Request, res: Response) => {
+    try {
+      const { title, content, focusKeyphrase } = req.body;
+      
+      if (!title || !content) {
+        return res.status(400).json({ error: "Title and content are required" });
+      }
+
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+      if (!GEMINI_API_KEY) {
+        const metaTitle = generateFallbackMetaTitle(title, focusKeyphrase);
+        const metaDescription = generateFallbackMetaDescription(content, focusKeyphrase);
+        
+        return res.json({
+          metaTitle,
+          metaDescription,
+          source: "fallback"
+        });
+      }
+
+      const prompt = `You are an SEO expert. Generate optimized meta tags for a blog post.
+
+Title: ${title}
+Focus Keyphrase: ${focusKeyphrase || "not specified"}
+Content Preview: ${content.substring(0, 1500)}
+
+Generate:
+1. SEO Title (50-60 characters, include the focus keyphrase at the start if possible)
+2. Meta Description (150-160 characters, compelling with CTA, include focus keyphrase naturally)
+
+Respond in JSON format only:
+{
+  "metaTitle": "Your optimized SEO title here",
+  "metaDescription": "Your compelling meta description here"
+}`;
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 500,
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Gemini API request failed');
+      }
+
+      const data = await response.json();
+      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      
+      const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return res.json({
+          metaTitle: parsed.metaTitle?.substring(0, 70) || generateFallbackMetaTitle(title, focusKeyphrase),
+          metaDescription: parsed.metaDescription?.substring(0, 160) || generateFallbackMetaDescription(content, focusKeyphrase),
+          source: "gemini"
+        });
+      }
+
+      res.json({
+        metaTitle: generateFallbackMetaTitle(title, focusKeyphrase),
+        metaDescription: generateFallbackMetaDescription(content, focusKeyphrase),
+        source: "fallback"
+      });
+    } catch (error) {
+      console.error("Error generating meta suggestions:", error);
+      const { title, content, focusKeyphrase } = req.body;
+      res.json({
+        metaTitle: generateFallbackMetaTitle(title || "", focusKeyphrase),
+        metaDescription: generateFallbackMetaDescription(content || "", focusKeyphrase),
+        source: "fallback"
+      });
+    }
+  });
+
+  /**
+   * POST /api/seo/suggest-keyphrases
+   * Suggest related keyphrases using SERP API or intelligent fallback
+   */
+  router.post("/suggest-keyphrases", async (req: Request, res: Response) => {
+    try {
+      const { topic, content, currentKeyphrase } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ error: "Topic is required" });
+      }
+
+      const SERP_API_KEY = process.env.SERP_API_KEY;
+
+      if (SERP_API_KEY) {
+        try {
+          const serpResponse = await fetch(`https://serpapi.com/search.json?engine=google_autocomplete&q=${encodeURIComponent(topic)}&api_key=${SERP_API_KEY}`);
+          
+          if (serpResponse.ok) {
+            const serpData = await serpResponse.json();
+            const suggestions = serpData.suggestions?.map((s: any) => s.value) || [];
+            
+            if (suggestions.length > 0) {
+              return res.json({
+                keyphrases: suggestions.slice(0, 8),
+                source: "serp_api"
+              });
+            }
+          }
+        } catch (serpError) {
+          console.error("SERP API error:", serpError);
+        }
+      }
+
+      const keyphrases = generateFallbackKeyphrases(topic, content);
+      
+      res.json({
+        keyphrases: keyphrases.filter(k => k.toLowerCase() !== currentKeyphrase?.toLowerCase()).slice(0, 8),
+        source: "generated"
+      });
+    } catch (error) {
+      console.error("Error suggesting keyphrases:", error);
+      res.status(500).json({ error: "Failed to suggest keyphrases" });
+    }
+  });
+
   return router;
+}
+
+// Helper functions for blog SEO
+function generateFallbackMetaTitle(title: string, focusKeyphrase?: string): string {
+  let metaTitle = title;
+  
+  if (focusKeyphrase && !title.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+    metaTitle = `${focusKeyphrase}: ${title}`;
+  }
+  
+  if (metaTitle.length < 50 && !metaTitle.includes('|')) {
+    metaTitle = `${metaTitle} | WashBizHub`;
+  }
+  
+  return metaTitle.substring(0, 70);
+}
+
+function generateFallbackMetaDescription(content: string, focusKeyphrase?: string): string {
+  const cleanContent = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  const firstSentences = cleanContent.split(/[.!?]/).slice(0, 2).join('. ');
+  
+  let description = firstSentences.substring(0, 140);
+  
+  if (focusKeyphrase && !description.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+    description = `${focusKeyphrase} - ${description.substring(0, 120)}`;
+  }
+  
+  if (!description.includes('Learn') && !description.includes('Discover')) {
+    description += '. Learn more now!';
+  }
+  
+  return description.substring(0, 160);
+}
+
+function generateFallbackKeyphrases(topic: string, content?: string): string[] {
+  const keyphrases: string[] = [];
+  
+  const laundromatKeywords = [
+    'laundromat ROI',
+    'coin laundry profit',
+    'laundromat business',
+    'washateria investment',
+    'commercial laundry',
+    'laundromat valuation',
+    'laundry equipment',
+    'self-service laundry',
+    'laundromat financing',
+    'laundry business startup'
+  ];
+
+  if (topic.toLowerCase().includes('laundromat') || topic.toLowerCase().includes('laundry')) {
+    keyphrases.push(...laundromatKeywords.filter(k => 
+      k.toLowerCase() !== topic.toLowerCase()
+    ).slice(0, 5));
+  }
+
+  keyphrases.push(`${topic} guide`);
+  keyphrases.push(`how to ${topic.toLowerCase()}`);
+  keyphrases.push(`${topic} tips`);
+  keyphrases.push(`best ${topic.toLowerCase()}`);
+  keyphrases.push(`${topic} 2025`);
+
+  if (content) {
+    const words = content.toLowerCase().split(/\s+/);
+    const wordFreq: Record<string, number> = {};
+    
+    const stopWords = ['about', 'which', 'would', 'could', 'should', 'there', 'their', 'these', 'those', 'where', 'after', 'before'];
+    words.forEach(word => {
+      const clean = word.replace(/[^a-z]/g, '');
+      if (clean.length > 5 && !stopWords.includes(clean)) {
+        wordFreq[clean] = (wordFreq[clean] || 0) + 1;
+      }
+    });
+    
+    const topWords = Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([word]) => word);
+    
+    topWords.forEach(word => {
+      keyphrases.push(`${word} ${topic.split(' ')[0]}`);
+    });
+  }
+
+  return [...new Set(keyphrases)].slice(0, 10);
 }

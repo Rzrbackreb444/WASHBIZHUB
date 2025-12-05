@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/carousel';
 import { 
   Building2, MapPin, DollarSign, Star, ArrowRight, 
-  TrendingUp, ChevronRight, Sparkles
+  TrendingUp, ChevronRight, Sparkles, Crown, Gem
 } from 'lucide-react';
 import type { Listing } from '@shared/schema';
 
@@ -27,6 +27,7 @@ interface ListingWithDetails extends Listing {
     annualRevenue?: string;
     cashFlow?: string;
   };
+  subscriptionTier?: string;
 }
 
 function formatPrice(price: string | null | undefined): string {
@@ -60,11 +61,23 @@ function ListingSlide({ listing }: { listing: ListingWithDetails }) {
           </div>
         )}
         
-        <div className="absolute top-3 left-3">
-          <Badge className="bg-accent text-accent-foreground shadow-lg">
-            <Star className="w-3 h-3 mr-1" />
-            Featured
-          </Badge>
+        <div className="absolute top-3 left-3 flex gap-2">
+          {listing.subscriptionTier === 'diamond' ? (
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-0">
+              <Crown className="w-3 h-3 mr-1" />
+              Diamond
+            </Badge>
+          ) : listing.subscriptionTier === 'showcase' ? (
+            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg border-0">
+              <Gem className="w-3 h-3 mr-1" />
+              Showcase
+            </Badge>
+          ) : (
+            <Badge className="bg-accent text-accent-foreground shadow-lg">
+              <Star className="w-3 h-3 mr-1" />
+              Featured
+            </Badge>
+          )}
         </div>
         
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">

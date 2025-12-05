@@ -612,3 +612,380 @@ function injectCTAAfterFirstSection(content: string, cta: string): string {
   // Fallback: add at end before closing tag
   return content + '\n\n' + cta;
 }
+
+// ==================== ADMIN BLOG ROUTES ====================
+// These routes are for the admin blog management interface
+
+export function adminBlogRoutes(app: Express) {
+  
+  // Get all blog posts for admin (including drafts)
+  app.get("/api/admin/blog/posts", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const posts = await db.select()
+        .from(blogPosts)
+        .orderBy(desc(blogPosts.dateModified));
+      
+      // Format tags properly
+      const formattedPosts = posts.map(post => ({
+        ...post,
+        tags: Array.isArray(post.metaKeywords) ? post.metaKeywords : []
+      }));
+      
+      res.json(formattedPosts);
+    } catch (error) {
+      console.error("Error fetching admin blog posts:", error);
+      res.status(500).json({ error: "Failed to fetch blog posts" });
+    }
+  });
+
+  // Create blog post (admin)
+  app.post("/api/admin/blog/posts", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const {
+        title,
+        content,
+        excerpt,
+        slug,
+        category = "general",
+        subcategory,
+        tags = [],
+        featuredImage,
+        featuredImageAlt,
+        metaTitle,
+        metaDescription,
+        focusKeyphrases = [],
+        canonicalUrl,
+        ogTitle,
+        ogDescription,
+        ogImage,
+        twitterTitle,
+        twitterDescription,
+        twitterImage,
+        schemaMarkup,
+        authorName = "WashBizHub Research Team",
+        featured = false,
+        published = false,
+        market = "global",
+        language = "en",
+        type = "manual"
+      } = req.body;
+      
+      if (!title || !content || !excerpt) {
+        return res.status(400).json({ error: "Title, content, and excerpt are required" });
+      }
+      
+      const generatedSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      
+      const [existingPost] = await db.select({ id: blogPosts.id })
+        .from(blogPosts)
+        .where(eq(blogPosts.slug, generatedSlug))
+        .limit(1);
+      
+      if (existingPost) {
+        return res.status(400).json({ error: "A post with this slug already exists" });
+      }
+
+      // Calculate initial SEO score
+      const seoScore = calculateSEOScore({
+        title, content, metaTitle, metaDescription, 
+        focusKeyphrase: focusKeyphrases[0], slug: generatedSlug,
+        featuredImage, featuredImageAlt
+      });
+      
+      const [newPost] = await db.insert(blogPosts)
+        .values({
+          title,
+          content,
+          excerpt,
+          slug: generatedSlug,
+          category,
+          subcategory,
+          metaKeywords: tags,
+          featuredImage,
+          featuredImageAlt,
+          metaTitle: metaTitle || title,
+          metaDescription: metaDescription || excerpt,
+          focusKeyphrases: focusKeyphrases.length > 0 ? focusKeyphrases : [title],
+          canonicalUrl,
+          ogTitle: ogTitle || metaTitle || title,
+          ogDescription: ogDescription || metaDescription || excerpt,
+          ogImage: ogImage || featuredImage,
+          twitterTitle: twitterTitle || ogTitle || metaTitle || title,
+          twitterDescription: twitterDescription || ogDescription || metaDescription || excerpt,
+          twitterImage: twitterImage || ogImage || featuredImage,
+          schemaMarkup,
+          authorName,
+          featured,
+          published,
+          status: published ? "published" : "draft",
+          market,
+          language,
+          type,
+          seoScore,
+          linkToCleanbi: true,
+          cleanbiAnchorText: "Try our free CLEANBI property analysis tool",
+        })
+        .returning();
+      
+      res.status(201).json(newPost);
+    } catch (error) {
+      console.error("Error creating blog post:", error);
+      res.status(500).json({ error: "Failed to create blog post" });
+    }
+  });
+
+  // Update blog post (admin)
+  app.patch("/api/admin/blog/posts/:id", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updates = { ...req.body };
+      
+      // Handle tags -> metaKeywords mapping
+      if (updates.tags) {
+        updates.metaKeywords = updates.tags;
+        delete updates.tags;
+      }
+      
+      // Calculate SEO score if relevant fields are updated
+      if (updates.title || updates.content || updates.metaTitle || 
+          updates.metaDescription || updates.focusKeyphrases || updates.slug) {
+        const [existingPost] = await db.select()
+          .from(blogPosts)
+          .where(eq(blogPosts.id, id))
+          .limit(1);
+        
+        if (existingPost) {
+          const mergedData = { ...existingPost, ...updates };
+          updates.seoScore = calculateSEOScore({
+            title: mergedData.title,
+            content: mergedData.content,
+            metaTitle: mergedData.metaTitle,
+            metaDescription: mergedData.metaDescription,
+            focusKeyphrase: Array.isArray(mergedData.focusKeyphrases) ? mergedData.focusKeyphrases[0] : null,
+            slug: mergedData.slug,
+            featuredImage: mergedData.featuredImage,
+            featuredImageAlt: mergedData.featuredImageAlt
+          });
+        }
+      }
+      
+      updates.dateModified = new Date();
+      updates.updatedAt = new Date();
+      
+      if (updates.published !== undefined) {
+        updates.status = updates.published ? "published" : "draft";
+        if (updates.published) {
+          updates.datePublished = new Date();
+        }
+      }
+      
+      const [updatedPost] = await db.update(blogPosts)
+        .set(updates)
+        .where(eq(blogPosts.id, id))
+        .returning();
+      
+      if (!updatedPost) {
+        return res.status(404).json({ error: "Blog post not found" });
+      }
+      
+      res.json(updatedPost);
+    } catch (error) {
+      console.error("Error updating blog post:", error);
+      res.status(500).json({ error: "Failed to update blog post" });
+    }
+  });
+
+  // Delete blog post (admin)
+  app.delete("/api/admin/blog/posts/:id", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const [deletedPost] = await db.delete(blogPosts)
+        .where(eq(blogPosts.id, id))
+        .returning({ id: blogPosts.id });
+      
+      if (!deletedPost) {
+        return res.status(404).json({ error: "Blog post not found" });
+      }
+      
+      res.json({ success: true, id: deletedPost.id });
+    } catch (error) {
+      console.error("Error deleting blog post:", error);
+      res.status(500).json({ error: "Failed to delete blog post" });
+    }
+  });
+
+  // AI Blog Generation endpoint
+  app.post("/api/blog/ai-generate", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { keyword, category, aiProvider, mode, targetWordCount, tone } = req.body;
+      
+      if (!keyword) {
+        return res.status(400).json({ error: "Keyword/topic is required" });
+      }
+
+      const { generateBlogWithMultiAI } = await import("./ai-blog-generator");
+      
+      const result = await generateBlogWithMultiAI({
+        keyword,
+        category: category || "laundromat",
+        targetWordCount: targetWordCount || 1500,
+        tone: tone || "professional"
+      });
+      
+      // Generate synonyms for the keyword
+      const synonyms = await generateLSIKeywords(keyword, category || "laundromat");
+      
+      res.json({
+        ...result,
+        synonyms,
+        mode,
+        generatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error generating blog content:", error);
+      res.status(500).json({ error: "Failed to generate blog content" });
+    }
+  });
+
+  // SEO Synonym Expansion endpoint for LSI keywords
+  app.post("/api/seo/expand-synonyms", async (req: Request, res: Response) => {
+    try {
+      const { keyword, content } = req.body;
+      
+      if (!keyword) {
+        return res.status(400).json({ error: "Keyword is required" });
+      }
+      
+      const synonyms = await generateLSIKeywords(keyword, "laundromat");
+      
+      res.json({ 
+        keyword,
+        synonyms,
+        count: synonyms.length
+      });
+    } catch (error) {
+      console.error("Error generating LSI keywords:", error);
+      res.status(500).json({ error: "Failed to generate LSI keywords" });
+    }
+  });
+}
+
+// Helper function to generate LSI (Latent Semantic Indexing) keywords
+async function generateLSIKeywords(keyword: string, category: string): Promise<string[]> {
+  try {
+    const { GoogleGenerativeAI } = await import("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const prompt = `Generate 12 LSI (Latent Semantic Indexing) keywords and semantic variations for SEO optimization.
+
+Topic: "${keyword}"
+Industry: ${category}
+
+Return ONLY a JSON array of strings, no explanation:
+["keyword1", "keyword2", "keyword3", ...]
+
+Include:
+- Long-tail variations
+- Related industry terms
+- Semantic synonyms
+- Question-based variations
+- Location-agnostic terms
+
+Example for "laundromat investment":
+["coin laundry ROI", "self-service laundry profits", "laundry business returns", "wash and fold income", "laundromat cash flow", "commercial laundry investment", "passive income laundry", "laundry equipment financing", "laundromat valuation metrics", "laundry business acquisition", "unattended laundry revenue", "coin-op laundry margins"]`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    // Extract JSON array from response
+    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (Array.isArray(parsed)) {
+        return parsed.slice(0, 12);
+      }
+    }
+    
+    // Fallback: generate basic variations
+    return generateBasicVariations(keyword);
+  } catch (error) {
+    console.error("Error with AI LSI generation:", error);
+    return generateBasicVariations(keyword);
+  }
+}
+
+function generateBasicVariations(keyword: string): string[] {
+  const words = keyword.toLowerCase().split(/\s+/);
+  const variations: string[] = [];
+  
+  // Basic transformations
+  variations.push(`${keyword} guide`);
+  variations.push(`${keyword} tips`);
+  variations.push(`how to ${keyword}`);
+  variations.push(`best ${keyword}`);
+  variations.push(`${keyword} strategies`);
+  variations.push(`${keyword} for beginners`);
+  variations.push(`${keyword} investment`);
+  variations.push(`${keyword} business`);
+  variations.push(`${keyword} opportunities`);
+  variations.push(`${keyword} analysis`);
+  variations.push(`${keyword} calculator`);
+  variations.push(`${keyword} roi`);
+  
+  return variations.slice(0, 12);
+}
+
+// Helper function to calculate SEO score
+function calculateSEOScore(data: {
+  title?: string;
+  content?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeyphrase?: string | null;
+  slug?: string;
+  featuredImage?: string | null;
+  featuredImageAlt?: string | null;
+}): number {
+  let score = 0;
+  const keyphraseLower = data.focusKeyphrase?.toLowerCase() || '';
+  
+  // Focus keyphrase checks (30 points)
+  if (data.focusKeyphrase) {
+    score += 5; // Has keyphrase
+    if (data.title?.toLowerCase().includes(keyphraseLower)) score += 10;
+    if (data.metaDescription?.toLowerCase().includes(keyphraseLower)) score += 5;
+    if (data.slug?.toLowerCase().includes(keyphraseLower.replace(/\s+/g, '-'))) score += 5;
+    if (data.content?.toLowerCase().includes(keyphraseLower)) score += 5;
+  }
+  
+  // Meta title (15 points)
+  if (data.metaTitle) {
+    const len = data.metaTitle.length;
+    if (len >= 30 && len <= 70) score += 15;
+    else if (len > 0) score += 5;
+  }
+  
+  // Meta description (15 points)
+  if (data.metaDescription) {
+    const len = data.metaDescription.length;
+    if (len >= 120 && len <= 160) score += 15;
+    else if (len > 0) score += 5;
+  }
+  
+  // Content length (25 points)
+  const wordCount = data.content?.split(/\s+/).filter(w => w.length > 0).length || 0;
+  if (wordCount >= 1500) score += 25;
+  else if (wordCount >= 1000) score += 20;
+  else if (wordCount >= 500) score += 15;
+  else if (wordCount >= 300) score += 10;
+  
+  // Featured image (15 points)
+  if (data.featuredImage) {
+    score += 10;
+    if (data.featuredImageAlt) score += 5;
+  }
+  
+  return Math.min(100, score);
+}
