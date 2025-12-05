@@ -96,6 +96,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ListingAnalyzer } from "@/components/ListingAnalyzer";
@@ -487,6 +488,35 @@ function CleanBIExplorerContent() {
   const [address, setAddress] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  // Resizable sidebar state with localStorage persistence
+  const SIDEBAR_STORAGE_KEY = "cleanbi_sidebar_width";
+  const DEFAULT_SIDEBAR_SIZE = 25; // 25% default (approximately 320px on 1280px screen)
+  const MIN_SIDEBAR_SIZE = 20; // 20% minimum
+  const MAX_SIDEBAR_SIZE = 40; // 40% maximum
+  const [sidebarSize, setSidebarSize] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (stored) {
+        const parsed = parseFloat(stored);
+        if (!isNaN(parsed) && parsed >= MIN_SIDEBAR_SIZE && parsed <= MAX_SIDEBAR_SIZE) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return DEFAULT_SIDEBAR_SIZE;
+  });
+  
+  // Save sidebar size to localStorage when it changes
+  const handleSidebarResize = useCallback((sizes: number[]) => {
+    if (sizes[0] > 0) {
+      setSidebarSize(sizes[0]);
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, sizes[0].toString());
+      } catch {}
+    }
+  }, []);
+  
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([]);
@@ -1929,16 +1959,30 @@ function CleanBIExplorerContent() {
         description="Great job exploring! Upgrade to Starter for unlimited analyses, PDF exports, competitor intel, and more."
       />
 
-      <div className="fixed inset-0 bg-[#0a0a14] flex" data-testid="cleanbi-explorer">
-        {/* Left Sidebar - Premium Navy Gradient */}
-        <motion.div 
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className={`absolute top-0 left-0 bottom-0 z-20 bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-r border-white/10 transition-all duration-300 flex flex-col backdrop-blur-md ${sidebarOpen ? "w-[320px]" : "w-0 overflow-hidden"}`}
-          data-testid="sidebar-panel"
+      <div className="fixed inset-0 bg-[#0a0a14]" data-testid="cleanbi-explorer">
+        <ResizablePanelGroup
+          direction="horizontal"
+          onLayout={handleSidebarResize}
+          className="h-full"
         >
-          <ScrollArea className="flex-1" viewportRef={sidebarViewportRef}>
+          {/* Left Sidebar - Resizable Panel */}
+          <ResizablePanel
+            defaultSize={sidebarOpen ? sidebarSize : 0}
+            size={sidebarOpen ? undefined : 0}
+            minSize={sidebarOpen ? MIN_SIDEBAR_SIZE : 0}
+            maxSize={sidebarOpen ? MAX_SIDEBAR_SIZE : 0}
+            collapsible={true}
+            collapsedSize={0}
+            data-testid="sidebar-panel"
+            className="relative"
+          >
+            <motion.div 
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="h-full bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] flex flex-col backdrop-blur-md"
+            >
+              <ScrollArea className="flex-1" viewportRef={sidebarViewportRef}>
 
             {/* Empty State - Click to Analyze CTA */}
             <AnimatePresence>
@@ -4220,30 +4264,57 @@ function CleanBIExplorerContent() {
                 <span>CLEANBI™ Proprietary</span>
               </div>
             </div>
-          </ScrollArea>
-        </motion.div>
+              </ScrollArea>
 
-        {/* Sidebar Toggle - Gold gradient for visibility */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-56 z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl ${sidebarOpen ? "left-[320px]" : "left-0"}`}
-          data-testid="button-toggle-sidebar"
-        >
-          {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-        </motion.button>
+              {/* Sidebar Toggle Button - Inside sidebar panel */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="absolute top-56 right-0 translate-x-full z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl"
+                data-testid="button-toggle-sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </motion.button>
+            </motion.div>
+          </ResizablePanel>
 
-        {/* Main Map Area */}
-        <div className={`flex-1 relative transition-all duration-300 ${sidebarOpen ? "ml-[320px]" : "ml-0"}`}>
-          <div 
-            ref={mapRef}
-            className="absolute inset-0"
-            data-testid="explorer-map"
-          />
+          {/* Resizable Handle - Gold/Amber themed */}
+          {sidebarOpen && (
+            <ResizableHandle
+              className="w-1.5 bg-[#b8860b]/20 hover:bg-[#b8860b]/50 active:bg-[#b8860b] transition-colors data-[resize-handle-active]:bg-[#b8860b] relative group"
+              data-testid="sidebar-resize-handle"
+            >
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-[#b8860b]/30 group-hover:bg-[#b8860b]/60 transition-colors" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-[#b8860b]/40 group-hover:bg-[#b8860b] transition-colors" />
+            </ResizableHandle>
+          )}
 
-          {/* Market Gap Legend - Shows when gaps are displayed */}
+          {/* Main Map Area - Second Panel */}
+          <ResizablePanel defaultSize={sidebarOpen ? (100 - sidebarSize) : 100} minSize={60}>
+            <div className="h-full relative">
+              {/* Toggle button when sidebar is collapsed */}
+              {!sidebarOpen && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => setSidebarOpen(true)}
+                  className="absolute top-56 left-0 z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl"
+                  data-testid="button-toggle-sidebar-open"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </motion.button>
+              )}
+              
+              <div 
+                ref={mapRef}
+                className="absolute inset-0"
+                data-testid="explorer-map"
+              />
+
+              {/* Market Gap Legend - Shows when gaps are displayed */}
           <AnimatePresence>
           {showMarketGaps && totalGapCount > 0 && (
             <motion.div 
@@ -4285,7 +4356,9 @@ function CleanBIExplorerContent() {
             </motion.div>
           )}
           </AnimatePresence>
-        </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
 
         {/* Street View Modal */}
         <AnimatePresence>
