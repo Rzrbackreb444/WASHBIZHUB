@@ -807,7 +807,7 @@ app.use((req, res, next) => {
     const { seedTenants } = await import('./seed-tenants');
     await seedTenants();
     
-    // Seed real laundromat listings
+    // Seed real laundromat listings (5 verified real listings)
     const { seedRealListings } = await import('./seed-real-listings');
     await seedRealListings();
     

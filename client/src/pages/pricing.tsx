@@ -9,8 +9,11 @@ import {
   PLATFORM_TIERS, 
   PLATFORM_TIER_ORDER, 
   PLATFORM_PRICING_FAQS,
+  LISTING_TIERS,
+  LISTING_TIER_ORDER,
   getSavingsPercent,
-  type PlatformTierConfig 
+  type PlatformTierConfig,
+  type ListingTierConfig
 } from "@/lib/tier-config";
 import {
   Check,
@@ -686,6 +689,103 @@ export default function Pricing() {
                 Scroll horizontally on mobile to see all plans
               </span>
             </p>
+          </div>
+        </section>
+
+        {/* Listing Tiers Section - For Sellers */}
+        <section 
+          className="py-16 sm:py-24 bg-gradient-to-br from-[#1e3a5f]/5 to-[#C8A661]/5"
+          aria-labelledby="listing-tiers-title"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-12">
+              <Badge className="mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30">
+                <Star className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                For Sellers
+              </Badge>
+              <h2 id="listing-tiers-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+                Listing Visibility Tiers
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Sell your laundromat faster with premium visibility. Higher tiers unlock auto-features that work for you 24/7.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {LISTING_TIER_ORDER.map((tierId) => {
+                const tier = LISTING_TIERS[tierId];
+                const TierIcon = tier.icon;
+                return (
+                  <Card 
+                    key={tier.id}
+                    className={`relative flex flex-col ${tier.popular ? 'border-[#C8A661] ring-2 ring-[#C8A661]/20' : ''}`}
+                  >
+                    {tier.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <Badge className={tier.badgeColor}>
+                          {tier.badge}
+                        </Badge>
+                      </div>
+                    )}
+                    <CardHeader className="text-center pb-4">
+                      <div className={`w-12 h-12 rounded-xl ${tier.iconBg} flex items-center justify-center mx-auto mb-3`}>
+                        <TierIcon className={`w-6 h-6 ${tier.iconColor}`} />
+                      </div>
+                      <CardTitle className="text-lg">{tier.name}</CardTitle>
+                      <CardDescription className="text-xs">{tier.tagline}</CardDescription>
+                      <div className="mt-3">
+                        <span className="text-3xl font-bold">${tier.price}</span>
+                        {tier.price > 0 && <span className="text-muted-foreground">/mo</span>}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1 space-y-3">
+                      {tier.features.map((feature, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`flex items-start gap-2 text-sm ${feature.highlight ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
+                        >
+                          {feature.included ? (
+                            <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${feature.highlight ? 'text-[#C8A661]' : 'text-green-500'}`} />
+                          ) : (
+                            <X className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted-foreground/30" />
+                          )}
+                          <span className={!feature.included ? 'text-muted-foreground/50' : ''}>
+                            {feature.text}
+                          </span>
+                        </div>
+                      ))}
+                      {tier.roi && (
+                        <div className="pt-2 mt-2 border-t">
+                          <p className="text-xs text-[#C8A661] font-medium flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" />
+                            {tier.roi}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                    <div className="p-4 pt-0">
+                      <Link href="/listing-form">
+                        <Button 
+                          className="w-full"
+                          variant={tier.ctaVariant as "default" | "outline" | "secondary"}
+                          data-testid={`button-listing-tier-${tier.id}`}
+                        >
+                          {tier.cta}
+                          <ArrowRight className="w-4 h-4 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                <Sparkles className="w-4 h-4 inline-block mr-1 text-[#C8A661]" />
+                <strong>Diamond VIP</strong> includes AI-generated blog post about your listing + automatic Google/Bing indexing for maximum SEO visibility.
+              </p>
+            </div>
           </div>
         </section>
 

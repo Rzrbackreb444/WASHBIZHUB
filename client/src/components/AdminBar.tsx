@@ -29,7 +29,11 @@ import {
   X,
   Sparkles,
   Wand2,
-  Loader2
+  Loader2,
+  Globe,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -41,6 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -101,6 +106,17 @@ export default function AdminBar() {
   const [quickGenOpen, setQuickGenOpen] = useState(false);
   const [quickGenTopic, setQuickGenTopic] = useState("");
   const [quickGenCategory, setQuickGenCategory] = useState("Guides");
+  const [seoEditorOpen, setSeoEditorOpen] = useState(false);
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState("");
+  const [seoAuditStatus, setSeoAuditStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [seoAuditResults, setSeoAuditResults] = useState<{
+    titleScore: "good" | "warning" | "error";
+    descriptionScore: "good" | "warning" | "error";
+    keywordsScore: "good" | "warning" | "error";
+    issues: string[];
+  } | null>(null);
   const { toast } = useToast();
 
   const quickGenerateMutation = useMutation({
@@ -147,6 +163,114 @@ export default function AdminBar() {
       });
     }
   });
+
+  const fetchSeoMutation = useMutation({
+    mutationFn: async (pagePath: string) => {
+      const response = await apiRequest("GET", `/api/admin/page-seo?pagePath=${encodeURIComponent(pagePath)}`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data) {
+        setSeoTitle(data.title || "");
+        setSeoDescription(data.description || "");
+        setSeoKeywords(Array.isArray(data.keywords) ? data.keywords.join(", ") : "");
+      }
+    }
+  });
+
+  const saveSeoMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/admin/page-seo", {
+        pagePath: location,
+        title: seoTitle,
+        description: seoDescription,
+        keywords: seoKeywords.split(",").map(k => k.trim()).filter(Boolean)
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/page-seo"] });
+      setSeoEditorOpen(false);
+      toast({ 
+        title: "SEO Updated", 
+        description: "Page SEO metadata saved successfully." 
+      });
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Save Failed", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const openSeoEditor = () => {
+    setSeoEditorOpen(true);
+    setSeoAuditStatus("idle");
+    setSeoAuditResults(null);
+    fetchSeoMutation.mutate(location);
+  };
+
+  const runQuickAudit = () => {
+    setSeoAuditStatus("loading");
+    
+    setTimeout(() => {
+      const issues: string[] = [];
+      let titleScore: "good" | "warning" | "error" = "good";
+      let descriptionScore: "good" | "warning" | "error" = "good";
+      let keywordsScore: "good" | "warning" | "error" = "good";
+
+      if (seoTitle.length === 0) {
+        titleScore = "error";
+        issues.push("Title is empty - add an SEO title");
+      } else if (seoTitle.length < 30) {
+        titleScore = "warning";
+        issues.push("Title is too short (under 30 chars) - aim for 50-60");
+      } else if (seoTitle.length > 60) {
+        titleScore = "warning";
+        issues.push("Title is too long (over 60 chars) - may be truncated");
+      }
+
+      if (seoDescription.length === 0) {
+        descriptionScore = "error";
+        issues.push("Meta description is empty - add a description");
+      } else if (seoDescription.length < 100) {
+        descriptionScore = "warning";
+        issues.push("Description is too short (under 100 chars) - aim for 150-160");
+      } else if (seoDescription.length > 160) {
+        descriptionScore = "warning";
+        issues.push("Description is too long (over 160 chars) - may be truncated");
+      }
+
+      const keywordsArray = seoKeywords.split(",").map(k => k.trim()).filter(Boolean);
+      if (keywordsArray.length === 0) {
+        keywordsScore = "error";
+        issues.push("No keywords defined - add 3-5 relevant keywords");
+      } else if (keywordsArray.length < 3) {
+        keywordsScore = "warning";
+        issues.push("Few keywords (under 3) - consider adding more");
+      } else if (keywordsArray.length > 10) {
+        keywordsScore = "warning";
+        issues.push("Too many keywords (over 10) - focus on most relevant");
+      }
+
+      if (issues.length === 0) {
+        issues.push("All SEO fields look good!");
+      }
+
+      setSeoAuditResults({ titleScore, descriptionScore, keywordsScore, issues });
+      setSeoAuditStatus("done");
+    }, 500);
+  };
+
+  const getScoreIcon = (score: "good" | "warning" | "error") => {
+    switch (score) {
+      case "good": return <CheckCircle2 className="w-4 h-4 text-green-400" />;
+      case "warning": return <AlertTriangle className="w-4 h-4 text-amber-400" />;
+      case "error": return <AlertCircle className="w-4 h-4 text-red-400" />;
+    }
+  };
 
   if (!isAuthenticated || !user?.isAdmin) {
     return null;
@@ -249,6 +373,18 @@ export default function AdminBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* SEO Editor Button */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-7 px-2 text-[#c3c4c7] hover:text-white hover:bg-[#32373c] gap-1"
+            onClick={openSeoEditor}
+            data-testid="admin-bar-seo"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="hidden sm:inline">SEO</span>
+          </Button>
+
           {/* Quick AI Generate Dialog */}
           <Dialog open={quickGenOpen} onOpenChange={setQuickGenOpen}>
             <DialogContent className="sm:max-w-md bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
@@ -313,6 +449,165 @@ export default function AdminBar() {
                       <Wand2 className="w-4 h-4" />
                       Generate Blog
                     </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* SEO Editor Dialog */}
+          <Dialog open={seoEditorOpen} onOpenChange={setSeoEditorOpen}>
+            <DialogContent className="sm:max-w-lg bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-white">
+                  <Globe className="w-5 h-5 text-blue-400" />
+                  Page SEO Editor
+                </DialogTitle>
+                <DialogDescription>
+                  Edit SEO metadata for the current page. Changes will be applied immediately.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-2 text-xs text-[#8c8f91] bg-[#32373c] px-3 py-2 rounded">
+                  <MapPin className="w-3 h-3" />
+                  <span className="font-mono">{location}</span>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="seo-title" className="text-sm flex items-center gap-2">
+                      SEO Title
+                      {seoAuditResults && getScoreIcon(seoAuditResults.titleScore)}
+                    </Label>
+                    <span className={`text-xs ${seoTitle.length >= 50 && seoTitle.length <= 60 ? 'text-green-400' : seoTitle.length > 60 ? 'text-red-400' : 'text-amber-400'}`}>
+                      {seoTitle.length}/60
+                    </span>
+                  </div>
+                  <Input
+                    id="seo-title"
+                    placeholder="Page title for search engines (50-60 chars ideal)"
+                    value={seoTitle}
+                    onChange={(e) => setSeoTitle(e.target.value)}
+                    className="bg-[#32373c] border-[#3c4043] text-white"
+                    data-testid="input-seo-title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="seo-description" className="text-sm flex items-center gap-2">
+                      Meta Description
+                      {seoAuditResults && getScoreIcon(seoAuditResults.descriptionScore)}
+                    </Label>
+                    <span className={`text-xs ${seoDescription.length >= 150 && seoDescription.length <= 160 ? 'text-green-400' : seoDescription.length > 160 ? 'text-red-400' : 'text-amber-400'}`}>
+                      {seoDescription.length}/160
+                    </span>
+                  </div>
+                  <Textarea
+                    id="seo-description"
+                    placeholder="Brief description for search results (150-160 chars ideal)"
+                    value={seoDescription}
+                    onChange={(e) => setSeoDescription(e.target.value)}
+                    className="bg-[#32373c] border-[#3c4043] text-white resize-none"
+                    rows={3}
+                    data-testid="input-seo-description"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="seo-keywords" className="text-sm flex items-center gap-2">
+                      Keywords
+                      {seoAuditResults && getScoreIcon(seoAuditResults.keywordsScore)}
+                    </Label>
+                  </div>
+                  <Input
+                    id="seo-keywords"
+                    placeholder="keyword1, keyword2, keyword3 (comma-separated)"
+                    value={seoKeywords}
+                    onChange={(e) => setSeoKeywords(e.target.value)}
+                    className="bg-[#32373c] border-[#3c4043] text-white"
+                    data-testid="input-seo-keywords"
+                  />
+                  <p className="text-xs text-[#8c8f91]">
+                    {seoKeywords.split(",").map(k => k.trim()).filter(Boolean).length} keywords defined
+                  </p>
+                </div>
+
+                <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215]">
+                  <p className="text-xs text-[#8c8f91] mb-2">Google Preview</p>
+                  <div className="space-y-1">
+                    <p className="text-blue-400 text-sm truncate hover:underline cursor-pointer">
+                      {seoTitle || "Page Title Will Appear Here"}
+                    </p>
+                    <p className="text-xs text-green-400 truncate">
+                      washbizhub.com{location}
+                    </p>
+                    <p className="text-xs text-[#9aa0a6] line-clamp-2">
+                      {seoDescription || "Your meta description will appear here. Make it compelling and include your target keywords."}
+                    </p>
+                  </div>
+                </div>
+
+                {seoAuditResults && (
+                  <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215]">
+                    <p className="text-xs text-[#8c8f91] mb-2">Quick Audit Results</p>
+                    <ul className="space-y-1">
+                      {seoAuditResults.issues.map((issue, idx) => (
+                        <li key={idx} className="text-xs text-[#c3c4c7] flex items-start gap-2">
+                          <span className="mt-0.5">
+                            {issue.includes("look good") ? (
+                              <CheckCircle2 className="w-3 h-3 text-green-400" />
+                            ) : issue.includes("empty") || issue.includes("No keywords") ? (
+                              <AlertCircle className="w-3 h-3 text-red-400" />
+                            ) : (
+                              <AlertTriangle className="w-3 h-3 text-amber-400" />
+                            )}
+                          </span>
+                          {issue}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter className="flex gap-2 sm:gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={runQuickAudit}
+                  disabled={seoAuditStatus === "loading"}
+                  className="text-[#c3c4c7] gap-2"
+                  data-testid="button-seo-audit"
+                >
+                  {seoAuditStatus === "loading" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                  Quick Audit
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setSeoEditorOpen(false)}
+                  className="text-[#c3c4c7]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => saveSeoMutation.mutate()}
+                  disabled={saveSeoMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                  data-testid="button-seo-save"
+                >
+                  {saveSeoMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save SEO"
                   )}
                 </Button>
               </DialogFooter>

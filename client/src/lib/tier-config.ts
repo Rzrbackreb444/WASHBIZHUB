@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 export type PlatformTier = 'free' | 'starter' | 'pro' | 'enterprise';
-export type ListingTier = 'free' | 'enhanced' | 'featured' | 'premium_seo' | 'spotlight';
+export type ListingTier = 'free' | 'basic' | 'showcase' | 'diamond';
 
 export interface TierFeature {
   text: string;
@@ -216,10 +216,10 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
       { text: '5 photos allowed', included: true },
       { text: 'Basic contact form', included: true },
       { text: 'Standard search placement', included: true },
-      { text: 'Enhanced visibility', included: false },
-      { text: 'Priority search ranking', included: false },
+      { text: 'Auto-featured in carousel', included: false },
+      { text: 'AI blog about your listing', included: false },
+      { text: 'Auto-indexed to Google/Bing', included: false },
       { text: 'CLEANBI report included', included: false },
-      { text: 'Video tour slots', included: false },
     ],
     limits: {
       photos: 5,
@@ -234,25 +234,25 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     cta: 'List for Free',
     ctaVariant: 'outline',
   },
-  enhanced: {
-    id: 'enhanced',
+  basic: {
+    id: 'basic',
     name: 'Enhanced',
     tagline: '2x more visibility',
-    description: 'Stand out with enhanced listing features',
+    description: 'Stand out with enhanced listing features and analytics',
     price: 49,
     icon: TrendingUp,
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
     iconColor: 'text-emerald-600 dark:text-emerald-400',
     popular: false,
     features: [
-      { text: 'Everything in Basic', included: true },
+      { text: 'Everything in Basic tier', included: true },
       { text: '15 photos allowed', included: true, highlight: true },
       { text: 'Enhanced listing badge', included: true, highlight: true },
       { text: 'Listing analytics dashboard', included: true },
       { text: 'Buyer inquiry tracking', included: true },
       { text: 'Priority in category search', included: true },
-      { text: 'CLEANBI report included', included: false },
-      { text: 'Homepage featured', included: false },
+      { text: 'Auto-featured in carousel', included: false },
+      { text: 'AI blog about your listing', included: false },
     ],
     limits: {
       photos: 15,
@@ -268,25 +268,25 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     ctaVariant: 'default',
     roi: '2x more buyer inquiries on average',
   },
-  featured: {
-    id: 'featured',
-    name: 'Featured',
-    tagline: 'Premium placement',
-    description: 'Featured on homepage and priority search results',
+  showcase: {
+    id: 'showcase',
+    name: 'Showcase',
+    tagline: 'Auto-Featured Premium',
+    description: 'Auto-featured in homepage carousel with priority placement',
     price: 149,
     icon: Star,
     iconBg: 'bg-[#C8A661]/20',
     iconColor: 'text-[#C8A661]',
     popular: true,
     features: [
-      { text: 'Everything in Enhanced', included: true },
-      { text: 'Featured on homepage carousel', included: true, highlight: true },
+      { text: 'Everything in Enhanced tier', included: true },
+      { text: 'AUTO-FEATURED in homepage carousel', included: true, highlight: true },
       { text: 'Priority search ranking', included: true, highlight: true },
-      { text: '30 photos allowed', included: true },
-      { text: '2 video tour slots', included: true },
-      { text: '"Featured" badge on listing', included: true },
+      { text: '30 photos + 2 video tours', included: true },
+      { text: '"Showcase" badge on listing', included: true },
       { text: 'CLEANBI report included', included: true },
       { text: 'Weekly email blast inclusion', included: true },
+      { text: 'AI blog about your listing', included: false },
     ],
     limits: {
       photos: 30,
@@ -298,65 +298,31 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
       priorityPlacement: true,
       socialProofBadge: true,
     },
-    cta: 'Get Featured',
+    cta: 'Get Showcase',
     ctaVariant: 'default',
     badge: 'BEST SELLER',
     badgeColor: 'bg-[#C8A661] text-white',
     roi: '5x more visibility vs Basic',
   },
-  premium_seo: {
-    id: 'premium_seo',
-    name: 'Premium SEO',
-    tagline: 'Maximum discoverability',
-    description: 'SEO optimization for Google ranking + all premium features',
-    price: 299,
-    icon: Search,
-    iconBg: 'bg-purple-100 dark:bg-purple-900/30',
-    iconColor: 'text-purple-600 dark:text-purple-400',
-    popular: false,
-    features: [
-      { text: 'Everything in Featured', included: true },
-      { text: 'Custom SEO-optimized URL', included: true, highlight: true },
-      { text: 'Google-indexed landing page', included: true, highlight: true },
-      { text: 'Schema markup for rich snippets', included: true },
-      { text: 'Professional copywriting', included: true },
-      { text: 'Social media share cards', included: true },
-      { text: '5 video tour slots', included: true },
-      { text: 'Dedicated support rep', included: true },
-    ],
-    limits: {
-      photos: 50,
-      videos: 5,
-      boostDays: 14,
-      analytics: true,
-      seoOptimization: true,
-      cleanbiReport: true,
-      priorityPlacement: true,
-      socialProofBadge: true,
-    },
-    cta: 'Maximize Reach',
-    ctaVariant: 'default',
-    roi: 'Rank on Google for "[city] laundromat for sale"',
-  },
-  spotlight: {
-    id: 'spotlight',
-    name: 'Spotlight',
-    tagline: 'VIP treatment',
-    description: 'Maximum exposure with concierge service and premium placement',
+  diamond: {
+    id: 'diamond',
+    name: 'Diamond',
+    tagline: 'Maximum Visibility VIP',
+    description: 'Full auto-features: carousel, AI blog, Google indexing, concierge service',
     price: 499,
     icon: Rocket,
-    iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500',
+    iconBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
     iconColor: 'text-white',
     popular: false,
     features: [
-      { text: 'Everything in Premium SEO', included: true },
+      { text: 'Everything in Showcase tier', included: true },
+      { text: 'AUTO-BLOG: AI writes article about your listing', included: true, highlight: true },
+      { text: 'AUTO-INDEX: Submitted to Google & Bing instantly', included: true, highlight: true },
       { text: 'Homepage spotlight banner', included: true, highlight: true },
-      { text: 'Social media promotion', included: true, highlight: true },
-      { text: 'Email blast to 72K+ members', included: true, highlight: true },
+      { text: 'Social media promotion', included: true },
+      { text: 'Email blast to 72K+ members', included: true },
       { text: 'Unlimited photos & videos', included: true },
-      { text: 'Professional photography credit', included: true },
-      { text: 'Concierge listing setup', included: true },
-      { text: 'Priority buyer matching', included: true },
+      { text: 'Concierge listing setup + priority support', included: true },
     ],
     limits: {
       photos: 999,
@@ -368,16 +334,16 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
       priorityPlacement: true,
       socialProofBadge: true,
     },
-    cta: 'Go Spotlight',
+    cta: 'Go Diamond',
     ctaVariant: 'default',
     badge: 'VIP',
-    badgeColor: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white',
-    roi: 'Sell 3x faster on average',
+    badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',
+    roi: 'Sell 3x faster with full automation',
   },
 };
 
 export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'starter', 'pro', 'enterprise'];
-export const LISTING_TIER_ORDER: ListingTier[] = ['free', 'enhanced', 'featured', 'premium_seo', 'spotlight'];
+export const LISTING_TIER_ORDER: ListingTier[] = ['free', 'basic', 'showcase', 'diamond'];
 
 export function getPlatformTier(tierId: string): PlatformTierConfig | undefined {
   return PLATFORM_TIERS[tierId as PlatformTier];
