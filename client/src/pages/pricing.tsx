@@ -393,8 +393,7 @@ export default function Pricing() {
                   Annual
                 </span>
                 {isAnnual && (
-                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">
-                    <Sparkles className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Badge className="bg-[#b8860b]/20 text-[#C8A661] border-[#b8860b]/30 text-xs">
                     Save up to 17%
                   </Badge>
                 )}
@@ -470,7 +469,7 @@ export default function Pricing() {
                                 <span className="text-xs text-muted-foreground line-through">
                                   ${tier.price}/mo
                                 </span>
-                                <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                <Badge variant="secondary" className="text-xs bg-[#b8860b]/10 text-[#b8860b] dark:bg-[#b8860b]/20 dark:text-[#C8A661]">
                                   Save {savingsPercent}%
                                 </Badge>
                               </div>
@@ -506,7 +505,7 @@ export default function Pricing() {
                       <p className="text-xs text-muted-foreground text-center mt-2" data-testid={`text-cc-${tier.id}`}>
                         {tier.price === 0 ? (
                           <span className="flex items-center justify-center gap-1">
-                            <Gift className="h-3 w-3 text-emerald-500" aria-hidden="true" />
+                            <Gift className="h-3 w-3 text-[#b8860b]" aria-hidden="true" />
                             No credit card required
                           </span>
                         ) : tier.id === 'enterprise' ? (
@@ -544,7 +543,7 @@ export default function Pricing() {
                           >
                             <Check 
                               className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                                feature.highlight ? 'text-[#C8A661]' : 'text-emerald-500'
+                                feature.highlight ? 'text-[#C8A661]' : 'text-[#b8860b]'
                               }`} 
                               aria-hidden="true"
                             />
@@ -882,7 +881,7 @@ export default function Pricing() {
 function renderFeatureValue(value: boolean | string, isPopular: boolean) {
   if (typeof value === 'boolean') {
     return value ? (
-      <Check className="w-5 h-5 text-emerald-500 mx-auto" aria-label="Included" />
+      <Check className="w-5 h-5 text-[#b8860b] mx-auto" aria-label="Included" />
     ) : (
       <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" aria-label="Not included" />
     );

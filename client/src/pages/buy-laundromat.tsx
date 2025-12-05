@@ -75,7 +75,7 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
             </Badge>
           )}
           {(listing as any).larryVerified && (
-            <Badge className="bg-amber-500 text-black shadow-lg border border-amber-400">
+            <Badge className="bg-[#C8A661] text-[#1e3a5f] shadow-lg border border-[#b8860b]">
               <Crown className="w-3 h-3 mr-1" />
               Larry Verified
             </Badge>

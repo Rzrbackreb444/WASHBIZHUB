@@ -79,10 +79,10 @@ function StatItem({ icon: Icon, value, label, suffix = "", color, delay }: StatI
 
 export function PlatformStats() {
   const stats = [
-    { icon: Users, value: "72000", label: "Industry Professionals", suffix: "+", color: "bg-blue-500/20 text-blue-400", delay: 0 },
-    { icon: FileText, value: "110", label: "Expert Blog Posts", suffix: "+", color: "bg-green-500/20 text-green-400", delay: 200 },
-    { icon: Calculator, value: "50", label: "Business Calculators", suffix: "+", color: "bg-purple-500/20 text-purple-400", delay: 400 },
-    { icon: Globe, value: "220", label: "Countries Covered", suffix: "+", color: "bg-orange-500/20 text-orange-400", delay: 600 },
+    { icon: Users, value: "72000", label: "Industry Professionals", suffix: "+", color: "bg-[#b8860b]/20 text-[#C8A661]", delay: 0 },
+    { icon: FileText, value: "110", label: "Expert Blog Posts", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 200 },
+    { icon: Calculator, value: "50", label: "Business Calculators", suffix: "+", color: "bg-[#b8860b]/20 text-[#C8A661]", delay: 400 },
+    { icon: Globe, value: "220", label: "Countries Covered", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 600 },
   ];
 
   return (
@@ -91,14 +91,13 @@ export function PlatformStats() {
       data-testid="section-platform-stats"
     >
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#39CCCC] rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#b8860b] rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#C8A661] rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-[#39CCCC]/20 text-[#39CCCC] border-[#39CCCC]/30">
-            <TrendingUp className="w-3 h-3 mr-1" />
+          <Badge className="mb-4 bg-[#b8860b]/20 text-[#C8A661] border-[#b8860b]/30">
             By The Numbers
           </Badge>
           <h2 
@@ -143,8 +142,8 @@ export function TrustBadges() {
               key={index} 
               className="flex items-center gap-3 justify-center md:justify-start"
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#39CCCC]/10 flex items-center justify-center">
-                <badge.icon className="w-5 h-5 text-[#39CCCC]" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center">
+                <badge.icon className="w-5 h-5 text-[#b8860b]" />
               </div>
               <div>
                 <div className="font-semibold text-foreground text-sm">{badge.label}</div>
@@ -165,28 +164,28 @@ export function EnterpriseFeatures() {
       description: "AI-powered location analysis for any address in 220+ countries. Get instant 0-100 scores with A/B/C grades.",
       icon: Globe,
       stats: "2.8M+ scores generated",
-      color: "from-[#39CCCC] to-teal-600"
+      color: "from-[#b8860b] to-[#8B7355]"
     },
     {
       title: "POS Command Center",
       description: "Complete point-of-sale with loyalty programs, real-time analytics, and multi-location management.",
       icon: TrendingUp,
       stats: "Process $2M+ monthly",
-      color: "from-blue-500 to-blue-700"
+      color: "from-[#1e3a5f] to-[#0f1d30]"
     },
     {
       title: "AI Consultation Council",
       description: "6 AI experts analyze your deals with industry legend Larry Larsen. Tiered from $49 to $999.",
       icon: Users,
       stats: "500+ consultations",
-      color: "from-purple-500 to-purple-700"
+      color: "from-[#b8860b] to-[#8B7355]"
     },
     {
       title: "Equipment Intelligence",
       description: "Interactive wizard, brand guides, and diagnostics covering all major manufacturers.",
       icon: Award,
       stats: "6 major brands covered",
-      color: "from-orange-500 to-orange-700"
+      color: "from-[#1e3a5f] to-[#0f1d30]"
     },
   ];
 
@@ -197,8 +196,7 @@ export function EnterpriseFeatures() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-[#001F3F]/10 text-[#001F3F] dark:bg-white/10 dark:text-white border-[#001F3F]/20 dark:border-white/20">
-            <Award className="w-3 h-3 mr-1" />
+          <Badge className="mb-4 bg-[#1e3a5f]/10 text-[#1e3a5f] dark:bg-white/10 dark:text-white border-[#1e3a5f]/20 dark:border-white/20">
             Professional Tools
           </Badge>
           <h2 
@@ -216,7 +214,7 @@ export function EnterpriseFeatures() {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="p-6 sm:p-8 hover-elevate border-2 hover:border-[#39CCCC]/30 transition-all group"
+              className="p-6 sm:p-8 hover-elevate border-2 hover:border-[#b8860b]/30 transition-all group"
             >
               <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
                 <feature.icon className="w-7 h-7" />

@@ -147,19 +147,19 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e3a5f] via-[#2a4a6f] to-[#1e3a5f]"
         data-testid="container-newsletter-premium"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-amber-600/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#b8860b]/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#C8A661]/10 via-transparent to-transparent" />
         
         <div className="relative p-8 sm:p-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="bg-amber-500/20 p-3 rounded-full flex-shrink-0 ring-2 ring-amber-500/30">
-              <Sparkles className="h-7 w-7 text-amber-400" />
+            <div className="bg-[#b8860b]/20 p-3 rounded-full flex-shrink-0 ring-2 ring-[#b8860b]/30">
+              <Mail className="h-7 w-7 text-[#C8A661]" />
             </div>
             <div>
               <h3 className="text-2xl sm:text-3xl font-bold text-white" data-testid="text-newsletter-headline">
                 Join 1,000+ Laundromat Investors
               </h3>
-              <p className="text-amber-100/80 mt-1" data-testid="text-newsletter-subheadline">
+              <p className="text-white/80 mt-1" data-testid="text-newsletter-subheadline">
                 Get the intelligence that drives smarter decisions
               </p>
             </div>
@@ -172,7 +172,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
                 className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
                 data-testid={`badge-value-prop-${index}`}
               >
-                <prop.icon className="h-4 w-4 text-amber-400" />
+                <prop.icon className="h-4 w-4 text-[#C8A661]" />
                 <span className="text-sm font-medium text-white">{prop.text}</span>
               </div>
             ))}
@@ -214,14 +214,14 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-amber-200 text-xs" />
+                      <FormMessage className="text-white/70 text-xs" />
                     </FormItem>
                   )}
                 />
                 <Button
                   type="submit"
                   disabled={subscribeMutation.isPending}
-                  className="bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold px-8 h-12 whitespace-nowrap shadow-lg shadow-amber-500/25"
+                  className="bg-[#b8860b] hover:bg-[#C8A661] text-white font-bold px-8 h-12 whitespace-nowrap shadow-lg shadow-[#b8860b]/25"
                   data-testid="button-newsletter-subscribe"
                 >
                   {subscribeMutation.isPending ? (
@@ -237,8 +237,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
             </form>
           </Form>
 
-          <div className="flex items-center justify-center gap-2 mt-6 text-amber-100/70">
-            <Users className="h-4 w-4" />
+          <div className="flex items-center justify-center gap-2 mt-6 text-white/70">
             <p className="text-sm" data-testid="text-newsletter-social-proof">
               Trusted by operators nationwide
             </p>

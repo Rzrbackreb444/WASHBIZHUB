@@ -116,18 +116,17 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
       data-testid="section-homepage-newsletter"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#253f5f] to-[#1e3a5f]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/15 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-amber-600/10 via-transparent to-transparent" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#b8860b]/15 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#C8A661]/10 via-transparent to-transparent" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#b8860b]/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#1e3a5f]/5 rounded-full blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 bg-amber-500/20 px-4 py-2 rounded-full">
-                <Sparkles className="h-4 w-4 text-amber-400" />
-                <span className="text-sm font-medium text-amber-200" data-testid="badge-newsletter-label">
+              <div className="inline-flex items-center bg-[#b8860b]/20 px-4 py-2 rounded-full">
+                <span className="text-sm font-medium text-[#C8A661]" data-testid="badge-newsletter-label">
                   Free Weekly Intelligence
                 </span>
               </div>
@@ -137,7 +136,7 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
               >
                 Join 1,000+ Laundromat Investors
               </h2>
-              <p className="text-lg text-blue-100/80 max-w-lg" data-testid="text-newsletter-section-description">
+              <p className="text-lg text-white/80 max-w-lg" data-testid="text-newsletter-section-description">
                 Get exclusive market intelligence that helps you find better deals, avoid costly mistakes, and grow your portfolio faster.
               </p>
             </div>
@@ -149,14 +148,14 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
                   className="flex items-start gap-4 group"
                   data-testid={`benefit-item-${index}`}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
-                    <benefit.icon className="h-5 w-5 text-amber-400" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-[#b8860b]/20 rounded-lg flex items-center justify-center group-hover:bg-[#b8860b]/30 transition-colors">
+                    <benefit.icon className="h-5 w-5 text-[#C8A661]" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white" data-testid={`text-benefit-title-${index}`}>
                       {benefit.title}
                     </h3>
-                    <p className="text-sm text-blue-200/70" data-testid={`text-benefit-description-${index}`}>
+                    <p className="text-sm text-white/70" data-testid={`text-benefit-description-${index}`}>
                       {benefit.description}
                     </p>
                   </div>
@@ -164,19 +163,9 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
               ))}
             </div>
 
-            <div className="flex items-center gap-6 pt-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-amber-400" />
-                <span className="text-sm text-blue-100/80" data-testid="text-subscriber-count">
-                  72,000+ subscribers
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-amber-400" />
-                <span className="text-sm text-blue-100/80" data-testid="text-no-spam">
-                  No spam, ever
-                </span>
-              </div>
+            <div className="flex items-center gap-6 pt-4 text-sm text-white/80">
+              <span data-testid="text-subscriber-count">72,000+ subscribers</span>
+              <span data-testid="text-no-spam">No spam, ever</span>
             </div>
           </div>
 

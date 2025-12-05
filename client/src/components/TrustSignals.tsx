@@ -107,28 +107,28 @@ const PLATFORM_STATS: StatData[] = [
     icon: MapPin,
     value: "500+",
     label: "Locations Analyzed",
-    color: "text-accent"
+    color: "text-[#b8860b]"
   },
   {
     id: "stat-partners",
     icon: Handshake,
     value: "7",
     label: "Funding Partners",
-    color: "text-primary"
+    color: "text-[#1e3a5f]"
   },
   {
     id: "stat-funding",
     icon: DollarSign,
     value: "$50M+",
     label: "in Funding Connected",
-    color: "text-green-600"
+    color: "text-[#b8860b]"
   },
   {
     id: "stat-users",
     icon: Users,
     value: "1,000+",
     label: "Active Users",
-    color: "text-blue-600"
+    color: "text-[#1e3a5f]"
   }
 ];
 
@@ -390,34 +390,34 @@ export function TrustBadges() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="trust-badges">
       <div 
-        className="flex flex-col items-center text-center p-4 bg-primary/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#1e3a5f]/5 rounded-lg"
         data-testid="badge-secure-checkout"
       >
-        <Shield className="h-8 w-8 text-primary mb-2" />
+        <Shield className="h-8 w-8 text-[#1e3a5f] mb-2" />
         <p className="font-semibold text-sm">Secure Checkout</p>
         <p className="text-xs text-muted-foreground">Protected payments</p>
       </div>
       <div 
-        className="flex flex-col items-center text-center p-4 bg-accent/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#b8860b]/5 rounded-lg"
         data-testid="badge-certified-partners"
       >
-        <Award className="h-8 w-8 text-accent mb-2" />
+        <Award className="h-8 w-8 text-[#b8860b] mb-2" />
         <p className="font-semibold text-sm">Certified Partners</p>
         <p className="text-xs text-muted-foreground">Authorized Dealers</p>
       </div>
       <div 
-        className="flex flex-col items-center text-center p-4 bg-green-500/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#b8860b]/5 rounded-lg"
         data-testid="badge-fast-funding"
       >
-        <Zap className="h-8 w-8 text-green-600 mb-2" />
+        <Zap className="h-8 w-8 text-[#b8860b] mb-2" />
         <p className="font-semibold text-sm">Fast Funding</p>
         <p className="text-xs text-muted-foreground">48-hour approvals</p>
       </div>
       <div 
-        className="flex flex-col items-center text-center p-4 bg-blue-500/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#1e3a5f]/5 rounded-lg"
         data-testid="badge-expert-support"
       >
-        <Target className="h-8 w-8 text-blue-600 mb-2" />
+        <Target className="h-8 w-8 text-[#1e3a5f] mb-2" />
         <p className="font-semibold text-sm">Expert Support</p>
         <p className="text-xs text-muted-foreground">Industry specialists</p>
       </div>
