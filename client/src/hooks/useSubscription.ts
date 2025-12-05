@@ -98,6 +98,8 @@ const FEATURE_TIERS: Record<string, SubscriptionTier> = {
   // Funding Matcher
   "funding-view": "free",
   "funding-match": "starter",
+  "funding_gauge": "starter",
+  "funding_chart": "starter",
   "funding-priority": "pro",
   "funding-direct": "enterprise",
   

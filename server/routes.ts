@@ -5982,7 +5982,7 @@ Disallow: /private/`;
   // POST /api/leads - CLEANBI Demo Lead Capture
   app.post("/api/leads", async (req, res) => {
     try {
-      const { email, address, source, action, score, projectedRevenue } = req.body;
+      const { email, name, phone, address, source, action, score, projectedRevenue, data } = req.body;
       
       if (!email) {
         return res.status(400).json({ error: "Email is required" });
@@ -5993,23 +5993,94 @@ Disallow: /private/`;
       if (!existing) {
         await storage.createEmailSubscriber({
           email,
-          firstName: null,
+          firstName: name?.split(' ')[0] || null,
           source: source || 'cleanbi_demo',
           status: 'active',
         });
       }
 
-      // Notify admin of hot lead
-      notifyNewSubscription({
-        email,
-        source: `CLEANBI Demo - ${action} - Score: ${score} - ${projectedRevenue} - Address: ${address}`,
-      }).catch(err => console.error('Lead notification failed:', err));
+      // Handle funding matcher leads specially
+      if (source === 'funding-matcher' && data) {
+        // Notify admin of funding lead
+        notifyNewSubscription({
+          email,
+          source: `FUNDING LEAD - ${name} - $${data.loanAmount} - ${data.loanPurpose} - Credit: ${data.creditScore}`,
+        }).catch(err => console.error('Funding lead notification failed:', err));
 
-      console.log(`🔥 CLEANBI LEAD: ${email} | Action: ${action} | Score: ${score} | Address: ${address}`);
+        console.log(`💰 FUNDING LEAD: ${email} | ${name} | $${data.loanAmount} | ${data.loanPurpose} | Credit: ${data.creditScore}`);
+        
+        // Sync to Google Sheets (async, don't block response)
+        (async () => {
+          try {
+            const { appendFundingLead } = await import('./lib/google-sheets.js');
+            await appendFundingLead({
+              timestamp: new Date().toISOString(),
+              name: name || '',
+              email,
+              phone: phone || '',
+              loanAmount: data.loanAmount || '',
+              loanPurpose: data.loanPurpose || '',
+              creditScore: data.creditScore || '',
+              creditScoreNumeric: data.creditScoreNumeric,
+              timeInBusiness: data.timeInBusiness || '',
+              annualRevenue: data.annualRevenue || '',
+              urgency: data.urgency || '',
+              topMatches: '',
+              matchScores: '',
+              source: 'funding-matcher'
+            });
+          } catch (sheetsError) {
+            console.error('Google Sheets sync failed:', sheetsError);
+          }
+        })();
+      } else {
+        // Standard CLEANBI lead notification
+        notifyNewSubscription({
+          email,
+          source: `CLEANBI Demo - ${action} - Score: ${score} - ${projectedRevenue} - Address: ${address}`,
+        }).catch(err => console.error('Lead notification failed:', err));
+
+        console.log(`🔥 CLEANBI LEAD: ${email} | Action: ${action} | Score: ${score} | Address: ${address}`);
+      }
       
       res.json({ success: true, message: "Lead captured successfully" });
     } catch (error: any) {
       console.error('Lead capture error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/affiliate-click - Track affiliate link clicks for funding partners
+  app.post("/api/affiliate-click", async (req, res) => {
+    try {
+      const { partnerId, partnerName, creditScore, loanAmount, loanPurpose } = req.body;
+      const userId = req.user?.id?.toString();
+      const sessionId = req.sessionID;
+
+      console.log(`🔗 AFFILIATE CLICK: ${partnerName} | User: ${userId || 'anonymous'} | Credit: ${creditScore} | Amount: $${loanAmount}`);
+
+      // Sync to Google Sheets (async, don't block response)
+      (async () => {
+        try {
+          const { appendAffiliateClick } = await import('./lib/google-sheets.js');
+          await appendAffiliateClick({
+            timestamp: new Date().toISOString(),
+            partnerId,
+            partnerName,
+            userId,
+            creditScore,
+            loanAmount,
+            loanPurpose,
+            sessionId
+          });
+        } catch (sheetsError) {
+          console.error('Google Sheets affiliate click sync failed:', sheetsError);
+        }
+      })();
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Affiliate click tracking error:', error);
       res.status(500).json({ error: error.message });
     }
   });
