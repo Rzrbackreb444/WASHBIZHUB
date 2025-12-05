@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook } from "lucide-react";
+import { ExternalLink, Facebook, Twitter } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
@@ -82,16 +82,38 @@ export function Footer() {
               <p className="text-white/50 text-sm mb-4 leading-relaxed">
                 The #1 resource for laundromat owners and investors.
               </p>
-              <a
-                href="https://facebook.com/groups/thelaundromat"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-white/60 hover:text-[#C8A661] transition-colors text-sm"
-                data-testid="link-footer-facebook"
-              >
-                <Facebook className="h-4 w-4" />
-                Join Community
-              </a>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://facebook.com/groups/thelaundromat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-white/60 hover:text-[#C8A661] transition-colors text-sm"
+                  data-testid="link-footer-facebook-group"
+                >
+                  <Facebook className="h-4 w-4" />
+                  Join 72K+ Community
+                </a>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="https://facebook.com/washbizhub1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-white/60 hover:text-[#C8A661] transition-colors"
+                    data-testid="link-footer-facebook-page"
+                  >
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://twitter.com/washbizhub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-white/60 hover:text-[#C8A661] transition-colors"
+                    data-testid="link-footer-twitter"
+                  >
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Products */}
