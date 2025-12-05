@@ -401,7 +401,7 @@ export default function Consultation() {
                 <h4 className="font-semibold mb-2">Before Your Consultation:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   <li>• Confirmation call within 24 hours</li>
-                  <li>• Calendar invite with video link</li>
+                  <li>• Calendar invite with meeting details</li>
                   <li>• Pre-consultation questionnaire</li>
                   <li>• Payment link ($397)</li>
                 </ul>
@@ -409,7 +409,7 @@ export default function Consultation() {
               <div>
                 <h4 className="font-semibold mb-2">During Your Session:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• 60-minute video consultation</li>
+                  <li>• 60-minute 1 on 1 consultation</li>
                   <li>• Screen sharing for data review</li>
                   <li>• Actionable recommendations</li>
                   <li>• Follow-up resources provided</li>
