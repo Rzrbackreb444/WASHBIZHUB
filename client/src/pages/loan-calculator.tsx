@@ -1,20 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { DollarSign, TrendingUp, HelpCircle } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { PremiumCalculatorEngine, PremiumCalculatorConfig } from '@/components/PremiumCalculatorEngine';
 
 const loanStructuredData = {
   "@context": "https://schema.org",
@@ -42,7 +28,7 @@ const loanStructuredData = {
     "url": "https://washbizhub.com"
   },
   "datePublished": "2024-01-15",
-  "dateModified": "2025-11-30"
+  "dateModified": "2025-12-05"
 };
 
 const loanFaqs = [
@@ -86,141 +72,190 @@ const loanHowTo = {
   totalTime: "PT3M",
   steps: [
     {
-      name: "Select Funding Type",
-      text: "Choose the type of financing you need: startup funding for new businesses, equipment financing for washers/dryers, real estate financing for property purchase, working capital for operations, or acquisitions financing for buying an existing laundromat."
-    },
-    {
-      name: "Choose a Lender",
-      text: "Select from available lenders to see their specific rate ranges and loan amounts. Compare options like SBA lenders, equipment financing companies, and commercial banks."
-    },
-    {
       name: "Enter Loan Amount",
-      text: "Input the total financing amount you need. Each lender has minimum and maximum limits based on loan type and your qualifications."
+      text: "Input the total purchase price or financing amount you need for your laundromat acquisition, equipment, or real estate."
     },
     {
-      name: "Set Loan Term",
-      text: "Choose your repayment period from 6 months to 30 years. Longer terms mean lower monthly payments but more total interest paid."
+      name: "Set Down Payment",
+      text: "Enter your available down payment. Most lenders require 10-30% down depending on loan type and your qualifications."
     },
     {
       name: "Adjust Interest Rate",
-      text: "Set the interest rate within the lender's typical range. Your actual rate depends on credit score, collateral, and business strength."
+      text: "Set the expected interest rate based on loan type: SBA loans (5.5-8.5%), equipment financing (6-14%), or conventional loans (6-10%)."
     },
     {
-      name: "Review Payment Details",
-      text: "Analyze your monthly payment, total interest cost, and total amount paid over the life of the loan. Use the amortization schedule to see how payments are applied over time."
+      name: "Choose Loan Term",
+      text: "Select your repayment period in months. Equipment loans are typically 3-7 years, while real estate can be 15-25 years."
+    },
+    {
+      name: "Review Results",
+      text: "Analyze your monthly payment, total interest cost, and see the breakdown of principal vs interest over the loan life."
+    },
+    {
+      name: "Export Your Analysis",
+      text: "Download a PDF report or export to Google Sheets to share with lenders, partners, or for your business planning."
     }
   ]
 };
 
-const FUNDING_TYPES = {
-  startup: {
-    label: 'Startup Funding',
-    lenders: [
-      { name: 'GoKapital', minRate: 8, maxRate: 18, minAmount: 10000, maxAmount: 250000 },
-      { name: 'Preferred Funding Group', minRate: 10, maxRate: 20, minAmount: 5000, maxAmount: 150000 },
-    ],
+const loanCalculatorConfig: PremiumCalculatorConfig = {
+  id: 'laundromat-loan-calculator',
+  name: 'Laundromat Loan Calculator',
+  description: 'Calculate monthly payments, total interest, and visualize your loan breakdown for laundromat equipment, acquisition, or real estate financing.',
+  category: 'Laundromat Financing',
+  inputs: [
+    {
+      name: 'loanAmount',
+      label: 'Total Loan Amount',
+      type: 'slider',
+      defaultValue: 250000,
+      min: 10000,
+      max: 2000000,
+      step: 5000,
+      prefix: '$',
+      tooltip: 'The total purchase price or financing amount for your laundromat investment (equipment, acquisition, or property).'
+    },
+    {
+      name: 'downPayment',
+      label: 'Down Payment',
+      type: 'slider',
+      defaultValue: 50000,
+      min: 0,
+      max: 500000,
+      step: 5000,
+      prefix: '$',
+      tooltip: 'Your upfront cash investment. Most lenders require 10-30% down. Higher down payments typically secure better rates.'
+    },
+    {
+      name: 'interestRate',
+      label: 'Annual Interest Rate',
+      type: 'slider',
+      defaultValue: 7.5,
+      min: 3,
+      max: 20,
+      step: 0.25,
+      suffix: '%',
+      tooltip: 'Expected annual interest rate. SBA loans: 5.5-8.5%, Equipment: 6-14%, Conventional: 6-10%, Alternative: 10-20%.'
+    },
+    {
+      name: 'loanTerm',
+      label: 'Loan Term (Months)',
+      type: 'slider',
+      defaultValue: 120,
+      min: 12,
+      max: 360,
+      step: 12,
+      suffix: ' mo',
+      tooltip: 'Loan repayment period. Equipment: 36-84 months, Acquisition: 84-120 months, Real Estate: 180-300 months.',
+      formatDisplay: (value: number) => `${value} months (${(value / 12).toFixed(1)} years)`
+    }
+  ],
+  outputs: [
+    {
+      name: 'financedAmount',
+      label: 'Amount Financed',
+      format: 'currency',
+      decimals: 0,
+      description: 'Loan amount after down payment'
+    },
+    {
+      name: 'monthlyPayment',
+      label: 'Monthly Payment',
+      format: 'currency',
+      decimals: 2,
+      highlight: true,
+      color: 'primary',
+      description: 'Your fixed monthly loan payment'
+    },
+    {
+      name: 'totalInterest',
+      label: 'Total Interest Paid',
+      format: 'currency',
+      decimals: 0,
+      color: 'destructive',
+      description: 'Total interest over loan life'
+    },
+    {
+      name: 'totalPaid',
+      label: 'Total Amount Paid',
+      format: 'currency',
+      decimals: 0,
+      description: 'Principal + Interest payments'
+    },
+    {
+      name: 'totalCost',
+      label: 'Total Investment Cost',
+      format: 'currency',
+      decimals: 0,
+      highlight: true,
+      description: 'Down payment + all loan payments'
+    },
+    {
+      name: 'interestPercentage',
+      label: 'Interest as % of Principal',
+      format: 'percentage',
+      decimals: 1,
+      description: 'How much extra you pay in interest'
+    },
+    {
+      name: 'principalPortion',
+      label: 'Principal Portion',
+      format: 'currency',
+      decimals: 0,
+      description: 'Amount going toward principal'
+    },
+    {
+      name: 'interestPortion',
+      label: 'Interest Portion',
+      format: 'currency',
+      decimals: 0,
+      description: 'Amount going toward interest'
+    }
+  ],
+  formulas: {
+    financedAmount: 'loanAmount - downPayment',
+    monthlyRate: 'interestRate / 100 / 12',
+    monthlyPayment: '(interestRate === 0) ? (financedAmount / loanTerm) : (financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, loanTerm)) / (Math.pow(1 + monthlyRate, loanTerm) - 1))',
+    totalPaid: 'monthlyPayment * loanTerm',
+    totalInterest: 'totalPaid - financedAmount',
+    totalCost: 'totalPaid + downPayment',
+    interestPercentage: '(financedAmount > 0) ? ((totalInterest / financedAmount) * 100) : 0',
+    principalPortion: 'financedAmount',
+    interestPortion: 'totalInterest'
   },
-  equipment: {
-    label: 'Equipment Financing',
-    lenders: [
-      { name: 'Advance Funds Network', minRate: 6, maxRate: 14, minAmount: 15000, maxAmount: 1000000 },
-      { name: 'MyPartner.io', minRate: 7, maxRate: 16, minAmount: 5000, maxAmount: 500000 },
-      { name: 'Preferred Funding Group', minRate: 8, maxRate: 15, minAmount: 10000, maxAmount: 250000 },
-    ],
-  },
-  realEstate: {
-    label: 'Real Estate Financing',
-    lenders: [
-      { name: 'David Allen Capital', minRate: 5.5, maxRate: 7.5, minAmount: 100000, maxAmount: 5000000 },
-      { name: 'Advance Funds Network', minRate: 6, maxRate: 8, minAmount: 75000, maxAmount: 2500000 },
-      { name: 'South End Capital', minRate: 5, maxRate: 8, minAmount: 50000, maxAmount: 2000000 },
-    ],
-  },
-  workingCapital: {
-    label: 'Working Capital',
-    lenders: [
-      { name: 'Advance Funds Network', minRate: 8, maxRate: 16, minAmount: 10000, maxAmount: 500000 },
-      { name: 'MyPartner.io', minRate: 9, maxRate: 18, minAmount: 5000, maxAmount: 250000 },
-    ],
-  },
-  acquisitions: {
-    label: 'Acquisitions Financing',
-    lenders: [
-      { name: 'National Business Capital', minRate: 5.5, maxRate: 8.5, minAmount: 100000, maxAmount: 5000000 },
-    ],
-  },
+  charts: [
+    {
+      type: 'pie',
+      title: 'Principal vs Interest Breakdown',
+      dataKeys: ['principalPortion', 'interestPortion'],
+      labels: ['Principal', 'Interest'],
+      colors: ['#1e3a5f', '#C8A661']
+    }
+  ],
+  comparisonOutputs: ['principalPortion', 'interestPortion'],
+  tips: [
+    "SBA 7(a) loans offer the best rates (5.5-8.5%) with 10-25 year terms for laundromat acquisitions. Requires 650+ credit score and 10-20% down payment.",
+    "Equipment financing typically ranges 6-14% APR for 3-7 year terms. The equipment serves as collateral, often making approval easier for new operators.",
+    "Aim for 20-30% down payment to secure better interest rates and improve your debt service coverage ratio (DSCR). Lenders prefer 1.25x DSCR or higher.",
+    "Factor in equipment maintenance reserves (5-10% of revenue) when calculating affordability. Your true monthly cost includes loan payment plus operating reserves.",
+    "Consider the total cost of ownership: A lower rate over a longer term may result in higher total interest paid. Balance monthly payment with total cost.",
+    "Seller financing can bridge gaps when traditional financing falls short. Negotiate 5-10% seller carry with favorable terms to reduce required bank financing.",
+    "For equipment-heavy deals, combine SBA loans for real estate with equipment financing for machines to optimize your overall financing structure."
+  ],
+  premiumFeatures: {
+    pdfExport: true,
+    emailResults: true,
+    sheetsExport: true,
+    advancedCharts: true
+  }
 };
 
-interface AmortizationRow {
-  month: number;
-  payment: number;
-  principal: number;
-  interest: number;
-  balance: number;
-}
-
 export default function LoanCalculator() {
-  const [fundingType, setFundingType] = useState<keyof typeof FUNDING_TYPES>('equipment');
-  const [lenderName, setLenderName] = useState('Advance Funds Network');
-  const [loanAmount, setLoanAmount] = useState(50000);
-  const [loanTerm, setLoanTerm] = useState(60);
-  const [interestRate, setInterestRate] = useState(9);
-
-  const fundingConfig = FUNDING_TYPES[fundingType];
-  const selectedLender = fundingConfig.lenders.find((l) => l.name === lenderName) || fundingConfig.lenders[0];
-
-  if (lenderName && !fundingConfig.lenders.find((l) => l.name === lenderName)) {
-    setLenderName(fundingConfig.lenders[0].name);
-  }
-
-  const calculations = useMemo(() => {
-    const monthlyRate = interestRate / 100 / 12;
-    const numPayments = loanTerm;
-
-    if (monthlyRate === 0) {
-      const monthlyPayment = loanAmount / numPayments;
-      const totalPaid = loanAmount;
-      const totalInterest = 0;
-
-      return { monthlyPayment, totalPaid, totalInterest, monthlyRate, numPayments };
-    }
-
-    const monthlyPayment =
-      (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
-      (Math.pow(1 + monthlyRate, numPayments) - 1);
-    const totalPaid = monthlyPayment * numPayments;
-    const totalInterest = totalPaid - loanAmount;
-
-    return { monthlyPayment, totalPaid, totalInterest, monthlyRate, numPayments };
-  }, [loanAmount, loanTerm, interestRate]);
-
-  const amortizationSchedule = useMemo((): AmortizationRow[] => {
-    const schedule: AmortizationRow[] = [];
-    let balance = loanAmount;
-    const monthlyRate = calculations.monthlyRate;
-
-    for (let month = 1; month <= calculations.numPayments; month++) {
-      const interestPayment = balance * monthlyRate;
-      const principalPayment = calculations.monthlyPayment - interestPayment;
-      balance -= principalPayment;
-
-      schedule.push({
-        month,
-        payment: calculations.monthlyPayment,
-        principal: principalPayment,
-        interest: interestPayment,
-        balance: Math.max(0, balance),
-      });
-    }
-
-    return schedule;
-  }, [loanAmount, calculations]);
-
   return (
     <>
       <SEO
         title="Laundromat Loan Calculator - Free Financing Payment Tool 2025 | WashBizHub"
-        description="Calculate laundromat loan payments for free. Compare equipment financing, SBA loans, real estate, working capital, and acquisition loans. Instant monthly payment estimates with amortization schedules. Trusted by 9,600+ laundromat owners."
+        description="Calculate laundromat loan payments for free. Compare equipment financing, SBA loans, real estate, working capital, and acquisition loans. Instant monthly payment estimates with visual breakdowns. Trusted by 9,600+ laundromat owners."
         canonicalUrl="/loan-calculator"
         ogType="website"
         keywords={[
@@ -255,7 +290,7 @@ export default function LoanCalculator() {
         structuredData={loanStructuredData}
         speakableSelectors={["h1", ".speakable"]}
         datePublished="2024-01-15"
-        dateModified="2025-11-30"
+        dateModified="2025-12-05"
       />
 
       <div className="bg-muted/30 border-b">
@@ -268,268 +303,7 @@ export default function LoanCalculator() {
         </div>
       </div>
 
-      <div className="min-h-screen bg-background">
-        <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white py-12 border-b border-blue-700">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="flex items-center gap-3 mb-3">
-              <DollarSign className="w-8 h-8" />
-              <h1 className="text-4xl font-bold speakable">Free Laundromat Loan Calculator 2025</h1>
-            </div>
-            <p className="text-blue-200 speakable">Calculate monthly payments for laundromat equipment, SBA, real estate, and acquisition financing. Compare lenders instantly.</p>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 py-12 space-y-12">
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="md:col-span-1">
-              <CardHeader>
-                <CardTitle>Financing Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="funding-type">Funding Type</Label>
-                  <Select value={fundingType} onValueChange={(value: any) => setFundingType(value)}>
-                    <SelectTrigger id="funding-type" data-testid="select-funding-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(FUNDING_TYPES).map(([key, config]) => (
-                        <SelectItem key={key} value={key} data-testid={`option-${key}`}>
-                          {config.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lender">Lender</Label>
-                  <Select value={lenderName} onValueChange={setLenderName}>
-                    <SelectTrigger id="lender" data-testid="select-lender">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {fundingConfig.lenders.map((lender) => (
-                        <SelectItem key={lender.name} value={lender.name} data-testid={`lender-${lender.name}`}>
-                          {lender.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="loan-amount">Loan Amount</Label>
-                    <span className="text-sm font-semibold text-primary">${loanAmount.toLocaleString()}</span>
-                  </div>
-                  <Input
-                    id="loan-amount"
-                    type="number"
-                    value={loanAmount}
-                    onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    min={selectedLender.minAmount}
-                    max={selectedLender.maxAmount}
-                    step={5000}
-                    data-testid="input-loan-amount"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Range: ${selectedLender.minAmount.toLocaleString()} - ${selectedLender.maxAmount.toLocaleString()}
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <Label htmlFor="loan-term">Loan Term (months)</Label>
-                    <span className="text-sm font-semibold text-primary">{loanTerm} months</span>
-                  </div>
-                  <Slider
-                    id="loan-term"
-                    value={[loanTerm]}
-                    onValueChange={(val) => setLoanTerm(val[0])}
-                    min={6}
-                    max={360}
-                    step={6}
-                    data-testid="slider-loan-term"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>6 mo</span>
-                    <span>{(loanTerm / 12).toFixed(1)} years</span>
-                    <span>30 years</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <Label htmlFor="interest-rate">Interest Rate (%)</Label>
-                    <span className="text-sm font-semibold text-primary">{interestRate.toFixed(2)}%</span>
-                  </div>
-                  <Slider
-                    id="interest-rate"
-                    value={[interestRate]}
-                    onValueChange={(val) => setInterestRate(val[0])}
-                    min={selectedLender.minRate}
-                    max={selectedLender.maxRate}
-                    step={0.1}
-                    data-testid="slider-interest-rate"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{selectedLender.minRate.toFixed(1)}%</span>
-                    <span>{selectedLender.maxRate.toFixed(1)}%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Loan Summary</CardTitle>
-                <CardDescription>{selectedLender.name}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Monthly Payment</p>
-                    <p className="text-2xl font-bold text-primary" data-testid="result-monthly-payment">
-                      ${calculations.monthlyPayment.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Total Interest</p>
-                    <p className="text-2xl font-bold text-destructive" data-testid="result-total-interest">
-                      ${calculations.totalInterest.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Total Amount Paid</p>
-                    <p className="text-2xl font-bold" data-testid="result-total-paid">
-                      ${calculations.totalPaid.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-sm">Loan Breakdown</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Original Loan Amount:</span>
-                      <span className="font-semibold">${loanAmount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Interest Rate:</span>
-                      <span className="font-semibold">{interestRate.toFixed(2)}% APR</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Loan Term:</span>
-                      <span className="font-semibold">{loanTerm} months ({(loanTerm / 12).toFixed(1)} years)</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between">
-                      <span className="text-muted-foreground">Total Interest Paid:</span>
-                      <span className="font-bold text-destructive">
-                        ${calculations.totalInterest.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-4 border-t">
-                  <a href={`https://google.com/search?q=${encodeURIComponent(selectedLender.name + ' laundromat financing')}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" data-testid="button-learn-more">
-                      Learn More
-                    </Button>
-                  </a>
-                  <a href="/funding">
-                    <Button variant="outline" size="sm" data-testid="button-all-options">
-                      View All Options
-                    </Button>
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Amortization Schedule
-              </CardTitle>
-              <CardDescription>First 24 months and last month of your loan</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left font-semibold py-2 px-2">Month</th>
-                      <th className="text-right font-semibold py-2 px-2">Payment</th>
-                      <th className="text-right font-semibold py-2 px-2">Principal</th>
-                      <th className="text-right font-semibold py-2 px-2">Interest</th>
-                      <th className="text-right font-semibold py-2 px-2">Balance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {amortizationSchedule.slice(0, 24).map((row) => (
-                      <tr key={row.month} className="border-b hover:bg-muted/50" data-testid={`row-month-${row.month}`}>
-                        <td className="text-left py-2 px-2">{row.month}</td>
-                        <td className="text-right py-2 px-2">${row.payment.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                        <td className="text-right py-2 px-2">${row.principal.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                        <td className="text-right py-2 px-2">${row.interest.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                        <td className="text-right py-2 px-2 font-semibold">${row.balance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
-                      </tr>
-                    ))}
-                    {amortizationSchedule.length > 25 && (
-                      <>
-                        <tr className="border-t-2">
-                          <td colSpan={5} className="text-center py-2 px-2 text-muted-foreground text-xs">
-                            ... {amortizationSchedule.length - 25} more months ...
-                          </td>
-                        </tr>
-                        <tr className="border-b bg-muted/30" data-testid={`row-month-final`}>
-                          <td className="text-left py-2 px-2 font-semibold">{amortizationSchedule[amortizationSchedule.length - 1].month}</td>
-                          <td className="text-right py-2 px-2 font-semibold">
-                            ${amortizationSchedule[amortizationSchedule.length - 1].payment.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                          </td>
-                          <td className="text-right py-2 px-2 font-semibold">
-                            ${amortizationSchedule[amortizationSchedule.length - 1].principal.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                          </td>
-                          <td className="text-right py-2 px-2 font-semibold">
-                            ${amortizationSchedule[amortizationSchedule.length - 1].interest.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                          </td>
-                          <td className="text-right py-2 px-2 font-semibold text-green-600">$0</td>
-                        </tr>
-                      </>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-accent" />
-                Frequently Asked Questions About Laundromat Financing
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full">
-                {loanFaqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`faq-${index}`}>
-                    <AccordionTrigger className="text-left">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <PremiumCalculatorEngine config={loanCalculatorConfig} />
     </>
   );
 }

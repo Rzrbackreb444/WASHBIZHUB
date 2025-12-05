@@ -1,19 +1,11 @@
-import { useState, useEffect, useRef } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { FeatureGate } from "@/components/monetization";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { PDFExportButton } from "@/components/PDFExportButton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { TrendingUp, HelpCircle } from "lucide-react";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { TrendingUp, HelpCircle, Lightbulb, Target, Shield, DollarSign, Clock, BarChart3 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import { PremiumCalculatorEngine, type PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
 
 const roiStructuredData = {
   "@context": "https://schema.org",
@@ -41,7 +33,7 @@ const roiStructuredData = {
     "url": "https://washbizhub.com"
   },
   "datePublished": "2024-01-15",
-  "dateModified": "2025-11-30"
+  "dateModified": "2025-12-05"
 };
 
 const roiFaqs = [
@@ -85,302 +77,373 @@ const roiHowTo = {
   totalTime: "PT5M",
   steps: [
     {
-      name: "Enter Purchase Price",
+      name: "Enter Investment Amount",
       text: "Input the total acquisition cost of the laundromat, including equipment, goodwill, and any improvements needed. This is your total investment amount."
     },
     {
-      name: "Enter Monthly Revenue",
-      text: "Input the expected or actual monthly gross revenue from all sources: coin-operated machines, wash-dry-fold services, vending, and any other income streams."
+      name: "Enter Annual Revenue",
+      text: "Input the expected or actual annual gross revenue from all sources: coin-operated machines, wash-dry-fold services, vending, and any other income streams."
     },
     {
-      name: "Enter Monthly Expenses",
-      text: "Input total monthly operating expenses including utilities, rent, labor, supplies, maintenance, insurance, and any debt payments."
+      name: "Enter Operating Expenses",
+      text: "Input total annual operating expenses including utilities, rent, labor, supplies, maintenance, insurance, and any debt payments."
     },
     {
-      name: "Enter Number of Machines",
-      text: "Input the total number of washers and dryers to help benchmark your revenue per machine against industry standards."
+      name: "Set Growth Rate",
+      text: "Estimate annual revenue growth rate based on market conditions, planned improvements, and historical performance."
     },
     {
       name: "Review Your ROI Results",
-      text: "Analyze your calculated Annual Cash Flow, Cash-on-Cash Return percentage, Break-Even timeline in months, and 5-Year ROI projection to make informed investment decisions."
+      text: "Analyze your calculated Annual Cash Flow, ROI percentage, Payback Period, and 5-Year Net Profit to make informed investment decisions."
     }
   ]
 };
 
+const roiCalculatorConfig: PremiumCalculatorConfig = {
+  id: "laundromat-roi-calculator",
+  name: "Laundromat ROI Calculator",
+  description: "Calculate comprehensive return on investment projections including cash flow, ROI percentage, payback period, and multi-year profit forecasts for your laundromat investment.",
+  category: "Investment Analysis",
+  inputs: [
+    {
+      name: "investmentAmount",
+      label: "Total Investment Amount",
+      type: "slider",
+      defaultValue: 250000,
+      min: 50000,
+      max: 1000000,
+      step: 10000,
+      prefix: "$",
+      tooltip: "Total acquisition cost including purchase price, equipment, renovations, and closing costs"
+    },
+    {
+      name: "annualRevenue",
+      label: "Expected Annual Revenue",
+      type: "slider",
+      defaultValue: 180000,
+      min: 50000,
+      max: 500000,
+      step: 5000,
+      prefix: "$",
+      tooltip: "Total gross revenue from all sources: coin machines, wash-dry-fold, vending, etc."
+    },
+    {
+      name: "operatingExpenses",
+      label: "Annual Operating Expenses",
+      type: "slider",
+      defaultValue: 90000,
+      min: 20000,
+      max: 300000,
+      step: 5000,
+      prefix: "$",
+      tooltip: "All operating costs: rent, utilities, labor, maintenance, insurance, supplies"
+    },
+    {
+      name: "growthRate",
+      label: "Annual Growth Rate",
+      type: "slider",
+      defaultValue: 5,
+      min: 0,
+      max: 15,
+      step: 0.5,
+      suffix: "%",
+      tooltip: "Expected annual revenue growth based on market conditions and improvements"
+    }
+  ],
+  outputs: [
+    {
+      name: "annualCashFlow",
+      label: "Annual Cash Flow",
+      format: "currency",
+      decimals: 0,
+      highlight: true,
+      description: "Net operating income after all expenses"
+    },
+    {
+      name: "roiPercentage",
+      label: "ROI Percentage",
+      format: "percentage",
+      decimals: 1,
+      highlight: true,
+      description: "Annual return on your total investment"
+    },
+    {
+      name: "paybackPeriod",
+      label: "Payback Period (Years)",
+      format: "number",
+      decimals: 1,
+      description: "Time to recover your initial investment"
+    },
+    {
+      name: "fiveYearNetProfit",
+      label: "5-Year Net Profit",
+      format: "currency",
+      decimals: 0,
+      highlight: true,
+      description: "Cumulative profit over 5 years with growth"
+    },
+    {
+      name: "year1Profit",
+      label: "Year 1 Profit",
+      format: "currency",
+      decimals: 0,
+      description: "First year net operating income"
+    },
+    {
+      name: "year2Profit",
+      label: "Year 2 Profit",
+      format: "currency",
+      decimals: 0,
+      description: "Second year profit with growth applied"
+    },
+    {
+      name: "year3Profit",
+      label: "Year 3 Profit",
+      format: "currency",
+      decimals: 0,
+      description: "Third year profit with compound growth"
+    },
+    {
+      name: "year4Profit",
+      label: "Year 4 Profit",
+      format: "currency",
+      decimals: 0,
+      description: "Fourth year profit projection"
+    },
+    {
+      name: "year5Profit",
+      label: "Year 5 Profit",
+      format: "currency",
+      decimals: 0,
+      description: "Fifth year profit projection"
+    },
+    {
+      name: "operatingMargin",
+      label: "Operating Margin",
+      format: "percentage",
+      decimals: 1,
+      description: "Profit as a percentage of revenue"
+    },
+    {
+      name: "monthlyNetIncome",
+      label: "Monthly Net Income",
+      format: "currency",
+      decimals: 0,
+      description: "Average monthly profit after expenses"
+    },
+    {
+      name: "breakEvenRevenue",
+      label: "Break-Even Revenue",
+      format: "currency",
+      decimals: 0,
+      description: "Minimum revenue needed to cover expenses"
+    }
+  ],
+  formulas: {
+    annualCashFlow: "annualRevenue - operatingExpenses",
+    roiPercentage: "((annualRevenue - operatingExpenses) / investmentAmount) * 100",
+    paybackPeriod: "investmentAmount / (annualRevenue - operatingExpenses)",
+    operatingMargin: "((annualRevenue - operatingExpenses) / annualRevenue) * 100",
+    monthlyNetIncome: "(annualRevenue - operatingExpenses) / 12",
+    breakEvenRevenue: "operatingExpenses",
+    year1Profit: "annualRevenue - operatingExpenses",
+    year2Profit: "(annualRevenue * (1 + growthRate/100)) - operatingExpenses",
+    year3Profit: "(annualRevenue * Math.pow(1 + growthRate/100, 2)) - operatingExpenses",
+    year4Profit: "(annualRevenue * Math.pow(1 + growthRate/100, 3)) - operatingExpenses",
+    year5Profit: "(annualRevenue * Math.pow(1 + growthRate/100, 4)) - operatingExpenses",
+    fiveYearNetProfit: "year1Profit + year2Profit + year3Profit + year4Profit + year5Profit"
+  },
+  charts: [
+    {
+      type: "bar",
+      title: "5-Year Profit Projection",
+      dataKeys: ["year1Profit", "year2Profit", "year3Profit", "year4Profit", "year5Profit"],
+      labels: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"],
+      colors: ["#C8A661", "#1e3a5f", "#22C55E", "#8B5CF6", "#F59E0B"]
+    }
+  ],
+  comparisonOutputs: ["year1Profit", "year2Profit", "year3Profit", "year4Profit", "year5Profit"],
+  tips: [
+    "Target 20-35% ROI for a healthy laundromat investment - top performers achieve 30%+ with additional services",
+    "Keep operating expenses under 50% of revenue for optimal profitability - industry average is 40-60%",
+    "A payback period under 4 years indicates a strong investment opportunity in the laundromat industry",
+    "Add wash-dry-fold services to potentially increase revenue by 30-50% with minimal additional overhead",
+    "Modern energy-efficient equipment can reduce utility costs by 25-40% over older machines",
+    "Location is critical - high-traffic areas near apartments or colleges typically yield higher returns",
+    "Budget 5-10% of revenue for equipment replacement reserves to maintain profitability long-term",
+    "Consider card/app payment systems to increase revenue per cycle and reduce theft risk"
+  ],
+  premiumFeatures: {
+    pdfExport: true,
+    emailResults: true,
+    sheetsExport: true,
+    advancedCharts: true
+  }
+};
+
+const proTips = [
+  {
+    icon: Target,
+    title: "Target ROI Range",
+    description: "Aim for 20-35% annual ROI. Well-managed laundromats with wash-dry-fold services can exceed 35%."
+  },
+  {
+    icon: Clock,
+    title: "Optimal Payback",
+    description: "A payback period under 4 years signals a strong investment. Top performers achieve 2-3 years."
+  },
+  {
+    icon: DollarSign,
+    title: "Expense Ratio",
+    description: "Keep operating expenses below 50% of revenue. Industry benchmarks range from 40-60%."
+  },
+  {
+    icon: BarChart3,
+    title: "Growth Strategies",
+    description: "Add wash-dry-fold services to boost revenue 30-50%. Modern payment systems increase per-cycle revenue."
+  },
+  {
+    icon: Shield,
+    title: "Risk Management",
+    description: "Budget 5-10% for equipment reserves. Diversify with vending, pick-up/delivery for stable cash flow."
+  },
+  {
+    icon: Lightbulb,
+    title: "Location Matters",
+    description: "High-traffic areas near apartments, colleges, or laundry deserts command premium returns."
+  }
+];
+
 export default function ROICalculator() {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [inputs, setInputs] = useState({
-    purchasePrice: "250000",
-    monthlyRevenue: "15000",
-    monthlyExpenses: "6000",
-    numMachines: "20",
-  });
-
-  const [results, setResults] = useState({
-    annualCashFlow: 0,
-    cashOnCash: 0,
-    breakEven: 0,
-    fiveYearROI: 0,
-  });
-
-  const calculateROI = () => {
-    const price = parseFloat(inputs.purchasePrice) || 0;
-    const rev = (parseFloat(inputs.monthlyRevenue) || 0) * 12;
-    const exp = (parseFloat(inputs.monthlyExpenses) || 0) * 12;
-    const cashFlow = rev - exp;
-    const coc = (cashFlow / price) * 100;
-    const breakEven = (price / cashFlow) * 12;
-    const fiveYear = ((cashFlow * 5 - price) / price) * 100;
-
-    setResults({
-      annualCashFlow: cashFlow,
-      cashOnCash: coc,
-      breakEven: breakEven,
-      fiveYearROI: Math.max(0, fiveYear),
-    });
-  };
-
-  useEffect(() => {
-    calculateROI();
-  }, [inputs]);
-
-  const chartData = {
-    labels: ['Year 1', 'Year 3', 'Year 5'],
-    datasets: [
-      {
-        label: 'Cumulative ROI (%)',
-        data: [results.cashOnCash, results.cashOnCash * 3, results.fiveYearROI],
-        backgroundColor: '#b8860b',
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { color: '#fff' },
-        grid: { color: 'rgba(255,255,255,0.1)' },
-      },
-      x: {
-        ticks: { color: '#fff' },
-        grid: { color: 'rgba(255,255,255,0.1)' },
-      },
-    },
-    plugins: {
-      legend: { labels: { color: '#fff' } },
-    },
-  };
-
   return (
     <AuthGuard title="Sign In to Use ROI Calculator" description="Sign in to access this calculator and track your usage.">
       <FeatureGate feature="calculators-advanced">
         <SEO
-        title="Laundromat ROI Calculator - Free Investment Return Tool 2025 | WashBizHub"
-        description="Calculate laundromat ROI for free with our professional investment return calculator. Instantly project cash-on-cash returns, break-even timeline, 5-year ROI, and annual cash flow. Used by 14,000+ investors."
-        canonicalUrl="/roi-calculator"
-        ogType="website"
-        keywords={[
-          "laundromat ROI calculator",
-          "laundromat return on investment",
-          "coin laundry investment calculator",
-          "laundromat cash flow calculator",
-          "laundromat investment analysis",
-          "cash on cash return calculator laundromat",
-          "laundromat break even calculator",
-          "laundromat profitability calculator",
-          "how to calculate laundromat ROI",
-          "laundromat investment returns 2025",
-          "is a laundromat a good investment",
-          "laundromat income calculator",
-          "5 year ROI laundromat",
-          "laundromat profit calculator",
-          "self service laundry ROI"
-        ]}
-        faqs={roiFaqs}
-        howTo={roiHowTo}
-        breadcrumbs={[
-          { name: "Home", url: "/" },
-          { name: "Calculators", url: "/calculators" },
-          { name: "ROI Calculator", url: "/roi-calculator" }
-        ]}
-        author={{
-          name: "WashBizHub Investment Team",
-          expertise: "Laundromat Investment Analysis & ROI Specialists",
-          credentials: "40+ years combined experience in laundromat acquisitions and investment analysis across 500+ transactions"
-        }}
-        structuredData={roiStructuredData}
-        speakableSelectors={["h1", ".speakable", "[data-testid='result-annual-cash-flow']", "[data-testid='result-cash-on-cash']"]}
-        datePublished="2024-01-15"
-        dateModified="2025-11-30"
-      />
-
-      <div className="bg-muted/30 border-b">
-        <div className="mx-auto max-w-7xl px-6 py-3">
-          <Breadcrumb items={[
+          title="Laundromat ROI Calculator - Free Investment Return Tool 2025 | WashBizHub"
+          description="Calculate laundromat ROI for free with our professional investment return calculator. Instantly project cash-on-cash returns, break-even timeline, 5-year ROI, and annual cash flow. Used by 14,000+ investors."
+          canonicalUrl="/roi-calculator"
+          ogType="website"
+          keywords={[
+            "laundromat ROI calculator",
+            "laundromat return on investment",
+            "coin laundry investment calculator",
+            "laundromat cash flow calculator",
+            "laundromat investment analysis",
+            "cash on cash return calculator laundromat",
+            "laundromat break even calculator",
+            "laundromat profitability calculator",
+            "how to calculate laundromat ROI",
+            "laundromat investment returns 2025",
+            "is a laundromat a good investment",
+            "laundromat income calculator",
+            "5 year ROI laundromat",
+            "laundromat profit calculator",
+            "self service laundry ROI"
+          ]}
+          faqs={roiFaqs}
+          howTo={roiHowTo}
+          breadcrumbs={[
             { name: "Home", url: "/" },
             { name: "Calculators", url: "/calculators" },
             { name: "ROI Calculator", url: "/roi-calculator" }
-          ]} />
-        </div>
-      </div>
+          ]}
+          author={{
+            name: "WashBizHub Investment Team",
+            expertise: "Laundromat Investment Analysis & ROI Specialists",
+            credentials: "40+ years combined experience in laundromat acquisitions and investment analysis across 500+ transactions"
+          }}
+          structuredData={roiStructuredData}
+          speakableSelectors={["h1", ".speakable", "[data-testid='result-annual-cash-flow']", "[data-testid='result-cash-on-cash']"]}
+          datePublished="2024-01-15"
+          dateModified="2025-12-05"
+        />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <TrendingUp className="h-16 w-16 text-accent mx-auto mb-4" />
-            <h1 className="text-5xl font-black text-white mb-4 speakable" data-testid="text-roi-title">
-              Free Laundromat ROI Calculator 2025
-            </h1>
-            <p className="text-xl text-white/70 speakable" data-testid="text-roi-subtitle">
-              Calculate cash-on-cash returns, break-even timeline, and 5-year projections for your laundromat investment
-            </p>
-            <div className="mt-6">
-              <FeatureGate feature="calculators-export" showUpgradePrompt={false}>
-                <PDFExportButton
-                  contentRef={contentRef}
-                  fileName="ROI_Analysis"
-                  title="Export PDF Report"
-                  variant="outline"
-                  className="bg-white/95 text-gray-900 hover:bg-white border-2 border-white/30 font-semibold"
-                  data-testid="button-export-pdf"
-                />
-              </FeatureGate>
-            </div>
+        <div className="bg-muted/30 border-b">
+          <div className="mx-auto max-w-7xl px-6 py-3">
+            <Breadcrumb items={[
+              { name: "Home", url: "/" },
+              { name: "Calculators", url: "/calculators" },
+              { name: "ROI Calculator", url: "/roi-calculator" }
+            ]} />
           </div>
+        </div>
 
-        <div ref={contentRef}>
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl">Calculate Your Laundromat ROI</CardTitle>
-              <CardDescription className="text-white/70">
-                Enter your laundromat investment details for instant ROI projections
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="purchasePrice" className="text-white/90 font-medium">Purchase Price ($)</Label>
-                  <Input
-                    id="purchasePrice"
-                    type="number"
-                    value={inputs.purchasePrice}
-                    onChange={(e) => setInputs({ ...inputs, purchasePrice: e.target.value })}
-                    className="bg-white/20 border-white/30 text-white placeholder-white/50 mt-2"
-                    data-testid="input-purchase-price"
-                  />
-                </div>
+        <PremiumCalculatorEngine config={roiCalculatorConfig} />
 
-                <div>
-                  <Label htmlFor="monthlyRevenue" className="text-white/90 font-medium">Monthly Revenue ($)</Label>
-                  <Input
-                    id="monthlyRevenue"
-                    type="number"
-                    value={inputs.monthlyRevenue}
-                    onChange={(e) => setInputs({ ...inputs, monthlyRevenue: e.target.value })}
-                    className="bg-white/20 border-white/30 text-white placeholder-white/50 mt-2"
-                    data-testid="input-monthly-revenue"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="monthlyExpenses" className="text-white/90 font-medium">Monthly Expenses ($)</Label>
-                  <Input
-                    id="monthlyExpenses"
-                    type="number"
-                    value={inputs.monthlyExpenses}
-                    onChange={(e) => setInputs({ ...inputs, monthlyExpenses: e.target.value })}
-                    className="bg-white/20 border-white/30 text-white placeholder-white/50 mt-2"
-                    data-testid="input-monthly-expenses"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="numMachines" className="text-white/90 font-medium">Number of Machines</Label>
-                  <Input
-                    id="numMachines"
-                    type="number"
-                    value={inputs.numMachines}
-                    onChange={(e) => setInputs({ ...inputs, numMachines: e.target.value })}
-                    className="bg-white/20 border-white/30 text-white placeholder-white/50 mt-2"
-                    data-testid="input-num-machines"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-white/5 p-6 rounded-lg">
-                <h3 className="text-2xl font-bold text-accent mb-6">ROI Summary</h3>
-                
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Annual Cash Flow:</span>
-                    <strong className="text-2xl text-accent" data-testid="result-annual-cash-flow">
-                      ${results.annualCashFlow.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                    </strong>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Cash-on-Cash Return:</span>
-                    <strong className="text-2xl text-accent" data-testid="result-cash-on-cash">
-                      {results.cashOnCash.toFixed(1)}%
-                    </strong>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Break-Even (Months):</span>
-                    <strong className="text-2xl text-accent" data-testid="result-break-even">
-                      {results.breakEven.toFixed(0)}
-                    </strong>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">5-Year ROI:</span>
-                    <strong className="text-2xl text-accent" data-testid="result-five-year-roi">
-                      {results.fiveYearROI.toFixed(1)}%
-                    </strong>
-                  </div>
-                </div>
-
-                <div className="h-64">
-                  <Bar data={chartData} options={chartOptions} />
-                </div>
-              </div>
-            </div>
-
-              <p className="text-sm text-white/60 text-center mt-8">
-                * Estimates based on standard laundromat benchmarks. Consult professionals for personalized advice.
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+                <Lightbulb className="h-8 w-8 text-accent" />
+                Professional ROI Tips
+              </h2>
+              <p className="text-white/70 max-w-2xl mx-auto">
+                Expert insights to maximize your laundromat investment returns
               </p>
-            </CardContent>
-          </Card>
-          </div>
+            </div>
 
-          <Card className="bg-white/10 backdrop-blur border-white/20 mt-12">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl flex items-center gap-2">
-                <HelpCircle className="h-6 w-6 text-accent" />
-                Frequently Asked Questions About Laundromat ROI
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full">
-                {roiFaqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`faq-${index}`} className="border-white/20">
-                    <AccordionTrigger className="text-white/90 hover:text-white text-left">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-white/70">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {proTips.map((tip, index) => (
+                <Card 
+                  key={index} 
+                  className="bg-white/5 backdrop-blur border-white/10 hover-elevate"
+                  data-testid={`card-tip-${index}`}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-lg bg-accent/20">
+                        <tip.icon className="h-6 w-6 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white mb-2">{tip.title}</h3>
+                        <p className="text-sm text-white/70">{tip.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Card className="bg-white/5 backdrop-blur border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white text-2xl flex items-center gap-3">
+                  <HelpCircle className="h-7 w-7 text-accent" />
+                  Frequently Asked Questions About Laundromat ROI
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Accordion type="single" collapsible className="w-full">
+                  {roiFaqs.map((faq, index) => (
+                    <AccordionItem 
+                      key={index} 
+                      value={`faq-${index}`} 
+                      className="border-white/10"
+                      data-testid={`accordion-faq-${index}`}
+                    >
+                      <AccordionTrigger className="text-white/90 hover:text-white text-left">
+                        {faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-white/70">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </CardContent>
+            </Card>
+
+            <div className="mt-12 text-center">
+              <p className="text-sm text-white/50">
+                * Calculator estimates are based on industry benchmarks and should not be considered financial advice. 
+                Consult with qualified professionals before making investment decisions.
+              </p>
+            </div>
+          </div>
+        </div>
       </FeatureGate>
     </AuthGuard>
   );

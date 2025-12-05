@@ -8,9 +8,16 @@ const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.
 
 const productsLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer", featured: true },
-  { href: "/calculators", label: "Calculators", testId: "link-footer-calculators" },
   { href: "/design-studio-pro", label: "Design Studio", testId: "link-footer-design-studio" },
   { href: "/service-guy-ai", label: "Service Guy AI", testId: "link-footer-service-guy-ai" },
+];
+
+const calculatorLinks = [
+  { href: "/calculators", label: "Calculator Suite", testId: "link-footer-calculators", featured: true },
+  { href: "/valuation-calculator", label: "Valuation Calculator", testId: "link-footer-valuation" },
+  { href: "/roi-calculator", label: "ROI Calculator", testId: "link-footer-roi" },
+  { href: "/loan-calculator", label: "Loan Calculator", testId: "link-footer-loan" },
+  { href: "/utility-calculator", label: "Utility Costs", testId: "link-footer-utility" },
 ];
 
 const marketplaceLinks = [
@@ -67,7 +74,7 @@ export function Footer() {
 
         {/* Main Footer Content */}
         <div className="max-w-7xl mx-auto px-4 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
             
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-1">
@@ -121,6 +128,29 @@ export function Footer() {
               <h3 className="text-white font-semibold text-sm mb-4">Products</h3>
               <ul className="space-y-2.5">
                 {productsLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href}>
+                      <span 
+                        className={`text-sm cursor-pointer transition-colors ${
+                          link.featured 
+                            ? "text-[#C8A661] hover:text-[#d4a030]" 
+                            : "text-white/60 hover:text-white"
+                        }`}
+                        data-testid={link.testId}
+                      >
+                        {link.label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Calculators */}
+            <div>
+              <h3 className="text-white font-semibold text-sm mb-4">Calculators</h3>
+              <ul className="space-y-2.5">
+                {calculatorLinks.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href}>
                       <span 

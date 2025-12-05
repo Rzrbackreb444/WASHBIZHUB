@@ -31,15 +31,23 @@ import {
   ShoppingCart, Package, Handshake,
   BookOpen, GraduationCap, HelpCircle, Wallet,
   BarChart3, Zap, Landmark, Factory, CreditCard, 
-  Briefcase, TrendingUp, PiggyBank, Receipt
+  Briefcase, TrendingUp, PiggyBank, Receipt, Users,
+  LineChart, PieChart
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
-  { href: "/valuation-calculator", label: "Valuation Suite", icon: DollarSign, desc: "Business appraisal tools" },
-  { href: "/calculators", label: "ROI Calculators", icon: Calculator, desc: "Financial projections" },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
+];
+
+const CALCULATORS_LINKS = [
+  { href: "/calculators", label: "Calculator Suite", icon: Calculator, desc: "All professional calculators", featured: true },
+  { href: "/valuation-calculator", label: "Business Valuation", icon: DollarSign, desc: "4 valuation methods" },
+  { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, desc: "5-year projections" },
+  { href: "/loan-calculator", label: "Loan Calculator", icon: BarChart3, desc: "Amortization analysis" },
+  { href: "/utility-calculator", label: "Utility Costs", icon: Zap, desc: "UPG benchmarking" },
+  { href: "/labor-calculator", label: "Labor Costs", icon: Users, desc: "Staffing optimization" },
 ];
 
 const MARKETPLACE_LINKS = [
@@ -295,6 +303,35 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* Calculators */}
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger 
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        data-testid="dropdown-calculators"
+                      >
+                        Calculators
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <motion.div 
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="w-[360px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                        >
+                          <div className="mb-2 pb-2 border-b border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Professional Calculators
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {CALCULATORS_LINKS.map((link) => (
+                              <DropdownLink key={link.href} {...link} />
+                            ))}
+                          </div>
+                        </motion.div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+
                     {/* Marketplace */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
@@ -488,6 +525,26 @@ export function NavigationMenu() {
                           <AccordionContent className="pb-2">
                             <div className="space-y-1">
                               {PRODUCTS_LINKS.map((link) => (
+                                <MobileNavLink
+                                  key={link.href}
+                                  href={link.href}
+                                  label={link.label}
+                                  isActive={isActive(link.href)}
+                                  onClick={closeMobileMenu}
+                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                                />
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="calculators" className="border-b border-border/50">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                            Calculators
+                          </AccordionTrigger>
+                          <AccordionContent className="pb-2">
+                            <div className="space-y-1">
+                              {CALCULATORS_LINKS.map((link) => (
                                 <MobileNavLink
                                   key={link.href}
                                   href={link.href}
