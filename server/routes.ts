@@ -311,84 +311,83 @@ async function applyTierBenefits(
     }
 
     // DIAMOND TIER: All showcase benefits PLUS AI blog + indexing
+    // These are fire-and-forget (non-blocking) to avoid request timeouts
     if (tier === 'diamond') {
-      // Generate AI blog post
-      try {
-        console.log(`📝 [TIER AUTOMATION] Generating AI blog for diamond listing ${listingId}`);
-        
-        const blog = await generateListingBlog({
-          id: listing.id,
-          title: listing.title || 'Laundromat Listing',
-          description: listing.description,
-          city: listing.city,
-          state: listing.region,
-          price: listing.priceOriginal?.toString() || null,
-          brokerName: listing.brokerName,
-        });
+      result.benefitsApplied.push('autoBlog: queued');
+      result.benefitsApplied.push('indexNow: queued');
+      result.benefitsApplied.push('googleIndexing: queued');
+      
+      console.log(`🚀 [TIER AUTOMATION] Queueing async automation for diamond listing ${listingId}`);
+      
+      // Fire-and-forget: AI blog generation + indexing (runs in background)
+      setImmediate(async () => {
+        try {
+          console.log(`📝 [TIER AUTOMATION/ASYNC] Generating AI blog for diamond listing ${listingId}`);
+          
+          const blog = await generateListingBlog({
+            id: listing.id,
+            title: listing.title || 'Laundromat Listing',
+            description: listing.description,
+            city: listing.city,
+            state: listing.region,
+            price: listing.priceOriginal?.toString() || null,
+            brokerName: listing.brokerName,
+          });
 
-        // Save blog post to database
-        const [savedBlog] = await db.insert(blogPosts).values({
-          title: blog.title,
-          slug: blog.slug,
-          content: blog.content,
-          excerpt: blog.excerpt,
-          metaTitle: blog.metaTitle,
-          metaDescription: blog.metaDescription,
-          category: 'listings',
-          authorName: 'WashBizHub AI',
-          published: true,
-          tenantId: listing.tenantId,
-        }).returning();
+          // Save blog post to database
+          const [savedBlog] = await db.insert(blogPosts).values({
+            title: blog.title,
+            slug: blog.slug,
+            content: blog.content,
+            excerpt: blog.excerpt,
+            metaTitle: blog.metaTitle,
+            metaDescription: blog.metaDescription,
+            category: 'listings',
+            authorName: 'WashBizHub AI',
+            published: true,
+            tenantId: listing.tenantId,
+          }).returning();
 
-        // Link blog to listing
-        await db.update(listings)
-          .set({
-            autoBlogEnabled: true,
-            autoBlogPostId: savedBlog?.id,
-            autoBlogGeneratedAt: new Date(),
-          })
-          .where(eq(listings.id, listingId));
+          // Link blog to listing
+          await db.update(listings)
+            .set({
+              autoBlogEnabled: true,
+              autoBlogPostId: savedBlog?.id,
+              autoBlogGeneratedAt: new Date(),
+            })
+            .where(eq(listings.id, listingId));
+          
+          console.log(`✅ [TIER AUTOMATION/ASYNC] AI blog generated: ${blog.title}`);
 
-        result.blogGenerated = {
-          id: savedBlog?.id || '',
-          slug: blog.slug,
-          title: blog.title,
-        };
-        result.benefitsApplied.push(`autoBlog: generated (${blog.slug})`);
-        
-        console.log(`✅ [TIER AUTOMATION] AI blog generated: ${blog.title}`);
+          // Also submit blog to IndexNow
+          const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+          submitToIndexNow(blogUrl).catch(e => console.error(`❌ [TIER AUTOMATION/ASYNC] Blog IndexNow failed:`, e.message));
+          console.log(`✅ [TIER AUTOMATION/ASYNC] Blog queued for IndexNow: ${blogUrl}`);
+          
+        } catch (blogError: any) {
+          console.error(`❌ [TIER AUTOMATION/ASYNC] Blog generation failed:`, blogError.message);
+        }
+      });
 
-        // Also submit blog to IndexNow
-        const blogUrl = `${baseUrl}/blog/${blog.slug}`;
-        await submitToIndexNow(blogUrl);
-        console.log(`✅ [TIER AUTOMATION] Blog submitted to IndexNow: ${blogUrl}`);
-        
-      } catch (blogError: any) {
-        result.errors.push(`Blog generation failed: ${blogError.message}`);
-        console.error(`❌ [TIER AUTOMATION] Blog generation failed:`, blogError.message);
-      }
+      // Fire-and-forget: IndexNow submission
+      setImmediate(async () => {
+        try {
+          const indexNowResult = await submitToIndexNow(listingUrl);
+          console.log(`${indexNowResult.success ? '✅' : '⚠️'} [TIER AUTOMATION/ASYNC] IndexNow: ${indexNowResult.message}`);
+        } catch (indexError: any) {
+          console.error(`❌ [TIER AUTOMATION/ASYNC] IndexNow error:`, indexError.message);
+        }
+      });
 
-      // Submit to IndexNow
-      try {
-        const indexNowResult = await submitToIndexNow(listingUrl);
-        result.indexNowSubmitted = indexNowResult.success;
-        result.benefitsApplied.push(`indexNow: ${indexNowResult.success ? 'submitted' : 'failed'}`);
-        console.log(`${indexNowResult.success ? '✅' : '⚠️'} [TIER AUTOMATION] IndexNow: ${indexNowResult.message}`);
-      } catch (indexError: any) {
-        result.errors.push(`IndexNow failed: ${indexError.message}`);
-        console.error(`❌ [TIER AUTOMATION] IndexNow error:`, indexError.message);
-      }
-
-      // Submit to Google Indexing API
-      try {
-        const googleResult = await submitToGoogleIndexing(listingUrl);
-        result.googleIndexingSubmitted = googleResult.success;
-        result.benefitsApplied.push(`googleIndexing: ${googleResult.success ? 'submitted' : 'failed'}`);
-        console.log(`${googleResult.success ? '✅' : '⚠️'} [TIER AUTOMATION] Google Indexing: ${googleResult.message}`);
-      } catch (googleError: any) {
-        result.errors.push(`Google Indexing failed: ${googleError.message}`);
-        console.error(`❌ [TIER AUTOMATION] Google Indexing error:`, googleError.message);
-      }
+      // Fire-and-forget: Google Indexing API
+      setImmediate(async () => {
+        try {
+          const googleResult = await submitToGoogleIndexing(listingUrl);
+          console.log(`${googleResult.success ? '✅' : '⚠️'} [TIER AUTOMATION/ASYNC] Google Indexing: ${googleResult.message}`);
+        } catch (googleError: any) {
+          console.error(`❌ [TIER AUTOMATION/ASYNC] Google Indexing error:`, googleError.message);
+        }
+      });
     }
 
   } catch (error: any) {
