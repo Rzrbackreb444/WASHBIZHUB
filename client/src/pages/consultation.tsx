@@ -150,9 +150,11 @@ export default function Consultation() {
         title="Expert Laundromat Consultation"
         subtitle="Professional Guidance"
         variant="consulting"
+        overlay="mesh"
         size="md"
+        align="center"
       >
-        <p className="text-white/80">
+        <p>
           Get personalized guidance from industry experts with 50+ years combined experience.
           <span className="block mt-2 text-[#C8A661] font-semibold">$397 per 60-minute session</span>
         </p>

@@ -238,9 +238,13 @@ export default function BrokerDirectory() {
           title="Broker Directory"
           subtitle="Verified Professionals"
           variant="business"
+          overlay="mesh"
           size="md"
+          align="center"
+          showBadge
+          badgeText="Trusted Partners"
         >
-          <p className="text-white/80">
+          <p>
             Connect with industry-leading laundromat brokers. Licensed, experienced, and ready to help you buy or sell.
           </p>
         </PageHero>
