@@ -1237,7 +1237,8 @@ export default function FundingMatcher() {
         Start Over
       </Button>
     </div>
-  );
+    );
+  };
 
   const renderGoKapitalForm = () => (
     <div className="space-y-6">
