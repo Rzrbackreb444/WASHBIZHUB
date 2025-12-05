@@ -5900,7 +5900,6 @@ function CleanBIExplorerContent() {
         {/* CLEANBI Help Chat Widget */}
         <CLEANBIHelpChat />
       </div>
-      )}
     </>
   );
 }
