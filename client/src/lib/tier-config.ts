@@ -69,8 +69,8 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
   free: {
     id: 'free',
     name: 'Free',
-    tagline: 'Get started today',
-    description: 'Explore locations with 50 free CLEANBI analyses per month',
+    tagline: 'Try it out',
+    description: 'Get 3 free CLEANBI analyses to see the power',
     price: 0,
     priceAnnual: 0,
     icon: Gift,
@@ -78,7 +78,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     iconColor: 'text-emerald-600 dark:text-emerald-400',
     popular: false,
     features: [
-      { text: '50 CLEANBI analyses/month', included: true, highlight: true },
+      { text: '3 CLEANBI analyses total', included: true, highlight: true },
       { text: 'Basic location scoring', included: true },
       { text: 'Competitor count display', included: true },
       { text: 'Street View access', included: true },
@@ -90,9 +90,9 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       { text: 'Export PDF reports', included: false },
     ],
     limits: {
-      cleanbiAnalyses: 50,
+      cleanbiAnalyses: 3,
       apiCalls: 0,
-      savedReports: 25,
+      savedReports: 3,
       teamMembers: 1,
     },
     cta: 'Start Free',
