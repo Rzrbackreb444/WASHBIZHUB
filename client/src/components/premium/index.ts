@@ -53,12 +53,47 @@ export {
   ErrorState,
   NoResultsState,
   ComingSoonState,
+  SuccessState,
 } from "./EmptyState";
 export type {
   EmptyStateProps,
   EmptyStateCardProps,
   EmptyStateVariant,
 } from "./EmptyState";
+
+export {
+  ErrorBoundary,
+  PageErrorBoundary,
+  SectionErrorBoundary,
+  InlineErrorBoundary,
+} from "./ErrorBoundary";
+export type {
+  ErrorBoundaryProps,
+  ErrorBoundaryState,
+  ErrorBoundaryVariant,
+  ErrorFallbackProps,
+  PageErrorBoundaryProps,
+  SectionErrorBoundaryProps,
+  InlineErrorBoundaryProps,
+} from "./ErrorBoundary";
+
+export { OfflineIndicator, useOnlineStatus } from "./OfflineIndicator";
+export type { OfflineIndicatorProps, UseOnlineStatusReturn } from "./OfflineIndicator";
+
+export {
+  EmptySearchIllustration,
+  NoDataIllustration,
+  ErrorIllustration,
+  ComingSoonIllustration,
+  SuccessIllustration,
+} from "./illustrations";
+export type {
+  EmptySearchIllustrationProps,
+  NoDataIllustrationProps,
+  ErrorIllustrationProps,
+  ComingSoonIllustrationProps,
+  SuccessIllustrationProps,
+} from "./illustrations";
 
 export {
   CardSkeleton,
