@@ -51,10 +51,10 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffi
 
 function GlassCard({ children, className = "", highlight = false }: { children: React.ReactNode; className?: string; highlight?: boolean }) {
   return (
-    <div className={`relative rounded-2xl border ${highlight ? 'border-amber-500/50 bg-amber-500/5' : 'border-white/10 bg-white/5'} backdrop-blur-xl ${className}`}>
+    <div className={`relative rounded-2xl border ${highlight ? 'border-[#C8A661]/50 bg-[#C8A661]/5' : 'border-white/10 bg-white/5'} backdrop-blur-xl ${className}`}>
       {highlight && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white border-0 px-4 py-1">
+          <Badge className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] text-white border-0 px-4 py-1">
             <Star className="w-3 h-3 mr-1" /> Most Popular
           </Badge>
         </div>
@@ -115,7 +115,7 @@ const PRICING_TIERS = [
     period: "/month",
     description: "For owners & active investors",
     icon: Crown,
-    color: "from-amber-500 to-amber-600",
+    color: "from-[#C8A661] to-[#b8860b]",
     highlight: true,
     features: [
       { name: "CLEANBI Explorer", included: true, limit: "100 analyses/day" },
@@ -138,7 +138,7 @@ const PRICING_TIERS = [
     period: "/month",
     description: "For brokers & multi-location owners",
     icon: Building2,
-    color: "from-purple-500 to-purple-600",
+    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
     features: [
       { name: "CLEANBI Explorer", included: true, limit: "Unlimited" },
       { name: "Full Location Score + AI", included: true },
@@ -163,7 +163,7 @@ const PRODUCTS = [
     tagline: "The Viral Location Intelligence Tool",
     description: "Analyze any address instantly with our proprietary scoring algorithm. Get demographic data, competitor mapping, and investment grades in seconds.",
     icon: Map,
-    color: "from-amber-500 to-orange-500",
+    color: "from-[#C8A661] to-[#b8860b]",
     link: "/cleanbi-explorer",
     features: ["A/B/C Grading System", "Competitor Mapping", "Demographics Analysis", "Street View Integration", "Shareable Reports"],
     forWho: ["Buyers", "Investors", "Brokers"],
@@ -187,7 +187,7 @@ const PRODUCTS = [
     tagline: "Multi-Location Analysis",
     description: "Compare up to 25 locations side-by-side. Detect territory cannibalization, optimize your portfolio, and find your next winning location.",
     icon: Layers,
-    color: "from-green-500 to-emerald-500",
+    color: "from-[#1e3a5f] to-[#C8A661]",
     link: "/expansion-planner",
     features: ["25 Location Comparison", "Cannibalization Detection", "Portfolio Optimization", "Territory Mapping", "ROI Projections"],
     forWho: ["Multi-location Owners", "Franchises"],
@@ -211,7 +211,7 @@ const PRODUCTS = [
     tagline: "Enterprise-Grade Processing",
     description: "Upload CSV/XLSX with up to 500 locations. Perfect for brokers, REITs, and portfolio managers who need to analyze at scale.",
     icon: BarChart3,
-    color: "from-purple-500 to-violet-500",
+    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
     link: "/bulk-analysis",
     features: ["500 Location Upload", "Google Sheets Sync", "API Integration", "Batch Processing", "Export Options"],
     forWho: ["Brokers", "REITs", "Enterprises"],
@@ -223,7 +223,7 @@ const PRODUCTS = [
     tagline: "Know Your True Value",
     description: "Industry-standard valuation using SDE/EBITDA multiples, lease adjustments, and equipment depreciation. Compare to market benchmarks.",
     icon: Calculator,
-    color: "from-teal-500 to-cyan-500",
+    color: "from-[#1e3a5f] to-[#C8A661]",
     link: "/valuation-calculator",
     features: ["SDE/EBITDA Methods", "Lease Impact Analysis", "Equipment Depreciation", "Market Comparables", "PDF Reports"],
     forWho: ["Sellers", "Buyers", "Brokers"],
@@ -286,7 +286,7 @@ export default function ProductsHub() {
       <section className="relative overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8A661]/20 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOCAxOC04LjA1OSAxOC0xOC04LjA1OS0xOC0xOC0xOHptMCAzMmMtNy43MzIgMC0xNC02LjI2OC0xNC0xNHM2LjI2OC0xNCAxNC0xNCAxNCA2LjI2OCAxNCAxNC02LjI2OCAxNC0xNCAxNHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAyIi8+PC9nPjwvc3ZnPg==')] opacity-30"></div>
         </div>
@@ -297,20 +297,20 @@ export default function ProductsHub() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
               <div className="flex -space-x-2">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-white">
+                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C8A661] to-[#b8860b] border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-white">
                     {String.fromCharCode(65 + i)}
                   </div>
                 ))}
               </div>
               <span className="text-sm text-slate-300">
-                Trusted by <span className="text-amber-500 font-semibold">72,600+</span> laundromat professionals
+                Trusted by <span className="text-[#C8A661] font-semibold">72,600+</span> laundromat professionals
               </span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               The Complete Toolkit for
-              <span className="block mt-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-[#C8A661] via-[#C8A661] to-[#b8860b] bg-clip-text text-transparent">
                 Laundromat Success
               </span>
             </h1>
@@ -324,7 +324,7 @@ export default function ProductsHub() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-amber-500/25"
+                className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
                 onClick={() => setLocation("/cleanbi-explorer")}
                 data-testid="button-try-free"
               >
@@ -357,8 +357,8 @@ export default function ProductsHub() {
               { label: "Premium Reports", value: 1200, suffix: "+", icon: FileText, id: "reports" },
             ].map((stat, i) => (
               <div key={i} className="text-center" data-testid={`stat-${stat.id}`}>
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-500/10 mb-3">
-                  <stat.icon className="w-6 h-6 text-amber-500" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#C8A661]/10 mb-3">
+                  <stat.icon className="w-6 h-6 text-[#C8A661]" />
                 </div>
                 <p className="text-3xl font-bold text-white" data-testid={`stat-value-${stat.id}`}>
                   <AnimatedCounter end={stat.value} suffix={stat.suffix} />
@@ -390,7 +390,7 @@ export default function ProductsHub() {
             {/* SBA Readiness Checker */}
             <GlassCard className="p-6 hover-elevate">
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0">
                   <Target className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1">
@@ -414,7 +414,7 @@ export default function ProductsHub() {
                   </div>
                   <Button
                     onClick={() => setLocation("/sba-readiness")}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600"
+                    className="bg-gradient-to-r from-green-500 to-green-600"
                     data-testid="button-sba-readiness"
                   >
                     Check My Readiness
@@ -427,13 +427,13 @@ export default function ProductsHub() {
             {/* Business Plan Generator */}
             <GlassCard className="p-6 hover-elevate" highlight>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#b8860b] flex items-center justify-center flex-shrink-0">
                   <FileText className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-xl font-bold text-white">AI Business Plan</h3>
-                    <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">$299</Badge>
+                    <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">$299</Badge>
                   </div>
                   <p className="text-slate-400 mb-4">
                     Generate a complete, SBA-ready business plan in minutes. Professional financial projections lenders require.
@@ -451,7 +451,7 @@ export default function ProductsHub() {
                   </div>
                   <Button
                     onClick={() => setLocation("/business-plan-generator")}
-                    className="bg-gradient-to-r from-amber-500 to-amber-600"
+                    className="bg-gradient-to-r from-[#C8A661] to-[#b8860b]"
                     data-testid="button-business-plan"
                   >
                     Generate Business Plan
@@ -472,8 +472,8 @@ export default function ProductsHub() {
             </div>
             <ChevronRight className="w-4 h-4" />
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <span className="text-amber-400 text-sm font-bold">2</span>
+              <div className="w-8 h-8 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+                <span className="text-[#C8A661] text-sm font-bold">2</span>
               </div>
               <span className="text-sm">Get Business Plan</span>
             </div>
@@ -494,7 +494,7 @@ export default function ProductsHub() {
       <section className="py-20" id="products">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <Badge variant="outline" className="border-amber-500/50 text-amber-500 mb-4">
+            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
               <Sparkles className="w-3 h-3 mr-1" />
               Our Products
             </Badge>
@@ -513,7 +513,7 @@ export default function ProductsHub() {
                 <TabsTrigger
                   key={product.id}
                   value={product.id}
-                  className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-500 data-[state=active]:border-amber-500/50 border border-white/10 rounded-lg px-4 py-2 text-slate-400 hover:text-white transition-all"
+                  className="data-[state=active]:bg-[#C8A661]/20 data-[state=active]:text-[#C8A661] data-[state=active]:border-[#C8A661]/50 border border-white/10 rounded-lg px-4 py-2 text-slate-400 hover:text-white transition-all"
                   data-testid={`tab-${product.id}`}
                 >
                   <product.icon className="w-4 h-4 mr-2" />
@@ -531,7 +531,7 @@ export default function ProductsHub() {
                         <product.icon className="w-8 h-8 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
-                      <p className="text-amber-500 font-medium mb-4">{product.tagline}</p>
+                      <p className="text-[#C8A661] font-medium mb-4">{product.tagline}</p>
                       <p className="text-slate-400 mb-6">{product.description}</p>
                       
                       <div className="flex flex-wrap gap-2 mb-6">
@@ -585,7 +585,7 @@ export default function ProductsHub() {
       <section className="py-20 bg-gradient-to-b from-transparent to-slate-950/50" id="pricing">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <Badge variant="outline" className="border-amber-500/50 text-amber-500 mb-4">
+            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
               <DollarSign className="w-3 h-3 mr-1" />
               Simple Pricing
             </Badge>
@@ -598,11 +598,11 @@ export default function ProductsHub() {
 
             {/* Annual Toggle */}
             <div className="inline-flex items-center gap-3 p-1 rounded-full bg-white/5 border border-white/10">
-              <span className={`px-4 py-2 rounded-full transition-all ${!isAnnual ? 'bg-amber-500 text-white' : 'text-slate-400'}`}>
+              <span className={`px-4 py-2 rounded-full transition-all ${!isAnnual ? 'bg-[#C8A661] text-white' : 'text-slate-400'}`}>
                 Monthly
               </span>
               <Switch checked={isAnnual} onCheckedChange={setIsAnnual} data-testid="switch-billing-toggle" />
-              <span className={`px-4 py-2 rounded-full transition-all ${isAnnual ? 'bg-amber-500 text-white' : 'text-slate-400'}`}>
+              <span className={`px-4 py-2 rounded-full transition-all ${isAnnual ? 'bg-[#C8A661] text-white' : 'text-slate-400'}`}>
                 Annual <span className="text-green-400 text-sm">(Save 20%)</span>
               </span>
             </div>
@@ -645,7 +645,7 @@ export default function ProductsHub() {
                 </div>
 
                 <Button 
-                  className={`w-full ${tier.highlight ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                  className={`w-full ${tier.highlight ? 'bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
                   onClick={() => setLocation(tier.ctaLink)}
                   data-testid={`button-${tier.name.toLowerCase()}-plan`}
                 >
@@ -659,12 +659,12 @@ export default function ProductsHub() {
           {/* Enterprise CTA */}
           <div className="mt-12 text-center">
             <GlassCard className="inline-flex items-center gap-4 px-6 py-4">
-              <Building2 className="w-8 h-8 text-purple-500" />
+              <Building2 className="w-8 h-8 text-[#1e3a5f]" />
               <div className="text-left">
                 <p className="text-white font-medium">Need a custom solution?</p>
                 <p className="text-sm text-slate-400">We offer white-label and API access for brokers & enterprises</p>
               </div>
-              <Button variant="outline" className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10" onClick={() => setLocation("/contact?inquiry=enterprise")} data-testid="button-enterprise-contact">
+              <Button variant="outline" className="border-[#1e3a5f]/50 text-[#C8A661] hover:bg-[#1e3a5f]/10" onClick={() => setLocation("/contact?inquiry=enterprise")} data-testid="button-enterprise-contact">
                 Contact Sales
               </Button>
             </GlassCard>
@@ -676,7 +676,7 @@ export default function ProductsHub() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <Badge variant="outline" className="border-amber-500/50 text-amber-500 mb-4">
+            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
               <Star className="w-3 h-3 mr-1" />
               Testimonials
             </Badge>
@@ -690,12 +690,12 @@ export default function ProductsHub() {
               <GlassCard key={i} className="p-6">
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, j) => (
-                    <Star key={j} className="w-5 h-5 text-amber-500 fill-amber-500" />
+                    <Star key={j} className="w-5 h-5 text-[#C8A661] fill-[#C8A661]" />
                   ))}
                 </div>
                 <p className="text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#b8860b] flex items-center justify-center text-white font-bold">
                     {testimonial.author[0]}
                   </div>
                   <div>
@@ -724,7 +724,7 @@ export default function ProductsHub() {
                   <th className="text-left py-4 px-4 text-slate-400 font-medium">Feature</th>
                   {PRICING_TIERS.map((tier) => (
                     <th key={tier.name} className="text-center py-4 px-4">
-                      <span className={`text-white font-bold ${tier.highlight ? 'text-amber-500' : ''}`}>
+                      <span className={`text-white font-bold ${tier.highlight ? 'text-[#C8A661]' : ''}`}>
                         {tier.name}
                       </span>
                     </th>
@@ -770,7 +770,7 @@ export default function ProductsHub() {
           <Accordion type="single" collapsible className="space-y-4" data-testid="accordion-faq">
             {FAQS.map((faq, i) => (
               <AccordionItem key={i} value={`faq-${i}`} className="border border-white/10 rounded-xl px-6 bg-white/5" data-testid={`accordion-item-faq-${i}`}>
-                <AccordionTrigger className="text-white hover:text-amber-500 py-4" data-testid={`accordion-trigger-faq-${i}`}>
+                <AccordionTrigger className="text-white hover:text-[#C8A661] py-4" data-testid={`accordion-trigger-faq-${i}`}>
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="text-slate-400 pb-4" data-testid={`accordion-content-faq-${i}`}>
@@ -786,9 +786,9 @@ export default function ProductsHub() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4">
           <GlassCard className="p-8 sm:p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#C8A661]/10 to-[#b8860b]/10"></div>
             <div className="relative">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#b8860b] mb-6">
                 <Rocket className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -801,7 +801,7 @@ export default function ProductsHub() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-amber-500/25"
+                  className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
                   onClick={() => setLocation("/cleanbi-explorer")}
                   data-testid="button-final-cta"
                 >
