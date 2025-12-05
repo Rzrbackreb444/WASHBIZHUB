@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/SEO";
+import { PageHero } from "@/components/PageHero";
 import { Link } from "wouter";
 import { 
   Users, MapPin, Phone, Mail, ExternalLink, Star, Award,
@@ -233,20 +234,16 @@ export default function BrokerDirectory() {
       />
       
       <div className="min-h-screen bg-background">
-        <div className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground py-12 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Verified Professionals
-            </Badge>
-            <h1 className="text-3xl md:text-5xl font-black mb-4" data-testid="text-page-title">
-              Broker Directory
-            </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
-              Connect with industry-leading laundromat brokers. Licensed, experienced, and ready to help you buy or sell.
-            </p>
-          </div>
-        </div>
+        <PageHero
+          title="Broker Directory"
+          subtitle="Verified Professionals"
+          variant="business"
+          size="md"
+        >
+          <p className="text-white/80">
+            Connect with industry-leading laundromat brokers. Licensed, experienced, and ready to help you buy or sell.
+          </p>
+        </PageHero>
         
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
           <div className="mb-8">
