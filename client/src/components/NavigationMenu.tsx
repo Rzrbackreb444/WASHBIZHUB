@@ -9,7 +9,6 @@ import {
   NavigationMenu as NavMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -75,40 +74,51 @@ interface NavLinkItem {
   featured?: boolean;
 }
 
-function DropdownLink({ href, label, icon: Icon, desc, featured, onClick }: NavLinkItem & { onClick?: () => void }) {
+function DropdownLink({ href, label, icon: Icon, desc, featured }: NavLinkItem) {
+  const handleClick = () => {
+    window.location.href = href;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.location.href = href;
+    }
+  };
+
   return (
-    <NavigationMenuLink asChild>
-      <Link
-        href={href}
-        onClick={onClick}
-        className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+    <button
+      type="button"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className={`group w-full text-left flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#b8860b]/50 ${
+        featured 
+          ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/30 hover:border-[#b8860b]/50 hover:from-[#b8860b]/15' 
+          : 'hover:bg-[#1e3a5f]/5'
+      }`}
+      data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
+      aria-label={`Navigate to ${label}`}
+    >
+      {Icon && (
+        <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
           featured 
-            ? 'bg-gradient-to-r from-[#b8860b]/10 to-transparent border border-[#b8860b]/30 hover:border-[#b8860b]/50 hover:from-[#b8860b]/15' 
-            : 'hover:bg-[#1e3a5f]/5'
-        }`}
-        data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
-      >
-        {Icon && (
-          <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-            featured 
-              ? 'bg-[#b8860b]/20 text-[#b8860b] group-hover:bg-[#b8860b]/30' 
-              : 'bg-[#1e3a5f]/10 text-[#1e3a5f] group-hover:bg-[#1e3a5f]/20'
-          }`}>
-            <Icon className="w-4 h-4" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <span className={`block text-sm font-semibold ${featured ? 'text-[#b8860b]' : 'text-gray-900'} group-hover:text-[#1e3a5f]`}>
-            {label}
-            {featured && <Sparkles className="inline-block w-3 h-3 ml-1.5 text-[#b8860b]" />}
-          </span>
-          {desc && (
-            <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
-          )}
+            ? 'bg-[#b8860b]/20 text-[#b8860b] group-hover:bg-[#b8860b]/30' 
+            : 'bg-[#1e3a5f]/10 text-[#1e3a5f] group-hover:bg-[#1e3a5f]/20'
+        }`}>
+          <Icon className="w-4 h-4" />
         </div>
-        <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all mt-0.5" />
-      </Link>
-    </NavigationMenuLink>
+      )}
+      <div className="flex-1 min-w-0">
+        <span className={`block text-sm font-semibold ${featured ? 'text-[#b8860b]' : 'text-gray-900 dark:text-gray-100'} group-hover:text-[#1e3a5f]`}>
+          {label}
+          {featured && <Sparkles className="inline-block w-3 h-3 ml-1.5 text-[#b8860b]" />}
+        </span>
+        {desc && (
+          <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
+        )}
+      </div>
+      <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all mt-0.5" aria-hidden="true" />
+    </button>
   );
 }
 
@@ -119,21 +129,26 @@ function MobileNavLink({ href, label, isActive, onClick, testId }: {
   onClick: () => void; 
   testId: string;
 }) {
+  const handleClick = () => {
+    onClick();
+    window.location.href = href;
+  };
+
   return (
-    <Link href={href}>
-      <div
-        className={`flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors cursor-pointer ${
-          isActive 
-            ? "bg-primary/10 text-primary font-medium" 
-            : "text-foreground/80 hover:bg-muted hover:text-foreground"
-        }`}
-        onClick={onClick}
-        data-testid={testId}
-      >
-        <span>{label}</span>
-        {isActive && <ChevronRight className="w-4 h-4" />}
-      </div>
-    </Link>
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`w-full text-left flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+        isActive 
+          ? "bg-primary/10 text-primary font-medium" 
+          : "text-foreground/80 hover:bg-muted hover:text-foreground"
+      }`}
+      data-testid={testId}
+      aria-current={isActive ? "page" : undefined}
+    >
+      <span>{label}</span>
+      {isActive && <ChevronRight className="w-4 h-4" aria-hidden="true" />}
+    </button>
   );
 }
 
@@ -383,14 +398,13 @@ export function NavigationMenu() {
 
                     {/* Pricing - Direct link */}
                     <NavigationMenuItem>
-                      <Link href="/pricing">
-                        <NavigationMenuLink 
-                          className="h-10 px-4 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md inline-flex items-center transition-colors"
-                          data-testid="link-nav-pricing"
-                        >
-                          Pricing
-                        </NavigationMenuLink>
-                      </Link>
+                      <button
+                        onClick={() => window.location.href = '/pricing'}
+                        className="h-10 px-4 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md inline-flex items-center transition-colors"
+                        data-testid="link-nav-pricing"
+                      >
+                        Pricing
+                      </button>
                     </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavMenu>
@@ -410,15 +424,14 @@ export function NavigationMenu() {
                 </Button>
 
                 {/* Primary CTA - Gold CLEANBI button */}
-                <Link href="/cleanbi-explorer">
-                  <Button 
-                    className="hidden sm:flex h-10 px-5 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg shadow-[#b8860b]/25 transition-all duration-300"
-                    data-testid="button-cleanbi-cta"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Try CLEANBI Free
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => window.location.href = '/cleanbi-explorer'}
+                  className="hidden sm:flex h-10 px-5 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg shadow-[#b8860b]/25 transition-all duration-300"
+                  data-testid="button-cleanbi-cta"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Try CLEANBI Free
+                </Button>
 
                 {/* Mobile menu */}
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -452,15 +465,17 @@ export function NavigationMenu() {
                     
                     <div className="p-4 space-y-4">
                       {/* Mobile CLEANBI CTA - Full width, prominent */}
-                      <Link href="/cleanbi-explorer" onClick={closeMobileMenu}>
-                        <Button 
-                          className="w-full h-12 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg"
-                          data-testid="button-mobile-cleanbi-cta"
-                        >
-                          <Zap className="w-4 h-4 mr-2" />
-                          Try CLEANBI Free
-                        </Button>
-                      </Link>
+                      <Button 
+                        onClick={() => {
+                          closeMobileMenu();
+                          window.location.href = '/cleanbi-explorer';
+                        }}
+                        className="w-full h-12 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg"
+                        data-testid="button-mobile-cleanbi-cta"
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        Try CLEANBI Free
+                      </Button>
 
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -565,21 +580,33 @@ export function NavigationMenu() {
                       </Accordion>
 
                       {/* Pricing link */}
-                      <Link href="/pricing" onClick={closeMobileMenu}>
-                        <div className="flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors cursor-pointer">
-                          <span>Pricing</span>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          closeMobileMenu();
+                          window.location.href = '/pricing';
+                        }}
+                        className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        data-testid="link-mobile-pricing"
+                      >
+                        <span>Pricing</span>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                      </button>
 
                       <div className="pt-4 border-t">
                         {isAuthenticated && user ? (
                           <div className="space-y-2">
-                            <Link href="/account/subscription" onClick={closeMobileMenu}>
-                              <div className="px-4 py-2 text-sm text-muted-foreground">
-                                {user.email}
-                              </div>
-                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                closeMobileMenu();
+                                window.location.href = '/account/subscription';
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                              data-testid="link-mobile-subscription"
+                            >
+                              {user.email}
+                            </button>
                             <Button
                               variant="ghost"
                               className="w-full h-10 justify-start text-sm"
@@ -594,11 +621,16 @@ export function NavigationMenu() {
                             </Button>
                           </div>
                         ) : (
-                          <Link href="/api/login" onClick={closeMobileMenu}>
-                            <Button variant="outline" className="w-full h-10 text-sm">
-                              Sign In
-                            </Button>
-                          </Link>
+                          <Button 
+                            variant="outline" 
+                            className="w-full h-10 text-sm"
+                            onClick={() => {
+                              closeMobileMenu();
+                              window.location.href = '/api/login';
+                            }}
+                          >
+                            Sign In
+                          </Button>
                         )}
                       </div>
                     </div>
