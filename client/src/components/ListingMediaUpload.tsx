@@ -51,35 +51,29 @@ export function ListingMediaUpload({ listingId, onFeaturedImageChange }: Listing
 
   const uploadMutation = useMutation({
     mutationFn: async ({ file, type }: { file: File; type: string }) => {
-      const uploadUrlRes = await fetch(`/api/listings/${listingId}/media/upload-url`, {
+      // Use direct server-side upload to bypass CORS issues with signed URLs
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+      formData.append('title', file.name.replace(/\.[^/.]+$/, ''));
+      formData.append('sortOrder', String(media.length));
+      formData.append('requiresNDA', 'false');
+      
+      const uploadRes = await fetch(`/api/listings/${listingId}/media/upload-direct`, {
         method: 'POST',
         credentials: 'include',
+        body: formData,
       });
       
-      if (!uploadUrlRes.ok) throw new Error('Failed to get upload URL');
-      const { uploadURL } = await uploadUrlRes.json();
-
-      await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-
-      const objectPath = new URL(uploadURL).pathname.replace('/objects/', '');
+      if (!uploadRes.ok) {
+        const errorData = await uploadRes.json().catch(() => ({ message: 'Upload failed' }));
+        console.error('Upload error:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Failed to upload file');
+      }
       
-      const mediaRes = await apiRequest(`/api/listings/${listingId}/media`, {
-        method: 'POST',
-        body: JSON.stringify({
-          type,
-          url: `/objects/${objectPath}`,
-          filename: file.name,
-          title: file.name.replace(/\.[^/.]+$/, ''),
-        }),
-      });
-      
-      return mediaRes;
+      const result = await uploadRes.json();
+      console.log('Upload success:', result);
+      return result.media;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/listings', listingId, 'media'] });
@@ -89,9 +83,10 @@ export function ListingMediaUpload({ listingId, onFeaturedImageChange }: Listing
       });
     },
     onError: (error: Error) => {
+      console.error('Upload mutation error:', error);
       toast({
         title: 'Upload failed',
-        description: error.message,
+        description: error.message || 'Failed to upload file. Please try again.',
         variant: 'destructive',
       });
     },
