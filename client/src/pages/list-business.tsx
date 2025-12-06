@@ -914,7 +914,7 @@ export default function ListBusinessPage() {
                     <Button
                       type="submit"
                       disabled={createListingMutation.isPending}
-                      className="bg-[#b8860b] hover:bg-[#a07609] min-w-[140px]"
+                      className="bg-[#C8A661] hover:bg-[#a07609] min-w-[140px]"
                       data-testid="button-submit"
                     >
                       {createListingMutation.isPending ? (

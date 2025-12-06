@@ -79,9 +79,9 @@ function StatItem({ icon: Icon, value, label, suffix = "", color, delay }: StatI
 
 export function PlatformStats() {
   const stats = [
-    { icon: Users, value: "72000", label: "Industry Professionals", suffix: "+", color: "bg-[#b8860b]/20 text-[#C8A661]", delay: 0 },
+    { icon: Users, value: "72000", label: "Industry Professionals", suffix: "+", color: "bg-[#C8A661]/20 text-[#C8A661]", delay: 0 },
     { icon: FileText, value: "110", label: "Expert Blog Posts", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 200 },
-    { icon: Calculator, value: "50", label: "Business Calculators", suffix: "+", color: "bg-[#b8860b]/20 text-[#C8A661]", delay: 400 },
+    { icon: Calculator, value: "50", label: "Business Calculators", suffix: "+", color: "bg-[#C8A661]/20 text-[#C8A661]", delay: 400 },
     { icon: Globe, value: "220", label: "Countries Covered", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 600 },
   ];
 
@@ -91,13 +91,13 @@ export function PlatformStats() {
       data-testid="section-platform-stats"
     >
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#b8860b] rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8A661] rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#C8A661] rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-[#b8860b]/20 text-[#C8A661] border-[#b8860b]/30">
+          <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
             By The Numbers
           </Badge>
           <h2 
@@ -142,8 +142,8 @@ export function TrustBadges() {
               key={index} 
               className="flex items-center gap-3 justify-center md:justify-start"
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center">
-                <badge.icon className="w-5 h-5 text-[#b8860b]" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#C8A661]/10 flex items-center justify-center">
+                <badge.icon className="w-5 h-5 text-[#C8A661]" />
               </div>
               <div>
                 <div className="font-semibold text-foreground text-sm">{badge.label}</div>
@@ -164,7 +164,7 @@ export function EnterpriseFeatures() {
       description: "AI-powered location analysis for any address in 220+ countries. Get instant 0-100 scores with A/B/C grades.",
       icon: Globe,
       stats: "2.8M+ scores generated",
-      color: "from-[#b8860b] to-[#8B7355]"
+      color: "from-[#C8A661] to-[#8B7355]"
     },
     {
       title: "POS Command Center",
@@ -178,7 +178,7 @@ export function EnterpriseFeatures() {
       description: "6 AI experts analyze your deals with industry legend Larry Larsen. Tiered from $49 to $999.",
       icon: Users,
       stats: "500+ consultations",
-      color: "from-[#b8860b] to-[#8B7355]"
+      color: "from-[#C8A661] to-[#8B7355]"
     },
     {
       title: "Equipment Intelligence",
@@ -214,7 +214,7 @@ export function EnterpriseFeatures() {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="p-6 sm:p-8 hover-elevate border-2 hover:border-[#b8860b]/30 transition-all group"
+              className="p-6 sm:p-8 hover-elevate border-2 hover:border-[#C8A661]/30 transition-all group"
             >
               <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
                 <feature.icon className="w-7 h-7" />

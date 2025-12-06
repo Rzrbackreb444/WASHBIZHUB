@@ -164,7 +164,7 @@ export default function LaundromatLocator() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-[#b8860b] to-[#8b6914] mb-6 shadow-xl">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#8b6914] mb-6 shadow-xl">
               <MapPin className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>
@@ -176,15 +176,15 @@ export default function LaundromatLocator() {
             
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="lg" className="gap-2 bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white shadow-xl rounded-xl px-8 py-6 text-lg font-semibold" data-testid="button-list-business">
+                <Button size="lg" className="gap-2 bg-gradient-to-r from-[#C8A661] to-[#8b6914] hover:from-[#d4a030] hover:to-[#C8A661] text-white shadow-xl rounded-xl px-8 py-6 text-lg font-semibold" data-testid="button-list-business">
                   <Plus className="w-5 h-5" />
                   List Your Laundromat Free
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border border-[#b8860b]/30 text-white max-w-md shadow-2xl rounded-2xl">
+              <DialogContent className="bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border border-[#C8A661]/30 text-white max-w-md shadow-2xl rounded-2xl">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    <Building2 className="w-5 h-5 text-[#b8860b]" />
+                    <Building2 className="w-5 h-5 text-[#C8A661]" />
                     List Your Laundromat
                   </DialogTitle>
                   <DialogDescription className="text-white/60">
@@ -317,7 +317,7 @@ export default function LaundromatLocator() {
                     <Button
                       type="submit"
                       data-testid="button-submit-listing"
-                      className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white font-semibold shadow-lg"
+                      className="w-full bg-gradient-to-r from-[#C8A661] to-[#8b6914] hover:from-[#d4a030] hover:to-[#C8A661] text-white font-semibold shadow-lg"
                       disabled={listingMutation.isPending}
                     >
                       {listingMutation.isPending ? (
@@ -347,7 +347,7 @@ export default function LaundromatLocator() {
             <Card className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl">
               <CardHeader className="pb-4">
                 <CardTitle className="text-white flex items-center gap-2 text-xl" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                  <Search className="w-5 h-5 text-[#b8860b]" />
+                  <Search className="w-5 h-5 text-[#C8A661]" />
                   Search Laundromats
                 </CardTitle>
                 <CardDescription className="text-white/60">
@@ -362,14 +362,14 @@ export default function LaundromatLocator() {
                       placeholder="Search by name, address, or city..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[#b8860b] focus:ring-[#b8860b]/20"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[#C8A661] focus:ring-[#C8A661]/20"
                       data-testid="input-locator-search"
                     />
                   </div>
                   <select
                     value={stateFilter}
                     onChange={(e) => setStateFilter(e.target.value)}
-                    className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:border-[#b8860b] focus:outline-none focus:ring-2 focus:ring-[#b8860b]/20"
+                    className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:border-[#C8A661] focus:outline-none focus:ring-2 focus:ring-[#C8A661]/20"
                     data-testid="select-state"
                   >
                     <option value="" className="bg-[#1e3a5f]">All States</option>
@@ -384,7 +384,7 @@ export default function LaundromatLocator() {
 
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
-              <Loader2 className="w-8 h-8 text-[#b8860b] animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#C8A661] animate-spin" />
             </div>
           ) : filteredLaundromats.length > 0 ? (
             <motion.div
@@ -394,10 +394,10 @@ export default function LaundromatLocator() {
             >
               <Tabs defaultValue="list" className="max-w-6xl mx-auto">
                 <TabsList className="grid w-full grid-cols-2 bg-white/10 border border-white/10 rounded-xl p-1">
-                  <TabsTrigger value="list" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b8860b] data-[state=active]:to-[#8b6914] data-[state=active]:text-white data-[state=active]:shadow-lg">
+                  <TabsTrigger value="list" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#C8A661] data-[state=active]:to-[#8b6914] data-[state=active]:text-white data-[state=active]:shadow-lg">
                     List View
                   </TabsTrigger>
-                  <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b8860b] data-[state=active]:to-[#8b6914] data-[state=active]:text-white data-[state=active]:shadow-lg">
+                  <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#C8A661] data-[state=active]:to-[#8b6914] data-[state=active]:text-white data-[state=active]:shadow-lg">
                     Map View
                   </TabsTrigger>
                 </TabsList>
@@ -412,7 +412,7 @@ export default function LaundromatLocator() {
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                       >
                         <Card
-                          className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl hover:shadow-2xl hover:border-[#b8860b]/30 transition-all duration-300"
+                          className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl hover:shadow-2xl hover:border-[#C8A661]/30 transition-all duration-300"
                           data-testid={`card-laundromat-${laundromat.id}`}
                         >
                           <CardHeader className="pb-3">
@@ -427,7 +427,7 @@ export default function LaundromatLocator() {
                                     </Badge>
                                   )}
                                   {laundromat.featured && (
-                                    <Badge className="bg-[#b8860b]/20 text-[#d4a030] border border-[#b8860b]/30">
+                                    <Badge className="bg-[#C8A661]/20 text-[#d4a030] border border-[#C8A661]/30">
                                       <Star className="w-3 h-3 mr-1" />
                                       Featured
                                     </Badge>
@@ -442,7 +442,7 @@ export default function LaundromatLocator() {
                                 rel="noopener noreferrer"
                                 data-testid={`button-navigate-${laundromat.id}`}
                               >
-                                <Button variant="outline" size="icon" className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/20 hover:border-[#b8860b]">
+                                <Button variant="outline" size="icon" className="border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/20 hover:border-[#C8A661]">
                                   <Navigation2 className="w-4 h-4" />
                                 </Button>
                               </a>
@@ -451,7 +451,7 @@ export default function LaundromatLocator() {
 
                           <CardContent className="space-y-3">
                             <div className="flex items-start gap-2 text-white/80">
-                              <MapPin className="w-4 h-4 mt-1 text-[#b8860b] flex-shrink-0" />
+                              <MapPin className="w-4 h-4 mt-1 text-[#C8A661] flex-shrink-0" />
                               <div className="text-sm">
                                 <div>{laundromat.address}</div>
                                 <div className="text-white/50">
@@ -469,7 +469,7 @@ export default function LaundromatLocator() {
                                 className="flex items-center gap-2 text-white/80 hover:text-[#d4a030] transition-colors"
                                 data-testid={`button-call-${laundromat.id}`}
                               >
-                                <Phone className="w-4 h-4 text-[#b8860b]" />
+                                <Phone className="w-4 h-4 text-[#C8A661]" />
                                 <span className="text-sm">{laundromat.phone}</span>
                               </a>
                             )}
@@ -483,7 +483,7 @@ export default function LaundromatLocator() {
                 <TabsContent value="map" className="mt-6">
                   <Card className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl p-8 text-center">
                     <CardContent>
-                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#b8860b] to-[#8b6914] mb-4">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#8b6914] mb-4">
                         <MapPin className="w-8 h-8 text-white" />
                       </div>
                       <p className="text-white/70 mb-4">
@@ -528,7 +528,7 @@ export default function LaundromatLocator() {
                       </Button>
                     )}
                     <Button
-                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white gap-2 shadow-lg"
+                      className="bg-gradient-to-r from-[#C8A661] to-[#8b6914] hover:from-[#d4a030] hover:to-[#C8A661] text-white gap-2 shadow-lg"
                       onClick={() => setDialogOpen(true)}
                       data-testid="button-list-first"
                     >

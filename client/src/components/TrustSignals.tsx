@@ -107,7 +107,7 @@ const PLATFORM_STATS: StatData[] = [
     icon: MapPin,
     value: "500+",
     label: "Locations Analyzed",
-    color: "text-[#b8860b]"
+    color: "text-[#C8A661]"
   },
   {
     id: "stat-partners",
@@ -121,7 +121,7 @@ const PLATFORM_STATS: StatData[] = [
     icon: DollarSign,
     value: "$50M+",
     label: "in Funding Connected",
-    color: "text-[#b8860b]"
+    color: "text-[#C8A661]"
   },
   {
     id: "stat-users",
@@ -398,18 +398,18 @@ export function TrustBadges() {
         <p className="text-xs text-muted-foreground">Protected payments</p>
       </div>
       <div 
-        className="flex flex-col items-center text-center p-4 bg-[#b8860b]/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#C8A661]/5 rounded-lg"
         data-testid="badge-certified-partners"
       >
-        <Award className="h-8 w-8 text-[#b8860b] mb-2" />
+        <Award className="h-8 w-8 text-[#C8A661] mb-2" />
         <p className="font-semibold text-sm">Certified Partners</p>
         <p className="text-xs text-muted-foreground">Authorized Dealers</p>
       </div>
       <div 
-        className="flex flex-col items-center text-center p-4 bg-[#b8860b]/5 rounded-lg"
+        className="flex flex-col items-center text-center p-4 bg-[#C8A661]/5 rounded-lg"
         data-testid="badge-fast-funding"
       >
-        <Zap className="h-8 w-8 text-[#b8860b] mb-2" />
+        <Zap className="h-8 w-8 text-[#C8A661] mb-2" />
         <p className="font-semibold text-sm">Fast Funding</p>
         <p className="text-xs text-muted-foreground">48-hour approvals</p>
       </div>

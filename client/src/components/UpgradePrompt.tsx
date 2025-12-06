@@ -228,7 +228,7 @@ export function UpgradePrompt({
 
         {/* Urgency Banner */}
         {urgency && (
-          <Card className="bg-[#b8860b]/10 border-[#b8860b]/30 p-4">
+          <Card className="bg-[#C8A661]/10 border-[#C8A661]/30 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-foreground">{urgency.message}</p>
@@ -239,7 +239,7 @@ export function UpgradePrompt({
                 )}
               </div>
               {countdown > 0 && (
-                <Badge className="bg-[#b8860b] text-white text-lg font-semibold px-4 py-2">
+                <Badge className="bg-[#C8A661] text-white text-lg font-semibold px-4 py-2">
                   {countdown}h left
                 </Badge>
               )}
@@ -254,7 +254,7 @@ export function UpgradePrompt({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <span className="text-[#b8860b] text-sm mt-0.5">✓</span>
+                  <span className="text-[#C8A661] text-sm mt-0.5">✓</span>
                   <span className="text-sm text-foreground/80">{benefit}</span>
                 </div>
               ))}
@@ -314,11 +314,11 @@ export function UpgradePrompt({
                 key={tier.name}
                 className={cn(
                   "relative p-6 transition-all",
-                  tier.highlight ? "border-2 border-[#b8860b] shadow-lg ring-1 ring-[#b8860b]/20" : "border-border/50"
+                  tier.highlight ? "border-2 border-[#C8A661] shadow-lg ring-1 ring-[#C8A661]/20" : "border-border/50"
                 )}
               >
                 {tier.badge && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#b8860b] text-white">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C8A661] text-white">
                     {tier.badge}
                   </Badge>
                 )}
@@ -349,7 +349,7 @@ export function UpgradePrompt({
                     <li key={index} className="flex items-start gap-3 text-sm">
                       <span className={cn(
                         "text-xs mt-1",
-                        tier.highlight ? "text-[#b8860b]" : "text-muted-foreground"
+                        tier.highlight ? "text-[#C8A661]" : "text-muted-foreground"
                       )}>✓</span>
                       <span className="text-foreground/80">{feature}</span>
                     </li>
@@ -359,7 +359,7 @@ export function UpgradePrompt({
                 <Button
                   className={cn(
                     "w-full h-11 font-medium",
-                    tier.highlight ? "bg-[#b8860b] hover:bg-[#a07609]" : ""
+                    tier.highlight ? "bg-[#C8A661] hover:bg-[#a07609]" : ""
                   )}
                   variant={tier.highlight ? "default" : "outline"}
                   disabled={tier.price === 0}

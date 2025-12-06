@@ -47,7 +47,7 @@ const scaleIn = {
 function GoldDivider() {
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-8">
-      <div className="h-px bg-gradient-to-r from-transparent via-[#b8860b]/40 to-transparent" />
+      <div className="h-px bg-gradient-to-r from-transparent via-[#C8A661]/40 to-transparent" />
     </div>
   );
 }
@@ -184,8 +184,8 @@ export function FeaturesSection() {
                 variants={cardItem}
                 className="text-center p-8"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-gradient-to-br from-[#b8860b]/10 to-[#1e3a5f]/10">
-                  <feature.icon className="w-7 h-7 text-[#b8860b]" />
+                <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-gradient-to-br from-[#C8A661]/10 to-[#1e3a5f]/10">
+                  <feature.icon className="w-7 h-7 text-[#C8A661]" />
                 </div>
                 <h3 
                   className="text-xl font-bold tracking-tight text-[#1e3a5f] uppercase mb-3"
@@ -257,7 +257,7 @@ export function TrustSignalsSection() {
                 className="text-center"
               >
                 <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-xl bg-white/10 backdrop-blur-sm">
-                  <stat.icon className="w-6 h-6 text-[#b8860b]" />
+                  <stat.icon className="w-6 h-6 text-[#C8A661]" />
                 </div>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -318,7 +318,7 @@ export function TemplatesSection() {
                   <div className="relative h-48">
                     <img src={template.image} alt={template.title} className="w-full h-full object-cover" />
                     <Badge 
-                      className={`absolute top-4 right-4 ${template.isPremium ? 'bg-[#b8860b] text-white' : 'bg-[#1e3a5f] text-white'}`}
+                      className={`absolute top-4 right-4 ${template.isPremium ? 'bg-[#C8A661] text-white' : 'bg-[#1e3a5f] text-white'}`}
                     >
                       {template.isPremium ? 'Premium' : 'Free'}
                     </Badge>
@@ -423,7 +423,7 @@ export function MarketplaceSection() {
                 <>
                   {listings.slice(0, 2).map((listing) => (
                     <motion.div key={listing.id} variants={cardItem}>
-                      <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white ${listing.featured ? 'border-2 border-[#b8860b]/40' : 'border border-gray-200'}`}>
+                      <Card className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white ${listing.featured ? 'border-2 border-[#C8A661]/40' : 'border border-gray-200'}`}>
                         <Link href={`/laundromat-listings/${listing.slug}`}>
                           <div className="relative h-48 cursor-pointer hover:opacity-95 transition-opacity">
                             <img 
@@ -432,7 +432,7 @@ export function MarketplaceSection() {
                               className="w-full h-full object-cover" 
                             />
                             {listing.featured && (
-                              <Badge className="absolute top-4 left-4 bg-[#b8860b] text-white shadow-lg">
+                              <Badge className="absolute top-4 left-4 bg-[#C8A661] text-white shadow-lg">
                                 <Star className="w-3 h-3 mr-1" /> Featured
                               </Badge>
                             )}
@@ -444,7 +444,7 @@ export function MarketplaceSection() {
                         <div className="p-6">
                           <Link href={`/laundromat-listings/${listing.slug}`}>
                             <h3 
-                              className="text-lg font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2 cursor-pointer hover:text-[#b8860b] transition-colors"
+                              className="text-lg font-bold text-[#1e3a5f] uppercase mb-2 line-clamp-2 cursor-pointer hover:text-[#C8A661] transition-colors"
                               style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}
                             >
                               {listing.title}
@@ -452,7 +452,7 @@ export function MarketplaceSection() {
                           </Link>
                           <div className="space-y-2 text-sm text-gray-600 mb-4">
                             <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-[#b8860b]" /> 
+                              <MapPin className="w-4 h-4 text-[#C8A661]" /> 
                               {listing.city}, {listing.region}
                             </div>
                             {listing.tagline && (
@@ -466,7 +466,7 @@ export function MarketplaceSection() {
                               </Button>
                             </Link>
                             <Button 
-                              className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" 
+                              className="w-full bg-[#C8A661] hover:bg-[#9a7209] text-white" 
                               data-testid={`button-cleanbi-analyze-${listing.id}`}
                               disabled={cleanbiLoadingId === listing.id}
                               onClick={() => {
@@ -492,10 +492,10 @@ export function MarketplaceSection() {
             
             <motion.div variants={cardItem} className="space-y-8">
               {/* Your Laundromat Here CTA */}
-              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#b8860b]/40 bg-gradient-to-br from-[#b8860b]/5 to-[#1e3a5f]/5 hover:border-[#b8860b]/60 hover:shadow-xl transition-all duration-300">
+              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#C8A661]/40 bg-gradient-to-br from-[#C8A661]/5 to-[#1e3a5f]/5 hover:border-[#C8A661]/60 hover:shadow-xl transition-all duration-300">
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#b8860b]/10 flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-[#b8860b]" />
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#C8A661]/10 flex items-center justify-center">
+                    <Plus className="w-8 h-8 text-[#C8A661]" />
                   </div>
                   <h3 
                     className="text-xl font-bold text-[#1e3a5f] uppercase mb-3"
@@ -507,7 +507,7 @@ export function MarketplaceSection() {
                     Reach thousands of qualified buyers. List your laundromat with verified pricing and analytics.
                   </p>
                   <Link href="/listing-form">
-                    <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-lg" data-testid="button-list-your-laundromat">
+                    <Button className="w-full bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-lg" data-testid="button-list-your-laundromat">
                       List Your Laundromat
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -517,8 +517,8 @@ export function MarketplaceSection() {
               </Card>
 
               {/* Vendor Spotlight - AAdvantage Laundry Systems */}
-              <Card className="p-8 border-2 border-[#b8860b]/30 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-                <p className="text-xs font-semibold tracking-[0.15em] text-[#b8860b] uppercase mb-4">Featured Partner</p>
+              <Card className="p-8 border-2 border-[#C8A661]/30 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <p className="text-xs font-semibold tracking-[0.15em] text-[#C8A661] uppercase mb-4">Featured Partner</p>
                 <div className="flex items-center justify-center mb-4">
                   <img 
                     src={aadvantageLogo} 
@@ -544,7 +544,7 @@ export function MarketplaceSection() {
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
-                  <Button className="w-full bg-[#b8860b] hover:bg-[#9a7209] text-white" data-testid="button-vendor-spotlight-visit">
+                  <Button className="w-full bg-[#C8A661] hover:bg-[#9a7209] text-white" data-testid="button-vendor-spotlight-visit">
                     Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </a>
@@ -615,7 +615,7 @@ export function FeaturedVendorBanner() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Card className="overflow-hidden border-2 border-[#b8860b]/30 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            <Card className="overflow-hidden border-2 border-[#C8A661]/30 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
               <div className="grid md:grid-cols-3 gap-0">
                 <motion.div 
                   className="relative h-56 md:h-auto"
@@ -631,9 +631,9 @@ export function FeaturedVendorBanner() {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/90 md:block hidden" />
                   <div className="absolute inset-0 bg-gradient-to-t from-white/90 to-transparent md:hidden" />
                 </motion.div>
-                <div className="md:col-span-2 p-8 bg-gradient-to-r from-white to-[#b8860b]/5">
+                <div className="md:col-span-2 p-8 bg-gradient-to-r from-white to-[#C8A661]/5">
                   <div className="flex flex-col h-full justify-center">
-                    <Badge className="bg-[#b8860b] text-white w-fit mb-6 shadow-lg">
+                    <Badge className="bg-[#C8A661] text-white w-fit mb-6 shadow-lg">
                       <Star className="w-3 h-3 mr-1" /> Featured Partner
                     </Badge>
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
@@ -664,7 +664,7 @@ export function FeaturedVendorBanner() {
                         target="_blank" 
                         rel="noopener noreferrer"
                       >
-                        <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white shrink-0 shadow-lg px-6 py-3" data-testid="button-featured-vendor-storefront">
+                        <Button className="bg-[#C8A661] hover:bg-[#9a7209] text-white shrink-0 shadow-lg px-6 py-3" data-testid="button-featured-vendor-storefront">
                           Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </a>
@@ -725,8 +725,8 @@ export function FinancingSection() {
             {FINANCING_OPTIONS.map((option) => (
               <motion.div key={option.title} variants={cardItem}>
                 <Card className="p-8 border border-gray-200 bg-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8860b]/20 to-[#1e3a5f]/10 flex items-center justify-center mb-6">
-                    <option.icon className="w-7 h-7 text-[#b8860b]" />
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C8A661]/20 to-[#1e3a5f]/10 flex items-center justify-center mb-6">
+                    <option.icon className="w-7 h-7 text-[#C8A661]" />
                   </div>
                   <h3 
                     className="text-lg font-bold text-[#1e3a5f] uppercase mb-3"
@@ -777,8 +777,8 @@ export function CalculatorHighlight() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             <Card className="border-2 border-[#1e3a5f]/20 p-8 flex flex-col md:flex-row items-center gap-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#b8860b]/20 to-[#b8860b]/5 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-8 h-8 text-[#b8860b]" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661]/20 to-[#C8A661]/5 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-8 h-8 text-[#C8A661]" />
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h3 
@@ -790,7 +790,7 @@ export function CalculatorHighlight() {
                 <p className="text-gray-600 text-lg">ROI Calculator powered by Dexter Laundry</p>
               </div>
               <Link href="/roi-calculator">
-                <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white shrink-0 shadow-lg px-8 py-3" data-testid="button-try-roi-calculator">
+                <Button className="bg-[#C8A661] hover:bg-[#9a7209] text-white shrink-0 shadow-lg px-8 py-3" data-testid="button-try-roi-calculator">
                   Try Calculator
                 </Button>
               </Link>
@@ -835,9 +835,9 @@ export function AnalyzeLocationSection() {
           >
             {CALCULATORS.map((calc) => (
               <motion.div key={calc.title} variants={cardItem}>
-                <Card className={`p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ${calc.isPremium ? 'border-2 border-[#b8860b]/40 bg-gradient-to-br from-white to-[#b8860b]/5' : 'border border-gray-200 bg-white'}`}>
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${calc.isPremium ? 'bg-gradient-to-br from-[#b8860b] to-[#9a7209]' : 'bg-gradient-to-br from-[#1e3a5f]/10 to-[#b8860b]/10'}`}>
-                    <calc.icon className={`w-7 h-7 ${calc.isPremium ? 'text-white' : 'text-[#b8860b]'}`} />
+                <Card className={`p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ${calc.isPremium ? 'border-2 border-[#C8A661]/40 bg-gradient-to-br from-white to-[#C8A661]/5' : 'border border-gray-200 bg-white'}`}>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${calc.isPremium ? 'bg-gradient-to-br from-[#C8A661] to-[#9a7209]' : 'bg-gradient-to-br from-[#1e3a5f]/10 to-[#C8A661]/10'}`}>
+                    <calc.icon className={`w-7 h-7 ${calc.isPremium ? 'text-white' : 'text-[#C8A661]'}`} />
                   </div>
                   <h3 
                     className="text-lg font-bold text-[#1e3a5f] uppercase mb-3"
@@ -849,7 +849,7 @@ export function AnalyzeLocationSection() {
                   <Link href={calc.link}>
                     <Button 
                       variant={calc.isPremium ? "default" : "outline"} 
-                      className={`w-full ${calc.isPremium ? 'bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-lg' : 'border-gray-300 hover:border-[#1e3a5f]'}`}
+                      className={`w-full ${calc.isPremium ? 'bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-lg' : 'border-gray-300 hover:border-[#1e3a5f]'}`}
                       data-testid={`button-calculator-${calc.title.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       {calc.cta}
@@ -899,7 +899,7 @@ export function EducationSection() {
             {EDUCATION.map((item) => (
               <motion.div key={item.title} variants={cardItem}>
                 <Card 
-                  className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ${item.isHighlighted ? 'border-2 border-[#b8860b] bg-white' : 'border border-gray-200 bg-white'}`}
+                  className={`overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ${item.isHighlighted ? 'border-2 border-[#C8A661] bg-white' : 'border border-gray-200 bg-white'}`}
                 >
                   {item.image ? (
                     <div className="relative h-48">
@@ -916,7 +916,7 @@ export function EducationSection() {
                     </div>
                   ) : (
                     <div className="p-8 pb-0 text-center">
-                      <div className={`w-18 h-18 mx-auto rounded-2xl flex items-center justify-center mb-6 ${item.isHighlighted ? 'bg-gradient-to-br from-[#b8860b] to-[#9a7209]' : 'bg-gradient-to-br from-gray-100 to-gray-50'}`} style={{ width: '72px', height: '72px' }}>
+                      <div className={`w-18 h-18 mx-auto rounded-2xl flex items-center justify-center mb-6 ${item.isHighlighted ? 'bg-gradient-to-br from-[#C8A661] to-[#9a7209]' : 'bg-gradient-to-br from-gray-100 to-gray-50'}`} style={{ width: '72px', height: '72px' }}>
                         <item.icon className={`w-9 h-9 ${item.isHighlighted ? 'text-white' : 'text-gray-600'}`} />
                       </div>
                       <h3 
@@ -986,7 +986,7 @@ export function ShopSection() {
                   <div className="relative h-48">
                     <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
                     {idx < 2 && (
-                      <Badge className="absolute top-4 left-4 bg-[#b8860b] text-white shadow-lg">
+                      <Badge className="absolute top-4 left-4 bg-[#C8A661] text-white shadow-lg">
                         <Star className="w-3 h-3 mr-1" /> Featured
                       </Badge>
                     )}
@@ -1012,7 +1012,7 @@ export function ShopSection() {
 
             {/* Your Equipment Here CTA */}
             <motion.div variants={cardItem}>
-              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#1e3a5f]/30 bg-gradient-to-br from-[#1e3a5f]/5 to-[#b8860b]/5 hover:border-[#1e3a5f]/50 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+              <Card className="overflow-hidden rounded-2xl border-2 border-dashed border-[#1e3a5f]/30 bg-gradient-to-br from-[#1e3a5f]/5 to-[#C8A661]/5 hover:border-[#1e3a5f]/50 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                 <div className="p-8 text-center flex-1 flex flex-col justify-center">
                   <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center">
                     <Package className="w-8 h-8 text-[#1e3a5f]" />
@@ -1099,8 +1099,8 @@ export function CommunitySection() {
                 <Link href={item.link} data-testid={`link-community-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                   <Card className="p-8 border border-white/20 bg-white/10 backdrop-blur-sm rounded-2xl hover:bg-white/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                     <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 rounded-2xl bg-[#b8860b]/20 flex items-center justify-center">
-                        <item.icon className="w-7 h-7 text-[#b8860b]" />
+                      <div className="w-14 h-14 rounded-2xl bg-[#C8A661]/20 flex items-center justify-center">
+                        <item.icon className="w-7 h-7 text-[#C8A661]" />
                       </div>
                       <span 
                         className="text-lg font-bold text-white uppercase"
@@ -1156,7 +1156,7 @@ export function CTASection() {
             </motion.div>
             <motion.div variants={cardItem}>
               <Link href="/consultation">
-                <Button size="lg" className="h-14 px-10 bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-lg text-lg" data-testid="button-cta-consultation">
+                <Button size="lg" className="h-14 px-10 bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-lg text-lg" data-testid="button-cta-consultation">
                   Book a Consultation
                 </Button>
               </Link>
@@ -1175,7 +1175,7 @@ export function PremiumFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
           <div className="col-span-2 md:col-span-1">
             <h3 
-              className="text-lg font-bold tracking-wide text-[#b8860b] uppercase mb-6"
+              className="text-lg font-bold tracking-wide text-[#C8A661] uppercase mb-6"
               style={{ fontFamily: 'var(--font-bebas)' }}
             >
               WashBizHub
@@ -1192,7 +1192,7 @@ export function PremiumFooter() {
           ].map((section) => (
             <div key={section.title}>
               <h3 
-                className="text-sm font-bold tracking-wide text-[#b8860b] uppercase mb-6"
+                className="text-sm font-bold tracking-wide text-[#C8A661] uppercase mb-6"
                 style={{ fontFamily: 'var(--font-bebas)' }}
               >
                 {section.title}
@@ -1211,7 +1211,7 @@ export function PremiumFooter() {
         <div className="grid grid-cols-2 md:grid-cols-2 gap-8 mb-16">
           <div>
             <h3 
-              className="text-sm font-bold tracking-wide text-[#b8860b] uppercase mb-6"
+              className="text-sm font-bold tracking-wide text-[#C8A661] uppercase mb-6"
               style={{ fontFamily: 'var(--font-bebas)' }}
             >
               Shop
@@ -1224,7 +1224,7 @@ export function PremiumFooter() {
           </div>
           <div>
             <h3 
-              className="text-sm font-bold tracking-wide text-[#b8860b] uppercase mb-6"
+              className="text-sm font-bold tracking-wide text-[#C8A661] uppercase mb-6"
               style={{ fontFamily: 'var(--font-bebas)' }}
             >
               Community

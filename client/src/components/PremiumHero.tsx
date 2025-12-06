@@ -137,7 +137,7 @@ export function PremiumHero() {
           >
             <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
               <span 
-                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#b8860b]/20 border border-[#b8860b]/30 text-[#b8860b] text-xs sm:text-sm font-semibold tracking-wide uppercase"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#C8A661]/20 border border-[#C8A661]/30 text-[#C8A661] text-xs sm:text-sm font-semibold tracking-wide uppercase"
                 data-testid="badge-hero-tagline"
               >
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
@@ -173,7 +173,7 @@ export function PremiumHero() {
               <Link href="/cleanbi-explorer">
                 <Button 
                   size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold bg-[#b8860b] hover:bg-[#9a7209] text-white shadow-xl shadow-[#b8860b]/25 transition-all duration-300 hover:shadow-2xl hover:shadow-[#b8860b]/30 hover:-translate-y-0.5"
+                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-xl shadow-[#C8A661]/25 transition-all duration-300 hover:shadow-2xl hover:shadow-[#C8A661]/30 hover:-translate-y-0.5"
                   data-testid="button-analyze-location"
                 >
                   Score Any Location Free
@@ -207,7 +207,7 @@ export function PremiumHero() {
               <div>
                 <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-[#b8860b] text-[#b8860b]" />
+                    <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-[#C8A661] text-[#C8A661]" />
                   ))}
                 </div>
                 <p className="text-xs sm:text-sm text-white/60">
@@ -221,7 +221,7 @@ export function PremiumHero() {
           <div className="hidden lg:block lg:col-span-6 relative h-[500px] xl:h-[600px]" style={{ perspective: '1000px' }}>
             {/* Background glow */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-64 xl:w-80 h-64 xl:h-80 bg-[#b8860b]/20 rounded-full blur-[100px]" />
+              <div className="w-64 xl:w-80 h-64 xl:h-80 bg-[#C8A661]/20 rounded-full blur-[100px]" />
             </div>
             
             {/* Main CLEANBI Card - Fixed containment */}
@@ -254,7 +254,7 @@ export function PremiumHero() {
                           <TrendingUp className="w-5 h-5 xl:w-6 xl:h-6 text-white" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[10px] xl:text-xs font-bold text-[#b8860b] uppercase tracking-wider">CLEANBI</p>
+                          <p className="text-[10px] xl:text-xs font-bold text-[#C8A661] uppercase tracking-wider">CLEANBI</p>
                           <p className="text-xs xl:text-sm font-semibold text-gray-900 truncate">Location Score</p>
                         </div>
                       </div>
@@ -288,7 +288,7 @@ export function PremiumHero() {
                     <div className="grid grid-cols-3 gap-2 xl:gap-3">
                       {[
                         { label: "Demographics", value: "8.2", color: "text-[#1e3a5f]", icon: Users },
-                        { label: "Competition", value: "7.9", color: "text-[#b8860b]", icon: BarChart3 },
+                        { label: "Competition", value: "7.9", color: "text-[#C8A661]", icon: BarChart3 },
                         { label: "Traffic", value: "9.1", color: "text-green-600", icon: Navigation }
                       ].map((metric) => (
                         <div 
@@ -336,7 +336,7 @@ export function PremiumHero() {
                         loading="lazy"
                       />
                       <div className="absolute top-2 xl:top-3 left-2 xl:left-3">
-                        <span className="px-2 py-0.5 xl:py-1 bg-[#b8860b] text-white text-[10px] xl:text-xs font-bold rounded-md shadow-lg">
+                        <span className="px-2 py-0.5 xl:py-1 bg-[#C8A661] text-white text-[10px] xl:text-xs font-bold rounded-md shadow-lg">
                           FEATURED
                         </span>
                       </div>
@@ -382,7 +382,7 @@ export function PremiumHero() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#b8860b] uppercase tracking-wider">CLEANBI</p>
+                    <p className="text-[10px] font-bold text-[#C8A661] uppercase tracking-wider">CLEANBI</p>
                     <p className="text-xs font-semibold text-gray-900 truncate">Location Score</p>
                   </div>
                 </div>
@@ -416,7 +416,7 @@ export function PremiumHero() {
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { label: "Demo", value: "8.2", color: "text-[#1e3a5f]", icon: Users },
-                  { label: "Comp", value: "7.9", color: "text-[#b8860b]", icon: BarChart3 },
+                  { label: "Comp", value: "7.9", color: "text-[#C8A661]", icon: BarChart3 },
                   { label: "Traffic", value: "9.1", color: "text-green-600", icon: Navigation }
                 ].map((metric) => (
                   <div 
@@ -446,14 +446,14 @@ export function PremiumHero() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
           <div className="flex flex-wrap justify-center items-center gap-x-4 sm:gap-x-8 gap-y-2">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-[#b8860b]" />
+              <Users className="w-4 h-4 text-[#C8A661]" />
               <span className="text-xs sm:text-sm text-white/50 font-medium">
                 Trusted by 72,000+ Industry Professionals
               </span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-white/20" />
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#b8860b]" />
+              <Shield className="w-4 h-4 text-[#C8A661]" />
               <span className="text-xs sm:text-sm text-white/50 font-medium">
                 Owners, Operators & Brokers
               </span>

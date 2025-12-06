@@ -123,7 +123,7 @@ export function EmailCaptureModal({
           <>
             <DialogHeader className="space-y-3">
               <div className="inline-flex">
-                <span className="text-xs font-medium tracking-wider uppercase text-[#b8860b] bg-[#b8860b]/10 px-3 py-1 rounded-full">
+                <span className="text-xs font-medium tracking-wider uppercase text-[#C8A661] bg-[#C8A661]/10 px-3 py-1 rounded-full">
                   Free Access
                 </span>
               </div>
@@ -175,7 +175,7 @@ export function EmailCaptureModal({
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-[#b8860b] hover:bg-[#a07609] text-white font-medium"
+                className="w-full h-12 bg-[#C8A661] hover:bg-[#a07609] text-white font-medium"
                 disabled={subscribeMutation.isPending}
                 data-testid="button-capture-submit"
               >
@@ -204,7 +204,7 @@ export function LeadMagnetBanner() {
     <>
       <div className="bg-gradient-to-r from-[#001F3F] to-slate-800 text-white py-3 px-4">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-4 text-center">
-          <span className="text-xs font-medium tracking-wider uppercase text-[#b8860b]">
+          <span className="text-xs font-medium tracking-wider uppercase text-[#C8A661]">
             Free Guide
           </span>
           <span className="text-sm md:text-base">
@@ -254,7 +254,7 @@ export function FloatingCTA() {
             <p className="text-xs text-muted-foreground mb-3">50+ pages of expert advice</p>
             <Button 
               size="sm" 
-              className="bg-[#b8860b] hover:bg-[#a07609] text-white w-full font-medium"
+              className="bg-[#C8A661] hover:bg-[#a07609] text-white w-full font-medium"
               onClick={() => setShowModal(true)}
               data-testid="button-floating-cta"
             >

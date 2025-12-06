@@ -279,7 +279,7 @@ export default function SBALoans() {
             
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <Badge className="bg-[#b8860b] text-white mb-4">
+                <Badge className="bg-[#C8A661] text-white mb-4">
                   <Landmark className="w-3 h-3 mr-1" /> Government-Backed Financing
                 </Badge>
                 <div className="mb-6">
@@ -287,7 +287,7 @@ export default function SBALoans() {
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                   SBA Loans for{' '}
-                  <span className="text-[#b8860b]">Laundromat</span>{' '}
+                  <span className="text-[#C8A661]">Laundromat</span>{' '}
                   Acquisition
                 </h1>
                 <p className="text-lg text-white/80 mb-6">
@@ -297,7 +297,7 @@ export default function SBALoans() {
                 <div className="flex flex-wrap gap-3">
                   <Button 
                     size="lg" 
-                    className="bg-[#b8860b] hover:bg-[#9a7209] text-white"
+                    className="bg-[#C8A661] hover:bg-[#9a7209] text-white"
                     onClick={() => setShowQuiz(true)}
                     data-testid="start-qualifier"
                   >
@@ -320,7 +320,7 @@ export default function SBALoans() {
                 ].map((stat, i) => (
                   <Card key={i} className="bg-white/10 border-white/20 backdrop-blur-sm">
                     <CardContent className="p-4 text-center">
-                      <stat.icon className="w-6 h-6 text-[#b8860b] mx-auto mb-2" />
+                      <stat.icon className="w-6 h-6 text-[#C8A661] mx-auto mb-2" />
                       <div className="text-2xl font-bold text-white">{stat.value}</div>
                       <div className="text-xs text-white/70">{stat.label}</div>
                     </CardContent>
@@ -333,11 +333,11 @@ export default function SBALoans() {
 
         {showQuiz && !matchedPartner && (
           <div className="max-w-2xl mx-auto px-4 -mt-8 relative z-10">
-            <Card className="shadow-xl border-2 border-[#b8860b]">
+            <Card className="shadow-xl border-2 border-[#C8A661]">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-[#b8860b]" />
+                    <HelpCircle className="w-5 h-5 text-[#C8A661]" />
                     Find Your Best SBA Lender
                   </CardTitle>
                   <Badge variant="outline">Step {quizStep + 1} of {quizQuestions.length}</Badge>
@@ -490,7 +490,7 @@ export default function SBALoans() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <FileText className="w-5 h-5 text-[#b8860b]" />
+                    <FileText className="w-5 h-5 text-[#C8A661]" />
                     Documentation Typically Required
                   </CardTitle>
                 </CardHeader>
@@ -517,7 +517,7 @@ export default function SBALoans() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Users className="w-5 h-5 text-[#b8860b]" />
+                    <Users className="w-5 h-5 text-[#C8A661]" />
                     Who Qualifies for SBA Loans?
                   </CardTitle>
                 </CardHeader>
@@ -551,7 +551,7 @@ export default function SBALoans() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/sba-readiness">
-                <Button size="lg" className="bg-[#b8860b] hover:bg-[#9a7209]">
+                <Button size="lg" className="bg-[#C8A661] hover:bg-[#9a7209]">
                   <Calculator className="w-4 h-4 mr-2" /> Take SBA Readiness Quiz
                 </Button>
               </Link>

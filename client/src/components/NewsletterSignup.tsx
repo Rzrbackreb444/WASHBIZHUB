@@ -147,12 +147,12 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e3a5f] via-[#2a4a6f] to-[#1e3a5f]"
         data-testid="container-newsletter-premium"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#b8860b]/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C8A661]/20 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#C8A661]/10 via-transparent to-transparent" />
         
         <div className="relative p-8 sm:p-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="bg-[#b8860b]/20 p-3 rounded-full flex-shrink-0 ring-2 ring-[#b8860b]/30">
+            <div className="bg-[#C8A661]/20 p-3 rounded-full flex-shrink-0 ring-2 ring-[#C8A661]/30">
               <Mail className="h-7 w-7 text-[#C8A661]" />
             </div>
             <div>
@@ -221,7 +221,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
                 <Button
                   type="submit"
                   disabled={subscribeMutation.isPending}
-                  className="bg-[#b8860b] hover:bg-[#C8A661] text-white font-bold px-8 h-12 whitespace-nowrap shadow-lg shadow-[#b8860b]/25"
+                  className="bg-[#C8A661] hover:bg-[#C8A661] text-white font-bold px-8 h-12 whitespace-nowrap shadow-lg shadow-[#C8A661]/25"
                   data-testid="button-newsletter-subscribe"
                 >
                   {subscribeMutation.isPending ? (

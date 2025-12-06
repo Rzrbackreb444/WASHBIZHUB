@@ -213,7 +213,7 @@ export function NavigationMenu() {
             <div className="h-8 flex items-center justify-between text-xs">
               <div className="flex items-center gap-4">
                 <span className="hidden sm:inline">The #1 Laundromat Intelligence Platform</span>
-                <span className="sm:hidden text-[#b8860b] font-medium">WashBizHub</span>
+                <span className="sm:hidden text-[#C8A661] font-medium">WashBizHub</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -224,13 +224,13 @@ export function NavigationMenu() {
                 ) : isAuthenticated && user ? (
                   <div className="flex items-center gap-3">
                     <Link href="/account/subscription">
-                      <span className="text-white/70 hover:text-[#b8860b] transition-colors cursor-pointer hidden sm:inline">
+                      <span className="text-white/70 hover:text-[#C8A661] transition-colors cursor-pointer hidden sm:inline">
                         {user.email}
                       </span>
                     </Link>
                     <button
                       onClick={() => logout()}
-                      className="flex items-center gap-1.5 hover:text-[#b8860b] transition-colors"
+                      className="flex items-center gap-1.5 hover:text-[#C8A661] transition-colors"
                       data-testid="button-logout"
                     >
                       <LogOut className="w-3.5 h-3.5" />
@@ -240,7 +240,7 @@ export function NavigationMenu() {
                 ) : (
                   <a 
                     href="/api/login"
-                    className="hover:text-[#b8860b] transition-colors"
+                    className="hover:text-[#C8A661] transition-colors"
                     data-testid="link-login"
                   >
                     Sign In
@@ -497,7 +497,7 @@ export function NavigationMenu() {
                           closeMobileMenu();
                           window.location.href = '/cleanbi-explorer';
                         }}
-                        className="w-full h-12 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg"
+                        className="w-full h-12 font-semibold bg-gradient-to-r from-[#C8A661] to-[#d4a017] hover:from-[#9a7209] hover:to-[#C8A661] text-white border-0 shadow-lg"
                         data-testid="button-mobile-cleanbi-cta"
                       >
                         <Zap className="w-4 h-4 mr-2" />

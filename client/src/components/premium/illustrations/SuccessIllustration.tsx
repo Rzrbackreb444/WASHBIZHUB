@@ -24,14 +24,14 @@ export function SuccessIllustration({
         cx="100"
         cy="100"
         r="65"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.1"
       />
       <circle
         cx="100"
         cy="100"
         r="50"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         fill="none"
       />
@@ -39,7 +39,7 @@ export function SuccessIllustration({
         cx="100"
         cy="100"
         r="42"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.15"
       />
       <path
@@ -54,7 +54,7 @@ export function SuccessIllustration({
         cx="45"
         cy="55"
         r="6"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.4"
       />
       <circle
@@ -68,7 +68,7 @@ export function SuccessIllustration({
         cx="160"
         cy="140"
         r="6"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.35"
       />
       <circle
@@ -80,7 +80,7 @@ export function SuccessIllustration({
       />
       <path
         d="M55 35 L60 25 L65 35"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -100,7 +100,7 @@ export function SuccessIllustration({
         cx="175"
         cy="95"
         r="4"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.3"
       />
       <circle

@@ -192,18 +192,18 @@ export default function ClassifiedsSubmit() {
                         className={`
                           cursor-pointer p-4 rounded-lg border-2 transition-all
                           ${isSelected 
-                            ? "border-[#b8860b] bg-[#b8860b]/5" 
+                            ? "border-[#C8A661] bg-[#C8A661]/5" 
                             : "border-border hover-elevate"
                           }
                         `}
                         data-testid={`category-${cat.value}`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${isSelected ? "bg-[#b8860b]/10" : "bg-muted"}`}>
-                            <Icon className={`w-6 h-6 ${isSelected ? "text-[#b8860b]" : "text-muted-foreground"}`} />
+                          <div className={`p-2 rounded-lg ${isSelected ? "bg-[#C8A661]/10" : "bg-muted"}`}>
+                            <Icon className={`w-6 h-6 ${isSelected ? "text-[#C8A661]" : "text-muted-foreground"}`} />
                           </div>
                           <div>
-                            <div className={`font-semibold ${isSelected ? "text-[#b8860b]" : "text-foreground"}`}>
+                            <div className={`font-semibold ${isSelected ? "text-[#C8A661]" : "text-foreground"}`}>
                               {cat.label}
                             </div>
                             <div className="text-sm text-muted-foreground">{cat.description}</div>
@@ -537,7 +537,7 @@ export default function ClassifiedsSubmit() {
               <Button 
                 type="submit" 
                 disabled={submitMutation.isPending}
-                className="bg-[#b8860b] hover:bg-[#a07609] text-white min-w-[150px]"
+                className="bg-[#C8A661] hover:bg-[#a07609] text-white min-w-[150px]"
                 data-testid="button-submit-listing"
               >
                 {submitMutation.isPending ? (

@@ -64,13 +64,13 @@ const variantDefaults: Record<EmptyStateVariant, {
   },
   "coming-soon": {
     icon: Clock,
-    iconColor: "text-[#b8860b]",
-    iconBg: "bg-[#b8860b]/10",
+    iconColor: "text-[#C8A661]",
+    iconBg: "bg-[#C8A661]/10",
   },
   success: {
     icon: CheckCircle,
-    iconColor: "text-[#b8860b]",
-    iconBg: "bg-[#b8860b]/10",
+    iconColor: "text-[#C8A661]",
+    iconBg: "bg-[#C8A661]/10",
   },
 };
 

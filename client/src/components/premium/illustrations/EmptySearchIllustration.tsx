@@ -54,12 +54,12 @@ export function EmptySearchIllustration({
         cx="80"
         cy="80"
         r="25"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.15"
       />
       <path
         d="M70 75 L75 80 L90 65"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -70,7 +70,7 @@ export function EmptySearchIllustration({
         cx="155"
         cy="45"
         r="6"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.4"
       />
       <circle
@@ -84,7 +84,7 @@ export function EmptySearchIllustration({
         cx="40"
         cy="140"
         r="5"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.3"
       />
     </svg>

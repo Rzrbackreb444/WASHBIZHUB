@@ -60,9 +60,9 @@ const TIER_DETAILS: Record<SubscriptionTier, {
   pro: {
     name: "Pro",
     icon: TrendingUp,
-    color: "text-[#b8860b]",
-    bgColor: "bg-[#b8860b]/10",
-    borderColor: "border-[#b8860b]/30",
+    color: "text-[#C8A661]",
+    bgColor: "bg-[#C8A661]/10",
+    borderColor: "border-[#C8A661]/30",
     price: "$99/mo",
   },
   enterprise: {

@@ -72,12 +72,12 @@ export function NoDataIllustration({
         cy="120"
         r="30"
         fill="white"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
       />
       <path
         d="M130 115 L140 125 L155 105"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -89,7 +89,7 @@ export function NoDataIllustration({
         y1="110"
         x2="150"
         y2="130"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         strokeLinecap="round"
       />
@@ -98,7 +98,7 @@ export function NoDataIllustration({
         y1="110"
         x2="130"
         y2="130"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         strokeLinecap="round"
       />
@@ -106,7 +106,7 @@ export function NoDataIllustration({
         cx="165"
         cy="50"
         r="5"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.4"
       />
       <circle
@@ -120,7 +120,7 @@ export function NoDataIllustration({
         cx="25"
         cy="160"
         r="6"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.25"
       />
     </svg>

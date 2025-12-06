@@ -215,7 +215,7 @@ export default function Home() {
       color = "text-[#C8A661]";
     } else if (multiple <= 4.0) {
       verdict = "Premium Price - Negotiate down";
-      color = "text-[#b8860b]";
+      color = "text-[#C8A661]";
     } else {
       verdict = "Overpriced - Walk away or negotiate hard";
       color = "text-red-500";
@@ -899,7 +899,7 @@ export default function Home() {
             {/* Funnel Journey Indicator */}
             <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400" data-testid="funnel-journey-indicator">
               <div className="flex items-center gap-2" data-testid="step-cleanbi">
-                <div className="w-8 h-8 rounded-full bg-[#b8860b] text-white flex items-center justify-center font-bold">1</div>
+                <div className="w-8 h-8 rounded-full bg-[#C8A661] text-white flex items-center justify-center font-bold">1</div>
                 <span>Analyze with CLEANBI</span>
               </div>
               <ArrowRight className="w-4 h-4 hidden md:block" />
@@ -949,7 +949,7 @@ export default function Home() {
                       <p className="font-semibold text-gray-900">{testimonial.name}</p>
                       <p className="text-sm text-gray-600">{testimonial.location}</p>
                     </div>
-                    <Badge className="bg-[#b8860b]/10 text-[#b8860b] border-[#b8860b]/20">
+                    <Badge className="bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/20">
                       {testimonial.dealSize}
                     </Badge>
                   </div>
@@ -963,7 +963,7 @@ export default function Home() {
         <section className="py-16 bg-gray-50 border-t border-b border-gray-200 hidden" data-testid="section-engagement">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
-              <Badge className="mb-3 bg-[#b8860b]/10 text-[#b8860b] border-[#b8860b]/20">
+              <Badge className="mb-3 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/20">
                 Live Intelligence
               </Badge>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
@@ -1045,7 +1045,7 @@ export default function Home() {
           <div className="max-w-2xl mx-auto px-6 lg:px-8">
             <Card className="p-6 md:p-8 bg-card border-2 border-accent/30">
               <div className="flex items-center gap-2 mb-4 justify-center">
-                <AlertTriangle className="w-5 h-5 text-[#b8860b]" />
+                <AlertTriangle className="w-5 h-5 text-[#C8A661]" />
                 <h3 className="text-xl font-bold text-foreground">Quick Deal Check</h3>
               </div>
               <p className="text-muted-foreground text-center mb-6">
@@ -1197,7 +1197,7 @@ export default function Home() {
         <section className="py-12 bg-background border-t border-border/50 hidden" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex items-center gap-2 mb-6 justify-center">
-              <Flame className="w-5 h-5 text-[#b8860b]" />
+              <Flame className="w-5 h-5 text-[#C8A661]" />
               <h3 className="text-xl font-bold text-foreground">Hot Markets This Week</h3>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">

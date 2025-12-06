@@ -230,7 +230,7 @@ export function VideoDemo({ isOpen, onClose }: VideoDemoProps) {
             {/* Progress Bar */}
             <div className="h-1 bg-slate-700 rounded-full mb-4 overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#39CCCC] to-[#b8860b] transition-all duration-100"
+                className="h-full bg-gradient-to-r from-[#39CCCC] to-[#C8A661] transition-all duration-100"
                 style={{ width: `${progress}%` }}
               />
             </div>

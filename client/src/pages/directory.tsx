@@ -285,7 +285,7 @@ export default function DirectoryPage() {
         <div className="mesh-gradient-hero py-20 px-6">
           <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
-              <Building2 className="w-4 h-4 text-[#b8860b]" />
+              <Building2 className="w-4 h-4 text-[#C8A661]" />
               <span className="text-sm font-medium text-[#1e3a5f]">Industry Directory</span>
             </div>
             <h1 className="hero-title text-[#1e3a5f] mb-4">
@@ -338,7 +338,7 @@ export default function DirectoryPage() {
                   onClick={() => setActiveCategory(isActive ? "all" : category.id)}
                   className={`p-4 md:p-6 rounded-xl border-2 text-left transition-all shadow-lg ${
                     isActive 
-                      ? "border-[#b8860b] bg-white dark:bg-slate-800 ring-2 ring-[#b8860b]/20" 
+                      ? "border-[#C8A661] bg-white dark:bg-slate-800 ring-2 ring-[#C8A661]/20" 
                       : "border-white dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300"
                   }`}
                   data-testid={`category-${category.id}`}
@@ -407,7 +407,7 @@ export default function DirectoryPage() {
           {featuredListings.length > 0 && (
             <div className="mb-12">
               <div className="flex items-center gap-2 mb-6">
-                <Star className="w-5 h-5 text-[#b8860b]" />
+                <Star className="w-5 h-5 text-[#C8A661]" />
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">Featured Listings</h3>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -415,10 +415,10 @@ export default function DirectoryPage() {
                   const CategoryIcon = getCategoryIcon(listing.category);
                   return (
                     <Link key={listing.id} href={`/directory/${listing.slug}`}>
-                      <Card className="h-full hover-elevate cursor-pointer border-[#b8860b]/30 bg-gradient-to-br from-amber-50/50 to-white dark:from-slate-800/50 dark:to-slate-800">
+                      <Card className="h-full hover-elevate cursor-pointer border-[#C8A661]/30 bg-gradient-to-br from-amber-50/50 to-white dark:from-slate-800/50 dark:to-slate-800">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between gap-2">
-                            <Badge className="bg-[#b8860b] text-white">
+                            <Badge className="bg-[#C8A661] text-white">
                               <Sparkles className="w-3 h-3 mr-1" />
                               Featured
                             </Badge>
@@ -546,7 +546,7 @@ export default function DirectoryPage() {
                   Try adjusting your filters or search terms
                 </p>
                 <Link href="/add-listing">
-                  <Button className="bg-[#b8860b] hover:bg-[#a07609]" data-testid="button-be-first">
+                  <Button className="bg-[#C8A661] hover:bg-[#a07609]" data-testid="button-be-first">
                     <Plus className="w-4 h-4 mr-2" />
                     Be the First to List
                   </Button>
@@ -557,8 +557,8 @@ export default function DirectoryPage() {
 
           {/* Premium CTA Section */}
           <div className="mt-16 premium-card bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/90 p-10 md:p-14 text-center rounded-2xl">
-            <div className="w-16 h-16 rounded-2xl bg-[#b8860b]/20 flex items-center justify-center mx-auto mb-6">
-              <Sparkles className="w-8 h-8 text-[#b8860b]" />
+            <div className="w-16 h-16 rounded-2xl bg-[#C8A661]/20 flex items-center justify-center mx-auto mb-6">
+              <Sparkles className="w-8 h-8 text-[#C8A661]" />
             </div>
             <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">List Your Business or Equipment</h3>
             <p className="text-white/70 max-w-xl mx-auto mb-8 text-lg">

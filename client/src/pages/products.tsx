@@ -54,7 +54,7 @@ function GlassCard({ children, className = "", highlight = false }: { children: 
     <div className={`relative rounded-2xl border ${highlight ? 'border-[#C8A661]/50 bg-[#C8A661]/5' : 'border-white/10 bg-white/5'} backdrop-blur-xl ${className}`}>
       {highlight && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] text-white border-0 px-4 py-1">
+          <Badge className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] text-white border-0 px-4 py-1">
             <Star className="w-3 h-3 mr-1" /> Most Popular
           </Badge>
         </div>
@@ -115,7 +115,7 @@ const PRICING_TIERS = [
     period: "/month",
     description: "For owners & active investors",
     icon: Crown,
-    color: "from-[#C8A661] to-[#b8860b]",
+    color: "from-[#C8A661] to-[#C8A661]",
     highlight: true,
     features: [
       { name: "CLEANBI Explorer", included: true, limit: "100 analyses/day" },
@@ -163,7 +163,7 @@ const PRODUCTS = [
     tagline: "The Viral Location Intelligence Tool",
     description: "Analyze any address instantly with our proprietary scoring algorithm. Get demographic data, competitor mapping, and investment grades in seconds.",
     icon: Map,
-    color: "from-[#C8A661] to-[#b8860b]",
+    color: "from-[#C8A661] to-[#C8A661]",
     link: "/cleanbi-explorer",
     features: ["A/B/C Grading System", "Competitor Mapping", "Demographics Analysis", "Street View Integration", "Shareable Reports"],
     forWho: ["Buyers", "Investors", "Brokers"],
@@ -297,7 +297,7 @@ export default function ProductsHub() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
               <div className="flex -space-x-2">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C8A661] to-[#b8860b] border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-white">
+                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C8A661] to-[#C8A661] border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-white">
                     {String.fromCharCode(65 + i)}
                   </div>
                 ))}
@@ -310,7 +310,7 @@ export default function ProductsHub() {
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               The Complete Toolkit for
-              <span className="block mt-2 bg-gradient-to-r from-[#C8A661] via-[#C8A661] to-[#b8860b] bg-clip-text text-transparent">
+              <span className="block mt-2 bg-gradient-to-r from-[#C8A661] via-[#C8A661] to-[#C8A661] bg-clip-text text-transparent">
                 Laundromat Success
               </span>
             </h1>
@@ -324,7 +324,7 @@ export default function ProductsHub() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
+                className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
                 onClick={() => setLocation("/cleanbi-explorer")}
                 data-testid="button-try-free"
               >
@@ -427,7 +427,7 @@ export default function ProductsHub() {
             {/* Business Plan Generator */}
             <GlassCard className="p-6 hover-elevate" highlight>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#b8860b] flex items-center justify-center flex-shrink-0">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#C8A661] flex items-center justify-center flex-shrink-0">
                   <FileText className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1">
@@ -451,7 +451,7 @@ export default function ProductsHub() {
                   </div>
                   <Button
                     onClick={() => setLocation("/business-plan-generator")}
-                    className="bg-gradient-to-r from-[#C8A661] to-[#b8860b]"
+                    className="bg-gradient-to-r from-[#C8A661] to-[#C8A661]"
                     data-testid="button-business-plan"
                   >
                     Generate Business Plan
@@ -645,7 +645,7 @@ export default function ProductsHub() {
                 </div>
 
                 <Button 
-                  className={`w-full ${tier.highlight ? 'bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                  className={`w-full ${tier.highlight ? 'bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
                   onClick={() => setLocation(tier.ctaLink)}
                   data-testid={`button-${tier.name.toLowerCase()}-plan`}
                 >
@@ -695,7 +695,7 @@ export default function ProductsHub() {
                 </div>
                 <p className="text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#b8860b] flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#C8A661] flex items-center justify-center text-white font-bold">
                     {testimonial.author[0]}
                   </div>
                   <div>
@@ -786,9 +786,9 @@ export default function ProductsHub() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4">
           <GlassCard className="p-8 sm:p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#C8A661]/10 to-[#b8860b]/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#C8A661]/10 to-[#C8A661]/10"></div>
             <div className="relative">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#b8860b] mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#C8A661] mb-6">
                 <Rocket className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -801,7 +801,7 @@ export default function ProductsHub() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-[#C8A661] to-[#b8860b] hover:from-[#b8860b] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
+                  className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
                   onClick={() => setLocation("/cleanbi-explorer")}
                   data-testid="button-final-cta"
                 >
