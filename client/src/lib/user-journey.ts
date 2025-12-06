@@ -262,7 +262,7 @@ export function getNextBestAction(): {
     trial: [
       { action: 'Complete Profile', description: 'Get better recommendations', points: 10, path: '/settings' },
       { action: 'Use CLEANBI', description: 'Analyze your target location', points: 15, path: '/cleanbi' },
-      { action: 'Start Free Trial', description: 'Access premium features', points: 30, path: '/pricing' },
+      { action: 'Get Started', description: 'Access premium features', points: 30, path: '/pricing' },
     ],
     customer: [
       { action: 'Leave a Review', description: 'Help others discover WashBizHub', points: 20, path: '/forum' },

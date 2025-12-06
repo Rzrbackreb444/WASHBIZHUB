@@ -27,9 +27,9 @@ const STAGE_ACTIONS: Record<JourneyStage, { label: string; path: string; descrip
     description: 'Create your account to unlock personalized features',
   },
   lead: {
-    label: 'Start Free Trial',
+    label: 'Get Started',
     path: '/pricing',
-    description: 'Try premium features free for 7 days',
+    description: 'Unlock premium features with 30-day guarantee',
   },
   trial: {
     label: 'Upgrade to Pro',

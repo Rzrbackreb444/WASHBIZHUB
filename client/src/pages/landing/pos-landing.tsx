@@ -141,7 +141,7 @@ export default function PosLanding() {
                     <li>✓ Real-time reporting</li>
                     <li>✓ Basic IoT integration</li>
                   </ul>
-                  <Button className="w-full">Start Free Trial</Button>
+                  <Button className="w-full">Get Started</Button>
                 </CardContent>
               </Card>
 

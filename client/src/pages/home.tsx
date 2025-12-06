@@ -621,7 +621,7 @@ export default function Home() {
     },
     {
       question: "What laundromat management software does WashBizHub offer?",
-      answer: "WashBizHub provides complete laundromat management software: WashBizPOS point-of-sale with dynamic pricing, CLEANBI location intelligence, Service Guy AI for equipment diagnostics, 2D Design Studio for floor planning, 50+ business calculators, IoT machine monitoring, route optimization for pickup/delivery, and marketing tools. Plans start at $29/month with a 14-day free trial."
+      answer: "WashBizHub provides complete laundromat management software: WashBizPOS point-of-sale with dynamic pricing, CLEANBI location intelligence, Service Guy AI for equipment diagnostics, 2D Design Studio for floor planning, 50+ business calculators, IoT machine monitoring, route optimization for pickup/delivery, and marketing tools. Plans start at $29/month with a 30-day money-back guarantee."
     },
     {
       question: "How much do laundromat owners make?",

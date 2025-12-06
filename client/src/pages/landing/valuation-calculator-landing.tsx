@@ -307,7 +307,7 @@ export default function ValuationCalculatorLanding() {
                   </ul>
                   <Link href="/pricing">
                     <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-pro-valuation">
-                      Start 7-Day Trial
+                      Get Started
                     </Button>
                   </Link>
                 </CardContent>

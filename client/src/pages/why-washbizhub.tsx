@@ -434,7 +434,7 @@ export default function WhyWashBizHub() {
                   className="bg-primary text-primary-foreground hover-elevate active-elevate-2"
                   data-testid="button-cta-cleanbi"
                 >
-                  Start Free Trial
+                  Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -450,7 +450,7 @@ export default function WhyWashBizHub() {
               </Link>
             </div>
             <p className="text-sm text-muted-foreground mt-8">
-              No credit card required • 14-day free trial • Cancel anytime
+              Free tier: No credit card required • Paid plans: 30-day money-back guarantee
             </p>
           </div>
         </section>

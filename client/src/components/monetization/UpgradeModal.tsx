@@ -219,7 +219,7 @@ export function UpgradeModal({
             ) : (
               <>
                 <Zap className="h-4 w-4 mr-2" />
-                Start 7-Day Free Trial
+                Get Started Now
                 <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
               </>
             )}

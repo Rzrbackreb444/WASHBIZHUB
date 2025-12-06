@@ -549,7 +549,7 @@ function MetricsPanel({
                   className="w-full h-8 bg-[#001F3F] text-white hover:bg-[#001F3F]/90 text-xs font-bold"
                   data-testid="button-launch-pos-trial"
                 >
-                  Start 14-Day Free Trial
+                  Get Started Now
                   <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </Link>

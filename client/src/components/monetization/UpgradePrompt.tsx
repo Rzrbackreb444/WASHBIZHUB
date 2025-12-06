@@ -100,7 +100,7 @@ export function UpgradePrompt({
           <Link href="/pricing" onClick={handleClick}>
             <Button className="btn-premium-gold text-white whitespace-nowrap">
               <Zap className="h-4 w-4 mr-2" />
-              Start Free Trial
+              Get Started
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -175,14 +175,14 @@ export function UpgradePrompt({
                 <span className="text-sm font-normal text-muted-foreground">/mo</span>
               </div>
               {showTrial && (
-                <p className="text-xs text-muted-foreground">7-day free trial</p>
+                <p className="text-xs text-muted-foreground">30-day money-back guarantee</p>
               )}
             </div>
             
             <Link href="/pricing" onClick={handleClick}>
               <Button className="btn-premium-gold text-white font-semibold px-6 group">
                 <Sparkles className="h-4 w-4 mr-2" />
-                Start Free Trial
+                Get Started
                 <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -257,7 +257,7 @@ export function TrialBanner({ daysRemaining, trialEndDate }: TrialBannerProps) {
     >
       <span className="flex items-center justify-center gap-2">
         <Star className="h-4 w-4" />
-        {days} {days === 1 ? 'day' : 'days'} left in your free trial
+        {days} {days === 1 ? 'day' : 'days'} left in your subscription period
         <Link href="/pricing">
           <Button 
             size="sm" 
