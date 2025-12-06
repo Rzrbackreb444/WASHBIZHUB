@@ -68,6 +68,8 @@ import {
   type InsertForumReply,
   type ForumVote,
   type InsertForumVote,
+  type ForumNeedPost,
+  type InsertForumNeedPost,
   type ReputationEvent,
   type InsertReputationEvent,
   type Badge,
@@ -495,6 +497,23 @@ export interface IStorage {
   
   getUserBadges(userId: string): Promise<BadgeAward[]>;
   awardBadge(award: InsertBadgeAward): Promise<BadgeAward>;
+  
+  // Forum Need Posts (Post Your Need)
+  getForumNeedPosts(filters?: {
+    needType?: string;
+    locationState?: string;
+    locationCity?: string;
+    urgency?: string;
+    status?: string;
+    userId?: string;
+    searchQuery?: string;
+  }): Promise<ForumNeedPost[]>;
+  getForumNeedPost(id: string): Promise<ForumNeedPost | undefined>;
+  getForumNeedPostBySlug(slug: string): Promise<ForumNeedPost | undefined>;
+  createForumNeedPost(post: InsertForumNeedPost): Promise<ForumNeedPost>;
+  updateForumNeedPost(id: string, post: Partial<InsertForumNeedPost>): Promise<ForumNeedPost>;
+  deleteForumNeedPost(id: string): Promise<void>;
+  incrementNeedPostViews(id: string): Promise<void>;
   
   // AI Agent Builder
   getAiAgents(userId?: string): Promise<AiAgent[]>;
