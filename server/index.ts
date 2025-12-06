@@ -13,6 +13,13 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
 import { notifyPurchase, notifySubscriptionEvent } from "./notifications";
+import { 
+  sendWelcomeEmail, 
+  sendUpgradeConfirmationEmail, 
+  sendPaymentFailedEmail, 
+  sendRefundConfirmationEmail,
+  sendCancellationEmail 
+} from "./subscription-emails";
 import { db } from "./db";
 import { promoCodes, promoCodeRedemptions, adminActivityLog } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -480,7 +487,7 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       }
     }
 
-    // Handle subscription creation - CLEANBI tier sync
+    // Handle subscription creation - CLEANBI tier sync + Welcome Email
     if (event.type === "customer.subscription.created") {
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`✅ Subscription created: ${subscription.id} for customer ${subscription.customer}`);
@@ -494,9 +501,32 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
                          subscription.items.data[0]?.price?.nickname || 
                          'Subscription';
       const interval = subscription.items.data[0]?.price?.recurring?.interval || 'month';
+      const tier = subscription.metadata?.tierId || 'starter';
+      
+      // Get customer email - try metadata first, then fetch from Stripe
+      let customerEmail = subscription.metadata?.customerEmail;
+      let firstName = subscription.metadata?.firstName;
+      
+      const customerId = typeof subscription.customer === 'string' 
+        ? subscription.customer 
+        : subscription.customer.id;
+      
+      // Fallback: Fetch customer data from Stripe if metadata is missing
+      if (!customerEmail && customerId) {
+        try {
+          const customer = await stripe.customers.retrieve(customerId);
+          if (!('deleted' in customer)) {
+            customerEmail = customer.email || undefined;
+            firstName = firstName || customer.name?.split(' ')[0];
+            console.log(`📧 Retrieved customer email from Stripe: ${customerEmail}`);
+          }
+        } catch (e: any) {
+          console.error(`⚠️ Could not fetch customer: ${e.message}`);
+        }
+      }
       
       // Log activity
-      await logActivity('subscription_created', `New subscription: ${productName}`, subscription.metadata?.customerEmail || undefined, {
+      await logActivity('subscription_created', `New subscription: ${productName}`, customerEmail || undefined, {
         subscriptionId: subscription.id,
         productName,
         amount: amount / 100,
@@ -504,41 +534,159 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         status: subscription.status,
       });
       
-      // Send notification
+      // Send admin notification
       await notifyPurchase({
         type: 'subscription',
         productName,
         amount,
         interval,
-        customerEmail: subscription.metadata?.customerEmail,
+        customerEmail,
       });
+      
+      // Send welcome email to customer
+      if (customerEmail) {
+        try {
+          await sendWelcomeEmail({
+            email: customerEmail,
+            firstName,
+            tier,
+            amount,
+            interval,
+          });
+          console.log(`✅ Welcome email sent to ${customerEmail}`);
+        } catch (emailError: any) {
+          console.error(`⚠️ Failed to send welcome email: ${emailError.message}`);
+        }
+      } else {
+        console.warn(`⚠️ No customer email available for welcome email - subscription ${subscription.id}`);
+      }
     }
 
-    // Handle subscription updates - CLEANBI tier sync
+    // Handle subscription updates - CLEANBI tier sync + Upgrade Confirmation
     if (event.type === "customer.subscription.updated") {
       const subscription = event.data.object as Stripe.Subscription;
+      const previousAttributes = (event.data as any).previous_attributes;
       console.log(`✅ Subscription updated: ${subscription.id}, status: ${subscription.status}`);
       
-      // Sync CLEANBI subscription changes to database
-      await syncCLEANBISubscription(subscription);
-    }
-
-    // Handle subscription deletion/cancellation - Revert to FREE tier
-    if (event.type === "customer.subscription.deleted") {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log(`⚠️  Subscription canceled: ${subscription.id}`);
-      
-      // Log activity
-      await logActivity('subscription_canceled', `Subscription canceled: ${subscription.id}`, subscription.metadata?.customerEmail || undefined, {
-        subscriptionId: subscription.id,
-        customerId: typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id,
-      });
-      
-      // Revert CLEANBI tier to FREE
+      // Get customer ID for database lookup
       const customerId = typeof subscription.customer === 'string' 
         ? subscription.customer 
         : subscription.customer.id;
       
+      // Fetch old tier from database BEFORE syncing (reliable source of truth)
+      let oldTierFromDb: string | null = null;
+      try {
+        const { db } = await import("./db");
+        const { users } = await import("@shared/schema");
+        const { eq } = await import("drizzle-orm");
+        
+        const [existingUser] = await db.select({ tier: users.cleanbiTier })
+          .from(users)
+          .where(eq(users.stripeCustomerId, customerId))
+          .limit(1);
+        
+        oldTierFromDb = existingUser?.tier || null;
+      } catch (e: any) {
+        console.error(`⚠️ Could not fetch old tier from DB: ${e.message}`);
+      }
+      
+      // Sync CLEANBI subscription changes to database
+      await syncCLEANBISubscription(subscription);
+      
+      // Get new tier from metadata or derive from price
+      const newTier = subscription.metadata?.tierId || 'starter';
+      const oldTier = oldTierFromDb || 'free';
+      
+      // Only proceed if tier actually changed and items/price changed
+      const hasItemChange = previousAttributes?.items || previousAttributes?.default_payment_method;
+      
+      if (hasItemChange && newTier !== oldTier) {
+        const amount = subscription.items.data[0]?.price?.unit_amount || 0;
+        const interval = subscription.items.data[0]?.price?.recurring?.interval || 'month';
+        
+        // Get customer email - try metadata first, then fetch from Stripe
+        let customerEmail = subscription.metadata?.customerEmail;
+        let firstName = subscription.metadata?.firstName;
+        
+        if (!customerEmail) {
+          try {
+            const customer = await stripe.customers.retrieve(customerId);
+            if (!('deleted' in customer)) {
+              customerEmail = customer.email || undefined;
+              firstName = customer.name?.split(' ')[0];
+            }
+          } catch (e: any) {
+            console.error(`⚠️ Could not fetch customer: ${e.message}`);
+          }
+        }
+        
+        // Only send email if tier actually changed and it's an upgrade
+        const tierRanks: Record<string, number> = { free: 0, starter: 1, pro: 2, enterprise: 3 };
+        const isUpgrade = (tierRanks[newTier] || 0) > (tierRanks[oldTier] || 0);
+        
+        if (isUpgrade && customerEmail) {
+          try {
+            await sendUpgradeConfirmationEmail({
+              email: customerEmail,
+              firstName,
+              oldTier,
+              newTier,
+              amount,
+              interval,
+            });
+            console.log(`✅ Upgrade confirmation email sent to ${customerEmail}: ${oldTier} → ${newTier}`);
+            
+            // Log activity
+            await logActivity('subscription_upgraded', `Upgrade: ${oldTier} → ${newTier}`, customerEmail, {
+              subscriptionId: subscription.id,
+              oldTier,
+              newTier,
+              amount: amount / 100,
+            });
+          } catch (emailError: any) {
+            console.error(`⚠️ Failed to send upgrade email: ${emailError.message}`);
+          }
+        }
+      }
+    }
+
+    // Handle subscription deletion/cancellation - Revert to FREE tier + Send Cancellation Email
+    if (event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(`⚠️  Subscription canceled: ${subscription.id}`);
+      
+      // Get customer ID
+      const customerId = typeof subscription.customer === 'string' 
+        ? subscription.customer 
+        : subscription.customer.id;
+      
+      // Get customer email - try metadata first, then fetch from Stripe
+      let customerEmail = subscription.metadata?.customerEmail;
+      let firstName = subscription.metadata?.firstName;
+      const tier = subscription.metadata?.tierId || 'starter';
+      
+      // Fallback: Fetch customer data from Stripe if metadata is missing
+      if (!customerEmail && customerId) {
+        try {
+          const customer = await stripe.customers.retrieve(customerId);
+          if (!('deleted' in customer)) {
+            customerEmail = customer.email || undefined;
+            firstName = firstName || customer.name?.split(' ')[0];
+            console.log(`📧 Retrieved customer email from Stripe for cancellation: ${customerEmail}`);
+          }
+        } catch (e: any) {
+          console.error(`⚠️ Could not fetch customer: ${e.message}`);
+        }
+      }
+      
+      // Log activity
+      await logActivity('subscription_canceled', `Subscription canceled: ${subscription.id}`, customerEmail || undefined, {
+        subscriptionId: subscription.id,
+        customerId,
+        tier,
+      });
+      
+      // Revert CLEANBI tier to FREE
       const { db } = await import("./db");
       const { users } = await import("@shared/schema");
       const { eq } = await import("drizzle-orm");
@@ -552,6 +700,26 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         .where(eq(users.stripeCustomerId, customerId));
       
       console.log(`✅ CLEANBI tier reverted to FREE for customer ${customerId}`);
+      
+      // Send cancellation email to customer
+      if (customerEmail) {
+        try {
+          // Calculate when access ends (current_period_end)
+          const endDate = new Date((subscription as any).current_period_end * 1000);
+          
+          await sendCancellationEmail({
+            email: customerEmail,
+            firstName,
+            tier,
+            endDate,
+          });
+          console.log(`✅ Cancellation email sent to ${customerEmail}`);
+        } catch (emailError: any) {
+          console.error(`⚠️ Failed to send cancellation email: ${emailError.message}`);
+        }
+      } else {
+        console.warn(`⚠️ No customer email available for cancellation email - subscription ${subscription.id}`);
+      }
     }
 
     // Handle successful subscription payments - Keep subscription active
@@ -607,7 +775,7 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       }
     }
 
-    // Handle failed subscription payments - Mark as past_due
+    // Handle failed subscription payments - Mark as past_due + Send Reminder Email
     if (event.type === "invoice.payment_failed") {
       const invoice: any = event.data.object;
       console.error(`❌ Invoice payment failed: ${invoice.id} for customer ${invoice.customer}`);
@@ -627,6 +795,168 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           .where(eq(users.cleanbiSubscriptionId, subscriptionId));
         
         console.log(`⚠️  CLEANBI subscription marked past_due for ${subscriptionId}`);
+        
+        try {
+          // Get subscription details to find tier
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const tier = subscription.metadata?.tierId;
+          
+          // Only process CLEANBI subscription payment failures
+          if (!tier) {
+            console.log(`⚠️ Invoice ${invoice.id} is not a CLEANBI subscription - skipping payment failed email`);
+            return res.json({ received: true });
+          }
+          
+          // Get customer email - try invoice first, then Stripe customer
+          let customerEmail = invoice.customer_email;
+          let firstName = subscription.metadata?.firstName;
+          
+          const customerId = typeof invoice.customer === 'string' 
+            ? invoice.customer 
+            : invoice.customer?.id;
+          
+          if (!customerEmail && customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId);
+              if (!('deleted' in customer)) {
+                customerEmail = customer.email || undefined;
+                firstName = firstName || customer.name?.split(' ')[0];
+              }
+            } catch (e: any) {
+              console.error(`⚠️ Could not fetch customer for payment failed email: ${e.message}`);
+            }
+          }
+          
+          const amount = invoice.amount_due || 0;
+          
+          if (customerEmail) {
+            await sendPaymentFailedEmail({
+              email: customerEmail,
+              firstName,
+              tier,
+              amount,
+            });
+            console.log(`✅ Payment failed reminder email sent to ${customerEmail}`);
+            
+            // Log activity
+            await logActivity('payment_failed', `Payment failed for ${tier} subscription`, customerEmail, {
+              subscriptionId,
+              amount: amount / 100,
+              invoiceId: invoice.id,
+            });
+          } else {
+            console.warn(`⚠️ No customer email available for payment failed email - invoice ${invoice.id}`);
+          }
+        } catch (emailError: any) {
+          console.error(`⚠️ Failed to send payment failed email: ${emailError.message}`);
+        }
+      }
+    }
+
+    // Handle refunds - Auto-downgrade user + Send Refund Confirmation
+    // Only processes FULL refunds on CLEANBI subscription charges
+    if (event.type === "charge.refunded") {
+      const charge = event.data.object as Stripe.Charge;
+      const refundAmount = charge.amount_refunded;
+      const originalAmount = charge.amount;
+      const isFullRefund = refundAmount >= originalAmount;
+      
+      console.log(`💸 Charge refunded: ${charge.id}, amount: $${(refundAmount / 100).toFixed(2)} (${isFullRefund ? 'FULL' : 'PARTIAL'})`);
+      
+      // Only process full refunds to avoid accidentally downgrading users with partial refunds
+      if (!isFullRefund) {
+        console.log(`⚠️ Partial refund detected - not downgrading user. Full amount: $${(originalAmount / 100).toFixed(2)}, Refunded: $${(refundAmount / 100).toFixed(2)}`);
+        // Still log activity for partial refunds
+        await logActivity('partial_refund', `Partial refund: $${(refundAmount / 100).toFixed(2)} of $${(originalAmount / 100).toFixed(2)}`, charge.billing_details?.email || undefined, {
+          chargeId: charge.id,
+          refundAmount: refundAmount / 100,
+          originalAmount: originalAmount / 100,
+        });
+        return res.json({ received: true });
+      }
+      
+      // Try to find the subscription associated with this charge
+      if (charge.invoice) {
+        try {
+          const invoiceId = typeof charge.invoice === 'string' ? charge.invoice : charge.invoice.id;
+          const invoice = await stripe.invoices.retrieve(invoiceId);
+          const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+          
+          if (subscriptionId) {
+            // Get subscription to find tier info
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const tier = subscription.metadata?.tierId;
+            
+            // IMPORTANT: Only process if this is a CLEANBI subscription (has tierId in metadata)
+            if (!tier) {
+              console.log(`⚠️ Charge ${charge.id} is not a CLEANBI subscription refund (no tierId in metadata) - skipping downgrade`);
+              return res.json({ received: true });
+            }
+            
+            const customerId = typeof charge.customer === 'string' ? charge.customer : charge.customer?.id;
+            
+            // Get customer email - try multiple sources
+            let customerEmail = charge.billing_details?.email || charge.receipt_email;
+            let firstName = subscription.metadata?.firstName;
+            
+            if (!customerEmail && customerId) {
+              try {
+                const customer = await stripe.customers.retrieve(customerId);
+                if (!('deleted' in customer)) {
+                  customerEmail = customer.email || undefined;
+                  firstName = firstName || customer.name?.split(' ')[0];
+                }
+              } catch (e: any) {
+                console.error(`⚠️ Could not fetch customer for refund email: ${e.message}`);
+              }
+            }
+            
+            // Downgrade user to free tier
+            if (customerId) {
+              const { db } = await import("./db");
+              const { users } = await import("@shared/schema");
+              const { eq } = await import("drizzle-orm");
+              
+              await db.update(users)
+                .set({
+                  cleanbiTier: 'free',
+                  cleanbiSubscriptionStatus: 'refunded'
+                })
+                .where(eq(users.stripeCustomerId, customerId));
+              
+              console.log(`✅ User ${customerId} downgraded to FREE due to full refund`);
+            }
+            
+            // Send refund confirmation email
+            if (customerEmail) {
+              await sendRefundConfirmationEmail({
+                email: customerEmail,
+                firstName,
+                tier,
+                amount: refundAmount,
+              });
+              console.log(`✅ Refund confirmation email sent to ${customerEmail}`);
+            }
+            
+            // Log activity
+            await logActivity('refund_processed', `Full refund: $${(refundAmount / 100).toFixed(2)} for ${tier}`, customerEmail || undefined, {
+              chargeId: charge.id,
+              subscriptionId,
+              amount: refundAmount / 100,
+              tier,
+            });
+            
+            // Notify admin
+            await notifyPurchase({
+              type: 'refund',
+              productName: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Refund`,
+              amount: -refundAmount,
+              customerEmail,
+            });
+          }
+        } catch (refundError: any) {
+          console.error(`⚠️ Error processing refund webhook: ${refundError.message}`);
+        }
       }
     }
 
