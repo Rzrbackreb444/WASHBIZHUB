@@ -174,7 +174,6 @@ import {
   forumTopics,
   forumReplies,
   forumVotes,
-  forumNeedPosts,
   type ForumCategory,
   type InsertForumCategory,
   type ForumTopic,
@@ -183,9 +182,6 @@ import {
   type InsertForumReply,
   type ForumVote,
   type InsertForumVote,
-  type ForumNeedPost,
-  type InsertForumNeedPost,
-  type EnrichedForumNeedPost,
   type EnrichedForumTopic,
   type EnrichedForumReply,
   type ForumAuthor,
@@ -2093,107 +2089,6 @@ export class DbStorage implements IStorage {
         .set({ upvotes, downvotes })
         .where(eq(forumReplies.id, entityId));
     }
-  }
-
-  // ========== FORUM NEED POSTS (Post Your Need) ==========
-  async getForumNeedPosts(filters?: {
-    needType?: string;
-    locationState?: string;
-    locationCity?: string;
-    urgency?: string;
-    status?: string;
-    userId?: string;
-    searchQuery?: string;
-  }): Promise<EnrichedForumNeedPost[]> {
-    const conditions = [];
-    
-    if (filters?.needType) {
-      conditions.push(eq(forumNeedPosts.needType, filters.needType));
-    }
-    if (filters?.locationState) {
-      conditions.push(eq(forumNeedPosts.locationState, filters.locationState));
-    }
-    if (filters?.locationCity) {
-      conditions.push(ilike(forumNeedPosts.locationCity, `%${filters.locationCity}%`));
-    }
-    if (filters?.urgency) {
-      conditions.push(eq(forumNeedPosts.urgency, filters.urgency));
-    }
-    if (filters?.status) {
-      conditions.push(eq(forumNeedPosts.status, filters.status));
-    } else {
-      conditions.push(eq(forumNeedPosts.status, 'active'));
-    }
-    if (filters?.userId) {
-      conditions.push(eq(forumNeedPosts.userId, filters.userId));
-    }
-    if (filters?.searchQuery) {
-      conditions.push(
-        or(
-          ilike(forumNeedPosts.title, `%${filters.searchQuery}%`),
-          ilike(forumNeedPosts.description, `%${filters.searchQuery}%`)
-        )
-      );
-    }
-
-    let query = db
-      .select({
-        post: forumNeedPosts,
-        author: {
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          username: users.username,
-          profilePhoto: users.profileImageUrl,
-        },
-      })
-      .from(forumNeedPosts)
-      .leftJoin(users, eq(forumNeedPosts.userId, users.id));
-
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
-    }
-
-    const results = await query.orderBy(desc(forumNeedPosts.isFeatured), desc(forumNeedPosts.createdAt));
-    
-    return results.map((r: any) => ({
-      ...r.post,
-      author: r.author,
-    }));
-  }
-
-  async getForumNeedPost(id: string): Promise<ForumNeedPost | undefined> {
-    const result = await db.select().from(forumNeedPosts).where(eq(forumNeedPosts.id, id));
-    return result[0];
-  }
-
-  async getForumNeedPostBySlug(slug: string): Promise<ForumNeedPost | undefined> {
-    const result = await db.select().from(forumNeedPosts).where(eq(forumNeedPosts.slug, slug));
-    return result[0];
-  }
-
-  async createForumNeedPost(post: InsertForumNeedPost): Promise<ForumNeedPost> {
-    const result = await db.insert(forumNeedPosts).values(post).returning();
-    return result[0];
-  }
-
-  async updateForumNeedPost(id: string, updates: Partial<InsertForumNeedPost>): Promise<ForumNeedPost> {
-    const result = await db.update(forumNeedPosts)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(forumNeedPosts.id, id))
-      .returning();
-    return result[0];
-  }
-
-  async deleteForumNeedPost(id: string): Promise<void> {
-    await db.delete(forumNeedPosts).where(eq(forumNeedPosts.id, id));
-  }
-
-  async incrementNeedPostViews(id: string): Promise<void> {
-    await db.update(forumNeedPosts)
-      .set({ views: sql`${forumNeedPosts.views} + 1` })
-      .where(eq(forumNeedPosts.id, id));
   }
 
   // ========== ADVERTISEMENT SYSTEM ==========
