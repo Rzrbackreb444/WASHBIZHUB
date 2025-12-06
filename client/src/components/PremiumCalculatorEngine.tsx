@@ -367,7 +367,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
               </Tooltip>
             )}
           </Label>
-          <Badge variant="secondary" className="font-mono text-sm px-3 bg-primary/10 text-primary border-primary/20">
+          <Badge variant="secondary" className="font-mono text-sm px-3 bg-sky-500/15 text-sky-400 border-sky-500/30 font-semibold">
             {displayValue}
           </Badge>
         </div>

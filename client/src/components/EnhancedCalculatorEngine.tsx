@@ -243,7 +243,7 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">{formatValue(numValue, 'number', 0)}</span>
+            <span className="text-sm font-semibold text-sky-400">{formatValue(numValue, 'number', 0)}</span>
           </div>
           <Slider
             value={[numValue]}
