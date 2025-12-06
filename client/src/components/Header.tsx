@@ -17,8 +17,8 @@ const navLinks = [
   { href: "/buy-laundromat", label: "Buy" },
   { href: "/sell-your-laundromat", label: "Sell" },
   { href: "/equipment-builder", label: "Get Quotes", featured: true },
+  { href: "/service-guy-ai", label: "Service Guy AI", featured: true },
   { href: "/forum", label: "Forum" },
-  { href: "/consultation", label: "Consultations" },
 ];
 
 const megaMenuSections = [
@@ -47,6 +47,7 @@ const megaMenuSections = [
       { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's your laundromat worth?" },
       { href: "/calculators", label: "All Calculators", description: "ROI, profit & more" },
       { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs" },
+      { href: "/service-guy-ai", label: "Service Guy AI", featured: true, description: "AI-powered repair assistant" },
     ]
   },
   {
