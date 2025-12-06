@@ -127,7 +127,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       savedReports: 100,
       teamMembers: 1,
     },
-    cta: 'Start 7-Day Free Trial',
+    cta: 'Get Started',
     ctaVariant: 'default',
     badge: 'MOST POPULAR',
     badgeColor: 'bg-[#C8A661] text-white',
@@ -161,7 +161,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       savedReports: 'unlimited',
       teamMembers: 3,
     },
-    cta: 'Start 7-Day Free Trial',
+    cta: 'Get Started',
     ctaVariant: 'default',
   },
   enterprise: {
@@ -371,11 +371,11 @@ export const PLATFORM_PRICING_FAQS = [
   },
   {
     question: "Do I need a credit card to start?",
-    answer: "No credit card is needed for the Free tier - just sign up and start analyzing locations immediately. For paid plans (Starter, Pro, Enterprise), we require a credit card to start your 7-day free trial. You won't be charged until after the trial ends, and you can cancel anytime before then."
+    answer: "No credit card is needed for the Free tier - just sign up and start analyzing locations immediately with 3 free CLEANBI analyses. For paid plans (Starter, Pro, Enterprise), a credit card is required at checkout. All paid plans include a 30-day money-back guarantee."
   },
   {
-    question: "How does the free trial work?",
-    answer: "Paid plans include a 7-day free trial with full access to all features. A credit card is required to start the trial for verification, but you won't be charged until day 8. Enterprise plans get a 14-day trial. Cancel anytime during the trial and you won't be charged."
+    question: "What is the money-back guarantee?",
+    answer: "All paid plans include a 30-day money-back guarantee. If you're not completely satisfied within the first 30 days, contact us for a full refund - no questions asked. We're confident you'll love the value WashBizHub provides."
   },
   {
     question: "Can I upgrade or downgrade anytime?",
