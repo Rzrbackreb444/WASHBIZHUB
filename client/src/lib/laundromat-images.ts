@@ -64,6 +64,21 @@ import generatedPremiumInterior from "@assets/generated_images/premium_modern_la
 import generatedInvestmentAnalysis from "@assets/generated_images/laundromat_investment_analysis_concept.png";
 import generatedLocationIntelligence from "@assets/generated_images/location_intelligence_map_concept.png";
 
+// AI GENERATED: Equipment Blog Images - for variety in blog posts
+import genRetoolGuide from "@assets/generated_images/laundromat_retool_guide_hero.png";
+import genBrandComparison from "@assets/generated_images/brand_comparison_equipment_photo.png";
+import genHotelOpl from "@assets/generated_images/hotel_opl_equipment_photo.png";
+import genPricingGuide from "@assets/generated_images/equipment_pricing_guide_photo.png";
+import genTexasEquipment from "@assets/generated_images/texas_equipment_dealer_photo.png";
+import genControlPanel from "@assets/generated_images/equipment_control_panel_detail.png";
+import genCommercialDryers from "@assets/generated_images/commercial_dryers_row_photo.png";
+import genCleanLinens from "@assets/generated_images/clean_linens_hospitality_image.png";
+import genWasherExtractor from "@assets/generated_images/industrial_washer_extractor.png";
+import genLaundromatExterior from "@assets/generated_images/laundromat_exterior_aerial.png";
+import genInstallation from "@assets/generated_images/equipment_installation_delivery.png";
+import genPaymentKiosk from "@assets/generated_images/payment_kiosk_technology.png";
+import genUtilityRoom from "@assets/generated_images/utility_room_infrastructure.png";
+
 // Image categories with SEO-optimized alt text for different use cases
 export const laundromatImages = {
   // Branding & Hero Images
@@ -282,6 +297,86 @@ export const laundromatImages = {
     alt: "Location pin marker on city map for business site selection - CLEANBI location intelligence and market analysis",
     category: "location",
     bestFor: ["CLEANBI analysis", "location guides", "market analysis", "site selection"]
+  },
+  
+  // AI GENERATED: Equipment & Blog Variety Images
+  genRetoolGuide: {
+    src: genRetoolGuide,
+    alt: "Modern laundromat interior with stainless steel Dexter washers - commercial laundry retool guide",
+    category: "equipment",
+    bestFor: ["retool content", "equipment blogs", "upgrade guides"]
+  },
+  genBrandComparison: {
+    src: genBrandComparison,
+    alt: "Commercial washing machines comparison - Dexter vs Continental Girbau equipment analysis",
+    category: "equipment",
+    bestFor: ["comparison content", "brand analysis", "equipment reviews"]
+  },
+  genHotelOpl: {
+    src: genHotelOpl,
+    alt: "Luxury hotel on-premise laundry with commercial equipment and folded linens - OPL hospitality solutions",
+    category: "hospitality",
+    bestFor: ["hotel content", "OPL guides", "hospitality laundry"]
+  },
+  genPricingGuide: {
+    src: genPricingGuide,
+    alt: "Commercial laundry equipment showroom with price displays - equipment pricing guide",
+    category: "pricing",
+    bestFor: ["pricing content", "equipment costs", "buying guides"]
+  },
+  genTexasEquipment: {
+    src: genTexasEquipment,
+    alt: "Texas commercial laundry equipment dealership - Dallas Houston Austin laundry equipment sales",
+    category: "regional",
+    bestFor: ["regional content", "Texas market", "local equipment"]
+  },
+  genControlPanel: {
+    src: genControlPanel,
+    alt: "Commercial washer digital control panel with modern interface - laundry equipment technology",
+    category: "equipment",
+    bestFor: ["technology content", "equipment features", "operations guides"]
+  },
+  genCommercialDryers: {
+    src: genCommercialDryers,
+    alt: "Row of commercial tumble dryers in laundromat facility - high capacity drying equipment",
+    category: "equipment",
+    bestFor: ["dryer content", "facility photos", "equipment blogs"]
+  },
+  genCleanLinens: {
+    src: genCleanLinens,
+    alt: "Stack of clean white towels on laundry cart - hospitality linen service",
+    category: "hospitality",
+    bestFor: ["hospitality content", "linen service", "hotel laundry"]
+  },
+  genWasherExtractor: {
+    src: genWasherExtractor,
+    alt: "Industrial washer-extractor machine - high capacity commercial laundry equipment",
+    category: "equipment",
+    bestFor: ["industrial content", "large equipment", "washer-extractor guides"]
+  },
+  genLaundromatExterior: {
+    src: genLaundromatExterior,
+    alt: "Aerial view of modern laundromat building exterior at dusk - commercial real estate",
+    category: "location",
+    bestFor: ["real estate content", "location analysis", "site selection"]
+  },
+  genInstallation: {
+    src: genInstallation,
+    alt: "Commercial laundry equipment delivery and installation - professional equipment setup service",
+    category: "operations",
+    bestFor: ["installation guides", "equipment delivery", "setup content"]
+  },
+  genPaymentKiosk: {
+    src: genPaymentKiosk,
+    alt: "Modern laundromat payment kiosk with card reader - cashless payment technology",
+    category: "technology",
+    bestFor: ["payment content", "technology upgrades", "cashless systems"]
+  },
+  genUtilityRoom: {
+    src: genUtilityRoom,
+    alt: "Commercial laundry utility room with water heater and boiler - energy efficient infrastructure",
+    category: "operations",
+    bestFor: ["utility content", "infrastructure guides", "energy efficiency"]
   }
 };
 
@@ -303,6 +398,33 @@ export function getImagesForUseCase(useCase: string) {
 export function getRandomImageFromCategory(category: string) {
   const images = getImagesByCategory(category);
   return images[Math.floor(Math.random() * images.length)];
+}
+
+// Blog variety images - cycle through for diverse visual appearance
+export const blogVarietyImages = [
+  laundromatImages.genRetoolGuide,
+  laundromatImages.genBrandComparison,
+  laundromatImages.genHotelOpl,
+  laundromatImages.genPricingGuide,
+  laundromatImages.genTexasEquipment,
+  laundromatImages.genControlPanel,
+  laundromatImages.genCommercialDryers,
+  laundromatImages.genCleanLinens,
+  laundromatImages.genWasherExtractor,
+  laundromatImages.genLaundromatExterior,
+  laundromatImages.genInstallation,
+  laundromatImages.genPaymentKiosk,
+  laundromatImages.genUtilityRoom,
+  laundromatImages.dexterPremium,
+  laundromatImages.modernFacility,
+  laundromatImages.brightModern,
+  laundromatImages.genPremiumInterior,
+  laundromatImages.genInvestmentAnalysis
+];
+
+// Get a varied image for blog post by index (for consistent but varied display)
+export function getBlogVarietyImage(index: number) {
+  return blogVarietyImages[index % blogVarietyImages.length];
 }
 
 // Default featured images by blog category
