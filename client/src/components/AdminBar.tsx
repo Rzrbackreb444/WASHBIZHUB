@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,7 +33,17 @@ import {
   Globe,
   AlertCircle,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Image,
+  Upload,
+  Twitter,
+  Share2,
+  Target,
+  Zap,
+  RefreshCw,
+  Eye,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -63,6 +73,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EditContext {
   type: string;
@@ -107,16 +120,49 @@ export default function AdminBar() {
   const [quickGenTopic, setQuickGenTopic] = useState("");
   const [quickGenCategory, setQuickGenCategory] = useState("Guides");
   const [seoEditorOpen, setSeoEditorOpen] = useState(false);
+  const [seoTab, setSeoTab] = useState("basic");
+  
+  // Basic SEO fields
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
   const [seoKeywords, setSeoKeywords] = useState("");
+  
+  // Focus Keyphrase
+  const [focusKeyphrase, setFocusKeyphrase] = useState("");
+  const [secondaryKeyphrases, setSecondaryKeyphrases] = useState("");
+  
+  // Featured Image
+  const [featuredImageUrl, setFeaturedImageUrl] = useState("");
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
+  
+  // Social Media - Open Graph
+  const [ogTitle, setOgTitle] = useState("");
+  const [ogDescription, setOgDescription] = useState("");
+  const [ogImageUrl, setOgImageUrl] = useState("");
+  
+  // Social Media - Twitter
+  const [twitterTitle, setTwitterTitle] = useState("");
+  const [twitterDescription, setTwitterDescription] = useState("");
+  const [twitterImageUrl, setTwitterImageUrl] = useState("");
+  const [twitterCardType, setTwitterCardType] = useState("summary_large_image");
+  
+  // Optimization Mode
+  const [optimizationMode, setOptimizationMode] = useState<"auto" | "manual" | "hybrid">("manual");
+  
+  // Audit
   const [seoAuditStatus, setSeoAuditStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [seoScore, setSeoScore] = useState(0);
   const [seoAuditResults, setSeoAuditResults] = useState<{
-    titleScore: "good" | "warning" | "error";
-    descriptionScore: "good" | "warning" | "error";
-    keywordsScore: "good" | "warning" | "error";
-    issues: string[];
+    overallScore: number;
+    titleScore: number;
+    descriptionScore: number;
+    keyphraseScore: number;
+    imageScore: number;
+    socialScore: number;
+    issues: { type: "error" | "warning" | "success"; message: string }[];
   } | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const quickGenerateMutation = useMutation({
@@ -171,9 +217,35 @@ export default function AdminBar() {
     },
     onSuccess: (data) => {
       if (data) {
+        // Basic SEO
         setSeoTitle(data.title || "");
         setSeoDescription(data.description || "");
         setSeoKeywords(Array.isArray(data.keywords) ? data.keywords.join(", ") : "");
+        
+        // Focus Keyphrase
+        setFocusKeyphrase(data.focusKeyphrase || "");
+        setSecondaryKeyphrases(Array.isArray(data.secondaryKeyphrases) ? data.secondaryKeyphrases.join(", ") : "");
+        
+        // Featured Image
+        setFeaturedImageUrl(data.featuredImageUrl || "");
+        setFeaturedImageAlt(data.featuredImageAlt || "");
+        
+        // Open Graph
+        setOgTitle(data.ogTitle || "");
+        setOgDescription(data.ogDescription || "");
+        setOgImageUrl(data.ogImageUrl || "");
+        
+        // Twitter
+        setTwitterTitle(data.twitterTitle || "");
+        setTwitterDescription(data.twitterDescription || "");
+        setTwitterImageUrl(data.twitterImageUrl || "");
+        setTwitterCardType(data.twitterCardType || "summary_large_image");
+        
+        // Optimization Mode
+        setOptimizationMode(data.optimizationMode || "manual");
+        
+        // Score
+        setSeoScore(data.seoScore || 0);
       }
     }
   });
@@ -182,9 +254,27 @@ export default function AdminBar() {
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/admin/page-seo", {
         pagePath: location,
+        pageType: "content",
         title: seoTitle,
         description: seoDescription,
-        keywords: seoKeywords.split(",").map(k => k.trim()).filter(Boolean)
+        keywords: seoKeywords.split(",").map(k => k.trim()).filter(Boolean),
+        focusKeyphrase,
+        secondaryKeyphrases: secondaryKeyphrases.split(",").map(k => k.trim()).filter(Boolean),
+        featuredImageUrl,
+        featuredImageAlt,
+        ogTitle: ogTitle || seoTitle,
+        ogDescription: ogDescription || seoDescription,
+        ogImageUrl: ogImageUrl || featuredImageUrl,
+        twitterTitle: twitterTitle || ogTitle || seoTitle,
+        twitterDescription: twitterDescription || ogDescription || seoDescription,
+        twitterImageUrl: twitterImageUrl || ogImageUrl || featuredImageUrl,
+        twitterCardType,
+        optimizationMode,
+        seoScore,
+        isManuallyEdited: true,
+        faqs: [],
+        features: [],
+        reviews: []
       });
       return response.json();
     },
@@ -193,7 +283,7 @@ export default function AdminBar() {
       setSeoEditorOpen(false);
       toast({ 
         title: "SEO Updated", 
-        description: "Page SEO metadata saved successfully." 
+        description: "All SEO metadata saved successfully." 
       });
     },
     onError: (error: Error) => {
@@ -207,6 +297,7 @@ export default function AdminBar() {
 
   const openSeoEditor = () => {
     setSeoEditorOpen(true);
+    setSeoTab("basic");
     setSeoAuditStatus("idle");
     setSeoAuditResults(null);
     fetchSeoMutation.mutate(location);
@@ -216,52 +307,169 @@ export default function AdminBar() {
     setSeoAuditStatus("loading");
     
     setTimeout(() => {
-      const issues: string[] = [];
-      let titleScore: "good" | "warning" | "error" = "good";
-      let descriptionScore: "good" | "warning" | "error" = "good";
-      let keywordsScore: "good" | "warning" | "error" = "good";
+      const issues: { type: "error" | "warning" | "success"; message: string }[] = [];
+      let titleScore = 0;
+      let descriptionScore = 0;
+      let keyphraseScore = 0;
+      let imageScore = 0;
+      let socialScore = 0;
 
+      // Title analysis (max 25 points)
       if (seoTitle.length === 0) {
-        titleScore = "error";
-        issues.push("Title is empty - add an SEO title");
+        issues.push({ type: "error", message: "Title is empty - add an SEO title" });
+        titleScore = 0;
       } else if (seoTitle.length < 30) {
-        titleScore = "warning";
-        issues.push("Title is too short (under 30 chars) - aim for 50-60");
+        issues.push({ type: "warning", message: "Title is too short (under 30 chars) - aim for 50-60" });
+        titleScore = 10;
       } else if (seoTitle.length > 60) {
-        titleScore = "warning";
-        issues.push("Title is too long (over 60 chars) - may be truncated");
+        issues.push({ type: "warning", message: "Title is too long (over 60 chars) - may be truncated" });
+        titleScore = 15;
+      } else {
+        titleScore = 20;
+      }
+      
+      // Check if focus keyphrase is in title
+      if (focusKeyphrase && seoTitle.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+        issues.push({ type: "success", message: "Focus keyphrase found in title" });
+        titleScore += 5;
+      } else if (focusKeyphrase) {
+        issues.push({ type: "error", message: "Focus keyphrase not in title - add it for better SEO" });
       }
 
+      // Description analysis (max 25 points)
       if (seoDescription.length === 0) {
-        descriptionScore = "error";
-        issues.push("Meta description is empty - add a description");
+        issues.push({ type: "error", message: "Meta description is empty - add a description" });
+        descriptionScore = 0;
       } else if (seoDescription.length < 100) {
-        descriptionScore = "warning";
-        issues.push("Description is too short (under 100 chars) - aim for 150-160");
+        issues.push({ type: "warning", message: "Description too short (under 100 chars) - aim for 150-160" });
+        descriptionScore = 10;
       } else if (seoDescription.length > 160) {
-        descriptionScore = "warning";
-        issues.push("Description is too long (over 160 chars) - may be truncated");
+        issues.push({ type: "warning", message: "Description too long (over 160 chars) - may be truncated" });
+        descriptionScore = 15;
+      } else {
+        descriptionScore = 20;
+      }
+      
+      // Check if focus keyphrase is in description
+      if (focusKeyphrase && seoDescription.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+        issues.push({ type: "success", message: "Focus keyphrase found in description" });
+        descriptionScore += 5;
+      } else if (focusKeyphrase) {
+        issues.push({ type: "warning", message: "Consider adding focus keyphrase to description" });
       }
 
-      const keywordsArray = seoKeywords.split(",").map(k => k.trim()).filter(Boolean);
-      if (keywordsArray.length === 0) {
-        keywordsScore = "error";
-        issues.push("No keywords defined - add 3-5 relevant keywords");
-      } else if (keywordsArray.length < 3) {
-        keywordsScore = "warning";
-        issues.push("Few keywords (under 3) - consider adding more");
-      } else if (keywordsArray.length > 10) {
-        keywordsScore = "warning";
-        issues.push("Too many keywords (over 10) - focus on most relevant");
+      // Focus Keyphrase analysis (max 25 points)
+      if (!focusKeyphrase) {
+        issues.push({ type: "error", message: "No focus keyphrase set - this is essential for SEO" });
+        keyphraseScore = 0;
+      } else {
+        keyphraseScore = 15;
+        issues.push({ type: "success", message: `Focus keyphrase: "${focusKeyphrase}"` });
+        
+        const secondaryList = secondaryKeyphrases.split(",").map(k => k.trim()).filter(Boolean);
+        if (secondaryList.length >= 2) {
+          keyphraseScore += 10;
+          issues.push({ type: "success", message: `${secondaryList.length} secondary keyphrases defined` });
+        } else if (secondaryList.length > 0) {
+          keyphraseScore += 5;
+          issues.push({ type: "warning", message: "Add more secondary keyphrases (aim for 2-5)" });
+        } else {
+          issues.push({ type: "warning", message: "No secondary keyphrases - add 2-5 for better coverage" });
+        }
       }
 
-      if (issues.length === 0) {
-        issues.push("All SEO fields look good!");
+      // Featured Image analysis (max 15 points)
+      if (!featuredImageUrl) {
+        issues.push({ type: "warning", message: "No featured image - add one for better engagement" });
+        imageScore = 0;
+      } else {
+        imageScore = 10;
+        issues.push({ type: "success", message: "Featured image is set" });
+        
+        if (featuredImageAlt) {
+          imageScore += 5;
+          issues.push({ type: "success", message: "Image alt text is set" });
+        } else {
+          issues.push({ type: "error", message: "Missing image alt text - important for accessibility" });
+        }
       }
 
-      setSeoAuditResults({ titleScore, descriptionScore, keywordsScore, issues });
+      // Social Media analysis (max 10 points)
+      if (ogTitle || ogDescription || ogImageUrl) {
+        socialScore += 5;
+        issues.push({ type: "success", message: "Open Graph tags configured" });
+      } else {
+        issues.push({ type: "warning", message: "Open Graph tags not set - will use defaults" });
+      }
+      
+      if (twitterTitle || twitterDescription || twitterImageUrl) {
+        socialScore += 5;
+        issues.push({ type: "success", message: "Twitter Card configured" });
+      } else {
+        issues.push({ type: "warning", message: "Twitter Card not set - will use defaults" });
+      }
+
+      const overallScore = titleScore + descriptionScore + keyphraseScore + imageScore + socialScore;
+      setSeoScore(overallScore);
+      
+      setSeoAuditResults({ 
+        overallScore,
+        titleScore, 
+        descriptionScore, 
+        keyphraseScore,
+        imageScore,
+        socialScore,
+        issues 
+      });
       setSeoAuditStatus("done");
-    }, 500);
+    }, 300);
+  };
+
+  // AI-powered optimization
+  const aiOptimizeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/admin/page-seo/ai-optimize", {
+        pagePath: location,
+        focusKeyphrase,
+        currentTitle: seoTitle,
+        currentDescription: seoDescription
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.title) setSeoTitle(data.title);
+      if (data.description) setSeoDescription(data.description);
+      if (data.keywords) setSeoKeywords(data.keywords.join(", "));
+      if (data.ogTitle) setOgTitle(data.ogTitle);
+      if (data.ogDescription) setOgDescription(data.ogDescription);
+      toast({ 
+        title: "AI Optimization Complete", 
+        description: "SEO fields have been optimized based on your focus keyphrase." 
+      });
+      runQuickAudit();
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "AI Optimization Failed", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const getScoreColor = (score: number, max: number) => {
+    const percentage = (score / max) * 100;
+    if (percentage >= 80) return "text-green-400";
+    if (percentage >= 60) return "text-amber-400";
+    return "text-red-400";
+  };
+
+  const getOverallGrade = (score: number) => {
+    if (score >= 90) return { grade: "A+", color: "text-green-400" };
+    if (score >= 80) return { grade: "A", color: "text-green-400" };
+    if (score >= 70) return { grade: "B", color: "text-lime-400" };
+    if (score >= 60) return { grade: "C", color: "text-amber-400" };
+    return { grade: "Needs Work", color: "text-[#C8A661]" };
   };
 
   const getScoreIcon = (score: "good" | "warning" | "error") => {
@@ -455,139 +663,420 @@ export default function AdminBar() {
             </DialogContent>
           </Dialog>
 
-          {/* SEO Editor Dialog */}
+          {/* Enhanced SEO Editor Dialog */}
           <Dialog open={seoEditorOpen} onOpenChange={setSeoEditorOpen}>
-            <DialogContent className="sm:max-w-lg bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
+            <DialogContent className="max-w-2xl max-h-[90vh] bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-white">
-                  <Globe className="w-5 h-5 text-blue-400" />
-                  Page SEO Editor
+                <DialogTitle className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-blue-400" />
+                    Page SEO Editor
+                  </div>
+                  {seoAuditResults && (
+                    <div className="flex items-center gap-2">
+                      <span className={`text-2xl font-bold ${getOverallGrade(seoAuditResults.overallScore).color}`}>
+                        {getOverallGrade(seoAuditResults.overallScore).grade}
+                      </span>
+                      <span className="text-sm text-[#8c8f91]">{seoAuditResults.overallScore}/100</span>
+                    </div>
+                  )}
                 </DialogTitle>
-                <DialogDescription>
-                  Edit SEO metadata for the current page. Changes will be applied immediately.
+                <DialogDescription asChild>
+                  <div className="flex items-center justify-between text-sm text-[#8c8f91]">
+                    <span>Comprehensive SEO editor with focus keyphrase optimization</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs">Mode:</span>
+                      <Select value={optimizationMode} onValueChange={(v: "auto" | "manual" | "hybrid") => setOptimizationMode(v)}>
+                        <SelectTrigger className="h-6 w-24 bg-[#32373c] border-[#3c4043] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1d2327] border-[#3c4043]">
+                          <SelectItem value="manual" className="text-[#c3c4c7] text-xs">Manual</SelectItem>
+                          <SelectItem value="hybrid" className="text-[#c3c4c7] text-xs">Hybrid</SelectItem>
+                          <SelectItem value="auto" className="text-[#c3c4c7] text-xs">Auto AI</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="space-y-4 py-4">
-                <div className="flex items-center gap-2 text-xs text-[#8c8f91] bg-[#32373c] px-3 py-2 rounded">
-                  <MapPin className="w-3 h-3" />
-                  <span className="font-mono">{location}</span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="seo-title" className="text-sm flex items-center gap-2">
-                      SEO Title
-                      {seoAuditResults && getScoreIcon(seoAuditResults.titleScore)}
-                    </Label>
-                    <span className={`text-xs ${seoTitle.length >= 50 && seoTitle.length <= 60 ? 'text-green-400' : seoTitle.length > 60 ? 'text-red-400' : 'text-amber-400'}`}>
-                      {seoTitle.length}/60
-                    </span>
-                  </div>
-                  <Input
-                    id="seo-title"
-                    placeholder="Page title for search engines (50-60 chars ideal)"
-                    value={seoTitle}
-                    onChange={(e) => setSeoTitle(e.target.value)}
-                    className="bg-[#32373c] border-[#3c4043] text-white"
-                    data-testid="input-seo-title"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="seo-description" className="text-sm flex items-center gap-2">
-                      Meta Description
-                      {seoAuditResults && getScoreIcon(seoAuditResults.descriptionScore)}
-                    </Label>
-                    <span className={`text-xs ${seoDescription.length >= 150 && seoDescription.length <= 160 ? 'text-green-400' : seoDescription.length > 160 ? 'text-red-400' : 'text-amber-400'}`}>
-                      {seoDescription.length}/160
-                    </span>
-                  </div>
-                  <Textarea
-                    id="seo-description"
-                    placeholder="Brief description for search results (150-160 chars ideal)"
-                    value={seoDescription}
-                    onChange={(e) => setSeoDescription(e.target.value)}
-                    className="bg-[#32373c] border-[#3c4043] text-white resize-none"
-                    rows={3}
-                    data-testid="input-seo-description"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="seo-keywords" className="text-sm flex items-center gap-2">
-                      Keywords
-                      {seoAuditResults && getScoreIcon(seoAuditResults.keywordsScore)}
-                    </Label>
-                  </div>
-                  <Input
-                    id="seo-keywords"
-                    placeholder="keyword1, keyword2, keyword3 (comma-separated)"
-                    value={seoKeywords}
-                    onChange={(e) => setSeoKeywords(e.target.value)}
-                    className="bg-[#32373c] border-[#3c4043] text-white"
-                    data-testid="input-seo-keywords"
-                  />
-                  <p className="text-xs text-[#8c8f91]">
-                    {seoKeywords.split(",").map(k => k.trim()).filter(Boolean).length} keywords defined
-                  </p>
-                </div>
-
-                <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215]">
-                  <p className="text-xs text-[#8c8f91] mb-2">Google Preview</p>
-                  <div className="space-y-1">
-                    <p className="text-blue-400 text-sm truncate hover:underline cursor-pointer">
-                      {seoTitle || "Page Title Will Appear Here"}
-                    </p>
-                    <p className="text-xs text-green-400 truncate">
-                      washbizhub.com{location}
-                    </p>
-                    <p className="text-xs text-[#9aa0a6] line-clamp-2">
-                      {seoDescription || "Your meta description will appear here. Make it compelling and include your target keywords."}
-                    </p>
-                  </div>
-                </div>
-
-                {seoAuditResults && (
-                  <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215]">
-                    <p className="text-xs text-[#8c8f91] mb-2">Quick Audit Results</p>
-                    <ul className="space-y-1">
-                      {seoAuditResults.issues.map((issue, idx) => (
-                        <li key={idx} className="text-xs text-[#c3c4c7] flex items-start gap-2">
-                          <span className="mt-0.5">
-                            {issue.includes("look good") ? (
-                              <CheckCircle2 className="w-3 h-3 text-green-400" />
-                            ) : issue.includes("empty") || issue.includes("No keywords") ? (
-                              <AlertCircle className="w-3 h-3 text-red-400" />
-                            ) : (
-                              <AlertTriangle className="w-3 h-3 text-amber-400" />
-                            )}
-                          </span>
-                          {issue}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              <div className="flex items-center gap-2 text-xs text-[#8c8f91] bg-[#32373c] px-3 py-2 rounded">
+                <MapPin className="w-3 h-3" />
+                <span className="font-mono flex-1 truncate">{location}</span>
+                {optimizationMode !== "manual" && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-6 px-2 text-amber-400 hover:text-amber-300"
+                    onClick={() => aiOptimizeMutation.mutate()}
+                    disabled={aiOptimizeMutation.isPending || !focusKeyphrase}
+                  >
+                    {aiOptimizeMutation.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <Sparkles className="w-3 h-3 mr-1" />
+                    )}
+                    AI Optimize
+                  </Button>
                 )}
               </div>
 
-              <DialogFooter className="flex gap-2 sm:gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={runQuickAudit}
-                  disabled={seoAuditStatus === "loading"}
-                  className="text-[#c3c4c7] gap-2"
-                  data-testid="button-seo-audit"
-                >
-                  {seoAuditStatus === "loading" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Search className="w-4 h-4" />
-                  )}
-                  Quick Audit
-                </Button>
+              <ScrollArea className="max-h-[50vh]">
+                <Tabs value={seoTab} onValueChange={setSeoTab} className="w-full">
+                  <TabsList className="w-full grid grid-cols-4 bg-[#32373c]">
+                    <TabsTrigger value="basic" className="text-xs data-[state=active]:bg-[#1d2327]" data-testid="tab-seo-basic">
+                      <Target className="w-3 h-3 mr-1" />
+                      Basic
+                    </TabsTrigger>
+                    <TabsTrigger value="image" className="text-xs data-[state=active]:bg-[#1d2327]" data-testid="tab-seo-image">
+                      <Image className="w-3 h-3 mr-1" />
+                      Image
+                    </TabsTrigger>
+                    <TabsTrigger value="social" className="text-xs data-[state=active]:bg-[#1d2327]" data-testid="tab-seo-social">
+                      <Share2 className="w-3 h-3 mr-1" />
+                      Social
+                    </TabsTrigger>
+                    <TabsTrigger value="audit" className="text-xs data-[state=active]:bg-[#1d2327]" data-testid="tab-seo-audit">
+                      <Eye className="w-3 h-3 mr-1" />
+                      Audit
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Basic SEO Tab */}
+                  <TabsContent value="basic" className="space-y-4 mt-4">
+                    <div className="p-3 bg-[#0f1215] rounded-lg border border-[#3c4043]">
+                      <Label className="text-sm text-amber-400 flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4" />
+                        Focus Keyphrase
+                      </Label>
+                      <Input
+                        placeholder="e.g., laundromat equipment quotes"
+                        value={focusKeyphrase}
+                        onChange={(e) => setFocusKeyphrase(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white mb-2"
+                        data-testid="input-focus-keyphrase"
+                      />
+                      <Input
+                        placeholder="Secondary keyphrases (comma-separated)"
+                        value={secondaryKeyphrases}
+                        onChange={(e) => setSecondaryKeyphrases(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white text-xs"
+                        data-testid="input-secondary-keyphrases"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">SEO Title</Label>
+                        <span className={`text-xs ${seoTitle.length >= 50 && seoTitle.length <= 60 ? 'text-green-400' : seoTitle.length > 60 ? 'text-red-400' : 'text-amber-400'}`}>
+                          {seoTitle.length}/60
+                        </span>
+                      </div>
+                      <Input
+                        placeholder="Page title for search engines"
+                        value={seoTitle}
+                        onChange={(e) => setSeoTitle(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white"
+                        data-testid="input-seo-title"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Meta Description</Label>
+                        <span className={`text-xs ${seoDescription.length >= 150 && seoDescription.length <= 160 ? 'text-green-400' : seoDescription.length > 160 ? 'text-red-400' : 'text-amber-400'}`}>
+                          {seoDescription.length}/160
+                        </span>
+                      </div>
+                      <Textarea
+                        placeholder="Brief description for search results"
+                        value={seoDescription}
+                        onChange={(e) => setSeoDescription(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white resize-none"
+                        rows={3}
+                        data-testid="input-seo-description"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Keywords</Label>
+                      <Input
+                        placeholder="keyword1, keyword2, keyword3"
+                        value={seoKeywords}
+                        onChange={(e) => setSeoKeywords(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white"
+                        data-testid="input-seo-keywords"
+                      />
+                    </div>
+
+                    <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215]">
+                      <p className="text-xs text-[#8c8f91] mb-2">Google Preview</p>
+                      <div className="space-y-1">
+                        <p className="text-blue-400 text-sm truncate">{seoTitle || "Page Title"}</p>
+                        <p className="text-xs text-green-400">washbizhub.com{location}</p>
+                        <p className="text-xs text-[#9aa0a6] line-clamp-2">{seoDescription || "Meta description..."}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Image Tab */}
+                  <TabsContent value="image" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm flex items-center gap-2">
+                        <Image className="w-4 h-4" />
+                        Featured Image
+                      </Label>
+                      
+                      <div 
+                        className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                          imageUploading ? 'border-amber-500 bg-amber-500/10' : 'border-[#3c4043] hover:border-amber-500 hover:bg-[#32373c]'
+                        }`}
+                        onClick={() => !imageUploading && fileInputRef.current?.click()}
+                        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onDrop={handleImageDrop}
+                        data-testid="dropzone-featured-image"
+                      >
+                        <input 
+                          ref={fileInputRef}
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden"
+                          onChange={handleImageSelect}
+                        />
+                        {imageUploading ? (
+                          <div className="flex flex-col items-center gap-2 py-4">
+                            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+                            <p className="text-sm text-amber-400">Uploading image...</p>
+                          </div>
+                        ) : featuredImageUrl ? (
+                          <div className="relative">
+                            <img 
+                              src={featuredImageUrl} 
+                              alt={featuredImageAlt || "Preview"} 
+                              className="w-full h-32 object-cover rounded"
+                              onError={(e) => (e.currentTarget.src = '')}
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded">
+                              <p className="text-white text-sm">Click or drop to replace</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 py-4">
+                            <Upload className="w-8 h-8 text-[#8c8f91]" />
+                            <p className="text-sm text-[#8c8f91]">Drop image here or click to upload</p>
+                            <p className="text-xs text-[#6b7280]">Recommended: 1200x630px for social sharing</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Or paste image URL"
+                          value={featuredImageUrl}
+                          onChange={(e) => setFeaturedImageUrl(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white flex-1"
+                          data-testid="input-featured-image-url"
+                        />
+                        {featuredImageUrl && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-400 hover:text-red-300"
+                            onClick={() => { setFeaturedImageUrl(''); setFeaturedImageAlt(''); }}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Image Alt Text</Label>
+                      <Input
+                        placeholder="Descriptive alt text for accessibility"
+                        value={featuredImageAlt}
+                        onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                        className="bg-[#32373c] border-[#3c4043] text-white"
+                        data-testid="input-featured-image-alt"
+                      />
+                      {focusKeyphrase && !featuredImageAlt.toLowerCase().includes(focusKeyphrase.toLowerCase()) && (
+                        <p className="text-xs text-amber-400 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" />
+                          Consider including focus keyphrase in alt text
+                        </p>
+                      )}
+                      {focusKeyphrase && featuredImageAlt.toLowerCase().includes(focusKeyphrase.toLowerCase()) && (
+                        <p className="text-xs text-green-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Focus keyphrase found in alt text
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* Social Tab */}
+                  <TabsContent value="social" className="space-y-4 mt-4">
+                    <div className="p-3 bg-[#0f1215] rounded-lg border border-[#3c4043]">
+                      <p className="text-sm text-blue-400 flex items-center gap-2 mb-3">
+                        <Share2 className="w-4 h-4" />
+                        Open Graph (Facebook, LinkedIn)
+                      </p>
+                      <div className="space-y-3">
+                        <Input
+                          placeholder="OG Title (defaults to SEO title)"
+                          value={ogTitle}
+                          onChange={(e) => setOgTitle(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white text-xs"
+                        />
+                        <Textarea
+                          placeholder="OG Description (defaults to meta description)"
+                          value={ogDescription}
+                          onChange={(e) => setOgDescription(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white resize-none text-xs"
+                          rows={2}
+                        />
+                        <Input
+                          placeholder="OG Image URL (1200x630 recommended)"
+                          value={ogImageUrl}
+                          onChange={(e) => setOgImageUrl(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-[#0f1215] rounded-lg border border-[#3c4043]">
+                      <p className="text-sm text-sky-400 flex items-center gap-2 mb-3">
+                        <Twitter className="w-4 h-4" />
+                        Twitter Card
+                      </p>
+                      <div className="space-y-3">
+                        <Select value={twitterCardType} onValueChange={setTwitterCardType}>
+                          <SelectTrigger className="bg-[#32373c] border-[#3c4043] text-xs">
+                            <SelectValue placeholder="Card Type" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#1d2327] border-[#3c4043]">
+                            <SelectItem value="summary_large_image" className="text-[#c3c4c7] text-xs">Large Image</SelectItem>
+                            <SelectItem value="summary" className="text-[#c3c4c7] text-xs">Summary</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Twitter Title (defaults to OG title)"
+                          value={twitterTitle}
+                          onChange={(e) => setTwitterTitle(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white text-xs"
+                        />
+                        <Textarea
+                          placeholder="Twitter Description"
+                          value={twitterDescription}
+                          onChange={(e) => setTwitterDescription(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white resize-none text-xs"
+                          rows={2}
+                        />
+                        <Input
+                          placeholder="Twitter Image URL"
+                          value={twitterImageUrl}
+                          onChange={(e) => setTwitterImageUrl(e.target.value)}
+                          className="bg-[#32373c] border-[#3c4043] text-white text-xs"
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Audit Tab */}
+                  <TabsContent value="audit" className="space-y-4 mt-4">
+                    <div className="flex items-center justify-between">
+                      <Button
+                        onClick={runQuickAudit}
+                        disabled={seoAuditStatus === "loading"}
+                        className="bg-amber-500 hover:bg-amber-600 text-white gap-2"
+                        data-testid="button-run-audit"
+                      >
+                        {seoAuditStatus === "loading" ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Zap className="w-4 h-4" />
+                        )}
+                        Run SEO Audit
+                      </Button>
+                      {seoAuditResults && (
+                        <div className="text-right">
+                          <div className={`text-3xl font-bold ${getOverallGrade(seoAuditResults.overallScore).color}`}>
+                            {seoAuditResults.overallScore}
+                            <span className="text-sm text-[#8c8f91]">/100</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {seoAuditResults && (
+                      <>
+                        <div className="grid grid-cols-5 gap-2">
+                          <div className="text-center p-2 bg-[#0f1215] rounded">
+                            <div className={`text-lg font-bold ${getScoreColor(seoAuditResults.titleScore, 25)}`}>
+                              {seoAuditResults.titleScore}
+                            </div>
+                            <div className="text-xs text-[#8c8f91]">Title</div>
+                          </div>
+                          <div className="text-center p-2 bg-[#0f1215] rounded">
+                            <div className={`text-lg font-bold ${getScoreColor(seoAuditResults.descriptionScore, 25)}`}>
+                              {seoAuditResults.descriptionScore}
+                            </div>
+                            <div className="text-xs text-[#8c8f91]">Desc</div>
+                          </div>
+                          <div className="text-center p-2 bg-[#0f1215] rounded">
+                            <div className={`text-lg font-bold ${getScoreColor(seoAuditResults.keyphraseScore, 25)}`}>
+                              {seoAuditResults.keyphraseScore}
+                            </div>
+                            <div className="text-xs text-[#8c8f91]">Key</div>
+                          </div>
+                          <div className="text-center p-2 bg-[#0f1215] rounded">
+                            <div className={`text-lg font-bold ${getScoreColor(seoAuditResults.imageScore, 15)}`}>
+                              {seoAuditResults.imageScore}
+                            </div>
+                            <div className="text-xs text-[#8c8f91]">Image</div>
+                          </div>
+                          <div className="text-center p-2 bg-[#0f1215] rounded">
+                            <div className={`text-lg font-bold ${getScoreColor(seoAuditResults.socialScore, 10)}`}>
+                              {seoAuditResults.socialScore}
+                            </div>
+                            <div className="text-xs text-[#8c8f91]">Social</div>
+                          </div>
+                        </div>
+
+                        <div className="border border-[#3c4043] rounded-lg p-3 bg-[#0f1215] max-h-48 overflow-y-auto">
+                          <p className="text-xs text-[#8c8f91] mb-2">Audit Results</p>
+                          <ul className="space-y-1">
+                            {seoAuditResults.issues.map((issue, idx) => (
+                              <li key={idx} className="text-xs text-[#c3c4c7] flex items-start gap-2">
+                                <span className="mt-0.5 flex-shrink-0">
+                                  {issue.type === "success" ? (
+                                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                                  ) : issue.type === "error" ? (
+                                    <AlertCircle className="w-3 h-3 text-red-400" />
+                                  ) : (
+                                    <AlertTriangle className="w-3 h-3 text-amber-400" />
+                                  )}
+                                </span>
+                                {issue.message}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
+                    )}
+
+                    {!seoAuditResults && (
+                      <div className="text-center py-8 text-[#8c8f91]">
+                        <Eye className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>Run an audit to see detailed SEO analysis</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </ScrollArea>
+
+              <DialogFooter className="flex gap-2 sm:gap-2 border-t border-[#3c4043] pt-4">
                 <Button
                   variant="ghost"
                   onClick={() => setSeoEditorOpen(false)}
@@ -607,7 +1096,7 @@ export default function AdminBar() {
                       Saving...
                     </>
                   ) : (
-                    "Save SEO"
+                    "Save All SEO"
                   )}
                 </Button>
               </DialogFooter>

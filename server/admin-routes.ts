@@ -7,6 +7,8 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, sql, desc, count, sum, gte, and } from "drizzle-orm";
+import multer from "multer";
+import { ObjectStorageService } from "./objectStorage";
 
 const router = Router();
 
@@ -400,9 +402,27 @@ router.post("/page-seo", requireAdmin, async (req: Request, res: Response) => {
   try {
     const inputSchema = z.object({
       pagePath: z.string().min(1),
+      pageType: z.string().default("content"),
       title: z.string().default(""),
       description: z.string().default(""),
-      keywords: z.array(z.string()).default([])
+      keywords: z.array(z.string()).default([]),
+      focusKeyphrase: z.string().optional(),
+      secondaryKeyphrases: z.array(z.string()).optional(),
+      featuredImageUrl: z.string().optional(),
+      featuredImageAlt: z.string().optional(),
+      ogTitle: z.string().optional(),
+      ogDescription: z.string().optional(),
+      ogImageUrl: z.string().optional(),
+      twitterTitle: z.string().optional(),
+      twitterDescription: z.string().optional(),
+      twitterImageUrl: z.string().optional(),
+      twitterCardType: z.string().optional(),
+      optimizationMode: z.enum(["auto", "manual", "hybrid"]).optional(),
+      seoScore: z.number().optional(),
+      isManuallyEdited: z.boolean().optional(),
+      faqs: z.array(z.any()).optional(),
+      features: z.array(z.any()).optional(),
+      reviews: z.array(z.any()).optional()
     });
     
     const parseResult = inputSchema.safeParse(req.body);
@@ -413,11 +433,11 @@ router.post("/page-seo", requireAdmin, async (req: Request, res: Response) => {
       });
     }
     
-    const { pagePath, title, description, keywords } = parseResult.data;
+    const data = parseResult.data;
     
     const existingEntry = await db.select({ id: pageSeoMetadata.id })
       .from(pageSeoMetadata)
-      .where(eq(pageSeoMetadata.pagePath, pagePath))
+      .where(eq(pageSeoMetadata.pagePath, data.pagePath))
       .limit(1);
     
     let result;
@@ -425,32 +445,58 @@ router.post("/page-seo", requireAdmin, async (req: Request, res: Response) => {
     if (existingEntry.length > 0) {
       [result] = await db.update(pageSeoMetadata)
         .set({
-          title,
-          description,
-          keywords: keywords as any,
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords as any,
+          focusKeyphrase: data.focusKeyphrase || null,
+          secondaryKeyphrases: data.secondaryKeyphrases || [],
+          featuredImageUrl: data.featuredImageUrl || null,
+          featuredImageAlt: data.featuredImageAlt || null,
+          ogTitle: data.ogTitle || null,
+          ogDescription: data.ogDescription || null,
+          ogImageUrl: data.ogImageUrl || null,
+          twitterTitle: data.twitterTitle || null,
+          twitterDescription: data.twitterDescription || null,
+          twitterImageUrl: data.twitterImageUrl || null,
+          twitterCardType: data.twitterCardType || "summary_large_image",
+          optimizationMode: data.optimizationMode || "manual",
+          seoScore: data.seoScore || 0,
           isManuallyEdited: true,
           lastEditedAt: new Date(),
           updatedAt: new Date()
         })
-        .where(eq(pageSeoMetadata.pagePath, pagePath))
+        .where(eq(pageSeoMetadata.pagePath, data.pagePath))
         .returning();
     } else {
-      const pageType = pagePath.startsWith('/blog') ? 'blog' 
-        : pagePath.startsWith('/calculator') || pagePath.startsWith('/cleanbi') ? 'tool'
-        : pagePath.startsWith('/laundromat-listings') ? 'marketplace'
-        : pagePath.startsWith('/pricing') ? 'pricing'
+      const pageType = data.pagePath.startsWith('/blog') ? 'blog' 
+        : data.pagePath.startsWith('/calculator') || data.pagePath.startsWith('/cleanbi') ? 'tool'
+        : data.pagePath.startsWith('/laundromat-listings') ? 'marketplace'
+        : data.pagePath.startsWith('/pricing') ? 'pricing'
         : 'content';
       
       [result] = await db.insert(pageSeoMetadata)
         .values({
-          pagePath,
+          pagePath: data.pagePath,
           pageType,
-          title,
-          description,
-          keywords: keywords as any,
-          faqs: [],
-          features: [],
-          reviews: [],
+          title: data.title,
+          description: data.description,
+          keywords: data.keywords as any,
+          focusKeyphrase: data.focusKeyphrase || null,
+          secondaryKeyphrases: data.secondaryKeyphrases || [],
+          featuredImageUrl: data.featuredImageUrl || null,
+          featuredImageAlt: data.featuredImageAlt || null,
+          ogTitle: data.ogTitle || null,
+          ogDescription: data.ogDescription || null,
+          ogImageUrl: data.ogImageUrl || null,
+          twitterTitle: data.twitterTitle || null,
+          twitterDescription: data.twitterDescription || null,
+          twitterImageUrl: data.twitterImageUrl || null,
+          twitterCardType: data.twitterCardType || "summary_large_image",
+          optimizationMode: data.optimizationMode || "manual",
+          seoScore: data.seoScore || 0,
+          faqs: data.faqs || [],
+          features: data.features || [],
+          reviews: data.reviews || [],
           isManuallyEdited: true,
           lastEditedAt: new Date()
         })
@@ -465,6 +511,379 @@ router.post("/page-seo", requireAdmin, async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Save page SEO error:", error);
     res.status(500).json({ error: "Failed to save page SEO data" });
+  }
+});
+
+// AI Optimize SEO for a page
+router.post("/page-seo/ai-optimize", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { pagePath, focusKeyphrase, currentTitle, currentDescription } = req.body;
+    
+    if (!focusKeyphrase) {
+      return res.status(400).json({ error: "Focus keyphrase is required for AI optimization" });
+    }
+    
+    const OpenAI = (await import("openai")).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    const prompt = `You are an SEO expert. Optimize the following SEO elements for the focus keyphrase: "${focusKeyphrase}"
+    
+Current page: ${pagePath}
+Current title: ${currentTitle || "None"}
+Current description: ${currentDescription || "None"}
+
+Generate optimized versions that:
+1. Include the focus keyphrase naturally
+2. Are compelling and click-worthy
+3. Follow best practices (title 50-60 chars, description 150-160 chars)
+4. Are relevant to a laundromat industry website
+
+Return JSON with these fields:
+- title: optimized SEO title
+- description: optimized meta description
+- keywords: array of 5-8 relevant keywords
+- ogTitle: slightly different title for social sharing
+- ogDescription: engaging description for social media`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.7
+    });
+    
+    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    res.json(result);
+  } catch (error) {
+    console.error("AI optimize SEO error:", error);
+    res.status(500).json({ error: "Failed to generate AI optimizations" });
+  }
+});
+
+// ==================== SEO IMAGE UPLOAD ====================
+
+const objectStorageService = new ObjectStorageService();
+const seoImageUpload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+// Get signed URL for SEO image upload
+router.post("/page-seo/upload-url", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { fileName, contentType } = req.body;
+    
+    if (!fileName) {
+      return res.status(400).json({ error: "fileName is required" });
+    }
+    
+    const uploadUrl = await objectStorageService.getObjectEntityUploadURL();
+    
+    res.json({ 
+      uploadUrl,
+      message: "Use PUT request to upload file to this URL"
+    });
+  } catch (error) {
+    console.error("Get upload URL error:", error);
+    res.status(500).json({ error: "Failed to get upload URL" });
+  }
+});
+
+// Upload SEO image directly
+router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image'), async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: "No image file provided" });
+    }
+    
+    const { type = 'featured' } = req.body; // 'featured', 'og', 'twitter'
+    
+    // Generate unique filename
+    const timestamp = Date.now();
+    const ext = file.originalname.split('.').pop() || 'jpg';
+    const fileName = `seo-${type}-${timestamp}.${ext}`;
+    
+    // Upload to public folder for SEO images
+    const publicPaths = objectStorageService.getPublicObjectSearchPaths();
+    const publicPath = publicPaths[0]; // Use first public path
+    const { Storage } = await import("@google-cloud/storage");
+    
+    const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+    const storage = new Storage({
+      credentials: {
+        audience: "replit",
+        subject_token_type: "access_token",
+        token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+        type: "external_account",
+        credential_source: {
+          url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+          format: { type: "json", subject_token_field_name: "access_token" },
+        },
+        universe_domain: "googleapis.com",
+      },
+      projectId: "",
+    });
+    
+    // Parse bucket and path
+    const pathParts = publicPath.split('/').filter(Boolean);
+    const bucketName = pathParts[0];
+    const objectPath = [...pathParts.slice(1), 'seo-images', fileName].join('/');
+    
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(objectPath);
+    
+    // Upload the file
+    await blob.save(file.buffer, {
+      contentType: file.mimetype,
+      metadata: {
+        cacheControl: 'public, max-age=31536000',
+      },
+    });
+    
+    // Generate public URL
+    const publicUrl = `https://storage.googleapis.com/${bucketName}/${objectPath}`;
+    
+    res.json({ 
+      success: true,
+      url: publicUrl,
+      fileName,
+      type
+    });
+  } catch (error) {
+    console.error("Upload SEO image error:", error);
+    res.status(500).json({ error: "Failed to upload image" });
+  }
+});
+
+// ==================== COMPREHENSIVE SEO ANALYSIS ====================
+
+router.post("/page-seo/analyze", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { 
+      pagePath, 
+      title, 
+      description, 
+      focusKeyphrase,
+      secondaryKeyphrases,
+      content,
+      featuredImageUrl,
+      featuredImageAlt,
+      ogTitle,
+      ogDescription,
+      twitterTitle,
+      twitterDescription
+    } = req.body;
+    
+    const issues: Array<{ type: 'error' | 'warning' | 'success' | 'info'; message: string; priority: number }> = [];
+    let totalScore = 0;
+    const maxScore = 100;
+    
+    // ===== TITLE ANALYSIS (25 points) =====
+    let titleScore = 0;
+    if (!title || title.length === 0) {
+      issues.push({ type: 'error', message: 'SEO title is missing - add a compelling title', priority: 1 });
+    } else {
+      if (title.length < 30) {
+        issues.push({ type: 'warning', message: `Title is too short (${title.length} chars) - aim for 50-60 characters`, priority: 2 });
+        titleScore = 8;
+      } else if (title.length > 60) {
+        issues.push({ type: 'warning', message: `Title is too long (${title.length} chars) - may be truncated in search results`, priority: 2 });
+        titleScore = 12;
+      } else {
+        issues.push({ type: 'success', message: `Title length is optimal (${title.length} chars)`, priority: 5 });
+        titleScore = 18;
+      }
+      
+      // Check focus keyphrase in title
+      if (focusKeyphrase && title.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+        issues.push({ type: 'success', message: 'Focus keyphrase appears in title', priority: 3 });
+        titleScore += 7;
+      } else if (focusKeyphrase) {
+        issues.push({ type: 'error', message: 'Focus keyphrase NOT in title - add it for better rankings', priority: 1 });
+      }
+    }
+    totalScore += titleScore;
+    
+    // ===== DESCRIPTION ANALYSIS (25 points) =====
+    let descScore = 0;
+    if (!description || description.length === 0) {
+      issues.push({ type: 'error', message: 'Meta description is missing - add a compelling description', priority: 1 });
+    } else {
+      if (description.length < 100) {
+        issues.push({ type: 'warning', message: `Description is too short (${description.length} chars) - aim for 150-160 characters`, priority: 2 });
+        descScore = 8;
+      } else if (description.length > 160) {
+        issues.push({ type: 'warning', message: `Description is too long (${description.length} chars) - will be truncated`, priority: 2 });
+        descScore = 12;
+      } else {
+        issues.push({ type: 'success', message: `Description length is optimal (${description.length} chars)`, priority: 5 });
+        descScore = 18;
+      }
+      
+      // Check focus keyphrase in description
+      if (focusKeyphrase && description.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+        issues.push({ type: 'success', message: 'Focus keyphrase appears in description', priority: 3 });
+        descScore += 7;
+      } else if (focusKeyphrase) {
+        issues.push({ type: 'warning', message: 'Consider adding focus keyphrase to description', priority: 2 });
+      }
+    }
+    totalScore += descScore;
+    
+    // ===== FOCUS KEYPHRASE ANALYSIS (20 points) =====
+    let keyphraseScore = 0;
+    if (!focusKeyphrase || focusKeyphrase.length === 0) {
+      issues.push({ type: 'error', message: 'No focus keyphrase defined - essential for SEO targeting', priority: 1 });
+    } else {
+      issues.push({ type: 'success', message: `Focus keyphrase set: "${focusKeyphrase}"`, priority: 4 });
+      keyphraseScore = 12;
+      
+      // Check keyphrase length
+      const wordCount = focusKeyphrase.split(' ').length;
+      if (wordCount >= 2 && wordCount <= 4) {
+        issues.push({ type: 'success', message: 'Keyphrase length is ideal (2-4 words)', priority: 5 });
+        keyphraseScore += 4;
+      } else if (wordCount === 1) {
+        issues.push({ type: 'warning', message: 'Single-word keyphrases are very competitive - consider long-tail keywords', priority: 3 });
+        keyphraseScore += 2;
+      }
+      
+      // Check secondary keyphrases
+      const secondaryList = Array.isArray(secondaryKeyphrases) ? secondaryKeyphrases : [];
+      if (secondaryList.length >= 2) {
+        issues.push({ type: 'success', message: `${secondaryList.length} secondary keyphrases defined`, priority: 4 });
+        keyphraseScore += 4;
+      } else if (secondaryList.length > 0) {
+        issues.push({ type: 'info', message: 'Add 2-5 secondary keyphrases for better coverage', priority: 3 });
+        keyphraseScore += 2;
+      } else {
+        issues.push({ type: 'warning', message: 'No secondary keyphrases - add 2-5 for semantic coverage', priority: 2 });
+      }
+    }
+    totalScore += keyphraseScore;
+    
+    // ===== IMAGE ANALYSIS (15 points) =====
+    let imageScore = 0;
+    if (!featuredImageUrl) {
+      issues.push({ type: 'warning', message: 'No featured image - pages with images get 94% more views', priority: 2 });
+    } else {
+      issues.push({ type: 'success', message: 'Featured image is set', priority: 4 });
+      imageScore = 8;
+      
+      if (featuredImageAlt && featuredImageAlt.length > 0) {
+        issues.push({ type: 'success', message: 'Image alt text is set (great for accessibility & SEO)', priority: 4 });
+        imageScore += 5;
+        
+        // Check if keyphrase in alt text
+        if (focusKeyphrase && featuredImageAlt.toLowerCase().includes(focusKeyphrase.toLowerCase())) {
+          issues.push({ type: 'success', message: 'Focus keyphrase in image alt text', priority: 4 });
+          imageScore += 2;
+        }
+      } else {
+        issues.push({ type: 'error', message: 'Missing image alt text - critical for accessibility & SEO', priority: 1 });
+      }
+    }
+    totalScore += imageScore;
+    
+    // ===== SOCIAL MEDIA ANALYSIS (15 points) =====
+    let socialScore = 0;
+    
+    // Open Graph
+    if (ogTitle || ogDescription) {
+      issues.push({ type: 'success', message: 'Open Graph tags configured for social sharing', priority: 4 });
+      socialScore += 5;
+    } else {
+      issues.push({ type: 'info', message: 'Set Open Graph tags for better Facebook/LinkedIn previews', priority: 3 });
+    }
+    
+    // Twitter
+    if (twitterTitle || twitterDescription) {
+      issues.push({ type: 'success', message: 'Twitter Card configured', priority: 4 });
+      socialScore += 5;
+    } else {
+      issues.push({ type: 'info', message: 'Set Twitter Card for better Twitter previews', priority: 3 });
+    }
+    
+    // Social image
+    if (featuredImageUrl) {
+      socialScore += 5;
+    }
+    totalScore += socialScore;
+    
+    // ===== URL ANALYSIS =====
+    if (pagePath) {
+      if (focusKeyphrase) {
+        const slugifiedKeyphrase = focusKeyphrase.toLowerCase().replace(/\s+/g, '-');
+        if (pagePath.toLowerCase().includes(slugifiedKeyphrase) || 
+            pagePath.toLowerCase().includes(focusKeyphrase.toLowerCase().replace(/\s+/g, ''))) {
+          issues.push({ type: 'success', message: 'Focus keyphrase appears in URL', priority: 4 });
+        } else {
+          issues.push({ type: 'info', message: 'Consider including focus keyphrase in URL for better SEO', priority: 3 });
+        }
+      }
+      
+      if (pagePath.length > 75) {
+        issues.push({ type: 'warning', message: 'URL is quite long - shorter URLs often rank better', priority: 3 });
+      }
+    }
+    
+    // Sort issues by priority (lower number = higher priority)
+    issues.sort((a, b) => a.priority - b.priority);
+    
+    // Calculate grade
+    let grade = 'Needs Work';
+    let gradeColor = '#C8A661';
+    if (totalScore >= 90) { grade = 'A+'; gradeColor = '#22C55E'; }
+    else if (totalScore >= 80) { grade = 'A'; gradeColor = '#22C55E'; }
+    else if (totalScore >= 70) { grade = 'B'; gradeColor = '#A3E635'; }
+    else if (totalScore >= 55) { grade = 'C'; gradeColor = '#FBBF24'; }
+    
+    // Generate recommendations
+    const recommendations: string[] = [];
+    if (!focusKeyphrase) {
+      recommendations.push('Define a focus keyphrase to target specific search queries');
+    }
+    if (titleScore < 20) {
+      recommendations.push('Optimize your title to include the focus keyphrase and be 50-60 characters');
+    }
+    if (descScore < 20) {
+      recommendations.push('Write a compelling meta description with your focus keyphrase (150-160 chars)');
+    }
+    if (imageScore < 10) {
+      recommendations.push('Add a featured image with descriptive alt text');
+    }
+    if (socialScore < 10) {
+      recommendations.push('Configure Open Graph and Twitter Card for better social sharing');
+    }
+    
+    res.json({
+      score: totalScore,
+      maxScore,
+      percentage: Math.round((totalScore / maxScore) * 100),
+      grade,
+      gradeColor,
+      breakdown: {
+        title: { score: titleScore, max: 25 },
+        description: { score: descScore, max: 25 },
+        keyphrase: { score: keyphraseScore, max: 20 },
+        image: { score: imageScore, max: 15 },
+        social: { score: socialScore, max: 15 }
+      },
+      issues: issues.map(i => ({ type: i.type, message: i.message })),
+      recommendations,
+      analyzedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("SEO analysis error:", error);
+    res.status(500).json({ error: "Failed to analyze SEO" });
   }
 });
 
