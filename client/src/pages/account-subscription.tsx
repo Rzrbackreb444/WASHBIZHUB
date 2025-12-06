@@ -614,7 +614,7 @@ export default function AccountSubscription() {
                     </div>
                     <div>
                       <h3 className="font-semibold">Unlock Full Power</h3>
-                      <p className="text-sm text-muted-foreground">Start your 7-day free trial</p>
+                      <p className="text-sm text-muted-foreground">30-day money-back guarantee</p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mb-4">
@@ -631,7 +631,7 @@ export default function AccountSubscription() {
                     ) : (
                       <Zap className="w-4 h-4 mr-2" />
                     )}
-                    Start Free Trial
+                    Get Started
                   </Button>
                 </CardContent>
               </Card>

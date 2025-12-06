@@ -154,7 +154,7 @@ export function FeatureGate({
             
             {requiredTierConfig && requiredTierConfig.price > 0 && (
               <p className="text-xs text-muted-foreground">
-                Starting at ${requiredTierConfig.price}/month • 7-day free trial
+                Starting at ${requiredTierConfig.price}/month • 30-day money-back guarantee
               </p>
             )}
           </div>

@@ -194,14 +194,14 @@ export default function Subscribe() {
                         Processing...
                       </>
                     ) : (
-                      `Start ${tier.trialDays || 7}-Day Free Trial`
+                      `Get Started Now`
                     )}
                   </Button>
                   
-                  {/* Trial info with CC requirement */}
+                  {/* Guarantee info */}
                   <p className="text-xs text-white/60 text-center mt-3 flex items-center justify-center gap-1">
-                    <CreditCard className="h-3 w-3" />
-                    Credit card required • No charge until trial ends
+                    <Shield className="h-3 w-3" />
+                    30-day money-back guarantee
                   </p>
                 </CardContent>
               </Card>
@@ -217,7 +217,7 @@ export default function Subscribe() {
             </span>
             <span className="flex items-center gap-1">
               <CreditCard className="h-4 w-4" />
-              Cancel anytime during trial
+              Cancel anytime
             </span>
           </div>
           <p className="text-sm">

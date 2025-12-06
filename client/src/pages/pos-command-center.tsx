@@ -9102,7 +9102,7 @@ export default function POSCommandCenter() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-muted-foreground">
-                All plans include 14-day free trial. No credit card required. Cancel anytime.
+                All plans include 30-day money-back guarantee. Cancel anytime.
               </p>
             </div>
           </DialogContent>

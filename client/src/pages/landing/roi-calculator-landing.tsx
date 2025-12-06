@@ -311,7 +311,7 @@ export default function ROICalculatorLanding() {
                   </ul>
                   <Link href="/pricing">
                     <Button className="w-full btn-premium-gold text-white" data-testid="button-start-starter">
-                      Start 7-Day Trial
+                      Get Started
                     </Button>
                   </Link>
                 </CardContent>
@@ -338,7 +338,7 @@ export default function ROICalculatorLanding() {
                   </ul>
                   <Link href="/pricing">
                     <Button variant="outline" className="w-full" data-testid="button-start-pro">
-                      Start 7-Day Trial
+                      Get Started
                     </Button>
                   </Link>
                 </CardContent>
