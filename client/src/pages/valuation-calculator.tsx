@@ -3,6 +3,7 @@ import { FeatureGate } from "@/components/monetization";
 import { PremiumCalculatorEngine } from "@/components/PremiumCalculatorEngine";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ValuationDisclaimer } from "@/components/LegalDisclaimer";
 import type { PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
 
 const valuationStructuredData = {
@@ -354,6 +355,10 @@ export default function ValuationCalculator() {
       </div>
 
       <PremiumCalculatorEngine config={config} onSave={handleSave} />
+      
+      <div className="mx-auto max-w-4xl px-6 py-8">
+        <ValuationDisclaimer />
+      </div>
       </FeatureGate>
     </AuthGuard>
   );

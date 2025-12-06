@@ -285,6 +285,22 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Legal Disclaimer */}
+        <div className="border-t border-white/10 py-6">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center max-w-4xl mx-auto">
+              <p className="text-white/40 text-xs leading-relaxed" data-testid="text-legal-disclaimer">
+                <strong className="text-white/50">Disclaimer:</strong> All calculators, valuation tools, CLEANBI scores, 
+                and business analysis provided on WashBizHub are for informational and educational purposes only. 
+                They do not constitute financial, legal, or professional advice. Results are estimates based on 
+                user inputs and publicly available data. Always consult qualified professionals (accountants, attorneys, 
+                business brokers, and appraisers) before making business decisions. WashBizHub makes no guarantees 
+                regarding accuracy, completeness, or suitability for any purpose. Use at your own risk.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Copyright */}
         <div className="border-t border-white/5 py-4">
           <div className="max-w-7xl mx-auto px-4 text-center">
