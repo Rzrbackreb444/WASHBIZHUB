@@ -1,6 +1,7 @@
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -512,7 +513,10 @@ export default function LaborCalculator() {
                 </CardContent>
               </Card>
             </div>
-
+            
+            <div className="mt-8">
+              <CalculatorDisclaimer />
+            </div>
           </div>
         </section>
       </div>

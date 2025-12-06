@@ -3,6 +3,7 @@ import { FeatureGate } from "@/components/monetization";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { InvestmentDisclaimer } from "@/components/LegalDisclaimer";
 import { TrendingUp, HelpCircle, Lightbulb, Target, Shield, DollarSign, Clock, BarChart3 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PremiumCalculatorEngine, type PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
@@ -436,11 +437,8 @@ export default function ROICalculator() {
               </CardContent>
             </Card>
 
-            <div className="mt-12 text-center">
-              <p className="text-sm text-white/50">
-                * Calculator estimates are based on industry benchmarks and should not be considered financial advice. 
-                Consult with qualified professionals before making investment decisions.
-              </p>
+            <div className="mt-8 max-w-4xl mx-auto">
+              <InvestmentDisclaimer />
             </div>
           </div>
         </div>
