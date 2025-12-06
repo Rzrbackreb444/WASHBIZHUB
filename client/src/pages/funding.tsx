@@ -22,7 +22,6 @@ const FUNDING_CATEGORIES: Record<string, {
   subtitle: string;
   description: string;
   icon: typeof PiggyBank;
-  color: string;
   partners: FundingPartner[];
 }> = {
   startup: {
@@ -30,7 +29,6 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Launch Your First Laundromat",
     description: "Perfect for first-time buyers with strong personal credit. Get funding without business history or revenue requirements.",
     icon: PiggyBank,
-    color: "from-[#C8A661] to-[#b8860b]",
     partners: [
       {
         id: "preferred-funding-group",
@@ -100,7 +98,6 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Buy an Existing Laundromat",
     description: "The best rates and longest terms for buying established laundromats. SBA loans offer 10-25 year terms with low down payments.",
     icon: Briefcase,
-    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
     partners: [
       {
         id: "south-end-capital",
@@ -170,7 +167,6 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Finance Washers, Dryers & Systems",
     description: "Get the machines you need with flexible terms. Equipment serves as collateral, making approval easier than unsecured loans.",
     icon: Factory,
-    color: "from-[#1e3a5f] to-[#C8A661]",
     partners: [
       {
         id: "rok-financial",
@@ -239,7 +235,6 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Purchase or Refinance Property",
     description: "Own your building instead of leasing. Commercial RE loans for laundromat property purchases, refinancing, and investment properties.",
     icon: Building2,
-    color: "from-[#1e3a5f] to-[#1e3a5f]/70",
     partners: [
       {
         id: "gokapital",
@@ -308,7 +303,6 @@ const FUNDING_CATEGORIES: Record<string, {
     subtitle: "Working Capital & Emergency Funding",
     description: "Need cash fast? Revenue-based financing and merchant cash advances when speed matters more than cost. Same-day funding available.",
     icon: Zap,
-    color: "from-red-600 to-rose-600",
     partners: [
       {
         id: "advance-funds-network",
@@ -434,13 +428,10 @@ export default function Funding() {
     if (partner.affiliateUrl === "consultation") {
       setConsultationOpen(true);
     } else if (partner.affiliateUrl.startsWith("mailto:")) {
-      // Email links open in same window
       window.location.href = partner.affiliateUrl;
     } else if (partner.affiliateUrl.startsWith("/")) {
-      // Internal pages like /gokapital
       window.open(partner.affiliateUrl, "_blank");
     } else {
-      // External URLs open in new tab
       window.open(partner.affiliateUrl, "_blank");
     }
   };
@@ -489,19 +480,22 @@ export default function Funding() {
         ]}
       />
 
-      <div className="min-h-screen bg-white">
-        <div className="mesh-gradient-hero py-20 px-6">
-          <div className="max-w-5xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 mb-6">
-              <DollarSign className="w-4 h-4 text-[#b8860b]" />
-              <span className="text-sm font-medium text-[#1e3a5f]">7 Trusted Lending Partners</span>
-            </div>
-            <h1 className="hero-title text-[#1e3a5f] mb-4">
+      <div className="min-h-screen bg-background">
+        <section className="py-16 md:py-20 bg-muted/30">
+          <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
+            <Badge 
+              variant="outline" 
+              className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30"
+            >
+              <DollarSign className="w-3 h-3 mr-1.5" />
+              7 Trusted Lending Partners
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
               Laundromat{' '}
-              <span className="text-gradient-gold">Funding</span>{' '}
+              <span className="text-[#C8A661]">Funding</span>{' '}
               Made Simple
             </h1>
-            <p className="hero-subtitle max-w-3xl mx-auto mb-12">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
               From startup to acquisition, find the right financing for your laundromat. Compare rates, terms, and get pre-qualified in minutes.
             </p>
             
@@ -512,113 +506,121 @@ export default function Funding() {
                 { value: "Same Day", label: "Fastest Approval" },
                 { value: "500+", label: "Min Credit Score" }
               ].map((stat, i) => (
-                <div key={i} className="premium-card p-4 text-center">
-                  <div className="text-xl md:text-2xl font-bold text-[#b8860b]">{stat.value}</div>
-                  <div className="text-sm text-gray-500">{stat.label}</div>
+                <div key={i} className="bg-muted/50 rounded-lg p-4 text-center">
+                  <div className="text-xl md:text-2xl font-bold text-[#C8A661]">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="max-w-6xl mx-auto px-4 py-16">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-3">What type of funding do you need?</h2>
-            <p className="text-gray-500 text-lg">Select a category to see your best options</p>
-          </div>
+        <section className="py-16 md:py-20">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">What type of funding do you need?</h2>
+              <p className="text-muted-foreground text-lg">Select a category to see your best options</p>
+            </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto gap-2 bg-transparent p-0 mb-8">
-              {Object.entries(FUNDING_CATEGORIES).map(([key, category]) => {
-                const Icon = category.icon;
-                return (
-                  <TabsTrigger
-                    key={key}
-                    value={key}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all data-[state=active]:border-[#b8860b] data-[state=active]:bg-[#b8860b]/10 data-[state=inactive]:border-slate-200 data-[state=inactive]:dark:border-slate-700 data-[state=inactive]:hover:border-slate-300`}
-                    data-testid={`tab-${key}`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs md:text-sm font-medium text-center">{category.title}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto gap-2 bg-transparent p-0 mb-8">
+                {Object.entries(FUNDING_CATEGORIES).map(([key, category]) => {
+                  const Icon = category.icon;
+                  return (
+                    <TabsTrigger
+                      key={key}
+                      value={key}
+                      className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all data-[state=active]:border-[#C8A661] data-[state=active]:bg-[#C8A661]/10 data-[state=inactive]:border-border data-[state=inactive]:hover:border-muted-foreground/30"
+                      data-testid={`tab-${key}`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-xs md:text-sm font-medium text-center">{category.title}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
 
-            {Object.entries(FUNDING_CATEGORIES).map(([key, category]) => (
-              <TabsContent key={key} value={key} className="mt-0">
-                <div className={`bg-gradient-to-r ${category.color} rounded-xl p-6 md:p-8 text-white mb-8`}>
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-white/20 rounded-lg">
-                      <CategoryIcon className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold mb-1">{category.title}</h3>
-                      <p className="text-white/90 text-lg mb-2">{category.subtitle}</p>
-                      <p className="text-white/80">{category.description}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {key === "acquisitions" && (
-                  <Card className="mb-6 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white border-0">
-                    <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white/20 rounded-lg">
-                          <Landmark className="w-8 h-8" />
+              {Object.entries(FUNDING_CATEGORIES).map(([key, category]) => (
+                <TabsContent key={key} value={key} className="mt-0">
+                  <Card className="bg-[#0A1628] border-0 mb-8 overflow-hidden">
+                    <CardContent className="p-6 md:p-8">
+                      <div className="flex flex-col md:flex-row items-start gap-4">
+                        <div className="h-14 w-14 rounded-lg bg-[#C8A661]/20 flex items-center justify-center flex-shrink-0">
+                          <CategoryIcon className="w-7 h-7 text-[#C8A661]" />
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold">Looking for SBA 7(a) Loans?</h3>
-                          <p className="text-white/80 text-sm">
-                            Visit our dedicated SBA Loans page for detailed requirements, a lender matching quiz, and side-by-side comparisons.
-                          </p>
+                        <div className="text-white">
+                          <h3 className="text-2xl font-bold mb-1">{category.title}</h3>
+                          <p className="text-gray-300 text-lg mb-2">{category.subtitle}</p>
+                          <p className="text-gray-400">{category.description}</p>
                         </div>
                       </div>
-                      <Link href="/sba-loans">
-                        <Button className="bg-[#b8860b] hover:bg-[#9a7209] text-white whitespace-nowrap" data-testid="link-sba-loans">
-                          View SBA Loans Guide <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </Link>
                     </CardContent>
                   </Card>
-                )}
 
-                <div className="space-y-6">
-                  {category.partners.map((partner) => (
-                    <FundingPartnerCard 
-                      key={partner.id}
-                      partner={partner} 
-                      onApply={handleApply}
-                      showDocumentation={true}
-                    />
-                  ))}
-                </div>
+                  {key === "acquisitions" && (
+                    <Card className="mb-6 bg-card border shadow-sm overflow-hidden">
+                      <div className="h-1 bg-[#C8A661]" />
+                      <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                            <Landmark className="w-6 h-6 text-[#C8A661]" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-foreground">Looking for SBA 7(a) Loans?</h3>
+                            <p className="text-muted-foreground text-sm">
+                              Visit our dedicated SBA Loans page for detailed requirements, a lender matching quiz, and side-by-side comparisons.
+                            </p>
+                          </div>
+                        </div>
+                        <Link href="/sba-loans">
+                          <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] whitespace-nowrap" data-testid="link-sba-loans">
+                            View SBA Loans Guide <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )}
 
-                <Card className="mt-8 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border-slate-200 dark:border-slate-700">
-                  <CardContent className="p-6 md:p-8 text-center">
-                    <Users className="w-10 h-10 mx-auto mb-4 text-[#b8860b]" />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Not Sure Which Option Is Right?</h3>
-                    <p className="text-slate-600 dark:text-slate-400 mb-4 max-w-xl mx-auto">
-                      Our team can help you navigate funding options and match you with the right lender for your situation.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setConsultationOpen(true)}
-                      data-testid="button-get-help"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Get Personalized Help
-                    </Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
+                  <div className="space-y-6">
+                    {category.partners.map((partner) => (
+                      <FundingPartnerCard 
+                        key={partner.id}
+                        partner={partner} 
+                        onApply={handleApply}
+                        showDocumentation={true}
+                      />
+                    ))}
+                  </div>
 
-        <div className="bg-slate-100 dark:bg-slate-900/50 py-16 px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">How It Works</h2>
+                  <Card className="mt-8 bg-card border shadow-sm overflow-hidden">
+                    <div className="h-1 bg-[#C8A661]" />
+                    <CardContent className="p-6 md:p-8 text-center">
+                      <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-6 h-6 text-[#C8A661]" />
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground mb-2">Not Sure Which Option Is Right?</h3>
+                      <p className="text-muted-foreground mb-4 max-w-xl mx-auto">
+                        Our team can help you navigate funding options and match you with the right lender for your situation.
+                      </p>
+                      <Button 
+                        className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
+                        onClick={() => setConsultationOpen(true)}
+                        data-testid="button-get-help"
+                      >
+                        <Phone className="w-4 h-4 mr-2" />
+                        Get Personalized Help
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        </section>
+
+        <section className="py-16 md:py-20 bg-muted/30">
+          <div className="max-w-5xl mx-auto px-6 lg:px-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12">How It Works</h2>
             <div className="grid md:grid-cols-4 gap-6">
               {[
                 { step: 1, icon: CreditCard, title: "Choose Your Type", desc: "Select the funding category that matches your needs" },
@@ -628,44 +630,47 @@ export default function Funding() {
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={item.step} className="text-center">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-center w-12 h-12 mx-auto rounded-full bg-[#b8860b] text-white font-bold mb-4">
+                  <Card key={item.step} className="bg-card border shadow-sm overflow-hidden text-center">
+                    <div className="h-1 bg-[#C8A661]" />
+                    <CardContent className="pt-6 p-6">
+                      <div className="flex items-center justify-center h-12 w-12 mx-auto rounded-lg bg-[#0A1628] text-[#C8A661] font-bold mb-4 text-lg">
                         {item.step}
                       </div>
-                      <Icon className="w-6 h-6 mx-auto mb-2 text-slate-600 dark:text-slate-400" />
-                      <h3 className="font-semibold mb-2 text-slate-900 dark:text-white">{item.title}</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{item.desc}</p>
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                        <Icon className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-semibold mb-2 text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
                     </CardContent>
                   </Card>
                 );
               })}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="py-12 px-4">
+        <section className="py-12 px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="flex flex-wrap justify-center gap-6 items-center text-slate-500 dark:text-slate-400">
+            <div className="flex flex-wrap justify-center gap-6 items-center text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
+                <Shield className="w-5 h-5 text-[#C8A661]" />
                 <span className="text-sm">Secure Applications</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
+                <Clock className="w-5 h-5 text-[#C8A661]" />
                 <span className="text-sm">Same-Day Approvals</span>
               </div>
               <div className="flex items-center gap-2">
-                <Landmark className="w-5 h-5" />
+                <Landmark className="w-5 h-5 text-[#C8A661]" />
                 <span className="text-sm">Licensed Lenders</span>
               </div>
               <div className="flex items-center gap-2">
-                <Star className="w-5 h-5" />
+                <Star className="w-5 h-5 text-[#C8A661]" />
                 <span className="text-sm">Trusted by 10,000+ Owners</span>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       <Dialog open={consultationOpen} onOpenChange={setConsultationOpen}>
@@ -730,7 +735,7 @@ export default function Funding() {
                 data-testid="input-consultation-message"
               />
             </div>
-            <Button type="submit" className="w-full bg-[#b8860b] hover:bg-[#a07609]" disabled={isSubmitting} data-testid="button-submit-consultation">
+            <Button type="submit" className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" disabled={isSubmitting} data-testid="button-submit-consultation">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

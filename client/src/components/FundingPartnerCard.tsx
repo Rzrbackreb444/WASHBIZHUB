@@ -62,10 +62,11 @@ export function FundingPartnerCard({
 
   if (variant === "compact") {
     return (
-      <Card className={`relative overflow-visible transition-all hover-elevate ${partner.isPrimary ? 'ring-2 ring-[#b8860b]' : ''}`}>
+      <Card className={`relative bg-card border shadow-sm overflow-hidden transition-all hover-elevate ${partner.isPrimary ? 'ring-2 ring-[#C8A661]' : ''}`}>
+        <div className="h-1 bg-[#C8A661]" />
         {partner.isPrimary && (
-          <div className="absolute -top-3 left-4">
-            <Badge className="bg-[#b8860b] text-white">
+          <div className="absolute top-4 left-4 z-10">
+            <Badge className="bg-[#C8A661] text-[#0A1628]">
               <Star className="w-3 h-3 mr-1" /> Recommended
             </Badge>
           </div>
@@ -73,16 +74,16 @@ export function FundingPartnerCard({
         <CardContent className="p-4 pt-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h3 className="font-bold text-lg text-[#1e3a5f]">{partner.name}</h3>
+              <h3 className="font-bold text-lg text-foreground">{partner.name}</h3>
               <p className="text-sm text-muted-foreground">{partner.type}</p>
               {partner.specialFeature && (
-                <Badge variant="outline" className="mt-2 text-[#b8860b] border-[#b8860b]">
+                <Badge variant="outline" className="mt-2 text-[#C8A661] border-[#C8A661]/30">
                   <Zap className="w-3 h-3 mr-1" /> {partner.specialFeature}
                 </Badge>
               )}
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-[#b8860b]">{loanDetails.minAmount} - {loanDetails.maxAmount}</div>
+              <div className="text-lg font-bold text-[#C8A661]">{loanDetails.minAmount} - {loanDetails.maxAmount}</div>
               <div className="text-xs text-muted-foreground">{loanDetails.approvalSpeed}</div>
             </div>
           </div>
@@ -98,7 +99,7 @@ export function FundingPartnerCard({
           </div>
           <Button 
             onClick={() => onApply(partner)} 
-            className="w-full mt-4 bg-[#1e3a5f] hover:bg-[#1e3a5f]/90"
+            className="w-full mt-4 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
             data-testid={`apply-${partner.id}`}
           >
             Get Pre-Qualified <ExternalLink className="w-4 h-4 ml-2" />
@@ -109,10 +110,11 @@ export function FundingPartnerCard({
   }
 
   return (
-    <Card className={`relative overflow-visible transition-all hover-elevate ${partner.isPrimary ? 'ring-2 ring-[#b8860b]' : ''}`}>
+    <Card className={`relative bg-card border shadow-sm overflow-hidden transition-all hover-elevate ${partner.isPrimary ? 'ring-2 ring-[#C8A661]' : ''}`}>
+      <div className="h-1 bg-[#C8A661]" />
       {partner.isPrimary && (
-        <div className="absolute -top-3 left-4 z-10">
-          <Badge className="bg-[#b8860b] text-white shadow-md">
+        <div className="absolute top-6 left-6 z-10">
+          <Badge className="bg-[#C8A661] text-[#0A1628] shadow-sm">
             <Star className="w-3 h-3 mr-1" /> Recommended Partner
           </Badge>
         </div>
@@ -120,12 +122,12 @@ export function FundingPartnerCard({
       
       <CardHeader className="pb-2 pt-6">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="font-bold text-xl text-[#1e3a5f]">{partner.name}</h3>
+          <div className={partner.isPrimary ? "pt-8" : ""}>
+            <h3 className="font-bold text-xl text-foreground">{partner.name}</h3>
             <p className="text-sm text-muted-foreground">{partner.type}</p>
           </div>
           {partner.specialFeature && (
-            <Badge variant="outline" className="text-[#b8860b] border-[#b8860b] whitespace-nowrap">
+            <Badge variant="outline" className="text-[#C8A661] border-[#C8A661]/30 whitespace-nowrap">
               <Zap className="w-3 h-3 mr-1" /> {partner.specialFeature}
             </Badge>
           )}
@@ -134,56 +136,56 @@ export function FundingPartnerCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wide flex items-center gap-1">
               <Shield className="w-3 h-3" /> Qualification Requirements
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
-                <CreditCard className="w-4 h-4 text-[#b8860b]" />
+                <CreditCard className="w-4 h-4 text-[#C8A661]" />
                 <span className="text-muted-foreground">Credit Score:</span>
-                <span className="font-medium">{requirements.minCreditScore}</span>
+                <span className="font-medium text-foreground">{requirements.minCreditScore}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Building2 className="w-4 h-4 text-[#b8860b]" />
+                <Building2 className="w-4 h-4 text-[#C8A661]" />
                 <span className="text-muted-foreground">Time in Business:</span>
-                <span className="font-medium">{requirements.timeInBusiness}</span>
+                <span className="font-medium text-foreground">{requirements.timeInBusiness}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <TrendingUp className="w-4 h-4 text-[#b8860b]" />
+                <TrendingUp className="w-4 h-4 text-[#C8A661]" />
                 <span className="text-muted-foreground">Annual Revenue:</span>
-                <span className="font-medium">{requirements.minAnnualRevenue}</span>
+                <span className="font-medium text-foreground">{requirements.minAnnualRevenue}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <DollarSign className="w-4 h-4 text-[#b8860b]" />
+                <DollarSign className="w-4 h-4 text-[#C8A661]" />
                 <span className="text-muted-foreground">Down Payment:</span>
-                <span className="font-medium">{requirements.downPayment}</span>
+                <span className="font-medium text-foreground">{requirements.downPayment}</span>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wide flex items-center gap-1">
               <DollarSign className="w-3 h-3" /> Loan Details
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Amount:</span>
-                <span className="font-medium">{loanDetails.minAmount} - {loanDetails.maxAmount}</span>
+                <span className="font-bold text-[#C8A661]">{loanDetails.minAmount} - {loanDetails.maxAmount}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Term:</span>
-                <span className="font-medium">{loanDetails.termLength}</span>
+                <span className="font-medium text-foreground">{loanDetails.termLength}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Approval:</span>
-                <span className="font-medium text-green-600">{loanDetails.approvalSpeed}</span>
+                <span className="font-medium text-[#C8A661]">{loanDetails.approvalSpeed}</span>
               </div>
               {loanDetails.interestRate && (
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Rate:</span>
-                  <span className="font-medium">{loanDetails.interestRate}</span>
+                  <span className="font-medium text-foreground">{loanDetails.interestRate}</span>
                 </div>
               )}
             </div>
@@ -197,21 +199,21 @@ export function FundingPartnerCard({
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
               <div className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-green-500" />
-                <span>{documentation.bankStatements} Bank Statements</span>
+                <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                <span className="text-muted-foreground">{documentation.bankStatements} Bank Statements</span>
               </div>
               <div className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-green-500" />
-                <span>{documentation.taxReturns} Tax Returns</span>
+                <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                <span className="text-muted-foreground">{documentation.taxReturns} Tax Returns</span>
               </div>
               <div className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-green-500" />
-                <span>{documentation.financials}</span>
+                <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                <span className="text-muted-foreground">{documentation.financials}</span>
               </div>
               {documentation.other?.map((doc, i) => (
                 <div key={i} className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-green-500" />
-                  <span>{doc}</span>
+                  <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                  <span className="text-muted-foreground">{doc}</span>
                 </div>
               ))}
             </div>
@@ -230,7 +232,7 @@ export function FundingPartnerCard({
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
             {partner.trustSignals.map((signal, i) => (
               <span key={i} className="flex items-center gap-1">
-                <Shield className="w-3 h-3 text-green-500" /> {signal}
+                <Shield className="w-3 h-3 text-[#C8A661]" /> {signal}
               </span>
             ))}
           </div>
@@ -238,7 +240,7 @@ export function FundingPartnerCard({
 
         <Button 
           onClick={() => onApply(partner)} 
-          className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] hover:from-[#1e3a5f]/90 hover:to-[#2d5a8f]/90"
+          className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
           size="lg"
           data-testid={`apply-${partner.id}`}
         >
@@ -262,28 +264,28 @@ export function FundingPartnerComparisonTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
-            <th className="text-left p-3 font-semibold">Partner</th>
-            <th className="text-left p-3 font-semibold">Credit Score</th>
-            <th className="text-left p-3 font-semibold">Time in Business</th>
-            <th className="text-left p-3 font-semibold">Revenue</th>
-            <th className="text-left p-3 font-semibold">Amount</th>
-            <th className="text-left p-3 font-semibold">Approval</th>
-            <th className="text-left p-3 font-semibold"></th>
+            <th className="text-left p-3 font-semibold text-foreground">Partner</th>
+            <th className="text-left p-3 font-semibold text-foreground">Credit Score</th>
+            <th className="text-left p-3 font-semibold text-foreground">Time in Business</th>
+            <th className="text-left p-3 font-semibold text-foreground">Revenue</th>
+            <th className="text-left p-3 font-semibold text-foreground">Amount</th>
+            <th className="text-left p-3 font-semibold text-foreground">Approval</th>
+            <th className="text-left p-3 font-semibold text-foreground"></th>
           </tr>
         </thead>
         <tbody>
           {partners.map((partner) => (
             <tr key={partner.id} className="border-b hover:bg-muted/30">
               <td className="p-3">
-                <div className="font-medium">{partner.name}</div>
+                <div className="font-medium text-foreground">{partner.name}</div>
                 <div className="text-xs text-muted-foreground">{partner.type}</div>
               </td>
-              <td className="p-3">{partner.requirements.minCreditScore}</td>
-              <td className="p-3">{partner.requirements.timeInBusiness}</td>
-              <td className="p-3">{partner.requirements.minAnnualRevenue}</td>
-              <td className="p-3">{partner.loanDetails.minAmount} - {partner.loanDetails.maxAmount}</td>
+              <td className="p-3 text-muted-foreground">{partner.requirements.minCreditScore}</td>
+              <td className="p-3 text-muted-foreground">{partner.requirements.timeInBusiness}</td>
+              <td className="p-3 text-muted-foreground">{partner.requirements.minAnnualRevenue}</td>
+              <td className="p-3 text-[#C8A661] font-medium">{partner.loanDetails.minAmount} - {partner.loanDetails.maxAmount}</td>
               <td className="p-3">
-                <Badge variant="outline" className="text-green-600 border-green-600">
+                <Badge variant="outline" className="text-[#C8A661] border-[#C8A661]/30">
                   {partner.loanDetails.approvalSpeed}
                 </Badge>
               </td>
@@ -291,6 +293,7 @@ export function FundingPartnerComparisonTable({
                 <Button 
                   size="sm" 
                   onClick={() => onApply(partner)}
+                  className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
                   data-testid={`table-apply-${partner.id}`}
                 >
                   Apply

@@ -186,7 +186,7 @@ const utilityCalculatorConfig: PremiumCalculatorConfig = {
       title: 'Utility Cost Breakdown',
       dataKeys: ['monthlyElectric', 'monthlyWater', 'monthlyGas'],
       labels: ['Electric', 'Water', 'Gas'],
-      colors: ['#F59E0B', '#3B82F6', '#EF4444']
+      colors: ['#C8A661', '#0A1628', '#1a3a5c']
     }
   ],
   comparisonOutputs: ['monthlyElectric', 'monthlyWater', 'monthlyGas'],
@@ -212,59 +212,64 @@ const utilityCalculatorConfig: PremiumCalculatorConfig = {
 
 function UPGBenchmarkCard({ upg }: { upg: number }) {
   const getStatus = () => {
-    if (upg <= 15) return { status: 'excellent', color: 'text-emerald-400', bg: 'bg-emerald-500/20', label: 'Excellent' };
-    if (upg <= 18) return { status: 'good', color: 'text-green-400', bg: 'bg-green-500/20', label: 'Good' };
-    if (upg <= 22) return { status: 'average', color: 'text-amber-400', bg: 'bg-amber-500/20', label: 'Average' };
-    return { status: 'needs-work', color: 'text-red-400', bg: 'bg-red-500/20', label: 'Needs Improvement' };
+    if (upg <= 15) return { status: 'excellent', color: 'text-emerald-600', bg: 'bg-emerald-500/20', label: 'Excellent' };
+    if (upg <= 18) return { status: 'good', color: 'text-green-600', bg: 'bg-green-500/20', label: 'Good' };
+    if (upg <= 22) return { status: 'average', color: 'text-[#C8A661]', bg: 'bg-[#C8A661]/20', label: 'Average' };
+    return { status: 'needs-work', color: 'text-red-600', bg: 'bg-red-500/20', label: 'Needs Improvement' };
   };
 
   const { color, bg, label } = getStatus();
 
   return (
-    <Card className="bg-white/5 backdrop-blur border-white/10">
+    <Card className="bg-card border shadow-sm overflow-hidden" data-testid="card-upg-benchmark">
+      <div className="h-1 bg-[#C8A661]" />
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg text-white flex items-center gap-2">
-          <TrendingDown className="w-5 h-5 text-accent" />
+        <CardTitle className="text-lg text-foreground flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+            <TrendingDown className="w-5 h-5 text-[#C8A661]" />
+          </div>
           Industry UPG Benchmarks
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className={`px-3 py-1 rounded-full ${bg}`}>
               <span className={`text-sm font-medium ${color}`}>{label}</span>
             </div>
-            <span className="text-white/60 text-sm">Your UPG: {upg.toFixed(1)}%</span>
+            <span className="text-muted-foreground text-sm">
+              Your UPG: <span className="text-[#C8A661] font-semibold">{upg.toFixed(1)}%</span>
+            </span>
           </div>
           
-          <div className="h-3 bg-white/10 rounded-full overflow-hidden relative">
+          <div className="h-3 bg-muted/50 rounded-full overflow-hidden relative">
             <div className="absolute inset-0 flex">
               <div className="w-[15%] bg-emerald-500/40 h-full" />
               <div className="w-[3%] bg-green-500/40 h-full" />
-              <div className="w-[4%] bg-amber-500/40 h-full" />
-              <div className="flex-1 bg-red-500/40 h-full" />
+              <div className="w-[4%] bg-[#C8A661]/40 h-full" />
+              <div className="flex-1 bg-red-500/30 h-full" />
             </div>
             <div 
-              className="absolute top-0 h-full w-1 bg-white shadow-lg"
+              className="absolute top-0 h-full w-1 bg-[#0A1628] shadow-lg"
               style={{ left: `${Math.min(upg, 30)}%` }}
             />
           </div>
           
-          <div className="flex justify-between text-xs text-white/50">
+          <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-emerald-400" />
+              <CheckCircle className="w-3 h-3 text-emerald-600" />
               &lt;15% Excellent
             </span>
             <span className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-400" />
+              <CheckCircle className="w-3 h-3 text-green-600" />
               15-18% Good
             </span>
             <span className="flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3 text-amber-400" />
+              <AlertTriangle className="w-3 h-3 text-[#C8A661]" />
               18-22% Average
             </span>
             <span className="flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3 text-red-400" />
+              <AlertTriangle className="w-3 h-3 text-red-600" />
               &gt;22% High
             </span>
           </div>
@@ -276,26 +281,35 @@ function UPGBenchmarkCard({ upg }: { upg: number }) {
 
 function UtilityBreakdownIcons() {
   return (
-    <div className="grid grid-cols-3 gap-4 mb-8">
-      <Card className="bg-amber-500/10 border-amber-500/20">
-        <CardContent className="pt-6 text-center">
-          <Zap className="w-10 h-10 text-amber-400 mx-auto mb-2" />
-          <h3 className="text-white font-semibold">Electric</h3>
-          <p className="text-white/60 text-sm">Washers, dryers, lighting, HVAC</p>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
+      <Card className="bg-card border shadow-sm overflow-hidden" data-testid="card-electric">
+        <div className="h-1 bg-[#C8A661]" />
+        <CardContent className="pt-6 pb-6 text-center">
+          <div className="h-14 w-14 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+            <Zap className="w-7 h-7 text-[#C8A661]" />
+          </div>
+          <h3 className="text-foreground font-semibold text-lg">Electric</h3>
+          <p className="text-muted-foreground text-sm mt-1">Washers, dryers, lighting, HVAC</p>
         </CardContent>
       </Card>
-      <Card className="bg-blue-500/10 border-blue-500/20">
-        <CardContent className="pt-6 text-center">
-          <Droplets className="w-10 h-10 text-blue-400 mx-auto mb-2" />
-          <h3 className="text-white font-semibold">Water</h3>
-          <p className="text-white/60 text-sm">Wash cycles, restrooms, cleaning</p>
+      <Card className="bg-card border shadow-sm overflow-hidden" data-testid="card-water">
+        <div className="h-1 bg-[#C8A661]" />
+        <CardContent className="pt-6 pb-6 text-center">
+          <div className="h-14 w-14 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+            <Droplets className="w-7 h-7 text-[#C8A661]" />
+          </div>
+          <h3 className="text-foreground font-semibold text-lg">Water</h3>
+          <p className="text-muted-foreground text-sm mt-1">Wash cycles, restrooms, cleaning</p>
         </CardContent>
       </Card>
-      <Card className="bg-red-500/10 border-red-500/20">
-        <CardContent className="pt-6 text-center">
-          <Flame className="w-10 h-10 text-red-400 mx-auto mb-2" />
-          <h3 className="text-white font-semibold">Gas</h3>
-          <p className="text-white/60 text-sm">Dryers, water heating</p>
+      <Card className="bg-card border shadow-sm overflow-hidden" data-testid="card-gas">
+        <div className="h-1 bg-[#C8A661]" />
+        <CardContent className="pt-6 pb-6 text-center">
+          <div className="h-14 w-14 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+            <Flame className="w-7 h-7 text-[#C8A661]" />
+          </div>
+          <h3 className="text-foreground font-semibold text-lg">Gas</h3>
+          <p className="text-muted-foreground text-sm mt-1">Dryers, water heating</p>
         </CardContent>
       </Card>
     </div>
@@ -380,9 +394,9 @@ export default function UtilityCalculator() {
           ]}
         />
 
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-          <div className="bg-muted/30 border-b border-white/10">
-            <div className="mx-auto max-w-7xl px-6 py-3">
+        <div className="min-h-screen bg-background">
+          <div className="bg-muted/30 border-b">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
               <Breadcrumb items={[
                 { name: "Calculators", url: "/calculators" },
                 { name: "Utility Calculator", url: "/utility-calculator" }
@@ -390,20 +404,28 @@ export default function UtilityCalculator() {
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-            <div className="mb-6 text-center">
-              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="mb-8 text-center">
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-pain-point">
                 <Zap className="w-3 h-3 mr-1" />
                 #1 Industry Pain Point - 88% of Operators
               </Badge>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+                Utility Cost Calculator
+              </h1>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Calculate your utility costs per load and track your UPG (Utilities as % of Gross) against industry benchmarks.
+              </p>
             </div>
 
             <UtilityBreakdownIcons />
           </div>
 
-          <PremiumCalculatorEngine config={utilityCalculatorConfig} />
+          <div className="bg-muted/30 py-8 md:py-12">
+            <PremiumCalculatorEngine config={utilityCalculatorConfig} />
+          </div>
           
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
             <UPGBenchmarkCard upg={18.5} />
           </div>
           

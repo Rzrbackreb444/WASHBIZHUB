@@ -57,9 +57,9 @@ export interface EquipmentBlog {
   schemaMarkup: object;
 }
 
-const CTA_BUTTON = `<div class="my-8 p-6 bg-gradient-to-r from-[#0A1628] to-[#1a3a5c] rounded-xl text-center">
-  <p class="text-white text-lg mb-4">Ready to upgrade your laundry operation?</p>
-  <a href="${AFFILIATE_LINK}" target="_blank" rel="noopener noreferrer" class="inline-block bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-bold py-3 px-8 rounded-lg transition-colors">
+const CTA_BUTTON = `<div class="my-8 p-6 rounded-xl text-center" style="background: linear-gradient(to right, #0A1628, #1a3a5c);">
+  <p class="text-lg mb-4" style="color: white;">Ready to upgrade your laundry operation?</p>
+  <a href="${AFFILIATE_LINK}" target="_blank" rel="noopener noreferrer" class="inline-block font-bold py-3 px-8 rounded-lg transition-colors" style="background-color: #C8A661; color: #0A1628;">
     Get Your Free Equipment Quote →
   </a>
 </div>`;

@@ -297,7 +297,7 @@ export default function EquipmentHub() {
         </section>
 
         {/* Special Financing Banner */}
-        <section className="bg-gradient-to-r from-red-700 to-red-600 text-white py-4">
+        <section className="bg-[#0A1628] text-white py-4">
           <div className="container mx-auto px-4">
             <a 
               href={AFFILIATE_LINK} 
@@ -306,9 +306,12 @@ export default function EquipmentHub() {
               className="flex flex-col md:flex-row items-center justify-center gap-4 hover:opacity-90 transition"
               data-testid="link-financing-banner"
             >
-              <span className="text-xl font-bold">🎉 END OF YEAR SAVINGS!</span>
-              <span className="text-lg">APR Offer of 6.99% — Now Through 12/31/2025</span>
-              <Button size="sm" variant="secondary" className="bg-white text-red-700 hover:bg-gray-100">
+              <Badge className="bg-[#C8A661] text-[#0A1628] px-3 py-1">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Limited Time
+              </Badge>
+              <span className="text-lg font-medium">APR Offer of 6.99% — Now Through 12/31/2025</span>
+              <Button size="sm" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
                 Learn More <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </a>
@@ -319,6 +322,10 @@ export default function EquipmentHub() {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
+              <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                <Star className="w-3 h-3 mr-1.5" />
+                Authorized Dealer
+              </Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Industry-Leading Equipment Brands</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 We're proud to be an authorized distributor of the most trusted commercial laundry brands. 
@@ -328,13 +335,14 @@ export default function EquipmentHub() {
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Dexter */}
-              <Card className="border-2 hover:border-[#C8A661] transition-colors overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white p-6">
-                  <div className="flex items-center justify-between">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
+                <div className="bg-[#0A1628] text-white p-6">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
-                      <Badge className="bg-white text-blue-900 mb-2">Made in USA</Badge>
+                      <Badge className="bg-[#C8A661] text-[#0A1628] mb-2">Made in USA</Badge>
                       <h3 className="text-2xl font-bold">Dexter Laundry</h3>
-                      <p className="text-blue-200">{dexterBrand?.tagline}</p>
+                      <p className="text-gray-300">{dexterBrand?.tagline}</p>
                     </div>
                     <img 
                       src={dexterStackImg} 
@@ -348,25 +356,25 @@ export default function EquipmentHub() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">200 G-Force Express</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">10-Year Warranty</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">DexterLive Monitoring</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">DexterPay Mobile</span>
                     </div>
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button className="flex-1 bg-blue-900 hover:bg-blue-800" asChild data-testid="button-dexter-quote">
+                    <Button className="flex-1 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" asChild data-testid="button-dexter-quote">
                       <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                         Get Dexter Quote
                       </a>
@@ -381,15 +389,18 @@ export default function EquipmentHub() {
               </Card>
 
               {/* Continental Girbau */}
-              <Card className="border-2 hover:border-[#C8A661] transition-colors overflow-hidden">
-                <div className="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white p-6">
-                  <div className="flex items-center justify-between">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
+                <div className="bg-[#0A1628] text-white p-6">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
-                      <Badge className="bg-white text-emerald-800 mb-2">405 G-Force</Badge>
+                      <Badge className="bg-[#C8A661] text-[#0A1628] mb-2">405 G-Force</Badge>
                       <h3 className="text-2xl font-bold">Continental Girbau</h3>
-                      <p className="text-emerald-200">{continentalBrand?.tagline}</p>
+                      <p className="text-gray-300">{continentalBrand?.tagline}</p>
                     </div>
-                    <WashingMachine className="h-24 w-24 text-white/80" />
+                    <div className="h-12 w-12 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                      <WashingMachine className="h-6 w-6 text-[#C8A661]" />
+                    </div>
                   </div>
                 </div>
                 <CardContent className="p-6 space-y-4">
@@ -397,25 +408,25 @@ export default function EquipmentHub() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">400-405 G-Force</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">ProfitPlus Controls</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">Soft-Mount Design</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-[#C8A661]" />
                       <span className="text-sm">65% Less Dry Time</span>
                     </div>
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button className="flex-1 bg-emerald-800 hover:bg-emerald-700" asChild data-testid="button-continental-quote">
+                    <Button className="flex-1 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" asChild data-testid="button-continental-quote">
                       <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                         Get Continental Quote
                       </a>
@@ -447,12 +458,16 @@ export default function EquipmentHub() {
         {/* Popular Equipment */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
               <div>
+                <Badge variant="outline" className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                  <WashingMachine className="w-3 h-3 mr-1.5" />
+                  Best Sellers
+                </Badge>
                 <h2 className="text-3xl font-bold mb-2">Popular Equipment</h2>
                 <p className="text-muted-foreground">Best-selling commercial washers and dryers</p>
               </div>
-              <Button variant="outline" asChild data-testid="button-view-all-equipment">
+              <Button variant="outline" className="border-[#0A1628] text-[#0A1628]" asChild data-testid="button-view-all-equipment">
                 <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                   View All Equipment <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
@@ -461,15 +476,16 @@ export default function EquipmentHub() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {popularModels.slice(0, 8).map(model => (
-                <Card key={model.id} className="hover:shadow-lg transition-shadow" data-testid={`card-equipment-${model.id}`}>
+                <Card key={model.id} className="bg-card border shadow-sm overflow-hidden" data-testid={`card-equipment-${model.id}`}>
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <Badge variant="secondary">{model.capacity}</Badge>
                       {model.isNewSeries && (
                         <Badge className="bg-[#C8A661] text-[#0A1628]">NEW</Badge>
                       )}
                       {model.isExpress && (
-                        <Badge className="bg-blue-600">Express</Badge>
+                        <Badge className="bg-[#0A1628] text-white">Express</Badge>
                       )}
                     </div>
                     <CardTitle className="text-lg mt-2">{model.name}</CardTitle>
@@ -484,11 +500,11 @@ export default function EquipmentHub() {
                         </div>
                       )}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <CheckCircle2 className="h-4 w-4" />
+                        <CheckCircle2 className="h-4 w-4 text-[#C8A661]" />
                         <span>{model.features[0]}</span>
                       </div>
                     </div>
-                    <Button className="w-full" asChild data-testid={`button-quote-${model.id}`}>
+                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" asChild data-testid={`button-quote-${model.id}`}>
                       <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                         Get Quote
                       </a>
@@ -504,6 +520,10 @@ export default function EquipmentHub() {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
+              <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                <Building2 className="w-3 h-3 mr-1.5" />
+                Industry Solutions
+              </Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Equipment for Every Industry</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 From laundromats to hospitals, hotels to fire departments — we provide specialized 
@@ -523,10 +543,10 @@ export default function EquipmentHub() {
                     className="group"
                     data-testid={`link-industry-${industry.id}`}
                   >
-                    <Card className="h-full hover:border-[#C8A661] hover:shadow-lg transition-all cursor-pointer">
+                    <Card className="h-full bg-card border shadow-sm hover:shadow-md transition-all cursor-pointer">
                       <CardContent className="p-4 text-center">
-                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#0A1628] flex items-center justify-center group-hover:bg-[#C8A661] transition-colors">
-                          <Icon className="h-6 w-6 text-white" />
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-[#C8A661]" />
                         </div>
                         <h3 className="font-semibold text-sm mb-1">{industry.name}</h3>
                         <p className="text-xs text-muted-foreground line-clamp-2">{industry.capacityRange}</p>
@@ -626,10 +646,13 @@ export default function EquipmentHub() {
         </section>
 
         {/* Featured Equipment Guides - SEO Content */}
-        <section className="py-16 bg-muted/50">
+        <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <Badge className="mb-4 bg-[#C8A661] text-[#0A1628]">Expert Guides</Badge>
+              <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                <BookOpen className="w-3 h-3 mr-1.5" />
+                Expert Guides
+              </Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Equipment Buying Guides</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 In-depth guides on equipment costs, brand comparisons, and ROI analysis to help you make informed decisions.
@@ -638,7 +661,8 @@ export default function EquipmentHub() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {equipmentBlogs.slice(0, 3).map((blog, index) => (
-                <Card key={blog.slug} className="hover-elevate transition-all duration-300 border-2 hover:border-[#C8A661]/50">
+                <Card key={blog.slug} className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
                     <Badge variant="secondary" className="w-fit mb-2">
                       {blog.subcategory === 'retool' ? 'Retool Guide' :
@@ -660,7 +684,7 @@ export default function EquipmentHub() {
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
                       {blog.excerpt}
                     </p>
-                    <Button asChild className="w-full bg-[#0A1628] hover:bg-[#1a3a5c]">
+                    <Button asChild className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white">
                       <Link href={`/equipment/blog/${blog.slug}`} data-testid={`button-read-guide-${index}`}>
                         Read Guide
                         <ChevronRight className="ml-2 h-4 w-4" />
@@ -672,7 +696,7 @@ export default function EquipmentHub() {
             </div>
 
             <div className="text-center mt-8">
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="border-[#0A1628] text-[#0A1628]">
                 <Link href="/equipment/blog" data-testid="link-view-all-guides">
                   <BookOpen className="mr-2 h-5 w-5" />
                   View All Equipment Guides
@@ -686,6 +710,10 @@ export default function EquipmentHub() {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
+              <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                <DollarSign className="w-3 h-3 mr-1.5" />
+                Financing
+              </Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Flexible Financing Options</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Get the equipment you need with financing options designed for every budget. 
@@ -695,13 +723,10 @@ export default function EquipmentHub() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {financingOptions.slice(0, 3).map(option => (
-                <Card key={option.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className={`absolute top-0 left-0 right-0 h-1 ${
-                    option.type === 'lease' ? 'bg-blue-600' : 
-                    option.type === 'purchase' ? 'bg-green-600' : 'bg-purple-600'
-                  }`} />
+                <Card key={option.id} className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
-                    <Badge variant="secondary" className="w-fit mb-2">
+                    <Badge className="w-fit mb-2 bg-[#C8A661] text-[#0A1628]">
                       {option.type === 'lease' ? 'LEASE' : option.type === 'purchase' ? 'BUY' : 'RENTAL'}
                     </Badge>
                     <CardTitle>{option.name}</CardTitle>
@@ -712,12 +737,12 @@ export default function EquipmentHub() {
                     <ul className="space-y-2">
                       {option.benefits.slice(0, 4).map((benefit, i) => (
                         <li key={i} className="flex items-center gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
                           {benefit}
                         </li>
                       ))}
                     </ul>
-                    <Button className="w-full" asChild data-testid={`button-financing-${option.id}`}>
+                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" asChild data-testid={`button-financing-${option.id}`}>
                       <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                         Learn More
                       </a>
@@ -762,7 +787,7 @@ export default function EquipmentHub() {
                 />
               </div>
               <div className="space-y-6">
-                <Badge variant="secondary">
+                <Badge variant="outline" className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                   <Award className="w-4 h-4 mr-1" />
                   Since 1996
                 </Badge>
@@ -819,10 +844,14 @@ export default function EquipmentHub() {
         </section>
 
         {/* FAQ Section - E-E-A-T */}
-        <section className="py-16">
+        <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
+                <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                  <MessageCircle className="w-3 h-3 mr-1.5" />
+                  Expert Support
+                </Badge>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
                 <p className="text-lg text-muted-foreground">
                   Expert answers to common questions about commercial laundry equipment
@@ -831,7 +860,7 @@ export default function EquipmentHub() {
 
               <Accordion type="single" collapsible className="space-y-4">
                 {faqs.slice(0, 12).map((faq, index) => (
-                  <AccordionItem key={faq.id} value={faq.id} className="border rounded-lg px-6">
+                  <AccordionItem key={faq.id} value={faq.id} className="border rounded-lg px-6 bg-card shadow-sm">
                     <AccordionTrigger className="text-left hover:no-underline" data-testid={`accordion-faq-${index}`}>
                       <span className="font-semibold">{faq.question}</span>
                     </AccordionTrigger>
@@ -844,7 +873,7 @@ export default function EquipmentHub() {
 
               <div className="text-center mt-8">
                 <p className="text-muted-foreground mb-4">Have more questions? Our equipment experts are here to help.</p>
-                <Button size="lg" asChild data-testid="button-faq-contact">
+                <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" asChild data-testid="button-faq-contact">
                   <a href={AFFILIATE_LINK} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="mr-2 h-5 w-5" />
                     Ask an Expert

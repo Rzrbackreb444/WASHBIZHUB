@@ -2,6 +2,10 @@ import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from '@/components/PremiumCalculatorEngine';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Calculator, DollarSign, Percent, Clock, HelpCircle, TrendingUp, Shield, CheckCircle2 } from 'lucide-react';
 
 const loanStructuredData = {
   "@context": "https://schema.org",
@@ -251,6 +255,37 @@ const loanCalculatorConfig: PremiumCalculatorConfig = {
   }
 };
 
+const loanTypeHighlights = [
+  {
+    icon: DollarSign,
+    title: "SBA 7(a) Loans",
+    rate: "5.5-8.5%",
+    term: "10-25 years",
+    downPayment: "10-20%"
+  },
+  {
+    icon: TrendingUp,
+    title: "Equipment Financing",
+    rate: "6-14%",
+    term: "3-7 years",
+    downPayment: "10-20%"
+  },
+  {
+    icon: Percent,
+    title: "Conventional Loans",
+    rate: "6-10%",
+    term: "5-20 years",
+    downPayment: "20-30%"
+  },
+  {
+    icon: Clock,
+    title: "Working Capital",
+    rate: "8-18%",
+    term: "6mo-5 years",
+    downPayment: "0-10%"
+  }
+];
+
 export default function LoanCalculator() {
   return (
     <>
@@ -304,7 +339,142 @@ export default function LoanCalculator() {
         </div>
       </div>
 
+      <section className="bg-muted/30 py-12 md:py-16 border-b">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 mb-4" data-testid="badge-loan-calculator">
+              <Calculator className="w-3.5 h-3.5 mr-1.5" />
+              Free Financing Tool
+            </Badge>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4" data-testid="text-page-title">
+              Laundromat Loan Calculator
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Calculate monthly payments, compare financing options, and plan your laundromat investment with our professional loan calculator.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {loanTypeHighlights.map((item, index) => (
+              <Card key={index} className="bg-card border shadow-sm overflow-hidden" data-testid={`card-loan-type-${index}`}>
+                <div className="h-1 bg-[#C8A661]" />
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                      <item.icon className="h-5 w-5 text-[#C8A661]" />
+                    </div>
+                    <h3 className="text-sm md:text-base font-semibold text-foreground">{item.title}</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="bg-muted/50 rounded-lg p-2 text-center">
+                      <div className="text-lg md:text-xl font-bold text-[#C8A661]">{item.rate}</div>
+                      <div className="text-xs text-muted-foreground">Interest Rate</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-muted/50 rounded p-2 text-center">
+                        <div className="text-xs font-medium text-foreground">{item.term}</div>
+                        <div className="text-xs text-muted-foreground">Term</div>
+                      </div>
+                      <div className="bg-muted/50 rounded p-2 text-center">
+                        <div className="text-xs font-medium text-foreground">{item.downPayment}</div>
+                        <div className="text-xs text-muted-foreground">Down</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <PremiumCalculatorEngine config={loanCalculatorConfig} />
+
+      <section className="py-16 md:py-20 bg-muted/30">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 mb-4">
+              <HelpCircle className="w-3.5 h-3.5 mr-1.5" />
+              Expert Answers
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+              Laundromat Financing FAQ
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Common questions about laundromat loans and financing options answered by industry experts.
+            </p>
+          </div>
+
+          <Card className="bg-card border shadow-sm overflow-hidden">
+            <div className="h-1 bg-[#C8A661]" />
+            <CardContent className="p-0">
+              <Accordion type="single" collapsible className="w-full">
+                {loanFaqs.map((faq, index) => (
+                  <AccordionItem 
+                    key={index} 
+                    value={`faq-${index}`}
+                    className="border-b last:border-b-0"
+                    data-testid={`accordion-faq-${index}`}
+                  >
+                    <AccordionTrigger className="px-6 py-4 hover:bg-muted/30 text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                          <HelpCircle className="h-4 w-4 text-[#C8A661]" />
+                        </div>
+                        <span className="text-foreground font-medium">{faq.question}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4 pt-0">
+                      <div className="ml-11 text-muted-foreground leading-relaxed">
+                        {faq.answer}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-16 bg-[#0A1628]">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Ready to Finance Your Laundromat?
+          </h2>
+          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+            Connect with our network of trusted lenders specializing in laundromat financing. Get pre-qualified in minutes.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
+            <a
+              href="/funding-matcher"
+              className="inline-flex items-center justify-center px-6 py-3 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold rounded-md transition-colors"
+              data-testid="link-funding-matcher"
+            >
+              <DollarSign className="w-4 h-4 mr-2" />
+              Find Lenders Now
+            </a>
+            <a
+              href="/calculators"
+              className="inline-flex items-center justify-center px-6 py-3 border border-white/30 text-white hover:bg-white/10 font-semibold rounded-md transition-colors"
+              data-testid="link-more-calculators"
+            >
+              <Calculator className="w-4 h-4 mr-2" />
+              More Calculators
+            </a>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-8 text-gray-400 text-sm flex-wrap">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span>Trusted by 9,600+ Owners</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Industry Verified</span>
+            </div>
+          </div>
+        </div>
+      </section>
       
       <div className="mx-auto max-w-4xl px-6 py-8">
         <CalculatorDisclaimer />
