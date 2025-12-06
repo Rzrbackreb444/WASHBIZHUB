@@ -8,6 +8,7 @@ import { registerPosRoutes } from "./pos-routes";
 import { registerCustomerPortalRoutes } from "./customer-portal-routes";
 import { registerPromoCodeRoutes } from "./promo-code-routes";
 import blogRoutes, { adminBlogRoutes } from "./blog-routes";
+import feedbackRoutes from "./routes/feedback";
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -1070,6 +1071,7 @@ app.use((req, res, next) => {
   registerPromoCodeRoutes(app);
   blogRoutes(app);
   adminBlogRoutes(app);
+  app.use('/api/feedback', feedbackRoutes);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
