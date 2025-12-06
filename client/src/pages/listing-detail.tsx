@@ -522,9 +522,9 @@ export default function ListingDetail() {
                   <Separator />
 
                   <div className="text-sm text-muted-foreground space-y-2">
-                    <p>Listing ID: <span className="font-mono text-foreground">{listing.id.slice(0, 8)}</span></p>
+                    <div>Listing ID: <span className="font-mono text-foreground">{listing.id.slice(0, 8)}</span></div>
                     {listing.status && (
-                      <p>Status: <Badge variant="outline" className="ml-1 capitalize">{listing.status}</Badge></p>
+                      <div className="flex items-center gap-1">Status: <Badge variant="outline" className="ml-1 capitalize">{listing.status}</Badge></div>
                     )}
                   </div>
                 </CardContent>
