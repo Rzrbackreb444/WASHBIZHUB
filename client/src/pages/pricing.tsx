@@ -229,8 +229,8 @@ export default function Pricing() {
       answer: "Yes! When you choose annual billing, you save up to 17% compared to monthly pricing. For example, the Starter plan is $29/month billed monthly, or $24/month when billed annually ($290/year)."
     },
     {
-      question: "Is there a free trial available?",
-      answer: "Absolutely! All paid plans include a 7-day free trial with full access to all features. No credit card required to start. If you don't cancel during the trial, you'll be charged after 7 days."
+      question: "What's your money-back guarantee?",
+      answer: "All paid plans include a 30-day money-back guarantee. If you're not completely satisfied within your first month, contact us for a full refund - no questions asked. We're confident you'll love WashBizHub."
     },
     {
       question: "Can I switch between plans?",
@@ -239,15 +239,15 @@ export default function Pricing() {
   ];
 
   const speakableContent = [
-    "CLEANBI Explorer pricing starts at free with 5 location analyses. Starter is $29 per month for unlimited analyses. Pro is $99 per month with ROI calculators and API access. Enterprise is $699 per month with ownership data and dedicated support.",
-    "All paid plans include a 7-day free trial and 30-day money-back guarantee. Annual billing saves up to 17%."
+    "CLEANBI Explorer pricing starts at free with 3 location analyses. Starter is $29 per month for unlimited analyses and full calculator hub access. Pro is $99 per month with advanced analytics and API access. Enterprise is $699 per month with ownership data and dedicated support.",
+    "All paid plans include a 30-day money-back guarantee. Annual billing saves up to 17%."
   ];
 
   return (
     <>
       <SEO 
         title="CLEANBI Pricing Plans - Location Intelligence for Laundromat Investors"
-        description="Score any location for laundromat investment potential. Free: 5 analyses total. Starter: $29/mo unlimited. Pro: $99/mo with calculators & API. Enterprise: $699/mo with ownership data. 7-day free trial, 30-day money-back guarantee."
+        description="Score any location for laundromat investment potential. Free: 3 analyses total. Starter: $29/mo unlimited + calculator hub. Pro: $99/mo with advanced analytics & API. Enterprise: $699/mo with ownership data. 30-day money-back guarantee."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
@@ -264,7 +264,7 @@ export default function Pricing() {
           "ROI calculator laundromat",
           "laundromat valuation software",
           "business intelligence laundromat",
-          "CLEANBI free trial",
+          "CLEANBI money-back guarantee",
           "laundromat analytics platform"
         ]}
         faqs={extendedFaqs}
@@ -544,22 +544,17 @@ export default function Pricing() {
                         </Button>
                       </Link>
                       
-                      {/* Credit card requirement indicator */}
+                      {/* Guarantee indicator */}
                       <p className="text-xs text-muted-foreground text-center mt-2" data-testid={`text-cc-${tier.id}`}>
                         {tier.price === 0 ? (
                           <span className="flex items-center justify-center gap-1">
                             <Gift className="h-3 w-3 text-[#b8860b]" aria-hidden="true" />
                             No credit card required
                           </span>
-                        ) : tier.id === 'enterprise' ? (
-                          <span className="flex items-center justify-center gap-1">
-                            <CreditCard className="h-3 w-3" aria-hidden="true" />
-                            14-day free trial • CC required
-                          </span>
                         ) : (
                           <span className="flex items-center justify-center gap-1">
-                            <CreditCard className="h-3 w-3" aria-hidden="true" />
-                            7-day free trial • CC required
+                            <Shield className="h-3 w-3 text-[#b8860b]" aria-hidden="true" />
+                            30-day money-back guarantee
                           </span>
                         )}
                       </p>
@@ -990,7 +985,7 @@ export default function Pricing() {
             </div>
             
             <p className="text-sm text-white/60 mt-6">
-              No credit card required • 7-day free trial on paid plans • 30-day money-back guarantee
+              Free tier: No credit card required • Paid plans: 30-day money-back guarantee
             </p>
           </div>
         </section>
