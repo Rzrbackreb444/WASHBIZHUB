@@ -233,7 +233,7 @@ const SERVICE_GUY_PRICING = [
     period: "/month",
     messages: "50 chats/month",
     features: ["AI-powered diagnostics", "Parts recommendations", "Step-by-step repair guides", "10% rebate on parts orders"],
-    cta: "Start Free Trial",
+    cta: "Get Started",
     popular: true,
   },
   {
@@ -243,7 +243,7 @@ const SERVICE_GUY_PRICING = [
     period: "/month",
     messages: "Unlimited",
     features: ["Everything in Essentials", "Multi-store access (5 seats)", "CRM export & analytics", "Priority support", "Custom equipment profiles"],
-    cta: "Start Free Trial",
+    cta: "Get Started",
     popular: false,
   },
   {
@@ -262,8 +262,8 @@ const getTierBadge = (tier: string, isTrialActive?: boolean) => {
   if (isTrialActive) {
     return (
       <Badge variant="default" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white gap-1">
-        <Gift className="h-3 w-3" />
-        Free Trial
+        <Star className="h-3 w-3" />
+        Active
       </Badge>
     );
   }
@@ -496,7 +496,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
           </div>
           <div className="flex flex-col items-start">
             <span className="text-base font-bold text-white">Service Guy AI</span>
-            <span className="text-xs font-medium text-emerald-400">Free Trial Available</span>
+            <span className="text-xs font-medium text-slate-400">Equipment Diagnostics Expert</span>
           </div>
         </div>
       </button>
@@ -577,26 +577,14 @@ export const AIChatWidget = memo(function AIChatWidget() {
 
       {!isMinimized && (
         <>
-          {/* Quota Bar with Free Trial CTA */}
+          {/* Usage Bar */}
           {quotaInfo && (
             <div className="px-4 pt-3 pb-2 border-b bg-muted/30">
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="text-muted-foreground font-medium">
                   Monthly Usage: {quotaInfo.used} / {quotaInfo.limit === 999999 ? "∞" : quotaInfo.limit}
                 </span>
-                {quotaInfo.tier === "free" && !isTrialActive && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 text-xs gap-1 hover-elevate text-emerald-600"
-                    onClick={() => setShowPricingModal(true)}
-                    data-testid="button-start-trial"
-                  >
-                    <Gift className="h-3 w-3" />
-                    14-Day Free Trial
-                  </Button>
-                )}
-                {quotaInfo.tier !== "enterprise" && quotaInfo.tier !== "free" && quotaInfo.remaining <= 5 && (
+                {quotaInfo.tier !== "enterprise" && quotaInfo.remaining <= 5 && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -605,7 +593,7 @@ export const AIChatWidget = memo(function AIChatWidget() {
                     data-testid="button-upgrade"
                   >
                     <ArrowUpCircle className="h-3 w-3" />
-                    Upgrade
+                    Get More Help
                   </Button>
                 )}
               </div>
@@ -624,6 +612,13 @@ export const AIChatWidget = memo(function AIChatWidget() {
               )}
             </div>
           )}
+          
+          {/* Legal Disclaimer */}
+          <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20">
+            <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-tight">
+              <strong>Disclaimer:</strong> Information provided is for educational purposes only and does not constitute professional advice. Always consult a qualified technician for repairs.
+            </p>
+          </div>
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
@@ -868,13 +863,15 @@ export const AIChatWidget = memo(function AIChatWidget() {
             ))}
           </div>
           
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <Gift className="h-6 w-6 text-emerald-500" />
+          <div className="mt-6 p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold">14-Day Free Trial</h4>
-                <p className="text-sm text-muted-foreground">
-                  Try any paid plan free for 14 days. No credit card required. Cancel anytime.
+                <h4 className="font-semibold text-sm">Legal Disclaimer</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  All information provided by Service Guy AI is for educational and informational purposes only. 
+                  It does not constitute professional repair advice. Always consult a qualified technician before 
+                  performing repairs. WashBizHub is not liable for any damages or injuries.
                 </p>
               </div>
             </div>
