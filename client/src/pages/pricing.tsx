@@ -91,7 +91,7 @@ export default function Pricing() {
       icon: Map,
       features: [
         { name: "CLEANBI Score & Grade", free: true, starter: true, pro: true, enterprise: true },
-        { name: "Location Analyses", free: "5 total", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
+        { name: "Location Analyses", free: "3 total", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
         { name: "Competitor Count", free: true, starter: true, pro: true, enterprise: true },
         { name: "Street View Access", free: true, starter: true, pro: true, enterprise: true },
         { name: "Save & Share Analyses", free: true, starter: true, pro: true, enterprise: true },
@@ -104,20 +104,30 @@ export default function Pricing() {
         { name: "3D Aerial Flyover", free: false, starter: true, pro: true, enterprise: true },
         { name: "Competition Heatmap", free: false, starter: true, pro: true, enterprise: true },
         { name: "Walk Score & Transit", free: false, starter: true, pro: true, enterprise: true },
-        { name: "Solar Potential Analysis", free: false, starter: true, pro: true, enterprise: true },
         { name: "Full Category Breakdowns", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Export PDF Reports", free: false, starter: true, pro: true, enterprise: true },
       ]
     },
     { 
-      category: "Investment Tools",
+      category: "Member Benefits",
       icon: Calculator,
       features: [
-        { name: "Property Value Estimates", free: false, starter: true, pro: true, enterprise: true },
-        { name: "ROI Calculator", free: false, starter: false, pro: true, enterprise: true },
-        { name: "Monte Carlo Simulation", free: false, starter: false, pro: true, enterprise: true },
-        { name: "Utility Rate Analysis", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Full Calculator Hub (ROI, Loan, Utility, Labor, Valuation)", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Book & Courses Access", free: false, starter: true, pro: true, enterprise: true },
+        { name: "AI Business Plan Generator", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Premium Templates & Downloads", free: false, starter: true, pro: true, enterprise: true },
+        { name: "Forum Posting & Community", free: false, starter: true, pro: true, enterprise: true },
+      ]
+    },
+    { 
+      category: "Pro Features",
+      icon: TrendingUp,
+      features: [
+        { name: "Monte Carlo Simulations", free: false, starter: false, pro: true, enterprise: true },
         { name: "Drive-Time Catchment Maps", free: false, starter: false, pro: true, enterprise: true },
-        { name: "Revenue Projections", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Due Diligence Toolkit", free: false, starter: false, pro: true, enterprise: true },
+        { name: "Website Builder", free: false, starter: false, pro: true, enterprise: true },
+        { name: "API Access (500 calls/mo)", free: false, starter: false, pro: true, enterprise: true },
       ]
     },
     { 
@@ -126,7 +136,6 @@ export default function Pricing() {
       features: [
         { name: "Ownership & Lien Data", free: false, starter: false, pro: false, enterprise: true },
         { name: "Motivated Seller Score", free: false, starter: false, pro: false, enterprise: true },
-        { name: "Property Tax Records", free: false, starter: false, pro: false, enterprise: true },
         { name: "White-Label Reports", free: false, starter: false, pro: false, enterprise: true },
         { name: "Unlimited API Access", free: false, starter: false, pro: false, enterprise: true },
         { name: "Team Collaboration", free: false, starter: false, pro: false, enterprise: true },
