@@ -129,12 +129,12 @@ export function Header() {
         Skip to main content
       </a>
       
-      {/* Main header - clean, minimal */}
+      {/* Main header - solid background for light mode visibility */}
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 bg-background/98 backdrop-blur-md ${
+        className={`sticky top-0 z-50 transition-all duration-300 bg-background border-b ${
           isScrolled 
-            ? 'shadow-sm border-b border-border/40' 
-            : 'border-b border-border/60'
+            ? 'shadow-sm border-border' 
+            : 'border-border/60'
         }`}
         data-testid="header-main"
       >
@@ -354,34 +354,33 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="w-[300px] bg-background border-l border-border p-0"
+                  className="w-[300px] bg-background border-l border-border p-0 flex flex-col"
                   data-testid="mobile-drawer-panel"
                 >
-                  <div className="flex flex-col h-full">
-                    {/* Mobile Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-border">
-                      <SheetHeader className="flex-1">
-                        <SheetTitle className="text-foreground text-lg font-bold flex items-center gap-2">
-                          <img src={logoUrl} alt="" className="h-6 w-auto" />
-                          Menu
-                        </SheetTitle>
-                        <SheetDescription className="sr-only">
-                          Navigation menu
-                        </SheetDescription>
-                      </SheetHeader>
-                      <SheetClose asChild>
-                        <button
-                          className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                          aria-label="Close menu"
-                          data-testid="button-mobile-close"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </SheetClose>
-                    </div>
+                  {/* Mobile Header - Fixed */}
+                  <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
+                    <SheetHeader className="flex-1">
+                      <SheetTitle className="text-foreground text-lg font-bold flex items-center gap-2">
+                        <img src={logoUrl} alt="" className="h-6 w-auto" />
+                        Menu
+                      </SheetTitle>
+                      <SheetDescription className="sr-only">
+                        Navigation menu
+                      </SheetDescription>
+                    </SheetHeader>
+                    <SheetClose asChild>
+                      <button
+                        className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="Close menu"
+                        data-testid="button-mobile-close"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </SheetClose>
+                  </div>
 
-                    {/* Mobile Nav Links */}
-                    <div className="flex-1 overflow-y-auto py-4">
+                  {/* Mobile Nav Links - Scrollable */}
+                  <div className="flex-1 overflow-y-auto min-h-0 py-4">
                       {/* Primary Links */}
                       <div className="px-4 mb-6">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -445,9 +444,9 @@ export function Header() {
                       ))}
                     </div>
 
-                    {/* Mobile Footer Actions */}
-                    <div className="p-4 border-t border-border space-y-3">
-                      {!isLoading && (
+                  {/* Mobile Footer Actions - Fixed at bottom */}
+                  <div className="p-4 border-t border-border space-y-3 flex-shrink-0 bg-background">
+                    {!isLoading && (
                         <>
                           {isAuthenticated ? (
                             <>

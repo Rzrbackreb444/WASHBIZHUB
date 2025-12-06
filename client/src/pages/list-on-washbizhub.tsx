@@ -32,7 +32,7 @@ const listingCategories = [
     icon: Package,
     color: "from-blue-500 to-blue-600",
     href: "/list-equipment",
-    stats: { listings: "500+", views: "10K+" },
+    stats: { categories: "12", nationwide: "Yes" },
     features: ["12 Equipment Categories", "Brand Recognition", "Price Negotiable"],
     cta: "List Equipment",
     popular: false
