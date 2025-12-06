@@ -24,16 +24,16 @@ const variantStyles: Record<
   }
 > = {
   success: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/50",
-    text: "text-emerald-700 dark:text-emerald-300",
-    border: "border-emerald-200 dark:border-emerald-800",
-    dot: "bg-emerald-500",
+    bg: "bg-[#0A1628]/5 dark:bg-[#0A1628]/30",
+    text: "text-[#0A1628] dark:text-slate-200",
+    border: "border-[#0A1628]/20 dark:border-slate-600",
+    dot: "bg-[#C8A661]",
   },
   warning: {
-    bg: "bg-amber-50 dark:bg-amber-950/50",
-    text: "text-amber-700 dark:text-amber-300",
-    border: "border-amber-200 dark:border-amber-800",
-    dot: "bg-amber-500",
+    bg: "bg-[#C8A661]/10 dark:bg-[#C8A661]/20",
+    text: "text-[#0A1628] dark:text-[#C8A661]",
+    border: "border-[#C8A661]/30 dark:border-[#C8A661]/50",
+    dot: "bg-[#C8A661]",
   },
   error: {
     bg: "bg-red-50 dark:bg-red-950/50",
@@ -42,22 +42,22 @@ const variantStyles: Record<
     dot: "bg-red-500",
   },
   info: {
-    bg: "bg-blue-50 dark:bg-blue-950/50",
-    text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-800",
-    dot: "bg-blue-500",
+    bg: "bg-[#0A1628]/5 dark:bg-slate-800/50",
+    text: "text-[#0A1628] dark:text-slate-300",
+    border: "border-[#0A1628]/15 dark:border-slate-700",
+    dot: "bg-[#0A1628] dark:bg-slate-400",
   },
   neutral: {
-    bg: "bg-muted",
-    text: "text-muted-foreground",
-    border: "border-border",
-    dot: "bg-muted-foreground",
+    bg: "bg-slate-100 dark:bg-slate-800/50",
+    text: "text-slate-600 dark:text-slate-400",
+    border: "border-slate-200 dark:border-slate-700",
+    dot: "bg-slate-400",
   },
   premium: {
-    bg: "bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50",
-    text: "text-amber-800 dark:text-amber-200",
-    border: "border-amber-300 dark:border-amber-700",
-    dot: "bg-gradient-to-r from-amber-500 to-yellow-500",
+    bg: "bg-[#C8A661]/15 dark:bg-[#C8A661]/20",
+    text: "text-[#0A1628] dark:text-[#C8A661]",
+    border: "border-[#C8A661]/40 dark:border-[#C8A661]/60",
+    dot: "bg-[#C8A661]",
   },
 };
 
