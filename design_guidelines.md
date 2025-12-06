@@ -1,177 +1,280 @@
 # WashBizHub.com Design Guidelines
 
-## Design Approach: Stripe-Inspired Premium SaaS
+## Design Approach: Clean Professional Premium
 
-**Reference Model:** Stripe.com's premium aesthetic adapted for laundromat business intelligence
-**Rationale:** Complex B2B tools require the trust and polish of Stripe's design language while maintaining WashBizHub's distinctive navy/gold brand identity.
+**Core Identity:** Pure professionalism with navy (#0A1628) and gold (#C8A661) brand colors
+**Philosophy:** Clean, readable, and trustworthy - every element serves a purpose
 
 **Core Principles:**
-- **Airy Sophistication:** Generous whitespace and breathing room convey premium positioning
-- **Subtle Depth:** Layered backgrounds and soft shadows create dimensional hierarchy
-- **Confident Minimalism:** Every element earns its place; clarity over decoration
-- **Data-First:** Complex tools (3D studio, calculators, CLEANBI™) presented with Stripe-level polish
+- **Clean & Professional:** White cards on muted backgrounds, no distracting gradients
+- **Easy to Read:** High contrast text, spacious layouts, clear hierarchy
+- **Trust Through Simplicity:** Subtle shadows and borders, not flashy effects
+- **Mobile-First:** All designs optimized for desktop, tablet, and mobile
 
 ---
 
-## Brand Colors & Visual Treatment
+## Brand Colors
 
 **Primary Palette:**
-- **Navy (#1e3a5f):** Primary buttons, headers, navigation, trust elements
-- **Gold Primary (#b8860b):** CTAs, accents, premium features
-- **Gold Light (#d4a030):** Hover states, highlights, success metrics
-- **White (#ffffff):** Base backgrounds, cards, clean sections
-- **Light Gray (#f7f9fc):** Alternate section backgrounds
-- **Soft Gray (#e5e7eb):** Borders, dividers, subtle elements
+- **Navy Primary (#0A1628):** Headers, icon containers, primary buttons, footer
+- **Gold Primary (#C8A661):** Accents, highlights, secondary CTAs, stat numbers
+- **Gold Hover (#B8964F):** Button hover states
 
-**Mesh Gradient Backgrounds (Stripe-style):**
-- **Hero Sections:** Blend navy → gold → bronze with soft radial gradients
-  - Navy base transitioning to gold/bronze highlights
-  - Subtle, organic shapes (not harsh geometric patterns)
-  - Low opacity overlays (10-20%) for depth without distraction
-- **Alternate Sections:** Light gradient from white → #f7f9fc
-- **Cards:** Pure white with subtle drop shadows, no glassmorphism
+**Surface Colors:**
+- **White (#ffffff):** Card backgrounds, primary surfaces
+- **Muted Background (bg-muted/30):** Section backgrounds, alternating rows
+- **Muted Surface (bg-muted/50):** Stat boxes, input backgrounds, subtle containers
+- **Border (border):** Card borders, dividers
 
----
-
-## Typography Hierarchy
-
-**Font Stack:** `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif`
-
-**Scale (Stripe-inspired spacing):**
-- **Hero Headlines:** text-7xl font-bold (84px) - Spacious, confident
-- **Page Titles:** text-5xl font-semibold (48px)
-- **Section Headers:** text-3xl font-semibold (30px)
-- **Subsection Headers:** text-xl font-semibold (20px)
-- **Body Text:** text-lg leading-relaxed (18px) - Readable, generous line-height
-- **Small Text:** text-sm text-gray-600 (14px)
-- **Data Display:** text-5xl font-bold text-accent (48px)
-
-**Weight Philosophy:**
-- Headlines: font-semibold to font-bold (600-700) - not black
-- Body: font-normal (400)
-- Emphasis: font-medium (500)
-- Buttons: font-semibold (600)
+**Text Colors:**
+- **Foreground (text-foreground):** Primary text, headings
+- **Muted Foreground (text-muted-foreground):** Secondary text, descriptions
+- **On Navy (text-white):** Text on navy backgrounds
+- **Gold Text (text-[#C8A661]):** Accent numbers, highlighted stats
 
 ---
 
-## Layout & Spacing System
+## Card System (Core Component)
 
-**Tailwind Units:** 4, 6, 8, 12, 16, 20, 24, 32
-- **Section Padding:** py-24 (96px) standard, py-32 (128px) hero sections
-- **Card Padding:** p-8 (32px) for content cards
-- **Element Gaps:** gap-6 (24px) standard, gap-8 (32px) major sections, gap-12 (48px) feature grids
-- **Container:** max-w-7xl mx-auto px-6 (generous horizontal padding)
+### Standard Content Card
+```
+Card: bg-card border shadow-sm overflow-hidden
+Gold Top Accent: h-1 bg-[#C8A661] (optional for emphasis)
+Padding: p-8 (CardContent)
+```
 
-**Grid Patterns:**
-- **Feature Cards:** grid md:grid-cols-3 gap-12
-- **Two-Column:** grid md:grid-cols-2 gap-16 items-center
-- **Dashboard Metrics:** grid grid-cols-1 md:grid-cols-3 gap-6
+### Card with Icon Header
+```jsx
+<Card className="bg-card border shadow-sm overflow-hidden">
+  <div className="h-1 bg-[#C8A661]" /> {/* Gold accent bar */}
+  <CardContent className="p-8">
+    <div className="flex items-start gap-4 mb-6">
+      <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+        <Icon className="h-6 w-6 text-[#C8A661]" />
+      </div>
+      <div>
+        <h3 className="text-xl font-bold text-foreground">Title</h3>
+        <p className="text-sm text-muted-foreground">Subtitle</p>
+      </div>
+    </div>
+    <p className="text-muted-foreground mb-6">Description...</p>
+    <Button>Action</Button>
+  </CardContent>
+</Card>
+```
 
----
-
-## Component Library
-
-### Navigation (Stripe-style Mega Menu)
-- **Header:** White background, subtle shadow, sticky
-- **Logo:** Left-aligned, navy color
-- **Nav Links:** Horizontal center, text-base font-medium text-gray-700, hover:text-navy
-- **Mega Menu:** Dropdown with organized categories, white background, shadow-xl, rounded-lg, grid layout for items
-- **CTA Button:** Primary gold button, right-aligned
-
-### Buttons (Stripe-inspired)
-- **Primary:** bg-navy text-white px-6 py-3 rounded-lg font-semibold shadow-sm hover:bg-navy/90
-- **Secondary (Gold):** bg-accent text-white px-6 py-3 rounded-lg font-semibold shadow-sm hover:bg-accent-light
-- **Outline:** border-2 border-navy text-navy px-6 py-3 rounded-lg font-semibold hover:bg-navy/5
-- **On Images:** Same styles + backdrop-blur-md bg-white/90 (no hover animations)
-
-### Cards & Containers
-- **Feature Cards:** bg-white rounded-xl shadow-md p-8 border border-gray-100
-- **Hover State:** hover:shadow-xl transition-shadow duration-300
-- **Data Cards:** bg-white rounded-lg shadow-sm p-6
-- **Floating Previews:** Angled dashboard mockups with shadow-2xl, positioned partially outside container
-
-### Forms (Stripe-quality)
-- **Inputs:** bg-white border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-navy focus:ring-4 focus:ring-navy/10
-- **Labels:** text-sm font-medium text-gray-700 mb-2 block
-- **Helper Text:** text-sm text-gray-500 mt-1
-- **Validation:** Green border for success, red for errors with icon feedback
-
-### Data Visualization
-- **Metric Display:** Large gold number with gray label below
-- **Charts:** Recharts with navy primary, gold accents, soft grid lines
-- **Scores:** Color-coded badges with rounded backgrounds
+### Stat Box (Inside Cards)
+```jsx
+<div className="bg-muted/50 rounded-lg p-4 text-center">
+  <div className="text-2xl font-bold text-[#C8A661]">$500K+</div>
+  <div className="text-xs text-muted-foreground mt-1">Label</div>
+</div>
+```
 
 ---
 
-## Page Structures
+## Section Layouts
 
-### Landing Page
-- **Hero:** Large mesh gradient background, centered headline + subhead, dual CTAs (primary + outline), floating dashboard preview image tilted 3-5° right
-- **Social Proof Bar:** Below hero, light gray background, logos + stat
-- **Features:** 3-column grid, icon + headline + description, generous gap-12
-- **Product Showcase:** Alternating 2-column sections (image left/right), white and light-gray backgrounds
-- **Testimonials:** 3-column cards with photo + quote + name/title
-- **Final CTA:** Full-width navy section with gold CTA centered
+### Standard Section
+```jsx
+<section className="py-20 bg-muted/30">
+  <div className="max-w-6xl mx-auto px-6 lg:px-8">
+    {/* Section Header */}
+    <div className="text-center mb-14">
+      <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
+        <Icon className="w-3 h-3 mr-1.5" />
+        Section Label
+      </Badge>
+      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+        Section Title
+      </h2>
+      <p className="text-muted-foreground max-w-2xl mx-auto">
+        Section description text
+      </p>
+    </div>
+    
+    {/* Content Grid */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Cards */}
+    </div>
+  </div>
+</section>
+```
 
-### Design Studio
-- **Layout:** Clean white background, tools sidebar left (border-right), canvas area center (subtle gray bg)
-- **Canvas:** White elevated card with shadow for 2D/3D workspace
-- **Controls:** Grouped by function, labels above, generous spacing
-- **Metrics Panel:** Fixed bottom bar, white background, shadow-top, 3-column metrics
-
-### Calculators
-- **Container:** Centered max-w-lg card, white, shadow-lg, rounded-xl, p-8
-- **Input Groups:** Stacked with mb-6, clear labels
-- **Results:** Large gold number, centered, mb-4, explanation text below
-- **Info Cards:** Light blue background panels for methodology
-
-### Dashboard
-- **Welcome Section:** py-12, gradient background
-- **Quick Actions:** Grid of white cards with icons, centered content
-- **Recent Activity:** White card with list, alternating row backgrounds, timestamps right-aligned
-
----
-
-## Images
-
-**Hero Image:** Large floating dashboard/platform preview (angled mockup showing 3D studio interface or CLEANBI™ results), positioned right of hero text, partially extending beyond container boundaries. Clean, professional product screenshot with subtle shadow-2xl.
-
-**Feature Images:** Product screenshots of calculators, 3D studio, and analytics dashboards placed in alternating left/right layouts. Each image should show the actual interface with realistic data.
-
-**Testimonial Photos:** Professional headshots, circular crop, grayscale with slight warm tone.
-
----
-
-## Visual Effects
-
-**Shadows:**
-- Cards: shadow-md (default), shadow-xl (hover)
-- Floating elements: shadow-2xl
-- Navigation: shadow-sm
-
-**Borders:**
-- All cards: border border-gray-100
-- Inputs: border-2 border-gray-200
-- Dividers: border-t border-gray-200
-
-**Corners:**
-- Cards/containers: rounded-xl (12px)
-- Buttons: rounded-lg (8px)
-- Inputs: rounded-lg (8px)
-- Images: rounded-lg
-
-**Transitions:**
-- Shadows: transition-shadow duration-300
-- Colors: transition-colors duration-200
-- Hover effects: Subtle, never distracting
+### Navy Section (Dark Background)
+```jsx
+<section className="py-20 bg-[#0A1628]">
+  <div className="max-w-6xl mx-auto px-6 lg:px-8 text-center">
+    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+      Title
+    </h2>
+    <p className="text-gray-300 max-w-2xl mx-auto mb-8">
+      Description
+    </p>
+    <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+      CTA
+    </Button>
+  </div>
+</section>
+```
 
 ---
 
-## Accessibility & Polish
+## Button Hierarchy
 
-- **Focus States:** ring-4 ring-navy/20 on all interactive elements
-- **Minimum Touch Targets:** 44x44px for mobile
-- **Color Contrast:** All text meets WCAG AA standards
-- **Loading States:** Navy spinner with gold accent
-- **Empty States:** Centered icon + headline + description + CTA
-- **Mobile:** All multi-column grids collapse to single column, generous touch spacing
+### Primary (Navy)
+```jsx
+<Button className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white">
+  Primary Action
+</Button>
+```
+
+### Secondary (Gold)
+```jsx
+<Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+  Secondary Action
+</Button>
+```
+
+### Outline
+```jsx
+<Button variant="outline" className="border-[#0A1628] text-[#0A1628]">
+  Tertiary Action
+</Button>
+```
+
+### On Dark Background
+```jsx
+<Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+  CTA on Navy
+</Button>
+```
+
+---
+
+## Typography
+
+**Headings:**
+- Hero: text-4xl md:text-5xl lg:text-6xl font-bold
+- Section: text-3xl md:text-4xl font-bold
+- Card Title: text-xl font-bold
+- Subsection: text-lg font-semibold
+
+**Body:**
+- Primary: text-base text-foreground
+- Secondary: text-muted-foreground
+- Description: text-muted-foreground leading-relaxed
+
+**Stats/Numbers:**
+- Large: text-4xl font-bold text-[#C8A661]
+- Medium: text-2xl font-bold text-[#C8A661]
+- Label: text-xs text-muted-foreground
+
+---
+
+## Icon Containers
+
+### Navy Container (Primary)
+```jsx
+<div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+  <Icon className="h-6 w-6 text-[#C8A661]" />
+</div>
+```
+
+### Muted Container (Secondary)
+```jsx
+<div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+  <Icon className="h-5 w-5 text-foreground" />
+</div>
+```
+
+### Gold Accent Container (On Dark)
+```jsx
+<div className="h-10 w-10 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+  <Icon className="h-5 w-5 text-[#C8A661]" />
+</div>
+```
+
+---
+
+## Badge Styles
+
+### Section Label Badge
+```jsx
+<Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661]">
+  <Icon className="w-3 h-3 mr-1.5" />
+  Label
+</Badge>
+```
+
+### Feature Badge
+```jsx
+<Badge className="bg-[#C8A661] text-[#0A1628]">
+  Featured
+</Badge>
+```
+
+### Status Badge
+```jsx
+<Badge variant="secondary">Status</Badge>
+```
+
+---
+
+## Responsive Design
+
+### Breakpoints
+- Mobile: Default (< 768px)
+- Tablet: md: (≥ 768px)
+- Desktop: lg: (≥ 1024px)
+
+### Grid Patterns
+```
+Single column → 2 columns → 3 columns
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8
+```
+
+### Container Widths
+- Standard sections: max-w-6xl
+- Wide sections: max-w-7xl
+- Narrow content: max-w-4xl
+- Forms: max-w-lg
+
+### Mobile Adjustments
+- Stack cards vertically on mobile
+- Reduce padding: p-6 on mobile, p-8 on desktop
+- Smaller text: text-2xl md:text-3xl lg:text-4xl
+- Full-width buttons on mobile
+
+---
+
+## Spacing Rhythm
+
+**Section Padding:**
+- Standard: py-16 md:py-20
+- Hero: py-20 md:py-24
+- Compact: py-12 md:py-16
+
+**Element Gaps:**
+- Cards in grid: gap-6 md:gap-8
+- Items in list: space-y-4
+- Icon to text: gap-3 or gap-4
+- Section header to content: mb-12 md:mb-14
+
+**Card Padding:**
+- Standard: p-6 md:p-8
+- Compact: p-4 md:p-6
+- Stat boxes: p-4
+
+---
+
+## Checklist for New Components
+
+1. ✅ Use bg-card border shadow-sm for cards
+2. ✅ Use bg-muted/30 for section backgrounds
+3. ✅ Use navy (#0A1628) for icon containers
+4. ✅ Use gold (#C8A661) for accent numbers and highlights
+5. ✅ Ensure text contrast is readable
+6. ✅ Test on mobile, tablet, desktop
+7. ✅ Add data-testid attributes for testing
+8. ✅ Use semantic HTML structure
