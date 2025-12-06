@@ -4552,6 +4552,135 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // Direct server-side upload to bypass CORS issues with signed URLs
+  app.post("/api/listings/:id/media/upload-direct", isAuthenticated, multerImageUpload.single('file'), async (req: any, res) => {
+    try {
+      console.log("[Upload Direct] Starting server-side upload...");
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const listing = await storage.getListing(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      if (listing.userId !== currentUser.userId && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - you can only upload media to your own listings" });
+      }
+
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: "No file provided" });
+      }
+
+      console.log("[Upload Direct] File received:", file.originalname, file.size, "bytes");
+
+      // Properly coerce form-data string fields to correct types
+      const type = req.body.type || 'image';
+      const title = req.body.title || file.originalname.replace(/\.[^/.]+$/, '');
+      const sortOrder = parseInt(req.body.sortOrder, 10) || 0;
+      const requiresNDA = req.body.requiresNDA === 'true' || req.body.requiresNDA === true;
+
+      // Generate unique filename using UUID for proper object storage handling
+      const objectId = crypto.randomUUID();
+      const ext = file.originalname.split('.').pop() || 'jpg';
+      const fileName = `uploads/${objectId}.${ext}`;
+
+      const objectStorageService = new ObjectStorageService();
+      let normalizedUrl: string;
+      let storageType: string;
+
+      // Upload to private object directory for proper ACL control
+      try {
+        const privateDir = objectStorageService.getPrivateObjectDir();
+        const { Storage } = await import("@google-cloud/storage");
+        
+        const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+        const gcsStorage = new Storage({
+          credentials: {
+            audience: "replit",
+            subject_token_type: "access_token",
+            token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+            type: "external_account",
+            credential_source: {
+              url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+              format: { type: "json", subject_token_field_name: "access_token" },
+            },
+            universe_domain: "googleapis.com",
+          },
+          projectId: "",
+        });
+
+        // Parse bucket and path from private directory
+        const pathParts = privateDir.split('/').filter(Boolean);
+        const bucketName = pathParts[0];
+        const objectPath = [...pathParts.slice(1), fileName].join('/');
+
+        console.log("[Upload Direct] GCS upload to:", bucketName, objectPath);
+
+        const bucket = gcsStorage.bucket(bucketName);
+        const blob = bucket.file(objectPath);
+
+        await blob.save(file.buffer, {
+          contentType: file.mimetype,
+          metadata: {
+            cacheControl: requiresNDA ? 'private, max-age=3600' : 'public, max-age=31536000',
+          },
+        });
+
+        // Generate the full GCS URL for ACL processing
+        const gcsUrl = `https://storage.googleapis.com/${bucketName}/${objectPath}`;
+        
+        // Set ACL policy based on NDA requirement
+        await objectStorageService.trySetObjectEntityAclPolicy(gcsUrl, {
+          owner: currentUser.userId,
+          visibility: requiresNDA ? "private" : "public",
+        });
+
+        // Normalize to /objects/ path for consistent access control
+        normalizedUrl = objectStorageService.normalizeObjectEntityPath(gcsUrl);
+        storageType = 'gcs';
+        console.log("[Upload Direct] GCS upload success:", normalizedUrl);
+        
+      } catch (gcsError: any) {
+        console.error("[Upload Direct] GCS upload failed:", gcsError.message);
+        console.error("[Upload Direct] GCS error details:", gcsError.stack);
+        
+        // No local fallback - all uploads must go through GCS for proper ACL control
+        throw new Error(`Upload failed: Object storage unavailable. ${gcsError.message}`);
+      }
+
+      // Create media record in database with normalized URL
+      const mediaRecord = await storage.createListingMedia({
+        listingId: req.params.id,
+        type,
+        url: normalizedUrl,
+        title,
+        sortOrder,
+        requiresNDA,
+      });
+
+      console.log("[Upload Direct] Media record created:", mediaRecord.id);
+
+      res.json({
+        success: true,
+        media: mediaRecord,
+        storageType,
+        url: normalizedUrl,
+      });
+    } catch (error: any) {
+      console.error("[Upload Direct] Error:", error.message);
+      console.error("[Upload Direct] Stack:", error.stack);
+      res.status(500).json({ 
+        message: "Upload failed", 
+        error: error.message,
+        code: error.code
+      });
+    }
+  });
+
   app.post("/api/listings/:id/media", isAuthenticated, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);

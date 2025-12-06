@@ -599,12 +599,15 @@ router.post("/page-seo/upload-url", requireAdmin, async (req: Request, res: Resp
 // Upload SEO image directly
 router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image'), async (req: Request, res: Response) => {
   try {
+    console.log("[Upload] Starting image upload...");
     const file = req.file;
     if (!file) {
+      console.log("[Upload] No file provided");
       return res.status(400).json({ error: "No image file provided" });
     }
     
-    const { type = 'featured' } = req.body; // 'featured', 'og', 'twitter'
+    console.log("[Upload] File received:", file.originalname, file.size, "bytes");
+    const { type = 'featured' } = req.body;
     
     // Generate unique filename
     const timestamp = Date.now();
@@ -613,7 +616,14 @@ router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image
     
     // Upload to public folder for SEO images
     const publicPaths = objectStorageService.getPublicObjectSearchPaths();
-    const publicPath = publicPaths[0]; // Use first public path
+    console.log("[Upload] Public paths:", publicPaths);
+    
+    if (!publicPaths || publicPaths.length === 0) {
+      console.error("[Upload] No public object paths configured");
+      return res.status(500).json({ error: "Object storage not configured - no public paths" });
+    }
+    
+    const publicPath = publicPaths[0];
     const { Storage } = await import("@google-cloud/storage");
     
     const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
@@ -637,6 +647,8 @@ router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image
     const bucketName = pathParts[0];
     const objectPath = [...pathParts.slice(1), 'seo-images', fileName].join('/');
     
+    console.log("[Upload] Uploading to bucket:", bucketName, "path:", objectPath);
+    
     const bucket = storage.bucket(bucketName);
     const blob = bucket.file(objectPath);
     
@@ -650,6 +662,7 @@ router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image
     
     // Generate public URL
     const publicUrl = `https://storage.googleapis.com/${bucketName}/${objectPath}`;
+    console.log("[Upload] Success! URL:", publicUrl);
     
     res.json({ 
       success: true,
@@ -657,9 +670,14 @@ router.post("/page-seo/upload-image", requireAdmin, seoImageUpload.single('image
       fileName,
       type
     });
-  } catch (error) {
-    console.error("Upload SEO image error:", error);
-    res.status(500).json({ error: "Failed to upload image" });
+  } catch (error: any) {
+    console.error("[Upload] SEO image error:", error?.message || error);
+    console.error("[Upload] Stack:", error?.stack);
+    res.status(500).json({ 
+      error: "Failed to upload image", 
+      details: error?.message || "Unknown error",
+      code: error?.code
+    });
   }
 });
 
