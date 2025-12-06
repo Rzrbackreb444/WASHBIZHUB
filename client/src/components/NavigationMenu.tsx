@@ -38,6 +38,7 @@ import logoUrl from "@assets/6_1764040628012.png";
 
 const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "AI-powered repair assistant", featured: true },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
 ];
 
