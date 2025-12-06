@@ -18,7 +18,7 @@ const navLinks = [
   { href: "/sell-your-laundromat", label: "Sell" },
   { href: "/equipment-builder", label: "Get Quotes", featured: true },
   { href: "/forum", label: "Forum" },
-  { href: "/larry-larsen", label: "Consult Larry" },
+  { href: "/consultation", label: "Consultations" },
 ];
 
 const megaMenuSections = [
@@ -62,9 +62,9 @@ const megaMenuSections = [
     id: "connect",
     title: "Connect",
     items: [
-      { href: "/larry-larsen", label: "Consult with Larry", featured: true, description: "Talk to Laundromat Larry" },
+      { href: "/consultation", label: "Book a Consultation", featured: true, description: "Expert advice for your business" },
+      { href: "/larry-larsen", label: "Consult with Larry", description: "Talk to Laundromat Larry" },
       { href: "/brokers", label: "Brokers", description: "Verified professionals" },
-      { href: "/our-partnership", label: "About Us", description: "Meet our founders" },
     ]
   }
 ];
