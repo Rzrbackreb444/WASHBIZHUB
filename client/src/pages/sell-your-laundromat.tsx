@@ -199,9 +199,47 @@ export default function SellYourLaundromat() {
   return (
     <>
       <SEO 
-        title="Sell Your Laundromat | List for Free | WashBizHub"
-        description="120+ active buyers searching right now. List your laundromat for free and reach the largest community of laundromat investors. CLEANBI analysis included."
-        keywords={["sell laundromat", "laundromat for sale", "sell my laundromat", "laundromat buyers", "laundromat listing"]}
+        title="Sell Your Laundromat | List Free, Reach 72,000+ Buyers | WashBizHub"
+        description="Sell your laundromat fast. 120+ qualified buyers searching daily. List for free with CLEANBI valuation. No commission fees. Get offers in 14 days average."
+        canonicalUrl="/sell-your-laundromat"
+        ogType="website"
+        keywords={[
+          "sell laundromat",
+          "sell my laundromat",
+          "laundromat for sale by owner",
+          "list laundromat for sale",
+          "how to sell a laundromat",
+          "laundromat valuation",
+          "laundromat buyers",
+          "laundromat listing",
+          "coin laundry for sale"
+        ]}
+        faqs={[
+          {
+            question: "How do I sell my laundromat?",
+            answer: "List your laundromat free on WashBizHub: 1) Create a listing with photos, financials, and equipment details. 2) Get a free CLEANBI location analysis. 3) Receive inquiries from qualified buyers. 4) Review offers and negotiate terms. Most sellers get their first offer within 14 days."
+          },
+          {
+            question: "How long does it take to sell a laundromat?",
+            answer: "Average time to sell a laundromat is 3-6 months. Well-priced laundromats with verified financials sell faster. WashBizHub listings reach 72,000+ investors with an average 14-day time to first offer."
+          },
+          {
+            question: "What is my laundromat worth?",
+            answer: "Laundromat values are typically 2-4x annual net operating income (NOI), or 0.5-1.5x gross revenue. Factors include location CLEANBI score, equipment age, lease terms, and real estate inclusion. Use our free valuation calculator for an instant estimate."
+          },
+          {
+            question: "Do I need a broker to sell my laundromat?",
+            answer: "No broker required. Many owners sell successfully by owner using WashBizHub. For complex transactions, we have recommended broker partners. Our platform charges flat monthly fees, not commissions."
+          },
+          {
+            question: "Is my laundromat financial information protected?",
+            answer: "Yes. Sensitive data like P&L statements, tax returns, and exact address are protected. Buyers must request access and you approve each inquiry. NDA protection available."
+          }
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Sell Your Laundromat", url: "/sell-your-laundromat" }
+        ]}
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
