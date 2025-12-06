@@ -4836,11 +4836,12 @@ function CleanBIExplorerContent() {
                       data-testid="slider-search-radius"
                     />
                     {/* Quick Preset Buttons */}
-                    <div className="flex gap-1.5 mt-2">
+                    <div className="flex gap-1.5 mt-2" role="group" aria-label="Search radius presets">
                       {[3, 5, 10, 15].map((val) => (
                         <button
                           key={val}
                           onClick={() => setSearchRadius([val])}
+                          aria-pressed={searchRadius[0] === val}
                           className={`flex-1 text-[10px] py-1.5 rounded-md transition-colors ${
                             searchRadius[0] === val 
                               ? 'bg-[#C8A661] text-[#0A1628] font-medium' 
