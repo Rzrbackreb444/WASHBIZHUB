@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense, memo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
@@ -550,6 +550,14 @@ function CleanBIExplorerContent() {
   const [showPostAnalysisModal, setShowPostAnalysisModal] = useState(false);
   const [aerialVideoUrl, setAerialVideoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Custom tab change handler that tracks lazy loading
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    // Mount heavy tabs on first access for deferred loading
+    if (tab === "valuator") setValuatorMounted(true);
+    if (tab === "deal") setDealTabMounted(true);
+  }, []);
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
@@ -607,6 +615,10 @@ function CleanBIExplorerContent() {
   const [isCalculatingValuation, setIsCalculatingValuation] = useState(false);
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<EquipmentItem | null>(null);
+  
+  // Lazy load heavy tabs - only mount when first accessed
+  const [valuatorMounted, setValuatorMounted] = useState(false);
+  const [dealTabMounted, setDealTabMounted] = useState(false);
   const [whatIfScenario, setWhatIfScenario] = useState<{
     addedMachines: EquipmentItem[];
     removedMachineIds: string[];
@@ -2218,7 +2230,7 @@ function CleanBIExplorerContent() {
                         </div>
                         
                         {/* Mobile Tabs */}
-                        <Tabs value={activeTab} onValueChange={setActiveTab}>
+                        <Tabs value={activeTab} onValueChange={handleTabChange}>
                           <TabsList className="w-full overflow-x-auto flex gap-1 bg-white/5 p-1 rounded-lg mb-4 snap-x scroll-smooth">
                             <TabsTrigger 
                               value="overview" 
@@ -2679,7 +2691,7 @@ function CleanBIExplorerContent() {
                 <div className="px-3 pb-2">
 
                 {/* Detail Tabs - Compact */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                   <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-2 rounded-lg border border-white/10 gap-0.5 p-0.5">
                     <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Overview</span>
@@ -3817,9 +3829,15 @@ function CleanBIExplorerContent() {
                     </div>
                   </TabsContent>
 
-                  {/* VALUATOR TAB - PRO+ FEATURE */}
+                  {/* VALUATOR TAB - PRO+ FEATURE - Lazy loaded */}
                   <TabsContent value="valuator" className="mt-0 space-y-3" data-testid="valuator-tab-content">
-                    {(userTier === "free" || userTier === "starter") ? (
+                    {!valuatorMounted ? (
+                      <div className="space-y-3 animate-pulse">
+                        <div className="h-10 bg-white/10 rounded-lg" />
+                        <div className="h-32 bg-white/5 rounded-lg" />
+                        <div className="h-12 bg-[#8B5CF6]/20 rounded-lg" />
+                      </div>
+                    ) : (userTier === "free" || userTier === "starter") ? (
                       <div className="bg-gradient-to-br from-[#8B5CF6]/10 to-transparent rounded-lg p-6 border border-[#8B5CF6]/30 text-center">
                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center">
                           <CircleDollarSign className="w-8 h-8 text-[#8B5CF6]" />

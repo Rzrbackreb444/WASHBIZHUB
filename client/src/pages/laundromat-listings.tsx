@@ -78,9 +78,8 @@ export default function LaundromatListings() {
     staleTime: 60000,
   });
 
-  // Transform carousel listings to the expected format and filter out those without images
+  // Transform carousel listings to the expected format (real listings only, images optional)
   const listings: LaundroListing[] = carouselListings
-    .filter((l: any) => l.featuredImage || (l.images && l.images.length > 0))
     .map((l: any) => ({
       id: l.id?.toString() || l.slug || "unknown",
       title: l.title || "Untitled Listing",
