@@ -4094,6 +4094,126 @@ export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type ForumVote = typeof forumVotes.$inferSelect;
 
+// ==================== FORUM NEED POSTS (Post Your Need Feature) ====================
+
+// Need Types Enum
+export const needTypes = [
+  "equipment_needed",
+  "services_needed",
+  "partnership_opportunity",
+  "seeking_funding",
+  "looking_for_location",
+  "staffing_needed",
+  "consulting_wanted",
+  "other"
+] as const;
+
+export const urgencyLevels = [
+  "flexible",
+  "within_90_days",
+  "within_30_days",
+  "within_14_days",
+  "immediate"
+] as const;
+
+export const contactMethods = [
+  "email",
+  "phone",
+  "either",
+  "forum_message"
+] as const;
+
+export const needStatuses = [
+  "active",
+  "fulfilled",
+  "expired",
+  "archived"
+] as const;
+
+// Forum Need Posts - Structured posts for community help requests
+export const forumNeedPosts = pgTable("forum_need_posts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Core Fields
+  title: text("title").notNull(),
+  description: text("description").notNull(), // Markdown content
+  slug: text("slug").notNull(),
+  
+  // Need Classification
+  needType: text("need_type").notNull(), // One of needTypes
+  
+  // Location
+  locationCity: text("location_city"),
+  locationState: text("location_state"),
+  locationCountry: text("location_country").default("USA"),
+  locationRadius: integer("location_radius"), // Miles willing to travel/consider
+  
+  // Budget (Optional)
+  budgetMin: integer("budget_min"),
+  budgetMax: integer("budget_max"),
+  budgetFlexible: boolean("budget_flexible").default(false),
+  
+  // Urgency
+  urgency: text("urgency").default("flexible").notNull(), // One of urgencyLevels
+  
+  // Contact Preferences (Stored securely, only shown to authenticated users)
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  preferredContactMethod: text("preferred_contact_method").default("email"), // One of contactMethods
+  contactNotes: text("contact_notes"), // Additional contact instructions
+  
+  // Tags for search
+  tags: jsonb("tags").default([]).notNull(),
+  
+  // SEO Fields
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  
+  // Stats
+  views: integer("views").default(0).notNull(),
+  responseCount: integer("response_count").default(0).notNull(),
+  
+  // Status
+  status: text("status").default("active").notNull(), // One of needStatuses
+  isFeatured: boolean("is_featured").default(false),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // Optional expiration date
+}, (table) => ({
+  userIdx: index("forum_need_posts_user_idx").on(table.userId),
+  slugIdx: uniqueIndex("forum_need_posts_slug_idx").on(table.slug),
+  needTypeIdx: index("forum_need_posts_need_type_idx").on(table.needType),
+  statusIdx: index("forum_need_posts_status_idx").on(table.status),
+  locationIdx: index("forum_need_posts_location_idx").on(table.locationState, table.locationCity),
+  urgencyIdx: index("forum_need_posts_urgency_idx").on(table.urgency),
+}));
+
+export const insertForumNeedPostSchema = createInsertSchema(forumNeedPosts).omit({
+  id: true,
+  views: true,
+  responseCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertForumNeedPost = z.infer<typeof insertForumNeedPostSchema>;
+export type ForumNeedPost = typeof forumNeedPosts.$inferSelect;
+
+// Enriched type with author info
+export type EnrichedForumNeedPost = ForumNeedPost & {
+  author: {
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    username: string | null;
+    profilePhoto: string | null;
+  };
+};
+
 // ==================== PREMIUM COMMUNITY FEATURES ====================
 
 // User Preferences - Notifications, Privacy, Display Settings
