@@ -623,28 +623,28 @@ export const LAUNDROMAT_INDUSTRY_FAQ_SCHEMA = generateFAQSchema([
 
 export const PRICING_FAQ_SCHEMA = generateFAQSchema([
   {
-    question: "Is the WashBizHub 14-day trial really free?",
-    answer: "Yes! Start your 14-day full POS trial with no credit card required. Experience unlimited machines, AI predictive alerts, and dynamic pricing with zero commitment. You keep access to AI maintenance alerts even if you don't continue after the trial."
+    question: "What's included in the free tier?",
+    answer: "The Free tier includes 3 CLEANBI location analyses, Service Guy AI (2 messages), basic calculators, Design Studio 2D, access to the 2,200+ error code database, community forum with 72K+ members, and educational content. No credit card required to get started."
   },
   {
-    question: "What's included in the free forever plan?",
-    answer: "The free plan includes CLEANBI Score (unlimited), Service Guy AI (2 messages), 50+ business calculators, Design Studio 2D, Marketplace Cash-Back (5-15%), access to the 2,200+ error code database, community forum with 72K+ members, and educational content."
+    question: "What's included in the Starter plan?",
+    answer: "Starter ($29/mo) includes unlimited CLEANBI analyses, full calculator hub access, The Laundromat Bible book, all video courses, forum posting privileges, and email support. All paid plans include a 30-day money-back guarantee."
   },
   {
-    question: "What happens after the 14-day trial ends?",
-    answer: "After your trial, choose between $149/month flat rate (unlimited transactions) or $0/month + 1.9% per transaction. Either option is cheaper than competitors who charge 6-8%. You keep AI predictive maintenance alerts even if you cancel the paid subscription."
+    question: "What's included in the Pro plan?",
+    answer: "Pro ($99/mo) includes everything in Starter plus Monte Carlo simulation, API access, PDF report exports, advanced ROI calculators, bulk analysis tools, and priority support. Perfect for investors and multi-location operators."
   },
   {
-    question: "How much can I save with WashBizPOS?",
-    answer: "Owners typically save $2,000-$12,000 in the first year through AI predictive maintenance alerts (preventing costly breakdowns), dynamic pricing (+22% revenue boost), and reduced transaction fees compared to competitors who charge 6-8% per transaction."
+    question: "How much can I save with WashBizHub tools?",
+    answer: "Members typically save $2,000-$12,000 in the first year through better location selection (avoiding bad deals), AI-powered equipment diagnostics, and access to SBA lender connections. CLEANBI alone has helped investors avoid 6-figure mistakes."
   },
   {
-    question: "What payment options are available after the trial?",
-    answer: "WashBizPOS Pro offers two payment models: $149/month flat rate for unlimited transactions with predictable costs, or $0/month base + 1.9% per transaction (pay only when you earn). Both options include all premium features like AI alerts, dynamic pricing, and IoT monitoring."
+    question: "Do you offer a money-back guarantee?",
+    answer: "Yes! All paid plans include a 30-day money-back guarantee. If you're not satisfied, contact support@washbizhub.com within 30 days for a full refund. No questions asked."
   },
   {
     question: "Can I upgrade or downgrade my plan anytime?",
-    answer: "Yes! You can upgrade, downgrade, or switch between payment models (flat vs. transaction-based) at any time. There are no long-term contracts or cancellation fees. The free tier is always available as a fallback with essential tools."
+    answer: "Yes! You can upgrade, downgrade, or cancel at any time. There are no long-term contracts or cancellation fees. The Free tier is always available with essential tools."
   }
 ]);
 

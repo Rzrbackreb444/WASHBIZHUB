@@ -94,7 +94,7 @@ const categories: FAQCategory[] = [
       },
       {
         q: "Do you offer refunds?",
-        a: "We offer a 14-day money-back guarantee for first-time subscribers. After that, we don't provide refunds but you can cancel anytime. For billing issues, contact support@washbizhub.com."
+        a: "We offer a 30-day money-back guarantee for all paid plans. After that, we don't provide refunds but you can cancel anytime. For billing issues, contact support@washbizhub.com."
       }
     ]
   },
