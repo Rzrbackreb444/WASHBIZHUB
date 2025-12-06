@@ -198,6 +198,23 @@ export function registerSitemapRoutes(app: Express) {
       { loc: '/listings', lastmod: today, changefreq: 'daily', priority: 0.85 },
       
       // ============================================================================
+      // INDUSTRY EVENTS (0.85-0.9) - HIGH SEO VALUE FOR LOCAL KEYWORDS
+      // ============================================================================
+      { loc: '/events', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/clean-show-2025-new-orleans', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/clean-show-2027-orlando', lastmod: today, changefreq: 'monthly', priority: 0.85 },
+      { loc: '/events/excellence-in-laundry-2025-las-vegas', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/cla-excellence-workshop-chicago-2025', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/events/cla-excellence-workshop-dallas-2025', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/events/cla-excellence-workshop-los-angeles-2025', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/events/western-states-laundry-expo-2025-san-diego', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/clean-classic-2025-atlanta', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/cleaners-launderers-expo-2025-new-jersey', lastmod: today, changefreq: 'weekly', priority: 0.9 },
+      { loc: '/events/alm-impact-2025-miami', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/events/southwest-laundry-summit-2025-phoenix', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      { loc: '/events/pacific-northwest-laundry-conference-2025-seattle', lastmod: today, changefreq: 'weekly', priority: 0.85 },
+      
+      // ============================================================================
       // DESIGN & WEBSITE TOOLS (0.7-0.8)
       // ============================================================================
       { loc: '/design-studio', lastmod: today, changefreq: 'monthly', priority: 0.8 },

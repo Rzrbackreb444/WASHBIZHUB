@@ -54,6 +54,7 @@ const megaMenuSections = [
     title: "Learn",
     items: [
       { href: "/blog", label: "Blog", description: "Expert insights & news" },
+      { href: "/events", label: "Industry Events", description: "Trade shows & conferences" },
       { href: "/forum", label: "Community Forum", description: "Ask questions, share tips" },
       { href: "/book", label: "The Bible", description: "Complete guide" },
     ]
