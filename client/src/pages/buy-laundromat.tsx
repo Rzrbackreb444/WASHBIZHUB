@@ -58,7 +58,7 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
           <img 
             src={listing.featuredImage} 
             alt={listing.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover scale-110 group-hover:scale-125 transition-transform duration-500"
             loading="lazy"
           />
         ) : (

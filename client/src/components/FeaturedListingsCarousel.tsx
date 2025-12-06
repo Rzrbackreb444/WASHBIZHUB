@@ -52,7 +52,7 @@ function ListingSlide({ listing }: { listing: ListingWithDetails }) {
           <img 
             src={listing.featuredImage} 
             alt={listing.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-110"
             loading="lazy"
           />
         ) : (
