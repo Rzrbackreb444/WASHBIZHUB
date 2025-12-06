@@ -162,8 +162,95 @@ export default function AdminBar() {
     issues: { type: "error" | "warning" | "success"; message: string }[];
   } | null>(null);
   
+  const [imageUploading, setImageUploading] = useState(false);
+  const [liveAnalysis, setLiveAnalysis] = useState<any>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Image upload handlers
+  const uploadImage = async (file: File, type: string = 'featured') => {
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('type', type);
+      
+      const response = await fetch('/api/admin/page-seo/upload-image', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      
+      const result = await response.json();
+      
+      if (type === 'featured') {
+        setFeaturedImageUrl(result.url);
+      } else if (type === 'og') {
+        setOgImageUrl(result.url);
+      } else if (type === 'twitter') {
+        setTwitterImageUrl(result.url);
+      }
+      
+      toast({ title: "Image Uploaded", description: "Your image has been uploaded successfully." });
+    } catch (error) {
+      toast({ title: "Upload Failed", description: "Could not upload image. Try again.", variant: "destructive" });
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleImageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      uploadImage(files[0], 'featured');
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      uploadImage(files[0], 'featured');
+    }
+  };
+
+  // Live SEO Analysis - runs when fields change
+  const runLiveAnalysis = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/page-seo/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          pagePath: location,
+          title: seoTitle,
+          description: seoDescription,
+          focusKeyphrase,
+          secondaryKeyphrases: secondaryKeyphrases.split(',').map(k => k.trim()).filter(Boolean),
+          featuredImageUrl,
+          featuredImageAlt,
+          ogTitle,
+          ogDescription,
+          twitterTitle,
+          twitterDescription
+        })
+      });
+      
+      if (response.ok) {
+        const analysis = await response.json();
+        setLiveAnalysis(analysis);
+        setSeoScore(analysis.score);
+      }
+    } catch (error) {
+      console.error('Live analysis error:', error);
+    }
+  }, [location, seoTitle, seoDescription, focusKeyphrase, secondaryKeyphrases, featuredImageUrl, featuredImageAlt, ogTitle, ogDescription, twitterTitle, twitterDescription]);
 
   const quickGenerateMutation = useMutation({
     mutationFn: async () => {
