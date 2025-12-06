@@ -12865,10 +12865,19 @@ export const pageSeoMetadata = pgTable("page_seo_metadata", {
   pagePath: varchar("page_path").unique().notNull(), // e.g., "/cleanbi-explorer", "/pricing"
   pageType: varchar("page_type").notNull(), // "tool", "content", "marketplace", "pricing", "blog"
   
+  // Focus Keyphrase - Core of SEO strategy
+  focusKeyphrase: varchar("focus_keyphrase"), // Primary keyword to optimize for
+  secondaryKeyphrases: jsonb("secondary_keyphrases"), // Array of additional keywords
+  
   // Core SEO metadata
   title: varchar("title").notNull(), // 50-60 chars optimal
   description: text("description").notNull(), // 150-160 chars optimal
   keywords: jsonb("keywords").notNull(), // Array of 5-10 keywords
+  
+  // Featured Image
+  featuredImageUrl: text("featured_image_url"), // URL to featured image
+  featuredImageAlt: varchar("featured_image_alt"), // Alt text for accessibility
+  featuredImageCaption: text("featured_image_caption"), // Optional caption
   
   // Rich snippets data
   faqs: jsonb("faqs").notNull(), // Array of { question: string, answer: string }
@@ -12878,8 +12887,22 @@ export const pageSeoMetadata = pgTable("page_seo_metadata", {
   // Open Graph / Social
   ogTitle: varchar("og_title"),
   ogDescription: text("og_description"),
+  ogImageUrl: text("og_image_url"), // Social share image
+  ogImageAlt: varchar("og_image_alt"),
+  
+  // Twitter Card
   twitterTitle: varchar("twitter_title"),
   twitterDescription: text("twitter_description"),
+  twitterImageUrl: text("twitter_image_url"),
+  twitterCardType: varchar("twitter_card_type").default("summary_large_image"), // summary, summary_large_image
+  
+  // SEO Audit Scores (0-100)
+  seoScore: integer("seo_score").default(0), // Overall SEO score
+  readabilityScore: integer("readability_score").default(0),
+  keyphraseScore: integer("keyphrase_score").default(0), // How well optimized for focus keyphrase
+  
+  // Optimization Mode
+  optimizationMode: varchar("optimization_mode").default("manual"), // "auto", "manual", "hybrid"
   
   // Tracking
   generatedAt: timestamp("generated_at").defaultNow().notNull(),
@@ -12902,10 +12925,14 @@ export const insertPageSeoMetadataSchema = createInsertSchema(pageSeoMetadata).o
   id: true,
   generatedAt: true,
   regenerateCount: true,
+  seoScore: true,
+  readabilityScore: true,
+  keyphraseScore: true,
   createdAt: true,
   updatedAt: true,
 }).extend({
   keywords: z.array(z.string()),
+  secondaryKeyphrases: z.array(z.string()).optional(),
   faqs: z.array(z.object({
     question: z.string(),
     answer: z.string(),
@@ -12916,6 +12943,7 @@ export const insertPageSeoMetadataSchema = createInsertSchema(pageSeoMetadata).o
     text: z.string(),
     rating: z.number().min(1).max(5),
   })),
+  optimizationMode: z.enum(["auto", "manual", "hybrid"]).optional(),
 });
 
 export type InsertPageSeoMetadata = z.infer<typeof insertPageSeoMetadataSchema>;
