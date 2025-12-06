@@ -16,9 +16,9 @@ const navLinks = [
   { href: "/valuation-calculator", label: "Valuator" },
   { href: "/buy-laundromat", label: "Buy" },
   { href: "/sell-your-laundromat", label: "Sell" },
+  { href: "/equipment-builder", label: "Get Quotes", featured: true },
   { href: "/forum", label: "Forum" },
   { href: "/larry-larsen", label: "Consult Larry" },
-  { href: "/equipment-financing", label: "Equipment" },
 ];
 
 const megaMenuSections = [
@@ -29,6 +29,15 @@ const megaMenuSections = [
       { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", featured: true, description: "AI-powered location analysis" },
       { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale" },
       { href: "/directory", label: "Business Directory", description: "Find vendors & services" },
+    ]
+  },
+  {
+    id: "equipment",
+    title: "Equipment",
+    items: [
+      { href: "/equipment-builder", label: "Get Equipment Quotes", featured: true, description: "Free quotes from 585+ distributors" },
+      { href: "/distributor-locator", label: "Find Distributors", description: "Locate authorized dealers" },
+      { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options & rates" },
     ]
   },
   {

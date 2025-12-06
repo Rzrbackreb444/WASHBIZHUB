@@ -4755,6 +4755,153 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // ==================== EQUIPMENT INQUIRY BUILDER ====================
+  // All leads flow through equipment@washbizhub.com for affiliate commissions
+  
+  app.post("/api/equipment-inquiries", async (req, res) => {
+    try {
+      const { Resend } = await import("resend");
+      
+      const inquiry = req.body;
+      
+      // Validate required fields
+      if (!inquiry.customerName || !inquiry.customerEmail || !inquiry.customerPhone) {
+        return res.status(400).json({ message: "Name, email, and phone are required" });
+      }
+      
+      if (!inquiry.equipmentList || inquiry.equipmentList.length === 0) {
+        return res.status(400).json({ message: "At least one equipment item is required" });
+      }
+      
+      inquiry.submittedAt = new Date().toISOString();
+      
+      // Try to append to Google Sheets (gracefully handle missing credentials)
+      let sheetsResult: { success: boolean; spreadsheetUrl?: string; error?: string } = { success: false };
+      try {
+        const { appendEquipmentInquiry } = await import("./google-sheets");
+        sheetsResult = await appendEquipmentInquiry(inquiry);
+      } catch (sheetsError: any) {
+        console.log("Google Sheets not configured or unavailable:", sheetsError.message);
+        sheetsResult = { success: false, error: "Google Sheets not configured" };
+      }
+      
+      // Format equipment list for email
+      const equipmentListHtml = inquiry.equipmentList
+        .map((e: any) => `<tr><td>${e.brand}</td><td>${e.type}</td><td>${e.capacity}</td><td>${e.quantity}</td><td>${e.notes || '-'}</td></tr>`)
+        .join("");
+      
+      const businessTypeLabels: Record<string, string> = {
+        'new_laundromat': 'New Laundromat',
+        'existing_laundromat': 'Existing Laundromat',
+        'replacement': 'Equipment Replacement',
+        'expansion': 'Expansion',
+        'multi_housing': 'Multi-Housing',
+        'other': 'Other'
+      };
+      
+      const timelineLabels: Record<string, string> = {
+        'immediate': 'Immediate (< 1 month)',
+        '1_3_months': '1-3 Months',
+        '3_6_months': '3-6 Months',
+        '6_12_months': '6-12 Months',
+        'just_researching': 'Just Researching'
+      };
+      
+      // Send email notification via Resend
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: "WashBizHub Equipment <noreply@washbizhub.com>",
+            to: "equipment@washbizhub.com",
+            subject: `🔧 New Equipment Inquiry: ${inquiry.customerName} - ${inquiry.equipmentList.length} items`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #0A1628 0%, #1a2744 100%); padding: 20px; text-align: center;">
+                  <h1 style="color: #C8A661; margin: 0;">New Equipment Inquiry</h1>
+                </div>
+                
+                <div style="padding: 20px; background: #f8f9fa;">
+                  <h2 style="color: #0A1628; border-bottom: 2px solid #C8A661; padding-bottom: 10px;">Contact Information</h2>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Name:</td><td>${inquiry.customerName}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td><a href="mailto:${inquiry.customerEmail}">${inquiry.customerEmail}</a></td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Phone:</td><td><a href="tel:${inquiry.customerPhone}">${inquiry.customerPhone}</a></td></tr>
+                    ${inquiry.businessName ? `<tr><td style="padding: 8px 0; font-weight: bold;">Business:</td><td>${inquiry.businessName}</td></tr>` : ''}
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Business Type:</td><td>${businessTypeLabels[inquiry.businessType] || inquiry.businessType}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Location:</td><td>${inquiry.city ? `${inquiry.city}, ` : ''}${inquiry.state}</td></tr>
+                  </table>
+                  
+                  <h2 style="color: #0A1628; border-bottom: 2px solid #C8A661; padding-bottom: 10px; margin-top: 20px;">Project Details</h2>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Timeline:</td><td>${timelineLabels[inquiry.timeline] || inquiry.timeline}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Budget:</td><td>${inquiry.budget || 'Not specified'}</td></tr>
+                    <tr><td style="padding: 8px 0; font-weight: bold;">Financing Needed:</td><td>${inquiry.financingNeeded ? 'Yes' : 'No'}</td></tr>
+                    ${inquiry.preferredDistributor ? `<tr><td style="padding: 8px 0; font-weight: bold;">Preferred Distributor:</td><td>${inquiry.preferredDistributor}</td></tr>` : ''}
+                  </table>
+                  
+                  <h2 style="color: #0A1628; border-bottom: 2px solid #C8A661; padding-bottom: 10px; margin-top: 20px;">Equipment List (${inquiry.equipmentList.length} items)</h2>
+                  <table style="width: 100%; border-collapse: collapse; background: white;">
+                    <tr style="background: #0A1628; color: white;">
+                      <th style="padding: 10px; text-align: left;">Brand</th>
+                      <th style="padding: 10px; text-align: left;">Type</th>
+                      <th style="padding: 10px; text-align: left;">Capacity</th>
+                      <th style="padding: 10px; text-align: left;">Qty</th>
+                      <th style="padding: 10px; text-align: left;">Notes</th>
+                    </tr>
+                    ${equipmentListHtml}
+                  </table>
+                  
+                  ${inquiry.additionalNotes ? `
+                  <h2 style="color: #0A1628; border-bottom: 2px solid #C8A661; padding-bottom: 10px; margin-top: 20px;">Additional Notes</h2>
+                  <p style="background: white; padding: 15px; border-radius: 5px;">${inquiry.additionalNotes}</p>
+                  ` : ''}
+                  
+                  ${sheetsResult.spreadsheetUrl ? `
+                  <div style="margin-top: 20px; padding: 15px; background: #C8A661; border-radius: 5px; text-align: center;">
+                    <a href="${sheetsResult.spreadsheetUrl}" style="color: #0A1628; font-weight: bold; text-decoration: none;">View in Google Sheets →</a>
+                  </div>
+                  ` : ''}
+                </div>
+                
+                <div style="background: #0A1628; padding: 15px; text-align: center;">
+                  <p style="color: #888; margin: 0; font-size: 12px;">WashBizHub Equipment Inquiry System</p>
+                </div>
+              </div>
+            `
+          });
+        } catch (emailError) {
+          console.error("Failed to send equipment inquiry email:", emailError);
+        }
+      }
+      
+      // Also save to database for tracking
+      try {
+        const dbInquiry = await storage.createDistributorInquiry({
+          customerName: inquiry.customerName,
+          customerEmail: inquiry.customerEmail,
+          customerPhone: inquiry.customerPhone,
+          businessName: inquiry.businessName,
+          equipmentInterest: inquiry.equipmentList.map((e: any) => `${e.quantity}x ${e.brand} ${e.type} (${e.capacity})`),
+          message: inquiry.additionalNotes,
+          urgency: inquiry.timeline === 'immediate' ? 'high' : inquiry.timeline === '1_3_months' ? 'normal' : 'low',
+          status: 'new'
+        });
+      } catch (dbError) {
+        console.error("Failed to save equipment inquiry to database:", dbError);
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Equipment inquiry submitted successfully",
+        sheetsResult
+      });
+    } catch (error: any) {
+      console.error("Equipment inquiry error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ==================== AFFILIATE SYSTEM ====================
   
   // DUPLICATE - Already defined at line ~463 with proper auth

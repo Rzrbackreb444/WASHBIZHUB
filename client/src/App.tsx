@@ -268,6 +268,7 @@ const UtilityBillAuditor = lazy(() => import("@/pages/utility-bill-auditor"));
 // Locator Pages
 const Locator = lazy(() => import("@/pages/locator"));
 const DistributorLocator = lazy(() => import("@/pages/distributor-locator"));
+const EquipmentBuilder = lazy(() => import("@/pages/equipment-builder"));
 const LaundromatLocatorPage = lazy(() => import("@/pages/laundromat-locator"));
 
 // Advertising
@@ -993,6 +994,11 @@ function Router() {
       <Route path="/distributor-locator">
         <Suspense fallback={<LoadingFallback />}>
           <DistributorLocator />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-builder">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentBuilder />
         </Suspense>
       </Route>
       <Route path="/laundromat-locator">

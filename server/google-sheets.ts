@@ -555,3 +555,190 @@ export async function listCalculatorSheets(): Promise<Array<{ id: string; name: 
     url: file.webViewLink!,
   }));
 }
+
+// ============================================================================
+// EQUIPMENT INQUIRY BUILDER - Exports to Google Sheets
+// All leads flow through equipment@washbizhub.com for affiliate commissions
+// ============================================================================
+
+export interface EquipmentItem {
+  brand: string;
+  type: string;
+  capacity: string;
+  quantity: number;
+  notes?: string;
+}
+
+export interface EquipmentInquiry {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  businessName?: string;
+  businessType: 'new_laundromat' | 'existing_laundromat' | 'replacement' | 'expansion' | 'multi_housing' | 'other';
+  state: string;
+  city?: string;
+  timeline: 'immediate' | '1_3_months' | '3_6_months' | '6_12_months' | 'just_researching';
+  budget?: string;
+  financingNeeded: boolean;
+  equipmentList: EquipmentItem[];
+  additionalNotes?: string;
+  preferredDistributor?: string;
+  howHeard?: string;
+  submittedAt: string;
+}
+
+const EQUIPMENT_INQUIRIES_SHEET_ID = process.env.EQUIPMENT_INQUIRIES_SHEET_ID;
+
+export async function appendEquipmentInquiry(inquiry: EquipmentInquiry): Promise<{ success: boolean; spreadsheetUrl?: string; error?: string }> {
+  try {
+    const sheets = await getGoogleSheetsClient();
+    
+    const equipmentSummary = inquiry.equipmentList
+      .map(e => `${e.quantity}x ${e.brand} ${e.type} (${e.capacity})${e.notes ? ` - ${e.notes}` : ''}`)
+      .join(" | ");
+
+    const businessTypeLabels: Record<string, string> = {
+      'new_laundromat': 'New Laundromat',
+      'existing_laundromat': 'Existing Laundromat',
+      'replacement': 'Equipment Replacement',
+      'expansion': 'Expansion',
+      'multi_housing': 'Multi-Housing',
+      'other': 'Other'
+    };
+
+    const timelineLabels: Record<string, string> = {
+      'immediate': 'Immediate (< 1 month)',
+      '1_3_months': '1-3 Months',
+      '3_6_months': '3-6 Months',
+      '6_12_months': '6-12 Months',
+      'just_researching': 'Just Researching'
+    };
+
+    const values = [[
+      inquiry.submittedAt,
+      inquiry.customerName,
+      inquiry.customerEmail,
+      inquiry.customerPhone,
+      inquiry.businessName || "",
+      businessTypeLabels[inquiry.businessType] || inquiry.businessType,
+      inquiry.city ? `${inquiry.city}, ${inquiry.state}` : inquiry.state,
+      timelineLabels[inquiry.timeline] || inquiry.timeline,
+      inquiry.budget || "Not specified",
+      inquiry.financingNeeded ? "Yes" : "No",
+      equipmentSummary,
+      inquiry.equipmentList.length.toString(),
+      inquiry.preferredDistributor || "No preference",
+      inquiry.additionalNotes || "",
+      inquiry.howHeard || "",
+      "New"
+    ]];
+
+    if (!EQUIPMENT_INQUIRIES_SHEET_ID) {
+      const newSheet = await createEquipmentInquiriesSheet();
+      if (newSheet) {
+        await sheets.spreadsheets.values.append({
+          spreadsheetId: newSheet.spreadsheetId,
+          range: "Equipment Inquiries!A:P",
+          valueInputOption: "USER_ENTERED",
+          requestBody: { values }
+        });
+        return { 
+          success: true, 
+          spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${newSheet.spreadsheetId}/edit` 
+        };
+      }
+      return { success: false, error: "Could not create spreadsheet" };
+    }
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: EQUIPMENT_INQUIRIES_SHEET_ID,
+      range: "Equipment Inquiries!A:P",
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values }
+    });
+
+    return { 
+      success: true, 
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${EQUIPMENT_INQUIRIES_SHEET_ID}/edit` 
+    };
+  } catch (error: any) {
+    console.error("Failed to append equipment inquiry to Google Sheets:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createEquipmentInquiriesSheet(): Promise<{ spreadsheetId: string; spreadsheetUrl: string } | null> {
+  try {
+    const sheets = await getGoogleSheetsClient();
+    
+    const response = await sheets.spreadsheets.create({
+      requestBody: {
+        properties: {
+          title: "WashBizHub Equipment Inquiries"
+        },
+        sheets: [{
+          properties: {
+            title: "Equipment Inquiries",
+            gridProperties: { rowCount: 1000, columnCount: 20 }
+          },
+          data: [{
+            startRow: 0,
+            startColumn: 0,
+            rowData: [{
+              values: [
+                { userEnteredValue: { stringValue: "Submitted At" } },
+                { userEnteredValue: { stringValue: "Name" } },
+                { userEnteredValue: { stringValue: "Email" } },
+                { userEnteredValue: { stringValue: "Phone" } },
+                { userEnteredValue: { stringValue: "Business Name" } },
+                { userEnteredValue: { stringValue: "Business Type" } },
+                { userEnteredValue: { stringValue: "Location" } },
+                { userEnteredValue: { stringValue: "Timeline" } },
+                { userEnteredValue: { stringValue: "Budget" } },
+                { userEnteredValue: { stringValue: "Financing Needed" } },
+                { userEnteredValue: { stringValue: "Equipment List" } },
+                { userEnteredValue: { stringValue: "# Items" } },
+                { userEnteredValue: { stringValue: "Preferred Distributor" } },
+                { userEnteredValue: { stringValue: "Notes" } },
+                { userEnteredValue: { stringValue: "How Heard" } },
+                { userEnteredValue: { stringValue: "Status" } }
+              ]
+            }]
+          }]
+        }]
+      }
+    });
+
+    const spreadsheetId = response.data.spreadsheetId!;
+    
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            repeatCell: {
+              range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: 16 },
+              cell: {
+                userEnteredFormat: {
+                  backgroundColor: { red: 0.118, green: 0.227, blue: 0.373 },
+                  textFormat: { bold: true, fontSize: 11, foregroundColor: { red: 1, green: 1, blue: 1 } },
+                },
+              },
+              fields: 'userEnteredFormat(backgroundColor,textFormat)',
+            },
+          },
+          { updateSheetProperties: { properties: { sheetId: 0, gridProperties: { frozenRowCount: 1 } }, fields: 'gridProperties.frozenRowCount' } },
+          { updateDimensionProperties: { range: { sheetId: 0, dimension: 'COLUMNS', startIndex: 10, endIndex: 11 }, properties: { pixelSize: 400 }, fields: 'pixelSize' } },
+        ],
+      },
+    });
+
+    return {
+      spreadsheetId,
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`
+    };
+  } catch (error) {
+    console.error("Failed to create equipment inquiries spreadsheet:", error);
+    return null;
+  }
+}

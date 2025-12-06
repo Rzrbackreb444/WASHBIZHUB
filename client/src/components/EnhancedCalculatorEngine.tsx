@@ -542,16 +542,19 @@ export function EnhancedCalculatorEngine({ config, onSave }: EnhancedCalculatorE
 
         {/* Tips Section */}
         {config.tips && config.tips.length > 0 && (
-          <Card className="mt-8 bg-accent/5 dark:bg-accent/10 border-accent/20">
+          <Card className="mt-8 bg-[#0A1628] dark:bg-[#0A1628] border-accent/30">
             <CardHeader>
-              <CardTitle className="text-lg">Pro Tips & Industry Insights</CardTitle>
+              <CardTitle className="text-lg text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-accent" />
+                Pro Tips & Industry Insights
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {config.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-accent mt-1">•</span>
-                    <span className="text-sm text-foreground">{tip}</span>
+                    <span className="text-sm text-gray-300">{tip}</span>
                   </li>
                 ))}
               </ul>

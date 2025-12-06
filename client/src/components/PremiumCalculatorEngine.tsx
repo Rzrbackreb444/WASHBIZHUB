@@ -783,7 +783,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
             )}
 
             {config.tips && config.tips.length > 0 && (
-              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+              <Card className="bg-[#0A1628] border-accent/30">
                 <CardHeader>
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-accent" />
@@ -795,7 +795,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                     {config.tips.map((tip, idx) => (
                       <li key={idx} className="flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-white/80">{tip}</span>
+                        <span className="text-sm text-gray-300">{tip}</span>
                       </li>
                     ))}
                   </ul>
