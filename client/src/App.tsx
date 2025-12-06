@@ -10,6 +10,7 @@ import { TenantProvider } from "@/contexts/TenantContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
+import { FloatingFeedbackButton } from "@/components/FloatingFeedbackButton";
 import { usePageTracking } from "@/components/Analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingFallback, FullPageLoadingFallback } from "@/components/LoadingFallback";
@@ -1526,6 +1527,7 @@ function AppContent() {
         {!hasCustomFooter && <Footer />}
       </div>
       <DeferredAIChatWidget />
+      <FloatingFeedbackButton />
     </>
   );
 }
