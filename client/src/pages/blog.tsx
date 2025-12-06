@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
-import { defaultBlogImages, laundromatImages } from "@/lib/laundromat-images";
+import { defaultBlogImages, laundromatImages, getBlogVarietyImage } from "@/lib/laundromat-images";
 import { equipmentBlogs } from "@/data/equipment-blogs";
 
 export default function Blog() {
@@ -302,10 +302,12 @@ export default function Blog() {
             ) : (
               <>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {posts.map((post) => {
-                    const categoryImage = defaultBlogImages[post.category] || defaultBlogImages.default;
-                    const featuredImage = post.featuredImage || categoryImage.src;
-                    const imageAlt = post.featuredImageAlt || categoryImage.alt;
+                  {posts.map((post, postIndex) => {
+                    // Use variety image if no custom image, cycling through for diverse appearance
+                    const varietyImage = getBlogVarietyImage(postIndex);
+                    const categoryImage = defaultBlogImages[post.category] || varietyImage;
+                    const featuredImage = post.featuredImage || varietyImage.src;
+                    const imageAlt = post.featuredImageAlt || varietyImage.alt;
                     
                     return (
                       <Card 
