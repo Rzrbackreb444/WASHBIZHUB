@@ -8548,6 +8548,88 @@ export type InsertAdminActivityLog = z.infer<typeof insertAdminActivityLogSchema
 export type AdminActivityLog = typeof adminActivityLog.$inferSelect;
 
 // ============================================================================
+// REFERRAL PROGRAM
+// Track referrals and rewards for growth
+// ============================================================================
+
+export const referrals = pgTable("referrals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Referrer (the user who shared the referral)
+  referrerId: varchar("referrer_id").references(() => users.id).notNull(),
+  referrerEmail: varchar("referrer_email"),
+  
+  // Referred (the new user who signed up)
+  referredId: varchar("referred_id").references(() => users.id),
+  referredEmail: varchar("referred_email").notNull(),
+  
+  // Referral Status
+  status: varchar("status").default("pending").notNull(), // "pending", "signed_up", "converted", "rewarded"
+  
+  // Reward tracking
+  referrerReward: varchar("referrer_reward"), // e.g., "1_month_free", "bonus_analyses"
+  referredReward: varchar("referred_reward"), // e.g., "extra_analysis"
+  rewardedAt: timestamp("rewarded_at"),
+  
+  // Timestamps
+  invitedAt: timestamp("invited_at").defaultNow().notNull(),
+  signedUpAt: timestamp("signed_up_at"),
+  convertedAt: timestamp("converted_at"), // When they became a paid subscriber
+}, (table) => ({
+  referrerIdx: index("referral_referrer_idx").on(table.referrerId),
+  referredIdx: index("referral_referred_idx").on(table.referredId),
+  statusIdx: index("referral_status_idx").on(table.status),
+}));
+
+export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  invitedAt: true,
+});
+export type InsertReferral = z.infer<typeof insertReferralSchema>;
+export type Referral = typeof referrals.$inferSelect;
+
+// ============================================================================
+// FEEDBACK SUBMISSIONS
+// Store user feedback for admin dashboard
+// ============================================================================
+
+export const feedbackSubmissions = pgTable("feedback_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Submitter Info
+  userId: varchar("user_id").references(() => users.id),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  
+  // Feedback Content
+  category: varchar("category").notNull(), // "feature-request", "improvement", "bug-report", "general-feedback", "other"
+  subject: varchar("subject").notNull(),
+  message: text("message").notNull(),
+  page: varchar("page"), // Page/feature this is about
+  
+  // Admin Response
+  status: varchar("status").default("new").notNull(), // "new", "reviewed", "in_progress", "resolved", "closed"
+  adminNotes: text("admin_notes"),
+  respondedAt: timestamp("responded_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  statusIdx: index("feedback_status_idx").on(table.status),
+  categoryIdx: index("feedback_category_idx").on(table.category),
+  createdAtIdx: index("feedback_created_at_idx").on(table.createdAt),
+}));
+
+export const insertFeedbackSubmissionSchema = createInsertSchema(feedbackSubmissions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertFeedbackSubmission = z.infer<typeof insertFeedbackSubmissionSchema>;
+export type FeedbackSubmission = typeof feedbackSubmissions.$inferSelect;
+
+// ============================================================================
 // MULTI-TENANT PLATFORM ARCHITECTURE
 // Powers both WashBizHub.com AND StrokeRecoveryAcademy.com with shared infra
 // ============================================================================
