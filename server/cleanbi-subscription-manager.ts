@@ -8,6 +8,7 @@ import { users } from "@shared/schema";
 import { cleanbiUsage } from "@shared/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
 import Stripe from "stripe";
+import { sendUsageMilestoneEmail } from "./subscription-emails";
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" as any })
@@ -417,6 +418,38 @@ export async function trackCLEANBIUsage(userId: string, reportType: 'basic' | 'd
     timestamp: now,
     month: monthStart.toISOString().slice(0, 7) // YYYY-MM
   });
+  
+  // Check if this was the user's 3rd free analysis (triggers milestone email)
+  const FREE_TIER_LIMIT = 3;
+  try {
+    const totalUsage = await getUserUsageTotal(userId);
+    if (totalUsage === FREE_TIER_LIMIT) {
+      // User just hit the free tier limit - send milestone email
+      const [user] = await db.select({ 
+        email: users.email, 
+        firstName: users.firstName,
+        cleanbiTier: users.cleanbiTier,
+        subscriptionTier: users.subscriptionTier 
+      })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      
+      // Only send to FREE tier users (not paid subscribers)
+      if (user && (!user.cleanbiTier || user.cleanbiTier === 'FREE') && 
+          (!user.subscriptionTier || user.subscriptionTier === 'free')) {
+        sendUsageMilestoneEmail({
+          email: user.email,
+          firstName: user.firstName || undefined,
+          usageCount: totalUsage,
+          limit: FREE_TIER_LIMIT,
+        }).catch(err => console.error("Failed to send milestone email:", err));
+      }
+    }
+  } catch (err) {
+    console.error("Error checking milestone email:", err);
+    // Don't fail the main tracking function
+  }
 }
 
 export async function getUserUsageThisMonth(userId: string): Promise<{
