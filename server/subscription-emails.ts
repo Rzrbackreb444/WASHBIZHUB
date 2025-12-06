@@ -457,3 +457,326 @@ export async function sendCancellationEmail(params: {
     text: `Subscription Canceled\n\nYour WashBizHub ${tierDisplay} subscription has been canceled.\n\nYou still have access until ${endDateFormatted}. After this date, your account will revert to the Free tier.\n\nChanged your mind? Resubscribe anytime: https://washbizhub.com/pricing\n\nWe'd love to know why you canceled: feedback@washbizhub.com\n\nBest regards,\nThe WashBizHub Team`,
   });
 }
+
+/**
+ * Send welcome email for FREE tier signups
+ * Introduces the platform and encourages exploration
+ */
+export async function sendFreeWelcomeEmail(params: {
+  email: string;
+  firstName?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const name = params.firstName || 'there';
+  
+  const content = `
+    <h2 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.navy}; font-size: 24px;">Welcome to WashBizHub!</h2>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Hey ${name},
+    </p>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Welcome to the <strong>#1 laundromat intelligence platform</strong>. Whether you're looking to buy, sell, or optimize a laundromat business, you've come to the right place.
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid ${BRAND_COLORS.gold};">
+      <tr>
+        <td style="padding: 20px;">
+          <p style="margin: 0 0 15px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 16px;">Your Free Account Includes:</p>
+          <table role="presentation" cellspacing="0" cellpadding="0">
+            <tr>
+              <td style="padding: 6px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+                <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> 3 free CLEANBI location analyses
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+                <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Access to laundromat marketplace
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+                <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Funding marketplace connections
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+                <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Industry news & resources
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 0 0 15px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 16px;">Get Started:</p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 25px;">
+      <tr>
+        <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
+          <a href="https://washbizhub.com/cleanbi-explorer" style="color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold;">1. Try CLEANBI Explorer</a>
+          <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Analyze any location's potential for a laundromat business</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
+          <a href="https://washbizhub.com/buy-laundromat" style="color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold;">2. Browse the Marketplace</a>
+          <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Find verified laundromats for sale with CLEANBI scores</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 0;">
+          <a href="https://washbizhub.com/calculators" style="color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold;">3. Preview Calculator Hub</a>
+          <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Explore ROI, valuation, and financial analysis tools</p>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+      <tr>
+        <td style="background-color: ${BRAND_COLORS.gold}; border-radius: 6px;">
+          <a href="https://washbizhub.com/cleanbi-explorer" style="display: inline-block; padding: 14px 28px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            Try CLEANBI Free →
+          </a>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Questions? Just reply to this email – we're here to help.
+    </p>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Welcome aboard,<br>
+      <strong style="color: ${BRAND_COLORS.gold};">The WashBizHub Team</strong>
+    </p>
+  `;
+  
+  return sendEmail({
+    to: params.email,
+    subject: `Welcome to WashBizHub, ${name}!`,
+    html: getEmailTemplate(content),
+    text: `Welcome to WashBizHub!\n\nHey ${name},\n\nWelcome to the #1 laundromat intelligence platform. Whether you're looking to buy, sell, or optimize a laundromat business, you've come to the right place.\n\nYour Free Account Includes:\n- 3 free CLEANBI location analyses\n- Access to laundromat marketplace\n- Funding marketplace connections\n- Industry news & resources\n\nGet Started:\n1. Try CLEANBI Explorer: https://washbizhub.com/cleanbi-explorer\n2. Browse the Marketplace: https://washbizhub.com/buy-laundromat\n3. Preview Calculator Hub: https://washbizhub.com/calculators\n\nQuestions? Just reply to this email.\n\nWelcome aboard,\nThe WashBizHub Team`,
+  });
+}
+
+/**
+ * Send milestone email when user reaches CLEANBI usage limit
+ * Encourages upgrade to continue analyzing locations
+ */
+export async function sendUsageMilestoneEmail(params: {
+  email: string;
+  firstName?: string;
+  usageCount: number;
+  limit: number;
+}): Promise<{ success: boolean; error?: string }> {
+  const name = params.firstName || 'there';
+  
+  const content = `
+    <h2 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.navy}; font-size: 24px;">You've Used All ${params.limit} Free CLEANBI Analyses!</h2>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Hey ${name},
+    </p>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Great news – you've been actively using CLEANBI Explorer to analyze potential locations. That's exactly what successful laundromat investors do!
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #fef3c7; border-radius: 8px; padding: 20px; border-left: 4px solid ${BRAND_COLORS.gold};">
+      <tr>
+        <td>
+          <p style="margin: 0 0 10px 0; color: ${BRAND_COLORS.navy}; font-weight: bold;">You've reached your free tier limit</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            Upgrade to Starter for <strong>unlimited CLEANBI analyses</strong> plus full access to our Calculator Hub.
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 0 0 15px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 16px;">Starter Plan ($29/month) includes:</p>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+      ${TIER_FEATURES.starter.map(f => `
+        <tr>
+          <td style="padding: 8px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> ${f}
+          </td>
+        </tr>
+      `).join('')}
+    </table>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #dcfce7; border-radius: 8px; padding: 20px;">
+      <tr>
+        <td style="text-align: center;">
+          <p style="margin: 0 0 5px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 18px;">🛡️ 30-Day Money-Back Guarantee</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            Not satisfied? Get a full refund within 30 days. No questions asked.
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+      <tr>
+        <td style="background-color: ${BRAND_COLORS.gold}; border-radius: 6px;">
+          <a href="https://washbizhub.com/pricing" style="display: inline-block; padding: 14px 28px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            Upgrade to Starter →
+          </a>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Questions about which plan is right for you? Reply to this email and we'll help you decide.
+    </p>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Best regards,<br>
+      <strong style="color: ${BRAND_COLORS.gold};">The WashBizHub Team</strong>
+    </p>
+  `;
+  
+  return sendEmail({
+    to: params.email,
+    subject: `Ready to continue analyzing locations, ${name}?`,
+    html: getEmailTemplate(content),
+    text: `You've Used All ${params.limit} Free CLEANBI Analyses!\n\nHey ${name},\n\nGreat news – you've been actively using CLEANBI Explorer to analyze potential locations. That's exactly what successful laundromat investors do!\n\nUpgrade to Starter ($29/month) for unlimited CLEANBI analyses plus:\n- Full Calculator Hub access (50+ tools)\n- The Laundromat Bible digital book\n- All video courses & certifications\n- Community forum posting\n- Email support\n\n30-Day Money-Back Guarantee: Not satisfied? Get a full refund within 30 days.\n\nUpgrade now: https://washbizhub.com/pricing\n\nBest regards,\nThe WashBizHub Team`,
+  });
+}
+
+/**
+ * Send referral invitation email
+ */
+export async function sendReferralInviteEmail(params: {
+  toEmail: string;
+  referrerName: string;
+  referralCode: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const content = `
+    <h2 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.navy}; font-size: 24px;">${params.referrerName} Invited You to WashBizHub!</h2>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Your colleague ${params.referrerName} thought you might be interested in WashBizHub – the #1 platform for laundromat investors and operators.
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #dcfce7; border-radius: 8px; padding: 20px; text-align: center;">
+      <tr>
+        <td>
+          <p style="margin: 0 0 10px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 18px;">🎁 Special Referral Bonus</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            Sign up and get <strong>an extra free CLEANBI analysis</strong> – that's 4 total instead of 3!
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 0 0 15px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 16px;">What you'll get access to:</p>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+      <tr>
+        <td style="padding: 8px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+          <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> CLEANBI location intelligence scoring
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+          <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Verified laundromat marketplace
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+          <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Funding & lender marketplace
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+          <span style="color: ${BRAND_COLORS.gold}; margin-right: 8px;">✓</span> Industry resources & calculators
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+      <tr>
+        <td style="background-color: ${BRAND_COLORS.gold}; border-radius: 6px;">
+          <a href="https://washbizhub.com/signup?ref=${params.referralCode}" style="display: inline-block; padding: 14px 28px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            Accept Invitation →
+          </a>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Best regards,<br>
+      <strong style="color: ${BRAND_COLORS.gold};">The WashBizHub Team</strong>
+    </p>
+  `;
+  
+  return sendEmail({
+    to: params.toEmail,
+    subject: `${params.referrerName} invited you to WashBizHub`,
+    html: getEmailTemplate(content),
+    text: `${params.referrerName} Invited You to WashBizHub!\n\nYour colleague thought you might be interested in WashBizHub – the #1 platform for laundromat investors and operators.\n\nSpecial Referral Bonus: Sign up and get an extra free CLEANBI analysis – that's 4 total instead of 3!\n\nAccept your invitation: https://washbizhub.com/signup?ref=${params.referralCode}\n\nBest regards,\nThe WashBizHub Team`,
+  });
+}
+
+/**
+ * Send referral success email to the referrer
+ */
+export async function sendReferralSuccessEmail(params: {
+  email: string;
+  firstName?: string;
+  referredName: string;
+  reward: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const name = params.firstName || 'there';
+  
+  const content = `
+    <h2 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.navy}; font-size: 24px;">🎉 Your Referral Joined WashBizHub!</h2>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Hey ${name},
+    </p>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Great news! <strong>${params.referredName}</strong> just signed up using your referral link.
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #dcfce7; border-radius: 8px; padding: 20px; text-align: center;">
+      <tr>
+        <td>
+          <p style="margin: 0 0 10px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 18px;">Your Reward</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px;">
+            ${params.reward}
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Keep sharing your referral link to earn more rewards!
+    </p>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+      <tr>
+        <td style="background-color: ${BRAND_COLORS.gold}; border-radius: 6px;">
+          <a href="https://washbizhub.com/referrals" style="display: inline-block; padding: 14px 28px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            View Referral Dashboard →
+          </a>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Thanks for spreading the word!<br>
+      <strong style="color: ${BRAND_COLORS.gold};">The WashBizHub Team</strong>
+    </p>
+  `;
+  
+  return sendEmail({
+    to: params.email,
+    subject: `🎉 ${params.referredName} joined using your referral!`,
+    html: getEmailTemplate(content),
+    text: `Your Referral Joined WashBizHub!\n\nHey ${name},\n\nGreat news! ${params.referredName} just signed up using your referral link.\n\nYour Reward: ${params.reward}\n\nKeep sharing your referral link to earn more rewards!\n\nView your dashboard: https://washbizhub.com/referrals\n\nThanks for spreading the word!\nThe WashBizHub Team`,
+  });
+}

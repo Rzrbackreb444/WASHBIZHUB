@@ -5,6 +5,7 @@ import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
+import { sendFreeWelcomeEmail } from "./subscription-emails";
 
 // Email sending helper with fallback
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
@@ -709,6 +710,12 @@ router.post("/verify-email", async (req: Request, res: Response) => {
 
     // Set session if not already logged in
     (req as any).session.userId = user.id;
+
+    // Send welcome email for FREE tier users (async, don't block response)
+    sendFreeWelcomeEmail({
+      email: user.email,
+      firstName: user.firstName || undefined,
+    }).catch(err => console.error("Failed to send welcome email:", err));
 
     res.json({ 
       success: true, 
