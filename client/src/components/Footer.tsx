@@ -41,6 +41,7 @@ const companyLinks = [
   { href: "/pricing", label: "Pricing", testId: "link-footer-pricing" },
   { href: "/brokers", label: "Brokers", testId: "link-footer-brokers" },
   { href: "/our-partnership", label: "About Us", testId: "link-footer-about" },
+  { href: "/feedback", label: "Feedback & Suggestions", testId: "link-footer-feedback" },
 ];
 
 export function Footer() {

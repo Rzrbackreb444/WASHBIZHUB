@@ -277,6 +277,7 @@ const AdBuilder = lazy(() => import("@/pages/ad-builder"));
 
 // Consultation & Partners
 const ConsultantInquiry = lazy(() => import("@/pages/consultant-inquiry"));
+const Feedback = lazy(() => import("@/pages/feedback"));
 const Consultation = lazy(() => import("@/pages/consultation"));
 const AIConsultationCouncil = lazy(() => import("@/pages/ai-consultation-council"));
 const ConsultationLanding = lazy(() => import("@/pages/consultation-landing"));
@@ -1033,6 +1034,11 @@ function Router() {
       <Route path="/consultant-inquiry">
         <Suspense fallback={<LoadingFallback />}>
           <ConsultantInquiry />
+        </Suspense>
+      </Route>
+      <Route path="/feedback">
+        <Suspense fallback={<LoadingFallback />}>
+          <Feedback />
         </Suspense>
       </Route>
       <Route path="/ai-consultation">
