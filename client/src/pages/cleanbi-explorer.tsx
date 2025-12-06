@@ -811,7 +811,7 @@ function CleanBIExplorerContent() {
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 12,
-          fillColor: GRADE_COLORS[saved.grade] || "#b8860b",
+          fillColor: GRADE_COLORS[saved.grade] || "#C8A661",
           fillOpacity: 0.7,
           strokeColor: "#FFFFFF",
           strokeWeight: 2
@@ -1000,7 +1000,7 @@ function CleanBIExplorerContent() {
               icon: {
                 path: window.google.maps.SymbolPath.CIRCLE,
                 scale: 22,
-                fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+                fillColor: GRADE_COLORS[result.grade] || "#C8A661",
                 fillOpacity: 1,
                 strokeColor: "#FFFFFF",
                 strokeWeight: 4
@@ -1083,7 +1083,7 @@ function CleanBIExplorerContent() {
             icon: {
               path: window.google.maps.SymbolPath.CIRCLE,
               scale: 22,
-              fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+              fillColor: GRADE_COLORS[result.grade] || "#C8A661",
               fillOpacity: 1,
               strokeColor: "#FFFFFF",
               strokeWeight: 4
@@ -1204,7 +1204,7 @@ function CleanBIExplorerContent() {
               icon: {
                 path: window.google.maps.SymbolPath.CIRCLE,
                 scale: 22,
-                fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+                fillColor: GRADE_COLORS[result.grade] || "#C8A661",
                 fillOpacity: 1,
                 strokeColor: "#FFFFFF",
                 strokeWeight: 4
@@ -1296,7 +1296,7 @@ function CleanBIExplorerContent() {
             icon: {
               path: window.google.maps.SymbolPath.CIRCLE,
               scale: 22,
-              fillColor: GRADE_COLORS[result.grade] || "#b8860b",
+              fillColor: GRADE_COLORS[result.grade] || "#C8A661",
               fillOpacity: 1,
               strokeColor: "#FFFFFF",
               strokeWeight: 4
@@ -1673,9 +1673,9 @@ function CleanBIExplorerContent() {
         center: { lat: zone.lat, lng: zone.lng },
         radius: gapRadius[0] * 1609.34, // Convert miles to meters
         map: mapInstance.current,
-        fillColor: "#b8860b",
+        fillColor: "#C8A661",
         fillOpacity: 0.3,
-        strokeColor: "#b8860b",
+        strokeColor: "#C8A661",
         strokeOpacity: 0.6,
         strokeWeight: 1,
         clickable: true,
@@ -1688,14 +1688,14 @@ function CleanBIExplorerContent() {
       const infoWindow = new window.google.maps.InfoWindow({
         content: `
           <div style="padding: 12px; font-family: system-ui; min-width: 180px; background: linear-gradient(135deg, #1e3a5f, #0f1d2f); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
-            <div style="font-weight: 600; color: #b8860b; margin-bottom: 6px;">Market Gap Zone</div>
+            <div style="font-weight: 600; color: #C8A661; margin-bottom: 6px;">Market Gap Zone</div>
             <div style="font-size: 12px; color: rgba(255,255,255,0.7);">
               <div>Score: ${zone.opportunityScore}/100</div>
               <div>Renters: ${zone.renterPercentage}%</div>
               <div>Income: $${Math.round(zone.medianIncome / 1000)}K</div>
               <div>${zone.gapReason}</div>
             </div>
-            <div style="font-size: 11px; color: #b8860b; margin-top: 8px; font-weight: 500;">Click to run full CLEANBI analysis</div>
+            <div style="font-size: 11px; color: #C8A661; margin-top: 8px; font-weight: 500;">Click to run full CLEANBI analysis</div>
           </div>
         `
       });
@@ -1719,7 +1719,7 @@ function CleanBIExplorerContent() {
         map: mapInstance.current,
         icon: {
           path: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
-          fillColor: "#b8860b",
+          fillColor: "#C8A661",
           fillOpacity: 1,
           strokeColor: "#FFFFFF",
           strokeWeight: 2,
@@ -1740,7 +1740,7 @@ function CleanBIExplorerContent() {
         content: `
           <div style="padding: 14px; font-family: system-ui; min-width: 200px; background: linear-gradient(135deg, #1e3a5f, #0f1d2f); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-              <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #b8860b, #8b6914); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">#${idx + 1}</div>
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #C8A661, #A8893F); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">#${idx + 1}</div>
               <div style="font-size: 18px; font-weight: 600; color: white;">Score: ${opp.opportunityScore}</div>
             </div>
             <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px;">${opp.gapReason}</div>
@@ -1749,7 +1749,7 @@ function CleanBIExplorerContent() {
             </div>
             <button 
               onclick="window.analyzeGapFromMap && window.analyzeGapFromMap(${opp.lat}, ${opp.lng})"
-              style="margin-top: 10px; padding: 8px 14px; background: linear-gradient(90deg, #b8860b, #8b6914); border: none; border-radius: 8px; color: white; font-size: 12px; cursor: pointer; width: 100%; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
+              style="margin-top: 10px; padding: 8px 14px; background: linear-gradient(90deg, #C8A661, #A8893F); border: none; border-radius: 8px; color: white; font-size: 12px; cursor: pointer; width: 100%; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
             >
               Run CLEANBI Analysis
             </button>
@@ -2053,7 +2053,7 @@ function CleanBIExplorerContent() {
                     }
                   }
                 }}
-                className={`fixed bottom-20 right-4 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#b8860b] to-[#8b6914] shadow-xl flex items-center justify-center text-white ${!analysisResult && !isAnalyzing ? 'animate-pulse' : ''}`}
+                className={`fixed bottom-20 right-4 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#C8A661] to-[#A8893F] shadow-xl flex items-center justify-center text-white ${!analysisResult && !isAnalyzing ? 'animate-pulse' : ''}`}
                 data-testid="button-mobile-fab"
               >
                 {isAnalyzing ? (
@@ -2070,7 +2070,7 @@ function CleanBIExplorerContent() {
                 <div className="bg-gradient-to-br from-[#1e3a5f]/95 to-[#0f1d2f]/95 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-xl">
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b8860b]" />
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C8A661]" />
                       <Input
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
@@ -2083,7 +2083,7 @@ function CleanBIExplorerContent() {
                     <Button 
                       onClick={analyzeLocation}
                       disabled={isAnalyzing || !address.trim()}
-                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-12 px-4"
+                      className="bg-gradient-to-r from-[#C8A661] to-[#A8893F] hover:from-[#D8B66D] hover:to-[#C8A661] text-white min-h-12 px-4"
                       data-testid="button-analyze-mobile"
                     >
                       {isAnalyzing ? (
@@ -2107,16 +2107,16 @@ function CleanBIExplorerContent() {
                     data-testid="market-gap-legend-mobile"
                   >
                     <div className="text-xs font-semibold text-white mb-2 flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-[#b8860b]" />
+                      <Target className="w-3.5 h-3.5 text-[#C8A661]" />
                       Market Gap Legend
                     </div>
                     <div className="flex flex-wrap gap-3 text-[10px]">
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded-full bg-[#b8860b]/30 border border-[#b8860b]" />
+                        <div className="w-3 h-3 rounded-full bg-[#C8A661]/30 border border-[#C8A661]" />
                         <span className="text-white/70">Gap Zones</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 text-[#b8860b] fill-[#b8860b]" />
+                        <Star className="w-3 h-3 text-[#C8A661] fill-[#C8A661]" />
                         <span className="text-white/70">Top Opportunities</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -2187,7 +2187,7 @@ function CleanBIExplorerContent() {
                             </div>
                             <p className="text-white/70 text-sm line-clamp-2">{analysisResult.address}</p>
                             {analysisResult.businessName && (
-                              <p className="text-[#b8860b] text-sm font-medium mt-1">{analysisResult.businessName}</p>
+                              <p className="text-[#C8A661] text-sm font-medium mt-1">{analysisResult.businessName}</p>
                             )}
                           </div>
                         </div>
@@ -2210,7 +2210,7 @@ function CleanBIExplorerContent() {
                               toast({ title: "Analysis saved!" });
                             }}
                             variant="outline"
-                            className="border-[#b8860b]/50 text-[#b8860b] hover:bg-[#b8860b]/10 min-h-11"
+                            className="border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10 min-h-11"
                             data-testid="button-save-mobile"
                           >
                             <Bookmark className="w-4 h-4 mr-2" />
@@ -2223,25 +2223,25 @@ function CleanBIExplorerContent() {
                           <TabsList className="w-full overflow-x-auto flex gap-1 bg-white/5 p-1 rounded-lg mb-4 snap-x scroll-smooth">
                             <TabsTrigger 
                               value="overview" 
-                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#C8A661] data-[state=active]:text-white"
                             >
                               Overview
                             </TabsTrigger>
                             <TabsTrigger 
                               value="competition"
-                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#C8A661] data-[state=active]:text-white"
                             >
                               Competition
                             </TabsTrigger>
                             <TabsTrigger 
                               value="demographics"
-                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#C8A661] data-[state=active]:text-white"
                             >
                               Demographics
                             </TabsTrigger>
                             <TabsTrigger 
                               value="financials"
-                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#b8860b] data-[state=active]:text-white"
+                              className="min-h-11 px-4 text-sm flex-shrink-0 snap-start data-[state=active]:bg-[#C8A661] data-[state=active]:text-white"
                             >
                               Financials
                             </TabsTrigger>
@@ -2301,7 +2301,7 @@ function CleanBIExplorerContent() {
                                 </div>
                                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                                   <div 
-                                    className="h-full bg-gradient-to-r from-[#b8860b] to-[#d4a030]" 
+                                    className="h-full bg-gradient-to-r from-[#C8A661] to-[#d4a030]" 
                                     style={{ width: `${analysisResult.renterPercentage || 45}%` }}
                                   />
                                 </div>
@@ -2334,10 +2334,10 @@ function CleanBIExplorerContent() {
                                 </div>
                                 <div className="bg-white/5 rounded-lg p-3">
                                   <div className="text-xs text-white/50 mb-1">Est. NOI</div>
-                                  <div className="text-lg font-semibold text-[#b8860b]">${memoizedRevenueProjections.noi.toLocaleString()}</div>
+                                  <div className="text-lg font-semibold text-[#C8A661]">${memoizedRevenueProjections.noi.toLocaleString()}</div>
                                 </div>
-                                <div className="bg-gradient-to-br from-[#b8860b]/20 to-[#8b6914]/10 rounded-lg p-3 border border-[#b8860b]/20">
-                                  <div className="text-xs text-[#b8860b] mb-1">Estimated Value</div>
+                                <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#A8893F]/10 rounded-lg p-3 border border-[#C8A661]/20">
+                                  <div className="text-xs text-[#C8A661] mb-1">Estimated Value</div>
                                   <div className="text-xl font-bold text-white">${memoizedRevenueProjections.value.toLocaleString()}</div>
                                 </div>
                               </div>
@@ -2350,7 +2350,7 @@ function CleanBIExplorerContent() {
                     {/* Loading state */}
                     {isAnalyzing && (
                       <div className="flex flex-col items-center justify-center py-12">
-                        <Loader2 className="w-12 h-12 text-[#b8860b] animate-spin mb-4" />
+                        <Loader2 className="w-12 h-12 text-[#C8A661] animate-spin mb-4" />
                         <p className="text-white/70">Analyzing location...</p>
                       </div>
                     )}
@@ -2358,7 +2358,7 @@ function CleanBIExplorerContent() {
                     {/* Empty state */}
                     {!analysisResult && !isAnalyzing && (
                       <div className="text-center py-12">
-                        <MapPin className="w-12 h-12 text-[#b8860b] mx-auto mb-4" />
+                        <MapPin className="w-12 h-12 text-[#C8A661] mx-auto mb-4" />
                         <h3 className="text-lg font-semibold text-white mb-2">No Analysis Yet</h3>
                         <p className="text-white/60 text-sm mb-4">
                           Enter an address above to analyze a location
@@ -2380,7 +2380,7 @@ function CleanBIExplorerContent() {
             {/* Mobile Bottom Bar */}
             <div className="bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] border-t border-white/10 p-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C8A661] to-[#A8893F] flex items-center justify-center">
                   <MapPin className="w-4 h-4 text-white" />
                 </div>
                 <div>
@@ -2421,7 +2421,7 @@ function CleanBIExplorerContent() {
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="h-full bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] flex flex-col backdrop-blur-md"
+              className="h-full bg-[#0A1628] flex flex-col"
             >
               <ScrollArea className="flex-1" viewportRef={sidebarViewportRef}>
 
@@ -2433,44 +2433,61 @@ function CleanBIExplorerContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="p-6 border-b border-white/10"
+                className="p-4"
               >
-                <div className="text-center py-6">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center shadow-xl">
-                    <MapPin className="w-10 h-10 text-white" />
+                {/* Hero Card with Gold Accent */}
+                <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                  {/* Gold Top Bar */}
+                  <div className="h-1 bg-[#C8A661]" />
+                  
+                  <div className="p-5 text-center">
+                    {/* Navy Icon Container with Gold Icon */}
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center shadow-lg">
+                      <MapPin className="w-8 h-8 text-[#C8A661]" />
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Ready to Score Your Location?</h3>
+                    <p className="text-white/60 text-sm mb-5">
+                      Enter any address below to get an instant CLEANBI™ score (0-100) and investment grade.
+                    </p>
+                    
+                    {/* Feature List */}
+                    <div className="space-y-2.5 text-left mb-5 bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center gap-2.5 text-sm text-white/80">
+                        <div className="w-5 h-5 rounded-full bg-[#C8A661]/20 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                        </div>
+                        <span>Competitor density analysis</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-sm text-white/80">
+                        <div className="w-5 h-5 rounded-full bg-[#C8A661]/20 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                        </div>
+                        <span>Demographics & income data</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-sm text-white/80">
+                        <div className="w-5 h-5 rounded-full bg-[#C8A661]/20 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-3 h-3 text-[#C8A661]" />
+                        </div>
+                        <span>A/B/C investment grading</span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => {
+                        const addressInput = document.querySelector('[data-testid="input-explorer-address"]') as HTMLInputElement;
+                        if (addressInput) {
+                          addressInput.focus();
+                          addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-11 text-sm font-semibold shadow-lg"
+                      data-testid="button-click-to-analyze"
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      Click to Analyze
+                    </Button>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Ready to Score Your Location?</h3>
-                  <p className="text-white/60 text-sm mb-4">
-                    Enter any address below to get an instant CLEANBI™ score (0-100) and investment grade.
-                  </p>
-                  <div className="space-y-2 text-left mb-6">
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                      <span>Competitor density analysis</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                      <span>Demographics & income data</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                      <span>A/B/C investment grading</span>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={() => {
-                      const addressInput = document.querySelector('[data-testid="input-explorer-address"]') as HTMLInputElement;
-                      if (addressInput) {
-                        addressInput.focus();
-                        addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                    }}
-                    className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-11 text-sm font-medium shadow-xl"
-                    data-testid="button-click-to-analyze"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Click to Analyze
-                  </Button>
                 </div>
               </motion.div>
             )}
@@ -2524,7 +2541,7 @@ function CleanBIExplorerContent() {
                 {/* Analyzing Status Message */}
                 <div className="flex items-center justify-center gap-3 py-4">
                   <div className="relative">
-                    <div className="w-6 h-6 border-2 border-[#b8860b] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-[#C8A661] border-t-transparent rounded-full animate-spin" />
                     <div className="absolute inset-0 w-6 h-6 border-2 border-[#d4a030]/30 rounded-full animate-ping" />
                   </div>
                   <div className="text-center">
@@ -2558,7 +2575,7 @@ function CleanBIExplorerContent() {
                   <div 
                     className="absolute inset-0 opacity-20"
                     style={{
-                      background: `radial-gradient(ellipse at top right, ${GRADE_COLORS[analysisResult.grade] || "#b8860b"}, transparent 70%)`
+                      background: `radial-gradient(ellipse at top right, ${GRADE_COLORS[analysisResult.grade] || "#C8A661"}, transparent 70%)`
                     }}
                   />
                   
@@ -2570,7 +2587,7 @@ function CleanBIExplorerContent() {
                           progress={analysisResult.cleanbiScore}
                           size={90}
                           strokeWidth={6}
-                          progressColor={GRADE_COLORS[analysisResult.grade] || "#b8860b"}
+                          progressColor={GRADE_COLORS[analysisResult.grade] || "#C8A661"}
                           trackColor="rgba(255,255,255,0.1)"
                           animated={true}
                           testId="cleanbi-score-ring"
@@ -2595,7 +2612,7 @@ function CleanBIExplorerContent() {
                           animate={{ scale: 1, rotate: 0 }}
                           transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
                           className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg border-2 border-[#0f1d2f]"
-                          style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] || "#b8860b" }}
+                          style={{ backgroundColor: GRADE_COLORS[analysisResult.grade] || "#C8A661" }}
                           data-testid="grade-badge"
                         >
                           {analysisResult.grade}
@@ -2661,7 +2678,7 @@ function CleanBIExplorerContent() {
                       </Button>
                       <Button
                         size="default"
-                        className="flex-1 min-h-11 px-4 gap-2 bg-[#b8860b] hover:bg-[#d4a030] text-white"
+                        className="flex-1 min-h-11 px-4 gap-2 bg-[#C8A661] hover:bg-[#d4a030] text-white"
                         onClick={() => {
                           saveAnalysis(analysisResult);
                           setSavedAnalyses(getStoredAnalyses());
@@ -2682,12 +2699,12 @@ function CleanBIExplorerContent() {
                 {/* Detail Tabs - Compact */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="w-full grid grid-cols-4 sm:grid-cols-7 bg-white/5 backdrop-blur-sm mb-2 rounded-lg border border-white/10 gap-0.5 p-0.5">
-                    <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                    <TabsTrigger value="overview" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Overview</span>
                       <span className="sm:hidden">Info</span>
                     </TabsTrigger>
-                    <TabsTrigger value="score" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
-                    <TabsTrigger value="compete" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white rounded-lg">
+                    <TabsTrigger value="score" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white rounded-lg">Score</TabsTrigger>
+                    <TabsTrigger value="compete" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white rounded-lg">
                       <span className="hidden sm:inline">Compete</span>
                       <span className="sm:hidden">Comp</span>
                     </TabsTrigger>
@@ -2704,9 +2721,9 @@ function CleanBIExplorerContent() {
                       <Scale className="w-3 h-3" />
                       <span className="hidden sm:inline">Deal</span>
                     </TabsTrigger>
-                    <TabsTrigger value="insights" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#b8860b] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg">
+                    <TabsTrigger value="insights" className="text-[9px] sm:text-[10px] px-0.5 sm:px-1 min-h-11 data-[state=active]:bg-[#C8A661] data-[state=active]:text-white flex items-center justify-center gap-0.5 rounded-lg">
                       AI
-                      {userTier === "free" && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#b8860b]" />}
+                      {userTier === "free" && <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#C8A661]" />}
                     </TabsTrigger>
                   </TabsList>
 
@@ -2780,14 +2797,14 @@ function CleanBIExplorerContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="relative overflow-hidden rounded-lg border border-[#b8860b]/20"
+                        className="relative overflow-hidden rounded-lg border border-[#C8A661]/20"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#b8860b]/15 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#C8A661]/15 to-transparent" />
                         <div className="relative p-3">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-[#b8860b]/20 flex items-center justify-center">
-                                <Footprints className="w-4 h-4 text-[#b8860b]" />
+                              <div className="w-7 h-7 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                                <Footprints className="w-4 h-4 text-[#C8A661]" />
                               </div>
                               <div>
                                 <span className="text-xs font-semibold text-white">Walkability Index</span>
@@ -2841,7 +2858,7 @@ function CleanBIExplorerContent() {
                     {/* Premium Intelligence Panels */}
                     {loadingIntelligence ? (
                       <div className="bg-white/5 rounded-lg p-3 flex items-center justify-center">
-                        <div className="animate-spin w-5 h-5 border-2 border-[#b8860b] border-t-transparent rounded-full mr-2" />
+                        <div className="animate-spin w-5 h-5 border-2 border-[#C8A661] border-t-transparent rounded-full mr-2" />
                         <span className="text-white/50 text-sm">Loading premium data...</span>
                       </div>
                     ) : (
@@ -2877,15 +2894,15 @@ function CleanBIExplorerContent() {
                           </div>
                         ) : userTier === "free" && (
                           <div 
-                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
                             onClick={() => setShowUpgradeModal(true)}
                             data-testid="solar-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
-                              <Lock className="w-4 h-4 text-[#b8860b]" />
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
                               <Sun className="w-4 h-4 text-yellow-500/50" />
                               <span className="text-white/70 text-sm">Solar Potential Analysis</span>
-                              <Crown className="w-3 h-3 text-[#b8860b] ml-auto" />
+                              <Crown className="w-3 h-3 text-[#C8A661] ml-auto" />
                             </div>
                             <div className="text-xs text-white/40 mt-1">Upgrade to see energy savings potential</div>
                           </div>
@@ -2921,7 +2938,7 @@ function CleanBIExplorerContent() {
                             </div>
                             {intelligenceData.propertyValue.ownershipGated && (
                               <div className="mt-2 pt-2 border-t border-white/10">
-                                <div className="flex items-center gap-1 text-xs text-[#b8860b]">
+                                <div className="flex items-center gap-1 text-xs text-[#C8A661]">
                                   <Lock className="w-3 h-3" />
                                   <span>Owner info & liens: Enterprise tier</span>
                                 </div>
@@ -2930,15 +2947,15 @@ function CleanBIExplorerContent() {
                           </div>
                         ) : userTier === "free" && (
                           <div 
-                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
                             onClick={() => setShowUpgradeModal(true)}
                             data-testid="property-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
-                              <Lock className="w-4 h-4 text-[#b8860b]" />
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
                               <Building2 className="w-4 h-4 text-blue-400/50" />
                               <span className="text-white/70 text-sm">Property Value & Details</span>
-                              <Crown className="w-3 h-3 text-[#b8860b] ml-auto" />
+                              <Crown className="w-3 h-3 text-[#C8A661] ml-auto" />
                             </div>
                             <div className="text-xs text-white/40 mt-1">See estimated property values & building info</div>
                           </div>
@@ -2984,15 +3001,15 @@ function CleanBIExplorerContent() {
                           </div>
                         ) : (userTier === "free" || userTier === "starter") && (
                           <div 
-                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
                             onClick={() => setShowUpgradeModal(true)}
                             data-testid="utility-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
-                              <Lock className="w-4 h-4 text-[#b8860b]" />
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
                               <Bolt className="w-4 h-4 text-purple-400/50" />
                               <span className="text-white/70 text-sm">Utility Rate Analysis</span>
-                              <Badge variant="outline" className="text-[10px] border-[#b8860b]/30 text-[#b8860b] ml-auto">PRO</Badge>
+                              <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661] ml-auto">PRO</Badge>
                             </div>
                             <div className="text-xs text-white/40 mt-1">Calculate true operating costs with local utility rates</div>
                           </div>
@@ -3046,15 +3063,15 @@ function CleanBIExplorerContent() {
                           </div>
                         ) : (userTier === "free" || userTier === "starter") && (
                           <div 
-                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#b8860b]/30 cursor-pointer hover:border-[#b8860b]/50 transition-colors"
+                            className="bg-white/5 rounded-lg p-3 border border-dashed border-[#C8A661]/30 cursor-pointer hover:border-[#C8A661]/50 transition-colors"
                             onClick={() => setShowUpgradeModal(true)}
                             data-testid="catchment-upgrade-prompt"
                           >
                             <div className="flex items-center gap-2">
-                              <Lock className="w-4 h-4 text-[#b8860b]" />
+                              <Lock className="w-4 h-4 text-[#C8A661]" />
                               <Gauge className="w-4 h-4 text-cyan-400/50" />
                               <span className="text-white/70 text-sm">Customer Catchment Analysis</span>
-                              <Badge variant="outline" className="text-[10px] border-[#b8860b]/30 text-[#b8860b] ml-auto">PRO</Badge>
+                              <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661] ml-auto">PRO</Badge>
                             </div>
                             <div className="text-xs text-white/40 mt-1">See household counts & drive-time analytics</div>
                           </div>
@@ -3078,14 +3095,14 @@ function CleanBIExplorerContent() {
                         size="default" 
                         variant="outline" 
                         onClick={userTier === "free" ? () => setShowUpgradeModal(true) : fetchAerialView}
-                        className={`flex-1 min-h-11 px-4 gap-2 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#b8860b]/50" : ""}`}
+                        className={`flex-1 min-h-11 px-4 gap-2 border-white/20 text-white hover:bg-white/10 ${userTier === "free" ? "border-[#C8A661]/50" : ""}`}
                         data-testid="button-aerial-view"
                       >
                         {userTier === "free" ? (
                           <>
-                            <Lock className="w-4 h-4 text-[#b8860b]" />
+                            <Lock className="w-4 h-4 text-[#C8A661]" />
                             3D Flyover
-                            <Crown className="w-3 h-3 text-[#b8860b]" />
+                            <Crown className="w-3 h-3 text-[#C8A661]" />
                           </>
                         ) : (
                           <>
@@ -3111,7 +3128,7 @@ function CleanBIExplorerContent() {
                     {/* Header with Industry Benchmark */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Trophy className="w-4 h-4 text-[#b8860b]" />
+                        <Trophy className="w-4 h-4 text-[#C8A661]" />
                         <span className="text-xs font-medium text-white/70">CLEANBI™ Factor Analysis</span>
                       </div>
                       {userTier === "free" ? (
@@ -3133,11 +3150,11 @@ function CleanBIExplorerContent() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-r from-[#b8860b]/10 to-transparent rounded-lg p-2.5 mb-3 border border-[#b8860b]/20"
+                      className="bg-gradient-to-r from-[#C8A661]/10 to-transparent rounded-lg p-2.5 mb-3 border border-[#C8A661]/20"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <BarChart3 className="w-3.5 h-3.5 text-[#b8860b]" />
+                          <BarChart3 className="w-3.5 h-3.5 text-[#C8A661]" />
                           <span className="text-xs text-white/60">Industry Average: <span className="text-white font-medium">65</span></span>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -3227,8 +3244,8 @@ function CleanBIExplorerContent() {
                                 animate={{ scale: 1, opacity: 1 }}
                                 className="text-center p-4"
                               >
-                                <div className="w-12 h-12 rounded-full bg-[#b8860b]/20 flex items-center justify-center mx-auto mb-3">
-                                  <Lock className="w-5 h-5 text-[#b8860b]" />
+                                <div className="w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center mx-auto mb-3">
+                                  <Lock className="w-5 h-5 text-[#C8A661]" />
                                 </div>
                                 <h4 className="text-white font-semibold text-sm mb-1">Unlock All 7 Factors</h4>
                                 <p className="text-white/50 text-xs mb-3 max-w-[200px]">
@@ -3236,7 +3253,7 @@ function CleanBIExplorerContent() {
                                 </p>
                                 <Button 
                                   size="sm"
-                                  className="bg-gradient-to-r from-[#b8860b] to-[#d4a030] hover:from-[#d4a030] hover:to-[#b8860b] text-black font-medium shadow-lg"
+                                  className="bg-gradient-to-r from-[#C8A661] to-[#d4a030] hover:from-[#D8B66D] hover:to-[#C8A661] text-black font-medium shadow-lg"
                                   onClick={() => setShowUpgradeModal(true)}
                                   data-testid="button-unlock-subscores"
                                 >
@@ -3277,7 +3294,7 @@ function CleanBIExplorerContent() {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between mb-0.5">
                                     <div className="flex items-center gap-2">
-                                      <span className="text-sm font-medium text-white group-hover:text-[#b8860b] transition-colors">{cat.name}</span>
+                                      <span className="text-sm font-medium text-white group-hover:text-[#C8A661] transition-colors">{cat.name}</span>
                                       {isAboveAverage && (
                                         <TrendingUp className="w-3 h-3 text-green-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                       )}
@@ -3337,7 +3354,7 @@ function CleanBIExplorerContent() {
                   <TabsContent value="compete" className="mt-0">
                     <div className="flex items-center justify-between mb-2">
                       <div className="text-xs text-white/50">Nearby Competitors ({competitors.length})</div>
-                      <Badge variant="outline" className="text-[10px] border-[#b8860b]/30 text-[#b8860b]">Click to Analyze</Badge>
+                      <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661]">Click to Analyze</Badge>
                     </div>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {competitors.length === 0 ? (
@@ -3351,12 +3368,12 @@ function CleanBIExplorerContent() {
                             key={comp.id}
                             onClick={() => analyzeCompetitor(comp)}
                             disabled={isAnalyzingCompetitor && selectedCompetitor?.id === comp.id}
-                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 min-h-12 transition-all duration-200 border border-transparent hover:border-[#b8860b]/30 group"
+                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 min-h-12 transition-all duration-200 border border-transparent hover:border-[#C8A661]/30 group"
                             data-testid={`button-analyze-competitor-${comp.id}`}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
-                                <div className="font-medium text-white text-sm truncate group-hover:text-[#b8860b] transition-colors">{comp.name}</div>
+                                <div className="font-medium text-white text-sm truncate group-hover:text-[#C8A661] transition-colors">{comp.name}</div>
                                 <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
                                   <span className="flex items-center gap-1">
                                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
@@ -3370,11 +3387,11 @@ function CleanBIExplorerContent() {
                               </div>
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {isAnalyzingCompetitor && selectedCompetitor?.id === comp.id ? (
-                                  <Loader2 className="w-4 h-4 text-[#b8860b] animate-spin" />
+                                  <Loader2 className="w-4 h-4 text-[#C8A661] animate-spin" />
                                 ) : (
                                   <>
-                                    <Target className="w-4 h-4 text-[#b8860b]" />
-                                    <span className="text-[10px] text-[#b8860b]">Analyze</span>
+                                    <Target className="w-4 h-4 text-[#C8A661]" />
+                                    <span className="text-[10px] text-[#C8A661]">Analyze</span>
                                   </>
                                 )}
                               </div>
@@ -3393,7 +3410,7 @@ function CleanBIExplorerContent() {
                     <div className="grid grid-cols-2 gap-2">
                       {Object.entries(INDUSTRY_BENCHMARKS).map(([key, bench]) => (
                         <div key={key} className="bg-white/5 rounded p-2 text-center">
-                          <div className="text-lg font-bold text-[#b8860b]">{bench.min}-{bench.max}</div>
+                          <div className="text-lg font-bold text-[#C8A661]">{bench.min}-{bench.max}</div>
                           <div className="text-xs text-white/40">{bench.unit}</div>
                           <div className="text-xs text-white/60 truncate">{bench.label}</div>
                           <div className="text-[10px] text-white/30 mt-0.5">{bench.description}</div>
@@ -3410,7 +3427,7 @@ function CleanBIExplorerContent() {
                         Quick Financial Analysis
                       </div>
                       {userTier === "free" ? (
-                        <Badge className="text-[10px] bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30">
+                        <Badge className="text-[10px] bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                           <Lock className="w-2.5 h-2.5 mr-1" />
                           Premium
                         </Badge>
@@ -3439,15 +3456,15 @@ function CleanBIExplorerContent() {
                                 <div className="text-[10px] text-white/50">Cap Rate</div>
                               </div>
                               <div className="bg-white/5 rounded p-2 text-center">
-                                <div className="text-lg font-bold text-[#b8860b]">$14.7K</div>
+                                <div className="text-lg font-bold text-[#C8A661]">$14.7K</div>
                                 <div className="text-[10px] text-white/50">Monthly NOI</div>
                               </div>
                             </div>
                           </div>
-                          <div className="bg-gradient-to-br from-[#b8860b]/10 to-transparent rounded-lg p-3 border border-[#b8860b]/20">
+                          <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
                             <div className="grid grid-cols-3 gap-2 text-center">
                               <div><div className="text-base font-bold text-white">$352K</div></div>
-                              <div className="bg-[#b8860b]/20 rounded py-1"><div className="text-lg font-bold text-[#b8860b]">$440K</div></div>
+                              <div className="bg-[#C8A661]/20 rounded py-1"><div className="text-lg font-bold text-[#C8A661]">$440K</div></div>
                               <div><div className="text-base font-bold text-white">$528K</div></div>
                             </div>
                           </div>
@@ -3456,12 +3473,12 @@ function CleanBIExplorerContent() {
                         {/* Upgrade CTA Overlay */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg backdrop-blur-[2px]">
                           <div className="text-center p-4">
-                            <Lock className="w-8 h-8 text-[#b8860b] mx-auto mb-2" />
+                            <Lock className="w-8 h-8 text-[#C8A661] mx-auto mb-2" />
                             <h4 className="text-white font-semibold mb-1">Revenue Projections</h4>
                             <p className="text-white/60 text-xs mb-3">Get ROI analysis, valuation estimates, and deal scoring</p>
                             <Button 
                               size="sm"
-                              className="bg-[#b8860b] hover:bg-[#d4a030] text-black font-medium"
+                              className="bg-[#C8A661] hover:bg-[#d4a030] text-black font-medium"
                               onClick={() => setShowUpgradeModal(true)}
                               data-testid="button-unlock-financials"
                             >
@@ -3518,7 +3535,7 @@ function CleanBIExplorerContent() {
                               <div className="text-[10px] text-white/50">Cap Rate</div>
                             </div>
                             <div className="bg-white/5 rounded p-2 text-center">
-                              <div className="text-lg font-bold text-[#b8860b]">
+                              <div className="text-lg font-bold text-[#C8A661]">
                                 ${((calcValues.annualRevenue - calcValues.operatingExpenses) / 12 / 1000).toFixed(1)}K
                               </div>
                               <div className="text-[10px] text-white/50">Monthly NOI</div>
@@ -3527,9 +3544,9 @@ function CleanBIExplorerContent() {
                         </div>
                         
                         {/* Valuation Estimate */}
-                        <div className="bg-gradient-to-br from-[#b8860b]/10 to-transparent rounded-lg p-3 border border-[#b8860b]/20">
+                        <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
                           <div className="flex items-center gap-2 mb-2">
-                            <DollarSign className="w-4 h-4 text-[#b8860b]" />
+                            <DollarSign className="w-4 h-4 text-[#C8A661]" />
                             <span className="text-sm font-medium text-white">Estimated Value Range</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2 text-center">
@@ -3539,9 +3556,9 @@ function CleanBIExplorerContent() {
                                 ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2 / 1000).toFixed(0)}K
                               </div>
                             </div>
-                            <div className="bg-[#b8860b]/20 rounded py-1">
-                              <div className="text-xs text-[#b8860b]">Fair (2.5x)</div>
-                              <div className="text-lg font-bold text-[#b8860b]">
+                            <div className="bg-[#C8A661]/20 rounded py-1">
+                              <div className="text-xs text-[#C8A661]">Fair (2.5x)</div>
+                              <div className="text-lg font-bold text-[#C8A661]">
                                 ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
                               </div>
                             </div>
@@ -3673,7 +3690,7 @@ function CleanBIExplorerContent() {
                             </div>
                             <div>
                               <div className="text-white/50 text-xs">Your Offer Target</div>
-                              <div className="font-semibold text-[#b8860b]">
+                              <div className="font-semibold text-[#C8A661]">
                                 ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.2 / 1000).toFixed(0)}K
                               </div>
                             </div>
@@ -3696,7 +3713,7 @@ function CleanBIExplorerContent() {
                       
                       {userTier !== "free" && analysisResult ? (
                         <Button 
-                          className="w-full h-9 text-xs bg-gradient-to-r from-[#b8860b] to-[#8b6914] text-white"
+                          className="w-full h-9 text-xs bg-gradient-to-r from-[#C8A661] to-[#A8893F] text-white"
                           onClick={async () => {
                             try {
                               toast({ title: "Generating PDF...", description: "Creating your analysis report..." });
@@ -3782,7 +3799,7 @@ function CleanBIExplorerContent() {
                       ) : (
                         <Button 
                           variant="outline"
-                          className="w-full h-9 text-xs border-[#b8860b]/30 text-[#b8860b] hover:bg-[#b8860b]/10"
+                          className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
                           onClick={() => setShowUpgradeModal(true)}
                           data-testid="button-export-upgrade"
                         >
@@ -3796,10 +3813,10 @@ function CleanBIExplorerContent() {
                   {/* AI Insights Tab */}
                   <TabsContent value="insights" className="mt-0">
                     <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
-                      <Brain className="w-4 h-4 text-[#b8860b]" />
+                      <Brain className="w-4 h-4 text-[#C8A661]" />
                       AI-Powered Analysis
                     </div>
-                    <div className="bg-gradient-to-br from-[#b8860b]/10 to-transparent rounded-lg p-4 border border-[#b8860b]/20">
+                    <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-4 border border-[#C8A661]/20">
                       <p className="text-sm text-white/90 leading-relaxed">
                         {generateAINarrative(analysisResult, competitors)}
                       </p>
@@ -4269,7 +4286,7 @@ function CleanBIExplorerContent() {
                                 <LineChart className="w-4 h-4 text-[#10B981]" />
                                 <span className="text-xs sm:text-sm font-semibold text-white">What-If Simulator</span>
                                 {(userTier === "free" || userTier === "starter") ? (
-                                  <Badge className="text-[8px] sm:text-[9px] bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30">
+                                  <Badge className="text-[8px] sm:text-[9px] bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                                     <Lock className="w-2.5 h-2.5 mr-0.5" />
                                     Pro+
                                   </Badge>
@@ -4312,14 +4329,14 @@ function CleanBIExplorerContent() {
                                   
                                   {/* Upgrade Overlay */}
                                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A1628]/60 backdrop-blur-[2px] rounded-lg">
-                                    <Lock className="w-6 h-6 text-[#b8860b] mb-2" />
+                                    <Lock className="w-6 h-6 text-[#C8A661] mb-2" />
                                     <p className="text-xs font-medium text-white mb-1">Pro+ Feature</p>
                                     <p className="text-[10px] text-white/60 text-center px-4 mb-3">
                                       Model equipment changes and see how they impact your business value
                                     </p>
                                     <Button
                                       size="sm"
-                                      className="min-h-9 px-4 bg-[#b8860b] hover:bg-[#a07850] text-white text-xs"
+                                      className="min-h-9 px-4 bg-[#C8A661] hover:bg-[#a07850] text-white text-xs"
                                       onClick={() => setShowUpgradeModal(true)}
                                       data-testid="button-upgrade-whatif"
                                     >
@@ -4531,12 +4548,12 @@ function CleanBIExplorerContent() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-2 bg-gradient-to-br from-[#1e3a5f]/80 to-[#0f1d2f]/80 rounded-lg p-2.5 border border-[#b8860b]/30"
+                  className="mt-2 bg-gradient-to-br from-[#1e3a5f]/80 to-[#0f1d2f]/80 rounded-lg p-2.5 border border-[#C8A661]/30"
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <ArrowRight className="w-3.5 h-3.5 text-[#b8860b]" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#C8A661]" />
                     <span className="text-xs font-semibold text-white">Ready to Take Action?</span>
-                    <span className="text-[10px] text-[#b8860b] font-medium ml-auto">Grade {analysisResult.grade}</span>
+                    <span className="text-[10px] text-[#C8A661] font-medium ml-auto">Grade {analysisResult.grade}</span>
                   </div>
                   
                   {/* Featured CTA: AI Consultation */}
@@ -4562,7 +4579,7 @@ function CleanBIExplorerContent() {
                   <div className="grid grid-cols-2 gap-1.5">
                     <Button 
                       size="sm"
-                      className="bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-11 text-[10px] font-medium"
+                      className="bg-gradient-to-r from-[#C8A661] to-[#A8893F] hover:from-[#D8B66D] hover:to-[#C8A661] text-white min-h-11 text-[10px] font-medium"
                       onClick={() => {
                         trackEvent("cleanbi_cta_funding", "engagement", undefined, { 
                           address: analysisResult.address,
@@ -4604,108 +4621,157 @@ function CleanBIExplorerContent() {
             )}
             </AnimatePresence>
 
-            {/* Map Layers - Compact */}
-            <div className="px-3 py-2 border-b border-white/10">
-              <div className="flex items-center gap-2 mb-2">
-                <Layers className="w-3.5 h-3.5 text-[#b8860b]" />
-                <span className="text-xs font-medium text-white">Map Layers</span>
-              </div>
+            {/* Map Layers - Card Section */}
+            <div className="px-4 py-3">
+              <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                {/* Gold Top Bar */}
+                <div className="h-1 bg-[#C8A661]" />
+                
+                <div className="p-3">
+                  {/* Section Header */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
+                      <Layers className="w-3.5 h-3.5 text-[#C8A661]" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Map Layers</span>
+                  </div>
 
-              <div className="space-y-2">
-                <button 
-                  onClick={() => toggleLayer("competition")}
-                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
-                  data-testid="switch-layer-competition"
-                >
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    Competition
-                  </Label>
-                  <Switch 
-                    checked={layers.competition} 
-                    onCheckedChange={() => {}}
-                    className="pointer-events-none"
-                  />
-                </button>
-                <button 
-                  onClick={() => toggleLayer("opportunities")}
-                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
-                  data-testid="switch-layer-opportunities"
-                >
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
-                    <Flame className="w-2.5 h-2.5 text-orange-500" />
-                    Opportunity Heatmap
-                  </Label>
-                  <Switch 
-                    checked={layers.opportunities} 
-                    onCheckedChange={() => {}}
-                    className="pointer-events-none"
-                  />
-                </button>
-                <button 
-                  onClick={() => toggleLayer("savedLocations")}
-                  className="flex items-center justify-between w-full min-h-11 px-2 rounded-lg hover:bg-white/5 transition-colors"
-                  data-testid="switch-layer-saved"
-                >
-                  <Label className="text-xs text-white/70 flex items-center gap-1.5 pointer-events-none">
-                    <History className="w-2.5 h-2.5 text-[#b8860b]" />
-                    Saved Locations
-                  </Label>
-                  <Switch 
-                    checked={layers.savedLocations} 
-                    onCheckedChange={() => {}}
-                    className="pointer-events-none"
-                  />
-                </button>
-              </div>
+                  {/* Layer Toggles */}
+                  <div className="space-y-1.5">
+                    <div 
+                      onClick={() => toggleLayer("competition")}
+                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
+                      data-testid="switch-layer-competition"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("competition")}
+                    >
+                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+                        Competition
+                      </Label>
+                      <Switch 
+                        checked={layers.competition} 
+                        onCheckedChange={() => toggleLayer("competition")}
+                        className="data-[state=checked]:bg-[#C8A661]"
+                      />
+                    </div>
+                    <div 
+                      onClick={() => toggleLayer("opportunities")}
+                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
+                      data-testid="switch-layer-opportunities"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("opportunities")}
+                    >
+                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                        <Flame className="w-3 h-3 text-orange-500" />
+                        Opportunity Heatmap
+                      </Label>
+                      <Switch 
+                        checked={layers.opportunities} 
+                        onCheckedChange={() => toggleLayer("opportunities")}
+                        className="data-[state=checked]:bg-[#C8A661]"
+                      />
+                    </div>
+                    <div 
+                      onClick={() => toggleLayer("savedLocations")}
+                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
+                      data-testid="switch-layer-saved"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("savedLocations")}
+                    >
+                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                        <Bookmark className="w-3 h-3 text-[#C8A661]" />
+                        Saved Locations
+                      </Label>
+                      <Switch 
+                        checked={layers.savedLocations} 
+                        onCheckedChange={() => toggleLayer("savedLocations")}
+                        className="data-[state=checked]:bg-[#C8A661]"
+                      />
+                    </div>
+                  </div>
 
-              <div className="mt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <Label className="text-xs text-white/70">Search Radius</Label>
-                  <span className="text-xs font-medium text-[#b8860b]">{searchRadius[0]} mi</span>
+                  {/* Search Radius with Presets */}
+                  <div className="mt-4 pt-3 border-t border-white/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-xs text-white/80">Search Radius</Label>
+                      <Badge variant="outline" className="text-[10px] border-[#C8A661]/50 text-[#C8A661] px-1.5">
+                        {searchRadius[0]} mi
+                      </Badge>
+                    </div>
+                    <Slider
+                      value={searchRadius}
+                      onValueChange={setSearchRadius}
+                      min={1}
+                      max={25}
+                      step={1}
+                      className="[&_[role=slider]]:bg-[#C8A661] [&_[role=slider]]:border-[#C8A661] mb-2"
+                      data-testid="slider-search-radius"
+                    />
+                    {/* Quick Preset Buttons */}
+                    <div className="flex gap-1.5 mt-2">
+                      {[3, 5, 10, 15].map((val) => (
+                        <button
+                          key={val}
+                          onClick={() => setSearchRadius([val])}
+                          className={`flex-1 text-[10px] py-1.5 rounded-md transition-colors ${
+                            searchRadius[0] === val 
+                              ? 'bg-[#C8A661] text-[#0A1628] font-medium' 
+                              : 'bg-white/5 text-white/60 hover:bg-white/10'
+                          }`}
+                          data-testid={`button-radius-${val}`}
+                        >
+                          {val} mi
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <Slider
-                  value={searchRadius}
-                  onValueChange={setSearchRadius}
-                  min={1}
-                  max={25}
-                  step={1}
-                  className="[&_[role=slider]]:bg-[#b8860b]"
-                  data-testid="slider-search-radius"
-                />
               </div>
             </div>
 
-            {/* Market Gap Finder Section - Compact */}
-            <Collapsible className="px-3 py-2 border-b border-white/10">
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-[#b8860b]" />
-                  <span className="text-xs font-medium text-white">Market Gap Finder</span>
-                  <Badge variant="outline" className="text-[8px] border-[#b8860b]/50 text-[#b8860b] px-1 py-0">NEW</Badge>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-white/50" />
-              </CollapsibleTrigger>
+            {/* Market Gap Finder Section - Card Style */}
+            <div className="px-4 py-2">
+            <Collapsible>
+              <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                {/* Gold Top Bar */}
+                <div className="h-1 bg-[#C8A661]" />
+                
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
+                      <Target className="w-3.5 h-3.5 text-[#C8A661]" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Market Gap Finder</span>
+                    <Badge variant="outline" className="text-[9px] border-[#C8A661]/50 text-[#C8A661] px-1.5 py-0">NEW</Badge>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-white/50" />
+                </CollapsibleTrigger>
               
-              <CollapsibleContent className="space-y-4" forceMount={undefined}>
+              <CollapsibleContent className="px-3 pb-3" forceMount={undefined}>
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="space-y-4"
                 >
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-white/60">
                   Find underserved areas with high renter populations and low laundromat competition.
                 </p>
 
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm text-white/70 flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#b8860b]/50 border border-[#b8860b]" />
+                <div className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+                  <Label className="text-xs text-white/80 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#C8A661]/50 border border-[#C8A661]" />
                     Show Market Gaps
                   </Label>
                   <Switch 
                     checked={showMarketGaps} 
                     onCheckedChange={setShowMarketGaps}
+                    className="data-[state=checked]:bg-[#C8A661]"
                     data-testid="switch-show-market-gaps"
                   />
                 </div>
@@ -4714,8 +4780,8 @@ function CleanBIExplorerContent() {
                   <>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <Label className="text-sm text-white/70">Gap Radius</Label>
-                        <span className="text-sm font-medium text-[#b8860b]">{gapRadius[0]} miles</span>
+                        <Label className="text-xs text-white/80">Gap Radius</Label>
+                        <Badge variant="outline" className="text-[10px] border-[#C8A661]/50 text-[#C8A661] px-1.5">{gapRadius[0]} mi</Badge>
                       </div>
                       <Slider
                         value={gapRadius}
@@ -4723,16 +4789,16 @@ function CleanBIExplorerContent() {
                         min={0.5}
                         max={5}
                         step={0.5}
-                        className="[&_[role=slider]]:bg-[#b8860b]"
+                        className="[&_[role=slider]]:bg-[#C8A661]"
                         data-testid="slider-gap-radius"
                       />
-                      <p className="text-[10px] text-white/40 mt-1">Min distance from any competitor</p>
+                      <p className="text-[10px] text-white/50 mt-1">Min distance from any competitor</p>
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <Label className="text-sm text-white/70">Min Renter %</Label>
-                        <span className="text-sm font-medium text-[#b8860b]">{minRenterPercent[0]}%</span>
+                        <Label className="text-xs text-white/80">Min Renter %</Label>
+                        <Badge variant="outline" className="text-[10px] border-[#C8A661]/50 text-[#C8A661] px-1.5">{minRenterPercent[0]}%</Badge>
                       </div>
                       <Slider
                         value={minRenterPercent}
@@ -4740,16 +4806,16 @@ function CleanBIExplorerContent() {
                         min={20}
                         max={60}
                         step={5}
-                        className="[&_[role=slider]]:bg-[#b8860b]"
+                        className="[&_[role=slider]]:bg-[#C8A661]"
                         data-testid="slider-min-renter-percent"
                       />
-                      <p className="text-[10px] text-white/40 mt-1">Areas with high renter concentration</p>
+                      <p className="text-[10px] text-white/50 mt-1">Areas with high renter concentration</p>
                     </div>
 
                     <Button 
                       onClick={findMarketGaps}
                       disabled={loadingGapAnalysis}
-                      className="w-full bg-gradient-to-r from-[#b8860b] to-[#8B6914] hover:opacity-90 text-white h-10 text-sm font-medium"
+                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-10 text-sm font-semibold"
                       data-testid="button-find-gaps"
                     >
                       {loadingGapAnalysis ? (
@@ -4767,7 +4833,7 @@ function CleanBIExplorerContent() {
 
                     {/* Gap Analysis Results Panel */}
                     {totalGapCount > 0 && areaStats && (
-                      <div className="bg-[#b8860b]/10 rounded-lg p-3 border border-[#b8860b]/30 space-y-3">
+                      <div className="bg-[#C8A661]/10 rounded-lg p-3 border border-[#C8A661]/30 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-white/70">Area Saturation</span>
                           <Badge 
@@ -4786,7 +4852,7 @@ function CleanBIExplorerContent() {
                         
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-white/5 rounded-lg p-2">
-                            <div className="text-lg font-bold text-[#b8860b]">{totalGapCount}</div>
+                            <div className="text-lg font-bold text-[#C8A661]">{totalGapCount}</div>
                             <div className="text-[10px] text-white/50">Gap Zones Found</div>
                           </div>
                           <div className="bg-white/5 rounded-lg p-2">
@@ -4809,7 +4875,7 @@ function CleanBIExplorerContent() {
                             className="space-y-2"
                           >
                             <div className="text-xs font-medium text-white flex items-center gap-1">
-                              <Star className="w-3 h-3 text-[#b8860b]" />
+                              <Star className="w-3 h-3 text-[#C8A661]" />
                               Top Opportunities
                             </div>
                             <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl p-2 max-h-32 overflow-y-auto">
@@ -4821,11 +4887,11 @@ function CleanBIExplorerContent() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.2, delay: idx * 0.05 }}
                                     onClick={() => analyzeGapZone(opp)}
-                                    className="flex items-center justify-between bg-white/5 backdrop-blur-sm border border-white/5 rounded-xl p-2 cursor-pointer hover:bg-white/10 hover:border-[#b8860b]/30 transition-all duration-200"
+                                    className="flex items-center justify-between bg-white/5 backdrop-blur-sm border border-white/5 rounded-xl p-2 cursor-pointer hover:bg-white/10 hover:border-[#C8A661]/30 transition-all duration-200"
                                     data-testid={`gap-opportunity-${idx}`}
                                   >
                                     <div className="flex items-center gap-2">
-                                      <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center text-[10px] font-bold text-white shadow-md">
+                                      <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#C8A661] to-[#A8893F] flex items-center justify-center text-[10px] font-bold text-white shadow-md">
                                         {idx + 1}
                                       </div>
                                       <div>
@@ -4836,7 +4902,7 @@ function CleanBIExplorerContent() {
                                     <Button 
                                       size="icon" 
                                       variant="ghost" 
-                                      className="min-h-11 min-w-11 text-[#b8860b] hover:bg-[#b8860b]/20 hover:text-[#d4a030]"
+                                      className="min-h-11 min-w-11 text-[#C8A661] hover:bg-[#C8A661]/20 hover:text-[#d4a030]"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         analyzeGapZone(opp);
@@ -4856,19 +4922,31 @@ function CleanBIExplorerContent() {
                 )}
                 </motion.div>
               </CollapsibleContent>
+              </div>
             </Collapsible>
+            </div>
 
-            {/* Saved Analyses History - Compact */}
-            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded} className="px-3 py-2 border-b border-white/10">
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-2">
-                <div className="flex items-center gap-1.5">
-                  <History className="w-3.5 h-3.5 text-[#b8860b]" />
-                  <span className="text-xs font-medium text-white">Your Analyses ({savedAnalyses.length})</span>
-                </div>
-                {historyExpanded ? <ChevronUp className="w-3.5 h-3.5 text-white/50" /> : <ChevronDown className="w-3.5 h-3.5 text-white/50" />}
-              </CollapsibleTrigger>
+            {/* Saved Analyses History - Card Style */}
+            <div className="px-4 py-2">
+            <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded}>
+              <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                {/* Gold Top Bar */}
+                <div className="h-1 bg-[#C8A661]" />
+                
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
+                      <History className="w-3.5 h-3.5 text-[#C8A661]" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Your Analyses</span>
+                    <Badge variant="outline" className="text-[10px] border-[#C8A661]/50 text-[#C8A661] px-1.5">
+                      {savedAnalyses.length}
+                    </Badge>
+                  </div>
+                  {historyExpanded ? <ChevronUp className="w-4 h-4 text-white/50" /> : <ChevronDown className="w-4 h-4 text-white/50" />}
+                </CollapsibleTrigger>
               
-              <CollapsibleContent>
+              <CollapsibleContent className="px-3 pb-3">
                 <AnimatePresence mode="wait">
                 {savedAnalyses.length === 0 ? (
                   <motion.div 
@@ -4876,19 +4954,19 @@ function CleanBIExplorerContent() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="text-center py-4 text-white/40 text-sm"
+                    className="text-center py-6 text-white/50 text-sm bg-white/5 rounded-lg"
                   >
-                    <MapPinned className="w-6 h-6 mx-auto mb-2" />
-                    No saved analyses yet
+                    <MapPinned className="w-8 h-8 mx-auto mb-2 text-[#C8A661]/50" />
+                    <p>No saved analyses yet</p>
+                    <p className="text-xs text-white/40 mt-1">Analyze a location to get started</p>
                   </motion.div>
                 ) : (
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl p-2 max-h-48 overflow-y-auto"
+                    className="space-y-2 max-h-48 overflow-y-auto"
                   >
-                    <div className="space-y-2">
                       {savedAnalyses.map((saved, index) => (
                         <motion.div 
                           key={saved.id}
@@ -4896,9 +4974,9 @@ function CleanBIExplorerContent() {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
                           onClick={() => loadSavedAnalysis(saved)}
-                          className="bg-white/5 backdrop-blur-sm border border-white/5 rounded-xl p-2.5 cursor-pointer hover:bg-white/10 hover:border-[#b8860b]/30 transition-all duration-200 group"
+                          className="bg-white/5 border border-white/10 rounded-lg p-2.5 cursor-pointer hover:bg-white/10 hover:border-[#C8A661]/30 transition-all duration-200 group"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5">
                             <div 
                               className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg"
                               style={{ backgroundColor: GRADE_COLORS[saved.grade] }}
@@ -4907,14 +4985,14 @@ function CleanBIExplorerContent() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="text-sm text-white truncate">{saved.address}</div>
-                              <div className="text-xs text-white/40">
+                              <div className="text-xs text-white/50">
                                 Score: {saved.cleanbiScore} · {new Date(saved.timestamp).toLocaleDateString()}
                               </div>
                             </div>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="opacity-0 group-hover:opacity-100 min-h-11 min-w-11 text-white/40 hover:text-red-400 transition-opacity"
+                              className="opacity-0 group-hover:opacity-100 min-h-9 min-w-9 text-white/40 hover:text-red-400 transition-opacity"
                               onClick={(e) => handleDeleteSaved(saved.id, e)}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -4922,73 +5000,80 @@ function CleanBIExplorerContent() {
                           </div>
                         </motion.div>
                       ))}
-                    </div>
                   </motion.div>
                 )}
                 </AnimatePresence>
               </CollapsibleContent>
+              </div>
             </Collapsible>
+            </div>
 
-            {/* Tier Comparison Panel - Collapsible Upgrade CTA */}
-            <Collapsible open={planExpanded} onOpenChange={setPlanExpanded} className="px-3 py-2 border-b border-white/10">
-              <CollapsibleTrigger className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-[#b8860b]" />
-                  <span className="text-xs font-medium text-white">Your Plan</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    className={`text-[10px] ${
-                      userTier === "enterprise" ? "bg-purple-500/20 text-purple-400 border-purple-500/30" :
-                      userTier === "pro" ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
-                      userTier === "starter" ? "bg-green-500/20 text-green-400 border-green-500/30" :
-                      "bg-white/10 text-white/60 border-white/20"
-                    }`}
-                  >
-                    {userTier === "enterprise" ? "Enterprise" :
-                     userTier === "pro" ? "Pro" :
-                     userTier === "starter" ? "Starter" : "Free"}
-                  </Badge>
-                  {planExpanded ? <ChevronUp className="w-3.5 h-3.5 text-white/50" /> : <ChevronDown className="w-3.5 h-3.5 text-white/50" />}
-                </div>
-              </CollapsibleTrigger>
+            {/* Your Plan Section - Card Style */}
+            <div className="px-4 py-2">
+            <Collapsible open={planExpanded} onOpenChange={setPlanExpanded}>
+              <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                {/* Gold Top Bar */}
+                <div className="h-1 bg-[#C8A661]" />
+                
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
+                      <Crown className="w-3.5 h-3.5 text-[#C8A661]" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Your Plan</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant="outline"
+                      className={`text-[10px] ${
+                        userTier === "enterprise" ? "border-purple-500/50 text-purple-400" :
+                        userTier === "pro" ? "border-blue-500/50 text-blue-400" :
+                        userTier === "starter" ? "border-green-500/50 text-green-400" :
+                        "border-[#C8A661]/50 text-[#C8A661]"
+                      }`}
+                    >
+                      {userTier === "enterprise" ? "Enterprise" :
+                       userTier === "pro" ? "Pro" :
+                       userTier === "starter" ? "Starter" : "Free"}
+                    </Badge>
+                    {planExpanded ? <ChevronUp className="w-4 h-4 text-white/50" /> : <ChevronDown className="w-4 h-4 text-white/50" />}
+                  </div>
+                </CollapsibleTrigger>
               
-              <CollapsibleContent>
-                <div className="mt-2 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                    <Check className="w-2.5 h-2.5 text-green-400" />
+              <CollapsibleContent className="px-3 pb-3">
+                <div className="space-y-2 bg-white/5 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-xs text-white/80">
+                    <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                     <span>Basic scoring</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                    <Check className="w-2.5 h-2.5 text-green-400" />
+                  <div className="flex items-center gap-2 text-xs text-white/80">
+                    <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                     <span>Competitor mapping</span>
                   </div>
                   {userTier !== "free" && (
                     <>
-                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                        <Check className="w-2.5 h-2.5 text-green-400" />
+                      <div className="flex items-center gap-2 text-xs text-white/80">
+                        <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                         <span>Unlimited analyses</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                        <Check className="w-2.5 h-2.5 text-green-400" />
+                      <div className="flex items-center gap-2 text-xs text-white/80">
+                        <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                         <span>Financial projections</span>
                       </div>
                     </>
                   )}
                   {(userTier === "pro" || userTier === "enterprise") && (
-                    <>
-                      <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                        <Check className="w-2.5 h-2.5 text-green-400" />
-                        <span>AI insights & Sheets export</span>
-                      </div>
-                    </>
+                    <div className="flex items-center gap-2 text-xs text-white/80">
+                      <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                      <span>AI insights & Sheets export</span>
+                    </div>
                   )}
                 </div>
                 
                 {userTier !== "enterprise" && (
                   <Button 
                     size="sm"
-                    className="w-full mt-2 bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white min-h-11 text-[10px] font-medium"
+                    className="w-full mt-3 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] min-h-10 text-xs font-semibold"
                     onClick={() => {
                       trackEvent("cleanbi_tier_upgrade_click", "conversion", undefined, {
                         currentTier: userTier,
@@ -4998,14 +5083,16 @@ function CleanBIExplorerContent() {
                     }}
                     data-testid="button-tier-upgrade"
                   >
-                    <Crown className="w-3 h-3 mr-1" />
+                    <Crown className="w-3.5 h-3.5 mr-1.5" />
                     {userTier === "free" ? "Upgrade $29/mo" :
                      userTier === "starter" ? "Go Pro $99/mo" :
                      "Enterprise $699/mo"}
                   </Button>
                 )}
               </CollapsibleContent>
+              </div>
             </Collapsible>
+            </div>
 
             {/* Search Section - Compact */}
             <div className="px-3 py-2">
@@ -5016,7 +5103,7 @@ function CleanBIExplorerContent() {
                     <span className="text-[10px] text-white/60">Daily Analysis</span>
                     <Badge 
                       variant="outline" 
-                      className={`text-[10px] ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#b8860b]/50 text-[#b8860b]"}`}
+                      className={`text-[10px] ${remainingAnalyses === 0 ? "border-red-500/50 text-red-400" : "border-[#C8A661]/50 text-[#C8A661]"}`}
                     >
                       {remainingAnalyses !== null ? (remainingAnalyses === 0 ? "Used" : "1 left") : "1/day"}
                     </Badge>
@@ -5042,10 +5129,10 @@ function CleanBIExplorerContent() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
-                className="bg-gradient-to-br from-[#b8860b]/20 to-[#8b6914]/20 backdrop-blur-md rounded-xl p-3 border border-[#b8860b]/30 shadow-xl"
+                className="bg-gradient-to-br from-[#C8A661]/20 to-[#A8893F]/20 backdrop-blur-md rounded-xl p-3 border border-[#C8A661]/30 shadow-xl"
               >
                 <div className="text-xs font-medium text-white mb-2 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#b8860b]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#C8A661]" />
                   Analyze Any Location
                 </div>
                 
@@ -5069,7 +5156,7 @@ function CleanBIExplorerContent() {
                 {/* Address Field */}
                 <div className="mb-2">
                   <label className="block text-[10px] font-medium text-white/60 mb-1">
-                    Street Address <span className="text-[#b8860b]">*</span>
+                    Street Address <span className="text-[#C8A661]">*</span>
                   </label>
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
@@ -5087,7 +5174,7 @@ function CleanBIExplorerContent() {
                 <Button 
                   onClick={analyzeLocation}
                   disabled={isAnalyzing || !address.trim()}
-                  className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-9 text-xs font-medium disabled:opacity-50 shadow-xl"
+                  className="w-full bg-gradient-to-r from-[#C8A661] to-[#A8893F] hover:from-[#D8B66D] hover:to-[#C8A661] text-white h-9 text-xs font-medium disabled:opacity-50 shadow-xl"
                   data-testid="button-analyze-location"
                 >
                   {isAnalyzing ? (
@@ -5108,7 +5195,7 @@ function CleanBIExplorerContent() {
             {/* Footer - Compact */}
             <div className="px-3 py-2 border-t border-white/10 mt-auto backdrop-blur-sm">
               <div className="flex items-center gap-1.5 text-[10px] text-white/30">
-                <Sparkles className="w-2.5 h-2.5 text-[#b8860b]" />
+                <Sparkles className="w-2.5 h-2.5 text-[#C8A661]" />
                 <span>CLEANBI™ Proprietary</span>
               </div>
             </div>
@@ -5120,7 +5207,7 @@ function CleanBIExplorerContent() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="absolute top-56 right-0 translate-x-full z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl"
+                className="absolute top-56 right-0 translate-x-full z-30 w-7 h-14 bg-gradient-to-b from-[#C8A661] to-[#A8893F] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#D8B66D] hover:to-[#C8A661] transition-all shadow-xl"
                 data-testid="button-toggle-sidebar"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -5131,11 +5218,11 @@ function CleanBIExplorerContent() {
           {/* Resizable Handle - Gold/Amber themed */}
           {sidebarOpen && (
             <ResizableHandle
-              className="w-1.5 bg-[#b8860b]/20 hover:bg-[#b8860b]/50 active:bg-[#b8860b] transition-colors data-[resize-handle-active]:bg-[#b8860b] relative group"
+              className="w-1.5 bg-[#C8A661]/20 hover:bg-[#C8A661]/50 active:bg-[#C8A661] transition-colors data-[resize-handle-active]:bg-[#C8A661] relative group"
               data-testid="sidebar-resize-handle"
             >
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-[#b8860b]/30 group-hover:bg-[#b8860b]/60 transition-colors" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-[#b8860b]/40 group-hover:bg-[#b8860b] transition-colors" />
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-[#C8A661]/30 group-hover:bg-[#C8A661]/60 transition-colors" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-[#C8A661]/40 group-hover:bg-[#C8A661] transition-colors" />
             </ResizableHandle>
           )}
 
@@ -5149,7 +5236,7 @@ function CleanBIExplorerContent() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   onClick={() => setSidebarOpen(true)}
-                  className="absolute top-56 left-0 z-30 w-7 h-14 bg-gradient-to-b from-[#b8860b] to-[#8b6914] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#d4a030] hover:to-[#b8860b] transition-all shadow-xl"
+                  className="absolute top-56 left-0 z-30 w-7 h-14 bg-gradient-to-b from-[#C8A661] to-[#A8893F] border border-[#d4a030]/50 rounded-r-lg flex items-center justify-center text-white hover:from-[#D8B66D] hover:to-[#C8A661] transition-all shadow-xl"
                   data-testid="button-toggle-sidebar-open"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -5174,16 +5261,16 @@ function CleanBIExplorerContent() {
               data-testid="market-gap-legend"
             >
               <div className="text-xs font-semibold text-white mb-3 flex items-center gap-1.5" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                <Target className="w-4 h-4 text-[#b8860b]" />
+                <Target className="w-4 h-4 text-[#C8A661]" />
                 Market Gap Legend
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-[#b8860b]/30 border border-[#b8860b]" />
+                  <div className="w-4 h-4 rounded-full bg-[#C8A661]/30 border border-[#C8A661]" />
                   <span className="text-[11px] text-white/70">Gap Zones (high renters, low competition)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-[#b8860b] fill-[#b8860b]" />
+                  <Star className="w-4 h-4 text-[#C8A661] fill-[#C8A661]" />
                   <span className="text-[11px] text-white/70">Top Opportunity Locations</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -5294,7 +5381,7 @@ function CleanBIExplorerContent() {
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-[#b8860b] animate-spin" />
+                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-[#C8A661] animate-spin" />
                     <p className="text-white/70 font-medium">Loading 3D aerial view...</p>
                     <p className="text-white/40 text-sm mt-2">Generating cinematic flyover for {analysisResult?.address}</p>
                   </div>
@@ -5338,7 +5425,7 @@ function CleanBIExplorerContent() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3 }}
-              className="relative w-full max-w-md bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] rounded-2xl overflow-hidden border border-[#b8860b]/30 shadow-2xl backdrop-blur-md"
+              className="relative w-full max-w-md bg-gradient-to-br from-[#1e3a5f] to-[#0f1d2f] rounded-2xl overflow-hidden border border-[#C8A661]/30 shadow-2xl backdrop-blur-md"
             >
               <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
               
@@ -5350,7 +5437,7 @@ function CleanBIExplorerContent() {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className="inline-flex items-center justify-center w-24 h-24 rounded-2xl text-4xl font-bold text-white mb-4 shadow-xl border border-white/10"
-                    style={{ backgroundColor: GRADE_COLORS[pendingAnalysis.grade] || "#b8860b", fontFamily: "'Bebas Neue', sans-serif" }}
+                    style={{ backgroundColor: GRADE_COLORS[pendingAnalysis.grade] || "#C8A661", fontFamily: "'Bebas Neue', sans-serif" }}
                     data-testid="badge-pending-grade"
                   >
                     {pendingAnalysis.grade}
@@ -5383,7 +5470,7 @@ function CleanBIExplorerContent() {
                   <Button 
                     type="submit" 
                     disabled={emailSubmitting || !captureEmail.trim()}
-                    className="w-full bg-gradient-to-r from-[#b8860b] to-[#8b6914] hover:from-[#d4a030] hover:to-[#b8860b] text-white h-12 text-lg font-medium shadow-xl"
+                    className="w-full bg-gradient-to-r from-[#C8A661] to-[#A8893F] hover:from-[#D8B66D] hover:to-[#C8A661] text-white h-12 text-lg font-medium shadow-xl"
                     data-testid="button-unlock-analysis"
                   >
                     {emailSubmitting ? (
@@ -5442,7 +5529,7 @@ function CleanBIExplorerContent() {
           >
             <SheetHeader className="pb-4 border-b border-white/10">
               <SheetTitle className="text-white flex items-center gap-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                <Target className="w-5 h-5 text-[#b8860b]" />
+                <Target className="w-5 h-5 text-[#C8A661]" />
                 Competitor Analysis
               </SheetTitle>
               <SheetDescription className="text-white/60 font-medium">
@@ -5458,7 +5545,7 @@ function CleanBIExplorerContent() {
                 className="flex flex-col items-center justify-center py-16 space-y-4"
               >
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#b8860b] to-[#8b6914] flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#A8893F] flex items-center justify-center shadow-xl">
                     <Loader2 className="w-10 h-10 text-white animate-spin" />
                   </div>
                 </div>
@@ -5479,7 +5566,7 @@ function CleanBIExplorerContent() {
                   </div>
                   <div 
                     className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-white shadow-lg"
-                    style={{ backgroundColor: GRADE_COLORS[competitorAnalysis.grade] || "#b8860b" }}
+                    style={{ backgroundColor: GRADE_COLORS[competitorAnalysis.grade] || "#C8A661" }}
                   >
                     {competitorAnalysis.grade}
                   </div>
@@ -5501,9 +5588,9 @@ function CleanBIExplorerContent() {
 
                 {/* Comparison with Primary Location */}
                 {analysisResult && (
-                  <div className="bg-gradient-to-br from-[#b8860b]/10 to-transparent rounded-xl p-4 border border-[#b8860b]/20">
+                  <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-xl p-4 border border-[#C8A661]/20">
                     <div className="flex items-center gap-2 mb-3">
-                      <Scale className="w-4 h-4 text-[#b8860b]" />
+                      <Scale className="w-4 h-4 text-[#C8A661]" />
                       <span className="text-sm font-medium text-white">vs Your Location</span>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
@@ -5689,11 +5776,11 @@ function CleanBIExplorerContent() {
                     
                     {/* Opportunity Callout */}
                     {competitorAnalysis.sentiment.negativeThemes.length > 0 && (
-                      <div className="bg-[#b8860b]/10 rounded-lg p-2 border border-[#b8860b]/20">
+                      <div className="bg-[#C8A661]/10 rounded-lg p-2 border border-[#C8A661]/20">
                         <div className="flex items-start gap-2">
-                          <Lightbulb className="w-4 h-4 text-[#b8860b] mt-0.5 shrink-0" />
+                          <Lightbulb className="w-4 h-4 text-[#C8A661] mt-0.5 shrink-0" />
                           <p className="text-xs text-white/70">
-                            <span className="text-[#b8860b] font-medium">Opportunity:</span> Customers complain about {competitorAnalysis.sentiment.negativeThemes[0]?.toLowerCase()}. 
+                            <span className="text-[#C8A661] font-medium">Opportunity:</span> Customers complain about {competitorAnalysis.sentiment.negativeThemes[0]?.toLowerCase()}. 
                             Excel here to win their business.
                           </p>
                         </div>
@@ -5716,11 +5803,11 @@ function CleanBIExplorerContent() {
                       </div>
                     </div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <Lock className="w-5 h-5 text-[#b8860b] mb-1" />
+                      <Lock className="w-5 h-5 text-[#C8A661] mb-1" />
                       <p className="text-xs text-white/70 mb-2">Sentiment Analysis</p>
                       <Button 
                         size="sm"
-                        className="bg-[#b8860b] hover:bg-[#d4a030] text-black text-xs"
+                        className="bg-[#C8A661] hover:bg-[#d4a030] text-black text-xs"
                         onClick={() => setShowUpgradeModal(true)}
                         data-testid="button-unlock-sentiment"
                       >
@@ -5734,7 +5821,7 @@ function CleanBIExplorerContent() {
                 {/* Action Buttons */}
                 <div className="space-y-2">
                   <Button 
-                    className="w-full bg-[#b8860b] hover:bg-[#b8860b]/90 text-white"
+                    className="w-full bg-[#C8A661] hover:bg-[#C8A661]/90 text-white"
                     onClick={() => {
                       if (competitorAnalysis) {
                         setAddress(competitorAnalysis.address);

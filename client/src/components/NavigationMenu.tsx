@@ -32,7 +32,7 @@ import {
   BookOpen, GraduationCap, HelpCircle, Wallet,
   BarChart3, Zap, Landmark, Factory, CreditCard, 
   Briefcase, TrendingUp, PiggyBank, Receipt, Users,
-  LineChart, PieChart
+  LineChart, PieChart, Calendar
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
@@ -62,6 +62,7 @@ const RESOURCES_LINKS = [
   { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 72K+ owners", featured: true },
   { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice", featured: true },
   { href: "/blog", label: "Industry Blog", icon: BookOpen, desc: "News & insights" },
+  { href: "/events", label: "Industry Events", icon: Calendar, desc: "Trade shows & conferences" },
   { href: "/courses", label: "Education Hub", icon: GraduationCap, desc: "Courses & training" },
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
 ];
@@ -102,23 +103,23 @@ function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
       type="button"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={`group w-full text-left flex items-center justify-between px-4 py-2.5 rounded-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#b8860b]/50 ${
+      className={`group w-full text-left flex items-center justify-between px-4 py-2.5 rounded-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50 ${
         featured 
-          ? 'bg-[#b8860b]/5 hover:bg-[#b8860b]/10' 
-          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+          ? 'bg-[#C8A661]/10 hover:bg-[#C8A661]/20' 
+          : 'hover:bg-muted'
       }`}
       data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
       aria-label={`Navigate to ${label}`}
     >
       <div className="flex-1 min-w-0">
-        <span className={`block text-sm font-medium ${featured ? 'text-[#b8860b]' : 'text-gray-900 dark:text-gray-100'}`}>
+        <span className={`block text-sm font-medium ${featured ? 'text-[#C8A661]' : 'text-foreground'}`}>
           {label}
         </span>
         {desc && (
-          <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">{desc}</span>
         )}
       </div>
-      <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
     </button>
   );
 }
@@ -251,7 +252,7 @@ export function NavigationMenu() {
         </div>
 
         {/* Main nav bar - Premium Navy with clear hierarchy */}
-        <div className="bg-[#1e3a5f] border-b border-[#2a4a73]">
+        <div className="bg-background border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-16 flex items-center justify-between gap-6">
               {/* Logo */}
@@ -268,7 +269,7 @@ export function NavigationMenu() {
                   width={40}
                   height={40}
                 />
-                <span className="hidden sm:block text-white font-bold text-lg tracking-tight">
+                <span className="hidden sm:block text-foreground font-bold text-lg tracking-tight">
                   WashBizHub
                 </span>
               </Link>
@@ -280,7 +281,7 @@ export function NavigationMenu() {
                     {/* Products */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
                         data-testid="dropdown-products"
                       >
                         Products
@@ -290,10 +291,10 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
                         >
-                          <div className="mb-2 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-border">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                               Intelligence Tools
                             </span>
                           </div>
@@ -309,7 +310,7 @@ export function NavigationMenu() {
                     {/* Calculators */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
                         data-testid="dropdown-calculators"
                       >
                         Calculators
@@ -319,10 +320,10 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[360px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[360px] p-3 bg-popover rounded-xl shadow-xl border border-border"
                         >
-                          <div className="mb-2 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-border">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                               Professional Calculators
                             </span>
                           </div>
@@ -338,7 +339,7 @@ export function NavigationMenu() {
                     {/* Marketplace */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
                         data-testid="dropdown-marketplace"
                       >
                         Marketplace
@@ -348,10 +349,10 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
                         >
-                          <div className="mb-2 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-border">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                               Buy & Sell
                             </span>
                           </div>
@@ -367,7 +368,7 @@ export function NavigationMenu() {
                     {/* Resources */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
                         data-testid="dropdown-resources"
                       >
                         Resources
@@ -377,10 +378,10 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
                         >
-                          <div className="mb-2 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-border">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                               Learn & Grow
                             </span>
                           </div>
@@ -396,7 +397,7 @@ export function NavigationMenu() {
                     {/* Funding - 7 Lending Partners */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-white/90 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
                         data-testid="dropdown-funding"
                       >
                         Funding
@@ -406,10 +407,10 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[380px] p-3 bg-white rounded-xl shadow-xl border border-gray-100"
+                          className="w-[380px] p-3 bg-popover rounded-xl shadow-xl border border-border"
                         >
-                          <div className="mb-2 pb-2 border-b border-gray-100">
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-border">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                               7 Trusted Lending Partners
                             </span>
                           </div>
@@ -426,7 +427,7 @@ export function NavigationMenu() {
                     <NavigationMenuItem>
                       <button
                         onClick={() => window.location.href = '/pricing'}
-                        className="h-10 px-4 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md inline-flex items-center transition-colors"
+                        className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted rounded-md inline-flex items-center transition-colors"
                         data-testid="link-nav-pricing"
                       >
                         Pricing
@@ -441,7 +442,7 @@ export function NavigationMenu() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex h-9 w-9 text-white/70 hover:text-white hover:bg-white/10"
+                  className="hidden md:flex h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted"
                   onClick={() => setSearchOpen(!searchOpen)}
                   aria-label="Search"
                   data-testid="button-search"
@@ -452,7 +453,7 @@ export function NavigationMenu() {
                 {/* Primary CTA - Gold CLEANBI button */}
                 <Button 
                   onClick={() => window.location.href = '/cleanbi-explorer'}
-                  className="hidden sm:flex h-10 px-5 font-semibold bg-gradient-to-r from-[#b8860b] to-[#d4a017] hover:from-[#9a7209] hover:to-[#b8860b] text-white border-0 shadow-lg shadow-[#b8860b]/25 transition-all duration-300"
+                  className="hidden sm:flex h-10 px-5 font-semibold bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] border-0 shadow-lg shadow-[#C8A661]/25 transition-all duration-300"
                   data-testid="button-cleanbi-cta"
                 >
                   <Zap className="w-4 h-4 mr-2" />
@@ -465,7 +466,7 @@ export function NavigationMenu() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="lg:hidden h-10 w-10 text-white/80 hover:text-white hover:bg-white/10" 
+                      className="lg:hidden h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted" 
                       data-testid="button-mobile-menu"
                     >
                       <AnimatePresence mode="wait" initial={false}>
