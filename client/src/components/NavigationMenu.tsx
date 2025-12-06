@@ -58,6 +58,8 @@ const MARKETPLACE_LINKS = [
 ];
 
 const RESOURCES_LINKS = [
+  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 72K+ owners", featured: true },
+  { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice", featured: true },
   { href: "/blog", label: "Industry Blog", icon: BookOpen, desc: "News & insights" },
   { href: "/courses", label: "Education Hub", icon: GraduationCap, desc: "Courses & training" },
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
