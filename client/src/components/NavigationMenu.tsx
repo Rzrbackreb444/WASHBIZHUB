@@ -139,10 +139,10 @@ function MobileNavLink({ href, label, isActive, onClick, testId }: {
     <button
       type="button"
       onClick={handleClick}
-      className={`w-full text-left flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+      className={`w-full text-left flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50 ${
         isActive 
-          ? "bg-primary/10 text-primary font-medium" 
-          : "text-foreground/80 hover:bg-muted hover:text-foreground"
+          ? "bg-[#C8A661]/20 text-[#C8A661] font-medium" 
+          : "text-white/80 hover:bg-white/10 hover:text-white"
       }`}
       data-testid={testId}
       aria-current={isActive ? "page" : undefined}
@@ -481,15 +481,15 @@ export function NavigationMenu() {
                       </AnimatePresence>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px] sm:w-[340px] p-0">
-                    <SheetHeader className="p-4 border-b bg-[#1e3a5f]">
+                  <SheetContent side="right" className="w-[300px] sm:w-[340px] p-0 bg-[#0f2744] border-l border-[#1e3a5f]">
+                    <SheetHeader className="p-4 border-b border-white/10 bg-[#1e3a5f]">
                       <SheetTitle className="flex items-center gap-3 text-white">
                         <img src={logoUrl} alt="" className="h-8 w-auto" />
                         <span className="font-bold">WashBizHub</span>
                       </SheetTitle>
                     </SheetHeader>
                     
-                    <div className="p-4 space-y-4">
+                    <div className="p-4 space-y-4 bg-[#0f2744] text-white min-h-full">
                       {/* Mobile CLEANBI CTA - Full width, prominent */}
                       <Button 
                         onClick={() => {
@@ -521,8 +521,8 @@ export function NavigationMenu() {
                         value={openAccordions}
                         onValueChange={setOpenAccordions}
                       >
-                        <AccordionItem value="products" className="border-b border-border/50">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                        <AccordionItem value="products" className="border-b border-white/20">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
                             Products
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
@@ -541,8 +541,8 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="calculators" className="border-b border-border/50">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                        <AccordionItem value="calculators" className="border-b border-white/20">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
                             Calculators
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
@@ -561,8 +561,8 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="marketplace" className="border-b border-border/50">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                        <AccordionItem value="marketplace" className="border-b border-white/20">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
                             Marketplace
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
@@ -581,8 +581,8 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="resources" className="border-b border-border/50">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                        <AccordionItem value="resources" className="border-b border-white/20">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
                             Resources
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
@@ -601,8 +601,8 @@ export function NavigationMenu() {
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="funding" className="border-b border-border/50">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3">
+                        <AccordionItem value="funding" className="border-b border-white/20">
+                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
                             Funding
                           </AccordionTrigger>
                           <AccordionContent className="pb-2">
@@ -629,14 +629,14 @@ export function NavigationMenu() {
                           closeMobileMenu();
                           window.location.href = '/pricing';
                         }}
-                        className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50"
                         data-testid="link-mobile-pricing"
                       >
                         <span>Pricing</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                        <ChevronRight className="w-4 h-4 text-white/50" aria-hidden="true" />
                       </button>
 
-                      <div className="pt-4 border-t">
+                      <div className="pt-4 border-t border-white/20">
                         {isAuthenticated && user ? (
                           <div className="space-y-2">
                             <button
@@ -645,14 +645,14 @@ export function NavigationMenu() {
                                 closeMobileMenu();
                                 window.location.href = '/account/subscription';
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50"
                               data-testid="link-mobile-subscription"
                             >
                               {user.email}
                             </button>
                             <Button
                               variant="ghost"
-                              className="w-full h-10 justify-start text-sm"
+                              className="w-full h-10 justify-start text-sm text-white/80 hover:text-white hover:bg-white/10"
                               onClick={() => {
                                 logout();
                                 closeMobileMenu();
@@ -666,7 +666,7 @@ export function NavigationMenu() {
                         ) : (
                           <Button 
                             variant="outline" 
-                            className="w-full h-10 text-sm"
+                            className="w-full h-10 text-sm border-white/30 text-white hover:bg-white/10 hover:text-white"
                             onClick={() => {
                               closeMobileMenu();
                               window.location.href = '/api/login';
