@@ -12,10 +12,12 @@ import {
 import {
   BookOpen, Clock, CheckCircle, PlayCircle, GraduationCap, Users,
   Award, TrendingUp, Star, Trophy, Target, Zap, Video, FileText,
-  BarChart3, Filter, ArrowRight
+  BarChart3, Filter, ArrowRight, Lock
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FeatureGate } from "@/components/monetization/FeatureGate";
 
 interface Course {
   id: string;
@@ -57,6 +59,7 @@ const COURSE_CATEGORIES = [
 export default function Courses() {
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const { hasFeatureAccess } = useSubscription();
 
   const { data: courses = [], isLoading: coursesLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
@@ -67,6 +70,7 @@ export default function Courses() {
     queryKey: ["/api/enrollments", userId],
   });
 
+  const hasMembershipAccess = hasFeatureAccess("courses-access").hasAccess;
   const isEnrolled = (courseId: string) => enrollments.some(e => e.courseId === courseId);
   const getEnrollmentProgress = (courseId: string) => {
     const enrollment = enrollments.find(e => e.courseId === courseId);
@@ -706,18 +710,28 @@ export default function Courses() {
                                 <PlayCircle className="w-4 h-4 mr-2" />
                                 Continue
                               </Button>
-                            ) : (
+                            ) : hasMembershipAccess ? (
                               <>
                                 <span className="text-xl font-black text-primary">
                                   ${parseFloat(course.price).toFixed(0)}
                                 </span>
                                 <Link href={`/courses/${course.id}`}>
-                                  <Button>
+                                  <Button data-testid={`button-view-course-${course.id}`}>
                                     <BookOpen className="w-4 h-4 mr-2" />
                                     View Course
                                   </Button>
                                 </Link>
                               </>
+                            ) : (
+                              <div className="w-full">
+                                <Link href="/pricing">
+                                  <Button variant="outline" className="w-full border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10" data-testid={`button-unlock-course-${course.id}`}>
+                                    <Lock className="w-4 h-4 mr-2" />
+                                    Unlock with Starter
+                                  </Button>
+                                </Link>
+                                <p className="text-xs text-muted-foreground text-center mt-1">Starting at $29/mo</p>
+                              </div>
                             )}
                           </CardFooter>
                         </Card>

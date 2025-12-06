@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { Book, Lock, CheckCircle, ChevronRight, Calculator, Star, Shield, Zap, Award } from "lucide-react";
 
 interface BookChapter {
@@ -28,6 +30,7 @@ export default function BookPage() {
   const { toast } = useToast();
   const [selectedChapter, setSelectedChapter] = useState<BookChapter | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const { hasFeatureAccess } = useSubscription();
 
   const userId = "user-123";
 
@@ -40,7 +43,8 @@ export default function BookPage() {
     enabled: !!userId,
   });
 
-  const hasAccess = !!bookAccess;
+  const hasMembershipAccess = hasFeatureAccess("book-access").hasAccess;
+  const hasAccess = !!bookAccess || hasMembershipAccess;
 
   const purchaseMutation = useMutation({
     mutationFn: async () => {

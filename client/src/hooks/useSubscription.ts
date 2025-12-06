@@ -25,39 +25,63 @@ const TIER_MIGRATION: Record<string, SubscriptionTier> = {
 };
 
 const FEATURE_TIERS: Record<string, SubscriptionTier> = {
-  // POS Features
+  // ============================================
+  // FREE TIER - Lead Generation & Discovery
+  // ============================================
+  // Marketplace - Browse and list for free (lead gen)
+  "marketplace-browse": "free",
+  "marketplace-list": "free",
+  
+  // Funding Hub - View lenders for free (lead gen)
+  "funding-view": "free",
+  
+  // Forum - Read access free (community building)
+  "forum-read": "free",
+  
+  // Blog & Help - Always free (SEO & trust)
+  "blog-access": "free",
+  "help-center": "free",
+  
+  // CLEANBI - 3 free analyses (taste of value)
+  "cleanbi-preview": "free",
+  
+  // Basic calculators - Limited preview
+  "calculators-basic": "free",
+  
+  // Equipment optimizer - Preview only
+  "equipment-optimizer-preview": "free",
+  
+  // Competitor analysis - Limited preview
+  "competitor-preview": "free",
+  
+  // AI Council - Trial/limited
+  "ai-council-trial": "free",
+  
+  // POS - Basic features free
   "pos-basic": "free",
   "pos-orders": "free",
-  "pos-customers": "starter",
-  "pos-machines": "starter",
-  "pos-routes": "pro",
-  "pos-analytics": "pro",
-  "pos-inventory": "pro",
   
-  // CLEANBI Features
-  "cleanbi-preview": "free",
-  "cleanbi-full": "starter",
-  "cleanbi-unlimited": "pro",
-  "cleanbi-api": "enterprise",
-  "cleanbi-bulk": "enterprise",
+  // ============================================
+  // STARTER TIER ($29/mo) - Member Benefits
+  // ============================================
+  // Book & Courses - Members only
+  "book-access": "starter",
+  "courses-access": "starter",
   
-  // Equipment Mix Optimizer
-  "equipment-optimizer-preview": "free",
-  "equipment-optimizer-basic": "starter",
-  "equipment-optimizer-full": "pro",
-  "equipment-optimizer-portfolio": "enterprise",
+  // Forum - Post access (members can engage)
+  "forum-post": "starter",
   
-  // Competitor Analysis
-  "competitor-preview": "free",
-  "competitor-full": "starter",
-  "competitor-unlimited": "pro",
-  
-  // Calculators
-  "calculators-basic": "free",
+  // Calculator Hub - Full suite access
   "calculators-all": "starter",
-  "calculators-advanced": "pro",
-  "calculators-export": "pro",
-  "calculators-white-label": "enterprise",
+  
+  // CLEANBI - Full analysis access
+  "cleanbi-full": "starter",
+  
+  // Competitor Analysis - Full access
+  "competitor-full": "starter",
+  
+  // Equipment Optimizer - Basic features
+  "equipment-optimizer-basic": "starter",
   
   // Business Plan Generator
   "business-plan-generator": "starter",
@@ -65,51 +89,113 @@ const FEATURE_TIERS: Record<string, SubscriptionTier> = {
   // Templates & Downloads
   "templates-premium": "starter",
   
-  // Bulk Analysis
-  "bulk-analysis": "enterprise",
-  
-  // AI Consultation Council
-  "ai-council-trial": "free",
+  // AI Consultation Council - Basic
   "ai-council-basic": "starter",
-  "ai-council-unlimited": "pro",
-  "ai-council-priority": "enterprise",
   
-  // Revenue Forecaster
+  // Revenue Forecaster - Basic
   "revenue-forecaster": "starter",
-  "revenue-forecaster-seasonality": "pro",
-  "revenue-forecaster-multi": "enterprise",
   
-  // What-If Simulator
+  // What-If Simulator - Basic
   "whatif-basic": "starter",
-  "whatif-unlimited": "pro",
-  "whatif-portfolio": "enterprise",
   
-  // Due Diligence
-  "due-diligence": "pro",
-  "due-diligence-bulk": "enterprise",
-  
-  // Marketplace Listings
-  "marketplace-browse": "free",
-  "marketplace-list": "free",
+  // Marketplace - Inquire about listings
   "marketplace-inquire": "starter",
-  "marketplace-featured": "pro",
-  "marketplace-broker": "enterprise",
   
-  // Funding Matcher
-  "funding-view": "free",
+  // Funding - Match with lenders
   "funding-match": "starter",
   "funding_gauge": "starter",
   "funding_chart": "starter",
+  
+  // POS - Customer & machine features
+  "pos-customers": "starter",
+  "pos-machines": "starter",
+  
+  // Priority support
+  "priority-support": "starter",
+  
+  // ============================================
+  // PRO TIER ($99/mo) - Power Users & Brokers
+  // ============================================
+  // Advanced calculators with export
+  "calculators-advanced": "pro",
+  "calculators-export": "pro",
+  
+  // CLEANBI - Unlimited analyses
+  "cleanbi-unlimited": "pro",
+  
+  // Competitor - Unlimited
+  "competitor-unlimited": "pro",
+  
+  // Equipment Optimizer - Full
+  "equipment-optimizer-full": "pro",
+  
+  // AI Council - Unlimited
+  "ai-council-unlimited": "pro",
+  
+  // Revenue Forecaster - Advanced
+  "revenue-forecaster-seasonality": "pro",
+  
+  // What-If Simulator - Unlimited
+  "whatif-unlimited": "pro",
+  
+  // Due Diligence Toolkit
+  "due-diligence": "pro",
+  
+  // Marketplace - Featured listings
+  "marketplace-featured": "pro",
+  
+  // Funding - Priority matching
   "funding-priority": "pro",
+  
+  // POS - Advanced features
+  "pos-routes": "pro",
+  "pos-analytics": "pro",
+  "pos-inventory": "pro",
+  
+  // Website Builder
+  "website-builder": "pro",
+  
+  // Multi-location support
+  "multi-location": "pro",
+  
+  // AI Consultant
+  "ai-consultant": "pro",
+  
+  // ============================================
+  // ENTERPRISE TIER ($699/mo) - Brokers & Operators
+  // ============================================
+  // Bulk analysis
+  "bulk-analysis": "enterprise",
+  "cleanbi-bulk": "enterprise",
+  "cleanbi-api": "enterprise",
+  
+  // Equipment Portfolio
+  "equipment-optimizer-portfolio": "enterprise",
+  
+  // AI Council - Priority
+  "ai-council-priority": "enterprise",
+  
+  // Revenue Forecaster - Multi-location
+  "revenue-forecaster-multi": "enterprise",
+  
+  // What-If - Portfolio
+  "whatif-portfolio": "enterprise",
+  
+  // Due Diligence - Bulk
+  "due-diligence-bulk": "enterprise",
+  
+  // Marketplace - Broker features
+  "marketplace-broker": "enterprise",
+  
+  // Funding - Direct access
   "funding-direct": "enterprise",
   
-  // Legacy features
-  "ai-consultant": "pro",
-  "ai-blog-generator": "enterprise",
-  "website-builder": "pro",
-  "multi-location": "pro",
-  "priority-support": "starter",
+  // White-label & Calculators
+  "calculators-white-label": "enterprise",
   "white-label": "enterprise",
+  
+  // AI Blog Generator
+  "ai-blog-generator": "enterprise",
 };
 
 export function useSubscription() {

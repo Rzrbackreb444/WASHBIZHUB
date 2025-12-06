@@ -38,7 +38,7 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
-import { LegalDisclaimer } from "@/components/LegalDisclaimer";
+import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 const MANUFACTURERS = [
@@ -485,7 +485,7 @@ export default function ServiceGuyAI() {
         </Card>
 
         {/* Educational Disclaimer */}
-        <LegalDisclaimer variant="compact" className="mb-8" />
+        <ServiceDisclaimer className="mb-8" />
 
         <Tabs defaultValue="error-codes" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">

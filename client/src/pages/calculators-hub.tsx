@@ -4,6 +4,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import {
   Calculator, DollarSign, TrendingUp, Zap, Users, 
   BarChart3, PieChart, LineChart, ArrowRight, Sparkles,
@@ -357,6 +358,12 @@ export default function CalculatorsHub() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </section>
+
+        <section className="py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <CalculatorDisclaimer />
           </div>
         </section>
 
