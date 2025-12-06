@@ -7,12 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Sparkles, Plus, Loader2, ArrowRight } from "lucide-react";
+import { FileText, Sparkles, Plus, Loader2, ArrowRight, WashingMachine, Wrench, DollarSign, Building2, MapPin, BookOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { defaultBlogImages, laundromatImages } from "@/lib/laundromat-images";
+import { equipmentBlogs } from "@/data/equipment-blogs";
 
 export default function Blog() {
   const [activeTab, setActiveTab] = useState("browse");
@@ -228,6 +229,65 @@ export default function Blog() {
           </TabsList>
 
           <TabsContent value="browse">
+            {/* Featured Equipment Guides Section */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <WashingMachine className="h-8 w-8 text-[#C8A661]" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Equipment Buying Guides</h2>
+                    <p className="text-white/60 text-sm">Expert guides on commercial laundry equipment</p>
+                  </div>
+                </div>
+                <Link href="/equipment/blog">
+                  <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10" data-testid="link-view-all-equipment-guides">
+                    View All <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {equipmentBlogs.map((blog, index) => {
+                  const IconComponent = blog.subcategory === 'retool' ? Wrench :
+                    blog.subcategory === 'comparison' ? BookOpen :
+                    blog.subcategory === 'hospitality' ? Building2 :
+                    blog.subcategory === 'pricing' ? DollarSign : MapPin;
+                  return (
+                    <Link key={blog.slug} href={`/equipment/blog/${blog.slug}`}>
+                      <Card className="bg-gradient-to-br from-[#0A1628] to-[#1a3a5c] border-[#C8A661]/30 hover:border-[#C8A661] transition-all cursor-pointer h-full overflow-hidden group" data-testid={`card-equipment-guide-${index}`}>
+                        {/* Thumbnail Image */}
+                        <div className="relative h-24 overflow-hidden">
+                          <img 
+                            src={blog.featuredImage} 
+                            alt={blog.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/50 to-transparent" />
+                          <Badge className="absolute bottom-2 left-2 bg-[#C8A661]/90 text-[#0A1628] text-xs">
+                            {blog.subcategory === 'retool' ? 'Retool' :
+                             blog.subcategory === 'comparison' ? 'Compare' :
+                             blog.subcategory === 'hospitality' ? 'Hotels' :
+                             blog.subcategory === 'pricing' ? 'Pricing' : 'Texas'}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-3">
+                          <h3 className="text-white font-semibold text-sm line-clamp-2 mb-1">{blog.title.split(':')[0]}</h3>
+                          <p className="text-white/60 text-xs line-clamp-2">{blog.excerpt.slice(0, 60)}...</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex-1 h-px bg-white/20" />
+              <span className="text-white/60 text-sm font-medium">Community Posts</span>
+              <div className="flex-1 h-px bg-white/20" />
+            </div>
+
             {isLoading ? (
               <div className="flex justify-center items-center py-20">
                 <Loader2 className="h-12 w-12 text-accent animate-spin" />
@@ -236,7 +296,7 @@ export default function Blog() {
               <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardContent className="py-20 text-center">
                   <FileText className="h-16 w-16 text-white/30 mx-auto mb-4" />
-                  <p className="text-white/60">No blog posts yet. Create your first one!</p>
+                  <p className="text-white/60">No community posts yet. Create your first one!</p>
                 </CardContent>
               </Card>
             ) : (
