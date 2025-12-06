@@ -108,6 +108,24 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **React Hook Form + Zod:** Form validation.
 - **@vis.gl/react-google-maps:** Google Maps integration.
 
+### LegalDisclaimer Component (`client/src/components/LegalDisclaimer.tsx`)
+Reusable legal disclaimer component for legal protection across the platform. Available types:
+- **service:** Equipment repair/maintenance warnings (Service Guy AI, repair tools)
+- **calculator:** Informational-only disclaimers (ROI, Loan, Utility, Labor calculators)
+- **valuation:** Professional appraisal required (Valuation Calculator)
+- **investment:** Financial advisor consultation (CLEANBI Explorer, ROI Calculator)
+- **general:** Neutral platform disclaimer (default)
+
+**Convenience Components:**
+- `<ServiceDisclaimer />` - For service/repair pages
+- `<CalculatorDisclaimer />` - For calculator pages
+- `<ValuationDisclaimer />` - For valuation tools
+- `<InvestmentDisclaimer />` - For investment analysis tools
+
+**Usage:** Import from `@/components/LegalDisclaimer` and place at bottom of relevant pages.
+
+**Note:** CLEANBI Explorer has a separate product-specific disclaimer in `client/src/components/cleanbi-explorer/legal-disclaimer.tsx`.
+
 ### Third-Party Integrations
 - **Amazon Affiliate Program:** Product Advertising API 5.0.
 - **ATTOM Data:** Real estate and demographic data.
