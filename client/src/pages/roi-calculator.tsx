@@ -371,33 +371,36 @@ export default function ROICalculator() {
 
         <PremiumCalculatorEngine config={roiCalculatorConfig} />
 
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-                <Lightbulb className="h-8 w-8 text-accent" />
+        <section className="py-16 md:py-20 bg-muted/30">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 md:mb-14">
+              <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="h-6 w-6 text-[#C8A661]" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
                 Professional ROI Tips
               </h2>
-              <p className="text-white/70 max-w-2xl mx-auto">
+              <p className="text-muted-foreground max-w-2xl mx-auto">
                 Expert insights to maximize your laundromat investment returns
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {proTips.map((tip, index) => (
                 <Card 
                   key={index} 
-                  className="bg-white/5 backdrop-blur border-white/10 hover-elevate"
+                  className="bg-card border shadow-sm overflow-hidden hover-elevate"
                   data-testid={`card-tip-${index}`}
                 >
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg bg-accent/20">
-                        <tip.icon className="h-6 w-6 text-accent" />
+                      <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                        <tip.icon className="h-6 w-6 text-[#C8A661]" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white mb-2">{tip.title}</h3>
-                        <p className="text-sm text-white/70">{tip.description}</p>
+                        <h3 className="font-semibold text-foreground mb-2">{tip.title}</h3>
+                        <p className="text-sm text-muted-foreground">{tip.description}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -405,16 +408,21 @@ export default function ROICalculator() {
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black py-16">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <Card className="bg-white/5 backdrop-blur border-white/10">
-              <CardHeader>
-                <CardTitle className="text-white text-2xl flex items-center gap-3">
-                  <HelpCircle className="h-7 w-7 text-accent" />
-                  Frequently Asked Questions About Laundromat ROI
-                </CardTitle>
+        <section className="py-16 md:py-20 bg-background">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-foreground text-xl md:text-2xl">
+                    Frequently Asked Questions About Laundromat ROI
+                  </CardTitle>
+                </div>
               </CardHeader>
               <CardContent>
                 <Accordion type="single" collapsible className="w-full">
@@ -422,13 +430,13 @@ export default function ROICalculator() {
                     <AccordionItem 
                       key={index} 
                       value={`faq-${index}`} 
-                      className="border-white/10"
+                      className="border-border"
                       data-testid={`accordion-faq-${index}`}
                     >
-                      <AccordionTrigger className="text-white/90 hover:text-white text-left">
+                      <AccordionTrigger className="text-foreground hover:text-foreground text-left">
                         {faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="text-white/70">
+                      <AccordionContent className="text-muted-foreground">
                         {faq.answer}
                       </AccordionContent>
                     </AccordionItem>
@@ -437,11 +445,11 @@ export default function ROICalculator() {
               </CardContent>
             </Card>
 
-            <div className="mt-8 max-w-4xl mx-auto">
+            <div className="mt-8">
               <InvestmentDisclaimer />
             </div>
           </div>
-        </div>
+        </section>
       </FeatureGate>
     </AuthGuard>
   );

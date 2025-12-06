@@ -5,11 +5,7 @@ import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  WASHBIZHUB_GRADIENTS, 
-  WASHBIZHUB_TYPOGRAPHY,
-  WASHBIZHUB_SEO_DEFAULTS
-} from "@/lib/design-system";
+import { WASHBIZHUB_SEO_DEFAULTS } from "@/lib/design-system";
 import { 
   Users, CheckCircle, Lightbulb, DollarSign, Clock,
   Calendar, Target, BarChart3, Scale, TrendingUp, AlertTriangle, Info
@@ -181,14 +177,14 @@ const laborCalculatorConfig: PremiumCalculatorConfig = {
       title: "Labor Cost Breakdown",
       dataKeys: ["baseWages", "payrollTaxes", "benefitsCost"],
       labels: ["Base Wages", "Payroll Taxes", "Benefits"],
-      colors: ["#C8A661", "#1e3a5f", "#22C55E"],
+      colors: ["#C8A661", "#0A1628", "#1a3a5c"],
     },
     {
       type: "bar",
       title: "Cost Comparison",
       dataKeys: ["baseWages", "payrollTaxes", "benefitsCost"],
       labels: ["Base Wages", "Payroll Taxes", "Benefits"],
-      colors: ["#C8A661", "#1e3a5f", "#22C55E"],
+      colors: ["#C8A661", "#0A1628", "#1a3a5c"],
     },
   ],
   comparisonOutputs: ["baseWages", "payrollTaxes", "benefitsCost"],
@@ -348,7 +344,7 @@ export default function LaborCalculator() {
         ]}
       />
 
-      <div className={`min-h-screen ${WASHBIZHUB_GRADIENTS.primary}`}>
+      <div className="min-h-screen bg-background">
         <div className="bg-muted/30 border-b">
           <div className="mx-auto max-w-7xl px-6 py-3">
             <Breadcrumb items={[
@@ -360,14 +356,17 @@ export default function LaborCalculator() {
 
         <PremiumCalculatorEngine config={laborCalculatorConfig} />
 
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
           <div className="max-w-7xl mx-auto space-y-12">
             
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="bg-white/5 backdrop-blur border-white/10">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <BarChart3 className="w-5 h-5 text-accent" />
+                  <CardTitle className="flex items-center gap-3 text-foreground">
+                    <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-[#C8A661]" />
+                    </div>
                     Industry Benchmarks
                   </CardTitle>
                 </CardHeader>
@@ -375,24 +374,14 @@ export default function LaborCalculator() {
                   {INDUSTRY_BENCHMARKS.map((benchmark, index) => (
                     <div 
                       key={index} 
-                      className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10"
+                      className="flex items-center justify-between gap-4 p-4 rounded-lg bg-muted/50 border"
                       data-testid={`benchmark-${index}`}
                     >
-                      <div className="flex-1">
-                        <h4 className="text-white font-medium">{benchmark.type}</h4>
-                        <p className="text-sm text-white/60">{benchmark.description}</p>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-foreground font-medium">{benchmark.type}</h4>
+                        <p className="text-sm text-muted-foreground">{benchmark.description}</p>
                       </div>
-                      <Badge 
-                        className={`ml-4 ${
-                          benchmark.status === 'optimal' 
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                            : benchmark.status === 'acceptable'
-                            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                            : benchmark.status === 'wdf'
-                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                            : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                        }`}
-                      >
+                      <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 shrink-0">
                         {benchmark.laborPercent}
                       </Badge>
                     </div>
@@ -400,10 +389,13 @@ export default function LaborCalculator() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/5 backdrop-blur border-white/10">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <Lightbulb className="w-5 h-5 text-accent" />
+                  <CardTitle className="flex items-center gap-3 text-foreground">
+                    <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <Lightbulb className="w-5 h-5 text-[#C8A661]" />
+                    </div>
                     Optimization Strategies
                   </CardTitle>
                 </CardHeader>
@@ -411,20 +403,20 @@ export default function LaborCalculator() {
                   {OPTIMIZATION_STRATEGIES.map((strategy, index) => (
                     <div 
                       key={index} 
-                      className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10"
+                      className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border"
                       data-testid={`strategy-${index}`}
                     >
-                      <div className="p-2 rounded-lg bg-accent/20">
-                        <strategy.icon className="w-4 h-4 text-accent" />
+                      <div className="h-9 w-9 rounded-lg bg-[#0A1628] flex items-center justify-center shrink-0">
+                        <strategy.icon className="w-4 h-4 text-[#C8A661]" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-white font-medium text-sm">{strategy.title}</h4>
-                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-xs">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h4 className="text-foreground font-medium text-sm">{strategy.title}</h4>
+                          <Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661] text-xs shrink-0">
                             {strategy.savings}
                           </Badge>
                         </div>
-                        <p className="text-xs text-white/60 mt-1">{strategy.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{strategy.description}</p>
                       </div>
                     </div>
                   ))}
@@ -432,50 +424,55 @@ export default function LaborCalculator() {
               </Card>
             </div>
 
-            <Alert className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
-              <Info className="w-5 h-5 text-accent" />
-              <AlertTitle className="text-white font-semibold">Pro Tip: The 60/40 Rule</AlertTitle>
-              <AlertDescription className="text-white/80">
+            <Alert className="bg-card border shadow-sm">
+              <div className="h-9 w-9 rounded-lg bg-[#0A1628] flex items-center justify-center shrink-0">
+                <Info className="w-4 h-4 text-[#C8A661]" />
+              </div>
+              <AlertTitle className="text-foreground font-semibold ml-3">Pro Tip: The 60/40 Rule</AlertTitle>
+              <AlertDescription className="text-muted-foreground ml-3">
                 In a typical laundromat, 60% of your daily turns happen during peak hours (9am-2pm and 5pm-8pm). 
                 Staff 60% of your labor hours during these periods and 40% during off-peak times. This aligns 
-                your costs with revenue generation and can reduce labor expenses by 20-30%.
+                your costs with revenue generation and can reduce labor expenses by <span className="text-[#C8A661] font-semibold">20-30%</span>.
               </AlertDescription>
             </Alert>
 
-            <Card className="bg-white/5 backdrop-blur border-white/10">
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <TrendingUp className="w-5 h-5 text-accent" />
+                <CardTitle className="flex items-center gap-3 text-foreground">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-[#C8A661]" />
+                  </div>
                   Labor Cost Formula Reference
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <h4 className="text-accent font-mono font-semibold mb-2">Monthly Labor Cost</h4>
-                      <p className="text-white/80 font-mono text-sm">
+                    <div className="p-4 rounded-lg bg-muted/50 border">
+                      <h4 className="text-[#C8A661] font-mono font-semibold mb-2">Monthly Labor Cost</h4>
+                      <p className="text-muted-foreground font-mono text-sm">
                         = (Hourly Wage × Hours/Week × Employees × 4.33)
                         <br />× (1 + Tax Rate + Benefits Rate)
                       </p>
                     </div>
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <h4 className="text-accent font-mono font-semibold mb-2">Labor % of Revenue</h4>
-                      <p className="text-white/80 font-mono text-sm">
+                    <div className="p-4 rounded-lg bg-muted/50 border">
+                      <h4 className="text-[#C8A661] font-mono font-semibold mb-2">Labor % of Revenue</h4>
+                      <p className="text-muted-foreground font-mono text-sm">
                         = (Monthly Labor Cost ÷ Monthly Revenue) × 100
                       </p>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <h4 className="text-accent font-mono font-semibold mb-2">Effective Hourly Rate</h4>
-                      <p className="text-white/80 font-mono text-sm">
+                    <div className="p-4 rounded-lg bg-muted/50 border">
+                      <h4 className="text-[#C8A661] font-mono font-semibold mb-2">Effective Hourly Rate</h4>
+                      <p className="text-muted-foreground font-mono text-sm">
                         = Monthly Labor Cost ÷ Total Monthly Hours
                       </p>
                     </div>
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <h4 className="text-accent font-mono font-semibold mb-2">Cost per Employee</h4>
-                      <p className="text-white/80 font-mono text-sm">
+                    <div className="p-4 rounded-lg bg-muted/50 border">
+                      <h4 className="text-[#C8A661] font-mono font-semibold mb-2">Cost per Employee</h4>
+                      <p className="text-muted-foreground font-mono text-sm">
                         = Monthly Labor Cost ÷ Number of Employees
                       </p>
                     </div>
@@ -485,29 +482,41 @@ export default function LaborCalculator() {
             </Card>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <Card className="bg-emerald-500/10 backdrop-blur border-emerald-500/30">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardContent className="pt-6 text-center">
-                  <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Optimal (10-15%)</h3>
-                  <p className="text-sm text-white/70">
+                  <div className="h-14 w-14 rounded-full bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-7 h-7 text-[#C8A661]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Optimal</h3>
+                  <p className="text-2xl font-bold text-[#C8A661] mb-3">10-15%</p>
+                  <p className="text-sm text-muted-foreground">
                     Self-service laundromats with efficient automation and minimal staffing requirements.
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-amber-500/10 backdrop-blur border-amber-500/30">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardContent className="pt-6 text-center">
-                  <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Acceptable (20-30%)</h3>
-                  <p className="text-sm text-white/70">
+                  <div className="h-14 w-14 rounded-full bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="w-7 h-7 text-[#C8A661]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Acceptable</h3>
+                  <p className="text-2xl font-bold text-[#C8A661] mb-3">20-30%</p>
+                  <p className="text-sm text-muted-foreground">
                     Wash-dry-fold operations with higher service levels and customer interaction.
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-red-500/10 backdrop-blur border-red-500/30">
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardContent className="pt-6 text-center">
-                  <Scale className="w-10 h-10 text-red-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">High (&gt;30%)</h3>
-                  <p className="text-sm text-white/70">
+                  <div className="h-14 w-14 rounded-full bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                    <Scale className="w-7 h-7 text-[#C8A661]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">High</h3>
+                  <p className="text-2xl font-bold text-[#C8A661] mb-3">&gt;30%</p>
+                  <p className="text-sm text-muted-foreground">
                     Requires immediate optimization. Review scheduling, automation, and staffing levels.
                   </p>
                 </CardContent>

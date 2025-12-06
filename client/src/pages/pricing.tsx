@@ -316,23 +316,11 @@ export default function Pricing() {
       />
 
       <div className="min-h-screen bg-background">
-        {/* Premium Gradient Hero Section */}
+        {/* Hero Section */}
         <section 
-          className="relative py-16 sm:py-24 lg:py-32 overflow-hidden"
+          className="relative py-16 sm:py-24 lg:py-32 overflow-hidden bg-[#0A1628]"
           aria-labelledby="pricing-hero-title"
         >
-          {/* Stripe-inspired mesh gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#1e3a5f] to-[#0f1d30]" />
-          <div 
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage: `
-                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(200, 166, 97, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(184, 134, 11, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse 40% 30% at 50% 80%, rgba(212, 160, 48, 0.15) 0%, transparent 50%)
-              `
-            }}
-          />
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
@@ -406,7 +394,7 @@ export default function Pricing() {
                   Annual
                 </span>
                 {isAnnual && (
-                  <Badge className="bg-[#b8860b]/20 text-[#C8A661] border-[#b8860b]/30 text-xs">
+                  <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 text-xs">
                     Save up to 17%
                   </Badge>
                 )}
@@ -425,7 +413,7 @@ export default function Pricing() {
                 Buyer Intelligence Plans
               </a>
               <span className="text-muted-foreground">|</span>
-              <a href="#seller-plans" className="text-emerald-600 hover:underline font-medium flex items-center gap-1">
+              <a href="#seller-plans" className="text-[#C8A661] hover:underline font-medium flex items-center gap-1">
                 <Store className="h-3 w-3" />
                 Seller Listing Plans
               </a>
@@ -453,7 +441,7 @@ export default function Pricing() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-start">
               {tiers.map((tier, index) => {
                 const Icon = tier.icon;
                 const displayPrice = getDisplayPrice(tier);
@@ -462,19 +450,20 @@ export default function Pricing() {
                 return (
                   <Card 
                     key={tier.id}
-                    className={`relative bg-white dark:bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                    className={`relative bg-card border shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
                       tier.popular 
-                        ? 'ring-2 ring-[#C8A661] shadow-xl lg:scale-105 z-10' 
-                        : 'shadow-lg'
+                        ? 'border-[#C8A661] border-2' 
+                        : ''
                     }`}
                     data-testid={`card-plan-${tier.id}`}
                     role="article"
                     aria-label={`${tier.name} plan - ${tier.price === 0 ? 'Free' : `$${displayPrice} per month`}`}
                   >
+                    <div className={`${tier.popular ? 'h-2 bg-[#C8A661]' : 'h-1 bg-[#C8A661]'}`} />
                     {tier.badge && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
                         <Badge 
-                          className={`${tier.badgeColor} shadow-lg px-3 py-1`}
+                          className="bg-[#C8A661] text-[#0A1628] shadow-lg px-3 py-1"
                           data-testid={`badge-${tier.id}`}
                         >
                           <Star className="h-3 w-3 mr-1" aria-hidden="true" />
@@ -485,10 +474,10 @@ export default function Pricing() {
                     
                     <CardHeader className="text-center pb-4 pt-6">
                       <div 
-                        className={`mx-auto mb-4 p-3 rounded-xl ${tier.iconBg} w-fit transition-transform duration-300 hover:scale-110`}
+                        className="mx-auto mb-4 p-3 rounded-lg bg-[#0A1628] w-fit transition-transform duration-300 hover:scale-110"
                         aria-hidden="true"
                       >
-                        <Icon className={`h-6 w-6 ${tier.iconColor}`} />
+                        <Icon className="h-6 w-6 text-[#C8A661]" />
                       </div>
                       
                       <CardTitle className="text-xl font-bold text-foreground mb-1">
@@ -500,11 +489,11 @@ export default function Pricing() {
                       
                       <div className="my-4" aria-label={`Price: ${tier.price === 0 ? 'Free' : `$${displayPrice} per month`}`}>
                         {tier.price === 0 ? (
-                          <span className="text-4xl font-bold text-foreground">FREE</span>
+                          <span className="text-4xl font-bold text-[#C8A661]">FREE</span>
                         ) : (
                           <div className="flex flex-col items-center">
                             <div className="flex items-baseline gap-1">
-                              <span className="text-4xl font-bold text-foreground">${displayPrice}</span>
+                              <span className="text-4xl font-bold text-[#C8A661]">${displayPrice}</span>
                               <span className="text-muted-foreground">/mo</span>
                             </div>
                             {isAnnual && savingsPercent > 0 && (
@@ -512,7 +501,7 @@ export default function Pricing() {
                                 <span className="text-xs text-muted-foreground line-through">
                                   ${tier.price}/mo
                                 </span>
-                                <Badge variant="secondary" className="text-xs bg-[#b8860b]/10 text-[#b8860b] dark:bg-[#b8860b]/20 dark:text-[#C8A661]">
+                                <Badge variant="secondary" className="text-xs bg-[#C8A661]/10 text-[#C8A661]">
                                   Save {savingsPercent}%
                                 </Badge>
                               </div>
@@ -530,12 +519,9 @@ export default function Pricing() {
                         <Button 
                           className={`w-full group ${
                             tier.popular 
-                              ? 'bg-[#C8A661] hover:bg-[#B8964D] text-white' 
-                              : tier.ctaVariant === 'outline' 
-                                ? '' 
-                                : 'bg-primary hover:bg-primary/90'
+                              ? 'bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]' 
+                              : 'bg-[#0A1628] hover:bg-[#1a3a5c] text-white'
                           }`}
-                          variant={tier.ctaVariant}
                           data-testid={`button-cta-${tier.id}`}
                           aria-label={`${tier.cta} for ${tier.name} plan`}
                         >
@@ -548,12 +534,12 @@ export default function Pricing() {
                       <p className="text-xs text-muted-foreground text-center mt-2" data-testid={`text-cc-${tier.id}`}>
                         {tier.price === 0 ? (
                           <span className="flex items-center justify-center gap-1">
-                            <Gift className="h-3 w-3 text-[#b8860b]" aria-hidden="true" />
+                            <Gift className="h-3 w-3 text-[#C8A661]" aria-hidden="true" />
                             No credit card required
                           </span>
                         ) : (
                           <span className="flex items-center justify-center gap-1">
-                            <Shield className="h-3 w-3 text-[#b8860b]" aria-hidden="true" />
+                            <Shield className="h-3 w-3 text-[#C8A661]" aria-hidden="true" />
                             30-day money-back guarantee
                           </span>
                         )}
@@ -580,9 +566,7 @@ export default function Pricing() {
                             className="flex items-start gap-2.5 text-sm"
                           >
                             <Check 
-                              className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                                feature.highlight ? 'text-[#C8A661]' : 'text-[#b8860b]'
-                              }`} 
+                              className="h-4 w-4 mt-0.5 flex-shrink-0 text-[#C8A661]" 
                               aria-hidden="true"
                             />
                             <span className={feature.highlight ? 'font-medium text-foreground' : 'text-muted-foreground'}>
@@ -613,10 +597,10 @@ export default function Pricing() {
                 return (
                   <div 
                     key={index}
-                    className="flex flex-col items-center text-center p-4 sm:p-6 bg-background rounded-xl border border-border"
+                    className="flex flex-col items-center text-center p-4 sm:p-6 bg-card rounded-xl border shadow-sm"
                   >
-                    <div className="p-3 rounded-full bg-primary/10 mb-3">
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" aria-hidden="true" />
+                    <div className="p-3 rounded-lg bg-[#0A1628] mb-3">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#C8A661]" aria-hidden="true" />
                     </div>
                     <span className="text-sm font-semibold text-foreground">{badge.label}</span>
                     <span className="text-xs text-muted-foreground mt-1">{badge.sublabel}</span>
@@ -642,7 +626,7 @@ export default function Pricing() {
               </p>
             </div>
             
-            <Card className="overflow-hidden shadow-lg">
+            <Card className="bg-card border shadow-sm overflow-hidden">
               <div 
                 className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
                 role="region"
@@ -729,13 +713,13 @@ export default function Pricing() {
 
         {/* Seller Listing Plans Section */}
         <section 
-          className="py-16 sm:py-24 bg-gradient-to-br from-[#1e3a5f]/5 to-[#C8A661]/5"
+          className="py-16 sm:py-24 bg-muted/30"
           aria-labelledby="listing-tiers-title"
           id="seller-plans"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-12">
-              <Badge className="mb-4 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                 <Store className="h-3 w-3 mr-1.5" aria-hidden="true" />
                 Seller Listing Plans
               </Badge>
@@ -754,23 +738,24 @@ export default function Pricing() {
                 return (
                   <Card 
                     key={tier.id}
-                    className={`relative flex flex-col ${tier.popular ? 'border-[#C8A661] ring-2 ring-[#C8A661]/20' : ''}`}
+                    className={`relative flex flex-col bg-card border shadow-sm overflow-hidden ${tier.popular ? 'border-[#C8A661] border-2' : ''}`}
                   >
+                    <div className={`${tier.popular ? 'h-2 bg-[#C8A661]' : 'h-1 bg-[#C8A661]'}`} />
                     {tier.badge && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className={tier.badgeColor}>
+                        <Badge className="bg-[#C8A661] text-[#0A1628]">
                           {tier.badge}
                         </Badge>
                       </div>
                     )}
                     <CardHeader className="text-center pb-4">
-                      <div className={`w-12 h-12 rounded-xl ${tier.iconBg} flex items-center justify-center mx-auto mb-3`}>
-                        <TierIcon className={`w-6 h-6 ${tier.iconColor}`} />
+                      <div className="w-12 h-12 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+                        <TierIcon className="w-6 h-6 text-[#C8A661]" />
                       </div>
                       <CardTitle className="text-lg">{tier.name}</CardTitle>
                       <CardDescription className="text-xs">{tier.tagline}</CardDescription>
                       <div className="mt-3">
-                        <span className="text-3xl font-bold">${tier.price}</span>
+                        <span className="text-3xl font-bold text-[#C8A661]">${tier.price}</span>
                         {tier.price > 0 && <span className="text-muted-foreground">/mo</span>}
                       </div>
                     </CardHeader>
@@ -781,7 +766,7 @@ export default function Pricing() {
                           className={`flex items-start gap-2 text-sm ${feature.highlight ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
                         >
                           {feature.included ? (
-                            <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${feature.highlight ? 'text-[#C8A661]' : 'text-green-500'}`} />
+                            <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#C8A661]" />
                           ) : (
                             <X className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted-foreground/30" />
                           )}
@@ -802,8 +787,7 @@ export default function Pricing() {
                     <div className="p-4 pt-0">
                       <Link href="/listing-form">
                         <Button 
-                          className="w-full"
-                          variant={tier.ctaVariant as "default" | "outline" | "secondary"}
+                          className={`w-full ${tier.popular ? 'bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]' : 'bg-[#0A1628] hover:bg-[#1a3a5c] text-white'}`}
                           data-testid={`button-listing-tier-${tier.id}`}
                         >
                           {tier.cta}
@@ -827,12 +811,12 @@ export default function Pricing() {
 
         {/* Testimonials Section */}
         <section 
-          className="py-16 sm:py-24 bg-muted/30"
+          className="py-16 sm:py-24"
           aria-labelledby="testimonials-title"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-12">
-              <Badge className="mb-4 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30">
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                 <Users className="h-3 w-3 mr-1.5" aria-hidden="true" />
                 Customer Success Stories
               </Badge>
@@ -848,8 +832,9 @@ export default function Pricing() {
               {testimonials.map((testimonial, index) => (
                 <Card 
                   key={index}
-                  className="bg-background hover:shadow-lg transition-shadow"
+                  className="bg-card border shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                 >
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardContent className="p-6">
                     <Quote className="h-8 w-8 text-[#C8A661]/30 mb-4" aria-hidden="true" />
                     <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -857,7 +842,7 @@ export default function Pricing() {
                     </p>
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary"
+                        className="w-10 h-10 rounded-lg bg-[#0A1628] flex items-center justify-center text-sm font-semibold text-[#C8A661]"
                         aria-hidden="true"
                       >
                         {testimonial.avatar}
@@ -881,11 +866,14 @@ export default function Pricing() {
 
         {/* FAQs Section */}
         <section 
-          className="py-16 sm:py-24"
+          className="py-16 sm:py-24 bg-muted/30"
           aria-labelledby="faq-title"
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-12">
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                FAQs
+              </Badge>
               <h2 id="faq-title" className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
                 Frequently Asked Questions
               </h2>
@@ -898,7 +886,7 @@ export default function Pricing() {
               {extendedFaqs.map((faq, idx) => (
                 <Card 
                   key={idx}
-                  className="hover:shadow-md transition-shadow"
+                  className="bg-card border shadow-sm hover:shadow-md transition-shadow"
                   role="listitem"
                 >
                   <CardHeader className="pb-2">
@@ -935,19 +923,9 @@ export default function Pricing() {
 
         {/* Final CTA Section */}
         <section 
-          className="py-16 sm:py-24 bg-gradient-to-br from-[#1e3a5f] via-[#1e3a5f] to-[#0f1d30] relative overflow-hidden"
+          className="py-16 sm:py-24 bg-[#0A1628]"
           aria-labelledby="final-cta-title"
         >
-          <div 
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `
-                radial-gradient(ellipse 60% 40% at 30% 50%, rgba(200, 166, 97, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse 50% 30% at 70% 60%, rgba(184, 134, 11, 0.3) 0%, transparent 50%)
-              `
-            }}
-            aria-hidden="true"
-          />
           
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 
@@ -965,7 +943,7 @@ export default function Pricing() {
               <Link href="/cleanbi-explorer">
                 <Button 
                   size="lg"
-                  className="bg-[#C8A661] hover:bg-[#B8964D] text-white px-8 group min-h-12"
+                  className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] px-8 group min-h-12"
                   data-testid="button-final-cta-primary"
                 >
                   Start Free Analysis
@@ -998,7 +976,7 @@ export default function Pricing() {
         >
           <Link href="/cleanbi-explorer">
             <Button 
-              className="w-full bg-[#C8A661] hover:bg-[#B8964D] text-white min-h-12"
+              className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] min-h-12"
               data-testid="button-sticky-cta"
             >
               Start Free Analysis
@@ -1017,7 +995,7 @@ export default function Pricing() {
 function renderFeatureValue(value: boolean | string, isPopular: boolean) {
   if (typeof value === 'boolean') {
     return value ? (
-      <Check className="w-5 h-5 text-[#b8860b] mx-auto" aria-label="Included" />
+      <Check className="w-5 h-5 text-[#C8A661] mx-auto" aria-label="Included" />
     ) : (
       <Lock className="w-4 h-4 text-muted-foreground/40 mx-auto" aria-label="Not included" />
     );

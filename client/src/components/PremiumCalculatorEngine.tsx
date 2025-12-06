@@ -367,7 +367,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
               </Tooltip>
             )}
           </Label>
-          <Badge variant="secondary" className="font-mono text-sm px-3 bg-sky-500/15 text-sky-400 border-sky-500/30 font-semibold">
+          <Badge variant="outline" className="font-mono text-sm px-3 bg-[#C8A661]/15 text-[#C8A661] border-[#C8A661]/30 font-semibold">
             {displayValue}
           </Badge>
         </div>
@@ -472,28 +472,29 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
         <div className="h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" opacity={0.5} />
               <XAxis 
                 type="number" 
                 tickFormatter={formatCurrency}
-                stroke="#9CA3AF"
+                stroke="#6B7280"
                 fontSize={12}
               />
               <YAxis 
                 type="category" 
                 dataKey="name" 
                 width={100}
-                stroke="#9CA3AF"
+                stroke="#6B7280"
                 fontSize={12}
               />
               <RechartsTooltip
                 formatter={(value: number) => [formatValue(value, 'currency', 0), 'Value']}
                 contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: '1px solid #374151',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #E5E7EB',
                   borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 }}
-                labelStyle={{ color: '#F9FAFB' }}
+                labelStyle={{ color: '#0A1628' }}
               />
               <Bar 
                 dataKey="value" 
@@ -517,12 +518,12 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
           ))}
         </div>
 
-        <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+        <Card className="bg-muted/50 border">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Average Valuation</p>
-                <p className="text-2xl font-bold text-primary">{formatValue(avgValue, 'currency', 0)}</p>
+                <p className="text-2xl font-bold text-[#C8A661]">{formatValue(avgValue, 'currency', 0)}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Valuation Range</p>
@@ -572,10 +573,12 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
             <RechartsTooltip
               formatter={(value: number) => [formatValue(value, 'currency', 0), 'Value']}
               contentStyle={{
-                backgroundColor: '#1F2937',
-                border: '1px solid #374151',
+                backgroundColor: '#ffffff',
+                border: '1px solid #E5E7EB',
                 borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
+              labelStyle={{ color: '#0A1628' }}
             />
             <Legend />
           </RechartsPie>
@@ -585,45 +588,48 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 md:py-16">
+    <div className="min-h-screen bg-muted/30 py-8 md:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
-          <Badge className="mb-4 bg-accent/20 text-accent border-accent/30 text-sm">
+          <Badge variant="outline" className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 text-sm">
             <Sparkles className="w-3.5 h-3.5 mr-1.5" />
             {config.category}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight" data-testid="text-calculator-title">
+          <h1 className="text-3xl md:text-5xl font-black text-foreground mb-4 tracking-tight" data-testid="text-calculator-title">
             {config.name}
           </h1>
-          <p className="text-lg text-white/70 max-w-3xl mx-auto" data-testid="text-calculator-description">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto" data-testid="text-calculator-description">
             {config.description}
           </p>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
           <div className="lg:col-span-2">
-            <Card className="bg-white/5 backdrop-blur border-white/10 sticky top-4">
-              <CardHeader className="border-b border-white/10 pb-4">
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <Calculator className="w-5 h-5 text-accent" />
+            <Card className="bg-card border shadow-sm overflow-hidden sticky top-4">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardHeader className="border-b pb-4">
+                <CardTitle className="flex items-center gap-3 text-foreground">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <Calculator className="w-5 h-5 text-[#C8A661]" />
+                  </div>
                   Input Values
                 </CardTitle>
-                <CardDescription className="text-white/60">
+                <CardDescription className="text-muted-foreground">
                   Adjust the sliders or enter values below
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
                 {config.inputs.map(field => (
-                  <div key={field.name} className="text-white">
+                  <div key={field.name}>
                     {renderInput(field)}
                   </div>
                 ))}
                 
-                <Separator className="bg-white/10" />
+                <Separator />
                 
                 <Button 
                   onClick={handleCalculate} 
-                  className="w-full bg-accent hover:bg-accent/90 text-black font-bold py-6 text-lg"
+                  className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white font-bold py-6 text-lg"
                   data-testid="button-calculate"
                 >
                   <TrendingUp className="w-5 h-5 mr-2" />
@@ -634,11 +640,14 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            <Card className="bg-white/5 backdrop-blur border-white/10 overflow-hidden">
-              <CardHeader className="border-b border-white/10">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <TrendingUp className="w-5 h-5 text-accent" />
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardHeader className="border-b">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <CardTitle className="flex items-center gap-3 text-foreground">
+                    <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-[#C8A661]" />
+                    </div>
                     Results
                   </CardTitle>
                   {showResults && !isBlurred && (
@@ -647,7 +656,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                         variant="outline"
                         size="sm"
                         onClick={exportToPDF}
-                        className="border-white/20 text-white hover:bg-white/10"
+                        className="border-[#0A1628] text-[#0A1628]"
                         data-testid="button-export-pdf"
                       >
                         <Download className="w-4 h-4 mr-1.5" />
@@ -657,7 +666,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                         variant="outline"
                         size="sm"
                         onClick={() => setShowEmailDialog(true)}
-                        className="border-white/20 text-white hover:bg-white/10"
+                        className="border-[#0A1628] text-[#0A1628]"
                         data-testid="button-email-results"
                       >
                         <Mail className="w-4 h-4 mr-1.5" />
@@ -667,7 +676,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                         variant="outline"
                         size="sm"
                         onClick={exportToSheets}
-                        className="border-white/20 text-white hover:bg-white/10"
+                        className="border-[#0A1628] text-[#0A1628]"
                         data-testid="button-export-sheets"
                       >
                         <FileSpreadsheet className="w-4 h-4 mr-1.5" />
@@ -679,28 +688,31 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
               </CardHeader>
               <CardContent className="pt-6 relative">
                 {!showResults ? (
-                  <div className="text-center py-16 text-white/50">
+                  <div className="text-center py-16 text-muted-foreground">
                     <div className="relative inline-block">
-                      <Calculator className="w-20 h-20 mx-auto mb-4 opacity-30" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent" />
+                      <div className="h-20 w-20 mx-auto mb-4 rounded-2xl bg-muted/50 flex items-center justify-center">
+                        <Calculator className="w-10 h-10 text-muted-foreground/50" />
+                      </div>
                     </div>
-                    <p className="text-lg">Enter values and click Calculate to see results</p>
-                    <p className="text-sm mt-2 text-white/40">
+                    <p className="text-lg text-foreground">Enter values and click Calculate to see results</p>
+                    <p className="text-sm mt-2 text-muted-foreground">
                       Professional-grade valuation with 4 proven methodologies
                     </p>
                   </div>
                 ) : (
                   <div className="relative">
                     {isBlurred && (
-                      <div className="absolute inset-0 z-20 backdrop-blur-lg bg-black/40 flex flex-col items-center justify-center rounded-lg">
-                        <Lock className="w-12 h-12 text-accent mb-4" />
-                        <h3 className="text-xl font-bold text-white mb-2">Results Ready</h3>
-                        <p className="text-white/60 mb-4 text-center max-w-sm">
+                      <div className="absolute inset-0 z-20 backdrop-blur-lg bg-background/80 flex flex-col items-center justify-center rounded-lg">
+                        <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
+                          <Lock className="w-6 h-6 text-[#C8A661]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-foreground mb-2">Results Ready</h3>
+                        <p className="text-muted-foreground mb-4 text-center max-w-sm">
                           Click the Calculate button to reveal your detailed analysis
                         </p>
                         <Button 
                           onClick={() => setIsBlurred(false)}
-                          className="bg-accent hover:bg-accent/90 text-black font-bold"
+                          className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-bold"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Reveal Results
@@ -717,29 +729,29 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                           return (
                             <div 
                               key={output.name} 
-                              className={`p-4 rounded-xl transition-all ${
+                              className={`p-4 rounded-lg transition-all ${
                                 output.highlight 
-                                  ? 'bg-gradient-to-br from-accent/20 to-accent/5 border-2 border-accent/40 col-span-full' 
-                                  : 'bg-white/5 border border-white/10'
+                                  ? 'bg-[#C8A661]/10 border-2 border-[#C8A661]/40 col-span-full' 
+                                  : 'bg-muted/50 border border-border'
                               }`}
                             >
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-white/60">{output.label}</span>
+                                <span className="text-sm text-muted-foreground">{output.label}</span>
                                 {output.highlight && (
-                                  <Badge className="bg-accent/20 text-accent border-accent/30 text-xs">
+                                  <Badge variant="outline" className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 text-xs">
                                     <Crown className="w-3 h-3 mr-1" />
                                     Key Metric
                                   </Badge>
                                 )}
                               </div>
                               <div 
-                                className={`text-2xl font-bold ${output.highlight ? 'text-accent' : 'text-white'}`}
+                                className={`text-2xl font-bold ${output.highlight ? 'text-[#C8A661]' : 'text-foreground'}`}
                                 data-testid={`result-${output.name}`}
                               >
                                 {formatValue(value, output.format, output.decimals)}
                               </div>
                               {output.description && (
-                                <p className="text-xs text-white/40 mt-1">{output.description}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{output.description}</p>
                               )}
                             </div>
                           );
@@ -752,21 +764,24 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
             </Card>
 
             {showResults && !isBlurred && config.comparisonOutputs && (
-              <Card className="bg-white/5 backdrop-blur border-white/10">
-                <CardHeader className="border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <BarChart3 className="w-5 h-5 text-accent" />
+              <Card className="bg-card border shadow-sm overflow-hidden">
+                <div className="h-1 bg-[#C8A661]" />
+                <CardHeader className="border-b">
+                  <CardTitle className="flex items-center gap-3 text-foreground">
+                    <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-[#C8A661]" />
+                    </div>
                     Visual Comparison
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <Tabs defaultValue="bar" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-white/5 mb-6">
-                      <TabsTrigger value="bar" className="data-[state=active]:bg-accent data-[state=active]:text-black">
+                    <TabsList className="grid w-full grid-cols-2 bg-muted/50 mb-6">
+                      <TabsTrigger value="bar" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Bar Chart
                       </TabsTrigger>
-                      <TabsTrigger value="pie" className="data-[state=active]:bg-accent data-[state=active]:text-black">
+                      <TabsTrigger value="pie" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
                         <PieChart className="w-4 h-4 mr-2" />
                         Pie Chart
                       </TabsTrigger>
@@ -783,10 +798,12 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
             )}
 
             {config.tips && config.tips.length > 0 && (
-              <Card className="bg-[#0A1628] border-accent/30">
+              <Card className="bg-[#0A1628] border-[#C8A661]/30 overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-accent" />
+                  <CardTitle className="text-lg text-white flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-[#C8A661]" />
+                    </div>
                     Pro Tips & Industry Insights
                   </CardTitle>
                 </CardHeader>
@@ -794,7 +811,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                   <ul className="space-y-3">
                     {config.tips.map((tip, idx) => (
                       <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-gray-300">{tip}</span>
                       </li>
                     ))}
@@ -805,7 +822,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-6 text-white/40 text-sm">
+        <div className="mt-8 flex items-center justify-center gap-6 text-muted-foreground text-sm flex-wrap">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             <span>Bank-Grade Security</span>
@@ -822,32 +839,34 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
       </div>
 
       <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
-        <DialogContent className="bg-gray-900 border-white/10">
+        <DialogContent className="bg-card border shadow-lg">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <Mail className="w-5 h-5 text-accent" />
+            <DialogTitle className="text-foreground flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                <Mail className="w-5 h-5 text-[#C8A661]" />
+              </div>
               Email Your Results
             </DialogTitle>
-            <DialogDescription className="text-white/60">
+            <DialogDescription className="text-muted-foreground">
               We'll send you a professional PDF report with your calculator results.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label className="text-white">Email Address</Label>
+              <Label className="text-foreground">Email Address</Label>
               <Input
                 type="email"
                 placeholder="your@email.com"
                 value={emailAddress}
                 onChange={(e) => setEmailAddress(e.target.value)}
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-muted/50 border"
                 data-testid="input-email-results"
               />
             </div>
             <Button
               onClick={sendEmailResults}
               disabled={isSending}
-              className="w-full bg-accent hover:bg-accent/90 text-black font-bold"
+              className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white font-bold"
               data-testid="button-send-email"
             >
               {isSending ? (
@@ -867,37 +886,39 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
       </Dialog>
 
       <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <DialogContent className="bg-gray-900 border-white/10">
+        <DialogContent className="bg-card border shadow-lg">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-accent" />
+            <DialogTitle className="text-foreground flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                <Lock className="w-5 h-5 text-[#C8A661]" />
+              </div>
               Sign In to Export
             </DialogTitle>
-            <DialogDescription className="text-white/60">
+            <DialogDescription className="text-muted-foreground">
               Create a free account to export your results to {exportType === 'pdf' ? 'PDF' : 'Google Sheets'}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
-              <h4 className="text-accent font-semibold mb-2">Free Account Benefits:</h4>
-              <ul className="space-y-2 text-sm text-white/80">
+            <div className="bg-[#C8A661]/10 border border-[#C8A661]/30 rounded-lg p-4">
+              <h4 className="text-[#C8A661] font-semibold mb-2">Free Account Benefits:</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
                   Save unlimited calculations
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
                   Export to PDF and Google Sheets
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
                   Email reports to yourself or clients
                 </li>
               </ul>
             </div>
             <Button
               onClick={() => window.location.href = '/api/login'}
-              className="w-full bg-accent hover:bg-accent/90 text-black font-bold"
+              className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-bold"
             >
               Sign In / Create Account
               <ArrowRight className="w-4 h-4 ml-2" />
