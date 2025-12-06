@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { getResendClient } from '../resend-client';
+import { db } from '../db';
+import { feedbackSubmissions } from '@shared/schema';
+import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -99,6 +102,26 @@ Submitted via WashBizHub Feedback Form
 ${new Date().toLocaleString()}
     `;
     
+    // Save to database
+    let savedFeedback;
+    try {
+      const userId = (req as any).user?.claims?.sub || (req as any).session?.userId;
+      [savedFeedback] = await db.insert(feedbackSubmissions).values({
+        userId: userId || null,
+        name: data.name,
+        email: data.email,
+        category: data.category,
+        subject: data.subject,
+        message: data.message,
+        page: data.page || null,
+        status: 'new',
+      }).returning();
+      console.log(`✅ Feedback saved to database: ${savedFeedback.id}`);
+    } catch (dbError: any) {
+      console.error(`⚠️ Failed to save feedback to database: ${dbError.message}`);
+    }
+    
+    // Send email notification
     try {
       const resend = getResendClient();
       await resend.emails.send({
@@ -117,7 +140,7 @@ ${new Date().toLocaleString()}
     res.json({
       success: true,
       message: 'Thank you for your feedback! We appreciate your input.',
-      feedbackId: 'feedback-' + Date.now(),
+      feedbackId: savedFeedback?.id || 'feedback-' + Date.now(),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -125,6 +148,118 @@ ${new Date().toLocaleString()}
     }
     console.error('Feedback submission error:', error);
     res.status(500).json({ error: 'Failed to submit feedback. Please try again.' });
+  }
+});
+
+// Admin: Get all feedback submissions
+router.get('/admin/list', async (req, res) => {
+  try {
+    const userId = (req as any).user?.claims?.sub || (req as any).session?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    // Check if user is admin (simple check by email for now)
+    const adminEmails = ['nick@washbizhub.com', 'thelaundromatfb@gmail.com', 'rzrbackreb444@gmail.com'];
+    const { users } = await import('@shared/schema');
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user || (!user.isAdmin && !adminEmails.includes(user.email.toLowerCase()))) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const feedbacks = await db
+      .select()
+      .from(feedbackSubmissions)
+      .orderBy(desc(feedbackSubmissions.createdAt))
+      .limit(100);
+    
+    res.json(feedbacks);
+  } catch (error: any) {
+    console.error('Error fetching feedback:', error);
+    res.status(500).json({ error: 'Failed to fetch feedback' });
+  }
+});
+
+// Admin: Update feedback status
+router.patch('/admin/:id', async (req, res) => {
+  try {
+    const userId = (req as any).user?.claims?.sub || (req as any).session?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    // Check if user is admin
+    const adminEmails = ['nick@washbizhub.com', 'thelaundromatfb@gmail.com', 'rzrbackreb444@gmail.com'];
+    const { users } = await import('@shared/schema');
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user || (!user.isAdmin && !adminEmails.includes(user.email.toLowerCase()))) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const { id } = req.params;
+    const { status, adminNotes } = req.body;
+    
+    const [updated] = await db
+      .update(feedbackSubmissions)
+      .set({
+        status: status || undefined,
+        adminNotes: adminNotes || undefined,
+        respondedAt: status === 'resolved' ? new Date() : undefined,
+        updatedAt: new Date(),
+      })
+      .where(eq(feedbackSubmissions.id, id))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: 'Feedback not found' });
+    }
+    
+    res.json(updated);
+  } catch (error: any) {
+    console.error('Error updating feedback:', error);
+    res.status(500).json({ error: 'Failed to update feedback' });
+  }
+});
+
+// Admin: Get feedback stats
+router.get('/admin/stats', async (req, res) => {
+  try {
+    const userId = (req as any).user?.claims?.sub || (req as any).session?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const adminEmails = ['nick@washbizhub.com', 'thelaundromatfb@gmail.com', 'rzrbackreb444@gmail.com'];
+    const { users } = await import('@shared/schema');
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user || (!user.isAdmin && !adminEmails.includes(user.email.toLowerCase()))) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const { sql } = await import('drizzle-orm');
+    
+    const [totalCount] = await db.select({ count: sql<number>`count(*)::int` }).from(feedbackSubmissions);
+    const [newCount] = await db.select({ count: sql<number>`count(*)::int` }).from(feedbackSubmissions).where(eq(feedbackSubmissions.status, 'new'));
+    const [resolvedCount] = await db.select({ count: sql<number>`count(*)::int` }).from(feedbackSubmissions).where(eq(feedbackSubmissions.status, 'resolved'));
+    
+    // Category breakdown
+    const categoryStats = await db
+      .select({
+        category: feedbackSubmissions.category,
+        count: sql<number>`count(*)::int`
+      })
+      .from(feedbackSubmissions)
+      .groupBy(feedbackSubmissions.category);
+    
+    res.json({
+      total: totalCount?.count || 0,
+      new: newCount?.count || 0,
+      resolved: resolvedCount?.count || 0,
+      byCategory: Object.fromEntries(categoryStats.map(c => [c.category, c.count])),
+    });
+  } catch (error: any) {
+    console.error('Error fetching feedback stats:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });
 

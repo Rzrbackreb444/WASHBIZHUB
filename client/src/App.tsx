@@ -118,6 +118,7 @@ const AdminUsers = lazy(() => import("@/pages/admin/users"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/analytics"));
 const AdminSettings = lazy(() => import("@/pages/admin/settings"));
 const AdminPromoCodes = lazy(() => import("@/pages/admin/promo-codes"));
+const AdminFeedbackDashboard = lazy(() => import("@/pages/admin/feedback-dashboard"));
 const AdminIndexing = lazy(() => import("@/pages/admin-indexing"));
 const AdminLogin = lazy(() => import("@/pages/admin-login"));
 const AdminCommandCenter = lazy(() => import("@/pages/admin-dashboard"));
@@ -295,6 +296,7 @@ const CleanbiAuto = lazy(() => import("@/pages/cleanbi-auto"));
 // Engagement & User Features
 const ScoreHistory = lazy(() => import("@/pages/score-history"));
 const ReferralProgram = lazy(() => import("@/pages/referral-program"));
+const Referrals = lazy(() => import("@/pages/referrals"));
 const HelpCenter = lazy(() => import("@/pages/help-center"));
 
 // Customer Portal
@@ -481,6 +483,11 @@ function Router() {
       <Route path="/referral-program">
         <Suspense fallback={<LoadingFallback />}>
           <ReferralProgram />
+        </Suspense>
+      </Route>
+      <Route path="/referrals">
+        <Suspense fallback={<LoadingFallback />}>
+          <Referrals />
         </Suspense>
       </Route>
       <Route path="/help-center">
@@ -1376,6 +1383,11 @@ function Router() {
       <Route path="/admin/promo-codes">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <AdminPromoCodes />
+        </Suspense>
+      </Route>
+      <Route path="/admin/feedback">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <AdminFeedbackDashboard />
         </Suspense>
       </Route>
       <Route path="/admin/settings">
