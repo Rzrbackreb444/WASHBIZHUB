@@ -109,6 +109,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ListingAnalyzer } from "@/components/ListingAnalyzer";
@@ -2423,6 +2424,79 @@ function CleanBIExplorerContent() {
               transition={{ duration: 0.3 }}
               className="h-full bg-[#0A1628] flex flex-col"
             >
+              {/* Sticky Sidebar Header with Quota & Tier */}
+              <div className="sticky top-0 z-20 bg-[#0A1628] border-b border-white/10">
+                {/* Gold Top Accent */}
+                <div className="h-1 bg-gradient-to-r from-[#C8A661] via-[#D4B06A] to-[#C8A661]" />
+                
+                <div className="p-3">
+                  {/* Brand + Tier Row */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C8A661] to-[#A8893F] flex items-center justify-center shadow-lg">
+                        <MapPin className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-bold text-white tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>CLEANBI™ Explorer</h2>
+                      </div>
+                    </div>
+                    <Badge 
+                      className={`text-[10px] font-semibold px-2 py-0.5 ${
+                        userTier === 'enterprise' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                        userTier === 'pro' ? 'bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30' :
+                        userTier === 'starter' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                        'bg-white/10 text-white/60 border-white/20'
+                      }`}
+                      data-testid="tier-badge"
+                    >
+                      {userTier.charAt(0).toUpperCase() + userTier.slice(1)}
+                    </Badge>
+                  </div>
+                  
+                  {/* Quota Progress Bar */}
+                  <div className="bg-white/5 rounded-lg p-2.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] text-white/50 uppercase tracking-wider">Analyses This Month</span>
+                      <span className="text-xs font-semibold text-white">
+                        {quota.used}/{quota.limit === -1 ? '∞' : quota.limit}
+                      </span>
+                    </div>
+                    {quota.limit !== -1 && (
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min((quota.used / quota.limit) * 100, 100)}%` }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          className={`h-full rounded-full ${
+                            quota.used >= quota.limit ? 'bg-red-500' :
+                            quota.used >= quota.limit * 0.8 ? 'bg-amber-500' :
+                            'bg-[#C8A661]'
+                          }`}
+                        />
+                      </div>
+                    )}
+                    {quota.limit === -1 && (
+                      <div className="flex items-center gap-1 text-[10px] text-green-400">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Unlimited analyses</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Upgrade CTA - Show only for free/starter tiers */}
+                  {(userTier === 'free' || userTier === 'starter') && (
+                    <Button 
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full mt-2.5 bg-gradient-to-r from-[#C8A661] to-[#A8893F] hover:from-[#D8B66D] hover:to-[#C8A661] text-[#0A1628] h-9 text-xs font-semibold shadow-lg"
+                      data-testid="button-upgrade-header"
+                    >
+                      <Crown className="w-3.5 h-3.5 mr-1.5" />
+                      {userTier === 'free' ? 'Upgrade to Pro' : 'Upgrade to Pro'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
               <ScrollArea className="flex-1" viewportRef={sidebarViewportRef}>
 
             {/* Empty State - Click to Analyze CTA */}
@@ -4628,70 +4702,120 @@ function CleanBIExplorerContent() {
                 <div className="h-1 bg-[#C8A661]" />
                 
                 <div className="p-3">
-                  {/* Section Header */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
-                      <Layers className="w-3.5 h-3.5 text-[#C8A661]" />
+                  {/* Section Header with Info Tooltip */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-[#0A1628] border border-[#C8A661]/30 flex items-center justify-center">
+                        <Layers className="w-3.5 h-3.5 text-[#C8A661]" />
+                      </div>
+                      <span className="text-sm font-medium text-white">Map Layers</span>
                     </div>
-                    <span className="text-sm font-medium text-white">Map Layers</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                          <Info className="w-3 h-3 text-white/50" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-[200px] bg-[#0A1628] border-white/20 text-white">
+                        <p className="text-xs">Toggle map overlays to visualize competition, opportunities, and saved locations.</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
 
-                  {/* Layer Toggles */}
+                  {/* Layer Toggles with Enhanced Visual States */}
                   <div className="space-y-1.5">
-                    <div 
-                      onClick={() => toggleLayer("competition")}
-                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
-                      data-testid="switch-layer-competition"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("competition")}
-                    >
-                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
-                        Competition
-                      </Label>
-                      <Switch 
-                        checked={layers.competition} 
-                        onCheckedChange={() => toggleLayer("competition")}
-                        className="data-[state=checked]:bg-[#C8A661]"
-                      />
-                    </div>
-                    <div 
-                      onClick={() => toggleLayer("opportunities")}
-                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
-                      data-testid="switch-layer-opportunities"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("opportunities")}
-                    >
-                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
-                        <Flame className="w-3 h-3 text-orange-500" />
-                        Opportunity Heatmap
-                      </Label>
-                      <Switch 
-                        checked={layers.opportunities} 
-                        onCheckedChange={() => toggleLayer("opportunities")}
-                        className="data-[state=checked]:bg-[#C8A661]"
-                      />
-                    </div>
-                    <div 
-                      onClick={() => toggleLayer("savedLocations")}
-                      className="flex items-center justify-between w-full min-h-10 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-transparent hover:border-white/10 cursor-pointer"
-                      data-testid="switch-layer-saved"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && toggleLayer("savedLocations")}
-                    >
-                      <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
-                        <Bookmark className="w-3 h-3 text-[#C8A661]" />
-                        Saved Locations
-                      </Label>
-                      <Switch 
-                        checked={layers.savedLocations} 
-                        onCheckedChange={() => toggleLayer("savedLocations")}
-                        className="data-[state=checked]:bg-[#C8A661]"
-                      />
-                    </div>
+                    {/* Competition Layer */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          onClick={() => toggleLayer("competition")}
+                          className={`flex items-center justify-between w-full min-h-10 px-3 rounded-lg transition-all cursor-pointer ${
+                            layers.competition 
+                              ? 'bg-red-500/10 border border-red-500/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10'
+                          }`}
+                          data-testid="switch-layer-competition"
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && toggleLayer("competition")}
+                        >
+                          <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                            <div className={`w-2.5 h-2.5 rounded-full bg-red-500 ${layers.competition ? 'shadow-sm shadow-red-500/50 animate-pulse' : ''}`} />
+                            Competition
+                          </Label>
+                          <Switch 
+                            checked={layers.competition} 
+                            onCheckedChange={() => toggleLayer("competition")}
+                            className="data-[state=checked]:bg-red-500"
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[180px] bg-[#0A1628] border-white/20 text-white">
+                        <p className="text-xs">Show nearby laundromats as red markers to see your competition</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Opportunity Heatmap Layer */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          onClick={() => toggleLayer("opportunities")}
+                          className={`flex items-center justify-between w-full min-h-10 px-3 rounded-lg transition-all cursor-pointer ${
+                            layers.opportunities 
+                              ? 'bg-orange-500/10 border border-orange-500/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10'
+                          }`}
+                          data-testid="switch-layer-opportunities"
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && toggleLayer("opportunities")}
+                        >
+                          <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                            <Flame className={`w-3 h-3 text-orange-500 ${layers.opportunities ? 'animate-pulse' : ''}`} />
+                            Opportunity Heatmap
+                          </Label>
+                          <Switch 
+                            checked={layers.opportunities} 
+                            onCheckedChange={() => toggleLayer("opportunities")}
+                            className="data-[state=checked]:bg-orange-500"
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[180px] bg-[#0A1628] border-white/20 text-white">
+                        <p className="text-xs">Heat overlay showing demand intensity based on demographics</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Saved Locations Layer */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          onClick={() => toggleLayer("savedLocations")}
+                          className={`flex items-center justify-between w-full min-h-10 px-3 rounded-lg transition-all cursor-pointer ${
+                            layers.savedLocations 
+                              ? 'bg-[#C8A661]/10 border border-[#C8A661]/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10'
+                          }`}
+                          data-testid="switch-layer-saved"
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && toggleLayer("savedLocations")}
+                        >
+                          <Label className="text-xs text-white/80 flex items-center gap-2 pointer-events-none cursor-pointer">
+                            <Bookmark className={`w-3 h-3 text-[#C8A661] ${layers.savedLocations ? 'fill-[#C8A661]' : ''}`} />
+                            Saved Locations
+                          </Label>
+                          <Switch 
+                            checked={layers.savedLocations} 
+                            onCheckedChange={() => toggleLayer("savedLocations")}
+                            className="data-[state=checked]:bg-[#C8A661]"
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[180px] bg-[#0A1628] border-white/20 text-white">
+                        <p className="text-xs">Display your saved analyses as gold markers on the map</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
 
                   {/* Search Radius with Presets */}
@@ -4965,8 +5089,41 @@ function CleanBIExplorerContent() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="space-y-2 max-h-48 overflow-y-auto"
+                    className="space-y-2"
                   >
+                    {/* Bulk Actions Bar */}
+                    {savedAnalyses.length > 1 && (
+                      <div className="flex items-center justify-between py-1.5 px-2 bg-white/5 rounded-lg mb-2">
+                        <span className="text-[10px] text-white/50">{savedAnalyses.length} locations saved</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 text-[10px] text-white/40 hover:text-red-400 px-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Clear all saved analyses?')) {
+                                  setSavedAnalyses([]);
+                                  localStorage.removeItem('cleanbi_saved_analyses');
+                                  toast({ title: "All analyses cleared" });
+                                }
+                              }}
+                              data-testid="button-clear-all-analyses"
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Clear All
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="bg-[#0A1628] border-white/20 text-white">
+                            <p className="text-xs">Remove all saved analyses</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    )}
+                    
+                    {/* Saved Analyses List */}
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
                       {savedAnalyses.map((saved, index) => (
                         <motion.div 
                           key={saved.id}
@@ -4977,29 +5134,67 @@ function CleanBIExplorerContent() {
                           className="bg-white/5 border border-white/10 rounded-lg p-2.5 cursor-pointer hover:bg-white/10 hover:border-[#C8A661]/30 transition-all duration-200 group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <div 
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg"
-                              style={{ backgroundColor: GRADE_COLORS[saved.grade] }}
-                            >
-                              {saved.grade === "Needs Work" ? "NW" : saved.grade}
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div 
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-help"
+                                  style={{ backgroundColor: GRADE_COLORS[saved.grade] }}
+                                >
+                                  {saved.grade === "Needs Work" ? "NW" : saved.grade}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="bg-[#0A1628] border-white/20 text-white">
+                                <p className="text-xs">Grade: {saved.grade} • Score: {saved.cleanbiScore}/100</p>
+                              </TooltipContent>
+                            </Tooltip>
                             <div className="flex-1 min-w-0">
                               <div className="text-sm text-white truncate">{saved.address}</div>
                               <div className="text-xs text-white/50">
                                 Score: {saved.cleanbiScore} · {new Date(saved.timestamp).toLocaleDateString()}
                               </div>
                             </div>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="opacity-0 group-hover:opacity-100 min-h-9 min-w-9 text-white/40 hover:text-red-400 transition-opacity"
-                              onClick={(e) => handleDeleteSaved(saved.id, e)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {/* Inline Action Buttons */}
+                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="min-h-8 min-w-8 text-white/40 hover:text-[#C8A661] hover:bg-[#C8A661]/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      loadSavedAnalysis(saved);
+                                    }}
+                                    data-testid={`button-view-analysis-${saved.id}`}
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="bg-[#0A1628] border-white/20 text-white">
+                                  <p className="text-xs">View analysis</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="min-h-8 min-w-8 text-white/40 hover:text-red-400 hover:bg-red-500/10"
+                                    onClick={(e) => handleDeleteSaved(saved.id, e)}
+                                    data-testid={`button-delete-analysis-${saved.id}`}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="bg-[#0A1628] border-white/20 text-white">
+                                  <p className="text-xs">Delete analysis</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
                           </div>
                         </motion.div>
                       ))}
+                    </div>
                   </motion.div>
                 )}
                 </AnimatePresence>
