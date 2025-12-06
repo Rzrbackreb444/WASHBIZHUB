@@ -33,28 +33,28 @@ const CALCULATOR_TYPES: CalculatorType[] = [
     id: 'valuation',
     title: 'Business Valuation',
     icon: DollarSign,
-    color: '#10b981',
+    color: '#C8A661',
     description: 'Calculate laundromat value using SDE multiples and asset-based methods',
   },
   {
     id: 'roi',
     title: 'ROI Calculator',
     icon: TrendingUp,
-    color: '#8b5cf6',
+    color: '#C8A661',
     description: 'Analyze return on investment with detailed annual projections',
   },
   {
     id: 'startup',
     title: 'Startup Costs',
     icon: Building2,
-    color: '#3b82f6',
+    color: '#C8A661',
     description: 'Estimate total capital requirements for opening a laundromat',
   },
   {
     id: 'operations',
     title: 'Operating Costs',
     icon: Wrench,
-    color: '#f59e0b',
+    color: '#C8A661',
     description: 'Calculate utilities, labor, and maintenance expenses',
   },
 ];
@@ -127,7 +127,7 @@ export default function CalculatorsHub() {
         <section className="py-6 sm:py-8">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-6 sm:mb-8">
-              <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30">
+              <Badge className="mb-3 sm:mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                 <Calculator className="w-3 h-3 mr-1" />
                 Professional Tools
               </Badge>
@@ -151,19 +151,17 @@ export default function CalculatorsHub() {
                       onClick={() => setActiveCalculator(calc.id)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
                         isActive 
-                          ? 'bg-primary text-primary-foreground border-primary shadow-lg' 
+                          ? 'bg-[#0A1628] text-white border-[#0A1628] shadow-lg' 
                           : 'bg-card hover:bg-muted border-border'
                       }`}
                       data-testid={`button-calc-${calc.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div 
-                          className="p-2 rounded-lg"
-                          style={{ backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : `${calc.color}20` }}
+                          className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-[#0A1628]'}`}
                         >
                           <Icon 
-                            className="w-5 h-5" 
-                            style={{ color: isActive ? 'currentColor' : calc.color }}
+                            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#C8A661]'}`}
                           />
                         </div>
                         <div>
@@ -176,7 +174,8 @@ export default function CalculatorsHub() {
 
                 {/* Existing sheets */}
                 {sheets && sheets.length > 0 && (
-                  <Card className="mt-6">
+                  <Card className="mt-6 bg-card border shadow-sm overflow-hidden">
+                    <div className="h-1 bg-[#C8A661]" />
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">Your Calculators</CardTitle>
                     </CardHeader>
@@ -207,14 +206,12 @@ export default function CalculatorsHub() {
 
               {/* Main content */}
               <div className="lg:col-span-3">
-                <Card className="h-full">
+                <Card className="h-full bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
                   <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4">
                     <div className="flex items-center gap-3">
-                      <div 
-                        className="p-2 sm:p-3 rounded-xl flex-shrink-0"
-                        style={{ backgroundColor: `${selectedType.color}20` }}
-                      >
-                        <selectedType.icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: selectedType.color }} />
+                      <div className="p-2 sm:p-3 rounded-xl flex-shrink-0 bg-[#0A1628]">
+                        <selectedType.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#C8A661]" />
                       </div>
                       <div className="min-w-0">
                         <CardTitle className="text-lg sm:text-xl">{selectedType.title}</CardTitle>
@@ -224,7 +221,7 @@ export default function CalculatorsHub() {
                     <div className="flex gap-2 w-full sm:w-auto">
                       {existingSheet ? (
                         <a href={existingSheet.url} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" data-testid="button-open-sheet">
+                          <Button variant="outline" size="sm" className="border-[#0A1628] text-[#0A1628] hover:bg-[#0A1628]/10" data-testid="button-open-sheet">
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Open Sheet
                           </Button>
@@ -234,6 +231,7 @@ export default function CalculatorsHub() {
                           onClick={() => createCalcMutation.mutate(activeCalculator)}
                           disabled={createCalcMutation.isPending}
                           size="sm"
+                          className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
                           data-testid="button-create-calc"
                         >
                           {createCalcMutation.isPending ? (
