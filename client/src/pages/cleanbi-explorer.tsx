@@ -4262,66 +4262,126 @@ function CleanBIExplorerContent() {
                               )}
                             </div>
 
-                            {/* What-If Simulator Section - Mobile Optimized */}
+                            {/* What-If Simulator Section - Pro+ Feature */}
                             <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
                               <div className="flex items-center gap-2 mb-2 sm:mb-3">
                                 <LineChart className="w-4 h-4 text-[#10B981]" />
                                 <span className="text-xs sm:text-sm font-semibold text-white">What-If Simulator</span>
-                                <Badge className="text-[8px] sm:text-[9px] bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30">Beta</Badge>
+                                {(userTier === "free" || userTier === "starter") ? (
+                                  <Badge className="text-[8px] sm:text-[9px] bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30">
+                                    <Lock className="w-2.5 h-2.5 mr-0.5" />
+                                    Pro+
+                                  </Badge>
+                                ) : (
+                                  <Badge className="text-[8px] sm:text-[9px] bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30">Beta</Badge>
+                                )}
                               </div>
-                              <p className="text-[10px] sm:text-xs text-white/50 mb-3">
-                                Model scenarios: What if you add new machines or upgrade equipment?
-                              </p>
                               
-                              {/* Scenario Controls */}
-                              <div className="grid grid-cols-2 gap-2 mb-3">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="min-h-11 text-[10px] sm:text-xs border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10"
-                                  onClick={() => {
-                                    const newMachine: EquipmentItem = {
-                                      id: `what-if-${Date.now()}`,
-                                      brand: 'speed_queen',
-                                      machineType: 'washer',
-                                      capacity: 'large',
-                                      ageYears: 0,
-                                      purchaseCost: 12000,
-                                      quantity: 1
-                                    };
-                                    setWhatIfScenario(prev => ({
-                                      ...prev,
-                                      addedMachines: [...prev.addedMachines, newMachine]
-                                    }));
-                                    toast({ title: "Added new machine to scenario", description: "New Speed Queen washer added" });
-                                  }}
-                                  data-testid="button-whatif-add-machine"
-                                >
-                                  <Plus className="w-3 h-3 mr-1" />
-                                  Add New Machine
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="min-h-11 text-[10px] sm:text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
-                                  onClick={() => {
-                                    if (valuatorEquipment.length > 0 && whatIfScenario.removedMachineIds.length < valuatorEquipment.length) {
-                                      const nextToRemove = valuatorEquipment.find(e => !whatIfScenario.removedMachineIds.includes(e.id));
-                                      if (nextToRemove) {
+                              {/* Pro+ Gate for What-If Simulator */}
+                              {(userTier === "free" || userTier === "starter") ? (
+                                <div className="relative">
+                                  {/* Blurred Preview */}
+                                  <div className="blur-sm pointer-events-none opacity-60">
+                                    <p className="text-[10px] sm:text-xs text-white/50 mb-3">
+                                      Model scenarios: What if you add new machines or upgrade equipment?
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-2 mb-3">
+                                      <Button size="sm" variant="outline" className="min-h-11 text-[10px] border-[#10B981]/30 text-[#10B981]">
+                                        <Plus className="w-3 h-3 mr-1" />
+                                        Add Machine
+                                      </Button>
+                                      <Button size="sm" variant="outline" className="min-h-11 text-[10px] border-orange-500/30 text-orange-400">
+                                        <Trash2 className="w-3 h-3 mr-1" />
+                                        Remove
+                                      </Button>
+                                    </div>
+                                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div className="text-center">
+                                          <div className="text-[9px] text-white/40">Current Value</div>
+                                          <div className="text-base font-bold text-white">$245,000</div>
+                                        </div>
+                                        <div className="text-center">
+                                          <div className="text-[9px] text-white/40">New Value</div>
+                                          <div className="text-base font-bold text-[#10B981]">$312,500</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Upgrade Overlay */}
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A1628]/60 backdrop-blur-[2px] rounded-lg">
+                                    <Lock className="w-6 h-6 text-[#b8860b] mb-2" />
+                                    <p className="text-xs font-medium text-white mb-1">Pro+ Feature</p>
+                                    <p className="text-[10px] text-white/60 text-center px-4 mb-3">
+                                      Model equipment changes and see how they impact your business value
+                                    </p>
+                                    <Button
+                                      size="sm"
+                                      className="min-h-9 px-4 bg-[#b8860b] hover:bg-[#a07850] text-white text-xs"
+                                      onClick={() => setShowUpgradeModal(true)}
+                                      data-testid="button-upgrade-whatif"
+                                    >
+                                      <Crown className="w-3 h-3 mr-1" />
+                                      Upgrade to Pro
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="text-[10px] sm:text-xs text-white/50 mb-3">
+                                    Model scenarios: What if you add new machines or upgrade equipment?
+                                  </p>
+                              
+                                  {/* Scenario Controls */}
+                                  <div className="grid grid-cols-2 gap-2 mb-3">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="min-h-11 text-[10px] sm:text-xs border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10"
+                                      onClick={() => {
+                                        const newMachine: EquipmentItem = {
+                                          id: `what-if-${Date.now()}`,
+                                          brand: 'speed_queen',
+                                          machineType: 'washer',
+                                          capacity: 'large',
+                                          ageYears: 0,
+                                          purchaseCost: 12000,
+                                          quantity: 1
+                                        };
                                         setWhatIfScenario(prev => ({
                                           ...prev,
-                                          removedMachineIds: [...prev.removedMachineIds, nextToRemove.id]
+                                          addedMachines: [...prev.addedMachines, newMachine]
                                         }));
-                                        toast({ title: "Removed machine from scenario", description: `${BRAND_DISPLAY_NAMES[nextToRemove.brand]} ${MACHINE_TYPE_DISPLAY[nextToRemove.machineType]} removed` });
-                                      }
-                                    }
-                                  }}
-                                  data-testid="button-whatif-remove-machine"
-                                >
-                                  <Trash2 className="w-3 h-3 mr-1" />
-                                  Remove Oldest
-                                </Button>
-                              </div>
+                                        toast({ title: "Added new machine to scenario", description: "New Speed Queen washer added" });
+                                      }}
+                                      data-testid="button-whatif-add-machine"
+                                    >
+                                      <Plus className="w-3 h-3 mr-1" />
+                                      Add New Machine
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="min-h-11 text-[10px] sm:text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                                      onClick={() => {
+                                        if (valuatorEquipment.length > 0 && whatIfScenario.removedMachineIds.length < valuatorEquipment.length) {
+                                          const nextToRemove = valuatorEquipment.find(e => !whatIfScenario.removedMachineIds.includes(e.id));
+                                          if (nextToRemove) {
+                                            setWhatIfScenario(prev => ({
+                                              ...prev,
+                                              removedMachineIds: [...prev.removedMachineIds, nextToRemove.id]
+                                            }));
+                                            toast({ title: "Removed machine from scenario", description: `${BRAND_DISPLAY_NAMES[nextToRemove.brand]} ${MACHINE_TYPE_DISPLAY[nextToRemove.machineType]} removed` });
+                                          }
+                                        }
+                                      }}
+                                      data-testid="button-whatif-remove-machine"
+                                    >
+                                      <Trash2 className="w-3 h-3 mr-1" />
+                                      Remove Oldest
+                                    </Button>
+                                  </div>
 
                               {/* Scenario Summary */}
                               {(whatIfScenario.addedMachines.length > 0 || whatIfScenario.removedMachineIds.length > 0) && (
@@ -4453,6 +4513,8 @@ function CleanBIExplorerContent() {
                                     Clear Scenario
                                   </Button>
                                 </motion.div>
+                              )}
+                                </>
                               )}
                             </div>
                           </motion.div>
