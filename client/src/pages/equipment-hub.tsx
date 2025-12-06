@@ -19,6 +19,7 @@ import {
   brands, models, partCategories, industryVerticals, financingOptions, faqs,
   getPopularModels, getModelsByBrand, getFaqsByCategory
 } from "@/data/equipment-catalog";
+import { equipmentBlogs } from "@/data/equipment-blogs";
 
 import dexterStackImg from "@assets/image_1765044323497.png";
 import dexterEquipmentImg from "@assets/image_1765044343568.png";
@@ -620,6 +621,63 @@ export default function EquipmentHub() {
                   );
                 })}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Equipment Guides - SEO Content */}
+        <section className="py-16 bg-muted/50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-[#C8A661] text-[#0A1628]">Expert Guides</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Equipment Buying Guides</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                In-depth guides on equipment costs, brand comparisons, and ROI analysis to help you make informed decisions.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {equipmentBlogs.slice(0, 3).map((blog, index) => (
+                <Card key={blog.slug} className="hover-elevate transition-all duration-300 border-2 hover:border-[#C8A661]/50">
+                  <CardHeader>
+                    <Badge variant="secondary" className="w-fit mb-2">
+                      {blog.subcategory === 'retool' ? 'Retool Guide' :
+                       blog.subcategory === 'comparison' ? 'Brand Comparison' :
+                       blog.subcategory === 'hospitality' ? 'Hospitality' :
+                       blog.subcategory === 'pricing' ? 'Pricing Guide' : 'Regional'}
+                    </Badge>
+                    <CardTitle className="text-lg leading-tight">
+                      <Link 
+                        href={`/equipment/blog/${blog.slug}`}
+                        className="hover:text-[#C8A661] transition-colors"
+                        data-testid={`link-guide-${index}`}
+                      >
+                        {blog.title}
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                      {blog.excerpt}
+                    </p>
+                    <Button asChild className="w-full bg-[#0A1628] hover:bg-[#1a3a5c]">
+                      <Link href={`/equipment/blog/${blog.slug}`} data-testid={`button-read-guide-${index}`}>
+                        Read Guide
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Button asChild variant="outline" size="lg">
+                <Link href="/equipment/blog" data-testid="link-view-all-guides">
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  View All Equipment Guides
+                </Link>
+              </Button>
             </div>
           </div>
         </section>

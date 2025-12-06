@@ -182,6 +182,8 @@ const Brokers = lazy(() => import("@/pages/brokers"));
 const Classifieds = lazy(() => import("@/pages/classifieds"));
 const ClassifiedsSubmit = lazy(() => import("@/pages/classifieds-submit"));
 const EquipmentHub = lazy(() => import("@/pages/equipment-hub"));
+const EquipmentBlogList = lazy(() => import("@/pages/equipment-blog").then(m => ({ default: m.EquipmentBlogList })));
+const EquipmentBlogPost = lazy(() => import("@/pages/equipment-blog").then(m => ({ default: m.EquipmentBlogPost })));
 const EquipmentMarketplace = lazy(() => import("@/pages/equipment-marketplace"));
 const EquipmentDetail = lazy(() => import("@/pages/equipment-detail"));
 const EquipmentMatcher = lazy(() => import("@/pages/equipment-matcher"));
@@ -886,6 +888,16 @@ function Router() {
       <Route path="/equipment">
         <Suspense fallback={<LoadingFallback />}>
           <EquipmentHub />
+        </Suspense>
+      </Route>
+      <Route path="/equipment/blog">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentBlogList />
+        </Suspense>
+      </Route>
+      <Route path="/equipment/blog/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentBlogPost />
         </Suspense>
       </Route>
       <Route path="/equipment-marketplace">
