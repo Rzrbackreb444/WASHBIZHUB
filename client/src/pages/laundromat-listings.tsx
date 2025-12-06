@@ -16,7 +16,58 @@ import {
   MessageSquare, Settings, Zap, Filter, Home, Target, CheckCircle2, 
   ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2
 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
+
+const listingsStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Laundromats For Sale",
+  "description": "Browse verified laundromats for sale across the United States with CLEANBI location scores and financial analysis.",
+  "url": "https://washbizhub.com/laundromat-listings",
+  "numberOfItems": "50+",
+  "itemListOrder": "Descending"
+};
+
+const marketplaceStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Laundromats For Sale Marketplace",
+  "description": "Find laundromats for sale with verified listings, CLEANBI scores, and detailed financials. The #1 marketplace for buying laundromats.",
+  "url": "https://washbizhub.com/laundromat-listings",
+  "mainEntity": {
+    "@type": "Service",
+    "name": "Laundromat Marketplace",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    },
+    "serviceType": "Business Brokerage",
+    "areaServed": "United States"
+  }
+};
+
+const listingsFaqs = [
+  {
+    question: "How do I find laundromats for sale?",
+    answer: "Browse WashBizHub's verified marketplace featuring laundromats for sale across the US. Filter by location, price range, and whether real estate is included. Each listing includes CLEANBI location scoring and financial analysis."
+  },
+  {
+    question: "What is a CLEANBI score on laundromat listings?",
+    answer: "CLEANBI is a proprietary 0-100 scoring system that rates laundromat locations based on demographics, competition, traffic, accessibility, and economic factors. A = 85+, B = 70-84, C = 55-69. Higher scores indicate better investment potential."
+  },
+  {
+    question: "How much do laundromats cost?",
+    answer: "Laundromats typically range from $100,000 to $1,000,000+ depending on size, location, equipment, and whether real estate is included. Self-service coin laundries average $200,000-$400,000, while premium locations with real estate can exceed $750,000."
+  },
+  {
+    question: "What should I look for when buying a laundromat?",
+    answer: "Key factors include: location demographics (renter population, income levels), competition density, equipment age and condition, lease terms, verified financials, utility costs, and foot traffic. Use CLEANBI scoring to evaluate locations objectively."
+  },
+  {
+    question: "Are these laundromat listings verified?",
+    answer: "Yes, all listings on WashBizHub are verified by our team. We confirm business ownership, review financials, and provide CLEANBI location analysis for each property. Featured listings receive additional due diligence."
+  }
+];
 
 const GRADE_COLORS: Record<string, string> = {
   "A": "#22C55E",
@@ -135,12 +186,33 @@ export default function LaundromatListings() {
 
   return (
     <>
-      <Helmet>
-        <title>Laundromats For Sale | Deal Flow Dashboard - WashBizHub</title>
-        <meta name="description" content="Browse verified laundromats for sale with CLEANBI scoring. Filter by location, price, real estate. Get pre-qualified financing. The #1 laundromat marketplace." />
-        <meta name="keywords" content="laundromat for sale, buy laundromat, laundromat business, coin laundry for sale, laundromat marketplace, CLEANBI" />
-        <link rel="canonical" href="https://washbizhub.com/laundromat-listings" />
-      </Helmet>
+      <SEO
+        title="Laundromats For Sale | Browse Verified Listings - WashBizHub"
+        description="Find laundromats for sale with verified listings and CLEANBI location scores. Browse coin laundries, wash-dry-fold businesses across the US. Filter by price, location, real estate. Updated daily."
+        canonicalUrl="/laundromat-listings"
+        ogType="website"
+        keywords={[
+          "laundromat for sale",
+          "laundromats for sale near me",
+          "buy laundromat",
+          "laundromat business for sale",
+          "coin laundry for sale",
+          "how to buy a laundromat",
+          "laundromat listings",
+          "laundromat marketplace",
+          "laundromat investment",
+          "CLEANBI score",
+          "laundromat price",
+          "laundromat valuation"
+        ]}
+        structuredData={[listingsStructuredData, marketplaceStructuredData]}
+        faqs={listingsFaqs}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Marketplace", url: "/marketplace" },
+          { name: "Laundromats For Sale", url: "/laundromat-listings" }
+        ]}
+      />
 
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
         {/* Hero Header */}

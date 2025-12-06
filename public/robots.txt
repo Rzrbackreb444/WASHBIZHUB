@@ -53,6 +53,46 @@ User-agent: LinkedInBot
 Allow: /
 
 # ============================================================================
+# AI CRAWLERS - AEO OPTIMIZATION (Answer Engine Optimization)
+# Allow AI systems to index content for AI-generated answers
+# ============================================================================
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# ============================================================================
 # BLOCK SENSITIVE AREAS
 # ============================================================================
 Disallow: /api/
@@ -60,3 +100,18 @@ Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
 Disallow: /auth/callback
+
+# ============================================================================
+# RATE LIMIT AGGRESSIVE BOTS
+# ============================================================================
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+User-agent: DotBot
+Crawl-delay: 10
