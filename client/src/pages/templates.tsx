@@ -43,15 +43,13 @@ import {
   CheckCircle2,
   X,
   Filter,
-  Unlock
+  Unlock,
+  HelpCircle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import {
-  StatCard, DonutChart, DashboardGrid, SectionHeader
-} from "@/components/dashboard/DashboardComponents";
 import laundromatInterior2 from "@assets/Twin Cities Laundromat_1763780009740.jpg";
 
 interface Template {
@@ -324,18 +322,18 @@ export default function Templates() {
     "totalTime": "PT30M"
   };
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: string, className: string = "w-4 h-4") => {
     const cat = categories.find(c => c.value === category);
     if (cat) {
       const IconComponent = cat.icon;
-      return <IconComponent className="w-4 h-4" />;
+      return <IconComponent className={className} />;
     }
-    return <FileText className="w-4 h-4" />;
+    return <FileText className={className} />;
   };
 
   return (
-      <div className="min-h-screen bg-background">
-        <SEO
+    <div className="min-h-screen bg-background">
+      <SEO
         title="Laundromat Business Plan Templates | P&L, Due Diligence Checklists"
         description="Download professional laundromat business plan templates, P&L spreadsheets, due diligence checklists, financial models, and operations guides. Free and premium templates for coin laundry owners."
         canonicalUrl="/templates"
@@ -372,52 +370,63 @@ export default function Templates() {
         </div>
       </div>
 
-      <div className="bg-background border-b">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <FileText className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Laundromat Business Templates</h1>
-              <p className="text-muted-foreground">Business plans, P&L templates, due diligence checklists, and more</p>
-            </div>
+      <section className="bg-muted/30 border-b">
+        <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+          <div className="text-center mb-10">
+            <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+              <FileText className="w-3 h-3 mr-1.5" />
+              Professional Resources
+            </Badge>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Laundromat Business Templates
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Business plans, P&L templates, due diligence checklists, and more — everything you need to run a successful laundromat
+            </p>
           </div>
 
-          <DashboardGrid cols={4}>
-            <StatCard
-              title="Total Templates"
-              value={isLoading ? "..." : templates.length}
-              subtitle="Ready to download"
-              icon={FileText}
-              variant="purple"
-            />
-            <StatCard
-              title="Free Templates"
-              value={isLoading ? "..." : templates.filter(t => !t.isPremium).length}
-              subtitle="No signup required"
-              icon={Unlock}
-              variant="green"
-            />
-            <StatCard
-              title="Premium Templates"
-              value={isLoading ? "..." : templates.filter(t => t.isPremium).length}
-              subtitle="Pro access"
-              icon={Crown}
-              variant="yellow"
-            />
-            <StatCard
-              title="Total Downloads"
-              value={isLoading ? "..." : `${(templates.reduce((acc, t) => acc + t.downloadCount, 0) / 1000).toFixed(1)}K`}
-              subtitle="By professionals"
-              icon={Download}
-              variant="pink"
-            />
-          </DashboardGrid>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <div className="bg-card border shadow-sm rounded-lg p-4 text-center">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+                <FileText className="h-5 w-5 text-[#C8A661]" />
+              </div>
+              <div className="text-2xl font-bold text-[#C8A661]">
+                {isLoading ? "..." : templates.length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Total Templates</div>
+            </div>
+            <div className="bg-card border shadow-sm rounded-lg p-4 text-center">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+                <Unlock className="h-5 w-5 text-[#C8A661]" />
+              </div>
+              <div className="text-2xl font-bold text-[#C8A661]">
+                {isLoading ? "..." : templates.filter(t => !t.isPremium).length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Free Templates</div>
+            </div>
+            <div className="bg-card border shadow-sm rounded-lg p-4 text-center">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+                <Crown className="h-5 w-5 text-[#C8A661]" />
+              </div>
+              <div className="text-2xl font-bold text-[#C8A661]">
+                {isLoading ? "..." : templates.filter(t => t.isPremium).length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Premium Templates</div>
+            </div>
+            <div className="bg-card border shadow-sm rounded-lg p-4 text-center">
+              <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-3">
+                <Download className="h-5 w-5 text-[#C8A661]" />
+              </div>
+              <div className="text-2xl font-bold text-[#C8A661]">
+                {isLoading ? "..." : `${(templates.reduce((acc, t) => acc + t.downloadCount, 0) / 1000).toFixed(1)}K`}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Total Downloads</div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -426,12 +435,12 @@ export default function Templates() {
               placeholder="Search templates (business plan, P&L, checklist)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-card border"
               data-testid="input-search-templates"
             />
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-64" data-testid="select-category">
+            <SelectTrigger className="w-full sm:w-64 bg-card border" data-testid="select-category">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
             <SelectContent>
@@ -440,7 +449,7 @@ export default function Templates() {
                 return (
                   <SelectItem key={cat.value} value={cat.value} data-testid={`select-item-${cat.value}`}>
                     <div className="flex items-center gap-2">
-                      <IconComponent className="w-4 h-4" />
+                      <IconComponent className="w-4 h-4 text-[#C8A661]" />
                       <span>{cat.label}</span>
                     </div>
                   </SelectItem>
@@ -457,13 +466,17 @@ export default function Templates() {
             return (
               <Button
                 key={cat.value}
-                variant={isActive ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={() => setSelectedCategory(cat.value)}
-                className="gap-2"
+                className={`gap-2 ${
+                  isActive 
+                    ? "bg-[#0A1628] text-white border-[#0A1628] hover:bg-[#1a3a5c]" 
+                    : "bg-card border hover:bg-muted"
+                }`}
                 data-testid={`button-category-${cat.value}`}
               >
-                <IconComponent className="w-4 h-4" />
+                <IconComponent className={`w-4 h-4 ${isActive ? "text-white" : "text-[#C8A661]"}`} />
                 {cat.label}
               </Button>
             );
@@ -473,15 +486,17 @@ export default function Templates() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C8A661] mx-auto mb-4" />
               <p className="text-muted-foreground">Loading templates...</p>
             </div>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <FileText className="w-12 h-12 text-muted-foreground/50 mb-4" />
-            <p className="text-muted-foreground mb-2">No templates found</p>
-            <p className="text-sm text-muted-foreground/70 mb-4">
+            <div className="h-16 w-16 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <p className="text-foreground font-semibold mb-2">No templates found</p>
+            <p className="text-sm text-muted-foreground mb-4">
               {searchQuery ? `No results for "${searchQuery}"` : "No templates in this category"}
             </p>
             <Button 
@@ -490,6 +505,7 @@ export default function Templates() {
                 setSearchQuery("");
                 setSelectedCategory("all");
               }}
+              className="border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10"
               data-testid="button-reset-filters"
             >
               Reset Filters
@@ -507,9 +523,11 @@ export default function Templates() {
               {filtered.map((template) => (
                 <Card
                   key={template.id}
-                  className="overflow-hidden hover-elevate flex flex-col h-full"
+                  className="bg-card border shadow-sm overflow-hidden flex flex-col h-full hover-elevate"
                   data-testid={`card-template-${template.id}`}
                 >
+                  <div className="h-1 bg-[#C8A661]" />
+                  
                   {template.preview && (
                     <div className="relative h-48 bg-muted overflow-hidden">
                       <img
@@ -520,7 +538,7 @@ export default function Templates() {
                       />
                       <div className="absolute top-3 left-3 flex gap-2">
                         {template.isPremium ? (
-                          <Badge className="bg-amber-500/90 text-white border-0" data-testid={`badge-premium-${template.id}`}>
+                          <Badge className="bg-[#C8A661] text-[#0A1628] border-0" data-testid={`badge-premium-${template.id}`}>
                             <Crown className="w-3 h-3 mr-1" />
                             Premium
                           </Badge>
@@ -530,7 +548,7 @@ export default function Templates() {
                           </Badge>
                         )}
                         {template.featured && (
-                          <Badge variant="default" data-testid={`badge-featured-${template.id}`}>
+                          <Badge className="bg-[#0A1628] text-white border-0" data-testid={`badge-featured-${template.id}`}>
                             Featured
                           </Badge>
                         )}
@@ -539,11 +557,13 @@ export default function Templates() {
                   )}
 
                   {!template.preview && (
-                    <div className="relative h-48 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                      {getCategoryIcon(template.category)}
+                    <div className="relative h-48 bg-muted/50 flex items-center justify-center">
+                      <div className="h-16 w-16 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                        {getCategoryIcon(template.category, "w-8 h-8 text-[#C8A661]")}
+                      </div>
                       <div className="absolute top-3 left-3 flex gap-2">
                         {template.isPremium ? (
-                          <Badge className="bg-amber-500/90 text-white border-0" data-testid={`badge-premium-${template.id}`}>
+                          <Badge className="bg-[#C8A661] text-[#0A1628] border-0" data-testid={`badge-premium-${template.id}`}>
                             <Crown className="w-3 h-3 mr-1" />
                             Premium
                           </Badge>
@@ -553,7 +573,7 @@ export default function Templates() {
                           </Badge>
                         )}
                         {template.featured && (
-                          <Badge variant="default" data-testid={`badge-featured-${template.id}`}>
+                          <Badge className="bg-[#0A1628] text-white border-0" data-testid={`badge-featured-${template.id}`}>
                             Featured
                           </Badge>
                         )}
@@ -561,16 +581,18 @@ export default function Templates() {
                     </div>
                   )}
 
-                  <div className="p-4 flex-1 flex flex-col">
+                  <CardContent className="p-6 flex-1 flex flex-col">
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          {getCategoryIcon(template.category)}
+                          <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                            {getCategoryIcon(template.category, "w-3 h-3 text-[#C8A661]")}
+                          </div>
                           <span className="text-xs text-muted-foreground uppercase tracking-wide">
                             {categories.find(c => c.value === template.category)?.label || template.category}
                           </span>
                         </div>
-                        <h3 className="font-semibold text-lg line-clamp-2" data-testid={`text-template-name-${template.id}`}>
+                        <h3 className="font-semibold text-lg text-foreground line-clamp-2" data-testid={`text-template-name-${template.id}`}>
                           {template.name}
                         </h3>
                         {template.subcategory && (
@@ -588,7 +610,7 @@ export default function Templates() {
                     {template.tags && template.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
                         {template.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs" data-testid={`badge-tag-${template.id}-${tag}`}>
+                          <Badge key={tag} variant="secondary" className="text-xs bg-muted" data-testid={`badge-tag-${template.id}-${tag}`}>
                             {tag}
                           </Badge>
                         ))}
@@ -599,7 +621,7 @@ export default function Templates() {
                       <div className="flex items-center gap-1" data-testid={`rating-${template.id}`}>
                         {template.rating ? (
                           <>
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            <Star className="w-3 h-3 fill-[#C8A661] text-[#C8A661]" />
                             <span>{template.rating.toFixed(1)}</span>
                           </>
                         ) : (
@@ -612,10 +634,10 @@ export default function Templates() {
                       </div>
                     </div>
 
-                    <div className="mt-auto border-t pt-3 space-y-2">
+                    <div className="mt-auto border-t pt-4 space-y-2">
                       <Button
                         variant="outline"
-                        className="w-full gap-2"
+                        className="w-full gap-2 border-[#0A1628] text-[#0A1628] hover:bg-[#0A1628] hover:text-white"
                         size="sm"
                         onClick={() => setPreviewTemplate(template)}
                         data-testid={`button-preview-template-${template.id}`}
@@ -627,20 +649,20 @@ export default function Templates() {
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-1">
-                              <Lock className="w-3 h-3 text-amber-500" />
-                              <span className="font-semibold text-lg" data-testid={`text-price-${template.id}`}>
+                              <Lock className="w-3 h-3 text-[#C8A661]" />
+                              <span className="font-semibold text-lg text-foreground" data-testid={`text-price-${template.id}`}>
                                 ${template.price || "9.99"}
                               </span>
                             </div>
                             {canDownloadPremium && (
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="outline" className="text-xs border-[#C8A661] text-[#C8A661]">
                                 Included with Pro
                               </Badge>
                             )}
                           </div>
                           {canDownloadPremium ? (
                             <Button
-                              className="w-full gap-2"
+                              className="w-full gap-2 bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
                               size="sm"
                               data-testid={`button-download-template-${template.id}`}
                             >
@@ -655,7 +677,7 @@ export default function Templates() {
                               description="Upgrade to download this premium template and access our full library."
                             >
                               <Button
-                                className="w-full gap-2"
+                                className="w-full gap-2 bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
                                 size="sm"
                                 data-testid={`button-download-template-${template.id}`}
                               >
@@ -667,7 +689,7 @@ export default function Templates() {
                         </div>
                       ) : (
                         <Button
-                          className="w-full gap-2"
+                          className="w-full gap-2 bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
                           size="sm"
                           data-testid={`button-download-free-${template.id}`}
                         >
@@ -676,41 +698,66 @@ export default function Templates() {
                         </Button>
                       )}
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
           </>
         )}
 
-        <section className="mt-16 bg-muted/30 rounded-xl p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions About Laundromat Templates</h2>
-          <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
-            {TEMPLATE_FAQS.map((faq, index) => (
-              <AccordionItem key={index} value={`faq-${index}`}>
-                <AccordionTrigger className="text-left" data-testid={`accordion-template-faq-${index}`}>
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+        <section className="mt-16">
+          <Card className="bg-card border shadow-sm overflow-hidden">
+            <div className="h-1 bg-[#C8A661]" />
+            <CardContent className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                  <HelpCircle className="h-6 w-6 text-[#C8A661]" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+                  <p className="text-sm text-muted-foreground">About Laundromat Templates</p>
+                </div>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+                {TEMPLATE_FAQS.map((faq, index) => (
+                  <AccordionItem key={index} value={`faq-${index}`} className="border-b border-border">
+                    <AccordionTrigger 
+                      className="text-left text-foreground hover:text-[#C8A661] py-4" 
+                      data-testid={`accordion-template-faq-${index}`}
+                    >
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground pb-4">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
         </section>
 
-        <div className="mt-16 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 text-center">
-          <Crown className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-3">Get All Templates with Pro</h2>
-          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-            Unlock access to all premium templates, plus exclusive features like CLEANBI analysis, 
-            advanced calculators, and priority support.
-          </p>
-          <Button size="lg" className="gap-2" onClick={() => setLocation("/pricing")} data-testid="button-upgrade-pro">
-            <Crown className="w-4 h-4" />
-            Upgrade to Pro
-          </Button>
-        </div>
+        <section className="mt-16">
+          <div className="bg-[#0A1628] rounded-xl p-8 md:p-12 text-center">
+            <div className="h-16 w-16 rounded-full bg-[#C8A661]/20 flex items-center justify-center mx-auto mb-6">
+              <Crown className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Get All Templates with Pro</h2>
+            <p className="text-gray-300 mb-8 max-w-lg mx-auto">
+              Unlock access to all premium templates, plus exclusive features like CLEANBI analysis, 
+              advanced calculators, and priority support.
+            </p>
+            <Button 
+              size="lg" 
+              className="gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" 
+              onClick={() => setLocation("/pricing")} 
+              data-testid="button-upgrade-pro"
+            >
+              <Crown className="w-4 h-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </section>
       </div>
 
       <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
@@ -720,7 +767,7 @@ export default function Templates() {
               <DialogHeader>
                 <div className="flex items-center gap-2 mb-2">
                   {previewTemplate.isPremium ? (
-                    <Badge className="bg-amber-500/90 text-white border-0">
+                    <Badge className="bg-[#C8A661] text-[#0A1628] border-0">
                       <Crown className="w-3 h-3 mr-1" />
                       Premium Template
                     </Badge>
@@ -730,20 +777,22 @@ export default function Templates() {
                     </Badge>
                   )}
                 </div>
-                <DialogTitle className="text-2xl">{previewTemplate.name}</DialogTitle>
+                <DialogTitle className="text-2xl text-foreground">{previewTemplate.name}</DialogTitle>
                 <DialogDescription>{previewTemplate.description}</DialogDescription>
               </DialogHeader>
               
               <div className="space-y-6 mt-4">
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
+                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                    <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                      <FileText className="w-3 h-3 text-[#C8A661]" />
+                    </div>
                     Template Sections
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {getSampleContent(previewTemplate.category).sections.map((section, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-[#C8A661] flex-shrink-0" />
                         {section}
                       </li>
                     ))}
@@ -751,31 +800,33 @@ export default function Templates() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4" />
+                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                    <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                      <Star className="w-3 h-3 text-[#C8A661]" />
+                    </div>
                     Key Features
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {getSampleContent(previewTemplate.category).features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                      <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-[#C8A661] flex-shrink-0" />
                         {feature}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="border-t pt-4 flex gap-3">
+                <div className="border-t pt-4 flex flex-wrap gap-3">
                   {previewTemplate.isPremium ? (
                     <>
                       {canDownloadPremium ? (
-                        <Button className="flex-1 gap-2" data-testid="button-dialog-download">
+                        <Button className="flex-1 gap-2 bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-dialog-download">
                           <Download className="w-4 h-4" />
                           Download Now
                         </Button>
                       ) : (
                         <Button 
-                          className="flex-1 gap-2" 
+                          className="flex-1 gap-2 border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10" 
                           variant="outline"
                           onClick={() => setLocation("/pricing")}
                           data-testid="button-dialog-upgrade"
@@ -790,7 +841,7 @@ export default function Templates() {
                     </>
                   ) : (
                     <>
-                      <Button className="flex-1 gap-2" data-testid="button-dialog-download">
+                      <Button className="flex-1 gap-2 bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-dialog-download">
                         <Download className="w-4 h-4" />
                         Download Free
                       </Button>

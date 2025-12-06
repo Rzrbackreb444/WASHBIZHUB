@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
@@ -771,10 +771,10 @@ export default function Home() {
         <EquipmentCarousel showListCTA={true} />
         
         {/* EXPERT SERVICES FUNNEL - AI Council → Larry → Funding */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-background via-muted/60 to-background dark:from-background dark:via-muted/40 dark:to-background" data-testid="section-expert-services">
+        <section className="py-16 md:py-20 bg-muted/30" data-testid="section-expert-services">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4" data-testid="badge-expert-services">
+              <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]" data-testid="badge-expert-services">
                 <Sparkles className="w-3 h-3 mr-1.5" />
                 Premium Expert Services
               </Badge>
@@ -788,102 +788,111 @@ export default function Home() {
             
             <div className="grid md:grid-cols-3 gap-6">
               {/* AI Consultation Council */}
-              <Card className="p-6 border-2 border-border hover:border-primary/50 hover-elevate transition-all bg-card" data-testid="card-expert-ai-council">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <Badge className="mb-3 bg-primary/10 text-primary" data-testid="badge-ai-council-price">From $49</Badge>
-                <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-ai-council-title">AI Consultation Council</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Get multi-AI analysis from 5 expert perspectives on any deal or location
-                </p>
-                <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2" data-testid="text-feature-ai-1">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    5 AI experts analyze your opportunity
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-ai-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Detailed due diligence report
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-ai-3">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Risk assessment & recommendations
-                  </li>
-                </ul>
-                <Link href="/ai-consultation-council">
-                  <Button variant="default" className="w-full" data-testid="button-ai-council-home">
-                    Get AI Council Analysis
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all" data-testid="card-expert-ai-council">
+                <div className="h-1 bg-[#C8A661]" />
+                <CardContent className="p-6">
+                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
+                    <Users className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-ai-council-price">From $49</Badge>
+                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-ai-council-title">AI Consultation Council</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Get multi-AI analysis from 5 expert perspectives on any deal or location
+                  </p>
+                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2" data-testid="text-feature-ai-1">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      5 AI experts analyze your opportunity
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-ai-2">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Detailed due diligence report
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-ai-3">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Risk assessment & recommendations
+                    </li>
+                  </ul>
+                  <Link href="/ai-consultation-council">
+                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-ai-council-home">
+                      Get AI Council Analysis
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </CardContent>
               </Card>
               
               {/* Larry Larsen Consulting */}
-              <Card className="p-6 border-2 border-border hover:border-accent/50 hover-elevate transition-all bg-card relative overflow-visible" data-testid="card-expert-larry">
-                <div className="absolute top-2 right-2">
-                  <Badge variant="secondary" className="font-bold" data-testid="badge-larry-featured">Featured</Badge>
+              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all relative" data-testid="card-expert-larry">
+                <div className="h-1 bg-[#C8A661]" />
+                <div className="absolute top-3 right-3">
+                  <Badge className="font-bold bg-[#C8A661] text-[#0A1628]" data-testid="badge-larry-featured">Featured</Badge>
                 </div>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
-                  <Star className="h-6 w-6 text-accent-foreground" />
-                </div>
-                <Badge variant="outline" className="mb-3" data-testid="badge-larry-price">$397/session</Badge>
-                <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-larry-title">Talk to Larry Larsen</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  50+ years experience. The most trusted name in laundromat consulting.
-                </p>
-                <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2" data-testid="text-feature-larry-1">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    1 on 1 consultation
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-larry-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    Due diligence review
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-larry-3">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    Personalized recommendations
-                  </li>
-                </ul>
-                <Link href="/larry-larsen">
-                  <Button variant="secondary" className="w-full" data-testid="button-larry-home">
-                    Book with Larry
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+                <CardContent className="p-6">
+                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
+                    <Star className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-larry-price">$397/session</Badge>
+                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-larry-title">Talk to Larry Larsen</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    50+ years experience. The most trusted name in laundromat consulting.
+                  </p>
+                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2" data-testid="text-feature-larry-1">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      1 on 1 consultation
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-larry-2">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Due diligence review
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-larry-3">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Personalized recommendations
+                    </li>
+                  </ul>
+                  <Link href="/larry-larsen">
+                    <Button className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-larry-home">
+                      Book with Larry
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </CardContent>
               </Card>
               
               {/* Funding Hub */}
-              <Card className="p-6 border-2 border-border hover:border-primary/50 hover-elevate transition-all bg-card" data-testid="card-expert-funding">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <DollarSign className="h-6 w-6 text-primary" />
-                </div>
-                <Badge className="mb-3 bg-primary/10 text-primary" data-testid="badge-funding-type">Pre-Qualified</Badge>
-                <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-funding-title">Funding Partners Hub</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Connect with pre-vetted lenders ready to fund your laundromat deal
-                </p>
-                <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2" data-testid="text-feature-funding-1">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    SBA 7(a) & 504 loans
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-funding-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Equipment financing
-                  </li>
-                  <li className="flex items-center gap-2" data-testid="text-feature-funding-3">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Investor matching
-                  </li>
-                </ul>
-                <Link href="/funding">
-                  <Button variant="default" className="w-full" data-testid="button-funding-home">
-                    Explore Funding Options
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all" data-testid="card-expert-funding">
+                <div className="h-1 bg-[#C8A661]" />
+                <CardContent className="p-6">
+                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
+                    <DollarSign className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-funding-type">Pre-Qualified</Badge>
+                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-funding-title">Funding Partners Hub</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Connect with pre-vetted lenders ready to fund your laundromat deal
+                  </p>
+                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2" data-testid="text-feature-funding-1">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      SBA 7(a) & 504 loans
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-funding-2">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Equipment financing
+                    </li>
+                    <li className="flex items-center gap-2" data-testid="text-feature-funding-3">
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      Investor matching
+                    </li>
+                  </ul>
+                  <Link href="/funding">
+                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-funding-home">
+                      Explore Funding Options
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </CardContent>
               </Card>
             </div>
             
