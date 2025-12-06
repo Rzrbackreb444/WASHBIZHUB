@@ -23,7 +23,9 @@ const calculatorLinks = [
 const marketplaceLinks = [
   { href: "/buy-laundromat", label: "Buy a Laundromat", testId: "link-footer-buy-laundromat" },
   { href: "/sell-your-laundromat", label: "Sell Your Business", testId: "link-footer-sell-business" },
-  { href: "/equipment-financing", label: "AAdvantage Equipment", testId: "link-footer-aadvantage", featured: true },
+  { href: "/equipment-builder", label: "Get Equipment Quotes", testId: "link-footer-equipment-quotes", featured: true },
+  { href: "/distributor-locator", label: "Find Distributors", testId: "link-footer-distributor-locator" },
+  { href: "/equipment-financing", label: "Equipment Financing", testId: "link-footer-equipment-financing" },
   { href: "/directory", label: "Vendor Directory", testId: "link-footer-vendor-directory" },
 ];
 

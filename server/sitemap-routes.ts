@@ -31,6 +31,8 @@ const staticPages = [
   { url: "/startup-funding", priority: 0.8, changefreq: "weekly" },
   { url: "/acquisitions-funding", priority: 0.8, changefreq: "weekly" },
   { url: "/equipment-financing", priority: 0.8, changefreq: "weekly" },
+  { url: "/equipment-builder", priority: 0.9, changefreq: "weekly" },
+  { url: "/distributor-locator", priority: 0.8, changefreq: "weekly" },
   { url: "/working-capital-financing", priority: 0.8, changefreq: "weekly" },
   { url: "/real-estate-financing", priority: 0.8, changefreq: "weekly" },
   { url: "/gokapital", priority: 0.8, changefreq: "monthly" },

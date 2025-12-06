@@ -207,18 +207,18 @@ export function InteractiveGuides() {
       </div>
 
       {/* Pro Tips Card */}
-      <Card className="bg-accent/10 border-accent/30">
+      <Card className="bg-[#0A1628] dark:bg-[#0A1628] border-accent/30">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Lightbulb className="w-4 h-4 text-accent" />
             Pro Tips for Maximum Learning
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-sm">✓ Read guides in order (Strategy → Operations → Financial) for best results</p>
-          <p className="text-sm">✓ Take notes on specific actions you'll implement</p>
-          <p className="text-sm">✓ Reference these guides when making business decisions</p>
-          <p className="text-sm">✓ Share insights with your team during training</p>
+          <p className="text-sm text-gray-300">✓ Read guides in order (Strategy → Operations → Financial) for best results</p>
+          <p className="text-sm text-gray-300">✓ Take notes on specific actions you'll implement</p>
+          <p className="text-sm text-gray-300">✓ Reference these guides when making business decisions</p>
+          <p className="text-sm text-gray-300">✓ Share insights with your team during training</p>
         </CardContent>
       </Card>
     </div>

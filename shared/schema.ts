@@ -2465,6 +2465,493 @@ export type InsertListingMedia = z.infer<typeof insertListingMediaSchema>;
 export type ListingMedia = typeof listingMedia.$inferSelect;
 
 // ============================================
+// LISTING ATTACHMENTS (File Uploads via Object Storage)
+// Premium-grade document management for listings
+// ============================================
+export const listingAttachments = pgTable("listing_attachments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // File Information
+  filename: text("filename").notNull(), // Original filename
+  displayName: text("display_name"), // User-friendly name
+  description: text("description"), // What this document contains
+  
+  // Storage Details (Object Storage)
+  storageKey: text("storage_key").notNull(), // Object storage key/path
+  storageUrl: text("storage_url").notNull(), // Public or signed URL
+  mimeType: text("mime_type").notNull(), // "application/pdf", "image/jpeg", etc.
+  fileSize: integer("file_size"), // Size in bytes
+  
+  // Document Classification
+  category: text("category").notNull(), // "financial", "legal", "images", "floor_plan", "equipment", "marketing", "other"
+  documentType: text("document_type"), // "profit_loss", "tax_return", "lease", "inspection", "appraisal", "floor_plan", "equipment_list", "photos"
+  
+  // Visibility & Access Control
+  visibility: text("visibility").default("owner_only"), // "public", "buyer_preview", "nda_required", "owner_only"
+  requiresNDA: boolean("requires_nda").default(false),
+  
+  // Verification
+  verified: boolean("verified").default(false), // Admin verified authenticity
+  verifiedAt: timestamp("verified_at"),
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  
+  // Sorting & Display
+  sortOrder: integer("sort_order").default(0),
+  featured: boolean("featured").default(false), // Show in listing preview
+  
+  // Analytics
+  downloadCount: integer("download_count").default(0).notNull(),
+  viewCount: integer("view_count").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  listingIdx: index("listing_attachments_listing_idx").on(table.listingId),
+  categoryIdx: index("listing_attachments_category_idx").on(table.category),
+}));
+
+export const insertListingAttachmentSchema = createInsertSchema(listingAttachments).omit({
+  id: true,
+  downloadCount: true,
+  viewCount: true,
+  verifiedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertListingAttachment = z.infer<typeof insertListingAttachmentSchema>;
+export type ListingAttachment = typeof listingAttachments.$inferSelect;
+
+// ============================================
+// ENHANCED LISTING DETAILS (Laundromat-Specific Fields)
+// Extended data for premium listings with depth
+// ============================================
+export const listingExtendedDetails = pgTable("listing_extended_details", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").references(() => listings.id).notNull().unique(),
+  
+  // ===== LEASE INFORMATION =====
+  leaseType: text("lease_type"), // "triple_net", "gross", "modified_gross"
+  leaseMonthlyRent: decimal("lease_monthly_rent", { precision: 10, scale: 2 }),
+  leaseTermRemaining: integer("lease_term_remaining"), // Months remaining
+  leaseTermTotal: integer("lease_term_total"), // Total lease term in months
+  leaseOptions: text("lease_options"), // "5+5", "10 year", etc.
+  leaseEscalation: decimal("lease_escalation", { precision: 5, scale: 2 }), // Annual % increase
+  leaseIncludes: text("lease_includes").array(), // ["water", "trash", "parking", "signage"]
+  leaseNotes: text("lease_notes"),
+  
+  // ===== UTILITIES BREAKDOWN =====
+  utilityElectricMonthly: decimal("utility_electric_monthly", { precision: 8, scale: 2 }),
+  utilityGasMonthly: decimal("utility_gas_monthly", { precision: 8, scale: 2 }),
+  utilityWaterMonthly: decimal("utility_water_monthly", { precision: 8, scale: 2 }),
+  utilitySewerMonthly: decimal("utility_sewer_monthly", { precision: 8, scale: 2 }),
+  utilityTrashMonthly: decimal("utility_trash_monthly", { precision: 8, scale: 2 }),
+  utilityInternetMonthly: decimal("utility_internet_monthly", { precision: 8, scale: 2 }),
+  utilitiesAsPercentOfGross: decimal("utilities_as_percent_of_gross", { precision: 5, scale: 2 }), // Key KPI
+  
+  // ===== FACILITY DETAILS =====
+  squareFootage: integer("square_footage"),
+  parkingSpaces: integer("parking_spaces"),
+  hoursOfOperation: text("hours_of_operation"), // "24/7", "6am-10pm"
+  yearEstablished: integer("year_established"),
+  yearRenovated: integer("year_renovated"),
+  attendedHours: text("attended_hours"), // "Full-time", "Part-time", "Unattended"
+  
+  // ===== EQUIPMENT SUMMARY =====
+  totalWashers: integer("total_washers"),
+  totalDryers: integer("total_dryers"),
+  washerBreakdown: jsonb("washer_breakdown"), // {frontLoad: {20lb: 5, 40lb: 3}, topLoad: {25lb: 8}}
+  dryerBreakdown: jsonb("dryer_breakdown"), // {stack: 10, single: 5}
+  equipmentAge: text("equipment_age"), // "Mixed", "Under 5 years", "5-10 years"
+  primaryBrand: text("primary_brand"), // "Dexter", "Speed Queen", "Continental"
+  paymentSystem: text("payment_system"), // "Coin", "Card", "App", "Hybrid"
+  
+  // ===== REVENUE DETAILS =====
+  averageWashPrice: decimal("average_wash_price", { precision: 6, scale: 2 }),
+  averageDryPrice: decimal("average_dry_price", { precision: 6, scale: 2 }),
+  turnsPerDayWasher: decimal("turns_per_day_washer", { precision: 4, scale: 2 }),
+  turnsPerDayDryer: decimal("turns_per_day_dryer", { precision: 4, scale: 2 }),
+  washAndFoldRevenue: decimal("wash_and_fold_revenue", { precision: 10, scale: 2 }), // Monthly
+  dropOffRevenue: decimal("drop_off_revenue", { precision: 10, scale: 2 }), // Monthly
+  vendingRevenue: decimal("vending_revenue", { precision: 10, scale: 2 }), // Monthly
+  otherRevenue: decimal("other_revenue", { precision: 10, scale: 2 }), // Monthly
+  
+  // ===== LABOR DETAILS =====
+  laborType: text("labor_type"), // "owner_operated", "employee", "manager", "mixed"
+  laborMonthly: decimal("labor_monthly", { precision: 10, scale: 2 }),
+  laborAsPercentOfGross: decimal("labor_as_percent_of_gross", { precision: 5, scale: 2 }),
+  employeeCount: integer("employee_count"),
+  
+  // ===== PROPERTY/BUILDING =====
+  buildingType: text("building_type"), // "standalone", "strip_mall", "shopping_center"
+  visibilityRating: text("visibility_rating"), // "excellent", "good", "fair", "poor"
+  signageType: text("signage_type"), // "monument", "pylon", "storefront", "none"
+  adaCompliant: boolean("ada_compliant"),
+  
+  // ===== DEMOGRAPHICS (Nearby) =====
+  populationRadius3Mile: integer("population_radius_3_mile"),
+  medianIncomeRadius3Mile: decimal("median_income_radius_3_mile", { precision: 10, scale: 2 }),
+  renterPercentageRadius3Mile: decimal("renter_percentage_radius_3_mile", { precision: 5, scale: 2 }),
+  competitorCount3Mile: integer("competitor_count_3_mile"),
+  
+  // ===== ADDITIONAL FEATURES =====
+  features: text("features").array(), // ["WiFi", "TV", "Folding Tables", "Changers", "Vending", "Restroom"]
+  services: text("services").array(), // ["Drop-off", "Wash & Fold", "Pickup & Delivery", "Commercial Accounts"]
+  
+  // ===== SELLER MOTIVATION =====
+  reasonForSelling: text("reason_for_selling"), // "Retirement", "Relocation", "Health", "Other Ventures"
+  sellerFinancingTerms: text("seller_financing_terms"),
+  trainingSupportOffered: text("training_support_offered"), // "2 weeks", "30 days", "Ongoing"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  listingIdx: index("listing_extended_details_listing_idx").on(table.listingId),
+}));
+
+export const insertListingExtendedDetailsSchema = createInsertSchema(listingExtendedDetails).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertListingExtendedDetails = z.infer<typeof insertListingExtendedDetailsSchema>;
+export type ListingExtendedDetails = typeof listingExtendedDetails.$inferSelect;
+
+// ============================================
+// EQUIPMENT DISTRIBUTORS (Distributor Locator)
+// Searchable directory of equipment dealers by region/brand
+// ============================================
+export const equipmentDistributors = pgTable("equipment_distributors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // Owner of this profile
+  
+  // ===== COMPANY INFO =====
+  companyName: text("company_name").notNull(),
+  slug: text("slug").notNull().unique(),
+  tagline: text("tagline"), // "Your trusted Dexter dealer since 1985"
+  description: text("description").notNull(),
+  
+  // ===== CONTACT =====
+  website: text("website"),
+  email: text("email"),
+  phone: text("phone"),
+  tollFreePhone: text("toll_free_phone"),
+  
+  // ===== ADDRESS =====
+  address: text("address"),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code"),
+  country: text("country").default("US"),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  
+  // ===== SERVICE AREA =====
+  serviceStates: text("service_states").array().notNull(), // ["TX", "LA", "OK", "AR"]
+  serviceDescription: text("service_description"), // "We proudly serve the Gulf Coast region"
+  nationwide: boolean("nationwide").default(false),
+  
+  // ===== BRANDS CARRIED =====
+  brandsCarried: text("brands_carried").array().notNull(), // ["Dexter", "Speed Queen", "Continental"]
+  primaryBrand: text("primary_brand"), // Their #1 brand
+  isAuthorizedDealer: boolean("is_authorized_dealer").default(true),
+  
+  // ===== SERVICES OFFERED =====
+  servicesOffered: text("services_offered").array(), // ["New Equipment Sales", "Used Equipment", "Parts", "Service", "Installation", "Financing", "Leasing"]
+  specializations: text("specializations").array(), // ["Coin Laundry", "Multi-Housing", "On-Premise", "Commercial"]
+  
+  // ===== CREDENTIALS =====
+  yearsInBusiness: integer("years_in_business"),
+  certifications: text("certifications").array(), // ["Factory Trained", "EPA Certified"]
+  licenses: text("licenses").array(), // State contractor licenses
+  insurance: boolean("insurance").default(true),
+  bondedAmount: decimal("bonded_amount", { precision: 10, scale: 2 }),
+  
+  // ===== MEDIA =====
+  logo: text("logo"),
+  coverImage: text("cover_image"),
+  gallery: text("gallery").array(), // Showroom photos
+  videoUrl: text("video_url"), // Company video
+  
+  // ===== BUSINESS HOURS =====
+  businessHours: jsonb("business_hours"), // {mon: "8am-5pm", tue: "8am-5pm", ...}
+  emergencyService: boolean("emergency_service").default(false),
+  emergencyPhone: text("emergency_phone"),
+  
+  // ===== RATINGS & REVIEWS =====
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  reviewCount: integer("review_count").default(0).notNull(),
+  
+  // ===== PREMIUM FEATURES =====
+  featured: boolean("featured").default(false),
+  premiumTier: text("premium_tier").default("free"), // "free", "basic", "premium", "elite"
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  
+  // ===== STATUS =====
+  verified: boolean("verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  status: text("status").default("active"), // "active", "pending", "suspended"
+  
+  // ===== ANALYTICS =====
+  viewCount: integer("view_count").default(0).notNull(),
+  inquiryCount: integer("inquiry_count").default(0).notNull(),
+  websiteClicks: integer("website_clicks").default(0).notNull(),
+  phoneClicks: integer("phone_clicks").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("equipment_distributors_slug_idx").on(table.slug),
+  stateIdx: index("equipment_distributors_state_idx").on(table.state),
+  featuredIdx: index("equipment_distributors_featured_idx").on(table.featured, table.status),
+}));
+
+export const insertEquipmentDistributorSchema = createInsertSchema(equipmentDistributors).omit({
+  id: true,
+  rating: true,
+  reviewCount: true,
+  viewCount: true,
+  inquiryCount: true,
+  websiteClicks: true,
+  phoneClicks: true,
+  verifiedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEquipmentDistributor = z.infer<typeof insertEquipmentDistributorSchema>;
+export type EquipmentDistributor = typeof equipmentDistributors.$inferSelect;
+
+// ============================================
+// LAUNDROMAT LOCATIONS (Consumer Laundromat Finder)
+// Public directory for consumers to find laundromats
+// ============================================
+export const laundromatLocations = pgTable("laundromat_locations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ownerId: varchar("owner_id").references(() => users.id), // Claimed by owner
+  
+  // ===== BASIC INFO =====
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  
+  // ===== ADDRESS =====
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  country: text("country").default("US"),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  
+  // ===== CONTACT =====
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // ===== HOURS =====
+  hoursOfOperation: jsonb("hours_of_operation"), // {mon: "6am-10pm", tue: "6am-10pm", ...}
+  is24Hours: boolean("is_24_hours").default(false),
+  holidayHours: text("holiday_hours"),
+  
+  // ===== AMENITIES & FEATURES =====
+  amenities: text("amenities").array(), // ["WiFi", "TV", "Folding Tables", "Changers", "Vending", "Restroom", "Parking", "AC"]
+  services: text("services").array(), // ["Self-Service", "Drop-off", "Wash & Fold", "Pickup & Delivery", "Commercial"]
+  paymentMethods: text("payment_methods").array(), // ["Coin", "Card", "App", "Cash"]
+  
+  // ===== EQUIPMENT =====
+  washerCount: integer("washer_count"),
+  dryerCount: integer("dryer_count"),
+  equipmentBrand: text("equipment_brand"),
+  hasLargeMachines: boolean("has_large_machines").default(false), // 40lb+ washers
+  
+  // ===== PRICING =====
+  priceRangeWash: text("price_range_wash"), // "$2.50 - $6.00"
+  priceRangeDry: text("price_range_dry"), // "$0.25 per 6 min"
+  washAndFoldPrice: text("wash_and_fold_price"), // "$1.50/lb"
+  
+  // ===== MEDIA =====
+  featuredImage: text("featured_image"),
+  images: text("images").array(),
+  
+  // ===== RATINGS & REVIEWS =====
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  reviewCount: integer("review_count").default(0).notNull(),
+  cleanlinessRating: decimal("cleanliness_rating", { precision: 3, scale: 2 }),
+  equipmentRating: decimal("equipment_rating", { precision: 3, scale: 2 }),
+  valueRating: decimal("value_rating", { precision: 3, scale: 2 }),
+  staffRating: decimal("staff_rating", { precision: 3, scale: 2 }),
+  
+  // ===== OWNERSHIP =====
+  claimed: boolean("claimed").default(false), // Owner has claimed this listing
+  claimedAt: timestamp("claimed_at"),
+  
+  // ===== STATUS =====
+  verified: boolean("verified").default(false),
+  status: text("status").default("active"), // "active", "temporarily_closed", "permanently_closed", "pending"
+  
+  // ===== PREMIUM FEATURES =====
+  featured: boolean("featured").default(false),
+  premiumTier: text("premium_tier").default("free"), // "free", "claimed", "premium"
+  
+  // ===== SOURCE =====
+  source: text("source"), // "manual", "google_places", "yelp", "owner_submitted"
+  externalId: text("external_id"), // Google Places ID, etc.
+  
+  // ===== ANALYTICS =====
+  viewCount: integer("view_count").default(0).notNull(),
+  directionsClicks: integer("directions_clicks").default(0).notNull(),
+  phoneClicks: integer("phone_clicks").default(0).notNull(),
+  websiteClicks: integer("website_clicks").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("laundromat_locations_slug_idx").on(table.slug),
+  cityStateIdx: index("laundromat_locations_city_state_idx").on(table.city, table.state),
+  latLngIdx: index("laundromat_locations_lat_lng_idx").on(table.latitude, table.longitude),
+  featuredIdx: index("laundromat_locations_featured_idx").on(table.featured, table.status),
+}));
+
+export const insertLaundromatLocationSchema = createInsertSchema(laundromatLocations).omit({
+  id: true,
+  rating: true,
+  reviewCount: true,
+  cleanlinessRating: true,
+  equipmentRating: true,
+  valueRating: true,
+  staffRating: true,
+  claimedAt: true,
+  viewCount: true,
+  directionsClicks: true,
+  phoneClicks: true,
+  websiteClicks: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLaundromatLocation = z.infer<typeof insertLaundromatLocationSchema>;
+export type LaundromatLocation = typeof laundromatLocations.$inferSelect;
+
+// Laundromat Location Reviews (from consumers)
+export const laundromatReviews = pgTable("laundromat_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  locationId: varchar("location_id").references(() => laundromatLocations.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Guest info (if not logged in)
+  guestName: text("guest_name"),
+  guestEmail: text("guest_email"),
+  
+  // Ratings (1-5)
+  overallRating: integer("overall_rating").notNull(),
+  cleanlinessRating: integer("cleanliness_rating"),
+  equipmentRating: integer("equipment_rating"),
+  valueRating: integer("value_rating"),
+  staffRating: integer("staff_rating"),
+  
+  // Review Content
+  title: text("title"),
+  content: text("content").notNull(),
+  
+  // Photos
+  photos: text("photos").array(),
+  
+  // Verification
+  verified: boolean("verified").default(false),
+  visitDate: timestamp("visit_date"),
+  
+  // Engagement
+  helpfulCount: integer("helpful_count").default(0).notNull(),
+  
+  // Owner Response
+  ownerResponse: text("owner_response"),
+  ownerRespondedAt: timestamp("owner_responded_at"),
+  
+  // Status
+  status: text("status").default("published"), // "published", "pending", "flagged", "removed"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  locationIdx: index("laundromat_reviews_location_idx").on(table.locationId),
+  userIdx: index("laundromat_reviews_user_idx").on(table.userId),
+}));
+
+export const insertLaundromatReviewSchema = createInsertSchema(laundromatReviews).omit({
+  id: true,
+  helpfulCount: true,
+  ownerRespondedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLaundromatReview = z.infer<typeof insertLaundromatReviewSchema>;
+export type LaundromatReview = typeof laundromatReviews.$inferSelect;
+
+// ============================================
+// PROMOTIONS & SEASONAL CAMPAIGNS
+// December FREE listings and other promotions
+// ============================================
+export const promotions = pgTable("promotions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Promotion Details
+  name: text("name").notNull(), // "December FREE Listings"
+  slug: text("slug").notNull().unique(), // "december-2024-free"
+  description: text("description"),
+  
+  // Discount Settings
+  discountType: text("discount_type").notNull(), // "percentage", "fixed", "free"
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }), // 100 for 100% off
+  
+  // Applies To
+  appliesToListingTiers: text("applies_to_listing_tiers").array(), // ["basic", "showcase", "diamond"]
+  appliesToCategories: text("applies_to_categories").array(), // ["laundromats", "equipment", "vendors"]
+  
+  // Date Range
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  
+  // Limits
+  maxRedemptions: integer("max_redemptions"), // null = unlimited
+  currentRedemptions: integer("current_redemptions").default(0).notNull(),
+  perUserLimit: integer("per_user_limit").default(1),
+  
+  // Promo Code (optional)
+  promoCode: text("promo_code"), // "DECEMBER2024"
+  requiresCode: boolean("requires_code").default(false),
+  
+  // Display
+  bannerText: text("banner_text"), // "All listings FREE in December!"
+  bannerColor: text("banner_color").default("#C8A661"), // Gold
+  showOnPricing: boolean("show_on_pricing").default(true),
+  showOnListingForm: boolean("show_on_listing_form").default(true),
+  
+  // Status
+  active: boolean("active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("promotions_slug_idx").on(table.slug),
+  activeIdx: index("promotions_active_idx").on(table.active, table.startDate, table.endDate),
+}));
+
+export const insertPromotionSchema = createInsertSchema(promotions).omit({
+  id: true,
+  currentRedemptions: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPromotion = z.infer<typeof insertPromotionSchema>;
+export type Promotion = typeof promotions.$inferSelect;
+
+// ============================================
 // LISTING VISIBILITY ADD-ONS & ORDERS
 // Paid visibility features to increase listing exposure
 // ============================================

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calculator, Download, Save, Share2, TrendingUp, DollarSign } from "lucide-react";
+import { Calculator, Download, Save, Share2, TrendingUp, DollarSign, Sparkles } from "lucide-react";
 import { PremiumChart } from "@/components/PremiumChart";
 import jsPDF from 'jspdf';
 
@@ -409,16 +409,19 @@ export function CalculatorEngine({ config, onSave }: CalculatorEngineProps) {
 
         {/* Tips Section */}
         {config.tips && config.tips.length > 0 && (
-          <Card className="mt-8 bg-accent/5 dark:bg-accent/10 border-accent/20">
+          <Card className="mt-8 bg-[#0A1628] dark:bg-[#0A1628] border-accent/30">
             <CardHeader>
-              <CardTitle className="text-lg">Pro Tips & Industry Insights</CardTitle>
+              <CardTitle className="text-lg text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-accent" />
+                Pro Tips & Industry Insights
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {config.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-accent mt-1">•</span>
-                    <span className="text-sm text-foreground">{tip}</span>
+                    <span className="text-sm text-gray-300">{tip}</span>
                   </li>
                 ))}
               </ul>
