@@ -149,7 +149,9 @@ export default function TPDCalculator() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Calculator className="w-10 h-10 text-blue-400" />
+              <div className="p-3 rounded-lg bg-[#0A1628]">
+                <Calculator className="w-8 h-8 text-[#C8A661]" />
+              </div>
               <h1 className="text-4xl font-bold text-foreground">
                 Turns Per Day (TPD) Calculator
               </h1>
@@ -157,7 +159,7 @@ export default function TPDCalculator() {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Advanced Monte Carlo simulation with 10,000 iterations for probabilistic TPD analysis
             </p>
-            <Badge variant="default" className="mt-4 bg-amber-600">
+            <Badge variant="default" className="mt-4 bg-[#C8A661] text-[#0A1628]">
               <Zap className="w-3 h-3 mr-1" />
               Professional Tool
             </Badge>
@@ -166,9 +168,15 @@ export default function TPDCalculator() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Inputs */}
             <div className="lg:col-span-1">
-              <Card>
+              <Card className="border shadow-sm">
+                <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
-                  <CardTitle>Business Inputs</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="p-1.5 rounded bg-[#0A1628]">
+                      <Calculator className="h-4 w-4 text-[#C8A661]" />
+                    </div>
+                    Business Inputs
+                  </CardTitle>
                   <CardDescription>Enter your monthly financials</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -315,7 +323,8 @@ export default function TPDCalculator() {
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4 mt-4">
-                  <Card>
+                  <Card className="border shadow-sm">
+                    <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
                       <CardTitle>Financial Summary</CardTitle>
                       <CardDescription>Monthly overview</CardDescription>
@@ -346,7 +355,8 @@ export default function TPDCalculator() {
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="border shadow-sm">
+                    <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
                       <CardTitle>Turns Per Day Analysis</CardTitle>
                       <CardDescription>Current vs Breakeven</CardDescription>
@@ -355,7 +365,7 @@ export default function TPDCalculator() {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="text-center">
                           <div className="text-sm text-muted-foreground mb-2">Current TPD</div>
-                          <div className="text-4xl font-bold text-blue-600" data-testid="text-current-tpd">
+                          <div className="text-4xl font-bold text-[#C8A661]" data-testid="text-current-tpd">
                             {turnsPerDay.toFixed(1)}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
@@ -364,7 +374,7 @@ export default function TPDCalculator() {
                         </div>
                         <div className="text-center">
                           <div className="text-sm text-muted-foreground mb-2">Breakeven TPD</div>
-                          <div className="text-4xl font-bold text-orange-600" data-testid="text-breakeven-tpd">
+                          <div className="text-4xl font-bold text-[#0A1628] dark:text-muted-foreground" data-testid="text-breakeven-tpd">
                             {breakEvenTurnsPerDay.toFixed(1)}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
@@ -419,10 +429,13 @@ export default function TPDCalculator() {
                 </TabsContent>
 
                 <TabsContent value="montecarlo" className="space-y-4 mt-4">
-                  <Card>
+                  <Card className="border shadow-sm">
+                    <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5" />
+                        <div className="p-1.5 rounded bg-[#0A1628]">
+                          <TrendingUp className="w-4 h-4 text-[#C8A661]" />
+                        </div>
                         Monte Carlo Simulation
                       </CardTitle>
                       <CardDescription>10,000 iterations with ±20% variance</CardDescription>
@@ -485,7 +498,7 @@ export default function TPDCalculator() {
 
                           <Separator />
 
-                          <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg border">
+                          <div className="p-6 bg-muted/30 rounded-lg border border-[#C8A661]/20">
                             <div className="text-center">
                               <div className="text-sm text-muted-foreground mb-2">Breakeven Probability</div>
                               <div className="text-5xl font-bold mb-2" data-testid="text-breakeven-prob">

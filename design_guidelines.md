@@ -32,6 +32,12 @@
 - **On Navy (text-white):** Text on navy backgrounds
 - **Gold Text (text-[#C8A661]):** Accent numbers, highlighted stats
 
+**Semantic Colors (Exceptions):**
+- **Positive Values (text-green-600):** Revenue, profit, positive percentages - industry standard for financial data
+- **Negative Values (text-red-600):** Expenses, losses, negative percentages - industry standard for financial data
+- **Warnings (text-orange-600):** Below breakeven, alerts, caution states
+These semantic colors are intentional exceptions to the navy/gold palette for calculator and financial data displays where users expect familiar green=positive, red=negative conventions.
+
 ---
 
 ## Card System (Core Component)
