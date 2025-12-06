@@ -182,7 +182,7 @@ export function registerSitemapRoutes(app: Express) {
       // ============================================================================
       { loc: '/vendors', lastmod: today, changefreq: 'weekly', priority: 0.85 },
       { loc: '/vendor-spotlight', lastmod: today, changefreq: 'weekly', priority: 0.75 },
-      { loc: '/equipment', lastmod: today, changefreq: 'weekly', priority: 0.8 },
+      { loc: '/equipment', lastmod: today, changefreq: 'daily', priority: 0.95 },
       { loc: '/equipment-matcher', lastmod: today, changefreq: 'weekly', priority: 0.8 },
       { loc: '/equipment-diagnostics', lastmod: today, changefreq: 'weekly', priority: 0.75 },
       { loc: '/list-equipment', lastmod: today, changefreq: 'monthly', priority: 0.7 },
