@@ -3,6 +3,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { FeatureGate } from "@/components/monetization/FeatureGate";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WASHBIZHUB_SEO_DEFAULTS } from "@/lib/design-system";
@@ -404,6 +405,10 @@ export default function UtilityCalculator() {
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
             <UPGBenchmarkCard upg={18.5} />
+          </div>
+          
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
+            <CalculatorDisclaimer />
           </div>
         </div>
       </FeatureGate>

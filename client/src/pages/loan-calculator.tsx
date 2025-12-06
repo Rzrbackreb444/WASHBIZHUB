@@ -1,5 +1,6 @@
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
+import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from '@/components/PremiumCalculatorEngine';
 
 const loanStructuredData = {
@@ -304,6 +305,10 @@ export default function LoanCalculator() {
       </div>
 
       <PremiumCalculatorEngine config={loanCalculatorConfig} />
+      
+      <div className="mx-auto max-w-4xl px-6 py-8">
+        <CalculatorDisclaimer />
+      </div>
     </>
   );
 }
