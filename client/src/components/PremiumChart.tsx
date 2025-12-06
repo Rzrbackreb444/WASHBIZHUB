@@ -11,7 +11,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointEleme
 // Professional Chart Color Palette
 const CHART_COLORS = {
   primary: '#C8A661',
-  gold: '#b8860b',
+  gold: '#C8A661',
   navy: '#1e3a5f',
   darkNavy: '#1a2332',
   cyan: '#00d4ff',

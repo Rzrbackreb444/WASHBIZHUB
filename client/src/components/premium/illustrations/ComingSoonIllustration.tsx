@@ -44,7 +44,7 @@ export function ComingSoonIllustration({
         cx="100"
         cy="100"
         r="30"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="4"
         fill="none"
       />
@@ -52,7 +52,7 @@ export function ComingSoonIllustration({
         cx="100"
         cy="100"
         r="22"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.15"
       />
       <line
@@ -69,7 +69,7 @@ export function ComingSoonIllustration({
         y1="100"
         x2="115"
         y2="105"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="3"
         strokeLinecap="round"
       />
@@ -81,7 +81,7 @@ export function ComingSoonIllustration({
       />
       <path
         d="M70 35 L100 20 L130 35"
-        stroke="#b8860b"
+        stroke="#C8A661"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -101,7 +101,7 @@ export function ComingSoonIllustration({
         cx="165"
         cy="60"
         r="5"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.4"
       />
       <circle
@@ -115,7 +115,7 @@ export function ComingSoonIllustration({
         cx="170"
         cy="145"
         r="6"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.25"
       />
       <circle

@@ -38,13 +38,13 @@ export function ErrorIllustration({
       />
       <path
         d="M100 40 L110 95 L100 105 L90 95 Z"
-        fill="#b8860b"
+        fill="#C8A661"
       />
       <circle
         cx="100"
         cy="125"
         r="8"
-        fill="#b8860b"
+        fill="#C8A661"
       />
       <path
         d="M55 55 L65 65"
@@ -78,7 +78,7 @@ export function ErrorIllustration({
         cx="40"
         cy="45"
         r="5"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.3"
       />
       <circle
@@ -92,14 +92,14 @@ export function ErrorIllustration({
         cx="170"
         cy="40"
         r="4"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.4"
       />
       <circle
         cx="30"
         cy="155"
         r="5"
-        fill="#b8860b"
+        fill="#C8A661"
         opacity="0.25"
       />
     </svg>

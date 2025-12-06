@@ -103,14 +103,14 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
             <Card
               key={plan.tier}
               className={`relative p-6 transition-all ${
-                plan.popular ? "border-2 border-[#b8860b] shadow-lg ring-1 ring-[#b8860b]/20" : "border border-border/50"
+                plan.popular ? "border-2 border-[#C8A661] shadow-lg ring-1 ring-[#C8A661]/20" : "border border-border/50"
               }`}
               data-testid={`card-pricing-${plan.tier}`}
             >
               {plan.badge && (
                 <Badge
                   className={`absolute -top-3 left-1/2 -translate-x-1/2 ${
-                    plan.popular ? "bg-[#b8860b] text-white" : "bg-muted text-muted-foreground"
+                    plan.popular ? "bg-[#C8A661] text-white" : "bg-muted text-muted-foreground"
                   }`}
                   data-testid={`badge-plan-${plan.tier}`}
                 >
@@ -143,7 +143,7 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
                     className="flex items-start gap-3 text-sm"
                     data-testid={`text-feature-${plan.tier}-${index}`}
                   >
-                    <span className={`text-xs mt-1 ${plan.popular ? "text-[#b8860b]" : "text-muted-foreground"}`}>✓</span>
+                    <span className={`text-xs mt-1 ${plan.popular ? "text-[#C8A661]" : "text-muted-foreground"}`}>✓</span>
                     <span className="text-foreground/80">{feature}</span>
                   </li>
                 ))}
@@ -160,7 +160,7 @@ export function AIPricingModal({ open, onClose, currentTier = "free", onUpgrade 
               ) : (
                 <Button
                   variant={plan.popular ? "default" : "outline"}
-                  className={`w-full h-11 font-medium ${plan.popular ? "bg-[#b8860b] hover:bg-[#a07609]" : ""}`}
+                  className={`w-full h-11 font-medium ${plan.popular ? "bg-[#C8A661] hover:bg-[#a07609]" : ""}`}
                   onClick={() => handleUpgrade(plan.tier as "pro" | "enterprise")}
                   data-testid={`button-upgrade-${plan.tier}`}
                 >

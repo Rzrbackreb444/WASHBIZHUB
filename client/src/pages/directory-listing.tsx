@@ -218,7 +218,7 @@ export default function DirectoryListingPage() {
                     </Badge>
                   )}
                   {listing.isFeatured && (
-                    <Badge className="bg-[#b8860b]">
+                    <Badge className="bg-[#C8A661]">
                       <Sparkles className="w-3 h-3 mr-1" />
                       Featured
                     </Badge>

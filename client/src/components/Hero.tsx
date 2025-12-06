@@ -220,7 +220,7 @@ export function Hero() {
     <section className="relative overflow-hidden mesh-gradient-hero">
       {/* Decorative mesh elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-[#b8860b]/10 rounded-full blur-3xl" />
+        <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-[#C8A661]/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-[#1e3a5f]/10 rounded-full blur-3xl" />
       </div>
 
@@ -271,7 +271,7 @@ export function Hero() {
             {/* Trust indicators */}
             <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-600">
               <span>72,000+ users</span>
-              <span className="text-[#b8860b] font-medium">4.9/5 rating</span>
+              <span className="text-[#C8A661] font-medium">4.9/5 rating</span>
               <span>Free to start</span>
             </div>
           </div>
@@ -291,14 +291,14 @@ export function Hero() {
               ].map((s, i) => (
                 <div key={s.num} className="flex items-center gap-2 flex-1">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
-                    s.active ? 'bg-[#b8860b] text-white' : 'bg-gray-100 text-gray-400'
+                    s.active ? 'bg-[#C8A661] text-white' : 'bg-gray-100 text-gray-400'
                   } ${step === 'analyzing' && s.num === 2 ? 'animate-pulse' : ''}`}>
                     {s.num}
                   </div>
                   <span className={`text-xs hidden sm:inline ${s.active ? 'text-[#1e3a5f] font-medium' : 'text-gray-400'}`}>
                     {s.label}
                   </span>
-                  {i < 2 && <div className={`h-0.5 flex-1 ${s.active ? 'bg-[#b8860b]' : 'bg-gray-200'}`} />}
+                  {i < 2 && <div className={`h-0.5 flex-1 ${s.active ? 'bg-[#C8A661]' : 'bg-gray-200'}`} />}
                 </div>
               ))}
             </div>
@@ -330,7 +330,7 @@ export function Hero() {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Street Address <span className="text-[#b8860b]">*</span>
+                      Street Address <span className="text-[#C8A661]">*</span>
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -360,7 +360,7 @@ export function Hero() {
                               className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
                               data-testid={`prediction-${pred.place_id}`}
                             >
-                              <MapPin className="w-4 h-4 text-[#b8860b]" />
+                              <MapPin className="w-4 h-4 text-[#C8A661]" />
                               <span className="text-sm">{pred.description}</span>
                             </button>
                           ))}
@@ -403,7 +403,7 @@ export function Hero() {
 
             {step === 'analyzing' && (
               <div className="animate-in py-8 text-center">
-                <Loader2 className="w-12 h-12 text-[#b8860b] animate-spin mx-auto mb-4" />
+                <Loader2 className="w-12 h-12 text-[#C8A661] animate-spin mx-auto mb-4" />
                 <h2 className="text-xl font-bold text-[#1e3a5f] mb-2">
                   Analyzing Location Data...
                 </h2>
@@ -412,7 +412,7 @@ export function Hero() {
                   {['Demographics', 'Competition', 'Traffic', 'Revenue'].map((item, i) => (
                     <span 
                       key={item}
-                      className="px-3 py-1 bg-[#b8860b]/10 text-[#b8860b] rounded-full text-xs font-medium animate-pulse"
+                      className="px-3 py-1 bg-[#C8A661]/10 text-[#C8A661] rounded-full text-xs font-medium animate-pulse"
                       style={{ animationDelay: `${i * 0.2}s` }}
                     >
                       {item}
@@ -426,7 +426,7 @@ export function Hero() {
               <div className="animate-in">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   {result.addressType === 'residential' ? (
-                    <HomeIcon className="w-6 h-6 text-[#b8860b]" />
+                    <HomeIcon className="w-6 h-6 text-[#C8A661]" />
                   ) : (
                     <Building2 className="w-6 h-6 text-[#1e3a5f]" />
                   )}
@@ -439,7 +439,7 @@ export function Hero() {
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <span 
                     className="text-6xl font-bold"
-                    style={{ color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#b8860b' }}
+                    style={{ color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#C8A661' }}
                     data-testid="text-cleanbi-score"
                   >
                     {result.score}
@@ -448,8 +448,8 @@ export function Hero() {
                     <span 
                       className="text-3xl font-bold px-3 py-1 rounded-lg"
                       style={{ 
-                        backgroundColor: result.grade === 'A' ? '#22C55E20' : result.grade === 'B' ? '#84CC1620' : result.grade === 'C' ? '#EAB30820' : '#b8860b20',
-                        color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#b8860b'
+                        backgroundColor: result.grade === 'A' ? '#22C55E20' : result.grade === 'B' ? '#84CC1620' : result.grade === 'C' ? '#EAB30820' : '#C8A66120',
+                        color: result.grade === 'A' ? '#22C55E' : result.grade === 'B' ? '#84CC16' : result.grade === 'C' ? '#EAB308' : '#C8A661'
                       }}
                     >
                       {result.grade}

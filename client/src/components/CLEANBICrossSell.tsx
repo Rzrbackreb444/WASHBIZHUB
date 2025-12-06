@@ -33,10 +33,10 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
       
       <div className="grid sm:grid-cols-2 gap-4">
         {/* Funding CTA */}
-        <Card className="bg-gradient-to-br from-[#b8860b]/30 to-[#8B7355]/30 border-[#b8860b]/40" data-testid="card-cross-sell-funding">
+        <Card className="bg-gradient-to-br from-[#C8A661]/30 to-[#8B7355]/30 border-[#C8A661]/40" data-testid="card-cross-sell-funding">
           <CardContent className="p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-lg bg-[#b8860b]/30 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-lg bg-[#C8A661]/30 flex items-center justify-center">
                 <Banknote className="h-5 w-5 text-[#C8A661]" />
               </div>
               <div>
@@ -64,7 +64,7 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
             </div>
 
             <Link href="/funding">
-              <Button className="w-full bg-[#b8860b] hover:bg-[#C8A661] text-white" size="sm" data-testid="button-cross-sell-funding">
+              <Button className="w-full bg-[#C8A661] hover:bg-[#C8A661] text-white" size="sm" data-testid="button-cross-sell-funding">
                 Explore Funding
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -115,7 +115,7 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
 
       {/* Score-specific message */}
       {score && score >= 70 && (
-        <Card className="bg-gradient-to-r from-[#b8860b]/20 to-[#C8A661]/20 border-[#b8860b]/40" data-testid="card-cross-sell-hot">
+        <Card className="bg-gradient-to-r from-[#C8A661]/20 to-[#C8A661]/20 border-[#C8A661]/40" data-testid="card-cross-sell-hot">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <TrendingUp className="w-6 h-6 text-[#C8A661]" />
@@ -125,7 +125,7 @@ export function CLEANBICrossSell({ score, grade, address }: CLEANBICrossSellProp
                 </p>
                 <p className="text-sm text-white/80">
                   This location scored {score}/100 — act fast before others discover it.
-                  <Link href="/consultation-landing" className="ml-2 text-[#C8A661] hover:text-[#b8860b] underline">
+                  <Link href="/consultation-landing" className="ml-2 text-[#C8A661] hover:text-[#C8A661] underline">
                     Talk to an expert →
                   </Link>
                 </p>
@@ -142,7 +142,7 @@ export function CLEANBICrossSellCompact() {
   return (
     <div className="flex flex-col sm:flex-row gap-3 mt-4 p-4 bg-white/5 rounded-lg border border-white/10" data-testid="section-cross-sell-compact">
       <Link href="/funding" className="flex-1">
-        <Button variant="outline" className="w-full border-[#b8860b]/50 text-[#C8A661] hover:bg-[#b8860b]/10" size="sm" data-testid="button-compact-funding">
+        <Button variant="outline" className="w-full border-[#C8A661]/50 text-[#C8A661] hover:bg-[#C8A661]/10" size="sm" data-testid="button-compact-funding">
           <Banknote className="w-4 h-4 mr-2" />
           Get Funding ($10K-$50M)
         </Button>

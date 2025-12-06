@@ -220,14 +220,14 @@ export default function EquipmentMixOptimizer() {
               <Card className="bg-white/5 border-white/10">
                 <CardHeader className="border-b border-white/10">
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Calculator className="w-5 h-5 text-[#b8860b]" />
+                    <Calculator className="w-5 h-5 text-[#C8A661]" />
                     Equipment Configuration
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-[#b8860b] flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-[#C8A661] flex items-center gap-2">
                         <Gauge className="w-4 h-4" />
                         Washers
                       </h3>
@@ -323,11 +323,11 @@ export default function EquipmentMixOptimizer() {
                     </CardContent>
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
-                    <Lock className="w-8 h-8 text-[#b8860b] mb-2" />
+                    <Lock className="w-8 h-8 text-[#C8A661] mb-2" />
                     <h4 className="text-white font-semibold mb-1">Detailed Revenue Breakdown</h4>
                     <p className="text-white/60 text-sm mb-3">See per-machine revenue analysis</p>
                     <Button 
-                      className="bg-[#b8860b] hover:bg-[#d4a030] text-black"
+                      className="bg-[#C8A661] hover:bg-[#d4a030] text-black"
                       onClick={() => setShowUpgradePrompt(true)}
                       data-testid="button-unlock-breakdown"
                     >
@@ -359,7 +359,7 @@ export default function EquipmentMixOptimizer() {
                                   x{item.quantity}
                                 </Badge>
                               </div>
-                              <span className="text-[#b8860b] font-bold">{formatCurrency(item.annualRevenue)}/yr</span>
+                              <span className="text-[#C8A661] font-bold">{formatCurrency(item.annualRevenue)}/yr</span>
                             </div>
                             <Progress value={percentage} className="h-2" />
                             <div className="flex justify-between mt-1 text-xs text-white/50">
@@ -376,16 +376,16 @@ export default function EquipmentMixOptimizer() {
             </div>
 
             <div className="space-y-6">
-              <Card className="bg-gradient-to-br from-[#b8860b]/20 to-transparent border-[#b8860b]/30">
+              <Card className="bg-gradient-to-br from-[#C8A661]/20 to-transparent border-[#C8A661]/30">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-white flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-[#b8860b]" />
+                    <DollarSign className="w-5 h-5 text-[#C8A661]" />
                     Annual Revenue Projection
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-center py-4">
-                    <div className="text-4xl font-bold text-[#b8860b]" data-testid="text-annual-revenue">
+                    <div className="text-4xl font-bold text-[#C8A661]" data-testid="text-annual-revenue">
                       {formatCurrency(calculations.totalAnnualRevenue)}
                     </div>
                     <div className="text-white/60 text-sm">Projected Annual Revenue</div>
@@ -451,7 +451,7 @@ export default function EquipmentMixOptimizer() {
                             ? "bg-green-500/10 border-green-500/20" 
                             : suggestion.type === "remove"
                               ? "bg-red-500/10 border-red-500/20"
-                              : "bg-[#b8860b]/10 border-[#b8860b]/20"
+                              : "bg-[#C8A661]/10 border-[#C8A661]/20"
                         }`}
                       >
                         <div className="flex items-start gap-2">
@@ -460,7 +460,7 @@ export default function EquipmentMixOptimizer() {
                           ) : suggestion.type === "remove" ? (
                             <TrendingDown className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
                           ) : (
-                            <Target className="w-4 h-4 text-[#b8860b] mt-0.5 shrink-0" />
+                            <Target className="w-4 h-4 text-[#C8A661] mt-0.5 shrink-0" />
                           )}
                           <div>
                             <p className="text-white text-sm">{suggestion.text}</p>
@@ -468,7 +468,7 @@ export default function EquipmentMixOptimizer() {
                               className={`mt-1 text-xs ${
                                 suggestion.type === "add" 
                                   ? "bg-green-500/20 text-green-400 border-green-500/30"
-                                  : "bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30"
+                                  : "bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30"
                               }`}
                             >
                               {suggestion.impact}

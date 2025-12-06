@@ -160,7 +160,7 @@ export default function ListYourLaundromat() {
                 Return Home
               </Link>
             </Button>
-            <Button size="lg" className="bg-[#b8860b] hover:bg-[#9a7209]" asChild>
+            <Button size="lg" className="bg-[#C8A661] hover:bg-[#9a7209]" asChild>
               <Link href="/cleanbi-explorer">
                 Get CLEANBI Score
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -190,7 +190,7 @@ export default function ListYourLaundromat() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <Badge className="mb-6 bg-[#b8860b]/20 text-[#b8860b] border-[#b8860b]/30">
+            <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
               <Building2 className="w-3 h-3 mr-1" />
               Laundromat Marketplace
             </Badge>
@@ -226,8 +226,8 @@ export default function ListYourLaundromat() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {BENEFITS.map((benefit) => (
               <div key={benefit.title} className="text-center p-4">
-                <div className="w-12 h-12 bg-[#b8860b]/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <benefit.icon className="w-6 h-6 text-[#b8860b]" />
+                <div className="w-12 h-12 bg-[#C8A661]/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <benefit.icon className="w-6 h-6 text-[#C8A661]" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
                   {benefit.title}
@@ -249,7 +249,7 @@ export default function ListYourLaundromat() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#b8860b]" />
+                  <FileText className="w-5 h-5 text-[#C8A661]" />
                   Submit Your Listing
                 </CardTitle>
                 <CardDescription>
@@ -557,7 +557,7 @@ export default function ListYourLaundromat() {
                       <Button 
                         type="submit" 
                         size="lg" 
-                        className="w-full bg-[#b8860b] hover:bg-[#9a7209]"
+                        className="w-full bg-[#C8A661] hover:bg-[#9a7209]"
                         disabled={submitMutation.isPending}
                         data-testid="button-submit-listing"
                       >
@@ -589,13 +589,13 @@ export default function ListYourLaundromat() {
                     key={tier.name}
                     className={`p-4 rounded-lg border ${
                       tier.popular 
-                        ? 'border-[#b8860b] bg-[#b8860b]/5' 
+                        ? 'border-[#C8A661] bg-[#C8A661]/5' 
                         : 'border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-gray-900 dark:text-white">{tier.name}</span>
-                      <span className="font-bold text-[#b8860b]">{tier.price}</span>
+                      <span className="font-bold text-[#C8A661]">{tier.price}</span>
                     </div>
                     <ul className="space-y-1">
                       {tier.features.map((feature) => (
@@ -606,7 +606,7 @@ export default function ListYourLaundromat() {
                       ))}
                     </ul>
                     {tier.popular && (
-                      <Badge className="mt-3 bg-[#b8860b] text-white">Most Popular</Badge>
+                      <Badge className="mt-3 bg-[#C8A661] text-white">Most Popular</Badge>
                     )}
                   </div>
                 ))}
@@ -625,7 +625,7 @@ export default function ListYourLaundromat() {
                   className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   data-testid="link-phone-support"
                 >
-                  <Phone className="w-5 h-5 text-[#b8860b]" />
+                  <Phone className="w-5 h-5 text-[#C8A661]" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white text-sm">(479) 883-4314</p>
                     <p className="text-xs text-gray-500">Mon-Fri, 9am-5pm CST</p>
@@ -636,7 +636,7 @@ export default function ListYourLaundromat() {
                   className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   data-testid="link-email-support"
                 >
-                  <Mail className="w-5 h-5 text-[#b8860b]" />
+                  <Mail className="w-5 h-5 text-[#C8A661]" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white text-sm">consult@washbizhub.com</p>
                     <p className="text-xs text-gray-500">Typically replies within 4 hours</p>
@@ -649,13 +649,13 @@ export default function ListYourLaundromat() {
             <Card className="bg-[#1e3a5f] text-white border-0">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#b8860b] mb-1">72,000+</p>
+                  <p className="text-3xl font-bold text-[#C8A661] mb-1">72,000+</p>
                   <p className="text-sm text-white/70 mb-4">Active Community Members</p>
                   <Separator className="bg-white/20 mb-4" />
-                  <p className="text-3xl font-bold text-[#b8860b] mb-1">$2.1B+</p>
+                  <p className="text-3xl font-bold text-[#C8A661] mb-1">$2.1B+</p>
                   <p className="text-sm text-white/70 mb-4">Listings Facilitated</p>
                   <Separator className="bg-white/20 mb-4" />
-                  <p className="text-3xl font-bold text-[#b8860b] mb-1">14 Days</p>
+                  <p className="text-3xl font-bold text-[#C8A661] mb-1">14 Days</p>
                   <p className="text-sm text-white/70">Average Time to First Inquiry</p>
                 </div>
               </CardContent>

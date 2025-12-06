@@ -405,12 +405,12 @@ export default function StartupFunding() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a href="https://itsgokapital.com" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-[#C8A661] text-white hover:bg-[#b8860b]" data-testid="button-apply-gokapital">
+                <Button className="bg-[#C8A661] text-white hover:bg-[#C8A661]" data-testid="button-apply-gokapital">
                   Start with GoKapital (Business Credit)
                 </Button>
               </a>
               <a href="https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-[#C8A661] text-white hover:bg-[#b8860b]" data-testid="button-apply-preferred">
+                <Button className="bg-[#C8A661] text-white hover:bg-[#C8A661]" data-testid="button-apply-preferred">
                   Start with Preferred Funding (Personal Credit)
                 </Button>
               </a>

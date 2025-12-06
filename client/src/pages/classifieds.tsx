@@ -90,7 +90,7 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
     <Link href={`/classifieds/${listing.id}`}>
       <Card className="h-full hover-elevate cursor-pointer transition-all overflow-hidden">
         {listing.featured && (
-          <div className="bg-[#b8860b] text-white text-xs font-semibold px-3 py-1 text-center">
+          <div className="bg-[#C8A661] text-white text-xs font-semibold px-3 py-1 text-center">
             Featured Listing
           </div>
         )}
@@ -113,7 +113,7 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
             </h3>
           </div>
           
-          <div className="text-lg font-bold text-[#b8860b] mb-2" data-testid={`listing-price-${listing.id}`}>
+          <div className="text-lg font-bold text-[#C8A661] mb-2" data-testid={`listing-price-${listing.id}`}>
             {formatPrice(listing.price, listing.price_type)}
           </div>
           
@@ -197,7 +197,7 @@ export default function Classifieds() {
             </div>
             <Button 
               asChild 
-              className="bg-[#b8860b] hover:bg-[#a07609] text-white"
+              className="bg-[#C8A661] hover:bg-[#a07609] text-white"
             >
               <Link href="/classifieds/submit">
                 <Plus className="w-4 h-4 mr-2" />
@@ -270,7 +270,7 @@ export default function Classifieds() {
             {featuredListings.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-[#b8860b]" />
+                  <Tag className="w-5 h-5 text-[#C8A661]" />
                   Featured Listings
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -302,7 +302,7 @@ export default function Classifieds() {
                   ? `No results for "${searchQuery}"`
                   : "Be the first to list something!"}
               </p>
-              <Button asChild className="bg-[#b8860b] hover:bg-[#a07609]">
+              <Button asChild className="bg-[#C8A661] hover:bg-[#a07609]">
                 <Link href="/classifieds/submit">
                   <Plus className="w-4 h-4 mr-2" />
                   Post a Free Listing
@@ -320,7 +320,7 @@ export default function Classifieds() {
             Laundry-related listings are completely FREE. Reach thousands of 
             industry professionals looking to buy equipment, services, and businesses.
           </p>
-          <Button asChild size="lg" className="bg-[#b8860b] hover:bg-[#a07609]">
+          <Button asChild size="lg" className="bg-[#C8A661] hover:bg-[#a07609]">
             <Link href="/classifieds/submit">
               <Plus className="w-5 h-5 mr-2" />
               Post Your Listing for Free

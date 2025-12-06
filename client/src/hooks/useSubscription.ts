@@ -272,11 +272,11 @@ export function getTierColor(tier: SubscriptionTier | string): string {
   const colors: Record<string, string> = {
     free: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100",
     starter: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
-    pro: "bg-[#b8860b]/10 text-[#b8860b] dark:bg-[#b8860b]/20 dark:text-[#d4a030]",
+    pro: "bg-[#C8A661]/10 text-[#C8A661] dark:bg-[#C8A661]/20 dark:text-[#d4a030]",
     enterprise: "bg-[#1e3a5f]/10 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-200",
     // Legacy
     accelerate: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
-    scale: "bg-[#b8860b]/10 text-[#b8860b] dark:bg-[#b8860b]/20 dark:text-[#d4a030]",
+    scale: "bg-[#C8A661]/10 text-[#C8A661] dark:bg-[#C8A661]/20 dark:text-[#d4a030]",
     summit: "bg-[#1e3a5f]/10 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-200",
   };
   return colors[tier] || colors.free;

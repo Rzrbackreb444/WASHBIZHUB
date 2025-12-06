@@ -75,7 +75,7 @@ export default function CLEANBIMarketReport() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,...')] opacity-5" />
           <div className="container mx-auto px-4 py-16 relative z-10">
             <div className="flex items-center gap-3 mb-4">
-              <Badge className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] text-white border-0">
+              <Badge className="bg-gradient-to-r from-[#C8A661] to-[#d4a84b] text-white border-0">
                 <Calendar className="w-3 h-3 mr-1" />
                 {currentMonth}
               </Badge>
@@ -94,7 +94,7 @@ export default function CLEANBIMarketReport() {
             
             <div className="flex flex-wrap gap-4">
               <Link href="/cleanbi-explorer">
-                <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] hover:from-[#a07608] hover:to-[#c49940] text-white" data-testid="button-analyze-location">
+                <Button size="lg" className="bg-gradient-to-r from-[#C8A661] to-[#d4a84b] hover:from-[#a07608] hover:to-[#c49940] text-white" data-testid="button-analyze-location">
                   <Target className="w-5 h-5 mr-2" />
                   Analyze Any Location
                 </Button>
@@ -407,7 +407,7 @@ export default function CLEANBIMarketReport() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <Link href="/cleanbi-explorer">
-                      <Button size="lg" className="bg-gradient-to-r from-[#b8860b] to-[#d4a84b] text-white" data-testid="button-try-cleanbi">
+                      <Button size="lg" className="bg-gradient-to-r from-[#C8A661] to-[#d4a84b] text-white" data-testid="button-try-cleanbi">
                         <Target className="w-5 h-5 mr-2" />
                         Try CLEANBI Free
                       </Button>
@@ -420,8 +420,8 @@ export default function CLEANBIMarketReport() {
                   </div>
                 </div>
                 <div className="hidden md:flex justify-center">
-                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#b8860b]/20 to-[#d4a84b]/20 flex items-center justify-center">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#b8860b] to-[#d4a84b] flex items-center justify-center">
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-[#C8A661]/20 to-[#d4a84b]/20 flex items-center justify-center">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#C8A661] to-[#d4a84b] flex items-center justify-center">
                       <span className="text-5xl font-bold">A</span>
                     </div>
                   </div>

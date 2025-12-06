@@ -238,7 +238,7 @@ export default function LaundromatListings() {
 
               <div className="flex flex-wrap gap-3">
                 <Link href="/cleanbi-explorer">
-                  <Button className="bg-[#C8A661] hover:bg-[#b8860b] text-black" data-testid="link-cleanbi">
+                  <Button className="bg-[#C8A661] hover:bg-[#C8A661] text-black" data-testid="link-cleanbi">
                     <Target className="w-4 h-4 mr-2" />
                     Analyze Any Location
                   </Button>
@@ -496,7 +496,7 @@ export default function LaundromatListings() {
                   {/* Action Buttons */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
-                      className="bg-[#C8A661] hover:bg-[#b8860b] text-black" 
+                      className="bg-[#C8A661] hover:bg-[#C8A661] text-black" 
                       data-testid={`button-view-${listing.id}`}
                       onClick={() => setLocation(`/listing/${listing.id}`)}
                     >
@@ -559,7 +559,7 @@ export default function LaundromatListings() {
           )}
 
           {/* Bottom CTA */}
-          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-[#C8A661]/20 to-[#b8860b]/10 border border-[#C8A661]/30">
+          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-[#C8A661]/20 to-[#C8A661]/10 border border-[#C8A661]/30">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="text-xl font-bold text-white mb-1">Ready to Buy?</h3>

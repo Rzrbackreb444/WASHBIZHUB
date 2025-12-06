@@ -116,16 +116,16 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
       data-testid="section-homepage-newsletter"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#253f5f] to-[#1e3a5f]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#b8860b]/15 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C8A661]/15 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#C8A661]/10 via-transparent to-transparent" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#b8860b]/5 rounded-full blur-3xl" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8A661]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#1e3a5f]/5 rounded-full blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="inline-flex items-center bg-[#b8860b]/20 px-4 py-2 rounded-full">
+              <div className="inline-flex items-center bg-[#C8A661]/20 px-4 py-2 rounded-full">
                 <span className="text-sm font-medium text-[#C8A661]" data-testid="badge-newsletter-label">
                   Free Weekly Intelligence
                 </span>
@@ -148,7 +148,7 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
                   className="flex items-start gap-4 group"
                   data-testid={`benefit-item-${index}`}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 bg-[#b8860b]/20 rounded-lg flex items-center justify-center group-hover:bg-[#b8860b]/30 transition-colors">
+                  <div className="flex-shrink-0 w-10 h-10 bg-[#C8A661]/20 rounded-lg flex items-center justify-center group-hover:bg-[#C8A661]/30 transition-colors">
                     <benefit.icon className="h-5 w-5 text-[#C8A661]" />
                   </div>
                   <div>
