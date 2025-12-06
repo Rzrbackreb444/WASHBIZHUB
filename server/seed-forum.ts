@@ -50,6 +50,13 @@ const categories: InsertForumCategory[] = [
     icon: "map-pin",
     displayOrder: 6,
   },
+  {
+    name: "Post Your Need",
+    slug: "post-your-need",
+    description: "Looking for equipment, services, partnerships, or solutions? Post what you need and connect with the community.",
+    icon: "megaphone",
+    displayOrder: 7,
+  },
 ];
 
 interface SeedTopic {
@@ -182,6 +189,43 @@ The goal is to help each other optimize pricing for profitability while staying 
       },
       {
         content: "Small Midwest town (pop 25K). Still at $2.75 top-loaders, $4-5 front-loaders. We're the only laundromat in town but customers are price-sensitive. Raised 25 cents last month and got complaints for a week, then everyone adjusted.",
+      },
+    ],
+  },
+  {
+    categorySlug: "post-your-need",
+    title: "How to Post Your Need - Guidelines for Getting Great Responses",
+    content: `Welcome to the **Post Your Need** section! This is your space to connect with the WashBizHub community when you're looking for:
+
+**Types of Needs:**
+- **Equipment** - Looking to buy washers, dryers, change machines, or other equipment
+- **Services** - Need a technician, consultant, accountant, or other service provider
+- **Partnerships** - Seeking business partners, investors, or joint ventures
+- **Locations** - Looking for a laundromat to buy or a location to build
+- **Supplies** - Need chemical suppliers, parts vendors, or other supplies
+- **Advice** - Seeking recommendations or guidance from experienced owners
+
+**How to Write an Effective Post:**
+1. **Be specific** - Include details like location, budget range, timeline
+2. **Use clear titles** - Example: "NEED: Coin Counter in Phoenix Metro Area"
+3. **Tag appropriately** - Use tags like #equipment, #services, #location, #urgent
+4. **Include contact preference** - Let people know how to reach you (forum DM, email, phone)
+
+**Tips for Success:**
+- The more detail you provide, the better responses you'll get
+- Check back often - community members respond quickly
+- Mark your post as "Resolved" when you find what you need
+- Pay it forward by helping others with their needs!
+
+Post your need below and let the community help you find what you're looking for!`,
+    tags: ["guidelines", "how-to", "welcome", "needs"],
+    replies: [
+      {
+        content: "Great addition to the forum! I've been looking for a reliable technician in the Atlanta area. Will definitely be posting here.",
+      },
+      {
+        content: "Pro tip: Include your general timeline and budget range in your post. It saves a lot of back-and-forth and helps match you with the right people faster.",
+        isAnswer: true,
       },
     ],
   },
