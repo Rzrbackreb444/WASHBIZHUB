@@ -13,10 +13,10 @@ import logoUrl from "@assets/6_1764040628012.png";
 
 const navLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™", featured: true },
+  { href: "/equipment", label: "Equipment", featured: true },
   { href: "/valuation-calculator", label: "Valuator" },
   { href: "/buy-laundromat", label: "Buy" },
   { href: "/sell-your-laundromat", label: "Sell" },
-  { href: "/equipment-builder", label: "Get Quotes", featured: true },
   { href: "/forum", label: "Forum" },
   { href: "/consultation", label: "Consultations" },
 ];
@@ -35,8 +35,8 @@ const megaMenuSections = [
     id: "equipment",
     title: "Equipment",
     items: [
-      { href: "/equipment-builder", label: "Get Equipment Quotes", featured: true, description: "Free quotes from 585+ distributors" },
-      { href: "/distributor-locator", label: "Find Distributors", description: "Locate authorized dealers" },
+      { href: "/equipment", label: "Equipment Hub", featured: true, description: "Dexter & Continental Girbau - Buy, Parts, Service" },
+      { href: "/equipment-builder", label: "Get Equipment Quotes", description: "Free quotes from 585+ distributors" },
       { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options & rates" },
     ]
   },
