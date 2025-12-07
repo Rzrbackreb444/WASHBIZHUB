@@ -335,6 +335,7 @@ const VerifyEmail = lazy(() => import("@/pages/verify-email"));
 const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
 const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
 const TermsOfService = lazy(() => import("@/pages/terms"));
+const LegalDisclaimer = lazy(() => import("@/pages/legal-disclaimer"));
 const MarketplaceLanding = lazy(() => import("@/pages/landing/marketplace-landing"));
 const ROICalculatorLanding = lazy(() => import("@/pages/landing/roi-calculator-landing"));
 const ValuationCalculatorLanding = lazy(() => import("@/pages/landing/valuation-calculator-landing"));
@@ -1365,6 +1366,16 @@ function Router() {
       <Route path="/terms">
         <Suspense fallback={<LoadingFallback />}>
           <TermsOfService />
+        </Suspense>
+      </Route>
+      <Route path="/legal-disclaimer">
+        <Suspense fallback={<LoadingFallback />}>
+          <LegalDisclaimer />
+        </Suspense>
+      </Route>
+      <Route path="/disclaimer">
+        <Suspense fallback={<LoadingFallback />}>
+          <LegalDisclaimer />
         </Suspense>
       </Route>
 

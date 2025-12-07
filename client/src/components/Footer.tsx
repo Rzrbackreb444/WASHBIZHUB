@@ -274,6 +274,11 @@ export function Footer() {
                   Terms
                 </span>
               </Link>
+              <Link href="/legal-disclaimer">
+                <span className="text-white/40 hover:text-white/70 transition-colors cursor-pointer" data-testid="link-footer-legal-disclaimer">
+                  Legal Disclaimer
+                </span>
+              </Link>
               <a 
                 href="/sitemap.xml"
                 className="text-white/40 hover:text-white/70 transition-colors"
