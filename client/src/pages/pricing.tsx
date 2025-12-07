@@ -37,7 +37,8 @@ import {
   ArrowRight,
   ChevronDown,
   Quote,
-  Store
+  Store,
+  Wrench
 } from "lucide-react";
 import { VisibilityAddOnsSection } from "@/components/VisibilityAddOnsSection";
 
@@ -410,12 +411,17 @@ export default function Pricing() {
               <span className="text-muted-foreground">Jump to:</span>
               <a href="#buyer-plans" className="text-primary hover:underline font-medium flex items-center gap-1">
                 <Map className="h-3 w-3" />
-                Buyer Intelligence Plans
+                Buyer Intelligence
+              </a>
+              <span className="text-muted-foreground">|</span>
+              <a href="#service-guy-ai" className="text-orange-400 hover:underline font-medium flex items-center gap-1">
+                <Wrench className="h-3 w-3" />
+                Service Tech Tools
               </a>
               <span className="text-muted-foreground">|</span>
               <a href="#seller-plans" className="text-[#C8A661] hover:underline font-medium flex items-center gap-1">
                 <Store className="h-3 w-3" />
-                Seller Listing Plans
+                Seller Listings
               </a>
             </div>
           </div>
@@ -914,6 +920,169 @@ export default function Pricing() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Service Guy AI Section */}
+        <section 
+          className="py-16 sm:py-24 bg-[#0A1628]"
+          aria-labelledby="service-guy-title"
+          id="service-guy-ai"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-orange-500/20 text-orange-400 border-orange-500/40">
+                <Wrench className="h-3 w-3 mr-1.5" />
+                Service Technicians
+              </Badge>
+              <h2 id="service-guy-title" className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                Service Guy AI - Diagnostic Field Tool
+              </h2>
+              <p className="text-white/70 max-w-2xl mx-auto">
+                Instant error code lookup, repair procedures, and parts ordering for commercial laundry equipment. 
+                15,867+ diagnostic codes from Dexter, Speed Queen, Wascomat, Huebsch, Continental & more.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {/* Starter Tier */}
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardHeader className="text-center pb-2">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#C8A661]/20 mx-auto mb-3">
+                    <Zap className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-white">Starter</CardTitle>
+                  <div className="text-3xl font-bold text-white">
+                    $29<span className="text-lg font-normal text-white/60">/mo</span>
+                  </div>
+                  <CardDescription className="text-white/60">50 lookups/month</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Basic error code lookup</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>2 troubleshooting steps shown</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Voice input for hands-free</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/60">
+                    <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Parts lists locked</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/60">
+                    <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Full procedures locked</span>
+                  </div>
+                  <Link href="/api/stripe/create-checkout?plan=starter" className="block pt-4">
+                    <Button className="w-full bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/40 hover:bg-[#C8A661]/30">
+                      Get Starter
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Pro Tier - Most Popular */}
+              <Card className="bg-white/10 border-[#C8A661]/50 backdrop-blur-sm relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-[#C8A661] text-[#0A1628] font-semibold">Most Popular</Badge>
+                </div>
+                <CardHeader className="text-center pb-2">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#C8A661]/30 mx-auto mb-3">
+                    <Star className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-white">Pro</CardTitle>
+                  <div className="text-3xl font-bold text-white">
+                    $79<span className="text-lg font-normal text-white/60">/mo</span>
+                  </div>
+                  <CardDescription className="text-white/60">500 lookups/month</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span className="font-medium text-white">Full repair procedures</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span className="font-medium text-white">Parts lists with pricing</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Photo diagnosis with AI</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Job tracking & history</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Invoice/quote generator</span>
+                  </div>
+                  <Link href="/api/stripe/create-checkout?plan=pro" className="block pt-4">
+                    <Button className="w-full bg-[#C8A661] text-[#0A1628] hover:bg-[#B8964F]">
+                      Get Pro
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Enterprise Tier */}
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <CardHeader className="text-center pb-2">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 mx-auto mb-3">
+                    <Crown className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <CardTitle className="text-white">Enterprise</CardTitle>
+                  <div className="text-3xl font-bold text-white">
+                    $199<span className="text-lg font-normal text-white/60">/mo</span>
+                  </div>
+                  <CardDescription className="text-white/60">Unlimited lookups</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span className="font-medium text-white">Everything in Pro</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span className="font-medium text-white">Unlimited lookups</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>API access for integrations</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Complete diagnostic database</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Dedicated support</span>
+                  </div>
+                  <Link href="/api/stripe/create-checkout?plan=enterprise" className="block pt-4">
+                    <Button className="w-full bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:bg-purple-500/30">
+                      Get Enterprise
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/service-guy-ai">
+                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  Try Free Lookup (3/month)
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+              <p className="text-white/50 text-sm mt-3">
+                Free tier: 3 lookups/month with basic info. No credit card required.
+              </p>
             </div>
           </div>
         </section>
