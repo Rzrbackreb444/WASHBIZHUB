@@ -13,7 +13,7 @@ import { SiMeta, SiFacebook } from "react-icons/si";
 import { Link } from "wouter";
 
 const FB_GROUP_URL = "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry";
-const AADVANTAGE_URL = "https://www.aadvantagelaundry.com";
+const AADVANTAGE_URL = "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry";
 
 interface WizardStep {
   id: string;
