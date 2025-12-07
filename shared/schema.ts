@@ -5913,6 +5913,12 @@ export const diagnosticCodes = pgTable("diagnostic_codes", {
   // Quick fix tips (pro tips from experienced techs)
   quickFix: text("quick_fix"), // "Clean pump filter first - fixes 70% of cases"
   
+  // Repair techniques - detailed pro tips for experienced techs
+  repairTechniques: text("repair_techniques").array(), // ["Use ESD mat for board work", "Test with known good card"]
+  
+  // Fix success rate based on historical data
+  fixSuccessRate: integer("fix_success_rate"), // Percentage 0-100
+  
   // Era/Model compatibility
   eraCompatibility: text("era_compatibility"), // "1990-2005", "2000-2025", etc.
   modelSeries: text("model_series"), // "Quantum", "C-Series", "Phase 5", etc.
