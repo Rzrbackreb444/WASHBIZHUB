@@ -961,7 +961,11 @@ export default function Pricing() {
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Basic error code lookup</span>
+                    <span>50 diagnostic lookups/month</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Basic error code identification</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
@@ -969,18 +973,18 @@ export default function Pricing() {
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Voice input for hands-free</span>
+                    <span>Voice input (hands-free field use)</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/60">
                     <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>Parts lists locked</span>
+                    <span>Full repair procedures</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/60">
                     <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>Full procedures locked</span>
+                    <span>Parts ordering & supplier links</span>
                   </div>
                   <Link href="/api/stripe/create-checkout?plan=starter" className="block pt-4">
-                    <Button className="w-full bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/40 hover:bg-[#C8A661]/30">
+                    <Button className="w-full bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/40 hover:bg-[#C8A661]/30" data-testid="button-service-guy-starter">
                       Get Starter
                     </Button>
                   </Link>
@@ -1005,26 +1009,30 @@ export default function Pricing() {
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span className="font-medium text-white">Full repair procedures</span>
+                    <span className="font-medium text-white">500 diagnostic lookups/month</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span className="font-medium text-white">Parts lists with pricing</span>
+                    <span className="font-medium text-white">Full repair procedures unlocked</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Photo diagnosis with AI</span>
+                    <span>Parts lists with supplier links</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Job tracking & history</span>
+                    <span>Photo diagnosis (Gemini Vision AI)</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Invoice/quote generator</span>
+                    <span>Job tracking & service history</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Invoice & quote PDF generator</span>
                   </div>
                   <Link href="/api/stripe/create-checkout?plan=pro" className="block pt-4">
-                    <Button className="w-full bg-[#C8A661] text-[#0A1628] hover:bg-[#B8964F]">
+                    <Button className="w-full bg-[#C8A661] text-[#0A1628] hover:bg-[#B8964F]" data-testid="button-service-guy-pro">
                       Get Pro
                     </Button>
                   </Link>
@@ -1046,26 +1054,30 @@ export default function Pricing() {
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span className="font-medium text-white">Everything in Pro</span>
+                    <span className="font-medium text-white">Unlimited diagnostic lookups</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span className="font-medium text-white">Unlimited lookups</span>
+                    <span className="font-medium text-white">Complete 15,867+ code database</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>API access for integrations</span>
+                    <span>All Pro features included</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Complete diagnostic database</span>
+                    <span>Service tech locator access</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
-                    <span>Dedicated support</span>
+                    <span>API for dispatch systems</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 text-[#C8A661] mt-0.5 flex-shrink-0" />
+                    <span>Priority dedicated support</span>
                   </div>
                   <Link href="/api/stripe/create-checkout?plan=enterprise" className="block pt-4">
-                    <Button className="w-full bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:bg-purple-500/30">
+                    <Button className="w-full bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:bg-purple-500/30" data-testid="button-service-guy-enterprise">
                       Get Enterprise
                     </Button>
                   </Link>
