@@ -59,6 +59,12 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
   - "Analyze with CLEANBI" button appears on every listing card across the platform
   - Gold pulsing gradient navigation button (first position in header, full-width mobile CTA)
   - All navigation links point to /cleanbi-explorer (backward-compatible /cleanbi-auto still works)
+  - **Dual View Mode:** Toggle between Map View and Charts View via ViewModeToggle component
+  - **Saved Addresses Panel:** Quick-access sidebar (SavedAddressesPanel) for previously analyzed locations with search, delete, clear all
+  - **Professional Charts View:** AnalysisChartsView with Recharts radial gauge, key metrics cards, mobility scores, WashBizHub Navy/Gold branding
+  - **PDF Export:** AnalysisReportGenerator creates branded PDF reports for subscribers using html2canvas + jspdf
+  - **Social Sharing:** AnalysisSocialShare enables sharing analysis results on Facebook, Twitter, LinkedIn with pre-populated text
+  - Components located in: `client/src/components/cleanbi/` (SavedAddressesPanel, ViewModeToggle, AnalysisChartsView, AnalysisReportGenerator, AnalysisSocialShare)
 - **POS Command Center:** An enterprise dashboard for laundromat operations, including KPIs, order management, CRM, IoT machine status, and route planning.
 - **IoT & Diagnostics:** Ingests sensor data for predictive maintenance.
 - **Route Optimization:** Integrates Google Maps and OR-Tools with Twilio.
