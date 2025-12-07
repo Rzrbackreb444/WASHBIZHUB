@@ -26,7 +26,7 @@ import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzl
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
-import { generateBlogContent, generateCleanbiInsights, optimizeLayout, scanErrorCodeFromImage } from "./gemini";
+import { generateBlogContent, generateCleanbiInsights, optimizeLayout, scanErrorCodeFromImage, analyzeEquipmentImage } from "./gemini";
 import { analyzeUtilityBill, compareBills, type UtilityBillData } from "./utility-bill-analyzer";
 import { notifyNewSubscription, notifyNewProSubscription, notifyNewEnrollment, notifyConsultationRequest, notifyInsuranceLeadRequest, notifyAIChatMessage } from "./notifications";
 import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
@@ -11744,6 +11744,80 @@ ${pdfData.text.substring(0, 15000)}`;
     enterprise: { monthlyLookups: -1, requestsPerMinute: 100 },
   };
 
+  // POST /api/service-guy/scan-image - Analyze equipment image with Gemini Vision
+  app.post("/api/service-guy/scan-image", async (req, res) => {
+    try {
+      const { imageData, mimeType, manufacturer, machineType } = req.body;
+
+      if (!imageData) {
+        return res.status(400).json({ 
+          success: false,
+          error: "No image data provided. Please provide base64 encoded image data.",
+          "data-testid": "scan-image-error-no-data"
+        });
+      }
+
+      // Validate image data format (should be base64)
+      const base64Regex = /^[A-Za-z0-9+/=]+$/;
+      const cleanedImageData = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
+      
+      if (!base64Regex.test(cleanedImageData.replace(/\s/g, ''))) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Invalid image data format. Please provide valid base64 encoded image.",
+          "data-testid": "scan-image-error-invalid-format"
+        });
+      }
+
+      // Validate mime type
+      const validMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      const effectiveMimeType = mimeType || 'image/jpeg';
+      
+      if (!validMimeTypes.includes(effectiveMimeType)) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Invalid image type. Supported types: JPEG, PNG, WebP, GIF.",
+          "data-testid": "scan-image-error-invalid-type"
+        });
+      }
+
+      // Call Gemini Vision API for comprehensive analysis
+      const result = await analyzeEquipmentImage(
+        cleanedImageData,
+        effectiveMimeType,
+        {
+          manufacturer: manufacturer || undefined,
+          machineType: machineType || undefined
+        }
+      );
+
+      if (!result.success) {
+        return res.status(500).json({
+          success: false,
+          error: "Failed to analyze image. Please try with a clearer image.",
+          "data-testid": "scan-image-error-analysis-failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        diagnosis: result.diagnosis,
+        confidence: result.confidence,
+        analyzedAt: new Date().toISOString(),
+        "data-testid": "scan-image-result"
+      });
+
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Image scan error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Image analysis failed. Please try again.",
+        message: error.message,
+        "data-testid": "scan-image-error"
+      });
+    }
+  });
+
   // 1. GET /api/service-guy/manufacturers - List all manufacturers (public, no rate limit)
   app.get("/api/service-guy/manufacturers", async (req, res) => {
     try {
@@ -12109,6 +12183,229 @@ ${pdfData.text.substring(0, 15000)}`;
         success: false,
         error: "Failed to submit report",
         "data-testid": "report-error",
+      });
+    }
+  });
+
+  // ========== SERVICE JOBS - Track Repair Work in Progress ==========
+  const { serviceJobs, insertServiceJobSchema } = await import("@shared/schema");
+
+  // GET /api/service-guy/jobs - List user's jobs
+  app.get("/api/service-guy/jobs", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+        });
+      }
+
+      const status = req.query.status as string | undefined;
+      
+      let query = db.select().from(serviceJobs).where(eq(serviceJobs.userId, userId));
+      
+      if (status && status !== 'all') {
+        query = db.select().from(serviceJobs).where(
+          and(eq(serviceJobs.userId, userId), eq(serviceJobs.status, status))
+        );
+      }
+      
+      const jobs = await query.orderBy(desc(serviceJobs.createdAt));
+
+      res.json({
+        success: true,
+        jobs,
+        count: jobs.length,
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Jobs list error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to fetch jobs",
+      });
+    }
+  });
+
+  // POST /api/service-guy/jobs - Create new job from diagnosis
+  app.post("/api/service-guy/jobs", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+        });
+      }
+
+      const validation = insertServiceJobSchema.safeParse({
+        ...req.body,
+        userId,
+      });
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Invalid job data",
+          details: validation.error.errors,
+        });
+      }
+
+      const [job] = await db.insert(serviceJobs).values({
+        ...validation.data,
+        userId,
+        status: "in_progress",
+      }).returning();
+
+      console.log(`[SERVICE-GUY] Job created: ${job.id} by user ${userId}`);
+
+      res.status(201).json({
+        success: true,
+        job,
+        message: "Job created successfully",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Job creation error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to create job",
+      });
+    }
+  });
+
+  // GET /api/service-guy/jobs/:id - Get job details
+  app.get("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const jobId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+        });
+      }
+
+      const [job] = await db.select().from(serviceJobs)
+        .where(and(eq(serviceJobs.id, jobId), eq(serviceJobs.userId, userId)))
+        .limit(1);
+
+      if (!job) {
+        return res.status(404).json({ 
+          success: false,
+          error: "Job not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        job,
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Job details error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to fetch job details",
+      });
+    }
+  });
+
+  // PATCH /api/service-guy/jobs/:id - Update job
+  app.patch("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const jobId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+        });
+      }
+
+      // Check job exists and belongs to user
+      const [existingJob] = await db.select().from(serviceJobs)
+        .where(and(eq(serviceJobs.id, jobId), eq(serviceJobs.userId, userId)))
+        .limit(1);
+
+      if (!existingJob) {
+        return res.status(404).json({ 
+          success: false,
+          error: "Job not found",
+        });
+      }
+
+      const updateData: any = {
+        ...req.body,
+        updatedAt: new Date(),
+      };
+
+      // If status changes to completed, set completedAt
+      if (req.body.status === 'completed' && existingJob.status !== 'completed') {
+        updateData.completedAt = new Date();
+      }
+
+      const [updatedJob] = await db.update(serviceJobs)
+        .set(updateData)
+        .where(eq(serviceJobs.id, jobId))
+        .returning();
+
+      console.log(`[SERVICE-GUY] Job updated: ${jobId} by user ${userId}`);
+
+      res.json({
+        success: true,
+        job: updatedJob,
+        message: "Job updated successfully",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Job update error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to update job",
+      });
+    }
+  });
+
+  // DELETE /api/service-guy/jobs/:id - Delete job
+  app.delete("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const jobId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+        });
+      }
+
+      // Check job exists and belongs to user
+      const [existingJob] = await db.select().from(serviceJobs)
+        .where(and(eq(serviceJobs.id, jobId), eq(serviceJobs.userId, userId)))
+        .limit(1);
+
+      if (!existingJob) {
+        return res.status(404).json({ 
+          success: false,
+          error: "Job not found",
+        });
+      }
+
+      await db.delete(serviceJobs).where(eq(serviceJobs.id, jobId));
+
+      console.log(`[SERVICE-GUY] Job deleted: ${jobId} by user ${userId}`);
+
+      res.json({
+        success: true,
+        message: "Job deleted successfully",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Job delete error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to delete job",
       });
     }
   });

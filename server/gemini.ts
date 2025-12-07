@@ -270,6 +270,179 @@ If you cannot read the display or find no error codes, return empty arrays/null 
 }
 
 /**
+ * Comprehensive photo diagnosis for Service Guy AI
+ * Analyzes equipment images for error codes, parts, wear patterns, and damage
+ */
+export async function analyzeEquipmentImage(
+  imageBase64: string, 
+  mimeType: string = "image/jpeg",
+  context?: {
+    manufacturer?: string;
+    machineType?: "washer" | "dryer" | "payment" | "unknown";
+  }
+): Promise<{
+  success: boolean;
+  diagnosis: {
+    extractedText: string;
+    errorCodes: Array<{
+      code: string;
+      description: string;
+      confidence: number;
+    }>;
+    detectedBrand: string | null;
+    detectedModel: string | null;
+    machineType: "washer" | "dryer" | "payment" | "unknown";
+    visibleParts: Array<{
+      name: string;
+      condition: "good" | "worn" | "damaged" | "unknown";
+      notes: string;
+    }>;
+    wearPatterns: Array<{
+      area: string;
+      severity: "minor" | "moderate" | "severe";
+      description: string;
+    }>;
+    damageAssessment: Array<{
+      type: string;
+      location: string;
+      severity: "minor" | "moderate" | "severe";
+      repairRecommendation: string;
+    }>;
+    overallCondition: "excellent" | "good" | "fair" | "poor" | "critical";
+    recommendations: string[];
+    estimatedUrgency: "immediate" | "soon" | "routine" | "monitor";
+  };
+  confidence: number;
+}> {
+  const contextInfo = context ? `
+Context provided:
+- Manufacturer: ${context.manufacturer || "Unknown"}
+- Machine Type: ${context.machineType || "Unknown"}
+` : "";
+
+  const prompt = `You are an expert commercial laundry equipment technician and diagnostician. Analyze this image of laundry equipment thoroughly.
+
+${contextInfo}
+
+Examine the image and provide a comprehensive diagnosis including:
+
+1. **Display/Error Codes**: Look for any error codes, fault indicators, or warning lights on displays
+2. **Equipment Identification**: Identify the brand, model, and machine type if visible
+3. **Visible Parts**: Identify any visible parts/components and assess their condition
+4. **Wear Patterns**: Look for signs of wear, corrosion, rust, or aging
+5. **Damage Assessment**: Identify any visible damage, cracks, dents, leaks, or broken components
+6. **Overall Condition**: Rate the overall equipment condition
+7. **Recommendations**: Provide actionable repair/maintenance recommendations
+8. **Urgency**: Assess how urgently any issues need to be addressed
+
+Return ONLY valid JSON in this exact format:
+{
+  "extractedText": "All text visible on the equipment or display",
+  "errorCodes": [
+    {"code": "E01", "description": "Description of what this error means", "confidence": 0.95}
+  ],
+  "detectedBrand": "Speed Queen" or null,
+  "detectedModel": "SC40NC" or null,
+  "machineType": "washer" or "dryer" or "payment" or "unknown",
+  "visibleParts": [
+    {"name": "Door seal", "condition": "worn", "notes": "Visible cracking on rubber gasket"}
+  ],
+  "wearPatterns": [
+    {"area": "Drum interior", "severity": "minor", "description": "Light surface wear consistent with normal use"}
+  ],
+  "damageAssessment": [
+    {"type": "Rust", "location": "Bottom panel", "severity": "moderate", "repairRecommendation": "Sand and repaint or replace panel"}
+  ],
+  "overallCondition": "good",
+  "recommendations": ["Replace door seal within 30 days", "Clean lint trap area"],
+  "estimatedUrgency": "soon",
+  "confidence": 0.85
+}
+
+If you cannot clearly see certain aspects, use "unknown" or empty arrays. Always return valid JSON.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: mimeType,
+          data: imageBase64
+        }
+      }
+    ]);
+    
+    const response = result.response;
+    const text = response.text() || "";
+    
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/) || [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+      
+      return {
+        success: true,
+        diagnosis: {
+          extractedText: parsed.extractedText || "",
+          errorCodes: Array.isArray(parsed.errorCodes) ? parsed.errorCodes : [],
+          detectedBrand: parsed.detectedBrand || context?.manufacturer || null,
+          detectedModel: parsed.detectedModel || null,
+          machineType: parsed.machineType || context?.machineType || "unknown",
+          visibleParts: Array.isArray(parsed.visibleParts) ? parsed.visibleParts : [],
+          wearPatterns: Array.isArray(parsed.wearPatterns) ? parsed.wearPatterns : [],
+          damageAssessment: Array.isArray(parsed.damageAssessment) ? parsed.damageAssessment : [],
+          overallCondition: parsed.overallCondition || "unknown",
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+          estimatedUrgency: parsed.estimatedUrgency || "routine"
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.5
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini photo diagnosis response:", parseError);
+      
+      return {
+        success: true,
+        diagnosis: {
+          extractedText: text.substring(0, 500),
+          errorCodes: [],
+          detectedBrand: context?.manufacturer || null,
+          detectedModel: null,
+          machineType: context?.machineType || "unknown",
+          visibleParts: [],
+          wearPatterns: [],
+          damageAssessment: [],
+          overallCondition: "unknown",
+          recommendations: ["Unable to parse detailed analysis. Please try with a clearer image."],
+          estimatedUrgency: "routine"
+        },
+        confidence: 0.3
+      };
+    }
+  } catch (error) {
+    console.error("Gemini photo diagnosis error:", error);
+    return {
+      success: false,
+      diagnosis: {
+        extractedText: "",
+        errorCodes: [],
+        detectedBrand: null,
+        detectedModel: null,
+        machineType: "unknown",
+        visibleParts: [],
+        wearPatterns: [],
+        damageAssessment: [],
+        overallCondition: "unknown",
+        recommendations: [],
+        estimatedUrgency: "routine"
+      },
+      confidence: 0
+    };
+  }
+}
+
+/**
  * Generate valuation narrative for CLEANBI Valuator
  * Provides professional analysis and insights based on equipment, financials, and location data
  */

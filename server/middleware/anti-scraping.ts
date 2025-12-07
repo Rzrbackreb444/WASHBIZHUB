@@ -4,12 +4,13 @@ import { serviceGuyUsage, diagnosticAccessLogs, scrapingBlocklist } from "@share
 import { eq, and, gte, sql } from "drizzle-orm";
 import crypto from "crypto";
 
-// Rate limiting configuration by tier
+// Rate limiting configuration by tier - PROTECT VALUABLE DATABASE
+// Free users get minimal access to prevent scraping and demonstrate value
 const TIER_LIMITS = {
-  free: { monthlyLookups: 5, requestsPerMinute: 2 },
-  starter: { monthlyLookups: 50, requestsPerMinute: 10 },
-  pro: { monthlyLookups: -1, requestsPerMinute: 30 }, // -1 = unlimited
-  enterprise: { monthlyLookups: -1, requestsPerMinute: 100 },
+  free: { monthlyLookups: 3, requestsPerMinute: 1 },      // 3 lookups/month, 1/min max - just enough to see value
+  starter: { monthlyLookups: 50, requestsPerMinute: 5 },  // $29/mo - 50 lookups, reasonable pace
+  pro: { monthlyLookups: 500, requestsPerMinute: 15 },    // $79/mo - 500 lookups (NOT unlimited to prevent abuse)
+  enterprise: { monthlyLookups: -1, requestsPerMinute: 30 }, // $199/mo - unlimited, reasonable rate
 };
 
 // Bot detection patterns
@@ -294,30 +295,112 @@ export async function logDiagnosticAccess(
   }
 }
 
-// Content obfuscation for free tier (hide detailed procedures)
+// Enhanced content obfuscation - PROTECT VALUABLE DATABASE
+// Tiers: free (guests/basic), starter ($29), pro ($79), enterprise ($199)
 export function obfuscateContent(content: any, tier: string): any {
-  if (tier === "pro" || tier === "enterprise") {
-    return content; // Full access
-  }
-  
-  // For free/starter tiers, hide detailed procedures
   const obfuscated = { ...content };
   
-  if (tier === "free") {
-    // Only show basic info
-    obfuscated.troubleshootingSteps = ["Upgrade to view detailed repair steps"];
-    obfuscated.partsWithPricing = null;
-    obfuscated.quickFix = "Upgrade to Pro for quick fix tips";
-    obfuscated.testModeEntry = null;
-  } else if (tier === "starter") {
-    // Show some info but not all
-    if (obfuscated.troubleshootingSteps?.length > 3) {
-      obfuscated.troubleshootingSteps = [
-        ...obfuscated.troubleshootingSteps.slice(0, 3),
-        "Upgrade to Pro for complete repair procedure..."
+  // Mark content as protected
+  obfuscated.isProtected = true;
+  obfuscated.tier = tier;
+  
+  // ENTERPRISE ($199/mo) - Most access, but still protect crown jewels
+  if (tier === "enterprise") {
+    // Full troubleshooting steps and parts
+    // Still hide some proprietary data
+    obfuscated.internalNotes = undefined;
+    obfuscated.proprietaryData = undefined;
+    return obfuscated;
+  }
+  
+  // PRO ($79/mo) - Good access for working technicians
+  if (tier === "pro") {
+    // Show troubleshooting steps but limit detailed parts pricing
+    if (obfuscated.partsWithPricing?.length > 5) {
+      obfuscated.partsWithPricing = [
+        ...obfuscated.partsWithPricing.slice(0, 5),
+        { partNumber: "...", name: "Upgrade to Enterprise for complete parts list", estimatedPrice: 0 }
       ];
     }
+    obfuscated.testModeEntry = obfuscated.testModeEntry ? 
+      obfuscated.testModeEntry.substring(0, 50) + "... [Enterprise access for full procedure]" : null;
+    return obfuscated;
   }
+  
+  // STARTER ($29/mo) - Limited access, tease value
+  if (tier === "starter") {
+    // Truncate possible causes
+    if (obfuscated.possibleCauses?.length > 2) {
+      obfuscated.possibleCauses = [
+        ...obfuscated.possibleCauses.slice(0, 2),
+        `+ ${obfuscated.possibleCauses.length - 2} more causes (Pro access)`
+      ];
+    }
+    
+    // Show first 2 troubleshooting steps only
+    if (obfuscated.troubleshootingSteps?.length > 2) {
+      obfuscated.troubleshootingSteps = [
+        obfuscated.troubleshootingSteps[0],
+        obfuscated.troubleshootingSteps[1],
+        `📋 ${obfuscated.troubleshootingSteps.length - 2} more steps available with Pro subscription`
+      ];
+    }
+    
+    // No parts pricing
+    obfuscated.partsWithPricing = null;
+    obfuscated.requiredParts = obfuscated.requiredParts?.length > 0 ? 
+      ["Parts list available with Pro subscription"] : null;
+    
+    // Hide advanced fields
+    obfuscated.quickFix = "🔓 Quick fix tips available with Pro subscription";
+    obfuscated.testModeEntry = null;
+    
+    return obfuscated;
+  }
+  
+  // FREE TIER - Show just enough to demonstrate value, protect everything else
+  // These users haven't paid anything - give them a taste, not the meal
+  
+  // Truncate description to tease
+  if (obfuscated.description && obfuscated.description.length > 80) {
+    obfuscated.description = obfuscated.description.substring(0, 80) + "... [Sign up for full description]";
+  }
+  
+  // Show only first cause, heavily redacted
+  if (obfuscated.possibleCauses?.length > 0) {
+    obfuscated.possibleCauses = [
+      obfuscated.possibleCauses[0]?.substring(0, 30) + "...",
+      `🔒 ${obfuscated.possibleCauses.length} possible causes identified - Subscribe to view`
+    ];
+  }
+  
+  // No troubleshooting steps for free users
+  obfuscated.troubleshootingSteps = [
+    "🔒 Detailed repair procedure protected",
+    "Subscribe to Service Guy AI to unlock step-by-step repair guides"
+  ];
+  
+  // Hide all parts information
+  obfuscated.partsWithPricing = null;
+  obfuscated.requiredParts = null;
+  
+  // Hide quick fix and test mode
+  obfuscated.quickFix = null;
+  obfuscated.testModeEntry = null;
+  
+  // Hide repair time and difficulty from free users
+  obfuscated.estimatedRepairTime = null;
+  obfuscated.difficultyLevel = "Subscribe to view";
+  
+  // Add upgrade prompt
+  obfuscated.upgradePrompt = {
+    message: "Unlock full diagnostic data with Service Guy AI subscription",
+    tiers: [
+      { name: "Starter", price: "$29/mo", features: ["50 lookups/month", "Basic troubleshooting", "Email support"] },
+      { name: "Pro", price: "$79/mo", features: ["Unlimited lookups", "Full repair procedures", "Parts pricing", "Priority support"] },
+      { name: "Enterprise", price: "$199/mo", features: ["Multi-user access", "API access", "Complete database", "Dedicated support"] }
+    ]
+  };
   
   return obfuscated;
 }

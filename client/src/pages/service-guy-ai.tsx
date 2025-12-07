@@ -41,9 +41,23 @@ import {
   RefreshCcw,
   AlertCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  Mic,
+  Camera,
+  X,
+  ImageIcon,
+  Loader2,
+  Briefcase,
+  Plus,
+  Trash2,
+  Edit3,
+  PauseCircle,
+  PlayCircle
 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import type { ServiceJob } from "@shared/schema";
 import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 interface Manufacturer {
@@ -95,6 +109,42 @@ interface ManufacturersResponse {
   success: boolean;
   manufacturers: string[];
   count: number;
+}
+
+interface PhotoDiagnosisResult {
+  success: boolean;
+  diagnosis: {
+    extractedText: string;
+    errorCodes: Array<{
+      code: string;
+      description: string;
+      confidence: number;
+    }>;
+    detectedBrand: string | null;
+    detectedModel: string | null;
+    machineType: "washer" | "dryer" | "payment" | "unknown";
+    visibleParts: Array<{
+      name: string;
+      condition: "good" | "worn" | "damaged" | "unknown";
+      notes: string;
+    }>;
+    wearPatterns: Array<{
+      area: string;
+      severity: "minor" | "moderate" | "severe";
+      description: string;
+    }>;
+    damageAssessment: Array<{
+      type: string;
+      location: string;
+      severity: "minor" | "moderate" | "severe";
+      repairRecommendation: string;
+    }>;
+    overallCondition: "excellent" | "good" | "fair" | "poor" | "critical";
+    recommendations: string[];
+    estimatedUrgency: "immediate" | "soon" | "routine" | "monitor";
+  };
+  confidence: number;
+  analyzedAt: string;
 }
 
 const SERVICE_TECHNICIANS = [
@@ -310,6 +360,16 @@ export default function ServiceGuyAI() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [aiDiagnosis, setAiDiagnosis] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+  const [photoDiagnosisResult, setPhotoDiagnosisResult] = useState<PhotoDiagnosisResult | null>(null);
+  const [photoManufacturer, setPhotoManufacturer] = useState<string>("_all");
+  const [photoMachineType, setPhotoMachineType] = useState<string>("all");
+  
+  const [jobStatusFilter, setJobStatusFilter] = useState<string>("all");
+  const [savingJobForCode, setSavingJobForCode] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(searchInput, 300);
 
@@ -322,6 +382,103 @@ export default function ServiceGuyAI() {
     queryKey: ['/api/service-guy/usage'],
     staleTime: 1000 * 30,
   });
+
+  const jobsUrl = jobStatusFilter === 'all' 
+    ? '/api/service-guy/jobs' 
+    : `/api/service-guy/jobs?status=${jobStatusFilter}`;
+
+  const { data: jobsData, isLoading: isLoadingJobs, refetch: refetchJobs } = useQuery<{ success: boolean; jobs: ServiceJob[]; count: number }>({
+    queryKey: ['/api/service-guy/jobs', jobStatusFilter],
+  });
+
+  const createJobMutation = useMutation({
+    mutationFn: async (jobData: Partial<ServiceJob>) => {
+      const response = await apiRequest("POST", "/api/service-guy/jobs", jobData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/service-guy/jobs'] });
+      toast({ title: "Job Created", description: "Repair job saved successfully" });
+      setSavingJobForCode(null);
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to create job", 
+        variant: "destructive" 
+      });
+      setSavingJobForCode(null);
+    },
+  });
+
+  const updateJobMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string } & Partial<ServiceJob>) => {
+      const response = await apiRequest("PATCH", `/api/service-guy/jobs/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/service-guy/jobs'] });
+      toast({ title: "Job Updated", description: "Job status updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update job", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const deleteJobMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest("DELETE", `/api/service-guy/jobs/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/service-guy/jobs'] });
+      toast({ title: "Job Deleted", description: "Repair job removed" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to delete job", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const handleSaveAsJob = (code: DiagnosticCode) => {
+    setSavingJobForCode(code.code);
+    createJobMutation.mutate({
+      manufacturer: code.manufacturer,
+      machineType: code.machineType,
+      errorCodes: [code.code],
+      symptoms: code.description,
+      diagnosis: code.possibleCauses?.join("; "),
+    });
+  };
+
+  const handleUpdateJobStatus = (jobId: string, newStatus: string) => {
+    updateJobMutation.mutate({ id: jobId, status: newStatus });
+  };
+
+  const handleDeleteJob = (jobId: string) => {
+    if (confirm("Are you sure you want to delete this job?")) {
+      deleteJobMutation.mutate(jobId);
+    }
+  };
+
+  const getJobStatusBadge = (status: string) => {
+    switch (status) {
+      case "in_progress": return <Badge className="bg-blue-500 text-white">In Progress</Badge>;
+      case "on_hold": return <Badge className="bg-yellow-500 text-black">On Hold</Badge>;
+      case "completed": return <Badge className="bg-green-500 text-white">Completed</Badge>;
+      case "cancelled": return <Badge variant="destructive">Cancelled</Badge>;
+      default: return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const jobs = jobsData?.jobs || [];
 
   const shouldSearch = (selectedManufacturer && selectedManufacturer !== "_all") || debouncedSearch;
   
@@ -405,6 +562,123 @@ export default function ServiceGuyAI() {
       toast({ title: "AI Analysis", description: "Generated diagnostic recommendations" });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        toast({ 
+          title: "Invalid File Type", 
+          description: "Please upload a JPG, PNG, or WebP image", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ 
+          title: "File Too Large", 
+          description: "Please upload an image smaller than 10MB", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      setPhotoFile(file);
+      setPhotoDiagnosisResult(null);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      toast({ title: "Photo Ready", description: `${file.name} selected for analysis` });
+    }
+  };
+
+  const clearPhoto = () => {
+    setPhotoPreview(null);
+    setPhotoFile(null);
+    setPhotoDiagnosisResult(null);
+  };
+
+  const handlePhotoAnalysis = async () => {
+    if (!photoPreview || !photoFile) {
+      toast({ 
+        title: "No Image Selected", 
+        description: "Please select or capture an image first", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    setIsAnalyzingPhoto(true);
+    try {
+      const base64Data = photoPreview.split(',')[1];
+      const mimeType = photoFile.type;
+      
+      const response = await apiRequest("POST", "/api/service-guy/scan-image", {
+        imageData: base64Data,
+        mimeType,
+        manufacturer: photoManufacturer !== '_all' ? photoManufacturer : undefined,
+        machineType: photoMachineType !== 'all' ? photoMachineType : undefined,
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setPhotoDiagnosisResult(data);
+        toast({ title: "Analysis Complete", description: "Photo diagnosis ready" });
+      } else {
+        throw new Error(data.error || "Analysis failed");
+      }
+    } catch (error: any) {
+      toast({ 
+        title: "Analysis Failed", 
+        description: error.message || "Failed to analyze image. Please try again.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsAnalyzingPhoto(false);
+    }
+  };
+
+  const getConditionBadge = (condition: string) => {
+    switch (condition) {
+      case "good": return <Badge className="bg-green-500 text-white text-xs">Good</Badge>;
+      case "worn": return <Badge className="bg-yellow-500 text-black text-xs">Worn</Badge>;
+      case "damaged": return <Badge variant="destructive" className="text-xs">Damaged</Badge>;
+      default: return <Badge variant="outline" className="text-xs">Unknown</Badge>;
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "minor": return "text-green-600";
+      case "moderate": return "text-yellow-600";
+      case "severe": return "text-red-600";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  const getUrgencyBadge = (urgency: string) => {
+    switch (urgency) {
+      case "immediate": return <Badge variant="destructive">Immediate Action</Badge>;
+      case "soon": return <Badge className="bg-orange-500 text-white">Action Soon</Badge>;
+      case "routine": return <Badge variant="secondary">Routine</Badge>;
+      case "monitor": return <Badge variant="outline">Monitor</Badge>;
+      default: return <Badge variant="outline">{urgency}</Badge>;
+    }
+  };
+
+  const getOverallConditionBadge = (condition: string) => {
+    switch (condition) {
+      case "excellent": return <Badge className="bg-green-600 text-white">Excellent</Badge>;
+      case "good": return <Badge className="bg-green-500 text-white">Good</Badge>;
+      case "fair": return <Badge className="bg-yellow-500 text-black">Fair</Badge>;
+      case "poor": return <Badge className="bg-orange-500 text-white">Poor</Badge>;
+      case "critical": return <Badge variant="destructive">Critical</Badge>;
+      default: return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
@@ -613,21 +887,26 @@ export default function ServiceGuyAI() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center lg:text-left">
-                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-6">
-                  <div className="text-2xl font-bold text-primary">Free</div>
-                  <div className="text-sm text-muted-foreground">Basic Error Lookup</div>
-                  <div className="text-xs text-muted-foreground">3 lookups/day</div>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center lg:text-left">
+                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-4">
+                  <div className="text-lg font-bold text-muted-foreground">Free</div>
+                  <div className="text-xs text-muted-foreground">3 lookups/month</div>
+                  <div className="text-xs text-muted-foreground">Limited info</div>
                 </div>
-                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-6">
-                  <div className="text-2xl font-bold text-amber-500">$19/mo</div>
-                  <div className="text-sm text-muted-foreground">Pro Diagnostics</div>
-                  <div className="text-xs text-muted-foreground">Unlimited + AI analysis</div>
+                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-4">
+                  <div className="text-lg font-bold text-primary">$29/mo</div>
+                  <div className="text-xs text-muted-foreground font-medium">Starter</div>
+                  <div className="text-xs text-muted-foreground">50 lookups + basic steps</div>
+                </div>
+                <div className="border-r-0 sm:border-r border-amber-500/20 sm:pr-4">
+                  <div className="text-lg font-bold text-amber-500">$79/mo</div>
+                  <div className="text-xs text-muted-foreground font-medium">Pro</div>
+                  <div className="text-xs text-muted-foreground">500 lookups + full repairs</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-orange-500">$49/mo</div>
-                  <div className="text-sm text-muted-foreground">Enterprise</div>
-                  <div className="text-xs text-muted-foreground">Team access + API</div>
+                  <div className="text-lg font-bold text-orange-500">$199/mo</div>
+                  <div className="text-xs text-muted-foreground font-medium">Enterprise</div>
+                  <div className="text-xs text-muted-foreground">Unlimited + API access</div>
                 </div>
               </div>
               
@@ -648,22 +927,31 @@ export default function ServiceGuyAI() {
         <ServiceDisclaimer className="mb-8" />
 
         <Tabs defaultValue="error-codes" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="error-codes" className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
-              Error Codes
+              <span className="hidden sm:inline">Error Codes</span>
+              <span className="sm:hidden">Codes</span>
             </TabsTrigger>
             <TabsTrigger value="ai-diagnose" className="flex items-center gap-2">
               <Zap className="w-4 h-4" />
-              AI Diagnose
+              <span className="hidden sm:inline">AI Diagnose</span>
+              <span className="sm:hidden">AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="my-jobs" className="flex items-center gap-2" data-testid="tab-my-jobs">
+              <Briefcase className="w-4 h-4" />
+              <span className="hidden sm:inline">My Jobs</span>
+              <span className="sm:hidden">Jobs</span>
             </TabsTrigger>
             <TabsTrigger value="manuals" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
-              Service Manuals
+              <span className="hidden sm:inline">Manuals</span>
+              <span className="sm:hidden">Docs</span>
             </TabsTrigger>
             <TabsTrigger value="technicians" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              Find Technicians
+              <span className="hidden sm:inline">Technicians</span>
+              <span className="sm:hidden">Techs</span>
             </TabsTrigger>
           </TabsList>
 
@@ -713,12 +1001,25 @@ export default function ServiceGuyAI() {
                   </div>
                   <div className="space-y-2">
                     <Label>Search Code or Description</Label>
-                    <Input 
-                      placeholder="e.g., E1, door lock, drain error" 
-                      value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                      data-testid="input-search"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        placeholder="e.g., E1, door lock, drain error" 
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="flex-1"
+                        data-testid="input-search"
+                      />
+                      <VoiceInputButton
+                        onTranscript={(transcript) => setSearchInput(transcript)}
+                        onFinalTranscript={(transcript) => setSearchInput(transcript)}
+                        showTranscript={true}
+                        autoSubmit={true}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Mic className="h-3 w-3" />
+                      <span>Try voice: "Speed Queen error Er underscore dL"</span>
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -785,10 +1086,15 @@ export default function ServiceGuyAI() {
                   </Card>
                 ) : (
                   <div className="grid gap-4">
-                    {filteredResults.map((code) => (
+                    {filteredResults.map((code) => {
+                      const isLocked = code.isProtected && (code.tier === 'free' || !code.tier);
+                      const isPartiallyLocked = code.isProtected && code.tier === 'starter';
+                      const hasLockedContent = code.troubleshootingSteps?.some((s: string) => s.includes('Subscribe') || s.includes('Upgrade') || s.includes('protected'));
+                      
+                      return (
                       <Card 
                         key={`${code.manufacturer}-${code.code}-${code.id}`} 
-                        className={`hover-elevate ${code.isObfuscated ? 'border-amber-500/30' : ''}`}
+                        className={`hover-elevate ${isLocked ? 'border-amber-500/30 bg-amber-500/5' : isPartiallyLocked ? 'border-primary/20' : ''}`}
                         data-testid={`card-error-code-${code.slug || code.code}`}
                       >
                         <CardHeader className="pb-2">
@@ -802,34 +1108,104 @@ export default function ServiceGuyAI() {
                                 <CardDescription>{code.description}</CardDescription>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
                               {getSeverityBadge(code.severity)}
                               <Badge variant="outline" className="text-xs capitalize">{code.machineType}</Badge>
-                              {code.isObfuscated && (
-                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-600">
+                              {isLocked && (
+                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-600 bg-amber-500/10">
                                   <Lock className="w-3 h-3 mr-1" />
-                                  Pro
+                                  Upgrade to Unlock
+                                </Badge>
+                              )}
+                              {isPartiallyLocked && (
+                                <Badge variant="outline" className="text-xs border-primary text-primary">
+                                  <Lock className="w-3 h-3 mr-1" />
+                                  Pro for Full Access
                                 </Badge>
                               )}
                             </div>
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          {code.isObfuscated ? (
-                            <div className="bg-muted/50 rounded-lg p-6 text-center">
-                              <EyeOff className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-                              <p className="text-muted-foreground mb-4">
-                                {code.obfuscationReason || "Upgrade to Pro to view full troubleshooting details, part numbers, and repair guides."}
-                              </p>
-                              <Button 
-                                onClick={handleUpgrade}
-                                size="sm"
-                                className="bg-gradient-to-r from-amber-500 to-orange-600"
-                                data-testid="button-upgrade"
-                              >
-                                <Crown className="w-4 h-4 mr-2" />
-                                Unlock Full Details
-                              </Button>
+                          {isLocked || hasLockedContent ? (
+                            <div className="space-y-4">
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                                    Possible Causes
+                                  </h4>
+                                  <ul className="text-sm space-y-1">
+                                    {code.possibleCauses?.map((cause: string, i: number) => (
+                                      <li key={i} className={`flex items-start gap-2 ${cause.includes('Subscribe') || cause.includes('Pro access') ? 'text-amber-600 italic' : ''}`}>
+                                        <span className="text-muted-foreground">{cause.includes('Subscribe') || cause.includes('Pro access') ? '🔒' : '•'}</span>
+                                        {cause}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                                    <Lock className="w-4 h-4 text-amber-500" />
+                                    Troubleshooting Steps
+                                  </h4>
+                                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                                    <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+                                      <Shield className="w-4 h-4 inline mr-1" />
+                                      Repair procedures are protected content
+                                    </p>
+                                    <ul className="text-sm space-y-1 text-muted-foreground">
+                                      {code.troubleshootingSteps?.map((step: string, i: number) => (
+                                        <li key={i} className="flex items-start gap-2">
+                                          <span className="text-muted-foreground">{i + 1}.</span>
+                                          <span className={step.includes('Subscribe') || step.includes('protected') ? 'text-amber-600 italic' : ''}>{step}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {code.upgradePrompt && (
+                                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg p-4">
+                                  <p className="font-semibold text-center mb-3">{code.upgradePrompt.message}</p>
+                                  <div className="grid grid-cols-3 gap-2 mb-3">
+                                    {code.upgradePrompt.tiers?.map((tier: { name: string; price: string; features: string[] }, i: number) => (
+                                      <div key={i} className="text-center p-2 bg-background rounded border">
+                                        <div className="font-bold text-sm">{tier.name}</div>
+                                        <div className="text-lg font-bold text-primary">{tier.price}</div>
+                                        <ul className="text-xs text-muted-foreground mt-1">
+                                          {tier.features.slice(0, 2).map((f: string, j: number) => (
+                                            <li key={j}>{f}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <Button 
+                                    onClick={handleUpgrade}
+                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600"
+                                    data-testid="button-upgrade"
+                                  >
+                                    <Crown className="w-4 h-4 mr-2" />
+                                    Unlock Full Diagnostic Data
+                                  </Button>
+                                </div>
+                              )}
+                              
+                              {!code.upgradePrompt && (
+                                <div className="text-center pt-2">
+                                  <Button 
+                                    onClick={handleUpgrade}
+                                    size="sm"
+                                    className="bg-gradient-to-r from-amber-500 to-orange-600"
+                                    data-testid="button-upgrade"
+                                  >
+                                    <Crown className="w-4 h-4 mr-2" />
+                                    Upgrade to Access Full Details
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <>
@@ -897,15 +1273,36 @@ export default function ServiceGuyAI() {
                                   Click any part to find on Amazon (affiliate link)
                                 </p>
                               </div>
-                              <div className="flex items-center gap-6 text-sm text-muted-foreground border-t pt-4">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  Est. Repair: {code.estimatedRepairTime} min
+                              <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground border-t pt-4">
+                                <div className="flex items-center gap-6">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    Est. Repair: {code.estimatedRepairTime} min
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Wrench className="w-4 h-4" />
+                                    Skill: <span className="capitalize">{code.skillLevel}</span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <Wrench className="w-4 h-4" />
-                                  Skill: <span className="capitalize">{code.skillLevel}</span>
-                                </div>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleSaveAsJob(code)}
+                                  disabled={savingJobForCode === code.code || createJobMutation.isPending}
+                                  data-testid="button-save-job"
+                                >
+                                  {savingJobForCode === code.code ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Saving...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Briefcase className="w-4 h-4 mr-2" />
+                                      Save as Job
+                                    </>
+                                  )}
+                                </Button>
                               </div>
                             </>
                           )}
@@ -927,6 +1324,170 @@ export default function ServiceGuyAI() {
                 </p>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="my-jobs" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="w-5 h-5" />
+                  My Repair Jobs
+                </CardTitle>
+                <CardDescription>
+                  Track and manage your repair work in progress
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Filter by Status:</Label>
+                    <Select value={jobStatusFilter} onValueChange={setJobStatusFilter}>
+                      <SelectTrigger className="w-40" data-testid="select-job-status-filter">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Jobs</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="on_hold">On Hold</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{jobs.length} job{jobs.length !== 1 ? 's' : ''} found</span>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      onClick={() => refetchJobs()}
+                      disabled={isLoadingJobs}
+                    >
+                      <RefreshCcw className={`w-4 h-4 ${isLoadingJobs ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                </div>
+
+                {isLoadingJobs ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                  </div>
+                ) : jobs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2">No Jobs Found</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-4">
+                      {jobStatusFilter === 'all' 
+                        ? "You haven't saved any repair jobs yet. Search for error codes and click 'Save as Job' to start tracking your work."
+                        : `No jobs with status "${jobStatusFilter.replace('_', ' ')}" found.`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {jobs.map((job) => (
+                      <Card 
+                        key={job.id} 
+                        className="hover-elevate"
+                        data-testid={`card-job-${job.id}`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold">
+                                  {job.manufacturer} {job.machineType}
+                                </h4>
+                                {getJobStatusBadge(job.status || 'in_progress')}
+                              </div>
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground mb-3">
+                                {job.errorCodes && job.errorCodes.length > 0 && (
+                                  <div className="flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    <span>Error Codes: {job.errorCodes.join(", ")}</span>
+                                  </div>
+                                )}
+                                {job.customerName && (
+                                  <div className="flex items-center gap-2">
+                                    <Users className="w-4 h-4" />
+                                    <span>{job.customerName}</span>
+                                  </div>
+                                )}
+                                {job.locationAddress && (
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{job.locationAddress}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-4 h-4" />
+                                  <span>Created: {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'N/A'}</span>
+                                </div>
+                              </div>
+
+                              {job.symptoms && (
+                                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                                  <span className="font-medium">Symptoms:</span> {job.symptoms}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Select 
+                                value={job.status || 'in_progress'} 
+                                onValueChange={(value) => handleUpdateJobStatus(job.id, value)}
+                              >
+                                <SelectTrigger 
+                                  className="w-36" 
+                                  data-testid="button-update-job-status"
+                                >
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="in_progress">
+                                    <div className="flex items-center gap-2">
+                                      <PlayCircle className="w-4 h-4 text-blue-500" />
+                                      In Progress
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="on_hold">
+                                    <div className="flex items-center gap-2">
+                                      <PauseCircle className="w-4 h-4 text-yellow-500" />
+                                      On Hold
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="completed">
+                                    <div className="flex items-center gap-2">
+                                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                      Completed
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="cancelled">
+                                    <div className="flex items-center gap-2">
+                                      <X className="w-4 h-4 text-red-500" />
+                                      Cancelled
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handleDeleteJob(job.id)}
+                                disabled={deleteJobMutation.isPending}
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="ai-diagnose" className="space-y-6">
@@ -1005,6 +1566,305 @@ export default function ServiceGuyAI() {
                 </CardFooter>
               )}
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-primary" />
+                  Photo Diagnosis
+                </CardTitle>
+                <CardDescription>
+                  Take a photo of the equipment display, error code, or damaged part for AI analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Manufacturer (Optional)</Label>
+                    <Select value={photoManufacturer} onValueChange={setPhotoManufacturer}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select manufacturer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_all">Not Sure</SelectItem>
+                        {manufacturers.map(m => (
+                          <SelectItem key={m} value={m}>{m}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Machine Type</Label>
+                    <Select value={photoMachineType} onValueChange={setPhotoMachineType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Not Sure</SelectItem>
+                        <SelectItem value="washer">Washer</SelectItem>
+                        <SelectItem value="dryer">Dryer</SelectItem>
+                        <SelectItem value="payment">Payment System</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {!photoPreview ? (
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                    <Camera className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="font-semibold mb-2">Capture or Upload Equipment Photo</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      AI will analyze error codes, parts condition, wear patterns, and damage
+                    </p>
+                    <div className="flex justify-center gap-3">
+                      <Label htmlFor="photo-upload" className="cursor-pointer">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity">
+                          <Camera className="w-4 h-4" />
+                          <span>Take Photo / Upload</span>
+                        </div>
+                        <Input
+                          id="photo-upload"
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          capture="environment"
+                          onChange={handlePhotoCapture}
+                          className="hidden"
+                          data-testid="button-photo-capture"
+                        />
+                      </Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      Supports JPG, PNG, WebP (max 10MB)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="relative inline-block">
+                      <img
+                        src={photoPreview}
+                        alt="Equipment preview"
+                        className="max-h-64 rounded-lg border"
+                        data-testid="img-photo-preview"
+                      />
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-2 right-2"
+                        onClick={clearPhoto}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handlePhotoAnalysis}
+                        disabled={isAnalyzingPhoto}
+                        className="flex-1"
+                        data-testid="button-analyze-photo"
+                      >
+                        {isAnalyzingPhoto ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Analyzing Image...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4 mr-2" />
+                            Analyze with AI
+                          </>
+                        )}
+                      </Button>
+                      <Label htmlFor="photo-reupload" className="cursor-pointer">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted transition-colors">
+                          <ImageIcon className="w-4 h-4" />
+                          <span>Change</span>
+                        </div>
+                        <Input
+                          id="photo-reupload"
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          capture="environment"
+                          onChange={handlePhotoCapture}
+                          className="hidden"
+                        />
+                      </Label>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {photoDiagnosisResult && (
+              <Card data-testid="card-photo-diagnosis">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        Photo Analysis Results
+                      </CardTitle>
+                      <CardDescription>
+                        Analyzed at {new Date(photoDiagnosisResult.analyzedAt).toLocaleString()}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getOverallConditionBadge(photoDiagnosisResult.diagnosis.overallCondition)}
+                      {getUrgencyBadge(photoDiagnosisResult.diagnosis.estimatedUrgency)}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {photoDiagnosisResult.diagnosis.detectedBrand && (
+                    <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <span className="text-sm text-muted-foreground">Detected Equipment:</span>
+                        <p className="font-semibold">
+                          {photoDiagnosisResult.diagnosis.detectedBrand}
+                          {photoDiagnosisResult.diagnosis.detectedModel && ` - ${photoDiagnosisResult.diagnosis.detectedModel}`}
+                          <Badge variant="outline" className="ml-2 capitalize">
+                            {photoDiagnosisResult.diagnosis.machineType}
+                          </Badge>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.errorCodes.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-orange-500" />
+                        Detected Error Codes
+                      </h4>
+                      <div className="space-y-2">
+                        {photoDiagnosisResult.diagnosis.errorCodes.map((err, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                            <div className="bg-orange-500/20 text-orange-700 dark:text-orange-400 font-mono font-bold px-2 py-1 rounded text-sm">
+                              {err.code}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm">{err.description}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Confidence: {Math.round(err.confidence * 100)}%
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.extractedText && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-blue-500" />
+                        Extracted Text
+                      </h4>
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <p className="text-sm font-mono">{photoDiagnosisResult.diagnosis.extractedText}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.visibleParts.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                        <Package className="w-4 h-4 text-blue-500" />
+                        Visible Parts Assessment
+                      </h4>
+                      <div className="grid gap-2">
+                        {photoDiagnosisResult.diagnosis.visibleParts.map((part, i) => (
+                          <div key={i} className="flex items-start justify-between gap-3 p-3 bg-muted/30 rounded-lg">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">{part.name}</span>
+                                {getConditionBadge(part.condition)}
+                              </div>
+                              {part.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{part.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.wearPatterns.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                        <Settings className="w-4 h-4 text-yellow-500" />
+                        Wear Patterns
+                      </h4>
+                      <div className="space-y-2">
+                        {photoDiagnosisResult.diagnosis.wearPatterns.map((wear, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 bg-yellow-500/10 rounded-lg">
+                            <div className={`font-semibold text-sm capitalize ${getSeverityColor(wear.severity)}`}>
+                              {wear.severity}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{wear.area}</p>
+                              <p className="text-xs text-muted-foreground">{wear.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.damageAssessment.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500" />
+                        Damage Assessment
+                      </h4>
+                      <div className="space-y-2">
+                        {photoDiagnosisResult.diagnosis.damageAssessment.map((damage, i) => (
+                          <div key={i} className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">{damage.type}</span>
+                              <Badge variant="outline" className={`text-xs ${getSeverityColor(damage.severity)}`}>
+                                {damage.severity}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Location: {damage.location}</p>
+                            <p className="text-sm mt-2 p-2 bg-background/50 rounded">
+                              <span className="font-medium">Recommendation:</span> {damage.repairRecommendation}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {photoDiagnosisResult.diagnosis.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Recommendations
+                      </h4>
+                      <ul className="space-y-2">
+                        {photoDiagnosisResult.diagnosis.recommendations.map((rec, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <span className="font-semibold text-primary">{i + 1}.</span>
+                            {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="border-t pt-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>Analysis Confidence: {Math.round(photoDiagnosisResult.confidence * 100)}%</span>
+                      <Button variant="outline" size="sm" onClick={clearPhoto}>
+                        <Camera className="w-4 h-4 mr-2" />
+                        Analyze Another Photo
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="manuals" className="space-y-6">
