@@ -59,6 +59,7 @@ import {
   clearDeduplicationCache,
   getIndexNowKey,
   submitToIndexNow,
+  submitToGoogle,
   submitErrorCodesToIndexNow,
   submitBlogPostsToIndexNow,
   submitListingsToIndexNow,
@@ -11343,6 +11344,137 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       });
     } catch (error: any) {
       console.error("Failed to get indexing log:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/index-all-engines - Submit ALL URLs to ALL search engines (Google + IndexNow)
+  app.post("/api/admin/index-all-engines", isAdmin, async (req: any, res) => {
+    try {
+      console.log("\n🌐 [ADMIN] MASS INDEXING: Submitting to ALL search engines...\n");
+      
+      // Get all URLs from database for dynamic sitemap
+      const baseUrl = "https://washbizhub.com";
+      
+      // Static pages - all high-value pages
+      const staticPages = [
+        "/", "/pricing", "/about", "/contact", "/consultation",
+        "/cleanbi-explorer", "/cleanbi-auto", "/service-guy-ai",
+        "/buy-laundromat", "/sell-your-laundromat", "/brokers",
+        "/calculator", "/roi-calculator", "/valuation-calculator",
+        "/sba-readiness", "/business-plan-generator", "/equipment-matcher",
+        "/startup-funding", "/acquisitions-funding", "/real-estate-financing",
+        "/equipment-financing", "/funding-matcher", "/gokapital",
+        "/parts", "/repair-guide", "/error-codes",
+        "/locator", "/directory-listing", "/vendors",
+        "/blog", "/learning", "/courses", "/products",
+        "/website-templates", "/facebook-group", "/atm-services"
+      ];
+      
+      // Get error codes from database
+      const errorCodes = await db.select({ slug: diagnosticCodes.slug })
+        .from(diagnosticCodes)
+        .limit(2500);
+      
+      // Get blog posts from database
+      const blogs = await db.select({ slug: blogPosts.slug })
+        .from(blogPosts)
+        .limit(500);
+      
+      // Get listings from database
+      const listingsData = await db.select({ id: listings.id })
+        .from(listings)
+        .limit(500);
+      
+      // Build full URL list
+      const allUrls: string[] = [];
+      
+      // Add static pages
+      staticPages.forEach(page => allUrls.push(`${baseUrl}${page}`));
+      
+      // Add error codes
+      errorCodes.forEach(code => {
+        if (code.slug) allUrls.push(`${baseUrl}/error-codes/${code.slug}`);
+      });
+      
+      // Add blog posts
+      blogs.forEach(post => {
+        if (post.slug) allUrls.push(`${baseUrl}/blog/${post.slug}`);
+      });
+      
+      // Add listings
+      listingsData.forEach(listing => {
+        if (listing.id) allUrls.push(`${baseUrl}/buy-laundromat/${listing.id}`);
+      });
+      
+      console.log(`📊 Total URLs to submit: ${allUrls.length}`);
+      console.log(`   - Static pages: ${staticPages.length}`);
+      console.log(`   - Error codes: ${errorCodes.length}`);
+      console.log(`   - Blog posts: ${blogs.length}`);
+      console.log(`   - Listings: ${listingsData.length}`);
+      
+      // Submit to IndexNow (Bing, Yandex, DuckDuckGo) - Batch of 10,000 max
+      console.log("\n🔵 Submitting to IndexNow (Bing, Yandex, DuckDuckGo)...");
+      await submitToIndexNow(allUrls.slice(0, 10000));
+      
+      // Submit to Google Indexing API (rate limited, submit key pages)
+      console.log("\n🔴 Submitting to Google Indexing API...");
+      const googleResults = { success: 0, failed: 0, skipped: 0, errors: [] as string[] };
+      
+      // Google has rate limits, so prioritize key pages
+      const priorityUrls = allUrls.slice(0, 200); // Google rate limit ~200/day
+      
+      for (let i = 0; i < priorityUrls.length; i++) {
+        try {
+          const result = await submitToGoogle(priorityUrls[i]);
+          if (result.success) {
+            googleResults.success++;
+          } else {
+            googleResults.failed++;
+            if (googleResults.errors.length < 10) {
+              googleResults.errors.push(`${priorityUrls[i]}: ${result.message}`);
+            }
+          }
+          // Rate limit: 1 request per 100ms
+          if (i < priorityUrls.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        } catch (err: any) {
+          googleResults.failed++;
+        }
+      }
+      
+      console.log(`\n✅ MASS INDEXING COMPLETE!`);
+      console.log(`   Google: ${googleResults.success} success, ${googleResults.failed} failed`);
+      console.log(`   IndexNow: ${allUrls.length} URLs submitted to Bing/Yandex/DuckDuckGo`);
+      
+      res.json({
+        success: true,
+        message: `Submitted ${allUrls.length} URLs to all search engines`,
+        totalUrls: allUrls.length,
+        breakdown: {
+          staticPages: staticPages.length,
+          errorCodes: errorCodes.length,
+          blogPosts: blogs.length,
+          listings: listingsData.length,
+        },
+        google: {
+          submitted: priorityUrls.length,
+          success: googleResults.success,
+          failed: googleResults.failed,
+          note: "Google API has daily rate limits (~200/day)",
+          errors: googleResults.errors,
+        },
+        indexNow: {
+          submitted: allUrls.length,
+          engines: ["Bing", "Yandex", "DuckDuckGo", "IndexNow API"],
+        },
+      });
+    } catch (error: any) {
+      console.error("Mass indexing failed:", error);
       res.status(500).json({ 
         success: false,
         error: error.message 
