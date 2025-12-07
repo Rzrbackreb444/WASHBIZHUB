@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { 
   Wrench, 
   Search, 
@@ -66,9 +67,10 @@ import { KnowledgeCard, KnowledgeCardSkeleton } from "@/components/KnowledgeCard
 import { KnowledgeSchemaLD } from "@/components/KnowledgeSchemaLD";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { Brain } from "lucide-react";
-import { PartsOrderWidget } from "@/components/PartsOrderWidget";
-import { InvoiceGenerator } from "@/components/InvoiceGenerator";
 import { ServiceTechButton } from "@/components/ServiceTechLocator";
+
+const PartsOrderWidget = lazy(() => import("@/components/PartsOrderWidget").then(m => ({ default: m.PartsOrderWidget })));
+const InvoiceGenerator = lazy(() => import("@/components/InvoiceGenerator").then(m => ({ default: m.InvoiceGenerator })));
 import { FixOutcomeFeedback } from "@/components/FixOutcomeFeedback";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
@@ -382,6 +384,70 @@ function ErrorCodeSkeleton() {
   );
 }
 
+function PartsWidgetSkeleton() {
+  return (
+    <div className="space-y-4 p-4 rounded-lg border bg-muted/30" data-testid="skeleton-parts-widget">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-8 w-8 rounded" />
+        <Skeleton className="h-5 w-40" />
+      </div>
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-full sm:w-24" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JobCardSkeleton() {
+  return (
+    <Card data-testid="skeleton-job-card">
+      <CardContent className="p-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex-1 space-y-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-36" />
+            </div>
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-9 w-36" />
+            <Skeleton className="h-9 w-36" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AIDiagnoseSkeleton() {
+  return (
+    <div className="space-y-3 p-4 rounded-lg bg-muted" data-testid="skeleton-ai-diagnose">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-5/6" />
+      <Skeleton className="h-4 w-2/3" />
+      <div className="pt-2 space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
+    </div>
+  );
+}
+
 export default function ServiceGuyAI() {
   const { toast } = useToast();
   
@@ -532,6 +598,7 @@ export default function ServiceGuyAI() {
 
   const { data: jobsData, isLoading: isLoadingJobs, refetch: refetchJobs } = useQuery<{ success: boolean; jobs: ServiceJob[]; count: number }>({
     queryKey: ['/api/service-guy/jobs', jobStatusFilter],
+    staleTime: 1000 * 60 * 2,
   });
 
   const createJobMutation = useMutation({
@@ -1099,7 +1166,9 @@ export default function ServiceGuyAI() {
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-4 space-y-4">
-                  <PartsOrderWidget defaultSearch="" compact={false} />
+                  <Suspense fallback={<PartsWidgetSkeleton />}>
+                    <PartsOrderWidget defaultSearch="" compact={false} />
+                  </Suspense>
                   
                   <div className="border-t pt-4">
                     <h4 className="font-semibold text-sm mb-2">Commercial Equipment Suppliers</h4>
@@ -1124,33 +1193,36 @@ export default function ServiceGuyAI() {
         </div>
 
         <Tabs defaultValue="error-codes" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="error-codes" className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="hidden sm:inline">Error Codes</span>
-              <span className="sm:hidden">Codes</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai-diagnose" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline">AI Diagnose</span>
-              <span className="sm:hidden">AI</span>
-            </TabsTrigger>
-            <TabsTrigger value="my-jobs" className="flex items-center gap-2" data-testid="tab-my-jobs">
-              <Briefcase className="w-4 h-4" />
-              <span className="hidden sm:inline">My Jobs</span>
-              <span className="sm:hidden">Jobs</span>
-            </TabsTrigger>
-            <TabsTrigger value="manuals" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Manuals</span>
-              <span className="sm:hidden">Docs</span>
-            </TabsTrigger>
-            <TabsTrigger value="technicians" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Technicians</span>
-              <span className="sm:hidden">Techs</span>
-            </TabsTrigger>
-          </TabsList>
+          <ScrollArea className="w-full">
+            <TabsList className="inline-flex w-full min-w-max sm:grid sm:grid-cols-5">
+              <TabsTrigger value="error-codes" className="flex items-center gap-2 min-h-[44px]">
+                <AlertTriangle className="w-4 h-4" />
+                <span className="hidden sm:inline">Error Codes</span>
+                <span className="sm:hidden">Codes</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-diagnose" className="flex items-center gap-2 min-h-[44px]">
+                <Zap className="w-4 h-4" />
+                <span className="hidden sm:inline">AI Diagnose</span>
+                <span className="sm:hidden">AI</span>
+              </TabsTrigger>
+              <TabsTrigger value="my-jobs" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-my-jobs">
+                <Briefcase className="w-4 h-4" />
+                <span className="hidden sm:inline">My Jobs</span>
+                <span className="sm:hidden">Jobs</span>
+              </TabsTrigger>
+              <TabsTrigger value="manuals" className="flex items-center gap-2 min-h-[44px]">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Manuals</span>
+                <span className="sm:hidden">Docs</span>
+              </TabsTrigger>
+              <TabsTrigger value="technicians" className="flex items-center gap-2 min-h-[44px]">
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">Technicians</span>
+                <span className="sm:hidden">Techs</span>
+              </TabsTrigger>
+            </TabsList>
+            <ScrollBar orientation="horizontal" className="sm:hidden" />
+          </ScrollArea>
 
           <TabsContent value="error-codes" className="space-y-6">
             <Card>
@@ -1639,11 +1711,13 @@ export default function ServiceGuyAI() {
                                   <CollapsibleContent className="mt-3 space-y-4">
                                     <div className="bg-muted/50 rounded-lg p-4 space-y-4">
                                       {expandedPartsCode === code.code && (
-                                        <PartsOrderWidget 
-                                          defaultSearch={selectedManufacturer && selectedManufacturer !== '_all' && code.code ? `${selectedManufacturer} ${code.code} ${code.requiredParts?.[0] || ''}`.trim() : ''} 
-                                          compact={true}
-                                          parts={code.requiredParts || []}
-                                        />
+                                        <Suspense fallback={<PartsWidgetSkeleton />}>
+                                          <PartsOrderWidget 
+                                            defaultSearch={selectedManufacturer && selectedManufacturer !== '_all' && code.code ? `${selectedManufacturer} ${code.code} ${code.requiredParts?.[0] || ''}`.trim() : ''} 
+                                            compact={true}
+                                            parts={code.requiredParts || []}
+                                          />
+                                        </Suspense>
                                       )}
                                       
                                       <div className="border-t pt-3">
@@ -1788,9 +1862,10 @@ export default function ServiceGuyAI() {
                 </div>
 
                 {isLoadingJobs ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-32 w-full" />
-                    <Skeleton className="h-32 w-full" />
+                  <div className="space-y-4" data-testid="skeleton-jobs-list">
+                    <JobCardSkeleton />
+                    <JobCardSkeleton />
+                    <JobCardSkeleton />
                   </div>
                 ) : jobs.length === 0 ? (
                   <div className="text-center py-12">
@@ -1977,7 +2052,13 @@ export default function ServiceGuyAI() {
                   )}
                 </Button>
               </CardContent>
-              {aiDiagnosis && (
+              {isAnalyzing && (
+                <CardFooter className="flex-col items-start">
+                  <h4 className="font-semibold mb-2">AI Diagnosis:</h4>
+                  <AIDiagnoseSkeleton />
+                </CardFooter>
+              )}
+              {!isAnalyzing && aiDiagnosis && (
                 <CardFooter className="flex-col items-start">
                   <h4 className="font-semibold mb-2">AI Diagnosis:</h4>
                   <div className="bg-muted rounded-lg p-4 w-full whitespace-pre-wrap text-sm">
@@ -2612,20 +2693,22 @@ export default function ServiceGuyAI() {
       </div>
 
       {invoiceModalCode && (
-        <InvoiceGenerator
-          open={!!invoiceModalCode}
-          onOpenChange={(open) => !open && setInvoiceModalCode(null)}
-          diagnosticData={{
-            code: invoiceModalCode.code,
-            title: invoiceModalCode.title,
-            description: invoiceModalCode.description,
-            manufacturer: invoiceModalCode.manufacturer,
-            machineType: invoiceModalCode.machineType,
-            estimatedRepairTime: invoiceModalCode.estimatedRepairTime,
-            requiredParts: invoiceModalCode.requiredParts || [],
-            partsWithPricing: invoiceModalCode.partsWithPricing
-          }}
-        />
+        <Suspense fallback={null}>
+          <InvoiceGenerator
+            open={!!invoiceModalCode}
+            onOpenChange={(open) => !open && setInvoiceModalCode(null)}
+            diagnosticData={{
+              code: invoiceModalCode.code,
+              title: invoiceModalCode.title,
+              description: invoiceModalCode.description,
+              manufacturer: invoiceModalCode.manufacturer,
+              machineType: invoiceModalCode.machineType,
+              estimatedRepairTime: invoiceModalCode.estimatedRepairTime,
+              requiredParts: invoiceModalCode.requiredParts || [],
+              partsWithPricing: invoiceModalCode.partsWithPricing
+            }}
+          />
+        </Suspense>
       )}
     </div>
     </AuthGuard>
