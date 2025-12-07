@@ -460,9 +460,10 @@ export default function ServiceGuyAI() {
     staleTime: 1000 * 60 * 60,
   });
 
-  const { data: usageData, refetch: refetchUsage } = useQuery<UsageData>({
+  const { data: usageData, refetch: refetchUsage } = useQuery<{ success: boolean; usage: UsageData }, Error, UsageData>({
     queryKey: ['/api/service-guy/usage'],
     staleTime: 1000 * 30,
+    select: (data) => data.usage,
   });
 
   const isEnterpriseTier = usageData?.tier === 'enterprise';
