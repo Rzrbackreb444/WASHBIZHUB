@@ -123,6 +123,11 @@ import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
 import { InvestmentDisclaimer } from "@/components/LegalDisclaimer";
 import { useIsMobileWithHydration } from "@/hooks/use-mobile";
+import { SavedAddressesPanel } from "@/components/cleanbi/SavedAddressesPanel";
+import { ViewModeToggle } from "@/components/cleanbi/ViewModeToggle";
+import { AnalysisChartsView } from "@/components/cleanbi/AnalysisChartsView";
+import { AnalysisReportGenerator } from "@/components/cleanbi/AnalysisReportGenerator";
+import { AnalysisSocialShare } from "@/components/cleanbi/AnalysisSocialShare";
 
 declare global {
   interface Window {
@@ -546,6 +551,8 @@ function CleanBIExplorerContent() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([]);
+  const [viewMode, setViewMode] = useState<'map' | 'charts'>('map');
+  const [savedPanelOpen, setSavedPanelOpen] = useState(false);
   const [showStreetView, setShowStreetView] = useState(false);
   const [showAerialView, setShowAerialView] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -2807,33 +2814,14 @@ function CleanBIExplorerContent() {
                       initial={{ y: 10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.5, duration: 0.3 }}
-                      className="flex gap-2"
+                      className="flex flex-wrap gap-2"
                     >
-                      <Button
-                        size="default"
-                        variant="outline"
-                        className="flex-1 min-h-11 px-4 gap-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
-                        onClick={shareAnalysis}
-                        data-testid="button-share-analysis"
-                      >
-                        <Share2 className="w-4 h-4" />
-                        Share
-                      </Button>
-                      <Button
-                        size="default"
-                        variant="outline"
-                        className="flex-1 min-h-11 px-4 gap-2 border-white/20 text-white/80 hover:bg-white/10 hover:text-white"
-                        onClick={() => {
-                          toast({
-                            title: "Export Coming Soon",
-                            description: "PDF export will be available in the next update"
-                          });
-                        }}
-                        data-testid="button-export-pdf"
-                      >
-                        <Printer className="w-4 h-4" />
-                        Export
-                      </Button>
+                      <AnalysisSocialShare analysis={analysisResult} />
+                      <AnalysisReportGenerator 
+                        analysis={analysisResult} 
+                        isSubscriber={userTier === "pro" || userTier === "enterprise"}
+                        onUpgradeClick={() => setShowUpgradeModal(true)}
+                      />
                       <Button
                         size="default"
                         className="flex-1 min-h-11 px-4 gap-2 bg-[#C8A661] hover:bg-[#d4a030] text-white"
@@ -2847,6 +2835,17 @@ function CleanBIExplorerContent() {
                         <BookmarkPlus className="w-4 h-4" />
                         Save
                       </Button>
+                    </motion.div>
+                    
+                    {/* View Mode Toggle */}
+                    <motion.div
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.6, duration: 0.3 }}
+                      className="flex items-center justify-between mt-3"
+                    >
+                      <span className="text-xs text-white/50">View Mode</span>
+                      <ViewModeToggle mode={viewMode} onModeChange={setViewMode} />
                     </motion.div>
                   </div>
                 </motion.div>
@@ -5135,6 +5134,15 @@ function CleanBIExplorerContent() {
             </Collapsible>
             </div>
 
+            {/* Saved Addresses Panel - New Component */}
+            <div className="px-4 py-2">
+              <SavedAddressesPanel 
+                onSelect={(saved) => loadSavedAnalysis(saved as SavedAnalysis)} 
+                isOpen={savedPanelOpen} 
+                onToggle={() => setSavedPanelOpen(!savedPanelOpen)} 
+              />
+            </div>
+            
             {/* Saved Analyses History - Card Style */}
             <div className="px-4 py-2">
             <Collapsible open={historyExpanded} onOpenChange={setHistoryExpanded}>
@@ -5523,11 +5531,29 @@ function CleanBIExplorerContent() {
                 </motion.button>
               )}
               
-              <div 
-                ref={mapRef}
-                className="absolute inset-0"
-                data-testid="explorer-map"
-              />
+              {/* Map or Charts View based on viewMode */}
+              {viewMode === 'map' ? (
+                <div 
+                  ref={mapRef}
+                  className="absolute inset-0"
+                  data-testid="explorer-map"
+                />
+              ) : (
+                /* Charts View - Show when viewMode is 'charts' */
+                analysisResult ? (
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0f1d2f] to-[#1e3a5f] overflow-auto p-6">
+                    <AnalysisChartsView analysis={analysisResult} />
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0f1d2f] to-[#1e3a5f] flex items-center justify-center">
+                    <div className="text-center text-white/50">
+                      <BarChart3 className="w-12 h-12 mx-auto mb-3 text-[#C8A661]/50" />
+                      <p className="text-sm">No analysis data to display</p>
+                      <p className="text-xs mt-1">Run an analysis to see charts</p>
+                    </div>
+                  </div>
+                )
+              )}
 
               {/* Market Gap Legend - Shows when gaps are displayed */}
           <AnimatePresence>
