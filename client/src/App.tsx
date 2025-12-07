@@ -1518,6 +1518,7 @@ function AppContent() {
   const fullScreenRoutes = ['/sra/factory', '/design-studio-pro', '/pos', '/admin/dashboard', '/admin/login', '/admin-login', '/cleanbi-explorer'];
   const isFullScreenApp = fullScreenRoutes.includes(location);
   const hasCustomFooter = ROUTES_WITH_CUSTOM_FOOTER.has(location);
+  const hideChatWidget = location === '/service-guy-ai';
   
   if (isFullScreenApp) {
     return (
@@ -1572,7 +1573,7 @@ function AppContent() {
         </main>
         {!hasCustomFooter && <Footer />}
       </div>
-      <DeferredAIChatWidget />
+      {!hideChatWidget && <DeferredAIChatWidget />}
       <FloatingFeedbackButton />
     </>
   );
