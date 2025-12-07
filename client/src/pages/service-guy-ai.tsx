@@ -62,7 +62,10 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import type { ServiceJob } from "@shared/schema";
 import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
+import { KnowledgeCard, KnowledgeCardSkeleton } from "@/components/KnowledgeCard";
+import { ServiceGuyAISchemaLD, KnowledgeSchemaLD } from "@/components/KnowledgeSchemaLD";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
+import { Brain } from "lucide-react";
 import { PartsOrderWidget } from "@/components/PartsOrderWidget";
 import { InvoiceGenerator } from "@/components/InvoiceGenerator";
 import { ServiceTechButton } from "@/components/ServiceTechLocator";
@@ -398,8 +401,50 @@ export default function ServiceGuyAI() {
   const [expandedPartsCode, setExpandedPartsCode] = useState<string | null>(null);
   const [showPartsModal, setShowPartsModal] = useState(false);
   const [invoiceModalCode, setInvoiceModalCode] = useState<DiagnosticCode | null>(null);
+  
+  const [smartDiagnosisResult, setSmartDiagnosisResult] = useState<any>(null);
+  const [isSmartSearching, setIsSmartSearching] = useState(false);
 
   const debouncedSearch = useDebounce(searchInput, 300);
+
+  const smartDiagnosisMutation = useMutation({
+    mutationFn: async (params: { query: string; manufacturer?: string; errorCode?: string; machineType?: string }) => {
+      const response = await apiRequest("POST", "/api/service-guy/smart-diagnose", params);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSmartDiagnosisResult(data);
+      setIsSmartSearching(false);
+      if (data.learned) {
+        toast({
+          title: "New Knowledge Learned",
+          description: "This information has been added to our database for faster future lookups.",
+        });
+      }
+    },
+    onError: (error: any) => {
+      setIsSmartSearching(false);
+      toast({
+        title: "Search Error",
+        description: error.message || "Smart diagnosis failed",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSmartDiagnosis = useCallback(() => {
+    if (!debouncedSearch && !selectedManufacturer) return;
+    
+    setIsSmartSearching(true);
+    setSmartDiagnosisResult(null);
+    
+    smartDiagnosisMutation.mutate({
+      query: debouncedSearch,
+      manufacturer: selectedManufacturer !== "_all" ? selectedManufacturer : undefined,
+      errorCode: debouncedSearch?.match(/^[A-Z0-9]{1,5}$/i) ? debouncedSearch : undefined,
+      machineType: machineType !== "all" ? machineType : undefined,
+    });
+  }, [debouncedSearch, selectedManufacturer, machineType, smartDiagnosisMutation]);
 
   const { data: manufacturersData, isLoading: isLoadingManufacturers } = useQuery<ManufacturersResponse>({
     queryKey: ['/api/service-guy/manufacturers'],
@@ -1161,11 +1206,70 @@ export default function ServiceGuyAI() {
                 </div>
                 
                 {filteredResults.length === 0 ? (
-                  <Card className="p-8 text-center text-muted-foreground">
-                    <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium mb-2">No error codes found</p>
-                    <p>Try adjusting your search filters or select a different manufacturer.</p>
-                  </Card>
+                  <div className="space-y-4">
+                    {isSmartSearching ? (
+                      <KnowledgeCardSkeleton />
+                    ) : smartDiagnosisResult?.success && smartDiagnosisResult?.knowledge ? (
+                      <div className="space-y-4">
+                        <KnowledgeSchemaLD knowledge={smartDiagnosisResult.knowledge} />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Brain className="w-4 h-4 text-[#C8A661]" />
+                          <span>AI-powered result from {smartDiagnosisResult.source?.replace("_", " ")}</span>
+                          {smartDiagnosisResult.cached && (
+                            <Badge variant="outline" className="text-xs">Cached</Badge>
+                          )}
+                          {smartDiagnosisResult.learned && (
+                            <Badge className="bg-green-600 text-white text-xs">Learned</Badge>
+                          )}
+                        </div>
+                        <KnowledgeCard 
+                          knowledge={smartDiagnosisResult.knowledge}
+                          source={smartDiagnosisResult.source}
+                          learned={smartDiagnosisResult.learned}
+                          userTier={usageData?.tier || "free"}
+                        />
+                      </div>
+                    ) : (
+                      <Card className="p-8 text-center">
+                        <div className="h-16 w-16 rounded-full bg-[#0A1628] flex items-center justify-center mx-auto mb-4">
+                          <Brain className="w-8 h-8 text-[#C8A661]" />
+                        </div>
+                        <p className="text-lg font-medium mb-2">No error codes found in database</p>
+                        <p className="text-muted-foreground mb-6">
+                          {smartDiagnosisResult?.message || "Try our AI-powered search to find repair information from service manuals."}
+                        </p>
+                        {smartDiagnosisResult?.upgradeRequired ? (
+                          <Button 
+                            onClick={handleUpgrade}
+                            className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+                            data-testid="button-upgrade-smart"
+                          >
+                            <Crown className="w-4 h-4 mr-2" />
+                            Upgrade for More AI Searches
+                          </Button>
+                        ) : (
+                          <Button 
+                            onClick={handleSmartDiagnosis}
+                            disabled={isSmartSearching}
+                            className="bg-[#0A1628] hover:bg-[#0A1628]/90 text-white"
+                            data-testid="button-smart-diagnose"
+                          >
+                            {isSmartSearching ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Searching AI Knowledge...
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="w-4 h-4 mr-2" />
+                                Search with AI
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </Card>
+                    )}
+                  </div>
                 ) : (
                   <div className="grid gap-4">
                     {filteredResults.map((code) => {
