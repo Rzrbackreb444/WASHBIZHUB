@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, ShoppingCart, Star, Package, ExternalLink, Zap } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Search, ShoppingCart, Star, Package, ExternalLink, Zap, Wrench, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AmazonProduct {
@@ -29,9 +30,42 @@ interface PartsOrderWidgetProps {
   defaultSearch?: string;
   category?: 'washer' | 'dryer' | 'commercial' | 'maintenance';
   compact?: boolean;
+  parts?: string[];
 }
 
-export function PartsOrderWidget({ defaultSearch, category, compact = false }: PartsOrderWidgetProps) {
+function extractPartNumber(partStr: string): { name: string; partNumber: string | null } {
+  const match = partStr.match(/\(([A-Z0-9\-]+P?)\)/i) || partStr.match(/([A-Z]{1,4}[\-]?\d{3,}P?)/i);
+  return {
+    name: partStr.replace(/\([^)]+\)/g, '').trim(),
+    partNumber: match ? match[1] : null
+  };
+}
+
+const SUPPLIERS = [
+  {
+    id: 'partstown',
+    name: 'Parts Town',
+    searchUrl: (part: string) => `https://www.partstown.com/search?searchstr=${encodeURIComponent(part)}`,
+    color: 'bg-blue-600 hover:bg-blue-700',
+    icon: Package
+  },
+  {
+    id: 'alliance',
+    name: 'Alliance OEM',
+    searchUrl: (part: string) => `https://parts.alliancelaundry.com/search/?searchText=${encodeURIComponent(part)}`,
+    color: 'bg-red-600 hover:bg-red-700',
+    icon: Wrench
+  },
+  {
+    id: 'laundryparts711',
+    name: 'Laundry Parts 711',
+    searchUrl: (part: string) => `https://laundryparts711.com/catalogsearch/result/?q=${encodeURIComponent(part)}`,
+    color: 'bg-green-600 hover:bg-green-700',
+    icon: Store
+  }
+];
+
+export function PartsOrderWidget({ defaultSearch, category, compact = false, parts = [] }: PartsOrderWidgetProps) {
   const [searchQuery, setSearchQuery] = useState(defaultSearch || '');
   const [activeCategory, setActiveCategory] = useState(category || 'washer');
   const { toast } = useToast();
@@ -40,6 +74,10 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
     queryKey: ['/api/amazon/search', searchQuery, activeCategory],
     enabled: !!searchQuery,
   });
+
+  const partsWithNumbers = parts
+    .map(part => ({ original: part, ...extractPartNumber(part) }))
+    .filter(part => part.partNumber !== null);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -80,14 +118,12 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
   };
 
   const handleOrderNow = (product: AmazonProduct) => {
-    // Track affiliate click
     fetch('/api/amazon/track-click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ asin: product.asin, source: 'parts-widget' }),
     });
 
-    // Open Amazon in new tab
     window.open(product.url, '_blank');
     
     toast({
@@ -96,11 +132,140 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
     });
   };
 
+  const handleSupplierClick = (supplier: typeof SUPPLIERS[0], partNumber: string, partName: string) => {
+    const url = supplier.searchUrl(partNumber);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    
+    toast({
+      title: `Opening ${supplier.name}`,
+      description: `Searching for ${partNumber}...`,
+    });
+  };
+
+  const handleAmazonPartClick = (partNumber: string) => {
+    const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(partNumber)}&tag=nicholaskreme-20`;
+    window.open(amazonUrl, '_blank', 'noopener,noreferrer');
+    
+    toast({
+      title: "Opening Amazon",
+      description: `Searching for ${partNumber}...`,
+    });
+  };
+
+  const QuickOrderSection = () => {
+    if (partsWithNumbers.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Zap className="h-5 w-5 text-[#C8A661]" />
+          <h3 className="font-semibold text-foreground">Quick Order by Part Number</h3>
+        </div>
+        
+        <div className="space-y-3">
+          {partsWithNumbers.map((part, index) => (
+            <div 
+              key={`${part.partNumber}-${index}`} 
+              className="p-4 rounded-lg border bg-muted/30"
+              data-testid={`part-row-${part.partNumber}`}
+            >
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-muted-foreground">Part:</span>
+                  <Badge variant="secondary" className="font-medium">
+                    {part.name || part.original}
+                  </Badge>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {part.partNumber}
+                  </Badge>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {SUPPLIERS.map((supplier) => {
+                    const IconComponent = supplier.icon;
+                    return (
+                      <a
+                        key={supplier.id}
+                        href={supplier.searchUrl(part.partNumber!)}
+                        target="_blank"
+                        rel="nofollow sponsored noopener noreferrer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleSupplierClick(supplier, part.partNumber!, part.name);
+                        }}
+                        data-testid={`button-order-${supplier.id}-${part.partNumber}`}
+                      >
+                        <Button
+                          size="sm"
+                          className={`${supplier.color} text-white`}
+                        >
+                          <IconComponent className="h-3 w-3 mr-1.5" />
+                          {supplier.name}
+                        </Button>
+                      </a>
+                    );
+                  })}
+                  
+                  <a
+                    href={`https://www.amazon.com/s?k=${encodeURIComponent(part.partNumber!)}&tag=nicholaskreme-20`}
+                    target="_blank"
+                    rel="nofollow sponsored noopener noreferrer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAmazonPartClick(part.partNumber!);
+                    }}
+                    data-testid={`button-order-amazon-${part.partNumber}`}
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1.5" />
+                      Amazon
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const AAdvantageSpotlight = () => (
+    <div className="p-4 rounded-lg border bg-gradient-to-r from-[#0A1628]/5 to-[#C8A661]/5">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+            <Package className="h-5 w-5 text-[#C8A661]" />
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">AAdvantage Laundry Systems</p>
+            <p className="text-sm text-muted-foreground">Authorized Dexter dealer - Full parts catalog</p>
+          </div>
+        </div>
+        <a
+          href="https://aadvantagelaundry.com/parts"
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          data-testid="link-aadvantage"
+        >
+          <Button variant="outline" size="sm">
+            <ExternalLink className="h-3 w-3 mr-1.5" />
+            Visit Parts Store
+          </Button>
+        </a>
+      </div>
+    </div>
+  );
+
   if (compact) {
     return (
       <Card className="hover-elevate">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
               <CardTitle className="text-lg">Quick Parts Order</CardTitle>
@@ -111,7 +276,14 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {partsWithNumbers.length > 0 && (
+            <>
+              <QuickOrderSection />
+              <Separator />
+            </>
+          )}
+          
           <div className="flex gap-2">
             <Input
               placeholder="Search parts..."
@@ -155,13 +327,13 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-6 w-6 text-primary" />
-              Amazon Parts Ordering
+              Parts Ordering
             </CardTitle>
-            <CardDescription>One-click parts ordering from your nicholaskreme-20 storefront</CardDescription>
+            <CardDescription>One-click parts ordering from multiple suppliers</CardDescription>
           </div>
           <Badge variant="outline" className="gap-1">
             <Zap className="h-4 w-4" />
@@ -169,19 +341,36 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search for parts, equipment, or supplies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && refetch()}
-            data-testid="input-parts-search-full"
-          />
-          <Button onClick={() => refetch()} data-testid="button-search-parts-full">
-            <Search className="h-4 w-4 mr-2" />
-            Search
-          </Button>
+      <CardContent className="space-y-6">
+        {partsWithNumbers.length > 0 && (
+          <>
+            <QuickOrderSection />
+            <Separator />
+          </>
+        )}
+
+        <AAdvantageSpotlight />
+
+        <Separator />
+
+        <div>
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            Search Amazon for Parts
+          </h3>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Search for parts, equipment, or supplies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && refetch()}
+              data-testid="input-parts-search-full"
+            />
+            <Button onClick={() => refetch()} data-testid="button-search-parts-full">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as any)}>
@@ -255,7 +444,7 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false }: P
                     <p className="text-xs text-muted-foreground mb-2">by {product.brand}</p>
                   )}
 
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
                     {product.rating && (
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
