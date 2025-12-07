@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +9,10 @@ import {
   TrendingUp, Users, DollarSign, Eye, BarChart3, Download, 
   ShoppingCart, CreditCard, ArrowUpRight, ArrowDownRight,
   Globe, Activity, Clock, Zap, Target, PieChart, RefreshCw,
-  UserPlus, MapPin, FileCheck, Tag
+  UserPlus, MapPin, FileCheck, Tag, Loader2, CheckCircle
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   StatCard, MetricCard, DonutChart, MiniBarChart, ProgressBar,
@@ -21,6 +23,31 @@ import { formatDistanceToNow } from "date-fns";
 export default function AdminAnalytics() {
   const { user, isAuthenticated, authResolved } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [indexingSuccess, setIndexingSuccess] = useState(false);
+
+  // Mass Index All Engines mutation
+  const massIndexMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/index-all-engines");
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setIndexingSuccess(true);
+      setTimeout(() => setIndexingSuccess(false), 3000);
+      toast({
+        title: "Mass Indexing Complete!",
+        description: `Submitted ${data.totalUrls} URLs to Google, Bing, Yandex & DuckDuckGo`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Mass Indexing Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Fetch comprehensive analytics data - only when user is confirmed admin
   const { data: analytics, refetch, isFetching } = useQuery<{
@@ -159,17 +186,43 @@ export default function AdminAnalytics() {
                 <p className="text-indigo-200">Real-time metrics from Stripe & database</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="border-white/20 text-white hover:bg-white/10"
-              data-testid="button-refresh-analytics"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-              {isFetching ? 'Loading...' : 'Refresh'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => massIndexMutation.mutate()}
+                disabled={massIndexMutation.isPending}
+                className="bg-[#C8A661] hover:bg-[#b8963d] text-white"
+                data-testid="button-mass-index"
+              >
+                {massIndexMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Indexing...
+                  </>
+                ) : indexingSuccess ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Done!
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Index All
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="border-white/20 text-white hover:bg-white/10"
+                data-testid="button-refresh-analytics"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+                {isFetching ? 'Loading...' : 'Refresh'}
+              </Button>
+            </div>
           </div>
 
           <DashboardGrid cols={4}>
