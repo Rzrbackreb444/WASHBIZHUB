@@ -13729,5 +13729,173 @@ export type FixOutcomeFeedback = typeof fixOutcomeFeedback.$inferSelect;
 export type InsertFixOutcomeFeedback = z.infer<typeof insertFixOutcomeFeedbackSchema>;
 
 // ============================================================================
+// SERVICE GUY AI - LEARNING KNOWLEDGE BASE
+// ============================================================================
+
+// Service Manuals - Uploaded PDFs, wiring diagrams, tech bulletins
+export const serviceManuals = pgTable("service_manuals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  uploaderId: varchar("uploader_id").references(() => users.id),
+  
+  // Document metadata
+  title: text("title").notNull(),
+  manufacturer: text("manufacturer").notNull(),
+  modelSeries: text("model_series"), // e.g., "Quantum Gold", "SC Series"
+  machineType: text("machine_type"), // "washer", "dryer", "both"
+  docType: text("doc_type").notNull(), // "service_manual", "wiring_diagram", "parts_list", "tech_bulletin", "user_submitted"
+  
+  // File info
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size"), // bytes
+  mimeType: text("mime_type"),
+  storageKey: text("storage_key"), // Object storage key
+  checksum: text("checksum"), // For deduplication
+  
+  // Processing status
+  status: text("status").default("pending"), // "pending", "processing", "completed", "failed"
+  pageCount: integer("page_count"),
+  extractedText: text("extracted_text"), // Full text for search
+  processingError: text("processing_error"),
+  
+  // Metadata
+  sourceUrl: text("source_url"), // If downloaded from manufacturer site
+  yearPublished: integer("year_published"),
+  version: text("version"),
+  language: text("language").default("en"),
+  
+  // Stats
+  viewCount: integer("view_count").default(0),
+  downloadCount: integer("download_count").default(0),
+  helpfulVotes: integer("helpful_votes").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  manufacturerIdx: index("service_manuals_manufacturer_idx").on(table.manufacturer),
+  docTypeIdx: index("service_manuals_doc_type_idx").on(table.docType),
+  statusIdx: index("service_manuals_status_idx").on(table.status),
+}));
+
+export const insertServiceManualSchema = createInsertSchema(serviceManuals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ServiceManual = typeof serviceManuals.$inferSelect;
+export type InsertServiceManual = z.infer<typeof insertServiceManualSchema>;
+
+// Knowledge Chunks - Extracted pieces of knowledge from manuals
+export const knowledgeChunks = pgTable("knowledge_chunks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  manualId: varchar("manual_id").references(() => serviceManuals.id),
+  
+  // Content
+  chunkType: text("chunk_type").notNull(), // "repair_procedure", "wiring_info", "parts_list", "safety_warning", "troubleshooting", "spec", "tip"
+  title: text("title"),
+  content: text("content").notNull(), // The extracted text
+  summary: text("summary"), // AI-generated summary
+  
+  // Structured data (AI-extracted)
+  structuredData: jsonb("structured_data"), // {steps: [], parts: [], warnings: [], tools: []}
+  
+  // Linking to diagnostic codes
+  linkedErrorCodes: text("linked_error_codes").array(), // e.g., ["Er_dL", "E01"]
+  manufacturer: text("manufacturer"),
+  modelSeries: text("model_series"),
+  machineType: text("machine_type"),
+  
+  // Source reference
+  pageStart: integer("page_start"),
+  pageEnd: integer("page_end"),
+  sectionTitle: text("section_title"),
+  
+  // Quality metrics
+  confidence: integer("confidence").default(80), // AI confidence 0-100
+  helpfulVotes: integer("helpful_votes").default(0),
+  notHelpfulVotes: integer("not_helpful_votes").default(0),
+  usageCount: integer("usage_count").default(0), // How often shown in diagnoses
+  
+  // Verification status
+  isVerified: boolean("is_verified").default(false),
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  verifiedAt: timestamp("verified_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  manualIdx: index("knowledge_chunks_manual_idx").on(table.manualId),
+  typeIdx: index("knowledge_chunks_type_idx").on(table.chunkType),
+  manufacturerIdx: index("knowledge_chunks_manufacturer_idx").on(table.manufacturer),
+}));
+
+export const insertKnowledgeChunkSchema = createInsertSchema(knowledgeChunks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type KnowledgeChunk = typeof knowledgeChunks.$inferSelect;
+export type InsertKnowledgeChunk = z.infer<typeof insertKnowledgeChunkSchema>;
+
+// Tech Contributions - User-submitted fixes and knowledge
+export const techContributions = pgTable("tech_contributions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // What they're contributing
+  contributionType: text("contribution_type").notNull(), // "fix_procedure", "tip", "parts_update", "wiring_info", "correction"
+  
+  // Context
+  manufacturer: text("manufacturer").notNull(),
+  errorCode: text("error_code"),
+  machineType: text("machine_type"),
+  modelSeries: text("model_series"),
+  
+  // Content
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  partsUsed: jsonb("parts_used"), // [{partNumber, name, price, supplier}]
+  timeToFix: integer("time_to_fix"), // minutes
+  difficultyLevel: text("difficulty_level"), // "easy", "medium", "hard", "pro_only"
+  
+  // Evidence
+  photoUrls: text("photo_urls").array(),
+  videoUrl: text("video_url"),
+  
+  // Validation
+  status: text("status").default("pending"), // "pending", "approved", "rejected", "merged"
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  
+  // If merged into main knowledge base
+  mergedToChunkId: varchar("merged_to_chunk_id").references(() => knowledgeChunks.id),
+  mergedToDiagnosticId: varchar("merged_to_diagnostic_id").references(() => diagnosticCodes.id),
+  
+  // Community validation
+  upvotes: integer("upvotes").default(0),
+  downvotes: integer("downvotes").default(0),
+  verifiedWorksCount: integer("verified_works_count").default(0), // "This worked for me" clicks
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("tech_contributions_user_idx").on(table.userId),
+  manufacturerIdx: index("tech_contributions_manufacturer_idx").on(table.manufacturer),
+  statusIdx: index("tech_contributions_status_idx").on(table.status),
+  errorCodeIdx: index("tech_contributions_error_code_idx").on(table.errorCode),
+}));
+
+export const insertTechContributionSchema = createInsertSchema(techContributions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type TechContribution = typeof techContributions.$inferSelect;
+export type InsertTechContribution = z.infer<typeof insertTechContributionSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
