@@ -208,6 +208,155 @@ export async function submitToGoogle(url: string): Promise<{ success: boolean; m
   }
 }
 
+// ==================== INDEXNOW INSTANT INDEXING ====================
+// Submit new content to search engines immediately for instant indexing
+
+/**
+ * IndexNow API Key for WashBizHub
+ * This key must have a corresponding verification file at https://washbizhub.com/washbizhub2024indexnow.txt
+ */
+export const INDEXNOW_KEY = 'washbizhub2024indexnow';
+
+/**
+ * IndexNow endpoints for batch submission
+ * All major search engines share IndexNow submissions
+ */
+export const INDEXNOW_BATCH_ENDPOINTS = [
+  'https://api.indexnow.org/indexnow',
+  'https://www.bing.com/indexnow',
+  'https://yandex.com/indexnow'
+];
+
+/**
+ * Submit URLs to IndexNow for instant search engine indexing
+ * Pings Bing, Yandex, and other search engines that support IndexNow protocol
+ * @param urls Array of URLs to submit (max 10,000 per IndexNow spec)
+ */
+export async function submitToIndexNow(urls: string[]): Promise<void> {
+  if (!urls || urls.length === 0) {
+    console.log('⚠️ IndexNow: No URLs to submit');
+    return;
+  }
+
+  const host = 'washbizhub.com';
+  const payload = {
+    host,
+    key: INDEXNOW_KEY,
+    urlList: urls.slice(0, 10000) // IndexNow limit
+  };
+
+  console.log(`\n🚀 IndexNow: Submitting ${urls.length} URLs for instant indexing...\n`);
+
+  for (const endpoint of INDEXNOW_BATCH_ENDPOINTS) {
+    try {
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      console.log(`✅ IndexNow submitted to ${endpoint}: ${urls.length} URLs`);
+    } catch (error) {
+      console.error(`❌ IndexNow failed for ${endpoint}:`, error);
+    }
+  }
+}
+
+/**
+ * Submit new error codes for instant indexing
+ * @param errorCodes Array of error code identifiers (e.g., 'E01', 'F02')
+ */
+export async function submitErrorCodesToIndexNow(errorCodes: string[]): Promise<void> {
+  const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+  const urls = errorCodes.map(code => `${baseUrl}/error-codes/${encodeURIComponent(code)}`);
+  
+  console.log(`📋 IndexNow: Submitting ${errorCodes.length} error codes for indexing`);
+  await submitToIndexNow(urls);
+}
+
+/**
+ * Submit new blog posts for instant indexing
+ * @param blogSlugs Array of blog post slugs
+ */
+export async function submitBlogPostsToIndexNow(blogSlugs: string[]): Promise<void> {
+  const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+  const urls = blogSlugs.map(slug => `${baseUrl}/blog/${encodeURIComponent(slug)}`);
+  
+  console.log(`📝 IndexNow: Submitting ${blogSlugs.length} blog posts for indexing`);
+  await submitToIndexNow(urls);
+}
+
+/**
+ * Submit new listings for instant indexing
+ * @param listingIds Array of listing UUIDs
+ */
+export async function submitListingsToIndexNow(listingIds: string[]): Promise<void> {
+  const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+  const urls = listingIds.map(id => `${baseUrl}/buy-laundromat/${id}`);
+  
+  console.log(`🏪 IndexNow: Submitting ${listingIds.length} listings for indexing`);
+  await submitToIndexNow(urls);
+}
+
+/**
+ * Submit multiple content types at once for instant indexing
+ */
+export async function submitContentToIndexNow(content: {
+  errorCodes?: string[];
+  blogSlugs?: string[];
+  listingIds?: string[];
+  customUrls?: string[];
+}): Promise<{ 
+  totalSubmitted: number; 
+  breakdown: { errorCodes: number; blogPosts: number; listings: number; customUrls: number } 
+}> {
+  const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
+  const allUrls: string[] = [];
+  
+  const breakdown = {
+    errorCodes: 0,
+    blogPosts: 0,
+    listings: 0,
+    customUrls: 0
+  };
+  
+  if (content.errorCodes?.length) {
+    const errorCodeUrls = content.errorCodes.map(code => `${baseUrl}/error-codes/${encodeURIComponent(code)}`);
+    allUrls.push(...errorCodeUrls);
+    breakdown.errorCodes = content.errorCodes.length;
+  }
+  
+  if (content.blogSlugs?.length) {
+    const blogUrls = content.blogSlugs.map(slug => `${baseUrl}/blog/${encodeURIComponent(slug)}`);
+    allUrls.push(...blogUrls);
+    breakdown.blogPosts = content.blogSlugs.length;
+  }
+  
+  if (content.listingIds?.length) {
+    const listingUrls = content.listingIds.map(id => `${baseUrl}/buy-laundromat/${id}`);
+    allUrls.push(...listingUrls);
+    breakdown.listings = content.listingIds.length;
+  }
+  
+  if (content.customUrls?.length) {
+    allUrls.push(...content.customUrls);
+    breakdown.customUrls = content.customUrls.length;
+  }
+  
+  console.log(`\n📊 IndexNow Batch Submission:`);
+  console.log(`   Error Codes: ${breakdown.errorCodes}`);
+  console.log(`   Blog Posts: ${breakdown.blogPosts}`);
+  console.log(`   Listings: ${breakdown.listings}`);
+  console.log(`   Custom URLs: ${breakdown.customUrls}`);
+  console.log(`   Total: ${allUrls.length}\n`);
+  
+  await submitToIndexNow(allUrls);
+  
+  return {
+    totalSubmitted: allUrls.length,
+    breakdown
+  };
+}
+
 /**
  * IndexNow endpoints - try multiple for redundancy
  * Note: All these endpoints share the same IndexNow protocol

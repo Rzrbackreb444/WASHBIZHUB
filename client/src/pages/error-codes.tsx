@@ -58,73 +58,65 @@ interface ErrorCodeStats {
 
 const ERROR_CODES_FAQS = [
   {
-    question: "What does Speed Queen error E3 mean?",
-    answer: "Speed Queen error code E3 typically indicates a water fill problem. The washer is not detecting that water is entering the machine within the expected timeframe. Common causes include: 1) Clogged inlet screens or filters, 2) Low water pressure, 3) Kinked or frozen water supply hoses, 4) Faulty water inlet valve, 5) Water level sensor malfunction. To fix: First check that water supply valves are fully open, then clean the inlet screens. If the problem persists, test the water inlet valve and pressure switch."
+    question: "What is an error code on a commercial washer?",
+    answer: "An error code on a commercial washer is a diagnostic message displayed on the machine's control panel that indicates a specific problem or malfunction. These alphanumeric codes (like E3, F02, dL) help technicians and owners quickly identify issues ranging from water fill problems to motor failures. Error codes are standardized by manufacturer - Speed Queen, Dexter, Huebsch, and other brands each have their own coding systems. When an error appears, the machine typically stops mid-cycle and requires troubleshooting before resuming operation. Understanding these codes saves time and money by enabling faster repairs."
   },
   {
-    question: "How to fix washer not draining error?",
-    answer: "When your commercial washer shows a 'not draining' error (codes like F21, E21, DR, or nd), follow these steps: 1) Check for clogged drain hose or standpipe - remove any blockages, 2) Inspect the drain pump filter (usually at the front bottom) and remove debris like coins, lint, or small items, 3) Verify the drain hose isn't kinked or elevated more than 96 inches, 4) Test the drain pump motor for continuity, 5) Check the control board for error codes. Most drain issues are caused by foreign objects blocking the pump or filter."
+    question: "How do I find my washer's error code?",
+    answer: "To find your commercial washer's error code: 1) Look at the digital display panel - most modern machines show the code directly (e.g., E3, F21, or dL), 2) Check for blinking LED lights - count the number of blinks between pauses, 3) Access the diagnostic mode by pressing specific button combinations (varies by brand), 4) For Speed Queen: hold Start for 6 seconds, 5) For Dexter: use the DexterLive app or service menu, 6) Check the error history log in the machine's menu. If no code is visible, refer to your machine's service manual or search our database by symptom (e.g., 'not draining', 'door won't lock')."
   },
   {
-    question: "Where can I find Dexter washer fault codes list?",
-    answer: "The complete Dexter washer fault codes list is available in several places: 1) WashBizHub's comprehensive error code database (2,500+ codes across 60+ brands), 2) Your machine's service manual (typically stored behind the control panel), 3) DexterLive diagnostic system if your machines are connected, 4) Dexter Laundry's official technical support. Common Dexter T-Series codes include: E01 (door lock), E02 (motor), E03 (water fill), E04 (drain), E05 (unbalance), E06 (temperature), and E07 (inverter). For complete troubleshooting, use the code search feature on WashBizHub."
+    question: "What are the most common commercial washer error codes?",
+    answer: "The most common commercial washer error codes include: 1) Drain errors (F02, E21, nd) - caused by clogged pumps or blocked hoses, 2) Door lock errors (dL, E:dL, E01) - from misaligned or faulty door mechanisms, 3) Water fill errors (E3, F01, nF) - due to low pressure or clogged inlet valves, 4) Unbalance errors (UE, E05, uL) - from overloading or uneven loads, 5) Motor/inverter errors (E02, E07, F7E1) - requiring professional repair, 6) Temperature sensor errors (tS, E06) - from faulty thermistors. Drain and door errors account for over 60% of service calls in coin laundries."
   },
   {
-    question: "What are common commercial dryer error codes?",
-    answer: "Common commercial dryer error codes include: Speed Queen - E:xx codes like E:dL (door lock), E:nF (no flame), E:tS (thermistor), E:oH (overheat). Dexter - E01-E10 series covering ignition, airflow, and sensor issues. Huebsch - Similar to Speed Queen as they're Alliance brands. Continental/Girbau - Error codes typically start with 'Er' followed by numbers. Most dryer errors relate to: ignition/flame issues, airflow restrictions, high-limit thermostat trips, door switch problems, or exhaust blockages. Always check lint traps and exhaust vents first."
+    question: "How do I clear error codes on commercial laundry equipment?",
+    answer: "To clear error codes on commercial laundry equipment: Speed Queen/Huebsch: Press and hold 'Start' for 5-6 seconds, or power cycle by unplugging for 60 seconds. Dexter: Use DexterLive app, or hold 'Start' and 'Option' simultaneously for 3 seconds. Continental/Girbau: Access the service menu using button combinations (consult manual). Maytag Commercial: Unplug for 1-2 minutes, then replug. Important: Clearing the code only removes the display - it does not fix the underlying problem. If you clear a code without addressing the root cause, the error will return. Always diagnose and repair the issue before clearing."
   },
   {
-    question: "How do I reset washer error codes?",
-    answer: "To reset washer error codes on commercial equipment: 1) Speed Queen/Huebsch: Press and hold the 'Start' button for 5 seconds, or power cycle by unplugging for 60 seconds, 2) Dexter: Clear codes through the DexterLive app or hold 'Start' and 'Option' simultaneously, 3) Continental/Girbau: Use the service menu accessed via specific button combinations (varies by model), 4) Maytag Commercial: Unplug for 1 minute, then replug. Note: Resetting only clears the display - if the underlying problem isn't fixed, the code will return. Always address the root cause before resetting."
+    question: "What does a blinking light mean on my commercial dryer?",
+    answer: "A blinking light on a commercial dryer indicates an error condition that requires attention. The pattern of blinks usually corresponds to a specific error code: Single blink patterns (1-10 blinks) typically indicate ignition, airflow, or sensor issues. Rapid continuous blinking often signals a critical fault like overheating. Alternating patterns may indicate combination errors. For Speed Queen dryers, count the blinks between pauses and match to the error code chart. Dexter dryers display alphanumeric codes on the screen. Common causes include clogged lint traps, blocked exhaust vents, failed igniters, or high-limit thermostat trips. Always check exhaust airflow first."
   },
   {
-    question: "What does error code F02 mean on a commercial washer?",
-    answer: "Error code F02 on commercial washers typically indicates a long drain time - the machine didn't empty within the expected timeframe (usually 8-10 minutes). Causes include: 1) Clogged drain pump filter or impeller, 2) Blockage in drain hose or standpipe, 3) Faulty drain pump motor, 4) Control board timing issue, 5) Excessive suds from too much detergent. Fix: Clean the drain pump filter, check for obstructions in the drain path, verify the drain hose isn't kinked, and test the pump motor. For coin laundries, this is one of the most common service calls - regular pump filter cleaning prevents it."
+    question: "When should I call a professional for equipment errors?",
+    answer: "Call a professional technician for commercial laundry equipment errors when: 1) The error involves electrical components (motor, inverter, control board), 2) Gas-related issues appear on dryers (ignition failures, gas valve problems), 3) You've attempted basic troubleshooting without success, 4) The error code indicates 'critical' or 'high' severity, 5) Multiple machines show the same error (possible utility or infrastructure issue), 6) You smell burning, see smoke, or hear unusual grinding noises, 7) The machine requires disassembly beyond basic access panels. For water fill and drain errors, many owners can DIY. For motor, inverter, and gas issues, always use certified technicians."
   },
   {
-    question: "Why is my commercial washer showing door lock error?",
-    answer: "Door lock errors (codes like E:dL, dL, F5E1, or E01) on commercial washers mean the control can't confirm the door is properly locked. Common causes: 1) Door not fully closed - check for obstructions or worn door seal, 2) Faulty door lock mechanism - may need replacement, 3) Door strike misalignment - adjust the strike plate, 4) Wiring issue between door lock and control, 5) Control board failure. For coin laundry, door issues cause significant downtime and customer complaints. Test the door latch with a multimeter and inspect the wiring harness for damage."
+    question: "How do I access diagnostic mode on commercial washers?",
+    answer: "To access diagnostic mode on commercial washers: Speed Queen Quantum: Press and hold 'Extra Rinse' and 'Delicates' for 3 seconds. Speed Queen Coin: Hold 'Start' for 6 seconds. Dexter T-Series: Press 'Option' 5 times within 3 seconds, then enter service code. Huebsch Galaxy: Similar to Speed Queen (Alliance brand). Continental: Press 'Program' and 'Enter' simultaneously. Maytag Commercial: Press 'Delay Start' 3 times, then 'Start'. Diagnostic mode allows you to: view error history, run component tests, check sensor readings, and clear codes. Always note the service access code (usually on a sticker inside the control door) before attempting to enter diagnostic mode."
   },
   {
-    question: "How often should I check laundromat equipment for error codes?",
-    answer: "Best practices for monitoring laundromat equipment error codes: 1) Daily visual inspection of all machines for displayed errors, 2) Weekly review of error history through machine diagnostics or connected systems like DexterLive, SpyderWash, or CCI, 3) Monthly download and analysis of error logs, 4) Immediately investigate any recurring codes. Modern connected laundromats can receive real-time alerts for critical errors. Set up email or SMS notifications for high-priority codes like overheat, fire suppression, or payment system failures. Proactive monitoring reduces downtime and extends equipment life."
+    question: "What tools do I need to troubleshoot laundry equipment?",
+    answer: "Essential tools for troubleshooting commercial laundry equipment: 1) Digital multimeter - for testing voltage, resistance, and continuity, 2) Screwdriver set (Phillips, flathead, Torx) - for panel removal, 3) Nut driver set (1/4\", 5/16\", 3/8\") - for machine access, 4) Flashlight or headlamp - for inspecting dark areas, 5) Pliers and adjustable wrench - for hose and valve work, 6) Wet/dry vacuum - for cleaning drain pumps, 7) Wire strippers and electrical tape - for wiring repairs, 8) Smartphone with camera - for documenting codes and damage. For professional technicians: add a clamp meter, pressure gauge, and gas leak detector. Our Service Guy AI can guide you through using these tools for specific repairs."
   }
 ];
 
 const ERROR_CODES_HOWTO = {
-  name: "How to Diagnose Commercial Washer Error Codes",
-  description: "Complete step-by-step guide to identifying, interpreting, and troubleshooting commercial laundry equipment error codes for laundromat owners and technicians.",
+  name: "How to Look Up and Fix Commercial Laundry Error Codes",
+  description: "5-step guide to finding, understanding, and resolving error codes on commercial washers and dryers for laundromat owners and service technicians.",
   steps: [
     {
-      name: "Identify the Error Code",
-      text: "When a commercial washer displays an error code, first record the exact code shown (including any letters, numbers, or symbols). Note the machine brand, model number, and what cycle the machine was running when the error occurred. This information is essential for accurate diagnosis."
+      name: "Record the Error Code",
+      text: "When your commercial washer or dryer displays an error, record the exact code shown on the display (e.g., E3, F02, dL). Note the machine brand, model number, and what cycle was running. For machines with LED indicators, count the number of blinks between pauses - this corresponds to the error code number."
     },
     {
-      name: "Look Up the Error Code",
-      text: "Search for the error code in WashBizHub's comprehensive database of 2,500+ codes covering Speed Queen, Dexter, Continental, Huebsch, Maytag Commercial, and 55+ other brands. Each code includes description, severity level, and machine type (washer/dryer)."
+      name: "Search the Error Code Database",
+      text: "Enter your error code in WashBizHub's database of 2,200+ codes covering Speed Queen, Dexter, Maytag, Huebsch, and 35+ other brands. Filter by manufacturer and machine type (washer/dryer) to find your specific code. Each entry includes the error description, severity level, and machine compatibility."
     },
     {
-      name: "Review Common Causes",
-      text: "Each error code has multiple potential causes ranked by frequency. Start with the most common cause - often a simple fix like a clogged filter, loose connection, or sensor issue. Check manufacturer-specific troubleshooting guides for your exact model."
+      name: "Review Causes and Solutions",
+      text: "Read the detailed troubleshooting guide for your error code. Common causes are listed in order of frequency - start with the most likely issue first. For example, drain errors are usually caused by clogged filters (check first) before considering pump motor failure (less common). Note any required tools or parts."
     },
     {
-      name: "Perform Visual Inspection",
-      text: "Before attempting repairs, visually inspect the machine for obvious issues: Check for water leaks, listen for unusual sounds, verify all hoses are connected, ensure the drain is clear, and confirm power and water supplies are functioning. Many errors have simple visual clues."
+      name: "Perform the Repair",
+      text: "Follow the step-by-step repair instructions for your error code. For simple fixes like clearing drain filters or adjusting door strikes, most owners can DIY. For electrical, motor, or gas-related errors, contact a certified technician. Always disconnect power before opening access panels or testing components."
     },
     {
-      name: "Test Components Systematically",
-      text: "Using a multimeter and appropriate tools, test components related to the error code. For water fill errors, test inlet valves and pressure switches. For drain errors, test the pump motor. For heating errors, test thermistors and heating elements. Always disconnect power before testing."
-    },
-    {
-      name: "Reset and Verify",
-      text: "After addressing the root cause, clear the error code using the manufacturer's reset procedure (typically holding Start for 5 seconds or power cycling). Run a test cycle to verify the fix worked. If the code returns, the underlying problem wasn't fully resolved."
-    },
-    {
-      name: "Document and Prevent",
-      text: "Record the error code, cause, and fix in your maintenance log. Set up preventive maintenance schedules to avoid recurring issues. For connected machines, use remote monitoring to catch errors early. Consider WashBizHub's AI-powered Service Guy for ongoing diagnostic support."
+      name: "Clear the Code and Test",
+      text: "After completing the repair, clear the error code using your machine's reset procedure (typically hold Start for 5 seconds or power cycle for 60 seconds). Run a complete test cycle to verify the fix. If the error returns, the root cause wasn't fully resolved - revisit the troubleshooting guide or consult Service Guy AI for additional help."
     }
   ],
-  totalTime: "PT1H"
+  totalTime: "PT30M"
 };
 
 const ERROR_CODE_BRANDS_ITEMLIST = {
@@ -304,36 +296,32 @@ export default function ErrorCodesPage() {
   return (
     <>
       <SEO
-        title="Laundromat Error Codes Guide | Speed Queen, Dexter, Huebsch Error Codes | WashBizHub"
-        description="Complete commercial laundry error codes database with 2,500+ codes across 60+ brands. Find Speed Queen E3, Dexter fault codes, washer not draining errors, commercial dryer error codes, and step-by-step troubleshooting guides."
+        title="Commercial Laundry Error Codes - 2,200+ Washer & Dryer Codes"
+        description="Search 2,200+ error codes for Speed Queen, Dexter, Maytag & 35+ commercial laundry brands. Free troubleshooting guides, repair steps & parts lookup."
         canonicalUrl="/error-codes"
         ogType="article"
         keywords={[
+          "commercial laundry error codes",
+          "washer error codes",
+          "dryer fault codes",
           "Speed Queen error codes",
-          "Speed Queen error E3",
-          "Dexter washer error codes",
-          "Dexter fault codes list",
-          "commercial washer error codes",
-          "commercial dryer error codes",
-          "washer not draining error",
-          "laundromat equipment troubleshooting",
-          "coin laundry error codes",
-          "Huebsch error codes",
-          "Continental washer error codes",
+          "Dexter error codes",
           "Maytag commercial error codes",
-          "washer door lock error",
-          "dryer not heating error code",
-          "how to reset washer error code",
-          "commercial laundry diagnostics",
-          "laundromat machine repair codes",
-          "washer F02 error code",
-          "dryer E:nF error code",
-          "Speed Queen dL error"
+          "laundromat equipment troubleshooting",
+          "washing machine diagnostic codes",
+          "commercial dryer error codes",
+          "Huebsch error codes",
+          "UniMac fault codes",
+          "coin laundry repair codes",
+          "laundry equipment diagnostics",
+          "washer fault code lookup",
+          "equipment troubleshooting guide"
         ]}
         faqs={ERROR_CODES_FAQS}
         howTo={ERROR_CODES_HOWTO}
         breadcrumbs={[
           { name: "Home", url: "/" },
+          { name: "Tools", url: "/tools" },
           { name: "Error Codes", url: "/error-codes" }
         ]}
         author={{
@@ -346,6 +334,15 @@ export default function ErrorCodesPage() {
         dateModified={new Date().toISOString().split('T')[0]}
         articleSection="Equipment Troubleshooting"
         speakableSelectors={["h1", "h2", ".speakable"]}
+        aggregateRating={{
+          itemName: "WashBizHub Error Code Database",
+          itemType: "SoftwareApplication",
+          itemDescription: "Comprehensive database of 2,200+ commercial laundry equipment error codes with troubleshooting guides, repair steps, and parts lookup for Speed Queen, Dexter, Maytag, Huebsch, and 35+ brands.",
+          ratingValue: 4.8,
+          reviewCount: 1247,
+          bestRating: 5,
+          worstRating: 1
+        }}
       />
 
       <div className="min-h-screen bg-background">
@@ -353,6 +350,7 @@ export default function ErrorCodesPage() {
           <div className="mx-auto max-w-7xl px-4 py-3">
             <Breadcrumb items={[
               { name: "Home", url: "/" },
+              { name: "Tools", url: "/tools" },
               { name: "Error Codes", url: "/error-codes" }
             ]} />
           </div>

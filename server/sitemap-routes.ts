@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { db } from "./db";
-import { blogPosts, listings, courses, forumTopics, vendors } from "@shared/schema";
+import { blogPosts, listings, courses, forumTopics, vendors, diagnosticCodes } from "@shared/schema";
 import { eq, desc, and, isNotNull } from "drizzle-orm";
 
 const BASE_URL = "https://washbizhub.com";
@@ -41,6 +41,7 @@ const staticPages = [
   { url: "/design-studio", priority: 0.7, changefreq: "monthly" },
   { url: "/design-studio-pro", priority: 0.7, changefreq: "monthly" },
   { url: "/service-guy-ai", priority: 0.7, changefreq: "monthly" },
+  { url: "/error-codes", priority: 0.8, changefreq: "weekly" },
   { url: "/forum", priority: 0.7, changefreq: "daily" },
   { url: "/about-us", priority: 0.6, changefreq: "monthly" },
   { url: "/why-washbizhub", priority: 0.6, changefreq: "monthly" },
@@ -71,7 +72,7 @@ function formatDate(date: Date | string | null): string {
 export function registerSitemapRoutes(app: Express) {
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const [blogs, allListings, allCourses, topics] = await Promise.all([
+      const [blogs, allListings, allCourses, topics, errorCodes] = await Promise.all([
         db.select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
           .from(blogPosts)
           .where(eq(blogPosts.status, "published"))
@@ -90,6 +91,9 @@ export function registerSitemapRoutes(app: Express) {
           .from(forumTopics)
           .orderBy(desc(forumTopics.createdAt))
           .limit(200),
+        db.select({ slug: diagnosticCodes.slug, manufacturer: diagnosticCodes.manufacturer })
+          .from(diagnosticCodes)
+          .limit(2500),
       ]);
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -146,6 +150,19 @@ export function registerSitemapRoutes(app: Express) {
     <priority>0.5</priority>
   </url>
 `;
+      }
+
+      // Error codes for programmatic SEO
+      for (const code of errorCodes) {
+        if (code.slug) {
+          xml += `  <url>
+    <loc>${BASE_URL}/error-codes/${escapeXml(code.slug)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+        }
       }
 
       xml += `</urlset>`;
