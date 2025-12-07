@@ -100,7 +100,7 @@ async function getOrCreateUsage(userId: string | null, sessionId: string | null,
   
   if (existing) return existing;
   
-  // Create new usage record
+  // Create new usage record with proper tier limit
   const [newUsage] = await db.insert(serviceGuyUsage).values({
     userId,
     sessionId,
@@ -108,7 +108,7 @@ async function getOrCreateUsage(userId: string | null, sessionId: string | null,
     lookupCount: 0,
     periodStart,
     periodEnd,
-    tierLimit: 5, // Default to free tier
+    tierLimit: TIER_LIMITS.free.monthlyLookups, // Default to free tier (3 lookups)
   }).returning();
   
   return newUsage;
