@@ -63,6 +63,7 @@ import type { ServiceJob } from "@shared/schema";
 import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { PartsOrderWidget } from "@/components/PartsOrderWidget";
+import { InvoiceGenerator } from "@/components/InvoiceGenerator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
@@ -378,6 +379,7 @@ export default function ServiceGuyAI() {
   const [savingJobForCode, setSavingJobForCode] = useState<string | null>(null);
   const [expandedPartsCode, setExpandedPartsCode] = useState<string | null>(null);
   const [showPartsModal, setShowPartsModal] = useState(false);
+  const [invoiceModalCode, setInvoiceModalCode] = useState<DiagnosticCode | null>(null);
 
   const debouncedSearch = useDebounce(searchInput, 300);
 
@@ -1398,25 +1400,36 @@ export default function ServiceGuyAI() {
                                     Skill: <span className="capitalize">{code.skillLevel}</span>
                                   </div>
                                 </div>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => handleSaveAsJob(code)}
-                                  disabled={savingJobForCode === code.code || createJobMutation.isPending}
-                                  data-testid="button-save-job"
-                                >
-                                  {savingJobForCode === code.code ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      Saving...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Briefcase className="w-4 h-4 mr-2" />
-                                      Save as Job
-                                    </>
-                                  )}
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => setInvoiceModalCode(code)}
+                                    data-testid="button-generate-invoice"
+                                  >
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    Invoice/Quote
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => handleSaveAsJob(code)}
+                                    disabled={savingJobForCode === code.code || createJobMutation.isPending}
+                                    data-testid="button-save-job"
+                                  >
+                                    {savingJobForCode === code.code ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Saving...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Briefcase className="w-4 h-4 mr-2" />
+                                        Save as Job
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
                               </div>
                             </>
                           )}
@@ -2119,6 +2132,23 @@ export default function ServiceGuyAI() {
         {/* Bottom Disclaimer */}
         <ServiceDisclaimer className="mt-12" />
       </div>
+
+      {invoiceModalCode && (
+        <InvoiceGenerator
+          open={!!invoiceModalCode}
+          onOpenChange={(open) => !open && setInvoiceModalCode(null)}
+          diagnosticData={{
+            code: invoiceModalCode.code,
+            title: invoiceModalCode.title,
+            description: invoiceModalCode.description,
+            manufacturer: invoiceModalCode.manufacturer,
+            machineType: invoiceModalCode.machineType,
+            estimatedRepairTime: invoiceModalCode.estimatedRepairTime,
+            requiredParts: invoiceModalCode.requiredParts || [],
+            partsWithPricing: invoiceModalCode.partsWithPricing
+          }}
+        />
+      )}
     </div>
     </AuthGuard>
   );
