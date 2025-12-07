@@ -13311,5 +13311,333 @@ export type InsertUtilityBillAnalysis = z.infer<typeof insertUtilityBillAnalysis
 export type UtilityBillAnalysis = typeof utilityBillAnalyses.$inferSelect;
 
 // ============================================================================
+// SERVICE TECH ACADEMY - Premium Education & Certification Platform
+// ============================================================================
+
+// Service Tech Academy Courses - Structured learning paths
+export const serviceTechCourses = pgTable("service_tech_courses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Course Details
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  shortDescription: text("short_description"),
+  
+  // Course Structure
+  track: text("track").notNull(), // "core_tech", "brand_specialist", "payment_systems", "business_skills"
+  level: text("level").notNull(), // "beginner", "intermediate", "advanced", "expert"
+  
+  // Content
+  thumbnailUrl: text("thumbnail_url"),
+  previewVideoUrl: text("preview_video_url"),
+  
+  // Pricing & Access
+  isFree: boolean("is_free").default(false),
+  requiredTier: text("required_tier").default("starter"), // "free", "starter", "pro", "enterprise"
+  price: decimal("price", { precision: 10, scale: 2 }), // One-time purchase price if applicable
+  
+  // Metadata
+  estimatedHours: integer("estimated_hours"),
+  lessonCount: integer("lesson_count").default(0),
+  enrollmentCount: integer("enrollment_count").default(0),
+  completionRate: decimal("completion_rate", { precision: 5, scale: 2 }),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  ratingCount: integer("rating_count").default(0),
+  
+  // Certification
+  hasCertification: boolean("has_certification").default(false),
+  certificationName: text("certification_name"),
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  // Status
+  status: text("status").default("draft"), // "draft", "published", "archived"
+  publishedAt: timestamp("published_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex("service_tech_courses_slug_idx").on(table.slug),
+  trackIdx: index("service_tech_courses_track_idx").on(table.track),
+  levelIdx: index("service_tech_courses_level_idx").on(table.level),
+  tierIdx: index("service_tech_courses_tier_idx").on(table.requiredTier),
+}));
+
+// Course Modules - Sections within a course
+export const serviceTechModules = pgTable("service_tech_modules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  courseId: varchar("course_id").references(() => serviceTechCourses.id).notNull(),
+  
+  title: text("title").notNull(),
+  description: text("description"),
+  orderIndex: integer("order_index").notNull(),
+  
+  // Module type
+  moduleType: text("module_type").default("standard"), // "standard", "assessment", "hands_on", "certification_exam"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  courseIdx: index("service_tech_modules_course_idx").on(table.courseId),
+  orderIdx: index("service_tech_modules_order_idx").on(table.orderIndex),
+}));
+
+// Course Lessons - Individual learning units
+export const serviceTechLessons = pgTable("service_tech_lessons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").references(() => serviceTechModules.id).notNull(),
+  courseId: varchar("course_id").references(() => serviceTechCourses.id).notNull(),
+  
+  title: text("title").notNull(),
+  slug: text("slug").notNull(),
+  content: text("content"), // Rich markdown content
+  
+  // Media
+  videoUrl: text("video_url"),
+  videoDuration: integer("video_duration"), // Seconds
+  
+  // Linked diagnostic codes for hands-on practice
+  linkedDiagnosticCodes: text("linked_diagnostic_codes").array(), // Array of diagnostic code IDs
+  
+  // Ordering
+  orderIndex: integer("order_index").notNull(),
+  
+  // Access control
+  isFreePreview: boolean("is_free_preview").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  moduleIdx: index("service_tech_lessons_module_idx").on(table.moduleId),
+  courseIdx: index("service_tech_lessons_course_idx").on(table.courseId),
+  slugIdx: index("service_tech_lessons_slug_idx").on(table.slug),
+}));
+
+// User Course Enrollments
+export const serviceTechEnrollments = pgTable("service_tech_enrollments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  courseId: varchar("course_id").references(() => serviceTechCourses.id).notNull(),
+  
+  // Progress
+  completedLessons: text("completed_lessons").array().default(sql`'{}'::text[]`),
+  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0"),
+  
+  // Certification
+  certificationEarned: boolean("certification_earned").default(false),
+  certificationDate: timestamp("certification_date"),
+  certificateUrl: text("certificate_url"),
+  
+  // Engagement
+  lastAccessedAt: timestamp("last_accessed_at"),
+  totalTimeSpent: integer("total_time_spent").default(0), // Seconds
+  
+  enrolledAt: timestamp("enrolled_at").defaultNow().notNull(),
+}, (table) => ({
+  userCourseIdx: uniqueIndex("service_tech_enrollments_user_course_idx").on(table.userId, table.courseId),
+  userIdx: index("service_tech_enrollments_user_idx").on(table.userId),
+  courseIdx: index("service_tech_enrollments_course_idx").on(table.courseId),
+}));
+
+// Repair Blueprints - Step-by-step procedures linked to diagnostic codes
+export const repairBlueprints = pgTable("repair_blueprints", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  diagnosticCodeId: varchar("diagnostic_code_id").references(() => diagnosticCodes.id),
+  
+  // Blueprint details
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  
+  // Safety & Warnings
+  safetyWarnings: text("safety_warnings").array(), // Critical warnings shown first
+  requiredPPE: text("required_ppe").array(), // "safety_glasses", "gloves", "steel_toe_boots"
+  requiredTools: text("required_tools").array(), // Tools needed for repair
+  
+  // Step-by-step procedure
+  steps: jsonb("steps").notNull(), // [{stepNumber, title, description, imageUrl, videoUrl, warningText, tipText, estimatedTime}]
+  
+  // Parts with affiliate links
+  partsRequired: jsonb("parts_required"), // [{partNumber, name, price, affiliateUrl, supplier, isRequired}]
+  
+  // Metrics
+  estimatedTotalTime: integer("estimated_total_time"), // Minutes
+  difficultyLevel: text("difficulty_level"), // "beginner", "intermediate", "advanced", "expert"
+  successRate: decimal("success_rate", { precision: 5, scale: 2 }), // From user feedback
+  
+  // Legal
+  disclaimer: text("disclaimer"),
+  requiresProfessional: boolean("requires_professional").default(false),
+  
+  // Access control - Gated content
+  requiredTier: text("required_tier").default("pro"), // "free", "starter", "pro", "enterprise"
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  diagnosticCodeIdx: index("repair_blueprints_diagnostic_idx").on(table.diagnosticCodeId),
+  slugIdx: uniqueIndex("repair_blueprints_slug_idx").on(table.slug),
+  tierIdx: index("repair_blueprints_tier_idx").on(table.requiredTier),
+}));
+
+// ============================================================================
+// ANTI-SCRAPING & USAGE TRACKING - Protect Premium Content
+// ============================================================================
+
+// Service Guy AI Usage Tracking - Per-user lookup limits
+export const serviceGuyUsage = pgTable("service_guy_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: text("session_id"), // For anonymous users
+  ipAddress: text("ip_address"),
+  
+  // Usage tracking
+  lookupCount: integer("lookup_count").default(0),
+  periodStart: timestamp("period_start").defaultNow().notNull(),
+  periodEnd: timestamp("period_end"), // End of billing period
+  
+  // Rate limiting
+  lastLookupAt: timestamp("last_lookup_at"),
+  lookupThisMinute: integer("lookup_this_minute").default(0),
+  minuteResetAt: timestamp("minute_reset_at"),
+  
+  // Tier limits
+  tierLimit: integer("tier_limit").default(5), // Free tier: 5/month
+  
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("service_guy_usage_user_idx").on(table.userId),
+  sessionIdx: index("service_guy_usage_session_idx").on(table.sessionId),
+  ipIdx: index("service_guy_usage_ip_idx").on(table.ipAddress),
+}));
+
+// API Access Logs - Track all diagnostic lookups for anti-scraping
+export const diagnosticAccessLogs = pgTable("diagnostic_access_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: text("session_id"),
+  ipAddress: text("ip_address").notNull(),
+  
+  // Request details
+  diagnosticCodeId: varchar("diagnostic_code_id").references(() => diagnosticCodes.id),
+  requestedCode: text("requested_code"),
+  requestedManufacturer: text("requested_manufacturer"),
+  
+  // Bot detection signals
+  userAgent: text("user_agent"),
+  referer: text("referer"),
+  acceptLanguage: text("accept_language"),
+  
+  // Honeypot detection
+  honeypotTriggered: boolean("honeypot_triggered").default(false),
+  
+  // Response info
+  responseType: text("response_type"), // "full", "preview", "rate_limited", "blocked"
+  
+  // Fingerprinting
+  fingerprintHash: text("fingerprint_hash"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("diagnostic_access_user_idx").on(table.userId),
+  ipIdx: index("diagnostic_access_ip_idx").on(table.ipAddress),
+  codeIdx: index("diagnostic_access_code_idx").on(table.diagnosticCodeId),
+  timestampIdx: index("diagnostic_access_timestamp_idx").on(table.createdAt),
+  honeypotIdx: index("diagnostic_access_honeypot_idx").on(table.honeypotTriggered),
+}));
+
+// Blocked IPs/Users - Scraping prevention
+export const scrapingBlocklist = pgTable("scraping_blocklist", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Block target
+  ipAddress: text("ip_address"),
+  userId: varchar("user_id").references(() => users.id),
+  fingerprintHash: text("fingerprint_hash"),
+  
+  // Block reason
+  reason: text("reason").notNull(), // "rate_limit_exceeded", "honeypot_triggered", "bot_detected", "bulk_scraping"
+  evidence: jsonb("evidence"), // { requestCount, timeWindow, patterns }
+  
+  // Block duration
+  blockedUntil: timestamp("blocked_until"),
+  isPermanent: boolean("is_permanent").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  ipIdx: index("scraping_blocklist_ip_idx").on(table.ipAddress),
+  userIdx: index("scraping_blocklist_user_idx").on(table.userId),
+  fingerprintIdx: index("scraping_blocklist_fingerprint_idx").on(table.fingerprintHash),
+}));
+
+// Diagnostic Issue Reports - User-submitted corrections/reports for diagnostic codes
+export const diagnosticIssueReports = pgTable("diagnostic_issue_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  diagnosticCodeId: varchar("diagnostic_code_id").references(() => diagnosticCodes.id),
+  
+  // Report details
+  codeReference: text("code_reference").notNull(), // The code being reported (e.g., "E01")
+  manufacturer: text("manufacturer").notNull(),
+  issueType: text("issue_type").notNull(), // "incorrect_info", "missing_info", "typo", "outdated", "other"
+  description: text("description").notNull(),
+  suggestedCorrection: text("suggested_correction"),
+  
+  // Status tracking
+  status: text("status").default("pending").notNull(), // "pending", "reviewed", "resolved", "rejected"
+  adminNotes: text("admin_notes"),
+  resolvedBy: varchar("resolved_by").references(() => users.id),
+  resolvedAt: timestamp("resolved_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("diagnostic_issue_reports_user_idx").on(table.userId),
+  statusIdx: index("diagnostic_issue_reports_status_idx").on(table.status),
+  codeIdx: index("diagnostic_issue_reports_code_idx").on(table.diagnosticCodeId),
+}));
+
+// Insert schemas and types for new tables
+export const insertServiceTechCourseSchema = createInsertSchema(serviceTechCourses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  enrollmentCount: true,
+  ratingCount: true,
+});
+export const insertServiceTechModuleSchema = createInsertSchema(serviceTechModules).omit({ id: true, createdAt: true });
+export const insertServiceTechLessonSchema = createInsertSchema(serviceTechLessons).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertServiceTechEnrollmentSchema = createInsertSchema(serviceTechEnrollments).omit({ id: true, enrolledAt: true });
+export const insertRepairBlueprintSchema = createInsertSchema(repairBlueprints).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertServiceGuyUsageSchema = createInsertSchema(serviceGuyUsage).omit({ id: true, updatedAt: true });
+export const insertDiagnosticAccessLogSchema = createInsertSchema(diagnosticAccessLogs).omit({ id: true, createdAt: true });
+export const insertScrapingBlocklistSchema = createInsertSchema(scrapingBlocklist).omit({ id: true, createdAt: true });
+export const insertDiagnosticIssueReportSchema = createInsertSchema(diagnosticIssueReports).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true,
+  status: true,
+  adminNotes: true,
+  resolvedBy: true,
+  resolvedAt: true,
+});
+
+export type ServiceTechCourse = typeof serviceTechCourses.$inferSelect;
+export type ServiceTechModule = typeof serviceTechModules.$inferSelect;
+export type ServiceTechLesson = typeof serviceTechLessons.$inferSelect;
+export type ServiceTechEnrollment = typeof serviceTechEnrollments.$inferSelect;
+export type RepairBlueprint = typeof repairBlueprints.$inferSelect;
+export type ServiceGuyUsage = typeof serviceGuyUsage.$inferSelect;
+export type DiagnosticAccessLog = typeof diagnosticAccessLogs.$inferSelect;
+export type ScrapingBlocklist = typeof scrapingBlocklist.$inferSelect;
+export type DiagnosticIssueReport = typeof diagnosticIssueReports.$inferSelect;
+export type InsertDiagnosticIssueReport = z.infer<typeof insertDiagnosticIssueReportSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

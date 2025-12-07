@@ -21,8 +21,8 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts } from "@shared/schema";
-import { eq, or, isNull, sql, desc, and, asc, inArray } from "drizzle-orm";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema } from "@shared/schema";
+import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
 type AIProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "grok";
@@ -39,6 +39,12 @@ import {
   obfuscateForAnonymous,
   addSecurityHeaders 
 } from "./anti-scraping-middleware";
+import { 
+  antiScrapingMiddleware as serviceGuyAntiScraping, 
+  rateLimitMiddleware as serviceGuyRateLimit, 
+  logDiagnosticAccess, 
+  obfuscateContent 
+} from "./middleware/anti-scraping";
 import { 
   submitAllToGoogle, 
   submitAllViaIndexNow,
@@ -10284,6 +10290,72 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     }
   });
 
+  // ========== SERVICE TECH ACADEMY API ROUTES ==========
+  // GET /api/service-tech/courses - List all service tech courses
+  app.get("/api/service-tech/courses", async (req, res) => {
+    try {
+      const allCourses = await storage.getCourses({ published: true });
+      
+      const serviceTechCourses = allCourses.map(course => ({
+        id: course.id,
+        slug: course.id,
+        title: course.title,
+        description: course.description,
+        thumbnailUrl: course.thumbnailUrl,
+        level: course.level,
+        track: course.category === 'Operations' ? 'core-tech' 
+             : course.category === 'Marketing' ? 'brand-specialist'
+             : course.category === 'Finance' ? 'payment-systems'
+             : 'business-skills',
+        tier: course.isFree ? 'FREE' as const 
+            : (course.tierLevel || 1) <= 2 ? 'STARTER' as const 
+            : 'PRO' as const,
+        duration: course.duration,
+        enrollmentCount: course.totalEnrollments || 0,
+        certificateEnabled: course.certificateEnabled || false,
+        instructorName: course.instructorName,
+      }));
+      
+      res.json(serviceTechCourses);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/service-tech/courses/:slug - Get single service tech course
+  app.get("/api/service-tech/courses/:slug", async (req, res) => {
+    try {
+      const course = await storage.getCourse(req.params.slug);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+      
+      const serviceTechCourse = {
+        id: course.id,
+        slug: course.id,
+        title: course.title,
+        description: course.description,
+        thumbnailUrl: course.thumbnailUrl,
+        level: course.level,
+        track: course.category === 'Operations' ? 'core-tech' 
+             : course.category === 'Marketing' ? 'brand-specialist'
+             : course.category === 'Finance' ? 'payment-systems'
+             : 'business-skills',
+        tier: course.isFree ? 'FREE' as const 
+            : (course.tierLevel || 1) <= 2 ? 'STARTER' as const 
+            : 'PRO' as const,
+        duration: course.duration,
+        enrollmentCount: course.totalEnrollments || 0,
+        certificateEnabled: course.certificateEnabled || false,
+        instructorName: course.instructorName,
+        price: course.price,
+        stripePriceId: course.stripePriceId,
+      };
+      
+      res.json(serviceTechCourse);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ========== BOOK API ROUTES ==========
   // GET /api/book/chapters - Get all book chapters
   app.get("/api/book/chapters", async (req, res) => {
@@ -11658,6 +11730,386 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("PDF extraction error:", error);
       res.status(500).json({ error: "PDF extraction failed", message: error.message });
+    }
+  });
+
+  // ========== SERVICE GUY API - Protected Diagnostic Code Endpoints ==========
+  // These endpoints use anti-scraping middleware and tier-based access control
+
+  // Tier limits configuration
+  const TIER_LIMITS = {
+    free: { monthlyLookups: 5, requestsPerMinute: 2 },
+    starter: { monthlyLookups: 50, requestsPerMinute: 10 },
+    pro: { monthlyLookups: -1, requestsPerMinute: 30 }, // -1 = unlimited
+    enterprise: { monthlyLookups: -1, requestsPerMinute: 100 },
+  };
+
+  // 1. GET /api/service-guy/manufacturers - List all manufacturers (public, no rate limit)
+  app.get("/api/service-guy/manufacturers", async (req, res) => {
+    try {
+      // Get distinct manufacturers from diagnostic codes
+      const manufacturers = await db
+        .selectDistinct({ manufacturer: diagnosticCodes.manufacturer })
+        .from(diagnosticCodes)
+        .orderBy(asc(diagnosticCodes.manufacturer));
+
+      const manufacturerList = manufacturers.map(m => m.manufacturer).filter(Boolean);
+
+      res.json({
+        success: true,
+        manufacturers: manufacturerList,
+        count: manufacturerList.length,
+        "data-testid": "manufacturers-list",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Error fetching manufacturers:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to fetch manufacturers",
+        "data-testid": "manufacturers-error",
+      });
+    }
+  });
+
+  // 2. GET /api/service-guy/search - Search diagnostic codes with rate limiting
+  app.get("/api/service-guy/search", 
+    serviceGuyAntiScraping, 
+    serviceGuyRateLimit, 
+    async (req: any, res) => {
+    try {
+      const { code, manufacturer, q } = req.query;
+      const tier = (req as any).tier || "free";
+      const remainingLookups = (req as any).remainingLookups;
+
+      // Build search conditions
+      const conditions: any[] = [];
+
+      if (code) {
+        conditions.push(ilike(diagnosticCodes.code, `%${code}%`));
+      }
+      if (manufacturer) {
+        conditions.push(eq(diagnosticCodes.manufacturer, manufacturer as string));
+      }
+      if (q) {
+        // Search in code, title, and description
+        conditions.push(
+          or(
+            ilike(diagnosticCodes.code, `%${q}%`),
+            ilike(diagnosticCodes.title, `%${q}%`),
+            ilike(diagnosticCodes.description, `%${q}%`)
+          )!
+        );
+      }
+
+      const results = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(and(...conditions))
+        .orderBy(asc(diagnosticCodes.manufacturer), asc(diagnosticCodes.code))
+        .limit(50);
+
+      // Log access for each result
+      if (results.length > 0) {
+        await logDiagnosticAccess(
+          req,
+          results[0]?.id || null,
+          (code as string) || (q as string) || "",
+          (manufacturer as string) || "all",
+          results.length > 0 ? "results" : "no_results"
+        );
+      }
+
+      // Obfuscate content based on tier
+      const obfuscatedResults = results.map(result => obfuscateContent({
+        id: result.id,
+        code: result.code,
+        manufacturer: result.manufacturer,
+        machineType: result.machineType,
+        slug: result.slug,
+        title: result.title,
+        description: result.description,
+        possibleCauses: result.possibleCauses,
+        troubleshootingSteps: result.troubleshootingSteps,
+        requiredParts: result.requiredParts,
+        partsWithPricing: result.partsWithPricing,
+        estimatedRepairTime: result.estimatedRepairTime,
+        difficultyLevel: result.difficultyLevel,
+        quickFix: result.quickFix,
+        testModeEntry: result.testModeEntry,
+        safetyWarning: result.safetyWarning,
+      }, tier));
+
+      res.json({
+        success: true,
+        results: obfuscatedResults,
+        count: results.length,
+        tier,
+        remainingLookups,
+        query: { code, manufacturer, q },
+        "data-testid": "search-results",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Search error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Search failed",
+        "data-testid": "search-error",
+      });
+    }
+  });
+
+  // 3. GET /api/service-guy/code/:slug - Get single code details
+  app.get("/api/service-guy/code/:slug", 
+    serviceGuyAntiScraping, 
+    serviceGuyRateLimit, 
+    async (req: any, res) => {
+    try {
+      const { slug } = req.params;
+      const tier = (req as any).tier || "free";
+      const remainingLookups = (req as any).remainingLookups;
+
+      const [result] = await db
+        .select()
+        .from(diagnosticCodes)
+        .where(eq(diagnosticCodes.slug, slug))
+        .limit(1);
+
+      if (!result) {
+        // Log failed lookup attempt
+        await logDiagnosticAccess(req, null, slug, "unknown", "not_found");
+        return res.status(404).json({ 
+          success: false,
+          error: "Diagnostic code not found",
+          slug,
+          "data-testid": "code-not-found",
+        });
+      }
+
+      // Log successful access
+      await logDiagnosticAccess(
+        req,
+        result.id,
+        result.code,
+        result.manufacturer,
+        "detail_view"
+      );
+
+      // Obfuscate content based on tier
+      const obfuscatedResult = obfuscateContent({
+        id: result.id,
+        code: result.code,
+        manufacturer: result.manufacturer,
+        machineType: result.machineType,
+        slug: result.slug,
+        title: result.title,
+        description: result.description,
+        possibleCauses: result.possibleCauses,
+        troubleshootingSteps: result.troubleshootingSteps,
+        requiredParts: result.requiredParts,
+        partsWithPricing: result.partsWithPricing,
+        estimatedRepairTime: result.estimatedRepairTime,
+        difficultyLevel: result.difficultyLevel,
+        quickFix: result.quickFix,
+        testModeEntry: result.testModeEntry,
+        safetyWarning: result.safetyWarning,
+        videoUrl: result.videoUrl,
+        relatedCodes: result.relatedCodes,
+        seoMetaTitle: result.seoMetaTitle,
+        seoMetaDescription: result.seoMetaDescription,
+      }, tier);
+
+      res.json({
+        success: true,
+        code: obfuscatedResult,
+        tier,
+        remainingLookups,
+        "data-testid": "code-details",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Code lookup error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to fetch code details",
+        "data-testid": "code-error",
+      });
+    }
+  });
+
+  // 4. GET /api/service-guy/usage - Get current user's usage stats
+  app.get("/api/service-guy/usage", async (req: any, res) => {
+    try {
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
+      const userId = req.user?.id || (req.user as any)?.claims?.sub || null;
+      const sessionId = req.sessionID || null;
+
+      // Determine user's tier
+      let tier = "free";
+      let user = null;
+      
+      if (userId) {
+        [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (user?.subscriptionTier) {
+          tier = user.subscriptionTier;
+        }
+      }
+
+      const limits = TIER_LIMITS[tier as keyof typeof TIER_LIMITS] || TIER_LIMITS.free;
+
+      // Get current period usage
+      const periodStart = new Date();
+      periodStart.setDate(1); // First of current month
+      periodStart.setHours(0, 0, 0, 0);
+
+      let usage;
+      if (userId) {
+        [usage] = await db
+          .select()
+          .from(serviceGuyUsage)
+          .where(and(
+            eq(serviceGuyUsage.userId, userId),
+            gte(serviceGuyUsage.periodStart, periodStart)
+          ))
+          .limit(1);
+      } else if (sessionId) {
+        [usage] = await db
+          .select()
+          .from(serviceGuyUsage)
+          .where(and(
+            eq(serviceGuyUsage.sessionId, sessionId),
+            gte(serviceGuyUsage.periodStart, periodStart)
+          ))
+          .limit(1);
+      } else {
+        [usage] = await db
+          .select()
+          .from(serviceGuyUsage)
+          .where(and(
+            eq(serviceGuyUsage.ipAddress, ip),
+            gte(serviceGuyUsage.periodStart, periodStart)
+          ))
+          .limit(1);
+      }
+
+      const lookupsUsed = usage?.lookupCount || 0;
+      const isUnlimited = limits.monthlyLookups === -1;
+      const lookupsRemaining = isUnlimited 
+        ? "unlimited" 
+        : Math.max(0, limits.monthlyLookups - lookupsUsed);
+
+      const periodEnd = new Date(periodStart);
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+      res.json({
+        success: true,
+        usage: {
+          tier,
+          lookupsUsed,
+          lookupsRemaining,
+          monthlyLimit: isUnlimited ? "unlimited" : limits.monthlyLookups,
+          periodStart: periodStart.toISOString(),
+          periodEnd: periodEnd.toISOString(),
+          lastLookupAt: usage?.lastLookupAt?.toISOString() || null,
+        },
+        tierBenefits: {
+          free: { lookups: 5, features: ["Basic error info", "Possible causes"] },
+          starter: { lookups: 50, features: ["Parts information", "Repair time estimates", "All free features"] },
+          pro: { lookups: "unlimited", features: ["Full repair procedures", "Quick fix tips", "Test mode entry", "Video tutorials", "All starter features"] },
+          enterprise: { lookups: "unlimited", features: ["API access", "Bulk exports", "Priority support", "All pro features"] },
+        },
+        isAuthenticated: !!userId,
+        "data-testid": "usage-stats",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Usage stats error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to fetch usage stats",
+        "data-testid": "usage-error",
+      });
+    }
+  });
+
+  // 5. POST /api/service-guy/report - Report an issue with a code (authenticated only)
+  app.post("/api/service-guy/report", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: "Authentication required",
+          "data-testid": "report-unauthorized",
+        });
+      }
+
+      // Validate request body
+      const validation = insertDiagnosticIssueReportSchema.safeParse({
+        ...req.body,
+        userId,
+      });
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Invalid report data",
+          details: validation.error.errors,
+          "data-testid": "report-validation-error",
+        });
+      }
+
+      const { codeReference, manufacturer, issueType, description, suggestedCorrection, diagnosticCodeId } = validation.data;
+
+      // Verify diagnosticCodeId exists if provided
+      if (diagnosticCodeId) {
+        const [existingCode] = await db
+          .select({ id: diagnosticCodes.id })
+          .from(diagnosticCodes)
+          .where(eq(diagnosticCodes.id, diagnosticCodeId))
+          .limit(1);
+
+        if (!existingCode) {
+          return res.status(400).json({ 
+            success: false,
+            error: "Invalid diagnostic code ID",
+            "data-testid": "report-invalid-code",
+          });
+        }
+      }
+
+      // Insert the report
+      const [report] = await db.insert(diagnosticIssueReports).values({
+        userId,
+        diagnosticCodeId: diagnosticCodeId || null,
+        codeReference,
+        manufacturer,
+        issueType,
+        description,
+        suggestedCorrection: suggestedCorrection || null,
+        status: "pending",
+      }).returning();
+
+      console.log(`[SERVICE-GUY] Issue report created: ${report.id} by user ${userId}`);
+
+      res.status(201).json({
+        success: true,
+        report: {
+          id: report.id,
+          codeReference: report.codeReference,
+          manufacturer: report.manufacturer,
+          issueType: report.issueType,
+          status: report.status,
+          createdAt: report.createdAt,
+        },
+        message: "Thank you for your report. Our team will review it shortly.",
+        "data-testid": "report-success",
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Report submission error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to submit report",
+        "data-testid": "report-error",
+      });
     }
   });
 
