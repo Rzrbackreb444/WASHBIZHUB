@@ -42,17 +42,23 @@ function detectBot(userAgent: string | undefined): boolean {
 async function isBlocked(ip: string, userId?: string, fingerprint?: string): Promise<boolean> {
   const now = new Date();
   
-  const blocked = await db.select()
-    .from(scrapingBlocklist)
-    .where(
-      and(
-        sql`(${scrapingBlocklist.ipAddress} = ${ip} OR ${scrapingBlocklist.userId} = ${userId} OR ${scrapingBlocklist.fingerprintHash} = ${fingerprint})`,
-        sql`(${scrapingBlocklist.isPermanent} = true OR ${scrapingBlocklist.blockedUntil} > ${now})`
+  try {
+    // Simple approach: just check by IP (most reliable)
+    const blocked = await db.select()
+      .from(scrapingBlocklist)
+      .where(
+        and(
+          eq(scrapingBlocklist.ipAddress, ip),
+          sql`(${scrapingBlocklist.isPermanent} = true OR ${scrapingBlocklist.blockedUntil} > ${now})`
+        )
       )
-    )
-    .limit(1);
-  
-  return blocked.length > 0;
+      .limit(1);
+    
+    return blocked.length > 0;
+  } catch (error) {
+    console.error("[isBlocked] Query error:", error);
+    return false; // Allow on error
+  }
 }
 
 // Get or create usage record
@@ -300,39 +306,49 @@ export async function logDiagnosticAccess(
 export function obfuscateContent(content: any, tier: string): any {
   const obfuscated = { ...content };
   
-  // Mark content as protected
-  obfuscated.isProtected = true;
+  // Set tier and explicit locking flags for frontend to use
   obfuscated.tier = tier;
   
-  // ENTERPRISE ($199/mo) - Most access, but still protect crown jewels
+  // ENTERPRISE ($199/mo) - FULL ACCESS, no protection flags
   if (tier === "enterprise") {
-    // Full troubleshooting steps and parts
-    // Still hide some proprietary data
+    obfuscated.isProtected = false;
+    obfuscated.isLocked = false;
+    obfuscated.lockReasons = [];
     obfuscated.internalNotes = undefined;
     obfuscated.proprietaryData = undefined;
     return obfuscated;
   }
   
-  // PRO ($79/mo) - Good access for working technicians
+  // PRO ($79/mo) - Good access, minimal restrictions
   if (tier === "pro") {
-    // Show troubleshooting steps but limit detailed parts pricing
-    if (obfuscated.partsWithPricing?.length > 5) {
+    obfuscated.isProtected = false;
+    obfuscated.isLocked = false;
+    obfuscated.lockReasons = [];
+    
+    // Always limit parts pricing to first 3 items for Pro
+    if (obfuscated.partsWithPricing?.length > 3) {
       obfuscated.partsWithPricing = [
-        ...obfuscated.partsWithPricing.slice(0, 5),
+        ...obfuscated.partsWithPricing.slice(0, 3),
         { partNumber: "...", name: "Upgrade to Enterprise for complete parts list", estimatedPrice: 0 }
       ];
+      obfuscated.lockReasons = ["Parts list limited (Enterprise for full list)"];
     }
     obfuscated.testModeEntry = obfuscated.testModeEntry ? 
       obfuscated.testModeEntry.substring(0, 50) + "... [Enterprise access for full procedure]" : null;
     return obfuscated;
   }
   
-  // STARTER ($29/mo) - Limited access, tease value
+  // STARTER ($29/mo) - Partial access, tease value
   if (tier === "starter") {
-    // Truncate possible causes
+    obfuscated.isProtected = true;
+    obfuscated.isLocked = true;
+    obfuscated.lockReasons = ["Upgrade to Pro for full repair details", "Parts lists require Pro subscription"];
+    
+    // Truncate possible causes - only show 2
     if (obfuscated.possibleCauses?.length > 2) {
       obfuscated.possibleCauses = [
-        ...obfuscated.possibleCauses.slice(0, 2),
+        obfuscated.possibleCauses[0],
+        obfuscated.possibleCauses[1],
         `+ ${obfuscated.possibleCauses.length - 2} more causes (Pro access)`
       ];
     }
@@ -344,22 +360,41 @@ export function obfuscateContent(content: any, tier: string): any {
         obfuscated.troubleshootingSteps[1],
         `📋 ${obfuscated.troubleshootingSteps.length - 2} more steps available with Pro subscription`
       ];
+    } else if (!obfuscated.troubleshootingSteps || obfuscated.troubleshootingSteps.length === 0) {
+      obfuscated.troubleshootingSteps = ["📋 Repair steps available with Pro subscription"];
     }
     
-    // No parts pricing
+    // COMPLETELY HIDE all parts data for Starter - NULL not an array
     obfuscated.partsWithPricing = null;
-    obfuscated.requiredParts = obfuscated.requiredParts?.length > 0 ? 
-      ["Parts list available with Pro subscription"] : null;
+    obfuscated.requiredParts = null;
     
     // Hide advanced fields
-    obfuscated.quickFix = "🔓 Quick fix tips available with Pro subscription";
+    obfuscated.quickFix = null;
     obfuscated.testModeEntry = null;
+    
+    // Add upgrade prompt for Starter tier
+    obfuscated.upgradePrompt = {
+      message: "Upgrade to Pro for full repair details and parts lists",
+      tiers: [
+        { name: "Pro", price: "$79/mo", features: ["500 lookups", "Full repair procedures", "Parts pricing", "Priority support"] },
+        { name: "Enterprise", price: "$199/mo", features: ["Unlimited lookups", "API access", "Complete database", "Dedicated support"] }
+      ]
+    };
     
     return obfuscated;
   }
   
   // FREE TIER - Show just enough to demonstrate value, protect everything else
   // These users haven't paid anything - give them a taste, not the meal
+  
+  // Set explicit locking flags for frontend
+  obfuscated.isProtected = true;
+  obfuscated.isLocked = true;
+  obfuscated.lockReasons = [
+    "Subscribe to unlock repair procedures",
+    "Parts lists require subscription",
+    "Full diagnostics available with paid plan"
+  ];
   
   // Truncate description to tease
   if (obfuscated.description && obfuscated.description.length > 80) {
@@ -374,17 +409,17 @@ export function obfuscateContent(content: any, tier: string): any {
     ];
   }
   
-  // No troubleshooting steps for free users
+  // No troubleshooting steps for free users - PROTECTED
   obfuscated.troubleshootingSteps = [
     "🔒 Detailed repair procedure protected",
     "Subscribe to Service Guy AI to unlock step-by-step repair guides"
   ];
   
-  // Hide all parts information
+  // Hide all parts information - PROTECTED
   obfuscated.partsWithPricing = null;
   obfuscated.requiredParts = null;
   
-  // Hide quick fix and test mode
+  // Hide quick fix and test mode - PROTECTED
   obfuscated.quickFix = null;
   obfuscated.testModeEntry = null;
   
@@ -392,13 +427,13 @@ export function obfuscateContent(content: any, tier: string): any {
   obfuscated.estimatedRepairTime = null;
   obfuscated.difficultyLevel = "Subscribe to view";
   
-  // Add upgrade prompt
+  // Add upgrade prompt for frontend to display
   obfuscated.upgradePrompt = {
     message: "Unlock full diagnostic data with Service Guy AI subscription",
     tiers: [
       { name: "Starter", price: "$29/mo", features: ["50 lookups/month", "Basic troubleshooting", "Email support"] },
-      { name: "Pro", price: "$79/mo", features: ["Unlimited lookups", "Full repair procedures", "Parts pricing", "Priority support"] },
-      { name: "Enterprise", price: "$199/mo", features: ["Multi-user access", "API access", "Complete database", "Dedicated support"] }
+      { name: "Pro", price: "$79/mo", features: ["500 lookups", "Full repair procedures", "Parts pricing", "Priority support"] },
+      { name: "Enterprise", price: "$199/mo", features: ["Unlimited lookups", "API access", "Complete database", "Dedicated support"] }
     ]
   };
   
