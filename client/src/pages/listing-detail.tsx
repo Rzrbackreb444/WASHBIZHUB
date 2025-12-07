@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import {
   ArrowLeft, ExternalLink, TrendingUp, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { SocialShare } from '@/components/SocialShare';
+import { useRecentlyViewedListings } from '@/hooks/useRecentlyViewedListings';
 import ReactMarkdown from 'react-markdown';
 import type { Listing, ListingMedia } from '@shared/schema';
 
@@ -155,6 +157,7 @@ function generateListingStructuredData(listing: Listing, baseUrl: string) {
 export default function ListingDetail() {
   const { listingId } = useParams<{ listingId: string }>();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { addToRecentlyViewed } = useRecentlyViewedListings();
 
   const { data: listing, isLoading: loadingListing, error } = useQuery<Listing | null>({
     queryKey: ['/api/listings/detail', listingId],
@@ -214,6 +217,12 @@ export default function ListingDetail() {
   };
 
   const defaultImage = 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=1200&h=800&fit=crop';
+
+  useEffect(() => {
+    if (listing?.id) {
+      addToRecentlyViewed(listing.id);
+    }
+  }, [listing?.id, addToRecentlyViewed]);
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com';
   const structuredData = useMemo(() => 
@@ -343,9 +352,14 @@ export default function ListingDetail() {
               <Button size="icon" variant="outline" className="bg-black/50 border-white/20 text-white hover:bg-black/70" data-testid="button-favorite">
                 <Heart className="w-4 h-4" />
               </Button>
-              <Button size="icon" variant="outline" className="bg-black/50 border-white/20 text-white hover:bg-black/70" data-testid="button-share">
-                <Share2 className="w-4 h-4" />
-              </Button>
+              <SocialShare
+                url={`/listing/${listing?.slug || listingId}`}
+                title={listing?.title || 'Laundromat Listing'}
+                description={listing?.tagline || 'Check out this laundromat for sale on WashBizHub'}
+                buttonVariant="outline"
+                buttonSize="icon"
+                className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              />
             </div>
           </div>
 

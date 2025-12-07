@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/SEO";
+import { RecentlyViewedListings } from "@/components/RecentlyViewedListings";
 import { Link } from "wouter";
 import { 
   MapPin, DollarSign, TrendingUp, Building2, Search, Filter,
   Zap, Phone, Mail, ExternalLink, Star, Clock, Users, ChevronRight,
-  CheckCircle2, Crown
+  CheckCircle2, Crown, Facebook
 } from "lucide-react";
 import { useState } from "react";
 import type { Listing } from "@shared/schema";
@@ -351,6 +352,34 @@ export default function BuyLaundromat() {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+          <RecentlyViewedListings />
+          
+          <Card className="mb-8 bg-gradient-to-r from-[#1877f2]/10 to-[#1877f2]/5 border-[#1877f2]/20">
+            <CardContent className="py-4 px-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-[#1877f2]/20">
+                    <Facebook className="w-5 h-5 text-[#1877f2]" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Join 72,000+ Laundromat Owners</p>
+                    <p className="text-sm text-muted-foreground">Get real-time deals, advice, and industry insights</p>
+                  </div>
+                </div>
+                <a
+                  href="https://facebook.com/groups/thelaundromat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="bg-[#1877f2] hover:bg-[#1877f2]/90 text-white" data-testid="button-join-community">
+                    <Facebook className="w-4 h-4 mr-2" />
+                    Join Free Community
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+          
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
               {isLoading ? "Loading..." : `${filteredListings.length} listings found`}
