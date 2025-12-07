@@ -3,11 +3,63 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { GamifiedLearningDashboard } from "@/components/GamifiedLearningDashboard";
 import { InteractiveGuides } from "@/components/InteractiveGuides";
+import { SEO } from "@/components/SEO";
+
+const learningFaqs = [
+  {
+    question: "What courses are available for laundromat owners?",
+    answer: "WashBizHub offers comprehensive courses covering laundromat operations, equipment maintenance, business management, marketing strategies, financial planning, and customer service. Courses range from beginner guides for new owners to advanced strategies for multi-location operators."
+  },
+  {
+    question: "How do I track my learning progress?",
+    answer: "The Learning Hub dashboard tracks your course completions, quiz scores, and skill development over time. You earn achievements and badges as you complete modules, and can see your overall progress toward mastering laundromat business fundamentals."
+  },
+  {
+    question: "Are the laundromat courses free or paid?",
+    answer: "WashBizHub offers both free foundational content and premium courses. Free members can access introductory guides and basic training. Premium subscribers unlock advanced courses, interactive simulations, and expert-led workshops."
+  },
+  {
+    question: "Can I get certified through WashBizHub courses?",
+    answer: "Yes! Completing certain course tracks earns you WashBizHub certifications that demonstrate your expertise. These certificates can be displayed on your business profiles and shared with lenders, partners, or customers."
+  },
+  {
+    question: "What makes WashBizHub's training different from other resources?",
+    answer: "Our courses are created by experienced laundromat owners and industry professionals with real-world operational experience. Content is regularly updated to reflect current industry trends, equipment innovations, and proven business strategies."
+  }
+];
 
 export default function LearningPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
+    <>
+      <SEO
+        title="Laundromat Training & Courses - Learning Hub"
+        description="Master laundromat operations with expert courses, guides, and certifications. Track progress, earn achievements, and grow your laundry business."
+        canonicalUrl="/learning"
+        ogType="course"
+        keywords={[
+          "laundromat training courses",
+          "laundry business education",
+          "coin laundry courses",
+          "laundromat owner training",
+          "laundry management courses",
+          "laundromat operations guide",
+          "laundry business certification",
+          "laundromat learning hub",
+          "coin laundry education",
+          "laundromat business skills",
+          "laundry industry training",
+          "laundromat beginner course",
+          "laundry business mastery"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Education", url: "/courses" },
+          { name: "Learning Hub", url: "/learning" }
+        ]}
+        faqs={learningFaqs}
+      />
     <div className="min-h-screen bg-background py-8" data-testid="page-learning">
       <div className="max-w-7xl mx-auto px-4 space-y-6">
         {/* Header */}
@@ -63,5 +115,6 @@ export default function LearningPage() {
         </Tabs>
       </div>
     </div>
+    </>
   );
 }

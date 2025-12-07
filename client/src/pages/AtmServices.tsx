@@ -1,17 +1,9 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Shield, Zap, Users, CheckCircle, ExternalLink } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function AtmServices() {
-  useEffect(() => {
-    document.title = "ATM Services for Laundromats | Increase Revenue with ATM Depot";
-    
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Add passive income to your laundromat with professional ATM services from ATM Depot. Earn surcharge revenue, increase customer convenience, and boost cash flow with zero upfront investment.');
-    }
-  }, []);
 
   const handleLearnMoreClick = () => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -95,7 +87,57 @@ export default function AtmServices() {
     }
   ];
 
+  const seoFaqs = [
+    {
+      question: "How much revenue can I expect from an ATM?",
+      answer: "Laundromat ATMs typically generate $200-$800+ in monthly surcharge revenue, depending on foot traffic and location. Most operators set surcharges between $2.50-$3.50 per transaction. High-traffic locations often see higher transaction volumes."
+    },
+    {
+      question: "Do I need to invest any money upfront?",
+      answer: "No! ATM Depot provides the ATM equipment, installation, and all ongoing maintenance at no cost to you. You simply provide floor or wall space and electrical access. There are no upfront fees, equipment purchases, or monthly charges."
+    },
+    {
+      question: "Who handles cash management and refills?",
+      answer: "ATM Depot manages all cash logistics. Their armored car service replenishes cash before the machine runs low, ensuring 24/7 availability for your customers. You never touch cash or manage the ATM's money supply."
+    },
+    {
+      question: "What if the ATM breaks down or has technical issues?",
+      answer: "ATM Depot provides 24/7 monitoring and support. If technical issues arise, their team diagnoses problems remotely and dispatches technicians for on-site repairs if needed. Maintenance, repairs, and parts are covered at no cost to you."
+    },
+    {
+      question: "Will the ATM increase my laundromat revenue?",
+      answer: "Yes! Customers with easy cash access spend 20-40% more on average. ATM availability removes barriers to using wash-and-fold, vending machines, and premium services, increasing overall per-customer spending."
+    }
+  ];
+
   return (
+    <>
+      <SEO
+        title="ATM Services for Laundromats - Free Installation"
+        description="Add $200-$800/month passive income with free ATM installation. Zero upfront cost, full maintenance included. Boost customer spending 20-40%."
+        canonicalUrl="/atm-services"
+        keywords={[
+          "laundromat ATM services",
+          "ATM for laundromat",
+          "free ATM installation",
+          "laundry ATM revenue",
+          "coin laundry ATM",
+          "passive income laundromat",
+          "ATM placement laundromat",
+          "ATM Depot laundromat",
+          "laundromat cash services",
+          "ATM surcharge revenue",
+          "laundromat business income",
+          "commercial laundry ATM",
+          "laundromat customer convenience"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Services", url: "/resources" },
+          { name: "ATM Services", url: "/atm-services" }
+        ]}
+        faqs={seoFaqs}
+      />
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
@@ -257,22 +299,7 @@ export default function AtmServices() {
         </div>
       </section>
 
-      {/* Structured Data */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          "name": "ATM Services for Laundromats - Increase Revenue with ATM Depot",
-          "description": "Add passive income to your laundromat with professional ATM services. Zero upfront investment, free installation, and monthly surcharge revenue.",
-          "url": "https://washbizhub.com/atm-services",
-          "mainEntity": {
-            "@type": "Organization",
-            "name": "ATM Depot",
-            "url": "https://atmdepot.com/laundromat",
-            "sameAs": "https://atmdepot.com/laundromat"
-          }
-        })
-      }} />
     </div>
+    </>
   );
 }

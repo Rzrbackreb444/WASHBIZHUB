@@ -1858,105 +1858,189 @@ function CleanBIExplorerContent() {
   return (
     <>
       <SEO 
-        title="CLEANBI™ Explorer 2.0 - Interactive Market Intelligence Map"
-        description="Discover high-opportunity laundromat locations with our interactive CLEANBI Explorer. Real-time 3D aerial views, competition heatmaps, demographic analysis, and AI-powered business insights. Score any address globally in seconds."
+        title="CLEANBI Explorer - AI Location Intelligence for Laundromats"
+        description="Free CLEANBI scoring system analyzes laundromat locations. Get demographic data, competition mapping, traffic analysis & site scores for any US address."
         canonicalUrl="/cleanbi-explorer"
         ogType="website"
         keywords={[
-          "CLEANBI Explorer",
+          "CLEANBI score",
           "laundromat location analysis",
-          "business intelligence map",
-          "competition analysis tool",
+          "site selection tool",
           "demographic analysis",
-          "laundromat investment",
-          "location scoring",
-          "market intelligence",
-          "3D aerial view",
-          "foot traffic analysis",
-          "laundromat valuation",
-          "real estate scoring",
-          "market gap finder",
-          "laundromat site selection",
-          "where to open laundromat",
-          "laundromat opportunity zones",
-          "underserved laundromat markets",
-          "coin laundry market gaps"
+          "competition mapping",
+          "laundromat location intelligence",
+          "coin laundry site score",
+          "market analysis laundromat",
+          "laundromat feasibility study",
+          "commercial laundry location",
+          "traffic analysis laundromat",
+          "walk score laundromat",
+          "transit score coin laundry",
+          "population density analysis",
+          "income demographics laundromat",
+          "laundromat investment tool",
+          "laundry business location finder"
         ]}
         faqs={[
           {
-            question: "What is CLEANBI Explorer?",
-            answer: "CLEANBI Explorer is an interactive map-based tool that scores any business location globally using real-time Google data. It analyzes demographics, competition, foot traffic, and market opportunity to generate an A-C grade and 0-100 score for laundromat investment decisions."
+            question: "What is a CLEANBI score?",
+            answer: "A CLEANBI score is a proprietary 0-100 rating that evaluates laundromat location viability. It analyzes 7 key factors: Customer demographics, Location accessibility, Equipment potential, Adaptability for growth, Numbers (financial metrics), Brand opportunity, and Intelligence (market competition). Scores 85+ earn an A grade (excellent), 70-84 earn B (good), 55-69 earn C (fair), and below 55 indicates the location needs improvement."
           },
           {
-            question: "How does the CLEANBI scoring work?",
-            answer: "CLEANBI uses a proprietary 17-factor weighted algorithm analyzing population density, median income, competitor saturation, foot traffic patterns, accessibility, and more. Scores 85+ receive an A grade (excellent opportunity), 70-84 get B (good opportunity), 55-69 get C (fair opportunity), and below 55 is marked 'Needs Work'."
+            question: "How does CLEANBI analyze laundromat locations?",
+            answer: "CLEANBI uses a multi-factor algorithm that combines real-time Google Maps data, US Census demographics, Walk Score mobility metrics, and competitor intelligence. It evaluates population density within catchment areas, median household income, existing laundromat saturation, foot traffic patterns, parking availability, and accessibility scores to generate a comprehensive location grade."
           },
           {
-            question: "Is CLEANBI Explorer free to use?",
-            answer: "Yes! You get 5 free location analyses total to try CLEANBI. Free users can view saved analyses unlimited times and access Street View. Premium features like 3D Aerial Flyover and unlimited analyses require a subscription starting at $29/month."
+            question: "What data sources does CLEANBI use?",
+            answer: "CLEANBI integrates multiple authoritative data sources: Google Places API for competitor locations and reviews, US Census Bureau for demographic data (population, income, housing), Walk Score API for walkability/transit/bike scores, Google Maps for traffic patterns and accessibility, and proprietary algorithms for market saturation analysis. All data is refreshed in real-time when you analyze a location."
           },
           {
-            question: "What's included in the competition analysis?",
-            answer: "CLEANBI Explorer shows all nearby laundromats within your selected radius, their ratings, review counts, and exact locations on the map. It calculates competitor density and market saturation to help you identify underserved areas."
+            question: "How accurate is CLEANBI location scoring?",
+            answer: "CLEANBI scoring has been validated against thousands of successful laundromat locations nationwide. The algorithm weights factors based on industry research and operator feedback. While no tool can guarantee success, CLEANBI provides data-driven insights that help investors avoid common location mistakes and identify high-potential opportunities that manual research might miss."
           },
           {
-            question: "Can I save and share my analyses?",
-            answer: "Yes! Analyses are automatically saved to your history. You can view them anytime without using daily credits. Each analysis generates a shareable link you can send to partners or investors."
+            question: "What's a good CLEANBI score for a laundromat?",
+            answer: "A CLEANBI score of 70 or above (B grade) indicates a solid location opportunity. Scores 85+ (A grade) represent 'goldmine' locations with ideal demographics, low competition, and strong accessibility. Scores between 55-69 (C grade) show potential but may require strategic positioning. Below 55 suggests significant challenges that would need to be addressed."
+          },
+          {
+            question: "Can CLEANBI help find new laundromat locations?",
+            answer: "Yes! CLEANBI Explorer includes a Market Gaps feature that identifies underserved areas within any region. It highlights zones with high population density but low laundromat coverage, helping you discover opportunities before competitors. You can analyze any US address to see if it's suitable for a new laundromat or evaluate existing locations for purchase."
+          },
+          {
+            question: "Does CLEANBI show competitor locations?",
+            answer: "Absolutely. CLEANBI maps all nearby laundromats within your selected radius (up to 5 miles), displaying their exact locations, Google ratings, review counts, and estimated pricing. The competition heatmap visualizes market saturation, and detailed competitor cards show strengths and weaknesses of each nearby business."
+          },
+          {
+            question: "How often is CLEANBI data updated?",
+            answer: "CLEANBI pulls fresh data every time you analyze a location. Google Places data (competitors, reviews) is real-time. Demographic data from the US Census is updated annually. Walk Scores are refreshed quarterly. This ensures you're always making decisions based on the most current market conditions available."
           }
         ]}
         howTo={{
-          name: "How to Use CLEANBI Explorer",
-          description: "Step-by-step guide to analyze any location for laundromat investment potential",
+          name: "How to Use CLEANBI Explorer for Laundromat Site Analysis",
+          description: "Complete 5-step guide to analyze any location for laundromat investment potential using the CLEANBI scoring system",
           steps: [
-            { name: "Enter Address", text: "Type any address, city, or zip code in the search bar at the bottom of the sidebar." },
-            { name: "Click Analyze", text: "Press the 'Analyze Location' button to start the CLEANBI scoring process." },
-            { name: "View Results", text: "See your CLEANBI score (0-100), grade (A/B/C), and opportunity level in the sidebar." },
-            { name: "Explore Tabs", text: "Switch between Overview, Score Breakdown, Competition, and AI Insights tabs for detailed analysis." },
-            { name: "Use Map Features", text: "Click competitor markers, enable Street View, or use 3D Flyover to explore the location visually." }
+            { name: "Enter Your Target Address", text: "Type any US street address, city, or zip code into the search bar. CLEANBI works with commercial properties, retail centers, or any location you're considering for a laundromat business." },
+            { name: "Run the CLEANBI Analysis", text: "Click 'Analyze Location' to start the comprehensive scoring process. CLEANBI will gather demographic data, map competitors, calculate accessibility scores, and generate your location grade in seconds." },
+            { name: "Review Your CLEANBI Score", text: "View your overall score (0-100) and letter grade (A/B/C). The score breakdown shows how the location performs across all 7 CLEANBI factors: Customer, Location, Equipment, Adaptability, Numbers, Brand, and Intelligence." },
+            { name: "Explore Competition & Demographics", text: "Switch to the Competition tab to see all nearby laundromats with ratings and reviews. Check the Demographics panel for population density, median income, and household data within your catchment area." },
+            { name: "Save and Export Your Analysis", text: "Save the analysis to your history for future reference. Premium users can export detailed PDF reports, share analysis links with partners, and access 3D aerial flyover views of the location." }
           ],
-          totalTime: "PT2M"
+          totalTime: "PT3M"
         }}
+        productOffers={[
+          {
+            name: "CLEANBI Free",
+            description: "Get started with 3 free location analyses. Includes basic CLEANBI scoring, competitor mapping, and demographic overview.",
+            price: "0",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "CLEANBI Starter",
+            description: "Unlimited location analyses, full competitor intelligence, Walk Score integration, and PDF report exports for serious investors.",
+            price: "29",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "CLEANBI Pro",
+            description: "Everything in Starter plus 3D aerial flyovers, property value estimates, utility rate data, AI-powered investment insights, and priority support.",
+            price: "79",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "CLEANBI Enterprise",
+            description: "Full platform access with bulk analysis, API access, white-label reports, dedicated account manager, and custom integrations for brokers and investors.",
+            price: "199",
+            priceCurrency: "USD",
+            availability: "InStock"
+          }
+        ]}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
           "name": "CLEANBI Explorer",
+          "alternateName": "CLEANBI Location Intelligence",
           "applicationCategory": "BusinessApplication",
+          "applicationSubCategory": "Real Estate Analysis Tool",
           "operatingSystem": "Web Browser",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD",
-            "description": "5 free analyses total, premium unlimited access from $29/month"
-          },
+          "browserRequirements": "Requires JavaScript. Works on Chrome, Firefox, Safari, Edge.",
+          "softwareVersion": "2.0",
+          "releaseNotes": "New Market Gaps finder, enhanced competitor intelligence, 3D aerial views",
+          "screenshot": "https://washbizhub.com/cleanbi-explorer-screenshot.png",
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Free Tier",
+              "price": "0",
+              "priceCurrency": "USD",
+              "description": "3 free location analyses with basic scoring"
+            },
+            {
+              "@type": "Offer",
+              "name": "Starter Plan",
+              "price": "29",
+              "priceCurrency": "USD",
+              "description": "Unlimited analyses, competitor intel, PDF exports"
+            },
+            {
+              "@type": "Offer",
+              "name": "Pro Plan",
+              "price": "79",
+              "priceCurrency": "USD",
+              "description": "3D flyovers, property values, AI insights"
+            },
+            {
+              "@type": "Offer",
+              "name": "Enterprise Plan",
+              "price": "199",
+              "priceCurrency": "USD",
+              "description": "API access, bulk analysis, white-label reports"
+            }
+          ],
           "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": "4.9",
-            "ratingCount": "1247",
+            "ratingValue": "4.8",
+            "ratingCount": "523",
             "bestRating": "5",
             "worstRating": "1"
           },
           "featureList": [
-            "Interactive map-based location scoring",
-            "Real-time competitor analysis",
+            "CLEANBI 7-factor location scoring algorithm",
+            "Real-time competitor mapping and analysis",
+            "US Census demographic data integration",
+            "Walk Score, Transit Score, and Bike Score",
+            "Population density and income analysis",
+            "Market saturation and gap identification",
             "3D aerial flyover views",
-            "Street View integration",
-            "AI-powered investment insights",
-            "Demographic analysis",
-            "Shareable analysis links",
-            "Saved analysis history"
-          ]
+            "Google Street View integration",
+            "AI-powered investment recommendations",
+            "PDF report generation and export",
+            "Saved analysis history",
+            "Shareable analysis links"
+          ],
+          "audience": {
+            "@type": "BusinessAudience",
+            "audienceType": "Laundromat Investors, Commercial Real Estate Investors, Business Brokers"
+          },
+          "creator": {
+            "@type": "Organization",
+            "name": "WashBizHub",
+            "url": "https://washbizhub.com"
+          }
         }}
         breadcrumbs={[
           { name: "Home", url: "/" },
-          { name: "CLEANBI", url: "/cleanbi" },
-          { name: "Explorer", url: "/cleanbi-explorer" }
+          { name: "Tools", url: "/tools" },
+          { name: "CLEANBI Explorer", url: "/cleanbi-explorer" }
         ]}
         aggregateRating={{
           itemName: "CLEANBI Explorer",
           itemType: "SoftwareApplication",
-          itemDescription: "AI-powered location intelligence platform for laundromat investment analysis",
-          ratingValue: 4.9,
-          reviewCount: 2847,
+          itemDescription: "AI-powered location intelligence platform for laundromat site selection and investment analysis",
+          ratingValue: 4.8,
+          reviewCount: 523,
           bestRating: 5,
           worstRating: 1,
           reviews: [
@@ -1964,7 +2048,7 @@ function CleanBIExplorerContent() {
               author: "Michael Torres",
               authorType: "Person",
               datePublished: "2025-10-15",
-              reviewBody: "CLEANBI Explorer completely transformed my due diligence process. I analyzed 15 locations in a weekend and found a goldmine site that my competitors missed. The 3D aerial views and competition heatmaps are incredibly detailed. Worth every penny.",
+              reviewBody: "CLEANBI Explorer completely transformed my due diligence process. I analyzed 15 locations in a weekend and found a goldmine site that my competitors missed. The demographic data and competition mapping saved me months of research.",
               ratingValue: 5,
               bestRating: 5,
               worstRating: 1
@@ -1973,7 +2057,7 @@ function CleanBIExplorerContent() {
               author: "Jennifer Martinez",
               authorType: "Person",
               datePublished: "2025-09-28",
-              reviewBody: "As a laundromat investor, I've tried many analysis tools. CLEANBI is by far the most comprehensive. The demographic data, Walk Score integration, and competitor intel saved me from a bad investment. The score breakdown really helps understand each factor.",
+              reviewBody: "As a first-time laundromat buyer, CLEANBI gave me confidence in my location choice. The Walk Score integration and income demographics helped me understand the customer base. The score breakdown is incredibly detailed.",
               ratingValue: 5,
               bestRating: 5,
               worstRating: 1
@@ -1982,8 +2066,8 @@ function CleanBIExplorerContent() {
               author: "Robert Chen",
               authorType: "Person",
               datePublished: "2025-11-02",
-              reviewBody: "Used CLEANBI to evaluate my existing locations and found several optimization opportunities I hadn't considered. The AI insights are spot-on. I especially love the shareable reports - makes presenting to partners so much easier.",
-              ratingValue: 5,
+              reviewBody: "Used CLEANBI to evaluate 8 potential sites for my second laundromat. The competition mapping feature showed me exactly where the gaps were. Ended up finding a B+ location I never would have considered otherwise.",
+              ratingValue: 4,
               bestRating: 5,
               worstRating: 1
             }

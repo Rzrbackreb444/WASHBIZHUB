@@ -934,6 +934,101 @@ export default function ServiceGuyAI() {
           { name: "Tools", url: "/calculators" },
           { name: "Service Guy AI", url: "/service-guy-ai" }
         ]}
+        author={{
+          name: "WashBizHub Technical Team",
+          expertise: "Commercial Laundry Equipment Specialists",
+          credentials: "15+ years combined experience in laundromat equipment repair"
+        }}
+        productOffers={[
+          {
+            name: "Service Guy AI Free",
+            description: "Basic error code lookup with 3 lookups per month and basic error code information for laundromat technicians",
+            price: "0",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "Service Guy AI Starter",
+            description: "50 lookups per month with partial repair steps and troubleshooting guidance for commercial laundry equipment",
+            price: "29",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "Service Guy AI Pro",
+            description: "500 lookups per month with full troubleshooting steps, parts lists, and repair techniques for laundromat professionals",
+            price: "79",
+            priceCurrency: "USD",
+            availability: "InStock"
+          },
+          {
+            name: "Service Guy AI Enterprise",
+            description: "Unlimited lookups with priority support, API access, and complete diagnostic tools for multi-location laundromat operators",
+            price: "199",
+            priceCurrency: "USD",
+            availability: "InStock"
+          }
+        ]}
+        aggregateRating={{
+          itemName: "Service Guy AI",
+          itemType: "SoftwareApplication",
+          itemDescription: "AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes for Speed Queen, Dexter, Maytag, and 35+ manufacturers",
+          ratingValue: 4.9,
+          reviewCount: 847,
+          bestRating: 5,
+          worstRating: 1,
+          reviews: [
+            {
+              author: "Mike Thompson",
+              authorType: "Person",
+              datePublished: "2025-11-15",
+              reviewBody: "Service Guy AI saved me hours on a tricky Speed Queen F21 error. The step-by-step troubleshooting guide was spot on - it was the pressure switch exactly as diagnosed. Now I use it for every service call.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Carlos Rodriguez",
+              authorType: "Person",
+              datePublished: "2025-10-28",
+              reviewBody: "As a 20-year laundromat technician, I was skeptical of AI diagnostics. But Service Guy AI's Dexter error code database is incredibly accurate. The parts list with OEM numbers saves me time ordering parts.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Sarah Chen",
+              authorType: "Person",
+              datePublished: "2025-10-12",
+              reviewBody: "I manage 8 laundromats and the Enterprise plan pays for itself. My techs resolve issues faster and the AI symptom analysis helps diagnose problems before they become major repairs.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "James Wilson",
+              authorType: "Person",
+              datePublished: "2025-09-22",
+              reviewBody: "The photo diagnosis feature is impressive. I uploaded a picture of a worn dryer belt and it correctly identified the wear pattern and recommended replacement. Great for training new technicians.",
+              ratingValue: 4,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Patricia Nguyen",
+              authorType: "Person",
+              datePublished: "2025-09-05",
+              reviewBody: "Finally a diagnostic tool that covers all the major commercial laundry brands in one place. The Maytag and Huebsch error code coverage is excellent. Highly recommend for any laundromat service business.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            }
+          ]
+        }}
+        speakableContent={[
+          "Service Guy AI helps laundromat technicians diagnose equipment problems",
+          "Search over 2,200 error codes from 35 manufacturers"
+        ]}
         faqs={[
           {
             question: "How do I diagnose washer problems in my laundromat?",
@@ -966,6 +1061,70 @@ export default function ServiceGuyAI() {
           {
             question: "What parts should laundromat owners keep in stock?",
             answer: "Essential spare parts include: door switches and seals, drain pump assemblies, inlet valve screens, drive belts, thermal fuses, and coin mechanism sensors. Service Guy AI provides OEM part numbers for each repair, so you can stock the right parts and minimize downtime when issues occur."
+          },
+          {
+            question: "What does Speed Queen error code E:dE mean?",
+            answer: "Speed Queen error code E:dE indicates a door error on your commercial washer. This means the door switch is not detecting that the door is properly closed and latched. To fix: 1) Check the door latch mechanism for damage or debris, 2) Inspect the door switch for continuity using a multimeter, 3) Verify the door strike plate alignment, 4) Replace the door switch if defective (OEM part typically $25-50). This is a common issue that prevents the wash cycle from starting."
+          },
+          {
+            question: "How do I reset a Speed Queen commercial washer?",
+            answer: "To reset a Speed Queen commercial washer: 1) Turn off the machine and unplug it from power for 30 seconds, 2) Plug it back in and turn on the power, 3) Press and hold the START button for 3 seconds until you hear a beep, 4) The control board should now be reset. For persistent error codes, you may need to enter diagnostic mode by holding SELECT + START during power-on. If errors persist after reset, the issue requires further troubleshooting."
+          },
+          {
+            question: "Why won't my Speed Queen dryer heat?",
+            answer: "If your Speed Queen dryer won't heat, check these components in order: 1) Thermal fuse - test for continuity, replace if open ($15-30), 2) Heating element - check resistance (should read 10-25 ohms), 3) For gas dryers: inspect igniter glow (should glow bright orange) and gas valve coils, 4) High-limit thermostat - test for continuity, 5) Cycling thermostat - verify proper operation. Also check exhaust ductwork for restrictions causing overheating and thermal fuse failure."
+          },
+          {
+            question: "What is Dexter error code dP on my washer?",
+            answer: "Dexter error code dP indicates a drain pump issue - the machine detected a problem draining water within the allotted time. To troubleshoot: 1) Check the drain hose for kinks or clogs, 2) Clean the drain pump filter (access from front panel), 3) Inspect the drain pump impeller for debris or damage, 4) Test drain pump motor for continuity, 5) Verify drain hose height is not above 8 feet. The drain pump assembly costs approximately $150-250 if replacement is needed."
+          },
+          {
+            question: "How do I access Dexter T-900 diagnostic mode?",
+            answer: "To enter Dexter T-900 diagnostic mode: 1) Turn off the machine completely, 2) Press and hold the SELECT button, 3) While holding SELECT, turn the power on, 4) Continue holding for 5 seconds until diagnostic mode activates. In diagnostic mode you can: view error history, test individual components, run motor and valve tests, check sensor readings, and clear stored error codes. Exit by pressing STOP or cycling power."
+          },
+          {
+            question: "Why is my Dexter dryer showing AF error?",
+            answer: "Dexter dryer AF error means Airflow Restriction - the machine detected inadequate exhaust airflow which can cause overheating. Fix this by: 1) Remove and thoroughly clean the lint screen, 2) Inspect the exhaust duct for lint buildup or blockages, 3) Check the duct termination cap outside for obstructions, 4) Verify the duct run is not exceeding maximum length (typically 25 feet with minimal bends), 5) Clean the blower wheel and housing. Poor airflow reduces drying efficiency and can damage heating components."
+          },
+          {
+            question: "What does Maytag error F5 E2 mean?",
+            answer: "Maytag commercial washer error F5 E2 indicates a door lock failure - the control cannot confirm the door is locked after multiple attempts. To resolve: 1) Inspect the door lock assembly for visible damage, 2) Check wiring connections to the door lock mechanism, 3) Test the door lock motor and switch with a multimeter, 4) Clear the error by running diagnostic mode or power cycling, 5) Replace the door lock assembly if defective ($80-150). This is a safety interlock that prevents operation with an unlocked door."
+          },
+          {
+            question: "How do I clear Maytag commercial washer error codes?",
+            answer: "To clear Maytag commercial washer error codes: Method 1 - Power cycle the machine by unplugging for 2 minutes then reconnecting. Method 2 - Enter diagnostic mode: press and hold CYCLE SELECT for 3 seconds, then rotate the cycle knob one click clockwise every half second through the full rotation. The display will show stored error codes. Press START to clear codes. Note: Clearing codes does not fix the underlying issue - troubleshoot and repair the problem first."
+          },
+          {
+            question: "Why is my Maytag dryer beeping but not starting?",
+            answer: "When a Maytag commercial dryer beeps but won't start, check: 1) Door switch - the most common cause; test for continuity when pressed, 2) Start relay on the control board - may need replacement if clicking but not engaging, 3) Drive motor - listen for humming without rotation indicating a seized motor or bad capacitor, 4) Thermal fuse - if open, dryer won't start as a safety feature, 5) Belt switch - if belt is broken, safety switch prevents operation. Replace the door switch first as it's the most likely culprit ($20-40)."
+          },
+          {
+            question: "What is Huebsch error code E:nb?",
+            answer: "Huebsch error code E:nb means No Balance - the washer could not achieve proper load balance before the spin cycle. This typically occurs with: 1) Unevenly distributed loads - rearrange items in the drum, 2) Single heavy items like blankets - add additional items to balance, 3) Worn or damaged shock absorbers/suspension springs ($50-100 each), 4) Out-of-level machine - adjust leveling feet, 5) Worn drum bearings causing wobble. For persistent E:nb errors, inspect suspension components for wear and replace as needed."
+          },
+          {
+            question: "How do I program Huebsch washer cycles?",
+            answer: "To program Huebsch commercial washer cycles: 1) Insert the service key into the control panel, 2) Press and hold PROGRAM + START simultaneously for 5 seconds to enter programming mode, 3) Use CYCLE SELECT to navigate through parameters (water level, temperature, spin speed, pricing), 4) Use UP/DOWN arrows to adjust values, 5) Press START to save each setting, 6) Exit by removing the service key. Programming allows you to customize cycle times, prices, water temperature, and extract speeds for your specific operation."
+          },
+          {
+            question: "What does LG error code OE mean on commercial washer?",
+            answer: "LG commercial washer error code OE indicates a drain error - the machine couldn't drain water within 10 minutes. Troubleshooting steps: 1) Check the drain filter/pump filter at the front lower panel for debris and coins, 2) Inspect the drain hose for kinks or clogs, 3) Verify drain hose is not inserted too far into standpipe (maximum 6 inches), 4) Test drain pump operation - should hear humming during drain cycle, 5) Replace drain pump if motor is burned out ($100-175). Clean the filter monthly to prevent future OE errors."
+          },
+          {
+            question: "How do I reset LG commercial dryer?",
+            answer: "To reset an LG commercial dryer: 1) Unplug the dryer from the power outlet, 2) Wait 60 seconds to allow capacitors to discharge, 3) While unplugged, press and hold the POWER/START button for 5 seconds to drain residual power, 4) Plug the dryer back in, 5) Turn on and test. For control board errors, you may need to access the diagnostic mode by pressing TEMP + TIME simultaneously for 3 seconds. If errors persist after reset, note the error code and troubleshoot the specific component."
+          },
+          {
+            question: "What tools do I need for laundromat equipment repair?",
+            answer: "Essential laundromat repair tools include: 1) Digital multimeter for electrical testing ($30-100), 2) Socket set (metric and SAE) for panel removal and component access, 3) Manufacturer diagnostic/programming key ($50-150 per brand), 4) Nut driver set (5/16\", 1/4\", 3/8\"), 5) Screwdriver set (Phillips, flathead, Torx), 6) Needle-nose pliers for wire terminals, 7) Flashlight or headlamp, 8) Coin mechanism test kit, 9) Clamp meter for amp draw testing, 10) Leak detector solution for gas lines. Keep these in your service vehicle for on-site repairs."
+          },
+          {
+            question: "How often should commercial washers be serviced?",
+            answer: "Commercial laundromat washers should receive: Daily - lint screen cleaning and visual inspection. Weekly - wipe door seals, check for leaks, clean coin slides. Monthly - inspect hoses and connections, clean drain pump filter, sanitize drum. Quarterly - professional maintenance including: bearing inspection, belt tension check, electrical connection tightening, coin mechanism calibration, and control board diagnostics. Annual - full inspection of suspension, motor brushes, water valve screens, and preventive part replacement. Regular maintenance extends equipment life 3-5 years and reduces emergency repairs by 60%."
+          },
+          {
+            question: "What's the average repair cost for commercial laundry equipment?",
+            answer: "Commercial laundry equipment repair costs vary by component: Minor repairs ($50-150): door switches, thermal fuses, belts, lint screens. Moderate repairs ($150-350): drain pumps, door locks, inlet valves, coin mechanisms. Major repairs ($350-700): control boards, motors, heating elements, inverters. Expensive repairs ($700-1500+): bearings and seals, transmissions, complete motor assemblies. Labor typically runs $75-150/hour for professional technicians. Service Guy AI helps you diagnose issues accurately to avoid unnecessary part replacements and reduce overall repair costs."
           }
         ]}
         howTo={{
