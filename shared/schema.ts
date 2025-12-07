@@ -13691,5 +13691,43 @@ export type InsertServiceJob = z.infer<typeof insertServiceJobSchema>;
 export type ServiceJob = typeof serviceJobs.$inferSelect;
 
 // ============================================================================
+// FIX OUTCOME FEEDBACK - Track Repair Success Rates from Real Techs
+// ============================================================================
+
+export const fixOutcomeFeedback = pgTable("fix_outcome_feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  diagnosticCodeId: varchar("diagnostic_code_id").references(() => diagnosticCodes.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: text("session_id"), // For anonymous feedback
+  ipAddress: text("ip_address"),
+  
+  // Outcome tracking
+  outcome: text("outcome").notNull(), // "fixed", "partially_fixed", "not_fixed", "wrong_diagnosis"
+  additionalSteps: text("additional_steps"), // What else they had to do
+  actualPartsUsed: text("actual_parts_used").array(), // Parts actually needed
+  timeSpent: integer("time_spent_minutes"), // Actual repair time
+  notes: text("notes"), // Free-form feedback
+  
+  // Context
+  manufacturer: text("manufacturer").notNull(),
+  errorCode: text("error_code").notNull(),
+  machineType: text("machine_type"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  diagnosticCodeIdx: index("fix_feedback_diagnostic_code_idx").on(table.diagnosticCodeId),
+  outcomeIdx: index("fix_feedback_outcome_idx").on(table.outcome),
+  manufacturerIdx: index("fix_feedback_manufacturer_idx").on(table.manufacturer),
+}));
+
+export const insertFixOutcomeFeedbackSchema = createInsertSchema(fixOutcomeFeedback).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type FixOutcomeFeedback = typeof fixOutcomeFeedback.$inferSelect;
+export type InsertFixOutcomeFeedback = z.infer<typeof insertFixOutcomeFeedbackSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

@@ -65,6 +65,8 @@ import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { PartsOrderWidget } from "@/components/PartsOrderWidget";
 import { InvoiceGenerator } from "@/components/InvoiceGenerator";
+import { ServiceTechButton } from "@/components/ServiceTechLocator";
+import { FixOutcomeFeedback } from "@/components/FixOutcomeFeedback";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
@@ -1498,7 +1500,17 @@ export default function ServiceGuyAI() {
                                     Skill: <span className="capitalize">{code.skillLevel}</span>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <ServiceTechButton 
+                                    diagnosticInfo={{
+                                      errorCode: code.code,
+                                      manufacturer: code.manufacturer,
+                                      description: code.description,
+                                      troubleshootingSteps: code.troubleshootingSteps,
+                                      requiredParts: code.requiredParts,
+                                      quickFix: code.quickFix
+                                    }}
+                                  />
                                   <Button 
                                     size="sm" 
                                     variant="outline"
@@ -1527,6 +1539,14 @@ export default function ServiceGuyAI() {
                                       </>
                                     )}
                                   </Button>
+                                  <FixOutcomeFeedback 
+                                    diagnosticInfo={{
+                                      diagnosticCodeId: String(code.id),
+                                      errorCode: code.code,
+                                      manufacturer: code.manufacturer,
+                                      machineType: code.machineType
+                                    }}
+                                  />
                                 </div>
                               </div>
                             </>
