@@ -79,6 +79,15 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **Labor Cost Calculator & Staffing Optimizer:** Calculates labor cost as % of revenue and optimizes staffing.
 - **Key Industry Benchmarks & Formulas:** Includes detailed metrics for revenue, profitability, operational KPIs, cost ratios, customer metrics, equipment depreciation, and valuation multiples.
 - **Master Algorithms:** Includes 9 standalone calculators, 8 scoring algorithms (CLEANBI, WASHBI, etc.), and 10 Google Cloud combined algorithms for advanced functionalities like Utility Bill Scanning, Smart Location Scouting, Equipment Photo Appraising, and Due Diligence Document Verification.
+- **Service Guy AI (/service-guy-ai):** Protected diagnostic field tool for laundromat equipment repair with tier-based subscriptions. Features:
+  - 4-tier content protection: Free (3 lookups/month, heavily redacted), Starter ($29/mo, 50 lookups, partial steps), Pro ($79/mo, 500 lookups, full troubleshooting), Enterprise ($199/mo, unlimited, full access)
+  - 15,867-line diagnostic database worth $75K-$100K in R&D value
+  - Voice Input: Web Speech API for hands-free diagnosis in the field
+  - Photo Diagnosis: Gemini Vision AI analyzes equipment photos to identify error codes
+  - Job Tracking: Service technicians track repair jobs with status, notes, and timestamps
+  - Parts Ordering: Integrated Amazon affiliate links and AAdvantage Laundry commercial parts supplier
+  - Invoice/Quote Generator: PDF generation with customer info, labor, parts, tax calculations (jsPDF)
+  - Backend protection: Explicit isLocked flags, sanitized search queries, null requiredParts/partsWithPricing for lower tiers
 
 ### System Design Choices
 - **Data Storage:** PostgreSQL (Neon Serverless) with Drizzle ORM.
