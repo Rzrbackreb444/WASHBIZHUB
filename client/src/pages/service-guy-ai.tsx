@@ -1392,7 +1392,7 @@ export default function ServiceGuyAI() {
                                             </a>
                                           ) : (
                                             <a
-                                              href={`https://www.amazon.com/s?k=${encodeURIComponent(part.partNumber)}&tag=washbizhub-20`}
+                                              href={`https://www.amazon.com/s?k=${encodeURIComponent(part.partNumber)}&tag=nicholaskreme-20`}
                                               target="_blank"
                                               rel="nofollow sponsored noopener noreferrer"
                                               data-testid={`link-amazon-part-${part.partNumber}`}
@@ -1411,7 +1411,7 @@ export default function ServiceGuyAI() {
                                   <div className="flex flex-wrap gap-2 mb-3">
                                     {code.requiredParts?.map((part, i) => {
                                       const partId = part.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                                      const amazonSearchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(part)}&tag=washbizhub-20`;
+                                      const amazonSearchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(part)}&tag=nicholaskreme-20`;
                                       return (
                                         <a 
                                           key={i}
