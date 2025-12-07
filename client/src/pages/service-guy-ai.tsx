@@ -1087,9 +1087,11 @@ export default function ServiceGuyAI() {
                 ) : (
                   <div className="grid gap-4">
                     {filteredResults.map((code) => {
-                      const isLocked = code.isProtected && (code.tier === 'free' || !code.tier);
+                      const isLocked = code.isLocked === true;
                       const isPartiallyLocked = code.isProtected && code.tier === 'starter';
-                      const hasLockedContent = code.troubleshootingSteps?.some((s: string) => s.includes('Subscribe') || s.includes('Upgrade') || s.includes('protected'));
+                      const hasLockedContent = isLocked || code.troubleshootingSteps?.some((s: string) => 
+                        s.includes('Subscribe') || s.includes('Upgrade') || s.includes('protected') || s.includes('🔒')
+                      );
                       
                       return (
                       <Card 
