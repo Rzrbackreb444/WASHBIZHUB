@@ -11247,11 +11247,9 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-      // Return mock badges for now
-      res.json([
-        { id: "1", type: "first-lesson", label: "First Step", icon: "🎯" },
-        { id: "2", type: "perfect-score", label: "Perfect 100%", icon: "⭐" },
-      ]);
+      // Return empty array until real badge system is implemented
+      // Badges will be stored in database once earned
+      res.json([]);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

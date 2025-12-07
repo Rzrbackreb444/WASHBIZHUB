@@ -54,11 +54,11 @@ const SUPPLIERS = [
   {
     id: 'aadvantage',
     name: 'AAdvantage',
-    searchUrl: (part: string) => `https://aadvantagelaundry.com/parts?search=${encodeURIComponent(part)}`,
+    searchUrl: (part: string) => `https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry`,
     color: 'bg-[#C8A661] hover:bg-[#C8A661]/90 text-[#0A1628]',
     icon: Star,
     priority: true,
-    description: 'Authorized Dexter Dealer'
+    description: 'Authorized Dexter Dealer - All Major Brands'
   },
   {
     id: 'marcone',
@@ -303,7 +303,7 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false, par
         </a>
         
         <a
-          href="https://aadvantagelaundry.com/parts"
+          href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry"
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
           className="p-4 rounded-lg border bg-gradient-to-r from-[#C8A661] to-[#C8A661]/90 text-[#0A1628] hover-elevate"
@@ -313,7 +313,7 @@ export function PartsOrderWidget({ defaultSearch, category, compact = false, par
             <Star className="h-8 w-8" />
             <div className="flex-1">
               <p className="font-semibold">AAdvantage Laundry</p>
-              <p className="text-sm text-[#0A1628]/70">Authorized Dexter Dealer</p>
+              <p className="text-sm text-[#0A1628]/70">Authorized Dexter Dealer - All Major Brands</p>
             </div>
             <ExternalLink className="h-4 w-4" />
           </div>
