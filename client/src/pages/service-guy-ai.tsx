@@ -175,38 +175,42 @@ interface PhotoDiagnosisResult {
   analyzedAt: string;
 }
 
-const SERVICE_TECHNICIANS = [
-  {
-    id: 1,
-    name: "Mike's Laundry Service",
-    rating: 4.9,
-    reviews: 124,
-    responseTime: "< 4 hours",
-    areas: ["Metro Area", "Suburbs"],
-    certified: ["Speed Queen", "Dexter", "Maytag"],
-    phone: "(555) 123-4567"
-  },
-  {
-    id: 2,
-    name: "Commercial Laundry Experts",
-    rating: 4.8,
-    reviews: 89,
-    responseTime: "Same Day",
-    areas: ["Tri-State Area"],
-    certified: ["Huebsch", "UniMac", "IPSO"],
-    phone: "(555) 987-6543"
-  },
-  {
-    id: 3,
-    name: "Quick Fix Laundry Repair",
-    rating: 4.7,
-    reviews: 156,
-    responseTime: "< 2 hours",
-    areas: ["Downtown", "Industrial"],
-    certified: ["Speed Queen", "Continental Girbau", "Electrolux"],
-    phone: "(555) 456-7890"
-  },
-];
+interface ServiceTechSearchResult {
+  id: string;
+  name: string;
+  address: string;
+  rating: number;
+  reviewCount: number;
+  openNow?: boolean;
+  placeId: string;
+  distance: string;
+}
+
+interface ServiceTechSearchResponse {
+  success: boolean;
+  results: ServiceTechSearchResult[];
+  coordinates?: { lat: number; lng: number };
+  formattedAddress?: string;
+  message?: string;
+}
+
+interface ServiceTechDetails {
+  id: string;
+  name: string;
+  address: string;
+  phone?: string;
+  website?: string;
+  rating: number;
+  reviewCount: number;
+  hours?: string[];
+  openNow?: boolean;
+  reviews?: Array<{
+    author: string;
+    rating: number;
+    text: string;
+    time: string;
+  }>;
+}
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -405,6 +409,11 @@ export default function ServiceGuyAI() {
   const [smartDiagnosisResult, setSmartDiagnosisResult] = useState<any>(null);
   const [isSmartSearching, setIsSmartSearching] = useState(false);
 
+  const [techSearchAddress, setTechSearchAddress] = useState("");
+  const [techSearchEnabled, setTechSearchEnabled] = useState(false);
+  const [loadingTechDetailsFor, setLoadingTechDetailsFor] = useState<string | null>(null);
+  const [techDetailsCache, setTechDetailsCache] = useState<Record<string, ServiceTechDetails>>({});
+
   const debouncedSearch = useDebounce(searchInput, 300);
 
   const smartDiagnosisMutation = useMutation({
@@ -455,6 +464,66 @@ export default function ServiceGuyAI() {
     queryKey: ['/api/service-guy/usage'],
     staleTime: 1000 * 30,
   });
+
+  const isEnterpriseTier = usageData?.tier === 'enterprise';
+  
+  const { 
+    data: techSearchData, 
+    isLoading: isSearchingTechs,
+    error: techSearchError,
+    refetch: refetchTechSearch
+  } = useQuery<ServiceTechSearchResponse>({
+    queryKey: ['/api/service-techs/search', techSearchAddress],
+    queryFn: async () => {
+      const response = await fetch(`/api/service-techs/search?address=${encodeURIComponent(techSearchAddress)}`);
+      return response.json();
+    },
+    enabled: techSearchEnabled && !!techSearchAddress && isEnterpriseTier,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const handleTechSearch = useCallback(() => {
+    if (!techSearchAddress.trim()) {
+      toast({ 
+        title: "Enter Location", 
+        description: "Please enter a ZIP code or address to search", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    setTechSearchEnabled(true);
+    refetchTechSearch();
+  }, [techSearchAddress, refetchTechSearch, toast]);
+
+  const handleGetTechDetails = useCallback(async (placeId: string) => {
+    if (techDetailsCache[placeId]) return;
+    
+    setLoadingTechDetailsFor(placeId);
+    try {
+      const response = await fetch(`/api/service-techs/details/${placeId}`);
+      const data = await response.json();
+      if (data.success && data.tech) {
+        setTechDetailsCache(prev => ({
+          ...prev,
+          [placeId]: data.tech
+        }));
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to get technician details",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch contact information",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingTechDetailsFor(null);
+    }
+  }, [techDetailsCache, toast]);
 
   const jobsUrl = jobStatusFilter === 'all' 
     ? '/api/service-guy/jobs' 
@@ -2269,66 +2338,252 @@ export default function ServiceGuyAI() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="technicians" className="space-y-6">
+          <TabsContent value="technicians" className="space-y-6" data-testid="tab-content-technicians">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Certified Service Technicians
+                  Find Service Technicians Near You
                 </CardTitle>
                 <CardDescription>
-                  Find verified commercial laundry repair specialists in your area
+                  Search for verified commercial laundry repair specialists in your area
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid gap-4">
-                  {SERVICE_TECHNICIANS.map(tech => (
-                    <Card key={tech.id} className="hover-elevate">
-                      <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{tech.name}</h4>
-                            <Badge variant="outline" className="text-xs">
-                              <Shield className="w-3 h-3 mr-1" />
-                              Verified
-                            </Badge>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                              {tech.rating} ({tech.reviews} reviews)
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {tech.responseTime}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />
-                              {tech.areas.join(", ")}
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {tech.certified.map(brand => (
-                              <Badge key={brand} variant="secondary" className="text-xs">
-                                {brand}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <Button size="sm" className="gap-2">
-                            <Phone className="w-4 h-4" />
-                            {tech.phone}
-                          </Button>
-                          <Button size="sm" variant="outline" className="gap-2">
-                            <Mail className="w-4 h-4" />
-                            Email
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+              <CardContent className="space-y-6">
+                {!isEnterpriseTier ? (
+                  <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10">
+                    <CardContent className="p-6 text-center">
+                      <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-xl w-fit mx-auto mb-4">
+                        <Lock className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold mb-2" data-testid="text-upgrade-title">Enterprise Feature</h3>
+                      <p className="text-muted-foreground mb-4" data-testid="text-upgrade-description">
+                        Location-based service technician search is available exclusively for Enterprise members. 
+                        Upgrade to find verified repair specialists near your laundromats.
+                      </p>
+                      <Button 
+                        onClick={handleUpgrade}
+                        className="bg-gradient-to-r from-amber-500 to-orange-600"
+                        data-testid="button-upgrade-enterprise"
+                      >
+                        <Crown className="w-4 h-4 mr-2" />
+                        Upgrade to Enterprise
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex-1">
+                        <Label htmlFor="tech-search" className="sr-only">ZIP Code or Address</Label>
+                        <Input
+                          id="tech-search"
+                          placeholder="Enter ZIP code or address (e.g., 72712 or Bentonville, AR)"
+                          value={techSearchAddress}
+                          onChange={(e) => setTechSearchAddress(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleTechSearch()}
+                          data-testid="input-tech-search-address"
+                        />
+                      </div>
+                      <Button 
+                        onClick={handleTechSearch}
+                        disabled={isSearchingTechs || !techSearchAddress.trim()}
+                        data-testid="button-search-technicians"
+                      >
+                        {isSearchingTechs ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Search className="w-4 h-4 mr-2" />
+                        )}
+                        Search
+                      </Button>
+                    </div>
+
+                    {techSearchData?.formattedAddress && (
+                      <p className="text-sm text-muted-foreground" data-testid="text-search-location">
+                        Showing results near: <span className="font-medium">{techSearchData.formattedAddress}</span>
+                      </p>
+                    )}
+
+                    {isSearchingTechs && (
+                      <div className="space-y-4" data-testid="skeleton-tech-results">
+                        {[1, 2, 3].map((i) => (
+                          <Card key={i}>
+                            <CardContent className="p-4">
+                              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                <div className="flex-1 space-y-2">
+                                  <Skeleton className="h-5 w-48" />
+                                  <Skeleton className="h-4 w-64" />
+                                  <Skeleton className="h-4 w-32" />
+                                </div>
+                                <Skeleton className="h-9 w-32" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {!isSearchingTechs && techSearchEnabled && techSearchData?.results?.length === 0 && (
+                      <Card className="border-dashed">
+                        <CardContent className="p-8 text-center">
+                          <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="font-semibold mb-2" data-testid="text-no-results">No Service Technicians Found</h3>
+                          <p className="text-sm text-muted-foreground">
+                            We couldn't find appliance repair services near this location. Try a different ZIP code or expand your search area.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {!isSearchingTechs && !techSearchEnabled && (
+                      <Card className="border-dashed">
+                        <CardContent className="p-8 text-center">
+                          <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="font-semibold mb-2" data-testid="text-search-prompt">Enter Your Location</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Enter a ZIP code or address above to find commercial laundry equipment repair specialists near you.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {!isSearchingTechs && techSearchData?.results && techSearchData.results.length > 0 && (
+                      <div className="grid gap-4" data-testid="list-technician-results">
+                        {techSearchData.results.map((tech) => {
+                          const cachedDetails = techDetailsCache[tech.placeId];
+                          const isLoadingDetails = loadingTechDetailsFor === tech.placeId;
+                          
+                          return (
+                            <Card key={tech.id} className="hover-elevate" data-testid={`card-technician-${tech.id}`}>
+                              <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h4 className="font-semibold" data-testid={`text-tech-name-${tech.id}`}>{tech.name}</h4>
+                                    {tech.openNow !== undefined && (
+                                      <Badge 
+                                        variant={tech.openNow ? "default" : "secondary"} 
+                                        className={`text-xs ${tech.openNow ? 'bg-green-500' : ''}`}
+                                      >
+                                        {tech.openNow ? 'Open Now' : 'Closed'}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                                    {tech.rating && (
+                                      <div className="flex items-center gap-1" data-testid={`text-tech-rating-${tech.id}`}>
+                                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                        {tech.rating.toFixed(1)} ({tech.reviewCount || 0} reviews)
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1" data-testid={`text-tech-distance-${tech.id}`}>
+                                      <MapPin className="w-4 h-4" />
+                                      {tech.distance}
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mt-1" data-testid={`text-tech-address-${tech.id}`}>
+                                    {tech.address}
+                                  </p>
+                                  
+                                  {cachedDetails && (
+                                    <div className="mt-3 p-3 bg-muted/50 rounded-lg space-y-2" data-testid={`details-tech-${tech.id}`}>
+                                      {cachedDetails.phone && (
+                                        <div className="flex items-center gap-2">
+                                          <Phone className="w-4 h-4 text-green-600" />
+                                          <a 
+                                            href={`tel:${cachedDetails.phone}`} 
+                                            className="font-medium text-green-600 hover:underline"
+                                            data-testid={`link-tech-phone-${tech.id}`}
+                                          >
+                                            {cachedDetails.phone}
+                                          </a>
+                                        </div>
+                                      )}
+                                      {cachedDetails.website && (
+                                        <div className="flex items-center gap-2">
+                                          <ExternalLink className="w-4 h-4" />
+                                          <a 
+                                            href={cachedDetails.website} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-primary hover:underline truncate max-w-[200px]"
+                                            data-testid={`link-tech-website-${tech.id}`}
+                                          >
+                                            Visit Website
+                                          </a>
+                                        </div>
+                                      )}
+                                      {cachedDetails.hours && cachedDetails.hours.length > 0 && (
+                                        <Collapsible>
+                                          <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+                                            <Clock className="w-4 h-4" />
+                                            <span>View Hours</span>
+                                            <ChevronDown className="w-3 h-3" />
+                                          </CollapsibleTrigger>
+                                          <CollapsibleContent className="mt-2 pl-6 text-xs text-muted-foreground space-y-1">
+                                            {cachedDetails.hours.map((hour, idx) => (
+                                              <p key={idx}>{hour}</p>
+                                            ))}
+                                          </CollapsibleContent>
+                                        </Collapsible>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  {!cachedDetails ? (
+                                    <Button 
+                                      size="sm" 
+                                      onClick={() => handleGetTechDetails(tech.placeId)}
+                                      disabled={isLoadingDetails}
+                                      data-testid={`button-get-details-${tech.id}`}
+                                    >
+                                      {isLoadingDetails ? (
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      ) : (
+                                        <Phone className="w-4 h-4 mr-2" />
+                                      )}
+                                      Get Phone Number
+                                    </Button>
+                                  ) : cachedDetails.phone ? (
+                                    <Button 
+                                      size="sm" 
+                                      asChild
+                                      className="bg-green-600 hover:bg-green-700"
+                                      data-testid={`button-call-${tech.id}`}
+                                    >
+                                      <a href={`tel:${cachedDetails.phone}`}>
+                                        <Phone className="w-4 h-4 mr-2" />
+                                        Call Now
+                                      </a>
+                                    </Button>
+                                  ) : (
+                                    <Button size="sm" variant="outline" disabled>
+                                      No Phone Available
+                                    </Button>
+                                  )}
+                                  {cachedDetails?.website && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      asChild
+                                      data-testid={`button-website-${tech.id}`}
+                                    >
+                                      <a href={cachedDetails.website} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="w-4 h-4 mr-2" />
+                                        Website
+                                      </a>
+                                    </Button>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
