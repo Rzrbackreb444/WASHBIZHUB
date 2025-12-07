@@ -3,7 +3,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, Phone, Clock, Star, CheckCircle } from "lucide-react";
+import { MapPin, Search, Phone, Clock, Star, CheckCircle, ChevronRight, Home } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { Link } from "wouter";
+
+const locatorSeoKeywords = [
+  "laundromat near me",
+  "coin laundry locator",
+  "find laundromat",
+  "laundromat directory",
+  "laundromats near me open now",
+  "24 hour laundromat",
+  "self service laundry",
+  "washateria near me",
+  "laundry services near me",
+  "coin operated laundry",
+  "laundromat finder",
+  "local laundromat",
+  "best laundromat near me",
+  "laundromat hours",
+  "laundromat locations"
+];
+
+const locatorFaqs = [
+  {
+    question: "How do I find the nearest laundromat?",
+    answer: "Enter your city, state, or ZIP code in our search bar to instantly find laundromats near you. Results show distance, hours, contact info, and customer ratings to help you choose the best option."
+  },
+  {
+    question: "Are there 24-hour laundromats near me?",
+    answer: "Many laundromats operate 24/7. Use our locator and filter by hours of operation to find late-night or round-the-clock laundry facilities in your area. Operating hours are clearly displayed for each listing."
+  },
+  {
+    question: "How do I list my laundromat in the directory?",
+    answer: "Business owners can add their laundromat for free. Featured listings receive priority placement, enhanced visibility, and more customer inquiries. Click 'List Your Business' to get started with your free listing."
+  },
+  {
+    question: "What information is included in laundromat listings?",
+    answer: "Each listing includes business name, full address, phone number, hours of operation, distance from your location, and verification status. Featured listings may include photos, amenities, and special services offered."
+  },
+  {
+    question: "How can I verify a laundromat's hours before visiting?",
+    answer: "All listings display current hours of operation. We recommend calling ahead for holiday hours or special closures. Verified listings with the checkmark badge have confirmed their business information."
+  },
+  {
+    question: "What amenities should I look for in a laundromat?",
+    answer: "Consider factors like machine sizes, payment options (coin vs card), folding tables, seating, WiFi, attendant presence, parking, and cleanliness. Our detailed listings help you find facilities that match your needs."
+  }
+];
+
+const locatorBreadcrumbs = [
+  { name: "Home", url: "/" },
+  { name: "Laundromat Locator", url: "/locator" }
+];
 
 export default function Locator() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +104,26 @@ export default function Locator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
+      <SEO
+        title="Find Laundromats Near Me | Coin Laundry Locator"
+        description="Find laundromats near you with hours, contact info & directions. Search by city or ZIP. List your laundromat for free to reach thousands of customers."
+        canonicalUrl="/locator"
+        keywords={locatorSeoKeywords}
+        breadcrumbs={locatorBreadcrumbs}
+        faqs={locatorFaqs}
+        ogType="website"
+      />
       <div className="max-w-7xl mx-auto px-4">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-white/60 mb-8" aria-label="Breadcrumb">
+          <Link href="/" className="flex items-center gap-1 hover:text-white transition-colors">
+            <Home className="w-4 h-4" />
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-white font-medium">Laundromat Locator</span>
+        </nav>
+
         <div className="text-center mb-12">
           <MapPin className="h-16 w-16 text-accent mx-auto mb-4" />
           <h1 className="text-5xl font-black text-white mb-4" data-testid="text-locator-title">

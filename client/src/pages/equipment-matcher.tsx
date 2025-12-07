@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,59 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronRight, ChevronLeft, Users, Star, Award, Zap, DollarSign, Leaf, Shield, Factory, Wrench, ArrowRight, ExternalLink, CheckCircle2, Target, TrendingUp } from "lucide-react";
 import { SiMeta, SiFacebook } from "react-icons/si";
 import { Link } from "wouter";
+
+const EQUIPMENT_MATCHER_SEO = {
+  title: "Equipment Matcher - Find Best Commercial Laundry Gear",
+  description: "Free equipment matcher wizard for laundromats. Get personalized recommendations for Dexter, Speed Queen washers & dryers based on your facility size and budget.",
+  canonicalUrl: "/equipment-matcher",
+  keywords: [
+    "commercial laundry equipment",
+    "laundromat equipment matcher",
+    "Speed Queen recommendations",
+    "Dexter dryers",
+    "washer-extractor",
+    "stack dryers",
+    "coin-op equipment",
+    "laundromat washers",
+    "commercial dryers",
+    "equipment selection guide",
+    "laundry equipment wizard",
+    "Maytag commercial",
+    "laundromat setup",
+    "equipment ROI"
+  ],
+  breadcrumbs: [
+    { name: "Home", url: "/" },
+    { name: "Equipment", url: "/equipment-hub" },
+    { name: "Equipment Matcher", url: "/equipment-matcher" }
+  ],
+  faqs: [
+    {
+      question: "How do I choose the right commercial laundry equipment for my laundromat?",
+      answer: "Consider your facility size, budget, and operational goals. Our Equipment Matcher Wizard analyzes your specific needs including square footage (small under 1,500 sq ft to mega 5,000+ sq ft), budget range ($50K-$500K+), and priorities like energy efficiency, durability, or fast ROI to recommend the best Dexter, Speed Queen, or Maytag commercial equipment."
+    },
+    {
+      question: "What's the difference between Dexter, Speed Queen, and Maytag commercial equipment?",
+      answer: "Dexter is known for 30+ year durability and industry-leading energy efficiency with their Express Dry Technology. Speed Queen offers legendary build quality and excellent warranty coverage. Maytag commercial provides reliable performance at competitive price points. Each brand excels in different areas depending on your priorities."
+    },
+    {
+      question: "How many washers and dryers do I need for my laundromat size?",
+      answer: "Small laundromats (under 1,500 sq ft) typically need 8-15 machines. Medium facilities (1,500-3,000 sq ft) require 16-30 machines. Large locations (3,000-5,000 sq ft) need 31-50 machines, and mega facilities (5,000+ sq ft) can accommodate 50+ machines. The ideal washer-to-dryer ratio is typically 3:4."
+    },
+    {
+      question: "What is a washer-extractor and should I get one?",
+      answer: "A washer-extractor is a commercial washing machine with high-speed extraction (G-force) that removes more water from clothes, reducing drying time by 25-40%. They're ideal for wash-and-fold services and high-volume operations. Dexter's C-Series offers 30-minute cycles with high G-force extraction."
+    },
+    {
+      question: "Are stack dryers worth the investment for my laundromat?",
+      answer: "Stack dryers like the Dexter T-80 maximize your floor space by doubling drying capacity in the same footprint. They're especially valuable for high-traffic laundromats where space is limited. At $22,000-$28,000, they offer 80 lb per pocket and are perfect for facilities prioritizing throughput and space efficiency."
+    },
+    {
+      question: "What budget should I plan for commercial laundry equipment?",
+      answer: "New laundromat owners typically start with $50,000-$150,000 for equipment. Growth and expansion investments range from $150,000-$300,000. Premium buildouts cost $300,000-$500,000, while full-scale enterprise operations exceed $500,000. Individual machines range from $7,500-$28,000 depending on capacity and features."
+    }
+  ]
+};
 
 const FB_GROUP_URL = "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry";
 const AADVANTAGE_URL = "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry";
@@ -476,6 +530,14 @@ export default function EquipmentMatcher() {
 
   return (
     <AuthGuard title="Sign In to Match Equipment" description="Sign in to access this feature.">
+      <SEO
+        title={EQUIPMENT_MATCHER_SEO.title}
+        description={EQUIPMENT_MATCHER_SEO.description}
+        canonicalUrl={EQUIPMENT_MATCHER_SEO.canonicalUrl}
+        keywords={EQUIPMENT_MATCHER_SEO.keywords}
+        breadcrumbs={EQUIPMENT_MATCHER_SEO.breadcrumbs}
+        faqs={EQUIPMENT_MATCHER_SEO.faqs}
+      />
       <div className="min-h-screen bg-background">
         <div className="container max-w-3xl mx-auto py-8 px-4">
           <div className="text-center mb-8">

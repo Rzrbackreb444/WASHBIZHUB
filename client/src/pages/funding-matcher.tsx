@@ -12,7 +12,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
-import { Helmet } from "react-helmet-async";
 import { PremiumChart } from "@/components/PremiumChart";
 import { 
   DollarSign, CheckCircle2, Building2, Zap, Clock, Shield, 
@@ -421,46 +420,6 @@ const structuredData = {
   }
 };
 
-const faqStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": FAQ_DATA.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer
-    }
-  }))
-};
-
-const howToStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  "name": "How to Find Laundromat Financing in 60 Seconds",
-  "description": "Use WashBizHub's Funding Matcher to compare 7 vetted lenders and find the best financing for your laundromat.",
-  "totalTime": "PT2M",
-  "step": [
-    {
-      "@type": "HowToStep",
-      "position": 1,
-      "name": "Enter Funding Requirements",
-      "text": "Specify how much funding you need, the purpose (acquisition, equipment, real estate), and your timeline."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 2,
-      "name": "Provide Your Profile",
-      "text": "Enter your credit score, time in business, and annual revenue to personalize matches."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 3,
-      "name": "Get Personalized Matches",
-      "text": "Receive instant recommendations from 7 vetted lenders sorted by match score."
-    }
-  ]
-};
 
 export default function FundingMatcher() {
   const { toast } = useToast();
@@ -1505,24 +1464,76 @@ export default function FundingMatcher() {
   return (
     <AuthGuard title="Sign In to Find Funding Options" description="Sign in to access this feature.">
       <SEO
-        title="Laundromat Financing & Business Loans | Find SBA, Equipment & Real Estate Funding"
-        description="Compare 7 vetted lenders for laundromat financing. SBA 7(a) loans, equipment financing, commercial real estate loans, term loans, startup funding, and working capital. Get matched in 60 seconds."
+        title="Laundromat Funding Matcher | Compare 7 Lenders"
+        description="Compare 7 vetted lenders for laundromat financing. SBA 7(a) loans, equipment financing, commercial real estate loans. Get matched in 60 seconds."
         keywords={SEO_KEYWORDS}
-        url="/funding-matcher"
+        canonicalUrl="/funding-matcher"
         ogType="website"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/funding" },
+          { name: "Funding Matcher", url: "/funding-matcher" }
+        ]}
+        faqs={FAQ_DATA}
+        howTo={{
+          name: "How to Find Laundromat Financing in 60 Seconds",
+          description: "Use WashBizHub's Funding Matcher to compare 7 vetted lenders and find the best financing for your laundromat.",
+          totalTime: "PT2M",
+          steps: [
+            { name: "Enter Funding Requirements", text: "Specify how much funding you need, the purpose (acquisition, equipment, real estate), and your timeline." },
+            { name: "Provide Your Profile", text: "Enter your credit score, time in business, and annual revenue to personalize matches." },
+            { name: "Get Personalized Matches", text: "Receive instant recommendations from 7 vetted lenders sorted by match score." }
+          ]
+        }}
+        structuredData={structuredData}
+        productOffers={[
+          {
+            name: "SBA 7(a) Laundromat Loan",
+            description: "Government-backed financing up to $5M for laundromat purchases. Lowest rates at Prime + 2.75% with terms up to 25 years.",
+            price: "50000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Equipment Financing",
+            description: "Finance commercial washers, dryers, and payment systems. Same-day approval with rates starting at 5.99%.",
+            price: "5000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Commercial Real Estate Loan",
+            description: "Purchase or refinance laundromat properties. Up to 80% LTV with 7-14 day approval. $100K to $50M+.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Working Capital & Term Loans",
+            description: "Fast business capital for laundromat operations. Same-day to 48-hour funding. $5K to $5M available.",
+            price: "5000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Revenue-Based Financing",
+            description: "Alternative financing based on monthly revenue. No minimum credit score. Flexible repayment tied to sales.",
+            price: "10000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
+        author={{
+          name: "WashBizHub",
+          expertise: "Laundromat Industry Expert",
+          credentials: "Leading laundromat resource platform connecting operators with 7 vetted lending partners"
+        }}
       />
-      
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(faqStructuredData)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(howToStructuredData)}
-        </script>
-      </Helmet>
       
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
         <div className="relative overflow-hidden py-16 sm:py-20">

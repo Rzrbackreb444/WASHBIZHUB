@@ -16,9 +16,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, DollarSign, TrendingUp, Building,
-  Filter, Search, Droplets, Car, Shirt, Sparkles, Target, Loader2
+  Filter, Search, Droplets, Car, Shirt, Sparkles, Target, Loader2, ChevronRight, Home
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { SEO } from "@/components/SEO";
 
 interface Listing {
   id: string;
@@ -93,9 +94,78 @@ export default function Listings() {
   const featuredListings = filteredListings.filter(l => l.featured);
   const regularListings = filteredListings.filter(l => !l.featured);
 
+  const listingsSeoKeywords = [
+    "laundromat for sale",
+    "buy laundromat",
+    "sell laundromat",
+    "coin laundry business",
+    "laundromat listings near me",
+    "laundromat marketplace",
+    "laundry business for sale",
+    "coin laundry for sale",
+    "laundromat investment",
+    "buy coin laundry",
+    "laundromat acquisition",
+    "laundry business opportunity",
+    "profitable laundromat",
+    "laundromat buyer",
+    "washateria for sale"
+  ];
+
+  const listingsFaqs = [
+    {
+      question: "How do I find laundromats for sale near me?",
+      answer: "Use our marketplace search filters to browse laundromats by location, price range, and business type. You can search by city, state, or ZIP code to find coin laundry businesses available in your area. Our CLEANBI analyzer provides detailed market analysis for each listing."
+    },
+    {
+      question: "What is the average price of a laundromat for sale?",
+      answer: "Laundromat prices typically range from $150,000 to over $1 million depending on location, equipment age, annual revenue, and lease terms. Most successful laundromats sell for 2-4x their annual net operating income. Use our valuation calculators for accurate estimates."
+    },
+    {
+      question: "How do I evaluate a laundromat before buying?",
+      answer: "Key factors include location demographics, competition analysis, equipment condition, lease terms, utility costs, and verified financial statements. Our CLEANBI score analyzes 50+ data points to help you assess market opportunity and investment potential."
+    },
+    {
+      question: "What financing options are available for buying a laundromat?",
+      answer: "Common options include SBA loans (7a and 504), conventional bank loans, seller financing, and equipment financing. Many buyers use a combination. We connect you with specialized lenders who understand the laundromat industry."
+    },
+    {
+      question: "How long does it take to buy a laundromat?",
+      answer: "The typical acquisition timeline is 60-120 days from accepted offer to closing. This includes due diligence, financing approval, lease assignment, and equipment inspection. Having pre-approved financing can significantly speed up the process."
+    },
+    {
+      question: "What ROI can I expect from a laundromat investment?",
+      answer: "Well-operated laundromats typically generate 20-35% cash-on-cash returns. Factors affecting ROI include purchase price, operating efficiency, local demographics, and management style. Our calculators help you project potential returns before you buy."
+    }
+  ];
+
+  const listingsBreadcrumbs = [
+    { name: "Home", url: "/" },
+    { name: "Marketplace", url: "/listings" }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Laundromats for Sale | Buy Coin Laundry Business"
+        description="Browse verified laundromats for sale nationwide. Find coin laundry businesses, dry cleaners & car washes with revenue data, CLEANBI scores & seller financing."
+        canonicalUrl="/listings"
+        keywords={listingsSeoKeywords}
+        breadcrumbs={listingsBreadcrumbs}
+        faqs={listingsFaqs}
+        ogType="website"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
+          <Link href="/" className="flex items-center gap-1 hover:text-foreground transition-colors">
+            <Home className="w-4 h-4" />
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">Marketplace</span>
+        </nav>
+
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="text-page-title">
             Laundromat Marketplace

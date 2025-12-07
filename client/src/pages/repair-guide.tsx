@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,60 @@ import {
   TrendingUp,
 } from "lucide-react";
 import serviceGuyAILogo from "@assets/service guy ai_1763780009739.png";
+
+const REPAIR_GUIDE_SEO = {
+  title: "Repair Guide - AI Diagnostics for Laundry Equipment",
+  description: "Service Guy AI: 2,200+ error codes with step-by-step repair instructions for Dexter, Speed Queen & Maytag commercial washers. Safety warnings & parts ordering.",
+  canonicalUrl: "/repair-guide",
+  keywords: [
+    "laundry equipment repair",
+    "commercial washer repair",
+    "dryer repair guide",
+    "Dexter error codes",
+    "Speed Queen troubleshooting",
+    "washer-extractor repair",
+    "diagnostic codes",
+    "laundromat maintenance",
+    "equipment troubleshooting",
+    "coin-op repair",
+    "Maytag commercial repair",
+    "stack dryer repair",
+    "service manual",
+    "repair instructions",
+    "fault code solutions"
+  ],
+  breadcrumbs: [
+    { name: "Home", url: "/" },
+    { name: "Equipment", url: "/equipment-hub" },
+    { name: "Repair Guide", url: "/repair-guide" }
+  ],
+  faqs: [
+    {
+      question: "How do I troubleshoot error codes on my commercial laundry equipment?",
+      answer: "Service Guy AI provides step-by-step troubleshooting for 2,200+ error codes. Enter your error code (e.g., E01, F12) to get possible causes, detailed repair instructions, required parts, estimated repair time, and skill level needed. Always disconnect power before servicing and consult a certified technician for complex repairs."
+    },
+    {
+      question: "What safety precautions should I take when repairing laundromat equipment?",
+      answer: "Always disconnect power and unplug the machine before any repairs. Wear appropriate safety equipment including gloves and eye protection. Use properly rated tools for electrical work. Follow manufacturer lockout/tagout procedures. Ensure proper ventilation when working with chemicals. For professional-level repairs, always hire a certified technician."
+    },
+    {
+      question: "How long does it typically take to repair commercial washer or dryer issues?",
+      answer: "Repair times vary by issue severity. Basic repairs (belt replacement, simple sensor issues) take 15-30 minutes. Intermediate repairs (motor issues, control board replacement) take 1-2 hours. Professional-level repairs (bearing replacement, major electrical) can take 3-4+ hours. Service Guy AI provides estimated repair times for each diagnostic code."
+    },
+    {
+      question: "When should I call a professional technician vs. DIY repair?",
+      answer: "Call a professional for: electrical issues involving wiring or control boards, gas-related repairs, bearing replacement, major motor problems, or any repair marked 'Professional Required' in our system. DIY is appropriate for: belt replacements, cleaning lint traps, minor sensor issues, and basic maintenance tasks marked 'Basic' skill level."
+    },
+    {
+      question: "What are the most common repairs needed for commercial laundromat equipment?",
+      answer: "Most common repairs include: belt replacement (worn/slipping), door lock mechanism fixes, water inlet valve replacement, drain pump issues, control board problems, temperature sensor replacements, and motor maintenance. Regular preventive maintenance can reduce emergency repair frequency by 40-60%."
+    },
+    {
+      question: "How can I prevent equipment breakdowns in my laundromat?",
+      answer: "Implement preventive maintenance: clean lint traps daily, inspect belts monthly, check water hoses quarterly, descale machines annually. Monitor diagnostic codes early - addressing minor issues prevents major failures. Use OEM parts for replacements. Train staff on basic maintenance and error code recognition."
+    }
+  ]
+};
 
 interface DiagnosticCode {
   id: string;
@@ -80,10 +135,19 @@ export default function RepairGuide() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-950 dark:via-blue-950/30 dark:to-slate-950">
-      <div className="container mx-auto py-8 px-4">
-        {/* Header with Service Guy AI Branding */}
-        <div className="text-center mb-8">
+    <>
+      <SEO
+        title={REPAIR_GUIDE_SEO.title}
+        description={REPAIR_GUIDE_SEO.description}
+        canonicalUrl={REPAIR_GUIDE_SEO.canonicalUrl}
+        keywords={REPAIR_GUIDE_SEO.keywords}
+        breadcrumbs={REPAIR_GUIDE_SEO.breadcrumbs}
+        faqs={REPAIR_GUIDE_SEO.faqs}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-950 dark:via-blue-950/30 dark:to-slate-950">
+        <div className="container mx-auto py-8 px-4">
+          {/* Header with Service Guy AI Branding */}
+          <div className="text-center mb-8">
           <div className="flex justify-center items-center gap-4 mb-4">
             <img 
               src={serviceGuyAILogo} 
@@ -400,6 +464,6 @@ export default function RepairGuide() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

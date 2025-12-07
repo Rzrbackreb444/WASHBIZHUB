@@ -200,6 +200,40 @@ export default function StartupFunding() {
           expertise: "Laundromat Industry Expert",
           credentials: "Leading laundromat resource platform helping first-time owners start successful businesses"
         }}
+        productOffers={[
+          {
+            name: "Personal Credit-Based Startup Financing",
+            description: "Leverage personal credit for laundromat startup funding. 0% intro APR credit cards, personal term loans under 7% APR. No business history required.",
+            price: "5000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "SBA Startup Loan",
+            description: "SBA 7(a) loans for first-time laundromat buyers with strong business plans. Up to $5M with 10-25 year terms and competitive rates.",
+            price: "50000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Equipment Financing for Startups",
+            description: "Finance commercial washers and dryers for new laundromats. Equipment serves as collateral, easier approval for startups.",
+            price: "10000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Revenue-Based Startup Funding",
+            description: "Alternative financing based on projected revenue. Faster approval for new operators with minimal documentation.",
+            price: "5000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
       />
 
       <div className="min-h-screen bg-background">
