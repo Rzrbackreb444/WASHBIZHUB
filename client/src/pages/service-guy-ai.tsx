@@ -325,17 +325,31 @@ export default function ServiceGuyAI() {
 
   const shouldSearch = (selectedManufacturer && selectedManufacturer !== "_all") || debouncedSearch;
   
+  // Build search URL with query parameters
+  const buildSearchUrl = () => {
+    const params = new URLSearchParams();
+    if (selectedManufacturer && selectedManufacturer !== '_all') {
+      params.append('manufacturer', selectedManufacturer);
+    }
+    if (debouncedSearch) {
+      params.append('q', debouncedSearch);
+    }
+    if (machineType && machineType !== 'all') {
+      params.append('machineType', machineType);
+    }
+    const queryString = params.toString();
+    return queryString ? `/api/service-guy/search?${queryString}` : '/api/service-guy/search';
+  };
+  
+  const searchUrl = buildSearchUrl();
+  
   const { 
     data: searchData, 
     isLoading: isSearching, 
     error: searchError,
     refetch: refetchSearch 
   } = useQuery<SearchResponse>({
-    queryKey: ['/api/service-guy/search', { 
-      manufacturer: selectedManufacturer, 
-      q: debouncedSearch,
-      machineType: machineType !== 'all' ? machineType : undefined
-    }],
+    queryKey: [searchUrl],
     enabled: !!shouldSearch,
     staleTime: 1000 * 60 * 5,
   });
@@ -380,8 +394,8 @@ export default function ServiceGuyAI() {
     try {
       const response = await apiRequest("POST", "/api/service-guy-ai/diagnose", {
         symptoms: symptomDescription,
-        manufacturer: selectedManufacturer,
-        machineType,
+        manufacturer: selectedManufacturer !== '_all' ? selectedManufacturer : undefined,
+        machineType: machineType !== 'all' ? machineType : undefined,
       });
       const data = await response.json();
       setAiDiagnosis(data.diagnosis);
@@ -935,7 +949,7 @@ export default function ServiceGuyAI() {
                         <SelectValue placeholder="Select manufacturer" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Not Sure</SelectItem>
+                        <SelectItem value="_all">Not Sure</SelectItem>
                         {manufacturers.map(m => (
                           <SelectItem key={m} value={m}>{m}</SelectItem>
                         ))}
