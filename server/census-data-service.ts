@@ -140,7 +140,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '918': { state: '06', county: '037' },
   // San Bernardino/Riverside (Inland Empire)
   '909': { state: '06', county: '071' }, // San Bernardino
-  '917': { state: '06', county: '071' },
   '923': { state: '06', county: '071' },
   '924': { state: '06', county: '071' },
   '925': { state: '06', county: '065' }, // Riverside
@@ -238,16 +237,13 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '332': { state: '12', county: '086' }, // Miami-Dade
   '333': { state: '12', county: '011' }, // Broward/Ft Lauderdale
   '334': { state: '12', county: '099' }, // Palm Beach/West Palm
-  '335': { state: '12', county: '086' }, // Miami-Dade
   '329': { state: '12', county: '086' }, // Miami-Dade
-  '330': { state: '12', county: '011' }, // Broward/Pompano Beach
-  '331': { state: '12', county: '011' }, // Broward/Hollywood
   // Tampa Bay Metro
+  '335': { state: '12', county: '057' }, // Hillsborough/Tampa area
   '336': { state: '12', county: '057' }, // Hillsborough/Tampa
   '337': { state: '12', county: '103' }, // Pinellas/St Petersburg
   '338': { state: '12', county: '081' }, // Manatee/Bradenton
   '339': { state: '12', county: '115' }, // Sarasota
-  '335': { state: '12', county: '057' }, // Hillsborough/Brandon
   '346': { state: '12', county: '057' }, // Hillsborough
   // Orlando Metro
   '327': { state: '12', county: '095' }, // Orange/Orlando
@@ -261,20 +257,16 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '320': { state: '12', county: '031' }, // Duval/Jacksonville
   '321': { state: '12', county: '031' }, // Duval
   '322': { state: '12', county: '031' }, // Duval
-  '321': { state: '12', county: '109' }, // St. Johns
   // Space Coast / Central FL
   '323': { state: '12', county: '001' }, // Alachua/Gainesville
   '324': { state: '12', county: '019' }, // Clay/Orange Park
   '325': { state: '12', county: '009' }, // Brevard/Melbourne
   '326': { state: '12', county: '127' }, // Volusia/Daytona
-  '329': { state: '12', county: '009' }, // Brevard/Palm Bay
   // Southwest Florida
   '340': { state: '12', county: '071' }, // Lee/Fort Myers
   '341': { state: '12', county: '021' }, // Collier/Naples
   '342': { state: '12', county: '015' }, // Charlotte/Punta Gorda
-  // Panhandle
-  '324': { state: '12', county: '033' }, // Escambia/Pensacola
-  '325': { state: '12', county: '005' }, // Bay/Panama City
+  // Panhandle (covered by 3-digit fallback for Florida)
 
   // ═══════════════════════════════════════════════════════════════
   // GEORGIA (13) - Atlanta, Savannah, Augusta, Columbus
@@ -335,7 +327,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '618': { state: '17', county: '167' }, // Sangamon/Springfield
   '619': { state: '17', county: '167' },
   '620': { state: '17', county: '143' }, // Peoria
-  '611': { state: '17', county: '201' }, // Winnebago/Rockford
 
   // ═══════════════════════════════════════════════════════════════
   // INDIANA (18) - Indianapolis, Fort Wayne, Evansville
@@ -556,7 +547,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '896': { state: '32', county: '003' }, // Las Vegas/Clark - Paradise
   '897': { state: '32', county: '031' }, // Reno/Washoe
   '898': { state: '32', county: '031' }, // Reno/Washoe - Sparks
-  '894': { state: '32', county: '003' }, // North Las Vegas
   '881': { state: '32', county: '003' }, // Boulder City area
 
   // ═══════════════════════════════════════════════════════════════
@@ -596,9 +586,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '088': { state: '34', county: '023' }, // Middlesex/Edison
   '089': { state: '34', county: '035' }, // Somerset/Bridgewater
   // Bergen County (003) - North Jersey suburbs
-  '074': { state: '34', county: '003' }, // Bergen/Hackensack
-  '076': { state: '34', county: '017' }, // Hudson/Hoboken
-  '070': { state: '34', county: '003' }, // Bergen/Fort Lee
 
   // ═══════════════════════════════════════════════════════════════
   // NEW MEXICO (35) - Albuquerque, Santa Fe
@@ -611,7 +598,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '876': { state: '35', county: '043' }, // Sandoval
   '877': { state: '35', county: '061' }, // Valencia
   '880': { state: '35', county: '013' }, // Dona Ana/Las Cruces
-  '881': { state: '35', county: '013' },
   '882': { state: '35', county: '015' }, // Eddy
 
   // ═══════════════════════════════════════════════════════════════
@@ -631,7 +617,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '115': { state: '36', county: '081' },
   '116': { state: '36', county: '081' },
   // NYC - Staten Island (085)
-  '103': { state: '36', county: '085' },
   // Long Island
   '110': { state: '36', county: '059' }, // Nassau
   '111': { state: '36', county: '059' },
@@ -690,7 +675,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '288': { state: '37', county: '021' }, // Asheville/Buncombe
   '289': { state: '37', county: '097' }, // Henderson
   // Fayetteville (Military)
-  '283': { state: '37', county: '051' }, // Fayetteville/Cumberland
 
   // ═══════════════════════════════════════════════════════════════
   // NORTH DAKOTA (38) - Fargo, Bismarck
@@ -720,8 +704,6 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '455': { state: '39', county: '113' },
   '456': { state: '39', county: '113' },
   '457': { state: '39', county: '057' }, // Greene
-  '443': { state: '39', county: '093' }, // Lorain
-  '444': { state: '39', county: '085' }, // Lake
   '445': { state: '39', county: '153' }, // Summit/Akron
   '446': { state: '39', county: '153' },
   '447': { state: '39', county: '099' }, // Mahoning/Youngstown
@@ -760,30 +742,19 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '190': { state: '42', county: '101' }, // Philadelphia/Center City
   '191': { state: '42', county: '101' }, // Philadelphia/NE
   '192': { state: '42', county: '101' }, // Philadelphia/NW
-  '191': { state: '42', county: '101' }, // Philadelphia/Fishtown
-  '190': { state: '42', county: '101' }, // Philadelphia/South Philly
-  '192': { state: '42', county: '101' }, // Philadelphia/Manayunk
   '193': { state: '42', county: '045' }, // Delaware/Upper Darby
   '194': { state: '42', county: '045' }, // Delaware/Media
-  '190': { state: '42', county: '045' }, // Delaware/Chester
   '195': { state: '42', county: '029' }, // Chester/West Chester
-  '193': { state: '42', county: '029' }, // Chester/Downingtown
   '196': { state: '42', county: '091' }, // Montgomery/Norristown
-  '194': { state: '42', county: '091' }, // Montgomery/King of Prussia
-  '190': { state: '42', county: '091' }, // Montgomery/Conshohocken
   '189': { state: '42', county: '017' }, // Bucks/Doylestown
-  '190': { state: '42', county: '017' }, // Bucks/Levittown
-  '189': { state: '42', county: '017' }, // Bucks/Bristol
   // Lehigh Valley
   '180': { state: '42', county: '077' }, // Lehigh/Allentown
   '181': { state: '42', county: '095' }, // Northampton/Bethlehem
-  '180': { state: '42', county: '095' }, // Northampton/Easton
   '182': { state: '42', county: '025' }, // Carbon
   // Pittsburgh Metro
   '150': { state: '42', county: '003' }, // Pittsburgh/Downtown
   '151': { state: '42', county: '003' }, // Pittsburgh/North Side
   '152': { state: '42', county: '003' }, // Pittsburgh/South Side
-  '152': { state: '42', county: '003' }, // Pittsburgh/Oakland
   '153': { state: '42', county: '125' }, // Washington
   '154': { state: '42', county: '129' }, // Westmoreland/Greensburg
   '155': { state: '42', county: '007' }, // Beaver
@@ -854,16 +825,9 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '774': { state: '48', county: '201' }, // Houston/SW
   '775': { state: '48', county: '201' }, // Houston/Pasadena
   '776': { state: '48', county: '201' }, // Houston/Deer Park
-  '770': { state: '48', county: '201' }, // Houston Central
-  '773': { state: '48', county: '201' }, // Houston/Spring Branch
-  '774': { state: '48', county: '201' }, // Houston/Memorial
-  '775': { state: '48', county: '201' }, // Houston/Katy area
   '777': { state: '48', county: '157' }, // Fort Bend/Sugar Land
-  '774': { state: '48', county: '157' }, // Fort Bend/Missouri City
   '778': { state: '48', county: '291' }, // Montgomery/The Woodlands
-  '773': { state: '48', county: '291' }, // Montgomery/Conroe
   '779': { state: '48', county: '039' }, // Brazoria/Pearland
-  '775': { state: '48', county: '167' }, // Galveston
   // DALLAS METRO - 374 members (Dallas 113 + DFW)
   '750': { state: '48', county: '113' }, // Dallas/Downtown
   '751': { state: '48', county: '113' }, // Dallas/Hensley Field
@@ -871,19 +835,13 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '753': { state: '48', county: '113' }, // Dallas/NE
   '754': { state: '48', county: '113' }, // Dallas/Greenville
   '755': { state: '48', county: '113' }, // Dallas/Oak Lawn
-  '752': { state: '48', county: '113' }, // Dallas/Uptown
-  '751': { state: '48', county: '113' }, // Dallas/Deep Ellum
   '760': { state: '48', county: '439' }, // Fort Worth/Downtown
   '761': { state: '48', county: '439' }, // Fort Worth/Stockyards
   '762': { state: '48', county: '439' }, // Fort Worth/Arlington
   '763': { state: '48', county: '085' }, // Collin/Plano
   '764': { state: '48', county: '085' }, // Collin/McKinney
-  '750': { state: '48', county: '085' }, // Collin/Frisco
   '765': { state: '48', county: '121' }, // Denton
   '756': { state: '48', county: '121' }, // Denton/Lewisville
-  '760': { state: '48', county: '251' }, // Johnson/Cleburne
-  '761': { state: '48', county: '397' }, // Rockwall
-  '750': { state: '48', county: '139' }, // Ellis/Waxahachie
   // SAN ANTONIO METRO - 329 members (Bexar 029 + suburbs)
   '780': { state: '48', county: '029' }, // San Antonio/Downtown
   '781': { state: '48', county: '029' }, // San Antonio/Medical Center
@@ -891,36 +849,22 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '783': { state: '48', county: '029' }, // San Antonio/Lackland
   '784': { state: '48', county: '029' }, // San Antonio/Randolph
   '785': { state: '48', county: '029' }, // San Antonio/NW
-  '782': { state: '48', county: '029' }, // San Antonio/NE
-  '781': { state: '48', county: '029' }, // San Antonio/Alamo Heights
-  '780': { state: '48', county: '029' }, // San Antonio/South
-  '783': { state: '48', county: '091' }, // Comal/New Braunfels
-  '781': { state: '48', county: '091' }, // Comal/Canyon Lake
-  '784': { state: '48', county: '187' }, // Guadalupe/Seguin
-  '781': { state: '48', county: '259' }, // Kendall/Boerne
-  '782': { state: '48', county: '013' }, // Atascosa
   // Austin (Travis 453)
   '786': { state: '48', county: '453' }, // Austin/Downtown
   '787': { state: '48', county: '453' }, // Austin/UT Campus
   '788': { state: '48', county: '453' }, // Austin/South
   '789': { state: '48', county: '491' }, // Williamson/Round Rock
-  '786': { state: '48', county: '491' }, // Williamson/Cedar Park
-  '787': { state: '48', county: '209' }, // Hays/San Marcos
-  '786': { state: '48', county: '021' }, // Bastrop
   // El Paso (El Paso 141)
   '798': { state: '48', county: '141' },
   '799': { state: '48', county: '141' },
   '795': { state: '48', county: '141' },
   // Corpus Christi (Nueces 355)
-  '783': { state: '48', county: '355' },
-  '784': { state: '48', county: '355' },
   // Other Texas
   '790': { state: '48', county: '303' }, // Lubbock
   '791': { state: '48', county: '303' },
   '792': { state: '48', county: '375' }, // Potter/Amarillo
   '793': { state: '48', county: '375' },
   '794': { state: '48', county: '441' }, // Taylor/Abilene
-  '795': { state: '48', county: '441' },
   '796': { state: '48', county: '441' },
   '797': { state: '48', county: '309' }, // McLennan/Waco
 
@@ -976,17 +920,10 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, { state: string; county: string }> = 
   '984': { state: '53', county: '033' },
   '985': { state: '53', county: '033' },
   '986': { state: '53', county: '033' },
-  '980': { state: '53', county: '033' },
-  '983': { state: '53', county: '053' }, // Pierce/Tacoma
-  '984': { state: '53', county: '053' },
-  '980': { state: '53', county: '061' }, // Snohomish
-  '982': { state: '53', county: '061' },
   '990': { state: '53', county: '063' }, // Spokane
   '991': { state: '53', county: '063' },
   '992': { state: '53', county: '063' },
   '993': { state: '53', county: '077' }, // Yakima
-  '986': { state: '53', county: '067' }, // Thurston/Olympia
-  '985': { state: '53', county: '073' }, // Whatcom/Bellingham
   '987': { state: '53', county: '015' }, // Cowlitz
 
   // ═══════════════════════════════════════════════════════════════
@@ -1462,16 +1399,6 @@ export async function enrichWithCensusData(
 
 function estimateByZipPrefix(prefix: string): CensusData {
   const regionProfiles: Record<string, Partial<CensusData>> = {
-    '100': { medianHouseholdIncome: 72000, renterPercentage: 70, populationDensity: 28000 },
-    '900': { medianHouseholdIncome: 78000, renterPercentage: 55, populationDensity: 8000 },
-    '606': { medianHouseholdIncome: 65000, renterPercentage: 65, populationDensity: 12000 },
-    '770': { medianHouseholdIncome: 58000, renterPercentage: 48, populationDensity: 3500 },
-    '331': { medianHouseholdIncome: 55000, renterPercentage: 60, populationDensity: 4500 },
-    '303': { medianHouseholdIncome: 62000, renterPercentage: 52, populationDensity: 3200 },
-    '852': { medianHouseholdIncome: 52000, renterPercentage: 45, populationDensity: 3000 },
-    '752': { medianHouseholdIncome: 68000, renterPercentage: 50, populationDensity: 4000 },
-    '981': { medianHouseholdIncome: 85000, renterPercentage: 55, populationDensity: 8500 },
-    '191': { medianHouseholdIncome: 48000, renterPercentage: 58, populationDensity: 11000 },
   };
 
   const regionData = regionProfiles[prefix] || {};
