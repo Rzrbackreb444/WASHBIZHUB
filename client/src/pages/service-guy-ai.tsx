@@ -63,7 +63,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { ServiceJob } from "@shared/schema";
 import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
 import { KnowledgeCard, KnowledgeCardSkeleton } from "@/components/KnowledgeCard";
-import { ServiceGuyAISchemaLD, KnowledgeSchemaLD } from "@/components/KnowledgeSchemaLD";
+import { KnowledgeSchemaLD } from "@/components/KnowledgeSchemaLD";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { Brain } from "lucide-react";
 import { PartsOrderWidget } from "@/components/PartsOrderWidget";
