@@ -56,7 +56,8 @@ import {
   ShoppingCart,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Lightbulb
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import type { ServiceJob } from "@shared/schema";
@@ -73,6 +74,15 @@ interface Manufacturer {
   logo: string;
 }
 
+interface PartWithPricing {
+  partNumber: string;
+  name: string;
+  estimatedPrice?: number;
+  price?: string;
+  source?: string;
+  url?: string;
+}
+
 interface DiagnosticCode {
   id: number;
   code: string;
@@ -85,11 +95,17 @@ interface DiagnosticCode {
   possibleCauses: string[];
   troubleshootingSteps: string[];
   requiredParts: string[];
-  partsWithPricing?: { partNumber: string; name: string; estimatedPrice: number }[];
+  partsWithPricing?: PartWithPricing[];
+  repairTechniques?: string[];
+  quickFix?: string;
+  fixSuccessRate?: number;
   estimatedRepairTime: number;
   skillLevel: string;
   isObfuscated?: boolean;
   obfuscationReason?: string;
+  isLocked?: boolean;
+  isProtected?: boolean;
+  tier?: string;
 }
 
 interface UsageData {
@@ -1293,50 +1309,131 @@ export default function ServiceGuyAI() {
                                 <div>
                                   <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
                                     <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                    Troubleshooting Steps
+                                    Step-by-Step Repair Procedure
+                                    {code.fixSuccessRate && (
+                                      <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-300">
+                                        {code.fixSuccessRate}% Fix Rate
+                                      </Badge>
+                                    )}
                                   </h4>
-                                  <ol className="text-sm space-y-1">
+                                  <ol className="text-sm space-y-2">
                                     {code.troubleshootingSteps?.map((step, i) => (
-                                      <li key={i} className="flex items-start gap-2">
-                                        <span className="font-semibold text-primary">{i + 1}.</span>
-                                        {step}
+                                      <li key={i} className="flex items-start gap-2 p-2 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold flex items-center justify-center text-xs">{i + 1}</span>
+                                        <span className="pt-0.5">{step}</span>
                                       </li>
                                     ))}
                                   </ol>
                                 </div>
                               </div>
+                              
+                              {(code.quickFix || code.repairTechniques?.length) && (
+                                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg p-3 mt-4">
+                                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                                    <Lightbulb className="w-4 h-4" />
+                                    Pro Tips from Field Techs
+                                  </h4>
+                                  {code.quickFix && (
+                                    <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                                      <strong>Quick Fix:</strong> {code.quickFix}
+                                    </p>
+                                  )}
+                                  {code.repairTechniques?.length > 0 && (
+                                    <ul className="text-sm text-amber-700 dark:text-amber-400 space-y-1">
+                                      {code.repairTechniques.map((tip, i) => (
+                                        <li key={i} className="flex items-start gap-2">
+                                          <span className="text-amber-500">★</span>
+                                          {tip}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              )}
                               <div className="border-t pt-4">
                                 <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
                                   <Package className="w-4 h-4 text-blue-500" />
-                                  Required Parts (Real Part Numbers)
+                                  Parts & Replacement ({code.manufacturer})
                                 </h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {code.requiredParts?.map((part, i) => {
-                                    const partId = part.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                                    const amazonSearchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(part)}&tag=washbizhub-20`;
-                                    return (
-                                      <a 
+                                
+                                {code.partsWithPricing && code.partsWithPricing.length > 0 ? (
+                                  <div className="space-y-2 mb-3">
+                                    {code.partsWithPricing.map((part, i) => (
+                                      <div 
                                         key={i}
-                                        href={amazonSearchUrl}
-                                        target="_blank"
-                                        rel="nofollow sponsored noopener noreferrer"
-                                        className="group"
-                                        data-testid={`link-amazon-part-${code.code}-${partId}`}
+                                        className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-md border bg-muted/30"
+                                        data-testid={`part-pricing-${code.code}-${part.partNumber}`}
                                       >
-                                        <Badge 
-                                          variant="outline" 
-                                          className="font-mono text-xs hover:bg-amber-500/20 hover:border-amber-500 hover:text-amber-600 transition-colors cursor-pointer"
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <Badge variant="outline" className="font-mono text-xs">
+                                            {part.partNumber}
+                                          </Badge>
+                                          <span className="text-sm">{part.name}</span>
+                                          {(part.price || part.estimatedPrice) && (
+                                            <Badge variant="secondary" className="text-xs">
+                                              {part.price || `$${part.estimatedPrice}`}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          {part.url ? (
+                                            <a
+                                              href={part.url}
+                                              target="_blank"
+                                              rel="nofollow sponsored noopener noreferrer"
+                                              data-testid={`link-buy-part-${part.partNumber}`}
+                                            >
+                                              <Button size="sm" variant="outline" className="h-7 text-xs">
+                                                <ExternalLink className="w-3 h-3 mr-1" />
+                                                {part.source || 'Buy'}
+                                              </Button>
+                                            </a>
+                                          ) : (
+                                            <a
+                                              href={`https://www.amazon.com/s?k=${encodeURIComponent(part.partNumber)}&tag=washbizhub-20`}
+                                              target="_blank"
+                                              rel="nofollow sponsored noopener noreferrer"
+                                              data-testid={`link-amazon-part-${part.partNumber}`}
+                                            >
+                                              <Button size="sm" variant="outline" className="h-7 text-xs">
+                                                <ExternalLink className="w-3 h-3 mr-1" />
+                                                Amazon
+                                              </Button>
+                                            </a>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-wrap gap-2 mb-3">
+                                    {code.requiredParts?.map((part, i) => {
+                                      const partId = part.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                                      const amazonSearchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(part)}&tag=washbizhub-20`;
+                                      return (
+                                        <a 
+                                          key={i}
+                                          href={amazonSearchUrl}
+                                          target="_blank"
+                                          rel="nofollow sponsored noopener noreferrer"
+                                          className="group"
+                                          data-testid={`link-amazon-part-${code.code}-${partId}`}
                                         >
-                                          {part}
-                                          <span className="ml-1 opacity-60 group-hover:opacity-100 text-amber-600">→</span>
-                                        </Badge>
-                                      </a>
-                                    );
-                                  })}
-                                </div>
+                                          <Badge 
+                                            variant="outline" 
+                                            className="font-mono text-xs hover:bg-amber-500/20 hover:border-amber-500 hover:text-amber-600 transition-colors cursor-pointer"
+                                          >
+                                            {part}
+                                            <span className="ml-1 opacity-60 group-hover:opacity-100 text-amber-600">→</span>
+                                          </Badge>
+                                        </a>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                                 <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1" data-testid={`text-affiliate-notice-${code.code}`}>
                                   <span className="text-amber-500">★</span>
-                                  Click any part to find on Amazon (affiliate link)
+                                  Click to order parts (affiliate links support this tool)
                                 </p>
                                 
                                 <Collapsible 
