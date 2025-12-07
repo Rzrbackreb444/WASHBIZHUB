@@ -12618,6 +12618,255 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ========== SMART DIAGNOSIS - Grok-Powered Learning with Cost Optimization ==========
+  const { smartDiagnose, searchKnowledgeBase } = await import("./services/knowledge-ingestion");
+  const { knowledgeChunks, techContributions } = await import("@shared/schema");
+
+  // In-memory cache to avoid repeated API calls (survives within session)
+  const smartDiagnoseCache = new Map<string, { result: any; timestamp: number }>();
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+  // POST /api/service-guy/smart-diagnose - AI-powered diagnosis with learning
+  // Cost-optimized: checks cache -> local DB -> Grok only as last resort
+  app.post("/api/service-guy/smart-diagnose", async (req: any, res) => {
+    try {
+      const { query, manufacturer, errorCode, machineType } = req.body;
+      
+      if (!query && !errorCode) {
+        return res.status(400).json({
+          success: false,
+          error: "Query or error code required",
+        });
+      }
+
+      // Generate cache key
+      const cacheKey = `${manufacturer || ''}_${errorCode || ''}_${machineType || ''}_${query || ''}`.toLowerCase().trim();
+      
+      // 1. Check in-memory cache first (FREE)
+      const cached = smartDiagnoseCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+        console.log(`[SMART-DIAGNOSE] Cache hit: ${cacheKey}`);
+        return res.json({
+          success: true,
+          source: "cache",
+          knowledge: cached.result.knowledge,
+          cached: true,
+          message: "Retrieved from cache",
+        });
+      }
+
+      // 2. Check local database first (FREE) - before any API calls
+      const localResult = await searchKnowledgeBase(query, manufacturer, errorCode, machineType);
+      if (localResult.success && localResult.knowledge) {
+        // Store in cache for faster future access
+        smartDiagnoseCache.set(cacheKey, { result: localResult, timestamp: Date.now() });
+        
+        console.log(`[SMART-DIAGNOSE] Local DB hit: ${cacheKey}`);
+        return res.json({
+          success: true,
+          source: "database",
+          knowledge: localResult.knowledge,
+          cached: false,
+          message: "Found in knowledge base",
+        });
+      }
+
+      // 3. Check diagnosticCodes table (existing data - FREE)
+      if (errorCode) {
+        const existingCodes = await db
+          .select()
+          .from(diagnosticCodes)
+          .where(
+            and(
+              ilike(diagnosticCodes.code, `%${errorCode}%`),
+              manufacturer ? ilike(diagnosticCodes.manufacturer, `%${manufacturer}%`) : undefined
+            )
+          )
+          .limit(3);
+
+        if (existingCodes.length > 0) {
+          const code = existingCodes[0];
+          const knowledge = {
+            title: code.title,
+            manufacturer: code.manufacturer,
+            errorCode: code.code,
+            machineType: code.machineType,
+            description: code.description,
+            possibleCauses: code.possibleCauses || [],
+            troubleshootingSteps: code.troubleshootingSteps || [],
+            partsWithPricing: code.partsWithPricing || [],
+            quickFix: code.quickFix,
+            estimatedRepairTime: code.estimatedRepairTime,
+            skillLevel: code.skillLevel || "intermediate",
+            proTips: code.repairTechniques || [],
+            confidence: code.fixSuccessRate || 75,
+          };
+          
+          smartDiagnoseCache.set(cacheKey, { result: { knowledge }, timestamp: Date.now() });
+          
+          console.log(`[SMART-DIAGNOSE] Diagnostic codes hit: ${code.code}`);
+          return res.json({
+            success: true,
+            source: "diagnostic_codes",
+            knowledge,
+            cached: false,
+            message: "Found in diagnostic database",
+          });
+        }
+      }
+
+      // 4. Only use Grok if absolutely necessary (COSTS MONEY)
+      // Check user tier for rate limiting
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const userTier = req.user?.subscriptionTier || "free";
+      
+      // Rate limit Grok calls per user/day
+      const grokLimitKey = `grok_calls_${userId || 'anon'}_${new Date().toDateString()}`;
+      const grokCallsToday = (global as any)[grokLimitKey] || 0;
+      
+      const grokLimits: Record<string, number> = {
+        free: 1,      // 1 Grok search/day for free users
+        starter: 5,   // 5/day for Starter
+        pro: 20,      // 20/day for Pro
+        enterprise: 100, // 100/day for Enterprise
+      };
+      
+      const limit = grokLimits[userTier] || 1;
+      
+      if (grokCallsToday >= limit) {
+        return res.json({
+          success: false,
+          source: "rate_limited",
+          knowledge: null,
+          message: `Daily AI search limit reached (${limit}/day for ${userTier}). Upgrade for more searches.`,
+          upgradeRequired: true,
+        });
+      }
+
+      // Call Grok and learn
+      console.log(`[SMART-DIAGNOSE] Calling Grok for: ${cacheKey} (call ${grokCallsToday + 1}/${limit})`);
+      const grokResult = await smartDiagnose(query, manufacturer, errorCode, machineType);
+      
+      // Increment counter
+      (global as any)[grokLimitKey] = grokCallsToday + 1;
+      
+      if (grokResult.success && grokResult.knowledge) {
+        // Cache the result
+        smartDiagnoseCache.set(cacheKey, { result: grokResult, timestamp: Date.now() });
+        
+        return res.json({
+          success: true,
+          source: "grok_search",
+          knowledge: grokResult.knowledge,
+          cached: false,
+          learned: true,
+          message: "Found via AI search - stored for future use",
+        });
+      }
+
+      return res.json({
+        success: false,
+        source: "not_found",
+        knowledge: null,
+        message: "No information found. Try different search terms or manufacturer.",
+      });
+    } catch (error: any) {
+      console.error("[SMART-DIAGNOSE] Error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Search failed",
+        message: error.message,
+      });
+    }
+  });
+
+  // POST /api/service-guy/contribute - Techs submit knowledge (FREE - builds our DB)
+  app.post("/api/service-guy/contribute", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const { manufacturer, errorCode, machineType, problemDescription, solution, partsUsed, timeSpentMinutes, difficultyLevel } = req.body;
+      
+      if (!manufacturer || !problemDescription || !solution) {
+        return res.status(400).json({
+          success: false,
+          error: "Manufacturer, problem description, and solution are required",
+        });
+      }
+
+      // Store contribution for moderation
+      const [contribution] = await db
+        .insert(techContributions)
+        .values({
+          userId,
+          manufacturer,
+          errorCode: errorCode || null,
+          machineType: machineType || null,
+          content: JSON.stringify({ problemDescription, solution, partsUsed }),
+          helpfulness: 0,
+          status: "pending",
+        })
+        .returning();
+
+      console.log(`[CONTRIBUTE] New submission from ${userId}: ${manufacturer} ${errorCode || 'general'}`);
+
+      res.status(201).json({
+        success: true,
+        contribution: {
+          id: contribution.id,
+          status: "pending",
+        },
+        message: "Thank you! Your contribution is under review and will help other technicians.",
+      });
+    } catch (error: any) {
+      console.error("[CONTRIBUTE] Error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to submit contribution",
+      });
+    }
+  });
+
+  // GET /api/service-guy/knowledge-stats - Get knowledge base statistics
+  app.get("/api/service-guy/knowledge-stats", async (req, res) => {
+    try {
+      const [codeCount] = await db
+        .select({ count: sql<number>`COUNT(*)::int` })
+        .from(diagnosticCodes);
+      
+      const [chunkCount] = await db
+        .select({ count: sql<number>`COUNT(*)::int` })
+        .from(knowledgeChunks);
+      
+      const [contributionCount] = await db
+        .select({ count: sql<number>`COUNT(*)::int` })
+        .from(techContributions)
+        .where(eq(techContributions.status, "approved"));
+
+      const [manufacturerCount] = await db
+        .select({ count: sql<number>`COUNT(DISTINCT manufacturer)::int` })
+        .from(diagnosticCodes);
+
+      res.json({
+        success: true,
+        stats: {
+          diagnosticCodes: codeCount?.count || 0,
+          knowledgeChunks: chunkCount?.count || 0,
+          techContributions: contributionCount?.count || 0,
+          manufacturers: manufacturerCount?.count || 0,
+          cacheSize: smartDiagnoseCache.size,
+        },
+      });
+    } catch (error: any) {
+      console.error("[KNOWLEDGE-STATS] Error:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch stats" });
+    }
+  });
+
   // ========== SERVICE JOBS - Track Repair Work in Progress ==========
   const { serviceJobs, insertServiceJobSchema } = await import("@shared/schema");
 
