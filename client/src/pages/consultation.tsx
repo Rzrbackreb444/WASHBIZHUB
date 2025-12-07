@@ -20,6 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, DollarSign, CheckCircle, MessageSquare, TrendingUp } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
+import { SEO } from "@/components/SEO";
 
 const consultationSchema = z.object({
   consultationType: z.string().min(1, "Please select a consultation type"),
@@ -146,6 +147,99 @@ export default function Consultation() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Expert Laundromat Consultation | Book Now"
+        description="Book a 60-min laundromat consultation with industry experts. Get guidance on site selection, operations, equipment, and business planning. $397 session."
+        canonicalUrl="/consultation"
+        keywords={[
+          "laundromat consultation",
+          "laundromat business advisor",
+          "coin laundry consultant",
+          "laundromat expert advice",
+          "laundry business coaching",
+          "laundromat site selection",
+          "laundromat operations consulting",
+          "buy laundromat help",
+          "laundromat business planning",
+          "commercial laundry consultant",
+          "laundromat industry expert",
+          "laundromat investment advisor",
+          "coin laundry business help",
+          "laundromat mentorship"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Services", url: "/resources" },
+          { name: "Expert Consultation", url: "/consultation" }
+        ]}
+        faqs={[
+          {
+            question: "How much does a laundromat consultation cost?",
+            answer: "Our expert laundromat consultation costs $397 for a comprehensive 60-minute session. This includes personalized guidance on site selection, business planning, equipment selection, operations, marketing, or exit strategy based on your specific needs."
+          },
+          {
+            question: "Who are the laundromat consultants?",
+            answer: "Our consultants are industry veterans with 50+ years combined experience in the laundromat business. They have successfully built and operated million-dollar laundromat businesses and can provide expert guidance on all aspects of laundromat ownership."
+          },
+          {
+            question: "What topics can I discuss during the consultation?",
+            answer: "You can discuss site selection and location analysis, business plan development, equipment selection and layout, operations and efficiency improvements, marketing and customer acquisition strategies, or exit strategy and business sale planning."
+          },
+          {
+            question: "How do I schedule a laundromat consultation?",
+            answer: "Fill out the consultation request form with your details, select your preferred consultation type and business stage, and we'll contact you within 24 hours to schedule your 60-minute video conference session."
+          },
+          {
+            question: "Is the consultation conducted in person or online?",
+            answer: "Consultations are conducted via video conference, allowing flexibility for clients nationwide. You'll receive a calendar invite with the video meeting link after scheduling. Evening and weekend appointments are available."
+          },
+          {
+            question: "What should I prepare for my laundromat consultation?",
+            answer: "Prepare any questions you have, relevant documents like financial statements or location data, and a clear idea of your goals. A pre-consultation questionnaire will be sent to help maximize your session time."
+          }
+        ]}
+        howTo={{
+          name: "How to Book a Laundromat Consultation",
+          description: "Step-by-step guide to booking an expert laundromat consultation session with industry professionals.",
+          totalTime: "PT5M",
+          steps: [
+            {
+              name: "Select Consultation Type",
+              text: "Choose from site selection, business plan development, equipment selection, operations, marketing, or exit strategy consulting."
+            },
+            {
+              name: "Choose Your Business Stage",
+              text: "Indicate whether you're researching, planning to start, acquiring, currently operating, or planning to sell a laundromat."
+            },
+            {
+              name: "Fill Out Contact Information",
+              text: "Provide your name, email, phone number, location, budget range, and timeline for your laundromat project."
+            },
+            {
+              name: "Describe Your Needs",
+              text: "Write a detailed message about what you'd like to discuss during your consultation session."
+            },
+            {
+              name: "Submit and Schedule",
+              text: "Submit your request and receive a confirmation call within 24 hours to finalize your consultation date and time."
+            }
+          ]
+        }}
+        productOffers={[
+          {
+            name: "Expert Laundromat Consultation",
+            description: "60-minute personalized consultation with industry veterans covering site selection, operations, business planning, or exit strategy.",
+            price: "397",
+            priceCurrency: "USD",
+            availability: "InStock"
+          }
+        ]}
+        author={{
+          name: "WashBizHub Expert Team",
+          expertise: "Laundromat Industry Consultants",
+          credentials: "50+ years combined experience in laundromat operations, acquisitions, and business development"
+        }}
+      />
       <PageHero
         title="Expert Laundromat Consultation"
         subtitle="Professional Guidance"

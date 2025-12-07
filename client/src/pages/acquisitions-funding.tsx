@@ -186,6 +186,40 @@ export default function AcquisitionsFunding() {
           expertise: "Laundromat Industry Expert",
           credentials: "Leading laundromat resource platform with acquisition financing partnerships for portfolio operators"
         }}
+        productOffers={[
+          {
+            name: "SBA 7(a) Acquisition Loan",
+            description: "Government-backed financing up to $5M for buying existing laundromats. Lowest rates at Prime + 2.75% with 10-25 year terms.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Portfolio Expansion Financing",
+            description: "Multi-location financing for operators scaling to 5-25 unit laundromat portfolios. Up to 85% LTV available.",
+            price: "500000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Seller Financing Assistance",
+            description: "Structured seller financing with 10-20% down payment. Transition ownership while building equity.",
+            price: "200000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Bridge Loan for Acquisitions",
+            description: "Short-term bridge financing for quick laundromat acquisitions. Close in 7-14 days with competitive rates.",
+            price: "150000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
       />
 
       <div className="min-h-screen bg-background">

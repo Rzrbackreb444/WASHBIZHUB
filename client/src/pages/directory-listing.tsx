@@ -30,9 +30,12 @@ import {
   Twitter,
   Youtube,
   Send,
-  Loader2
+  Loader2,
+  ChevronRight,
+  Home
 } from "lucide-react";
 import { Link } from "wouter";
+import { SEO } from "@/components/SEO";
 
 interface BusinessListing {
   id: string;
@@ -70,6 +73,51 @@ interface BusinessListing {
   clickCount: number;
 }
 
+const directorySeoKeywords = [
+  "laundromat equipment suppliers",
+  "laundry business vendors",
+  "commercial laundry distributors",
+  "coin laundry service providers",
+  "laundromat parts suppliers",
+  "laundry equipment dealers",
+  "washer dryer distributors",
+  "laundromat industry vendors",
+  "commercial washer suppliers",
+  "laundry business directory",
+  "laundromat vendor directory",
+  "coin laundry equipment",
+  "laundromat service companies",
+  "laundry industry partners",
+  "laundromat business services"
+];
+
+const directoryFaqs = [
+  {
+    question: "How do I find reliable laundromat equipment suppliers?",
+    answer: "Our vendor directory features verified equipment suppliers, distributors, and service providers. Filter by location, services offered, and brands carried. Look for vendors with verified badges for additional credibility."
+  },
+  {
+    question: "What services do laundromat vendors typically offer?",
+    answer: "Vendors offer equipment sales and leasing, installation services, maintenance and repairs, parts supply, financing options, and business consulting. Many specialize in specific brands like Dexter, Speed Queen, or Maytag."
+  },
+  {
+    question: "How can I list my business in the vendor directory?",
+    answer: "Business owners can create a free listing with basic information. Premium listings include enhanced visibility, featured placement, verified badges, and lead generation tools. Contact us to get started."
+  },
+  {
+    question: "What should I look for when choosing a laundromat vendor?",
+    answer: "Consider years in business, brands carried, service area coverage, customer reviews, certifications, and response time. Verified vendors have confirmed their credentials and business information."
+  },
+  {
+    question: "Do vendors offer equipment financing for laundromats?",
+    answer: "Many equipment vendors offer financing options including leasing, loans, and rent-to-own programs. Some work with SBA-approved lenders. Contact vendors directly to discuss financing for your specific needs."
+  },
+  {
+    question: "How do I contact a vendor from the directory?",
+    answer: "Each listing includes contact information including phone, email, and website. Use our inquiry form to send messages directly to vendors. Featured listings often include additional contact options and faster response times."
+  }
+];
+
 export default function DirectoryListingPage() {
   const [, params] = useRoute("/directory/:slug");
   const slug = params?.slug;
@@ -87,6 +135,12 @@ export default function DirectoryListingPage() {
     queryKey: ["/api/directory/listings", slug],
     enabled: !!slug,
   });
+
+  const directoryBreadcrumbs = [
+    { name: "Home", url: "/" },
+    { name: "Vendor Directory", url: "/directory" },
+    { name: listing?.businessName || "Business", url: `/directory/${slug}` }
+  ];
 
   const trackClickMutation = useMutation({
     mutationFn: async (type: string) => {
@@ -171,8 +225,25 @@ export default function DirectoryListingPage() {
     );
   }
 
+  const dynamicTitle = listing?.businessName 
+    ? `${listing.businessName} | Laundromat Vendor Directory`
+    : "Business Directory | Laundromat Vendors";
+  
+  const dynamicDescription = listing?.shortDescription || listing?.description
+    ? `${(listing.shortDescription || listing.description || "").slice(0, 120)}... Contact for laundromat equipment, services & supplies.`
+    : "Find trusted laundromat equipment vendors, service providers & suppliers. Verified business listings with contact info, services offered & customer reviews.";
+
   return (
     <div className="min-h-screen bg-slate-50">
+      <SEO
+        title={dynamicTitle.slice(0, 60)}
+        description={dynamicDescription.slice(0, 155)}
+        canonicalUrl={`/directory/${slug}`}
+        keywords={directorySeoKeywords}
+        breadcrumbs={directoryBreadcrumbs}
+        faqs={directoryFaqs}
+        ogType="website"
+      />
       {/* Cover Image */}
       <div className="h-48 md:h-64 bg-gradient-to-br from-slate-800 to-slate-900 relative">
         {listing.coverImage && (
@@ -186,6 +257,20 @@ export default function DirectoryListingPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-24 relative z-10 pb-12">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-white/80 mb-4" aria-label="Breadcrumb">
+          <Link href="/" className="flex items-center gap-1 hover:text-white transition-colors">
+            <Home className="w-4 h-4" />
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <Link href="/directory" className="hover:text-white transition-colors">
+            Directory
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-white font-medium truncate max-w-[200px]">{listing.businessName}</span>
+        </nav>
+
         {/* Header Card */}
         <Card className="mb-6">
           <CardContent className="pt-6">

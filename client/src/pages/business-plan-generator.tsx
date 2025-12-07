@@ -39,6 +39,7 @@ import {
   Lock,
   CreditCard
 } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
@@ -226,6 +227,99 @@ export default function BusinessPlanGenerator() {
 
   return (
     <AuthGuard title="Sign In to Generate Business Plans" description="Sign in to access this feature.">
+      <SEO
+        title="AI Business Plan Generator for Laundromats"
+        description="Generate a complete, SBA-ready laundromat business plan in minutes. Includes 5-year financial projections, market analysis, and lender-ready formatting."
+        canonicalUrl="/business-plan-generator"
+        keywords={[
+          "laundromat business plan",
+          "SBA business plan generator",
+          "laundromat financial projections",
+          "coin laundry business plan",
+          "laundromat loan application",
+          "SBA loan business plan",
+          "laundry business plan template",
+          "laundromat market analysis",
+          "commercial laundry business plan",
+          "laundromat startup plan",
+          "SBA 7a loan laundromat",
+          "laundromat acquisition business plan",
+          "laundry business financial model",
+          "laundromat investor pitch"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Tools", url: "/calculators" },
+          { name: "Business Plan Generator", url: "/business-plan-generator" }
+        ]}
+        faqs={[
+          {
+            question: "What is included in the AI-generated laundromat business plan?",
+            answer: "The business plan includes an executive summary, 5-year financial projections (P&L, cash flow, balance sheet), comprehensive market analysis, growth strategy, management team overview, risk analysis with SWOT, and SBA-compliant formatting that lenders require."
+          },
+          {
+            question: "Is the business plan accepted by SBA lenders?",
+            answer: "Yes, our AI-generated business plans are formatted specifically to meet SBA 7(a) and 504 loan requirements. The plan includes all sections and financial projections that banks and SBA lenders require for loan approval."
+          },
+          {
+            question: "How long does it take to generate a laundromat business plan?",
+            answer: "The AI generates your complete business plan in approximately 5 minutes. Simply enter your laundromat details, financials, and loan information, then receive a professionally formatted document ready for download."
+          },
+          {
+            question: "Can I export the business plan as PDF or Word document?",
+            answer: "Yes, once generated, you can download your business plan in both PDF and Word formats. This allows you to easily share with lenders, partners, or make additional customizations as needed."
+          },
+          {
+            question: "What information do I need to generate a business plan?",
+            answer: "You'll need basic business details (name, address, square footage, equipment count), financial information (purchase price, down payment, monthly revenue and expenses), and your experience level. The AI uses this to create accurate projections."
+          },
+          {
+            question: "How much does the business plan generator cost?",
+            answer: "The AI Business Plan Generator is a premium one-time purchase. The investment is significantly less than hiring a consultant while producing a comprehensive, lender-ready document tailored to your specific laundromat opportunity."
+          }
+        ]}
+        howTo={{
+          name: "How to Generate a Laundromat Business Plan",
+          description: "Create a complete SBA-ready business plan for your laundromat acquisition or startup in minutes using our AI-powered generator.",
+          totalTime: "PT10M",
+          steps: [
+            {
+              name: "Enter Business Details",
+              text: "Provide your laundromat name, address, square footage, number of washers and dryers, your experience level, and a brief business description."
+            },
+            {
+              name: "Add Financial Information",
+              text: "Enter the purchase price, your down payment amount, estimated monthly revenue and expenses, and select your preferred loan type (SBA 7a, SBA 504, conventional, or seller financing)."
+            },
+            {
+              name: "Review Your Information",
+              text: "Verify all entered details are accurate before generating your business plan. This ensures the financial projections and analysis are based on correct data."
+            },
+            {
+              name: "Complete Payment",
+              text: "Securely process payment through Stripe to unlock the AI business plan generation feature."
+            },
+            {
+              name: "Download Your Business Plan",
+              text: "Receive your complete, professionally formatted business plan with financial projections, market analysis, and all sections required by SBA lenders."
+            }
+          ]
+        }}
+        productOffers={[
+          {
+            name: "AI Business Plan Generator",
+            description: "Complete SBA-ready laundromat business plan with 5-year financial projections, market analysis, executive summary, and professional formatting.",
+            price: "299",
+            priceCurrency: "USD",
+            availability: "InStock"
+          }
+        ]}
+        author={{
+          name: "WashBizHub",
+          expertise: "Laundromat Business Planning",
+          credentials: "Industry-leading platform helping hundreds of laundromat buyers secure SBA financing"
+        }}
+      />
       <FeatureGate feature="business-plan-generator">
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}

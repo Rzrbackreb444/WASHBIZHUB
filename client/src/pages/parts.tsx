@@ -1,10 +1,65 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, Search, Package, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const PARTS_SEO = {
+  title: "Laundromat Parts Catalog - 2,200+ Fault Codes",
+  description: "Find genuine replacement parts for Dexter, Speed Queen & Maytag commercial washers. Search 2,200+ diagnostic fault codes with repair solutions.",
+  canonicalUrl: "/parts",
+  keywords: [
+    "laundromat parts",
+    "commercial washer parts",
+    "Dexter replacement parts",
+    "Speed Queen parts",
+    "washer drive motor",
+    "v-belt assembly",
+    "control board parts",
+    "coin-op parts",
+    "laundry equipment parts",
+    "fault code lookup",
+    "diagnostic codes",
+    "Maytag commercial parts",
+    "dryer parts",
+    "washer-extractor parts",
+    "OEM replacement parts"
+  ],
+  breadcrumbs: [
+    { name: "Home", url: "/" },
+    { name: "Equipment", url: "/equipment-hub" },
+    { name: "Parts & Diagnostics", url: "/parts" }
+  ],
+  faqs: [
+    {
+      question: "Where can I find genuine replacement parts for commercial laundry equipment?",
+      answer: "WashBizHub's Parts Store offers genuine OEM replacement parts for all major brands including Dexter, Speed Queen, and Maytag commercial equipment. Parts are sourced from authorized distributors with warranty coverage. Search by part number, equipment model, or fault code to find exact matches."
+    },
+    {
+      question: "How do I look up fault codes on my commercial washer or dryer?",
+      answer: "Use our Fault Code Lookup tool with 2,200+ diagnostic codes. Enter the error code displayed on your machine (e.g., E01, E02, F12) to get instant diagnosis, possible causes, repair solutions, and required replacement parts. We cover Dexter, Speed Queen, Maytag, and other major commercial brands."
+    },
+    {
+      question: "What are the most common fault codes for commercial laundry equipment?",
+      answer: "Common fault codes include E01 (water inlet valve failure), E02 (drain pump malfunction), E03 (door lock error), E04 (temperature sensor fault), and E05 (motor overload). Each code indicates specific issues that may require part replacement. Our database provides severity ratings and repair priority guidance."
+    },
+    {
+      question: "How long does it take to get replacement parts for laundromat equipment?",
+      answer: "In-stock parts typically ship within 1-2 business days. Common parts like drive motors, V-belts, and control boards are usually available immediately. Specialty or back-ordered items may take 5-10 business days. We offer expedited shipping for urgent repairs to minimize equipment downtime."
+    },
+    {
+      question: "What parts are most frequently replaced on commercial washers and dryers?",
+      answer: "Most frequently replaced parts include drive motors ($245+), V-belt assembly kits ($32+), control boards ($189+), door seals, water inlet valves, drain pumps, and bearings. Regular maintenance can extend part lifespan, but high-use commercial equipment typically needs component replacement every 3-7 years."
+    },
+    {
+      question: "Can I use aftermarket parts instead of OEM parts for my laundromat equipment?",
+      answer: "While aftermarket parts may be cheaper, OEM (Original Equipment Manufacturer) parts are recommended for commercial laundry equipment. OEM parts ensure proper fit, maintain warranty coverage, and provide reliable performance. Using non-OEM parts may void manufacturer warranties and could affect equipment longevity."
+    }
+  ]
+};
 
 export default function Parts() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,10 +112,19 @@ export default function Parts() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <Wrench className="h-16 w-16 text-accent mx-auto mb-4" />
+    <>
+      <SEO
+        title={PARTS_SEO.title}
+        description={PARTS_SEO.description}
+        canonicalUrl={PARTS_SEO.canonicalUrl}
+        keywords={PARTS_SEO.keywords}
+        breadcrumbs={PARTS_SEO.breadcrumbs}
+        faqs={PARTS_SEO.faqs}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <Wrench className="h-16 w-16 text-accent mx-auto mb-4" />
           <h1 className="text-5xl font-black text-white mb-4" data-testid="text-parts-title">
             Parts Store & Diagnostics
           </h1>
@@ -227,7 +291,8 @@ export default function Parts() {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

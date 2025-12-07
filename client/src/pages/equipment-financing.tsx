@@ -224,6 +224,40 @@ export default function EquipmentFinancing() {
           expertise: "Laundromat Industry Advisor",
           credentials: "Founder of WashBizHub, helping entrepreneurs secure laundromat equipment financing"
         }}
+        productOffers={[
+          {
+            name: "Commercial Washer Financing",
+            description: "Finance Speed Queen, Huebsch, and Dexter commercial washers. Same-day approval with rates starting at 5.99%.",
+            price: "5000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Commercial Dryer Financing",
+            description: "Finance commercial dryers with flexible terms up to 84 months. Equipment serves as collateral for easier approval.",
+            price: "3000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Payment System Financing",
+            description: "Finance coin-op, card, and mobile payment systems. Upgrade to modern payment technology with low monthly payments.",
+            price: "10000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Full Equipment Package Financing",
+            description: "Finance complete laundromat equipment packages. Washers, dryers, folding tables, and payment systems bundled.",
+            price: "50000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
       />
 
       <div className="min-h-screen bg-background">

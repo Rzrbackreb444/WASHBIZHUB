@@ -27,6 +27,7 @@ import {
   Phone,
   ChevronRight
 } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 interface Question {
   id: string;
@@ -165,6 +166,90 @@ export default function SBAReadiness() {
 
   return (
     <AuthGuard title="Sign In to Check SBA Readiness" description="Sign in to access this feature.">
+      <SEO
+        title="SBA Loan Readiness Checker for Laundromats"
+        description="Free 2-minute SBA loan readiness assessment for laundromat buyers. Get your instant score and personalized recommendations to qualify for financing."
+        canonicalUrl="/sba-readiness"
+        keywords={[
+          "SBA loan readiness",
+          "laundromat financing qualification",
+          "SBA loan requirements laundromat",
+          "laundromat loan pre-qualification",
+          "SBA 7a loan laundromat",
+          "laundromat financing checklist",
+          "qualify for laundromat loan",
+          "SBA loan credit score requirements",
+          "laundromat down payment requirements",
+          "coin laundry financing",
+          "laundromat acquisition financing",
+          "SBA loan eligibility checker",
+          "laundromat business loan",
+          "small business loan laundromat"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/funding" },
+          { name: "SBA Readiness Checker", url: "/sba-readiness" }
+        ]}
+        faqs={[
+          {
+            question: "What credit score do I need for an SBA laundromat loan?",
+            answer: "SBA lenders typically require a minimum credit score of 650 for approval, though 700+ is preferred for better rates. Scores above 750 are considered excellent and offer the best terms and highest approval chances."
+          },
+          {
+            question: "How much down payment is required for an SBA laundromat loan?",
+            answer: "SBA loans typically require a 10-20% equity injection (down payment). A 20% or higher down payment is ideal and significantly improves your approval odds and loan terms."
+          },
+          {
+            question: "Do I need laundromat experience to get an SBA loan?",
+            answer: "While not strictly required, industry experience significantly improves approval odds. Having 1+ years of laundromat experience is considered strong. Other business ownership or management experience can also help qualify you."
+          },
+          {
+            question: "What is the SBA Readiness Checker?",
+            answer: "Our free 2-minute assessment evaluates key factors that SBA lenders consider: credit score, down payment capacity, business experience, available collateral, and business plan readiness. You receive an instant score and personalized recommendations."
+          },
+          {
+            question: "Is a business plan required for SBA loan approval?",
+            answer: "Yes, a comprehensive business plan with financial projections is required for SBA loan approval. The plan should include an executive summary, market analysis, financial statements, and growth projections."
+          },
+          {
+            question: "What types of SBA loans are available for laundromats?",
+            answer: "The most common SBA loans for laundromats are the SBA 7(a) loan (for general business purposes including acquisitions) and SBA 504 loan (for real estate and equipment). Conventional bank loans and seller financing are also options."
+          }
+        ]}
+        howTo={{
+          name: "How to Check Your SBA Loan Readiness",
+          description: "Complete our free 2-minute assessment to determine if you qualify for SBA financing to buy or expand your laundromat.",
+          totalTime: "PT2M",
+          steps: [
+            {
+              name: "Answer Credit Score Question",
+              text: "Select your personal credit score range from the options provided. SBA lenders typically require 650+ for approval, with 700+ being preferred."
+            },
+            {
+              name: "Indicate Down Payment Capacity",
+              text: "Choose how much you can contribute as a down payment. SBA loans typically require 10-20% equity injection."
+            },
+            {
+              name: "Share Your Experience Level",
+              text: "Select your laundromat or business ownership experience. Industry experience significantly improves approval odds."
+            },
+            {
+              name: "Describe Available Collateral",
+              text: "Indicate if you have additional collateral such as real estate equity, equipment, or other assets that reduce lender risk."
+            },
+            {
+              name: "Confirm Business Plan Status",
+              text: "Select whether you have a formal business plan with financials, as this is required for SBA approval. Get your instant readiness score and personalized recommendations."
+            }
+          ]
+        }}
+        author={{
+          name: "WashBizHub",
+          expertise: "Laundromat Financing Specialists",
+          credentials: "Industry experts helping laundromat buyers navigate SBA loans and alternative financing options"
+        }}
+      />
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-white/10">

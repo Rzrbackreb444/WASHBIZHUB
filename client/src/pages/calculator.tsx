@@ -1,9 +1,63 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calculator as CalcIcon } from "lucide-react";
+
+const CALCULATOR_SEO = {
+  title: "Laundromat ROI Calculator - Revenue & Profit Tool",
+  description: "Calculate laundromat ROI, monthly revenue & profit projections. Free calculator for coin-op equipment investment with turns per day & utilization analysis.",
+  canonicalUrl: "/calculator",
+  keywords: [
+    "laundromat ROI calculator",
+    "laundry revenue calculator",
+    "coin-op profit calculator",
+    "laundromat investment",
+    "washer dryer ROI",
+    "turns per day calculator",
+    "laundromat profitability",
+    "commercial laundry income",
+    "equipment investment ROI",
+    "laundromat business calculator",
+    "utilization rate",
+    "monthly revenue projection",
+    "laundry equipment payback",
+    "vend pricing calculator"
+  ],
+  breadcrumbs: [
+    { name: "Home", url: "/" },
+    { name: "Tools", url: "/calculators" },
+    { name: "Revenue Calculator", url: "/calculator" }
+  ],
+  faqs: [
+    {
+      question: "How do I calculate ROI for my laundromat equipment investment?",
+      answer: "Calculate ROI by dividing annual profit by total equipment investment. For example, if you invest $132,500 in equipment (20 washers at $4,000 + 15 dryers at $3,500) and generate $60,000 annual profit, your ROI is approximately 45%. Our calculator factors in washers, dryers, vend prices, turns per day, utilization rate, and monthly expenses."
+    },
+    {
+      question: "What is a good turns per day rate for laundromat equipment?",
+      answer: "Industry average is 4-6 turns per day for washers. High-performing laundromats achieve 6-8 turns. Factors affecting turns include location traffic, operating hours, equipment capacity, and pricing. Each additional turn can increase monthly revenue by 15-20%. Use our calculator to project revenue at different turn rates."
+    },
+    {
+      question: "What utilization rate should I expect for my laundromat?",
+      answer: "Average utilization rates range from 50-70% for established laundromats. New locations typically start at 40-50% and grow over time. Peak utilization during weekends can reach 85-95%. Our calculator defaults to 65% utilization, which represents a well-performing mid-market laundromat."
+    },
+    {
+      question: "How much revenue can a laundromat generate monthly?",
+      answer: "Monthly revenue varies by size and location. Small laundromats (8-15 machines) generate $8,000-$15,000/month. Medium facilities (16-30 machines) earn $15,000-$35,000/month. Large operations (31-50+ machines) can generate $35,000-$80,000+/month. Use our calculator with your specific equipment counts and vend prices for accurate projections."
+    },
+    {
+      question: "What are typical monthly expenses for a laundromat?",
+      answer: "Common monthly expenses include: rent ($2,000-$8,000), utilities - water/gas/electric ($1,500-$4,000), insurance ($200-$500), maintenance ($300-$800), supplies ($200-$400), and labor if attended ($1,500-$4,000). Total monthly expenses typically range from $6,000-$15,000 depending on size and location."
+    },
+    {
+      question: "How long does it take to pay back laundromat equipment investment?",
+      answer: "Equipment payback period typically ranges from 2-5 years. With 45% ROI, payback occurs in about 2.2 years. Factors affecting payback include vend pricing, location traffic, operating costs, and equipment efficiency. Energy-efficient equipment like Dexter models can reduce utility costs 20-30%, accelerating payback."
+    }
+  ]
+};
 
 export default function Calculator() {
   const [inputs, setInputs] = useState({
@@ -57,10 +111,19 @@ export default function Calculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <CalcIcon className="h-16 w-16 text-accent mx-auto mb-4" />
+    <>
+      <SEO
+        title={CALCULATOR_SEO.title}
+        description={CALCULATOR_SEO.description}
+        canonicalUrl={CALCULATOR_SEO.canonicalUrl}
+        keywords={CALCULATOR_SEO.keywords}
+        breadcrumbs={CALCULATOR_SEO.breadcrumbs}
+        faqs={CALCULATOR_SEO.faqs}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <CalcIcon className="h-16 w-16 text-accent mx-auto mb-4" />
           <h1 className="text-5xl font-black text-white mb-4" data-testid="text-calculator-title">
             Revenue Calculator
           </h1>
@@ -242,7 +305,8 @@ export default function Calculator() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

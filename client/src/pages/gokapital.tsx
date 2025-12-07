@@ -279,6 +279,40 @@ export default function GoKapital() {
         faqs={GOKAPITAL_FAQS}
         howTo={howToApplySchema}
         structuredData={[localBusinessSchema, loanProductSchema, howToApplySchema]}
+        productOffers={[
+          {
+            name: "Commercial Real Estate Loan",
+            description: "Purchase or refinance laundromat properties from $100K to $50M+. Up to 75% LTV with 7-14 day approval.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Bridge Loan for Laundromats",
+            description: "Short-term bridge financing for quick property acquisitions. Close faster than traditional lenders.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "DSCR Loan",
+            description: "Debt service coverage ratio loans based on property cash flow. No personal income verification required.",
+            price: "150000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Equipment Term Loan",
+            description: "Equipment and business term loans from $25K to $5M. Fast funding in 3-5 business days.",
+            price: "25000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
       />
 
       <div className="min-h-screen bg-background">

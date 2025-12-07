@@ -214,6 +214,40 @@ export default function RealEstateFinancing() {
           expertise: "Laundromat Industry Advisor",
           credentials: "Founder of WashBizHub, helping entrepreneurs secure commercial real estate financing"
         }}
+        productOffers={[
+          {
+            name: "SBA 504 Commercial Real Estate Loan",
+            description: "Government-backed financing for laundromat property purchase. 10-15% down payment with 20-25 year terms.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Commercial Mortgage for Laundromats",
+            description: "Conventional commercial real estate loan with competitive rates. Up to 80% LTV for qualified borrowers.",
+            price: "250000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Build-Out Financing",
+            description: "Construction and renovation financing for new laundromat facilities. Finance complete buildouts up to $500K.",
+            price: "75000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          },
+          {
+            name: "Cash-Out Refinance",
+            description: "Extract equity from existing laundromat property for expansion or equipment upgrades. Up to 75% LTV.",
+            price: "100000",
+            priceCurrency: "USD",
+            availability: "InStock",
+            priceValidUntil: "2025-12-31"
+          }
+        ]}
       />
 
       <div className="min-h-screen bg-background">
