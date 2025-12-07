@@ -52,12 +52,18 @@ import {
   Trash2,
   Edit3,
   PauseCircle,
-  PlayCircle
+  PlayCircle,
+  ShoppingCart,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import type { ServiceJob } from "@shared/schema";
 import { ServiceDisclaimer } from "@/components/LegalDisclaimer";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
+import { PartsOrderWidget } from "@/components/PartsOrderWidget";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 
 interface Manufacturer {
@@ -370,6 +376,8 @@ export default function ServiceGuyAI() {
   
   const [jobStatusFilter, setJobStatusFilter] = useState<string>("all");
   const [savingJobForCode, setSavingJobForCode] = useState<string | null>(null);
+  const [expandedPartsCode, setExpandedPartsCode] = useState<string | null>(null);
+  const [showPartsModal, setShowPartsModal] = useState(false);
 
   const debouncedSearch = useDebounce(searchInput, 300);
 
@@ -926,6 +934,60 @@ export default function ServiceGuyAI() {
         {/* Educational Disclaimer */}
         <ServiceDisclaimer className="mb-8" />
 
+        {/* Quick Actions - Order Parts */}
+        <div className="mb-8">
+          <Collapsible 
+            open={showPartsModal} 
+            onOpenChange={setShowPartsModal}
+            data-testid="section-parts-ordering-main"
+          >
+            <Card className="hover-elevate border-primary/20">
+              <CardContent className="p-4">
+                <CollapsibleTrigger asChild>
+                  <div className="flex items-center justify-between cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <ShoppingCart className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Order Parts</h3>
+                        <p className="text-sm text-muted-foreground">Search Amazon or commercial suppliers</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      data-testid="button-order-parts-main"
+                    >
+                      {showPartsModal ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </Button>
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <PartsOrderWidget defaultSearch="" compact={false} />
+                  
+                  <div className="border-t pt-4">
+                    <h4 className="font-semibold text-sm mb-2">Commercial Equipment Suppliers</h4>
+                    <a 
+                      href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry"
+                      target="_blank"
+                      rel="nofollow sponsored noopener noreferrer"
+                      className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                      data-testid="link-aadvantage-affiliate-main"
+                    >
+                      <ExternalLink className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-medium">AAdvantage Laundry</p>
+                        <p className="text-sm text-muted-foreground">Trusted commercial laundry parts supplier</p>
+                      </div>
+                    </a>
+                  </div>
+                </CollapsibleContent>
+              </CardContent>
+            </Card>
+          </Collapsible>
+        </div>
+
         <Tabs defaultValue="error-codes" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="error-codes" className="flex items-center gap-2">
@@ -1255,7 +1317,7 @@ export default function ServiceGuyAI() {
                                         key={i}
                                         href={amazonSearchUrl}
                                         target="_blank"
-                                        rel="sponsored noopener noreferrer"
+                                        rel="nofollow sponsored noopener noreferrer"
                                         className="group"
                                         data-testid={`link-amazon-part-${code.code}-${partId}`}
                                       >
@@ -1274,9 +1336,59 @@ export default function ServiceGuyAI() {
                                   <span className="text-amber-500">★</span>
                                   Click any part to find on Amazon (affiliate link)
                                 </p>
+                                
+                                <Collapsible 
+                                  open={expandedPartsCode === code.code} 
+                                  onOpenChange={(open) => setExpandedPartsCode(open ? code.code : null)}
+                                  className="mt-4"
+                                  data-testid={`section-parts-ordering-${code.code}`}
+                                >
+                                  <CollapsibleTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="w-full justify-between"
+                                      data-testid={`button-order-parts-${code.code}`}
+                                    >
+                                      <span className="flex items-center gap-2">
+                                        <ShoppingCart className="w-4 h-4" />
+                                        Order Parts
+                                      </span>
+                                      {expandedPartsCode === code.code ? (
+                                        <ChevronUp className="w-4 h-4" />
+                                      ) : (
+                                        <ChevronDown className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent className="mt-3 space-y-4">
+                                    <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+                                      {expandedPartsCode === code.code && (
+                                        <PartsOrderWidget 
+                                          defaultSearch={selectedManufacturer && selectedManufacturer !== '_all' && code.code ? `${selectedManufacturer} ${code.code} ${code.requiredParts?.[0] || ''}`.trim() : ''} 
+                                          compact={true}
+                                        />
+                                      )}
+                                      
+                                      <div className="border-t pt-3">
+                                        <p className="text-xs text-muted-foreground mb-2">Commercial Equipment Parts:</p>
+                                        <a 
+                                          href="https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry"
+                                          target="_blank"
+                                          rel="nofollow sponsored noopener noreferrer"
+                                          className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                          data-testid={`link-aadvantage-affiliate-${code.code}`}
+                                        >
+                                          <ExternalLink className="w-4 h-4" />
+                                          AAdvantage Laundry - Commercial Parts Supplier
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </CollapsibleContent>
+                                </Collapsible>
                               </div>
-                              <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground border-t pt-4">
-                                <div className="flex items-center gap-6">
+                              <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground border-t pt-4">
+                                <div className="flex flex-wrap items-center gap-6">
                                   <div className="flex items-center gap-1">
                                     <Clock className="w-4 h-4" />
                                     Est. Repair: {code.estimatedRepairTime} min
@@ -1310,7 +1422,8 @@ export default function ServiceGuyAI() {
                           )}
                         </CardContent>
                       </Card>
-                    ))}
+                    );
+                  })}
                   </div>
                 )}
               </div>
