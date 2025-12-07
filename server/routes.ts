@@ -21,7 +21,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -12183,6 +12183,437 @@ ${pdfData.text.substring(0, 15000)}`;
         success: false,
         error: "Failed to submit report",
         "data-testid": "report-error",
+      });
+    }
+  });
+
+  // ========== SERVICE TECH LOCATOR API ==========
+  // Find nearby appliance repair technicians using Google Places API
+  
+  // GET /api/service-techs/nearby - Find technicians near coordinates
+  app.get("/api/service-techs/nearby", async (req, res) => {
+    try {
+      const { lat, lng, type = "appliance_repair", radius = "25000" } = req.query;
+
+      if (!lat || !lng) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Latitude and longitude are required",
+          "data-testid": "service-tech-error-coords"
+        });
+      }
+
+      const latitude = parseFloat(lat as string);
+      const longitude = parseFloat(lng as string);
+      const searchRadius = parseInt(radius as string) || 25000;
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Invalid coordinates",
+          "data-testid": "service-tech-error-invalid-coords"
+        });
+      }
+
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        return res.status(503).json({ 
+          success: false,
+          error: "Location service unavailable",
+          "data-testid": "service-tech-error-no-api"
+        });
+      }
+
+      // Search for appliance repair services using Google Places Nearby Search
+      const searchTypes = ["appliance_repair", "laundry", "electrical_repair"];
+      const keyword = type === "appliance_repair" 
+        ? "appliance repair laundromat washer dryer commercial laundry equipment" 
+        : String(type);
+
+      const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${searchRadius}&keyword=${encodeURIComponent(keyword)}&key=${apiKey}`;
+
+      const response = await fetch(placesUrl);
+      const data = await response.json();
+
+      if (data.status === "ZERO_RESULTS") {
+        return res.json({ 
+          success: true,
+          results: [],
+          message: "No appliance repair services found nearby",
+          "data-testid": "service-tech-no-results"
+        });
+      }
+
+      if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+        console.error("[SERVICE-TECH] Google Places API error:", data.status, data.error_message);
+        return res.status(500).json({ 
+          success: false,
+          error: "Failed to search for service technicians",
+          "data-testid": "service-tech-api-error"
+        });
+      }
+
+      // Transform results to our format
+      const results = (data.results || []).slice(0, 15).map((place: any) => ({
+        id: place.place_id,
+        name: place.name,
+        address: place.vicinity || place.formatted_address,
+        rating: place.rating,
+        reviewCount: place.user_ratings_total,
+        openNow: place.opening_hours?.open_now,
+        placeId: place.place_id,
+        types: place.types,
+        distance: calculateDistance(
+          latitude, 
+          longitude, 
+          place.geometry.location.lat, 
+          place.geometry.location.lng
+        )
+      }));
+
+      // Sort by rating (highest first), then by distance
+      results.sort((a: any, b: any) => {
+        if (a.rating !== b.rating) {
+          return (b.rating || 0) - (a.rating || 0);
+        }
+        return parseFloat(a.distance) - parseFloat(b.distance);
+      });
+
+      res.json({ 
+        success: true,
+        results,
+        coordinates: { lat: latitude, lng: longitude },
+        "data-testid": "service-tech-results"
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-TECH] Nearby search error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to search for technicians",
+        "data-testid": "service-tech-error"
+      });
+    }
+  });
+
+  // GET /api/service-techs/search - Search by address/ZIP code
+  app.get("/api/service-techs/search", async (req, res) => {
+    try {
+      const { address, type = "appliance_repair", radius = "25000" } = req.query;
+
+      if (!address) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Address or ZIP code is required",
+          "data-testid": "service-tech-error-no-address"
+        });
+      }
+
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        return res.status(503).json({ 
+          success: false,
+          error: "Location service unavailable",
+          "data-testid": "service-tech-error-no-api"
+        });
+      }
+
+      // First, geocode the address
+      const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(String(address))}&key=${apiKey}`;
+      const geocodeResponse = await fetch(geocodeUrl);
+      const geocodeData = await geocodeResponse.json();
+
+      if (geocodeData.status !== "OK" || !geocodeData.results?.[0]) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Could not find location. Please check your address or ZIP code.",
+          "data-testid": "service-tech-geocode-error"
+        });
+      }
+
+      const location = geocodeData.results[0].geometry.location;
+      const { lat, lng } = location;
+      const searchRadius = parseInt(radius as string) || 25000;
+
+      // Search for appliance repair services
+      const keyword = type === "appliance_repair" 
+        ? "appliance repair laundromat washer dryer commercial laundry equipment" 
+        : String(type);
+
+      const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${searchRadius}&keyword=${encodeURIComponent(keyword)}&key=${apiKey}`;
+
+      const response = await fetch(placesUrl);
+      const data = await response.json();
+
+      if (data.status === "ZERO_RESULTS") {
+        return res.json({ 
+          success: true,
+          results: [],
+          coordinates: { lat, lng },
+          message: "No appliance repair services found in this area",
+          "data-testid": "service-tech-no-results"
+        });
+      }
+
+      if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+        console.error("[SERVICE-TECH] Google Places API error:", data.status, data.error_message);
+        return res.status(500).json({ 
+          success: false,
+          error: "Failed to search for service technicians",
+          "data-testid": "service-tech-api-error"
+        });
+      }
+
+      // Transform results
+      const results = (data.results || []).slice(0, 15).map((place: any) => ({
+        id: place.place_id,
+        name: place.name,
+        address: place.vicinity || place.formatted_address,
+        rating: place.rating,
+        reviewCount: place.user_ratings_total,
+        openNow: place.opening_hours?.open_now,
+        placeId: place.place_id,
+        types: place.types,
+        distance: calculateDistance(lat, lng, place.geometry.location.lat, place.geometry.location.lng)
+      }));
+
+      // Sort by rating then distance
+      results.sort((a: any, b: any) => {
+        if (a.rating !== b.rating) {
+          return (b.rating || 0) - (a.rating || 0);
+        }
+        return parseFloat(a.distance) - parseFloat(b.distance);
+      });
+
+      res.json({ 
+        success: true,
+        results,
+        coordinates: { lat, lng },
+        formattedAddress: geocodeData.results[0].formatted_address,
+        "data-testid": "service-tech-results"
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-TECH] Address search error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to search for technicians",
+        "data-testid": "service-tech-error"
+      });
+    }
+  });
+
+  // GET /api/service-techs/details/:placeId - Get detailed info about a service tech
+  app.get("/api/service-techs/details/:placeId", async (req, res) => {
+    try {
+      const { placeId } = req.params;
+
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        return res.status(503).json({ 
+          success: false,
+          error: "Service unavailable",
+          "data-testid": "service-tech-error-no-api"
+        });
+      }
+
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,opening_hours,rating,user_ratings_total,reviews,types&key=${apiKey}`;
+
+      const response = await fetch(detailsUrl);
+      const data = await response.json();
+
+      if (data.status !== "OK") {
+        return res.status(404).json({ 
+          success: false,
+          error: "Service technician not found",
+          "data-testid": "service-tech-not-found"
+        });
+      }
+
+      const place = data.result;
+      res.json({ 
+        success: true,
+        tech: {
+          id: placeId,
+          name: place.name,
+          address: place.formatted_address,
+          phone: place.formatted_phone_number,
+          website: place.website,
+          rating: place.rating,
+          reviewCount: place.user_ratings_total,
+          hours: place.opening_hours?.weekday_text,
+          openNow: place.opening_hours?.open_now,
+          reviews: place.reviews?.slice(0, 3).map((r: any) => ({
+            author: r.author_name,
+            rating: r.rating,
+            text: r.text,
+            time: r.relative_time_description
+          })),
+          types: place.types
+        },
+        "data-testid": "service-tech-details"
+      });
+    } catch (error: any) {
+      console.error("[SERVICE-TECH] Details error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to get technician details",
+        "data-testid": "service-tech-error"
+      });
+    }
+  });
+
+  // Helper function to calculate distance between two points
+  function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): string {
+    const R = 3959; // Radius of Earth in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance < 1 ? `${(distance * 5280).toFixed(0)} ft` : `${distance.toFixed(1)} mi`;
+  }
+
+  // ========== FIX OUTCOME FEEDBACK API ==========
+  // Track repair success rates from real technicians
+  
+  // POST /api/service-guy/fix-outcome - Submit fix outcome feedback
+  app.post("/api/service-guy/fix-outcome", async (req: any, res) => {
+    try {
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
+      const userId = req.user?.id || (req.user as any)?.claims?.sub || null;
+      const sessionId = req.sessionID || null;
+
+      const { 
+        diagnosticCodeId, 
+        errorCode, 
+        manufacturer, 
+        machineType,
+        outcome, 
+        timeSpent, 
+        additionalSteps, 
+        actualPartsUsed,
+        notes 
+      } = req.body;
+
+      // Validate required fields
+      if (!diagnosticCodeId || !errorCode || !manufacturer || !outcome) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields: diagnosticCodeId, errorCode, manufacturer, outcome",
+          "data-testid": "fix-outcome-validation-error"
+        });
+      }
+
+      // Validate outcome value
+      const validOutcomes = ["fixed", "partially_fixed", "not_fixed", "wrong_diagnosis"];
+      if (!validOutcomes.includes(outcome)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid outcome. Must be one of: fixed, partially_fixed, not_fixed, wrong_diagnosis",
+          "data-testid": "fix-outcome-invalid-outcome"
+        });
+      }
+
+      // Insert feedback
+      const [feedback] = await db.insert(fixOutcomeFeedback).values({
+        diagnosticCodeId,
+        userId,
+        sessionId,
+        ipAddress: ip,
+        outcome,
+        additionalSteps: additionalSteps || null,
+        actualPartsUsed: actualPartsUsed || null,
+        timeSpent: timeSpent || null,
+        notes: notes || null,
+        manufacturer,
+        errorCode,
+        machineType: machineType || null,
+      }).returning();
+
+      // Update the diagnostic code's fix success rate based on aggregated feedback
+      // Count all outcomes for this diagnostic code
+      const stats = await db
+        .select({
+          total: sql<number>`COUNT(*)::int`,
+          fixed: sql<number>`SUM(CASE WHEN outcome = 'fixed' THEN 1 ELSE 0 END)::int`,
+          partiallyFixed: sql<number>`SUM(CASE WHEN outcome = 'partially_fixed' THEN 1 ELSE 0 END)::int`,
+        })
+        .from(fixOutcomeFeedback)
+        .where(eq(fixOutcomeFeedback.diagnosticCodeId, diagnosticCodeId));
+
+      if (stats[0] && stats[0].total > 0) {
+        const successRate = Math.round(
+          ((stats[0].fixed || 0) + (stats[0].partiallyFixed || 0) * 0.5) / stats[0].total * 100
+        );
+        
+        // Update the diagnostic code's fix success rate
+        await db
+          .update(diagnosticCodes)
+          .set({ fixSuccessRate: successRate })
+          .where(eq(diagnosticCodes.id, diagnosticCodeId));
+      }
+
+      console.log(`[FIX-OUTCOME] Feedback recorded: ${diagnosticCodeId} - ${outcome} by ${userId || 'anonymous'}`);
+
+      res.status(201).json({
+        success: true,
+        feedback: {
+          id: feedback.id,
+          outcome: feedback.outcome,
+          createdAt: feedback.createdAt
+        },
+        message: "Thank you for your feedback! This helps improve success rates for everyone.",
+        "data-testid": "fix-outcome-success"
+      });
+    } catch (error: any) {
+      console.error("[FIX-OUTCOME] Submission error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to submit feedback",
+        "data-testid": "fix-outcome-error"
+      });
+    }
+  });
+
+  // GET /api/service-guy/fix-outcomes/:diagnosticCodeId - Get aggregated outcomes for a code
+  app.get("/api/service-guy/fix-outcomes/:diagnosticCodeId", async (req, res) => {
+    try {
+      const { diagnosticCodeId } = req.params;
+
+      const stats = await db
+        .select({
+          total: sql<number>`COUNT(*)::int`,
+          fixed: sql<number>`SUM(CASE WHEN outcome = 'fixed' THEN 1 ELSE 0 END)::int`,
+          partiallyFixed: sql<number>`SUM(CASE WHEN outcome = 'partially_fixed' THEN 1 ELSE 0 END)::int`,
+          notFixed: sql<number>`SUM(CASE WHEN outcome = 'not_fixed' THEN 1 ELSE 0 END)::int`,
+          wrongDiagnosis: sql<number>`SUM(CASE WHEN outcome = 'wrong_diagnosis' THEN 1 ELSE 0 END)::int`,
+          avgTimeMinutes: sql<number>`AVG(time_spent_minutes)::int`,
+        })
+        .from(fixOutcomeFeedback)
+        .where(eq(fixOutcomeFeedback.diagnosticCodeId, diagnosticCodeId));
+
+      const result = stats[0] || { total: 0, fixed: 0, partiallyFixed: 0, notFixed: 0, wrongDiagnosis: 0, avgTimeMinutes: null };
+      
+      const successRate = result.total > 0 
+        ? Math.round(((result.fixed || 0) + (result.partiallyFixed || 0) * 0.5) / result.total * 100)
+        : null;
+
+      res.json({
+        success: true,
+        stats: {
+          ...result,
+          successRate,
+        },
+        "data-testid": "fix-outcomes-stats"
+      });
+    } catch (error: any) {
+      console.error("[FIX-OUTCOME] Stats error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch outcome stats",
+        "data-testid": "fix-outcomes-error"
       });
     }
   });
