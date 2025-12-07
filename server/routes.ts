@@ -12011,7 +12011,8 @@ ${pdfData.text.substring(0, 15000)}`;
   app.get("/api/service-guy/usage", async (req: any, res) => {
     try {
       const ip = req.ip || req.socket.remoteAddress || "unknown";
-      const userId = req.user?.id || (req.user as any)?.claims?.sub || null;
+      // Use consistent user ID extraction: sub first (OIDC standard), then claims.sub, then id
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub || req.user?.id || null;
       const sessionId = req.sessionID || null;
 
       // Determine user's tier
@@ -12019,7 +12020,8 @@ ${pdfData.text.substring(0, 15000)}`;
       let user = null;
       
       if (userId) {
-        [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        // Use storage.getUser for consistency with /api/auth/user endpoint
+        user = await storage.getUser(userId);
         if (user?.subscriptionTier) {
           tier = user.subscriptionTier;
         }
