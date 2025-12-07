@@ -1369,6 +1369,7 @@ export default function ServiceGuyAI() {
                                         <PartsOrderWidget 
                                           defaultSearch={selectedManufacturer && selectedManufacturer !== '_all' && code.code ? `${selectedManufacturer} ${code.code} ${code.requiredParts?.[0] || ''}`.trim() : ''} 
                                           compact={true}
+                                          parts={code.requiredParts || []}
                                         />
                                       )}
                                       
