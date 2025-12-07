@@ -464,6 +464,7 @@ export default function RepairGuide() {
           </div>
         </div>
       </div>
+    </div>
     </>
   );
 }
