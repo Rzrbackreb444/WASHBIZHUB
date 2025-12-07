@@ -13639,5 +13639,51 @@ export type DiagnosticIssueReport = typeof diagnosticIssueReports.$inferSelect;
 export type InsertDiagnosticIssueReport = z.infer<typeof insertDiagnosticIssueReportSchema>;
 
 // ============================================================================
+// SERVICE JOBS - Track Repair Work in Progress
+// ============================================================================
+
+export const serviceJobs = pgTable("service_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  status: text("status").default("in_progress"), // in_progress, on_hold, completed, cancelled
+  customerName: text("customer_name"),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  locationAddress: text("location_address"),
+  manufacturer: text("manufacturer"),
+  machineType: text("machine_type"),
+  machineModel: text("machine_model"),
+  serialNumber: text("serial_number"),
+  errorCodes: text("error_codes").array(),
+  symptoms: text("symptoms"),
+  diagnosis: text("diagnosis"),
+  repairNotes: text("repair_notes"),
+  partsUsed: jsonb("parts_used"), // [{partNumber, name, quantity, cost}]
+  laborHours: decimal("labor_hours"),
+  totalCost: decimal("total_cost"),
+  photos: text("photos").array(), // Array of image URLs/base64
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userIdx: index("service_jobs_user_idx").on(table.userId),
+  statusIdx: index("service_jobs_status_idx").on(table.status),
+  manufacturerIdx: index("service_jobs_manufacturer_idx").on(table.manufacturer),
+}));
+
+export const insertServiceJobSchema = createInsertSchema(serviceJobs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+}).extend({
+  laborHours: z.string().optional(),
+  totalCost: z.string().optional(),
+});
+
+export type InsertServiceJob = z.infer<typeof insertServiceJobSchema>;
+export type ServiceJob = typeof serviceJobs.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
