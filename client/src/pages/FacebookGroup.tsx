@@ -1,17 +1,9 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, MessageCircle, TrendingUp, BookOpen, Award, ExternalLink } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function FacebookGroup() {
-  useEffect(() => {
-    document.title = "Join the #1 Laundromat Owners Facebook Group | WashBizHub Community";
-    
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Connect with 10,000+ laundromat owners, operators, and investors in the most active Facebook community. Get real-time advice, industry insights, equipment recommendations, and business strategies from experienced professionals.');
-    }
-  }, []);
 
   const handleJoinClick = () => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -71,7 +63,57 @@ export default function FacebookGroup() {
     }
   ];
 
+  const seoFaqs = [
+    {
+      question: "Who should join this Facebook group?",
+      answer: "This group is perfect for laundromat owners, operators, prospective investors, brokers, equipment vendors, and anyone interested in the coin laundry industry. Whether you're running a single location or managing a multi-unit operation, you'll find valuable insights."
+    },
+    {
+      question: "Is this group only for experienced owners?",
+      answer: "Absolutely not! The group welcomes everyone from first-time investors researching their first purchase to seasoned operators with decades of experience. New members often receive the warmest welcomes and most detailed advice."
+    },
+    {
+      question: "What kind of topics are discussed?",
+      answer: "Members discuss equipment maintenance, pricing strategies, marketing tactics, pickup & delivery services, competitor analysis, financial modeling, lease negotiations, employee management, technology integration, and much more."
+    },
+    {
+      question: "How active is the community?",
+      answer: "Extremely active! New posts appear daily, with dozens of comments and discussions. Most questions receive multiple responses within hours. The group maintains a helpful, professional atmosphere focused on mutual success."
+    },
+    {
+      question: "Is there a cost to join the Facebook group?",
+      answer: "No, joining The Laundromat Facebook Group is completely free. It's a community resource where laundromat professionals share knowledge, ask questions, and help each other succeed in the coin laundry industry."
+    }
+  ];
+
   return (
+    <>
+      <SEO
+        title="Laundromat Owners Facebook Group - 10K+ Members"
+        description="Join 10,000+ laundromat owners in the #1 Facebook community. Get real-time advice, equipment tips, and business strategies from industry pros."
+        canonicalUrl="/facebook-group"
+        keywords={[
+          "laundromat facebook group",
+          "laundromat owners community",
+          "coin laundry facebook",
+          "laundry business network",
+          "laundromat owner advice",
+          "laundry industry community",
+          "washer dryer business group",
+          "laundromat investment community",
+          "coin laundry owners",
+          "laundromat operator network",
+          "laundry business tips",
+          "laundromat support group",
+          "commercial laundry community"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Resources", url: "/resources" },
+          { name: "Facebook Community", url: "/facebook-group" }
+        ]}
+        faqs={seoFaqs}
+      />
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
@@ -193,22 +235,7 @@ export default function FacebookGroup() {
         </div>
       </section>
 
-      {/* Structured Data */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          "name": "Join the #1 Laundromat Owners Facebook Group",
-          "description": "Connect with 10,000+ laundromat owners, operators, and investors in the most active Facebook community for the coin laundry industry.",
-          "url": "https://washbizhub.com/facebook-group",
-          "mainEntity": {
-            "@type": "Organization",
-            "name": "The Laundromat Facebook Group",
-            "url": "https://facebook.com/groups/thelaundromat",
-            "sameAs": "https://facebook.com/groups/thelaundromat"
-          }
-        })
-      }} />
     </div>
+    </>
   );
 }

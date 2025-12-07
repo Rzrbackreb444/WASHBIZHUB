@@ -13,6 +13,7 @@ import {
   PieChart, Map, Layers, Lock, Unlock, Brain, Rocket,
   DollarSign, Award, CheckCircle2, Clock, Infinity
 } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
@@ -280,7 +281,63 @@ export default function ProductsHub() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [activeProduct, setActiveProduct] = useState("cleanbi-explorer");
 
+  const productsFaqs = [
+    {
+      question: "What's included in the free plan?",
+      answer: "The free plan includes 5 CLEANBI analyses total, basic valuation calculator access, ROI calculator, and access to our industry resources library. Perfect for getting started and exploring the platform."
+    },
+    {
+      question: "Can I upgrade or downgrade anytime?",
+      answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, you'll keep your current plan until the end of your billing cycle."
+    },
+    {
+      question: "What's the difference between Pro and Enterprise?",
+      answer: "Pro is designed for individual owners and investors with generous limits. Enterprise includes white-label reports, API access, unlimited analyses, and priority support - perfect for brokers and multi-location operators."
+    },
+    {
+      question: "Do you offer refunds?",
+      answer: "We offer a 14-day money-back guarantee on all paid plans. If you're not satisfied, contact us within 14 days for a full refund."
+    },
+    {
+      question: "How accurate is the CLEANBI scoring?",
+      answer: "CLEANBI uses real-time data from Google Maps, US Census, and proprietary algorithms. Our location scores have a 95%+ correlation with actual business performance based on our validation studies."
+    }
+  ];
+
   return (
+    <>
+      <SEO
+        title="Laundromat Business Tools & Pricing Plans"
+        description="Complete toolkit for laundromat success: CLEANBI location analysis, valuation calculators, competitor intel, and expansion planning. Free to $299/mo."
+        canonicalUrl="/products"
+        ogType="product"
+        keywords={[
+          "laundromat business tools",
+          "CLEANBI location analysis",
+          "laundromat valuation calculator",
+          "coin laundry software",
+          "laundromat pricing plans",
+          "laundry business analytics",
+          "laundromat competitor analysis",
+          "coin laundry investment tools",
+          "laundromat expansion planner",
+          "laundry business intelligence",
+          "laundromat ROI calculator",
+          "laundry industry software",
+          "laundromat market research"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Products & Pricing", url: "/products" }
+        ]}
+        faqs={productsFaqs}
+        productOffers={[
+          { name: "Free Plan", description: "Essential laundromat tools to get started", price: "0", availability: "InStock" },
+          { name: "Starter Plan", description: "For serious buyers and new owners", price: "29", availability: "InStock" },
+          { name: "Pro Plan", description: "For owners and active investors", price: "99", availability: "InStock" },
+          { name: "Enterprise Plan", description: "For brokers and multi-location owners", price: "299", availability: "InStock" }
+        ]}
+      />
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -826,5 +883,6 @@ export default function ProductsHub() {
       {/* Footer spacing */}
       <div className="h-20"></div>
     </div>
+    </>
   );
 }

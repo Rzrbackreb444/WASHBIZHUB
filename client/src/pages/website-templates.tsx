@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Link } from "wouter";
 import type { WebsiteTemplate } from "@shared/schema";
+import { SEO } from "@/components/SEO";
 
 export default function WebsiteTemplatesPage() {
   const { toast } = useToast();
@@ -87,7 +88,57 @@ export default function WebsiteTemplatesPage() {
     industry === "all" || t.industry === industry
   );
 
+  const templateFaqs = [
+    {
+      question: "How quickly can I launch my laundromat website?",
+      answer: "You can launch a professional website in minutes! Simply choose a template, enter your business name and preferred subdomain, and deploy instantly. Your site will be live at yourname.washbizhub.com immediately."
+    },
+    {
+      question: "Do I need technical skills to use these templates?",
+      answer: "No technical skills required. Our templates are pre-designed by professionals with laundromat-specific layouts. Just add your content and branding—no coding, no design experience needed."
+    },
+    {
+      question: "Can I customize the website templates?",
+      answer: "Yes! All templates are fully customizable. You can edit text, images, colors, and layouts. Premium subscribers get access to advanced customization options and additional page templates."
+    },
+    {
+      question: "What types of laundry business templates are available?",
+      answer: "We offer templates for laundromats, coin laundries, dry cleaners, car washes, and wash-and-fold services. Each template is optimized for that specific business type with relevant sections and features."
+    },
+    {
+      question: "Is hosting included with the templates?",
+      answer: "Yes! Your website is hosted on WashBizHub's infrastructure at no extra cost. You get a free subdomain (yourname.washbizhub.com), or you can connect your own custom domain for a professional touch."
+    }
+  ];
+
   return (
+    <>
+      <SEO
+        title="Laundromat Website Templates - Launch in Minutes"
+        description="Professional laundromat website templates. Deploy instantly to your own subdomain. Mobile-ready designs for coin laundry and dry cleaning businesses."
+        canonicalUrl="/website-templates"
+        keywords={[
+          "laundromat website templates",
+          "coin laundry website design",
+          "laundry business website",
+          "dry cleaner website template",
+          "laundromat web design",
+          "wash and fold website",
+          "laundry service website",
+          "coin laundry web template",
+          "laundromat landing page",
+          "laundry business online presence",
+          "laundromat digital marketing",
+          "professional laundry website",
+          "self-service laundry website"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: "Website Templates", url: "/website-templates" }
+        ]}
+        faqs={templateFaqs}
+      />
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header */}
@@ -286,5 +337,6 @@ export default function WebsiteTemplatesPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
