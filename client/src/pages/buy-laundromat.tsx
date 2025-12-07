@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/SEO";
 import { RecentlyViewedListings } from "@/components/RecentlyViewedListings";
+import { PushNotificationOptIn, NotificationBell } from "@/components/PushNotificationOptIn";
 import { Link } from "wouter";
 import { 
   MapPin, DollarSign, TrendingUp, Building2, Search, Filter,
@@ -297,10 +298,13 @@ export default function BuyLaundromat() {
         <div className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
-              <Badge className="mb-4 bg-accent/20 text-accent border-accent/30">
-                <Building2 className="w-3 h-3 mr-1" />
-                Verified Listings Only
-              </Badge>
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Badge className="bg-accent/20 text-accent border-accent/30">
+                  <Building2 className="w-3 h-3 mr-1" />
+                  Verified Listings Only
+                </Badge>
+                <NotificationBell />
+              </div>
               <h1 className="text-3xl md:text-5xl font-black mb-4" data-testid="text-page-title">
                 Laundromats For Sale
               </h1>
@@ -446,6 +450,8 @@ export default function BuyLaundromat() {
           </Card>
         </div>
       </div>
+      
+      <PushNotificationOptIn />
     </>
   );
 }
