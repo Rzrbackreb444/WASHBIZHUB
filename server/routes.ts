@@ -58,6 +58,12 @@ import {
   getDeduplicationStats,
   clearDeduplicationCache,
   getIndexNowKey,
+  submitToIndexNow,
+  submitErrorCodesToIndexNow,
+  submitBlogPostsToIndexNow,
+  submitListingsToIndexNow,
+  submitContentToIndexNow,
+  INDEXNOW_KEY,
 } from "./auto-indexing";
 import { 
   triggerBlogIndexing, 
@@ -69,7 +75,7 @@ import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generat
 import { optimizeBlogForSEO } from "./seo-optimizer";
 import { 
   generateListingBlog, 
-  submitToIndexNow, 
+  submitToIndexNow as submitSingleUrlToIndexNow, 
   submitToGoogleIndexing 
 } from "./visibility-automation";
 import { 
@@ -367,7 +373,7 @@ async function applyTierBenefits(
 
           // Also submit blog to IndexNow
           const blogUrl = `${baseUrl}/blog/${blog.slug}`;
-          submitToIndexNow(blogUrl).catch(e => console.error(`❌ [TIER AUTOMATION/ASYNC] Blog IndexNow failed:`, e.message));
+          submitSingleUrlToIndexNow(blogUrl).catch(e => console.error(`❌ [TIER AUTOMATION/ASYNC] Blog IndexNow failed:`, e.message));
           console.log(`✅ [TIER AUTOMATION/ASYNC] Blog queued for IndexNow: ${blogUrl}`);
           
         } catch (blogError: any) {
@@ -378,7 +384,7 @@ async function applyTierBenefits(
       // Fire-and-forget: IndexNow submission
       setImmediate(async () => {
         try {
-          const indexNowResult = await submitToIndexNow(listingUrl);
+          const indexNowResult = await submitSingleUrlToIndexNow(listingUrl);
           console.log(`${indexNowResult.success ? '✅' : '⚠️'} [TIER AUTOMATION/ASYNC] IndexNow: ${indexNowResult.message}`);
         } catch (indexError: any) {
           console.error(`❌ [TIER AUTOMATION/ASYNC] IndexNow error:`, indexError.message);
@@ -11337,6 +11343,51 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       });
     } catch (error: any) {
       console.error("Failed to get indexing log:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/trigger-indexnow - Manually trigger IndexNow for new content
+  app.post("/api/admin/trigger-indexnow", isAdmin, async (req: any, res) => {
+    try {
+      const { errorCodes, blogSlugs, listingIds, customUrls } = req.body;
+      
+      // Validate that at least one content type is provided
+      const hasContent = 
+        (errorCodes?.length) || 
+        (blogSlugs?.length) || 
+        (listingIds?.length) || 
+        (customUrls?.length);
+      
+      if (!hasContent) {
+        return res.status(400).json({
+          success: false,
+          error: "At least one content type is required: errorCodes, blogSlugs, listingIds, or customUrls"
+        });
+      }
+      
+      console.log(`\n🚀 [ADMIN] Triggering IndexNow submission...`);
+      
+      // Submit all content to IndexNow
+      const result = await submitContentToIndexNow({
+        errorCodes: errorCodes || [],
+        blogSlugs: blogSlugs || [],
+        listingIds: listingIds || [],
+        customUrls: customUrls || [],
+      });
+      
+      res.json({
+        success: true,
+        message: `Submitted ${result.totalSubmitted} URLs to IndexNow`,
+        key: INDEXNOW_KEY,
+        endpoints: ['api.indexnow.org', 'www.bing.com', 'yandex.com'],
+        ...result,
+      });
+    } catch (error: any) {
+      console.error("IndexNow trigger failed:", error);
       res.status(500).json({ 
         success: false,
         error: error.message 
