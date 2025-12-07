@@ -73,6 +73,8 @@ import {
   BookmarkPlus,
   Bookmark,
   ArrowRight,
+  ArrowUpRight,
+  ArrowDownRight,
   Check,
   Plus,
   Minus,
@@ -123,6 +125,21 @@ import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
 import { InvestmentDisclaimer } from "@/components/LegalDisclaimer";
 import { useIsMobileWithHydration } from "@/hooks/use-mobile";
+import {
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Legend,
+  Tooltip as RechartsTooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Cell,
+} from "recharts";
 import { SavedAddressesPanel } from "@/components/cleanbi/SavedAddressesPanel";
 import { ViewModeToggle } from "@/components/cleanbi/ViewModeToggle";
 import { AnalysisChartsView } from "@/components/cleanbi/AnalysisChartsView";
@@ -346,6 +363,74 @@ const MACHINE_TYPE_DISPLAY: Record<MachineType, string> = {
   ironer: 'Ironer'
 };
 
+interface EquipmentTemplate {
+  id: string;
+  name: string;
+  description: string;
+  totalMachines: number;
+  estimatedCost: number;
+  equipment: Omit<EquipmentItem, 'id'>[];
+}
+
+const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
+  {
+    id: 'starter-20',
+    name: '20-Machine Starter',
+    description: 'Ideal for small neighborhood laundromats (1,500-2,000 sqft)',
+    totalMachines: 20,
+    estimatedCost: 145000,
+    equipment: [
+      { machineType: 'washer', brand: 'speed_queen', model: 'SC20', capacity: 'small', ageYears: 0, purchaseCost: 5500, quantity: 4, condition: 'excellent' },
+      { machineType: 'washer', brand: 'speed_queen', model: 'SC30', capacity: 'medium', ageYears: 0, purchaseCost: 7500, quantity: 4, condition: 'excellent' },
+      { machineType: 'washer', brand: 'speed_queen', model: 'SC40', capacity: 'large', ageYears: 0, purchaseCost: 9500, quantity: 2, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'speed_queen', model: 'ST30', capacity: 'medium', ageYears: 0, purchaseCost: 4500, quantity: 8, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'speed_queen', model: 'ST45', capacity: 'large', ageYears: 0, purchaseCost: 5500, quantity: 2, condition: 'excellent' }
+    ]
+  },
+  {
+    id: 'standard-40',
+    name: '40-Machine Standard',
+    description: 'Best for mid-size stores (2,500-3,500 sqft)',
+    totalMachines: 40,
+    estimatedCost: 320000,
+    equipment: [
+      { machineType: 'washer', brand: 'dexter', model: 'T-300', capacity: 'small', ageYears: 0, purchaseCost: 6000, quantity: 6, condition: 'excellent' },
+      { machineType: 'washer', brand: 'dexter', model: 'T-400', capacity: 'medium', ageYears: 0, purchaseCost: 8000, quantity: 8, condition: 'excellent' },
+      { machineType: 'washer', brand: 'dexter', model: 'T-600', capacity: 'large', ageYears: 0, purchaseCost: 11000, quantity: 4, condition: 'excellent' },
+      { machineType: 'washer', brand: 'dexter', model: 'T-900', capacity: 'extra_large', ageYears: 0, purchaseCost: 15000, quantity: 2, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'dexter', model: 'DL2X30', capacity: 'medium', ageYears: 0, purchaseCost: 5500, quantity: 12, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'dexter', model: 'DL2X45', capacity: 'large', ageYears: 0, purchaseCost: 7000, quantity: 6, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'dexter', model: 'DL2X55', capacity: 'extra_large', ageYears: 0, purchaseCost: 8500, quantity: 2, condition: 'excellent' }
+    ]
+  },
+  {
+    id: 'premium-80',
+    name: '80-Machine Premium',
+    description: 'For high-volume flagship locations (4,500+ sqft)',
+    totalMachines: 80,
+    estimatedCost: 680000,
+    equipment: [
+      { machineType: 'washer', brand: 'continental_girbau', model: 'E-Series 20', capacity: 'small', ageYears: 0, purchaseCost: 6500, quantity: 10, condition: 'excellent' },
+      { machineType: 'washer', brand: 'continental_girbau', model: 'E-Series 30', capacity: 'medium', ageYears: 0, purchaseCost: 9000, quantity: 14, condition: 'excellent' },
+      { machineType: 'washer', brand: 'continental_girbau', model: 'E-Series 40', capacity: 'large', ageYears: 0, purchaseCost: 12000, quantity: 8, condition: 'excellent' },
+      { machineType: 'washer', brand: 'continental_girbau', model: 'E-Series 60', capacity: 'extra_large', ageYears: 0, purchaseCost: 18000, quantity: 4, condition: 'excellent' },
+      { machineType: 'washer', brand: 'continental_girbau', model: 'E-Series 80', capacity: 'mega', ageYears: 0, purchaseCost: 24000, quantity: 2, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'adc', model: 'AD-30', capacity: 'medium', ageYears: 0, purchaseCost: 5000, quantity: 20, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'adc', model: 'AD-45', capacity: 'large', ageYears: 0, purchaseCost: 6500, quantity: 14, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'adc', model: 'AD-75', capacity: 'extra_large', ageYears: 0, purchaseCost: 8500, quantity: 6, condition: 'excellent' },
+      { machineType: 'dryer', brand: 'adc', model: 'AD-120', capacity: 'mega', ageYears: 0, purchaseCost: 12000, quantity: 2, condition: 'excellent' }
+    ]
+  }
+];
+
+const EQUIPMENT_USEFUL_LIFE: Record<MachineType, number> = {
+  washer: 12,
+  dryer: 14,
+  combo: 10,
+  folder: 15,
+  ironer: 15
+};
+
 const GRADE_COLORS: Record<string, string> = {
   "A": "#22C55E",
   "B": "#A3E635",
@@ -362,14 +447,94 @@ const OPPORTUNITY_LABELS: Record<string, { text: string; pulse: boolean }> = {
 };
 
 const CLEANBI_CATEGORIES = [
-  { key: "customer", name: "Customer", icon: Users, description: "Population density, household income, demographics", weight: 20 },
-  { key: "location", name: "Location", icon: MapPin, description: "Visibility, accessibility, parking, foot traffic", weight: 18 },
-  { key: "equipment", name: "Equipment", icon: Zap, description: "Machine mix, age, efficiency potential", weight: 15 },
-  { key: "adaptability", name: "Adaptability", icon: TrendingUp, description: "Expansion room, service diversification", weight: 12 },
-  { key: "numbers", name: "Numbers", icon: DollarSign, description: "Revenue, margins, ROI benchmarks", weight: 15 },
-  { key: "brand", name: "Brand", icon: Star, description: "Online presence, reviews, reputation", weight: 10 },
-  { key: "intelligence", name: "Intelligence", icon: Brain, description: "Market saturation, competition density", weight: 10 }
+  { 
+    key: "customer", 
+    name: "Customer", 
+    icon: Users, 
+    description: "Population density, household income, demographics", 
+    weight: 20,
+    tooltip: "Analyzes population density per square mile, median household income, and renter demographics in the area",
+    getPlainLanguage: (score: number) => score >= 85 ? "Excellent customer base" : score >= 70 ? "Strong customer potential" : score >= 55 ? "Moderate customer base" : "Needs customer outreach",
+    factors: ["Population density", "Median income", "Renter percentage"]
+  },
+  { 
+    key: "location", 
+    name: "Location", 
+    icon: MapPin, 
+    description: "Visibility, accessibility, parking, foot traffic", 
+    weight: 18,
+    tooltip: "Evaluates walk score, transit access, visibility from main roads, and parking availability",
+    getPlainLanguage: (score: number) => score >= 85 ? "Prime location" : score >= 70 ? "Very accessible" : score >= 55 ? "Decent accessibility" : "Location challenges",
+    factors: ["Walk score", "Transit access", "Visibility"]
+  },
+  { 
+    key: "equipment", 
+    name: "Equipment", 
+    icon: Zap, 
+    description: "Machine mix, age, efficiency potential", 
+    weight: 15,
+    tooltip: "Estimates optimal machine mix based on market size, considers modern efficiency standards",
+    getPlainLanguage: (score: number) => score >= 85 ? "Optimal setup" : score >= 70 ? "Good equipment fit" : score >= 55 ? "Upgrade opportunity" : "Retool recommended",
+    factors: ["Market capacity", "Efficiency potential", "Mix optimization"]
+  },
+  { 
+    key: "adaptability", 
+    name: "Adaptability", 
+    icon: TrendingUp, 
+    description: "Expansion room, service diversification", 
+    weight: 12,
+    tooltip: "Measures potential for adding services like wash-dry-fold, pickup/delivery, or commercial accounts",
+    getPlainLanguage: (score: number) => score >= 85 ? "High growth potential" : score >= 70 ? "Room to expand" : score >= 55 ? "Some expansion options" : "Limited flexibility",
+    factors: ["Service diversification", "Market gaps", "Growth room"]
+  },
+  { 
+    key: "numbers", 
+    name: "Numbers", 
+    icon: DollarSign, 
+    description: "Revenue, margins, ROI benchmarks", 
+    weight: 15,
+    tooltip: "Projects revenue potential based on area demographics, competition, and industry benchmarks",
+    getPlainLanguage: (score: number) => score >= 85 ? "Strong financials" : score >= 70 ? "Solid numbers" : score >= 55 ? "Average returns" : "Margin pressure",
+    factors: ["Revenue potential", "Cost efficiency", "ROI outlook"]
+  },
+  { 
+    key: "brand", 
+    name: "Brand", 
+    icon: Star, 
+    description: "Online presence, reviews, reputation", 
+    weight: 10,
+    tooltip: "Considers existing reputation, review ratings, and online visibility in the market",
+    getPlainLanguage: (score: number) => score >= 85 ? "Strong presence" : score >= 70 ? "Good reputation" : score >= 55 ? "Building awareness" : "Needs visibility",
+    factors: ["Review ratings", "Online presence", "Local reputation"]
+  },
+  { 
+    key: "intelligence", 
+    name: "Intelligence", 
+    icon: Brain, 
+    description: "Market saturation, competition density", 
+    weight: 10,
+    tooltip: "Analyzes competitor density, market saturation, and strategic positioning opportunities",
+    getPlainLanguage: (score: number) => score >= 85 ? "Low competition" : score >= 70 ? "Manageable market" : score >= 55 ? "Competitive area" : "Saturated market",
+    factors: ["Competition density", "Market saturation", "Positioning"]
+  }
 ];
+
+const TOP_QUARTILE_BENCHMARKS: Record<string, number> = {
+  customer: 88,
+  location: 85,
+  equipment: 90,
+  adaptability: 82,
+  numbers: 87,
+  brand: 83,
+  intelligence: 86
+};
+
+function getScoreInterpretation(score: number): { label: string; color: string } {
+  if (score >= 85) return { label: "Excellent", color: "#22C55E" };
+  if (score >= 70) return { label: "Good", color: "#A3E635" };
+  if (score >= 55) return { label: "Fair", color: "#FBBF24" };
+  return { label: "Needs Work", color: "#C8A661" };
+}
 
 const INDUSTRY_BENCHMARKS = {
   tpd: { min: 5, max: 7, unit: "turns/day", label: "Turns Per Day", description: "Industry target range" },
@@ -479,6 +644,375 @@ function generateAINarrative(analysis: AnalysisResult, competitors: Competitor[]
   return narrative;
 }
 
+interface QuickWin {
+  type: "opportunity" | "consideration";
+  icon: typeof Target;
+  title: string;
+  description: string;
+}
+
+function generateQuickWins(analysis: AnalysisResult): QuickWin[] {
+  const wins: QuickWin[] = [];
+  
+  if (analysis.competitorCount <= 3) {
+    wins.push({
+      type: "opportunity",
+      icon: Target,
+      title: "Low saturation market",
+      description: "Premium pricing opportunity with minimal competition"
+    });
+  }
+  
+  if (analysis.medianIncome >= 75000) {
+    wins.push({
+      type: "opportunity",
+      icon: Briefcase,
+      title: "High-income area",
+      description: "Target full-service offerings and premium amenities"
+    });
+  }
+  
+  if (analysis.trafficScore >= 70) {
+    wins.push({
+      type: "opportunity",
+      icon: Clock,
+      title: "High foot traffic",
+      description: "Consider extended hours to capture more customers"
+    });
+  }
+  
+  if (analysis.populationDensity >= 8000) {
+    wins.push({
+      type: "opportunity",
+      icon: Users,
+      title: "Dense population",
+      description: "Strong customer base within walking distance"
+    });
+  }
+  
+  if (analysis.walkScore && analysis.walkScore >= 70) {
+    wins.push({
+      type: "opportunity",
+      icon: Footprints,
+      title: "Highly walkable",
+      description: "Walk-in traffic potential is excellent"
+    });
+  }
+  
+  if (analysis.competitorCount >= 6) {
+    wins.push({
+      type: "consideration",
+      icon: Building2,
+      title: "Competitive market",
+      description: "Differentiation strategy recommended for standout appeal"
+    });
+  }
+  
+  if (analysis.medianIncome < 50000) {
+    wins.push({
+      type: "consideration",
+      icon: DollarSign,
+      title: "Value-focused market",
+      description: "Emphasize affordable pricing and loyalty programs"
+    });
+  }
+  
+  if (analysis.populationDensity < 3000) {
+    wins.push({
+      type: "consideration",
+      icon: Car,
+      title: "Lower density area",
+      description: "Consider pickup/delivery services to expand reach"
+    });
+  }
+  
+  return wins.slice(0, 5);
+}
+
+// Types for AI-Curated Action Board
+interface InsightOpportunity {
+  id: string;
+  icon: typeof Target;
+  title: string;
+  description: string;
+  actionText: string;
+  priority: "high" | "medium" | "low";
+  dataSource: string;
+}
+
+interface InsightRisk {
+  id: string;
+  icon: typeof AlertCircle;
+  title: string;
+  description: string;
+  mitigation: string;
+  severity: "high" | "medium" | "low";
+  dataSource: string;
+}
+
+function generateInsightsOpportunities(analysis: AnalysisResult): InsightOpportunity[] {
+  const opportunities: InsightOpportunity[] = [];
+  
+  // Low competition = premium pricing opportunity
+  if (analysis.competitorCount <= 3) {
+    opportunities.push({
+      id: "opp-low-competition",
+      icon: Target,
+      title: "Low Competition Zone",
+      description: `Only ${analysis.competitorCount} competitor${analysis.competitorCount === 1 ? "" : "s"} within 1 mile radius`,
+      actionText: "Room for premium positioning and higher vend prices",
+      priority: "high",
+      dataSource: "competitorCount"
+    });
+  } else if (analysis.competitorCount <= 5) {
+    opportunities.push({
+      id: "opp-moderate-competition",
+      icon: Target,
+      title: "Moderate Competition",
+      description: `${analysis.competitorCount} competitors nearby - manageable market`,
+      actionText: "Focus on service quality to capture market share",
+      priority: "medium",
+      dataSource: "competitorCount"
+    });
+  }
+  
+  // High income area
+  if (analysis.medianIncome >= 100000) {
+    opportunities.push({
+      id: "opp-premium-income",
+      icon: Briefcase,
+      title: "Premium Market",
+      description: `$${(analysis.medianIncome / 1000).toFixed(0)}K median income supports premium services`,
+      actionText: "Offer wash-dry-fold, delivery, and premium amenities",
+      priority: "high",
+      dataSource: "medianIncome"
+    });
+  } else if (analysis.medianIncome >= 75000) {
+    opportunities.push({
+      id: "opp-high-income",
+      icon: DollarSign,
+      title: "Strong Spending Power",
+      description: `$${(analysis.medianIncome / 1000).toFixed(0)}K median income in this area`,
+      actionText: "Full-service offerings will resonate with customers",
+      priority: "medium",
+      dataSource: "medianIncome"
+    });
+  }
+  
+  // High traffic score
+  if (analysis.trafficScore >= 80) {
+    opportunities.push({
+      id: "opp-high-traffic",
+      icon: TrendingUp,
+      title: "Excellent Foot Traffic",
+      description: `Traffic score of ${analysis.trafficScore}/100 indicates high visibility`,
+      actionText: "Extended hours and signage will maximize exposure",
+      priority: "high",
+      dataSource: "trafficScore"
+    });
+  } else if (analysis.trafficScore >= 60) {
+    opportunities.push({
+      id: "opp-good-traffic",
+      icon: Clock,
+      title: "Good Traffic Flow",
+      description: `Traffic score of ${analysis.trafficScore}/100 - solid visibility`,
+      actionText: "Consider strategic signage to capture drive-by traffic",
+      priority: "medium",
+      dataSource: "trafficScore"
+    });
+  }
+  
+  // High population density
+  if (analysis.populationDensity >= 10000) {
+    opportunities.push({
+      id: "opp-dense-population",
+      icon: Users,
+      title: "Dense Urban Market",
+      description: `${(analysis.populationDensity / 1000).toFixed(1)}K people per sq mile`,
+      actionText: "Large captive customer base within walking distance",
+      priority: "high",
+      dataSource: "populationDensity"
+    });
+  } else if (analysis.populationDensity >= 5000) {
+    opportunities.push({
+      id: "opp-good-density",
+      icon: Users,
+      title: "Strong Population Base",
+      description: `${(analysis.populationDensity / 1000).toFixed(1)}K people per sq mile nearby`,
+      actionText: "Consistent customer flow from local residents",
+      priority: "medium",
+      dataSource: "populationDensity"
+    });
+  }
+  
+  // High walk score
+  if (analysis.walkScore && analysis.walkScore >= 85) {
+    opportunities.push({
+      id: "opp-walkable",
+      icon: Footprints,
+      title: "Walker's Paradise",
+      description: `Walk Score of ${analysis.walkScore} - daily errands walkable`,
+      actionText: "Walk-in customers will be a major traffic source",
+      priority: "high",
+      dataSource: "walkScore"
+    });
+  } else if (analysis.walkScore && analysis.walkScore >= 70) {
+    opportunities.push({
+      id: "opp-very-walkable",
+      icon: Footprints,
+      title: "Very Walkable Location",
+      description: `Walk Score of ${analysis.walkScore} - most errands walkable`,
+      actionText: "Pedestrian traffic supports consistent walk-ins",
+      priority: "medium",
+      dataSource: "walkScore"
+    });
+  }
+  
+  // Good transit score
+  if (analysis.transitScore && analysis.transitScore >= 70) {
+    opportunities.push({
+      id: "opp-transit",
+      icon: Train,
+      title: "Excellent Transit Access",
+      description: `Transit Score of ${analysis.transitScore} - convenient public transit`,
+      actionText: "Car-free customers can easily reach your location",
+      priority: "medium",
+      dataSource: "transitScore"
+    });
+  }
+  
+  // Sort by priority and return top 5
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  return opportunities.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]).slice(0, 5);
+}
+
+function generateInsightsRisks(analysis: AnalysisResult): InsightRisk[] {
+  const risks: InsightRisk[] = [];
+  
+  // High competition
+  if (analysis.competitorCount >= 8) {
+    risks.push({
+      id: "risk-high-competition",
+      icon: Building2,
+      title: "Saturated Market",
+      description: `${analysis.competitorCount} competitors within 1 mile`,
+      mitigation: "Differentiate with superior service, modern equipment, or niche offerings",
+      severity: "high",
+      dataSource: "competitorCount"
+    });
+  } else if (analysis.competitorCount >= 6) {
+    risks.push({
+      id: "risk-moderate-competition",
+      icon: Building2,
+      title: "Competitive Market",
+      description: `${analysis.competitorCount} competitors nearby requires differentiation`,
+      mitigation: "Focus on customer experience and loyalty programs",
+      severity: "medium",
+      dataSource: "competitorCount"
+    });
+  }
+  
+  // Lower income area
+  if (analysis.medianIncome < 40000) {
+    risks.push({
+      id: "risk-low-income",
+      icon: Wallet,
+      title: "Value-Sensitive Market",
+      description: `$${(analysis.medianIncome / 1000).toFixed(0)}K median income - price conscious`,
+      mitigation: "Competitive pricing with loyalty rewards and promotions",
+      severity: "high",
+      dataSource: "medianIncome"
+    });
+  } else if (analysis.medianIncome < 50000) {
+    risks.push({
+      id: "risk-moderate-income",
+      icon: DollarSign,
+      title: "Budget-Conscious Area",
+      description: `$${(analysis.medianIncome / 1000).toFixed(0)}K median income area`,
+      mitigation: "Balance quality with value pricing strategies",
+      severity: "medium",
+      dataSource: "medianIncome"
+    });
+  }
+  
+  // Low traffic
+  if (analysis.trafficScore < 40) {
+    risks.push({
+      id: "risk-low-traffic",
+      icon: Car,
+      title: "Lower Visibility Zone",
+      description: `Traffic score of ${analysis.trafficScore}/100 may limit walk-ins`,
+      mitigation: "Invest in marketing, delivery services, and online presence",
+      severity: "high",
+      dataSource: "trafficScore"
+    });
+  } else if (analysis.trafficScore < 55) {
+    risks.push({
+      id: "risk-moderate-traffic",
+      icon: Navigation,
+      title: "Moderate Visibility",
+      description: `Traffic score of ${analysis.trafficScore}/100 - some visibility challenges`,
+      mitigation: "Enhanced signage and local marketing can help",
+      severity: "medium",
+      dataSource: "trafficScore"
+    });
+  }
+  
+  // Low population density
+  if (analysis.populationDensity < 2000) {
+    risks.push({
+      id: "risk-low-density",
+      icon: MapPinned,
+      title: "Lower Density Area",
+      description: `${(analysis.populationDensity / 1000).toFixed(1)}K people per sq mile`,
+      mitigation: "Pickup/delivery service can expand your reach significantly",
+      severity: "high",
+      dataSource: "populationDensity"
+    });
+  } else if (analysis.populationDensity < 4000) {
+    risks.push({
+      id: "risk-moderate-density",
+      icon: MapPin,
+      title: "Suburban Density",
+      description: `${(analysis.populationDensity / 1000).toFixed(1)}K people per sq mile`,
+      mitigation: "Focus on convenience and parking availability",
+      severity: "medium",
+      dataSource: "populationDensity"
+    });
+  }
+  
+  // Low walk score
+  if (analysis.walkScore && analysis.walkScore < 40) {
+    risks.push({
+      id: "risk-car-dependent",
+      icon: Car,
+      title: "Car-Dependent Location",
+      description: `Walk Score of ${analysis.walkScore} - driving required`,
+      mitigation: "Ensure ample parking and consider drive-through pickup",
+      severity: "medium",
+      dataSource: "walkScore"
+    });
+  }
+  
+  // Sort by severity and return all
+  const severityOrder = { high: 0, medium: 1, low: 2 };
+  return risks.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+}
+
+function getIncomeLevel(income: number): { label: string; color: string } {
+  if (income >= 100000) return { label: "High", color: "#22C55E" };
+  if (income >= 75000) return { label: "Upper-Middle", color: "#A3E635" };
+  if (income >= 50000) return { label: "Middle", color: "#FBBF24" };
+  return { label: "Value", color: "#F97316" };
+}
+
+function getMarketMedianDelta(score: number): { value: number; label: string } {
+  const marketMedian = 62;
+  const delta = score - marketMedian;
+  const sign = delta >= 0 ? "+" : "";
+  return { value: delta, label: `${sign}${delta} vs market avg` };
+}
+
 function CleanBIExplorerContent() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -563,6 +1097,7 @@ function CleanBIExplorerContent() {
   const [planExpanded, setPlanExpanded] = useState(false);
   const [categoryScores, setCategoryScores] = useState<Record<string, number>>({});
   const [showSavedMarkers, setShowSavedMarkers] = useState(true);
+  const [showBenchmarkComparison, setShowBenchmarkComparison] = useState(false);
   
   // Premium Intelligence State
   const [intelligenceData, setIntelligenceData] = useState<IntelligenceReport | null>(null);
@@ -588,6 +1123,88 @@ function CleanBIExplorerContent() {
     loanTerm: 10,
   });
   
+  // Scenario Projection Sliders State
+  const [scenarioSliders, setScenarioSliders] = useState({
+    vendPrice: 4.50, // $3.00 - $7.00, will be adjusted based on median income
+    turnsPerDay: 5, // 3-10 turns/day
+    machineCount: 30, // 10-100 machines
+    operatingHours: 16, // 12-24 hours/day
+  });
+  
+  // Financing Calculator State
+  const [financingCalc, setFinancingCalc] = useState({
+    loanAmount: 250000,
+    interestRate: 8.0, // 6-12%
+    loanTerm: 7, // 5, 7, 10 years
+  });
+  
+  // Calculate default vend price based on median income when analysis changes
+  useEffect(() => {
+    if (analysisResult?.medianIncome) {
+      // Higher income areas can support higher vend prices
+      const income = analysisResult.medianIncome;
+      let defaultVendPrice = 4.50;
+      if (income >= 100000) defaultVendPrice = 6.00;
+      else if (income >= 75000) defaultVendPrice = 5.25;
+      else if (income >= 50000) defaultVendPrice = 4.50;
+      else if (income >= 35000) defaultVendPrice = 3.75;
+      else defaultVendPrice = 3.25;
+      
+      setScenarioSliders(prev => ({ ...prev, vendPrice: defaultVendPrice }));
+    }
+  }, [analysisResult?.medianIncome]);
+  
+  // Calculate scenario projections
+  const scenarioProjections = useMemo(() => {
+    const { vendPrice, turnsPerDay, machineCount, operatingHours } = scenarioSliders;
+    // Adjust turns based on operating hours (base is 16 hours)
+    const hoursMultiplier = operatingHours / 16;
+    const adjustedTurns = turnsPerDay * hoursMultiplier;
+    
+    const dailyRevenue = vendPrice * adjustedTurns * machineCount;
+    const monthlyRevenue = dailyRevenue * 30;
+    const annualRevenue = monthlyRevenue * 12;
+    
+    // Expense breakdown percentages (mid-range of industry benchmarks)
+    const expenses = {
+      utilities: annualRevenue * 0.175, // 17.5% (mid of 15-20%)
+      labor: annualRevenue * 0.125, // 12.5% (mid of 10-15%)
+      rent: annualRevenue * 0.11, // 11% (mid of 10-12%)
+      maintenance: annualRevenue * 0.04, // 4% (mid of 3-5%)
+      other: annualRevenue * 0.065, // 6.5% (mid of 5-8%)
+    };
+    
+    const totalExpenses = Object.values(expenses).reduce((a, b) => a + b, 0);
+    const expensePercentage = (totalExpenses / annualRevenue) * 100;
+    const ebitda = annualRevenue - totalExpenses;
+    const ebitdaMargin = (ebitda / annualRevenue) * 100;
+    
+    return {
+      dailyRevenue,
+      monthlyRevenue,
+      annualRevenue,
+      expenses,
+      totalExpenses,
+      expensePercentage,
+      ebitda,
+      ebitdaMargin,
+    };
+  }, [scenarioSliders]);
+  
+  // Calculate monthly loan payment
+  const monthlyPayment = useMemo(() => {
+    const { loanAmount, interestRate, loanTerm } = financingCalc;
+    const monthlyRate = interestRate / 100 / 12;
+    const numPayments = loanTerm * 12;
+    
+    if (monthlyRate === 0) return loanAmount / numPayments;
+    
+    const payment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+      (Math.pow(1 + monthlyRate, numPayments) - 1);
+    
+    return payment;
+  }, [financingCalc]);
+  
   // Deal Scorer state
   const [dealVerdict, setDealVerdict] = useState<"buy" | "negotiate" | "overpriced" | null>(null);
   
@@ -596,6 +1213,11 @@ function CleanBIExplorerContent() {
   const [competitorAnalysis, setCompetitorAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzingCompetitor, setIsAnalyzingCompetitor] = useState(false);
   const [competitorSheetOpen, setCompetitorSheetOpen] = useState(false);
+  
+  // Competition Tab Filtering State
+  const [competitorRatingFilter, setCompetitorRatingFilter] = useState<string>("all");
+  const [competitorDistanceFilter, setCompetitorDistanceFilter] = useState<string>("all");
+  const [competitorSortBy, setCompetitorSortBy] = useState<string>("distance");
   
   // Market Gap Finder state
   const [showMarketGaps, setShowMarketGaps] = useState(false);
@@ -630,6 +1252,73 @@ function CleanBIExplorerContent() {
     confidenceStatement: string;
   } | null>(null);
   const [isGeneratingNarrative, setIsGeneratingNarrative] = useState(false);
+  const [equipmentModalMode, setEquipmentModalMode] = useState<'standard' | 'quick' | 'templates'>('standard');
+  
+  // Memoized running totals for valuator equipment
+  const equipmentRunningTotals = useMemo(() => {
+    const totalMachines = valuatorEquipment.reduce((sum, e) => sum + e.quantity, 0);
+    const totalCost = valuatorEquipment.reduce((sum, e) => sum + (e.purchaseCost * e.quantity), 0);
+    const washerCount = valuatorEquipment.filter(e => e.machineType === 'washer').reduce((sum, e) => sum + e.quantity, 0);
+    const dryerCount = valuatorEquipment.filter(e => e.machineType === 'dryer').reduce((sum, e) => sum + e.quantity, 0);
+    const avgAge = totalMachines > 0 
+      ? valuatorEquipment.reduce((sum, e) => sum + (e.ageYears * e.quantity), 0) / totalMachines 
+      : 0;
+    return { totalMachines, totalCost, washerCount, dryerCount, avgAge };
+  }, [valuatorEquipment]);
+
+  // Memoized age distribution data for chart
+  const ageDistributionData = useMemo(() => {
+    const ageCounts: Record<number, { washers: number; dryers: number; other: number }> = {};
+    valuatorEquipment.forEach(item => {
+      const age = item.ageYears;
+      if (!ageCounts[age]) {
+        ageCounts[age] = { washers: 0, dryers: 0, other: 0 };
+      }
+      if (item.machineType === 'washer') {
+        ageCounts[age].washers += item.quantity;
+      } else if (item.machineType === 'dryer') {
+        ageCounts[age].dryers += item.quantity;
+      } else {
+        ageCounts[age].other += item.quantity;
+      }
+    });
+    
+    return Object.entries(ageCounts)
+      .map(([age, counts]) => ({
+        age: parseInt(age),
+        label: `${age}yr`,
+        washers: counts.washers,
+        dryers: counts.dryers,
+        other: counts.other,
+        total: counts.washers + counts.dryers + counts.other
+      }))
+      .sort((a, b) => a.age - b.age);
+  }, [valuatorEquipment]);
+
+  // Memoized depreciation and replacement timeline data
+  const depreciationTimelineData = useMemo(() => {
+    return valuatorEquipment.map(item => {
+      const usefulLife = EQUIPMENT_USEFUL_LIFE[item.machineType] || 12;
+      const remainingLife = Math.max(0, usefulLife - item.ageYears);
+      const depreciationPercent = Math.min(100, (item.ageYears / usefulLife) * 100);
+      const estimatedCurrentValue = item.purchaseCost * item.quantity * (1 - (depreciationPercent / 100) * 0.7);
+      const replacementUrgency = remainingLife <= 2 ? 'urgent' : remainingLife <= 5 ? 'soon' : 'good';
+      
+      return {
+        id: item.id,
+        brand: BRAND_DISPLAY_NAMES[item.brand],
+        type: MACHINE_TYPE_DISPLAY[item.machineType],
+        quantity: item.quantity,
+        ageYears: item.ageYears,
+        usefulLife,
+        remainingLife,
+        depreciationPercent,
+        estimatedCurrentValue,
+        replacementUrgency,
+        originalCost: item.purchaseCost * item.quantity
+      };
+    });
+  }, [valuatorEquipment]);
   
   // Auto-calculate deal verdict when financial values change
   useEffect(() => {
@@ -688,6 +1377,120 @@ function CleanBIExplorerContent() {
       value: Math.round(estimatedValue)
     };
   }, [analysisResult?.populationDensity, analysisResult?.medianIncome, analysisResult?.competitorCount]);
+
+  // Memoized filtered and sorted competitors
+  const filteredCompetitors = useMemo(() => {
+    let filtered = [...competitors];
+    
+    // Apply rating filter
+    if (competitorRatingFilter === "4plus") {
+      filtered = filtered.filter(c => c.rating >= 4);
+    } else if (competitorRatingFilter === "3plus") {
+      filtered = filtered.filter(c => c.rating >= 3);
+    } else if (competitorRatingFilter === "below3") {
+      filtered = filtered.filter(c => c.rating < 3);
+    }
+    
+    // Apply distance filter
+    if (competitorDistanceFilter === "1mi") {
+      filtered = filtered.filter(c => c.distance <= 1);
+    } else if (competitorDistanceFilter === "2mi") {
+      filtered = filtered.filter(c => c.distance <= 2);
+    } else if (competitorDistanceFilter === "3mi") {
+      filtered = filtered.filter(c => c.distance <= 3);
+    } else if (competitorDistanceFilter === "5mi") {
+      filtered = filtered.filter(c => c.distance <= 5);
+    }
+    
+    // Apply sorting
+    if (competitorSortBy === "distance") {
+      filtered.sort((a, b) => a.distance - b.distance);
+    } else if (competitorSortBy === "rating") {
+      filtered.sort((a, b) => b.rating - a.rating);
+    } else if (competitorSortBy === "reviews") {
+      filtered.sort((a, b) => b.reviewCount - a.reviewCount);
+    }
+    
+    return filtered;
+  }, [competitors, competitorRatingFilter, competitorDistanceFilter, competitorSortBy]);
+
+  // Memoized competitor market summary statistics
+  const competitorMarketSummary = useMemo(() => {
+    if (competitors.length === 0) return null;
+    
+    const avgRating = competitors.reduce((sum, c) => sum + c.rating, 0) / competitors.length;
+    const highRatedCount = competitors.filter(c => c.rating >= 4).length;
+    const lowRatedCount = competitors.filter(c => c.rating < 3).length;
+    const mediumRatedCount = competitors.length - highRatedCount - lowRatedCount;
+    const totalReviews = competitors.reduce((sum, c) => sum + c.reviewCount, 0);
+    const avgReviews = totalReviews / competitors.length;
+    
+    // Calculate market opportunity score based on competitor weaknesses
+    // Higher score = more opportunity (lower avg rating, more low-rated competitors)
+    let opportunityScore = 50; // baseline
+    opportunityScore += (5 - avgRating) * 15; // lower avg rating = more opportunity
+    opportunityScore += (lowRatedCount / competitors.length) * 20; // more low-rated = more opportunity
+    opportunityScore -= (highRatedCount / competitors.length) * 10; // fewer high-rated = less competition
+    if (avgReviews < 50) opportunityScore += 10; // low review counts = less established
+    opportunityScore = Math.max(20, Math.min(95, opportunityScore));
+    
+    // Determine opportunity level
+    let opportunityLevel: "high" | "moderate" | "low" = "moderate";
+    if (opportunityScore >= 70) opportunityLevel = "high";
+    else if (opportunityScore < 45) opportunityLevel = "low";
+    
+    // Generate service gaps based on competitor weaknesses
+    const serviceGaps: string[] = [];
+    if (avgReviews < 30) serviceGaps.push("Online presence");
+    if (avgRating < 3.8) serviceGaps.push("Customer service");
+    if (competitors.length < 3) serviceGaps.push("Limited competition");
+    if (lowRatedCount >= competitors.length / 3) serviceGaps.push("Quality standards");
+    if (!serviceGaps.length) serviceGaps.push("Premium positioning");
+    
+    return {
+      avgRating,
+      highRatedCount,
+      mediumRatedCount,
+      lowRatedCount,
+      totalReviews,
+      avgReviews,
+      opportunityScore,
+      opportunityLevel,
+      serviceGaps
+    };
+  }, [competitors]);
+
+  // Generate estimated drive time based on distance (rough approximation)
+  const getEstimatedDriveTime = (distanceMiles: number): string => {
+    // Assume average speed of 25 mph in urban areas, 35 mph in suburban
+    const avgSpeed = distanceMiles < 2 ? 20 : 30;
+    const minutes = Math.round((distanceMiles / avgSpeed) * 60);
+    return `~${minutes} min`;
+  };
+
+  // Generate competitor sentiment based on rating and review count
+  const getCompetitorSentiment = (rating: number, reviewCount: number): { label: string; color: string; icon: typeof ThumbsUp } => {
+    if (rating >= 4.5 && reviewCount >= 50) {
+      return { label: "Strong competitor", color: "#EF4444", icon: ThumbsDown };
+    } else if (rating >= 4) {
+      return { label: "Well-rated", color: "#F97316", icon: TrendingUp };
+    } else if (rating >= 3) {
+      return { label: "Mixed reviews", color: "#FBBF24", icon: MessageSquare };
+    } else {
+      return { label: "Weak competitor", color: "#22C55E", icon: ThumbsUp };
+    }
+  };
+
+  // Get potential service gaps for a competitor
+  const getCompetitorGaps = (comp: Competitor): string[] => {
+    const gaps: string[] = [];
+    if (comp.rating < 3.5) gaps.push("Customer satisfaction");
+    if (comp.reviewCount < 20) gaps.push("Limited visibility");
+    if (comp.rating < 4 && comp.reviewCount > 50) gaps.push("Quality issues");
+    if (comp.priceLevel && comp.priceLevel >= 3) gaps.push("Price sensitivity");
+    if (!gaps.length) gaps.push("Differentiation needed");
+    return gaps.slice(0, 2);
+  };
 
   useEffect(() => {
     setSavedAnalyses(getStoredAnalyses());
@@ -2414,24 +3217,114 @@ function CleanBIExplorerContent() {
                           </TabsContent>
                           
                           <TabsContent value="financials" className="mt-0">
-                            {memoizedRevenueProjections && (
+                            {userTier === "free" ? (
+                              <div className="relative">
+                                <div className="blur-sm pointer-events-none opacity-60">
+                                  <div className="bg-white/5 rounded-lg p-3 border border-white/10 space-y-2">
+                                    <div className="grid grid-cols-3 gap-2">
+                                      <div className="bg-green-500/10 rounded p-2 text-center">
+                                        <div className="text-sm font-bold text-green-400">$540K</div>
+                                        <div className="text-[9px] text-white/50">Annual</div>
+                                      </div>
+                                      <div className="bg-white/5 rounded p-2 text-center">
+                                        <div className="text-sm font-bold text-white">48.5%</div>
+                                        <div className="text-[9px] text-white/50">EBITDA</div>
+                                      </div>
+                                      <div className="bg-[#C8A661]/20 rounded p-2 text-center">
+                                        <div className="text-sm font-bold text-[#C8A661]">$2.8K</div>
+                                        <div className="text-[9px] text-white/50">Payment</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg">
+                                  <Lock className="w-6 h-6 text-[#C8A661] mb-2" />
+                                  <p className="text-white/70 text-xs text-center mb-2">Interactive financial projections</p>
+                                  <Button 
+                                    size="sm"
+                                    className="bg-[#C8A661] hover:bg-[#d4a030] text-black text-xs"
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    data-testid="button-unlock-financials-mobile"
+                                  >
+                                    <Crown className="w-3 h-3 mr-1" />
+                                    Unlock
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
                               <div className="space-y-3">
-                                <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-lg p-3 border border-green-500/20">
-                                  <div className="text-xs text-green-400 mb-1">Est. Annual Revenue</div>
-                                  <div className="text-xl font-bold text-white">${memoizedRevenueProjections.revenue.toLocaleString()}</div>
+                                {/* Compact Scenario Summary */}
+                                <div className="bg-[#0A1628] rounded-lg p-3 border border-[#C8A661]/20">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <LineChart className="w-3.5 h-3.5 text-[#C8A661]" />
+                                    <span className="text-xs font-medium text-white">Scenario Summary</span>
+                                  </div>
+                                  <div className="text-[10px] text-white/50 mb-2">
+                                    {scenarioSliders.machineCount} machines × ${scenarioSliders.vendPrice.toFixed(2)}/load × {scenarioSliders.turnsPerDay} turns/day
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <div className="bg-white/5 rounded p-2 text-center">
+                                      <div className="text-[10px] text-white/50">Daily</div>
+                                      <div className="text-sm font-bold text-white" data-testid="display-daily-revenue-mobile">
+                                        ${scenarioProjections.dailyRevenue.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                                      </div>
+                                    </div>
+                                    <div className="bg-white/5 rounded p-2 text-center">
+                                      <div className="text-[10px] text-white/50">Monthly</div>
+                                      <div className="text-sm font-bold text-white" data-testid="display-monthly-revenue-mobile">
+                                        ${(scenarioProjections.monthlyRevenue / 1000).toFixed(1)}K
+                                      </div>
+                                    </div>
+                                    <div className="bg-[#C8A661]/20 rounded p-2 text-center border border-[#C8A661]/30">
+                                      <div className="text-[10px] text-[#C8A661]">Annual</div>
+                                      <div className="text-sm font-bold text-[#C8A661]" data-testid="display-annual-revenue-mobile">
+                                        ${(scenarioProjections.annualRevenue / 1000).toFixed(0)}K
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="bg-white/5 rounded-lg p-3">
-                                  <div className="text-xs text-white/50 mb-1">Est. Operating Expenses</div>
-                                  <div className="text-lg font-semibold text-white">${memoizedRevenueProjections.expenses.toLocaleString()}</div>
+                                
+                                {/* EBITDA Summary */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="bg-white/5 rounded-lg p-3">
+                                    <div className="text-[10px] text-white/50 mb-1">Total Expenses</div>
+                                    <div className="text-base font-semibold text-white" data-testid="display-expenses-mobile">
+                                      ${(scenarioProjections.totalExpenses / 1000).toFixed(0)}K
+                                    </div>
+                                    <div className="text-[9px] text-white/40">
+                                      {scenarioProjections.expensePercentage.toFixed(0)}% of revenue
+                                    </div>
+                                  </div>
+                                  <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/20">
+                                    <div className="text-[10px] text-green-400 mb-1">EBITDA</div>
+                                    <div className="text-base font-semibold text-green-400" data-testid="display-ebitda-mobile">
+                                      ${(scenarioProjections.ebitda / 1000).toFixed(0)}K
+                                    </div>
+                                    <div className="text-[9px] text-green-400/70">
+                                      {scenarioProjections.ebitdaMargin.toFixed(1)}% margin
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="bg-white/5 rounded-lg p-3">
-                                  <div className="text-xs text-white/50 mb-1">Est. NOI</div>
-                                  <div className="text-lg font-semibold text-[#C8A661]">${memoizedRevenueProjections.noi.toLocaleString()}</div>
+                                
+                                {/* Financing Quick View */}
+                                <div className="bg-[#C8A661]/10 rounded-lg p-3 border border-[#C8A661]/20">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <div className="text-[10px] text-[#C8A661]">Monthly Payment</div>
+                                      <div className="text-xl font-bold text-[#C8A661]" data-testid="display-payment-mobile">
+                                        ${monthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-[9px] text-white/50">${(financingCalc.loanAmount / 1000).toFixed(0)}K @ {financingCalc.interestRate}%</div>
+                                      <div className="text-[9px] text-white/50">{financingCalc.loanTerm} year term</div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="bg-gradient-to-br from-[#C8A661]/20 to-[#A8893F]/10 rounded-lg p-3 border border-[#C8A661]/20">
-                                  <div className="text-xs text-[#C8A661] mb-1">Estimated Value</div>
-                                  <div className="text-xl font-bold text-white">${memoizedRevenueProjections.value.toLocaleString()}</div>
-                                </div>
+                                
+                                <p className="text-[10px] text-white/40 text-center">
+                                  Use desktop for full interactive scenario modeling
+                                </p>
                               </div>
                             )}
                           </TabsContent>
@@ -2886,6 +3779,141 @@ function CleanBIExplorerContent() {
 
                   {/* Overview Tab - Premium Design */}
                   <TabsContent value="overview" className="mt-0 space-y-3" data-testid="overview-tab">
+                    
+                    {/* Executive KPI Ribbon */}
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-gradient-to-r from-[#0A1628] to-[#0A1628]/80 rounded-lg p-3 border border-[#C8A661]/30"
+                      data-testid="executive-kpi-ribbon"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Award className="w-4 h-4 text-[#C8A661]" />
+                        <span className="text-xs font-semibold text-white/80">Executive Summary</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {/* CLEANBI Score with Delta */}
+                        <div className="bg-white/5 rounded-md p-2 text-center" data-testid="kpi-cleanbi-score">
+                          <div className="flex items-center justify-center gap-1">
+                            <span className="text-xl font-bold text-[#C8A661]">{analysisResult.cleanbiScore}</span>
+                            <Badge 
+                              className={`text-[8px] px-1 py-0 ${getMarketMedianDelta(analysisResult.cleanbiScore).value >= 0 ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}
+                              variant="outline"
+                            >
+                              {getMarketMedianDelta(analysisResult.cleanbiScore).label}
+                            </Badge>
+                          </div>
+                          <div className="text-[9px] text-white/50">CLEANBI Score</div>
+                        </div>
+                        
+                        {/* Competitor Count with Trend */}
+                        <div className="bg-white/5 rounded-md p-2 text-center" data-testid="kpi-competitor-count">
+                          <div className="flex items-center justify-center gap-1">
+                            <span className="text-xl font-bold text-white">{analysisResult.competitorCount}</span>
+                            {analysisResult.competitorCount <= 3 ? (
+                              <TrendingDown className="w-3.5 h-3.5 text-green-400" />
+                            ) : analysisResult.competitorCount >= 6 ? (
+                              <TrendingUp className="w-3.5 h-3.5 text-red-400" />
+                            ) : (
+                              <Minus className="w-3.5 h-3.5 text-yellow-400" />
+                            )}
+                          </div>
+                          <div className="text-[9px] text-white/50">Competitors</div>
+                        </div>
+                        
+                        {/* Population Density */}
+                        <div className="bg-white/5 rounded-md p-2 text-center" data-testid="kpi-population-density">
+                          <div className="text-xl font-bold text-white">{(analysisResult.populationDensity / 1000).toFixed(1)}K</div>
+                          <div className="text-[9px] text-white/50">Pop. Density</div>
+                        </div>
+                        
+                        {/* Median Income Bracket */}
+                        <div className="bg-white/5 rounded-md p-2 text-center" data-testid="kpi-income-bracket">
+                          <Badge 
+                            variant="outline" 
+                            className="text-[10px] px-1.5 py-0"
+                            style={{ 
+                              borderColor: `${getIncomeLevel(analysisResult.medianIncome).color}50`,
+                              color: getIncomeLevel(analysisResult.medianIncome).color
+                            }}
+                          >
+                            {getIncomeLevel(analysisResult.medianIncome).label}
+                          </Badge>
+                          <div className="text-[9px] text-white/50 mt-1">Income Level</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                    
+                    {/* Quick Wins Panel */}
+                    {(() => {
+                      const quickWins = generateQuickWins(analysisResult);
+                      if (quickWins.length === 0) return null;
+                      return (
+                        <Collapsible defaultOpen className="w-full" data-testid="quick-wins-panel">
+                          <CollapsibleTrigger className="w-full" asChild>
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.1 }}
+                              className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-[#C8A661]/15 to-transparent border border-[#C8A661]/20 cursor-pointer hover:border-[#C8A661]/40 transition-colors group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-md bg-[#C8A661]/20 flex items-center justify-center">
+                                  <Lightbulb className="w-4 h-4 text-[#C8A661]" />
+                                </div>
+                                <div>
+                                  <span className="text-xs font-semibold text-white">Quick Wins</span>
+                                  <div className="text-[9px] text-white/50">{quickWins.length} actionable insights</div>
+                                </div>
+                              </div>
+                              <ChevronDown className="w-4 h-4 text-white/50 group-data-[state=open]:rotate-180 transition-transform" />
+                            </motion.div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-2 space-y-1.5">
+                            {quickWins.map((win, index) => (
+                              <motion.div
+                                key={win.title}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.05 * index }}
+                                className="flex items-start gap-2 p-2 rounded-md bg-white/5 border border-white/5"
+                                data-testid={`quick-win-${index}`}
+                              >
+                                <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
+                                  win.type === "opportunity" 
+                                    ? "bg-green-500/20" 
+                                    : "bg-amber-500/20"
+                                }`}>
+                                  <win.icon className={`w-3.5 h-3.5 ${
+                                    win.type === "opportunity" 
+                                      ? "text-green-400" 
+                                      : "text-amber-400"
+                                  }`} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-medium text-white">{win.title}</span>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-[8px] px-1 py-0 ${
+                                        win.type === "opportunity" 
+                                          ? "border-green-500/30 text-green-400" 
+                                          : "border-amber-500/30 text-amber-400"
+                                      }`}
+                                    >
+                                      {win.type === "opportunity" ? "Opportunity" : "Consider"}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-[10px] text-white/60 mt-0.5">{win.description}</p>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })()}
+
                     {/* Key Metrics Grid with Animated Numbers */}
                     <div className="grid grid-cols-2 gap-2">
                       {[
@@ -3280,13 +4308,14 @@ function CleanBIExplorerContent() {
                     </div>
                   </TabsContent>
 
-                  {/* Score Breakdown Tab - Premium Design */}
+                  {/* Score Breakdown Tab - Enhanced with Radar Chart */}
                   <TabsContent value="score" className="mt-0" data-testid="score-breakdown-tab">
-                    {/* Header with Industry Benchmark */}
+                    {/* Header with Benchmark Toggle */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Trophy className="w-4 h-4 text-[#C8A661]" />
                         <span className="text-xs font-medium text-white/70">CLEANBI™ Factor Analysis</span>
+                        <Badge variant="outline" className="text-[9px] border-white/20 text-white/50">Estimated</Badge>
                       </div>
                       {userTier === "free" ? (
                         <StatusBadge 
@@ -3303,7 +4332,7 @@ function CleanBIExplorerContent() {
                       )}
                     </div>
                     
-                    {/* Industry Average Benchmark Bar */}
+                    {/* Benchmark Comparison Toggle */}
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -3312,21 +4341,132 @@ function CleanBIExplorerContent() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <BarChart3 className="w-3.5 h-3.5 text-[#C8A661]" />
-                          <span className="text-xs text-white/60">Industry Average: <span className="text-white font-medium">65</span></span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-white/40">Your Score:</span>
-                          <span className="text-sm font-bold" style={{ color: GRADE_COLORS[analysisResult.grade] }}>
-                            {analysisResult.cleanbiScore}
-                          </span>
+                          <span className="text-xs text-white/60">Your Score: <span className="text-sm font-bold" style={{ color: GRADE_COLORS[analysisResult.grade] }}>{analysisResult.cleanbiScore}</span></span>
                           {analysisResult.cleanbiScore > 65 && (
                             <TrendingUp className="w-3.5 h-3.5 text-green-400" />
                           )}
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="benchmark-toggle" className="text-[10px] text-white/50 cursor-pointer">
+                            vs Top Quartile
+                          </Label>
+                          <Switch
+                            id="benchmark-toggle"
+                            checked={showBenchmarkComparison}
+                            onCheckedChange={setShowBenchmarkComparison}
+                            className="scale-75 data-[state=checked]:bg-[#C8A661]"
+                            data-testid="toggle-benchmark-comparison"
+                          />
+                        </div>
                       </div>
                     </motion.div>
                     
-                    {/* Factor Grid */}
+                    {/* Radar Chart Visualization */}
+                    {userTier !== "free" && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white/5 rounded-lg p-3 mb-3 border border-white/5"
+                        data-testid="radar-chart-container"
+                      >
+                        <div className="h-[200px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart
+                              cx="50%"
+                              cy="50%"
+                              outerRadius="70%"
+                              data={CLEANBI_CATEGORIES.map(cat => ({
+                                category: cat.name.substring(0, 3),
+                                fullName: cat.name,
+                                score: categoryScores[cat.key] || 0,
+                                benchmark: TOP_QUARTILE_BENCHMARKS[cat.key] || 85,
+                                fullMark: 100
+                              }))}
+                            >
+                              <PolarGrid 
+                                stroke="rgba(255,255,255,0.1)" 
+                                gridType="polygon"
+                              />
+                              <PolarAngleAxis 
+                                dataKey="category" 
+                                tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10 }}
+                                tickLine={false}
+                              />
+                              <PolarRadiusAxis 
+                                angle={90} 
+                                domain={[0, 100]} 
+                                tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 8 }}
+                                tickCount={5}
+                                axisLine={false}
+                              />
+                              {showBenchmarkComparison && (
+                                <Radar
+                                  name="Top Quartile"
+                                  dataKey="benchmark"
+                                  stroke="#C8A661"
+                                  fill="#C8A661"
+                                  fillOpacity={0.15}
+                                  strokeWidth={1}
+                                  strokeDasharray="4 4"
+                                  data-testid="radar-benchmark"
+                                />
+                              )}
+                              <Radar
+                                name="Your Score"
+                                dataKey="score"
+                                stroke="#0A1628"
+                                fill="#C8A661"
+                                fillOpacity={0.4}
+                                strokeWidth={2}
+                                data-testid="radar-score"
+                              />
+                              <RechartsTooltip
+                                contentStyle={{
+                                  backgroundColor: '#0A1628',
+                                  border: '1px solid rgba(200, 166, 97, 0.3)',
+                                  borderRadius: '8px',
+                                  padding: '8px 12px'
+                                }}
+                                labelStyle={{ color: '#C8A661', fontWeight: 'bold', fontSize: 12 }}
+                                itemStyle={{ color: '#ffffff', fontSize: 11 }}
+                                formatter={(value: number, name: string) => [
+                                  `${value}/100`,
+                                  name === "benchmark" ? "Top Quartile" : "Your Score"
+                                ]}
+                                labelFormatter={(label: string) => {
+                                  const cat = CLEANBI_CATEGORIES.find(c => c.name.substring(0, 3) === label);
+                                  return cat?.name || label;
+                                }}
+                              />
+                              {showBenchmarkComparison && (
+                                <Legend 
+                                  wrapperStyle={{ fontSize: 10, paddingTop: 8 }}
+                                  iconSize={8}
+                                  formatter={(value: string) => (
+                                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>{value}</span>
+                                  )}
+                                />
+                              )}
+                            </RadarChart>
+                          </ResponsiveContainer>
+                        </div>
+                        {showBenchmarkComparison && (
+                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-center gap-4 text-[10px]">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-0.5 bg-[#C8A661]" />
+                              <span className="text-white/50">Your Location</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-0.5 bg-[#C8A661]/50 border-dashed border-t border-[#C8A661]" />
+                              <span className="text-white/50">A-Grade Benchmark</span>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                    
+                    {/* Factor Grid with Enhanced Cards */}
                     <div className="space-y-2">
                       {/* For free users: show first 2 subscores, blur the rest */}
                       {userTier === "free" ? (
@@ -3336,37 +4476,75 @@ function CleanBIExplorerContent() {
                             const Icon = cat.icon;
                             const score = categoryScores[cat.key] || 0;
                             const gradeColor = GRADE_COLORS[score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "Needs Work"];
+                            const interpretation = getScoreInterpretation(score);
+                            const benchmarkDelta = score - TOP_QUARTILE_BENCHMARKS[cat.key];
                             return (
-                              <motion.div 
-                                key={cat.key} 
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                className="bg-white/5 rounded-lg p-3 mb-2 border border-white/5 hover:border-white/10 transition-colors"
-                                data-testid={`score-factor-${cat.key}`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <ProgressRing
-                                    progress={score}
-                                    size={44}
-                                    strokeWidth={3}
-                                    progressColor={gradeColor}
-                                    trackColor="rgba(255,255,255,0.1)"
-                                    animated={true}
+                              <Tooltip key={cat.key}>
+                                <TooltipTrigger asChild>
+                                  <motion.div 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="bg-white/5 rounded-lg p-3 mb-2 border border-white/5 hover:border-white/10 transition-colors cursor-help"
+                                    data-testid={`score-factor-${cat.key}`}
                                   >
-                                    <Icon className="w-4 h-4" style={{ color: gradeColor }} />
-                                  </ProgressRing>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-0.5">
-                                      <span className="text-sm font-medium text-white">{cat.name}</span>
-                                      <span className="text-sm font-bold" style={{ color: gradeColor }}>
-                                        <AnimatedNumber value={score} format="number" />
-                                      </span>
+                                    <div className="flex items-center gap-3">
+                                      <ProgressRing
+                                        progress={score}
+                                        size={44}
+                                        strokeWidth={3}
+                                        progressColor={gradeColor}
+                                        trackColor="rgba(255,255,255,0.1)"
+                                        animated={true}
+                                      >
+                                        <Icon className="w-4 h-4" style={{ color: gradeColor }} />
+                                      </ProgressRing>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between mb-0.5">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-white">{cat.name}</span>
+                                            <Info className="w-3 h-3 text-white/30" />
+                                          </div>
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="text-sm font-bold" style={{ color: gradeColor }}>
+                                              <AnimatedNumber value={score} format="number" />
+                                            </span>
+                                            {benchmarkDelta >= 0 ? (
+                                              <TrendingUp className="w-3 h-3 text-green-400" data-testid={`trend-up-${cat.key}`} />
+                                            ) : (
+                                              <TrendingDown className="w-3 h-3 text-orange-400" data-testid={`trend-down-${cat.key}`} />
+                                            )}
+                                          </div>
+                                        </div>
+                                        <p className="text-[10px] text-[#C8A661] font-medium">{cat.getPlainLanguage(score)}</p>
+                                        <p className="text-[9px] text-white/40 mt-0.5">{cat.description}</p>
+                                      </div>
                                     </div>
-                                    <p className="text-[10px] text-white/40 leading-relaxed">{cat.description}</p>
+                                  </motion.div>
+                                </TooltipTrigger>
+                                <TooltipContent side="left" className="max-w-[220px] bg-[#0A1628] border-[#C8A661]/30 p-3">
+                                  <div className="space-y-2">
+                                    <div className="font-semibold text-[#C8A661] text-sm">{cat.name} Score</div>
+                                    <p className="text-xs text-white/70">{cat.tooltip}</p>
+                                    <div className="pt-1 border-t border-white/10">
+                                      <div className="text-[10px] text-white/50 mb-1">Factors analyzed:</div>
+                                      <div className="flex flex-wrap gap-1">
+                                        {cat.factors.map((factor: string) => (
+                                          <Badge key={factor} variant="outline" className="text-[9px] border-white/20 text-white/60">{factor}</Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    {showBenchmarkComparison && (
+                                      <div className="pt-1 text-[10px]">
+                                        <span className="text-white/50">vs Top Quartile: </span>
+                                        <span className={benchmarkDelta >= 0 ? "text-green-400" : "text-orange-400"}>
+                                          {benchmarkDelta >= 0 ? "+" : ""}{benchmarkDelta} pts
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                              </motion.div>
+                                </TooltipContent>
+                              </Tooltip>
                             );
                           })}
                           
@@ -3404,9 +4582,9 @@ function CleanBIExplorerContent() {
                                 <div className="w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center mx-auto mb-3">
                                   <Lock className="w-5 h-5 text-[#C8A661]" />
                                 </div>
-                                <h4 className="text-white font-semibold text-sm mb-1">Unlock All 7 Factors</h4>
+                                <h4 className="text-white font-semibold text-sm mb-1">Unlock All 7 Factors + Radar</h4>
                                 <p className="text-white/50 text-xs mb-3 max-w-[200px]">
-                                  Equipment, Adaptability, Numbers, Brand & Intelligence scores
+                                  Equipment, Adaptability, Numbers, Brand & Intelligence scores with visual comparison
                                 </p>
                                 <Button 
                                   size="sm"
@@ -3422,48 +4600,87 @@ function CleanBIExplorerContent() {
                           </div>
                         </div>
                       ) : (
-                        /* Full subscores for paid users with premium design */
+                        /* Full subscores for paid users with enhanced design */
                         CLEANBI_CATEGORIES.map((cat, index) => {
                           const Icon = cat.icon;
                           const score = categoryScores[cat.key] || 0;
                           const gradeColor = GRADE_COLORS[score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "Needs Work"];
+                          const interpretation = getScoreInterpretation(score);
+                          const benchmarkDelta = score - TOP_QUARTILE_BENCHMARKS[cat.key];
                           const isAboveAverage = score > 65;
                           return (
-                            <motion.div 
-                              key={cat.key}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-all duration-200 group"
-                              data-testid={`score-factor-${cat.key}`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <ProgressRing
-                                  progress={score}
-                                  size={44}
-                                  strokeWidth={3}
-                                  progressColor={gradeColor}
-                                  trackColor="rgba(255,255,255,0.1)"
-                                  animated={true}
+                            <Tooltip key={cat.key}>
+                              <TooltipTrigger asChild>
+                                <motion.div 
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: index * 0.05 }}
+                                  className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-[#C8A661]/30 transition-all duration-200 group cursor-help"
+                                  data-testid={`score-factor-${cat.key}`}
                                 >
-                                  <Icon className="w-4 h-4" style={{ color: gradeColor }} />
-                                </ProgressRing>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-0.5">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm font-medium text-white group-hover:text-[#C8A661] transition-colors">{cat.name}</span>
-                                      {isAboveAverage && (
-                                        <TrendingUp className="w-3 h-3 text-green-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                      )}
+                                  <div className="flex items-center gap-3">
+                                    <ProgressRing
+                                      progress={score}
+                                      size={44}
+                                      strokeWidth={3}
+                                      progressColor={gradeColor}
+                                      trackColor="rgba(255,255,255,0.1)"
+                                      animated={true}
+                                    >
+                                      <Icon className="w-4 h-4" style={{ color: gradeColor }} />
+                                    </ProgressRing>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between mb-0.5">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-medium text-white group-hover:text-[#C8A661] transition-colors">{cat.name}</span>
+                                          <Info className="w-3 h-3 text-white/30 group-hover:text-[#C8A661]/50 transition-colors" />
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-sm font-bold" style={{ color: gradeColor }}>
+                                            <AnimatedNumber value={score} format="number" />
+                                          </span>
+                                          {benchmarkDelta >= 0 ? (
+                                            <TrendingUp className="w-3 h-3 text-green-400" data-testid={`trend-up-${cat.key}`} />
+                                          ) : (
+                                            <TrendingDown className="w-3 h-3 text-orange-400" data-testid={`trend-down-${cat.key}`} />
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <p className="text-[10px] text-[#C8A661] font-medium">{cat.getPlainLanguage(score)}</p>
+                                        {showBenchmarkComparison && (
+                                          <span className={`text-[9px] ${benchmarkDelta >= 0 ? "text-green-400" : "text-orange-400"}`} data-testid={`benchmark-delta-${cat.key}`}>
+                                            {benchmarkDelta >= 0 ? "+" : ""}{benchmarkDelta} vs A-grade
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-[9px] text-white/40 mt-0.5">{cat.description}</p>
                                     </div>
-                                    <span className="text-sm font-bold" style={{ color: gradeColor }}>
-                                      <AnimatedNumber value={score} format="number" />
+                                  </div>
+                                </motion.div>
+                              </TooltipTrigger>
+                              <TooltipContent side="left" className="max-w-[220px] bg-[#0A1628] border-[#C8A661]/30 p-3">
+                                <div className="space-y-2">
+                                  <div className="font-semibold text-[#C8A661] text-sm">{cat.name} Score</div>
+                                  <p className="text-xs text-white/70">{cat.tooltip}</p>
+                                  <div className="pt-1 border-t border-white/10">
+                                    <div className="text-[10px] text-white/50 mb-1">Factors analyzed:</div>
+                                    <div className="flex flex-wrap gap-1">
+                                      {cat.factors.map((factor: string) => (
+                                        <Badge key={factor} variant="outline" className="text-[9px] border-white/20 text-white/60">{factor}</Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div className="pt-1 text-[10px]">
+                                    <span className="text-white/50">Top Quartile Target: </span>
+                                    <span className="text-[#C8A661] font-medium">{TOP_QUARTILE_BENCHMARKS[cat.key]}</span>
+                                    <span className={`ml-2 ${benchmarkDelta >= 0 ? "text-green-400" : "text-orange-400"}`}>
+                                      ({benchmarkDelta >= 0 ? "+" : ""}{benchmarkDelta})
                                     </span>
                                   </div>
-                                  <p className="text-[10px] text-white/40 leading-relaxed">{cat.description}</p>
                                 </div>
-                              </div>
-                            </motion.div>
+                              </TooltipContent>
+                            </Tooltip>
                           );
                         })
                       )}
@@ -3507,81 +4724,313 @@ function CleanBIExplorerContent() {
                     )}
                   </TabsContent>
 
-                  {/* Competition Tab */}
-                  <TabsContent value="compete" className="mt-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs text-white/50">Nearby Competitors ({competitors.length})</div>
-                      <Badge variant="outline" className="text-[10px] border-[#C8A661]/30 text-[#C8A661]">Click to Analyze</Badge>
+                  {/* Competition Tab - Enhanced */}
+                  <TabsContent value="compete" className="mt-0 space-y-3" data-testid="competition-tab-content">
+                    {/* Competitive Gap Summary */}
+                    {competitorMarketSummary && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-gradient-to-r from-[#0A1628] to-[#0A1628]/80 rounded-lg p-3 border border-[#C8A661]/30"
+                        data-testid="competitive-gap-summary"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                              <BarChart3 className="w-4 h-4 text-[#C8A661]" />
+                            </div>
+                            <div>
+                              <span className="text-sm font-semibold text-white">Market Analysis</span>
+                              <div className="text-[10px] text-white/50">Competitor landscape</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center gap-1">
+                              <span className="text-lg font-bold" style={{ 
+                                color: competitorMarketSummary.opportunityLevel === "high" ? "#22C55E" : 
+                                       competitorMarketSummary.opportunityLevel === "moderate" ? "#FBBF24" : "#EF4444" 
+                              }}>
+                                {competitorMarketSummary.opportunityScore.toFixed(0)}
+                              </span>
+                              <span className="text-[10px] text-white/40">/100</span>
+                            </div>
+                            <Badge 
+                              variant="outline" 
+                              className={`text-[9px] ${
+                                competitorMarketSummary.opportunityLevel === "high" ? "border-green-500/30 text-green-400" :
+                                competitorMarketSummary.opportunityLevel === "moderate" ? "border-yellow-500/30 text-yellow-400" :
+                                "border-red-500/30 text-red-400"
+                              }`}
+                              data-testid="market-opportunity-badge"
+                            >
+                              {competitorMarketSummary.opportunityLevel === "high" ? "High Opportunity" :
+                               competitorMarketSummary.opportunityLevel === "moderate" ? "Moderate" : "Competitive"}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-4 gap-2 mt-3">
+                          <div className="bg-white/5 rounded p-2 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                              <span className="text-base font-bold text-white">{competitorMarketSummary.avgRating.toFixed(1)}</span>
+                            </div>
+                            <div className="text-[9px] text-white/40">Avg Rating</div>
+                          </div>
+                          <div className="bg-green-500/10 rounded p-2 text-center border border-green-500/20">
+                            <div className="text-base font-bold text-green-400">{competitorMarketSummary.lowRatedCount}</div>
+                            <div className="text-[9px] text-white/40">&lt;3 Stars</div>
+                          </div>
+                          <div className="bg-yellow-500/10 rounded p-2 text-center border border-yellow-500/20">
+                            <div className="text-base font-bold text-yellow-400">{competitorMarketSummary.mediumRatedCount}</div>
+                            <div className="text-[9px] text-white/40">3-4 Stars</div>
+                          </div>
+                          <div className="bg-red-500/10 rounded p-2 text-center border border-red-500/20">
+                            <div className="text-base font-bold text-red-400">{competitorMarketSummary.highRatedCount}</div>
+                            <div className="text-[9px] text-white/40">4+ Stars</div>
+                          </div>
+                        </div>
+                        
+                        {/* Service Gaps */}
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          <span className="text-[10px] text-white/40">Gaps to exploit:</span>
+                          {competitorMarketSummary.serviceGaps.map((gap, idx) => (
+                            <Badge 
+                              key={idx} 
+                              variant="outline" 
+                              className="text-[9px] border-[#C8A661]/30 text-[#C8A661] bg-[#C8A661]/5"
+                            >
+                              <Lightbulb className="w-2.5 h-2.5 mr-1" />
+                              {gap}
+                            </Badge>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    {/* Filtering Controls */}
+                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/10" data-testid="competitor-filters">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] text-white/50 flex items-center gap-1">
+                          <Scale className="w-3 h-3" />
+                          Filter & Sort
+                        </span>
+                        <span className="text-[10px] text-white/30">({filteredCompetitors.length} of {competitors.length})</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {/* Rating Filter */}
+                        <Select value={competitorRatingFilter} onValueChange={setCompetitorRatingFilter}>
+                          <SelectTrigger 
+                            className="h-8 text-[10px] bg-white/5 border-white/10 text-white"
+                            data-testid="select-rating-filter"
+                          >
+                            <Star className="w-3 h-3 mr-1 text-yellow-400" />
+                            <SelectValue placeholder="Rating" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Ratings</SelectItem>
+                            <SelectItem value="4plus">4+ Stars</SelectItem>
+                            <SelectItem value="3plus">3+ Stars</SelectItem>
+                            <SelectItem value="below3">&lt;3 Stars</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        {/* Distance Filter */}
+                        <Select value={competitorDistanceFilter} onValueChange={setCompetitorDistanceFilter}>
+                          <SelectTrigger 
+                            className="h-8 text-[10px] bg-white/5 border-white/10 text-white"
+                            data-testid="select-distance-filter"
+                          >
+                            <Navigation className="w-3 h-3 mr-1" />
+                            <SelectValue placeholder="Distance" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Any Distance</SelectItem>
+                            <SelectItem value="1mi">Within 1 mi</SelectItem>
+                            <SelectItem value="2mi">Within 2 mi</SelectItem>
+                            <SelectItem value="3mi">Within 3 mi</SelectItem>
+                            <SelectItem value="5mi">Within 5 mi</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        {/* Sort By */}
+                        <Select value={competitorSortBy} onValueChange={setCompetitorSortBy}>
+                          <SelectTrigger 
+                            className="h-8 text-[10px] bg-white/5 border-white/10 text-white"
+                            data-testid="select-sort-by"
+                          >
+                            <TrendingUp className="w-3 h-3 mr-1" />
+                            <SelectValue placeholder="Sort" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="distance">Nearest</SelectItem>
+                            <SelectItem value="rating">Highest Rated</SelectItem>
+                            <SelectItem value="reviews">Most Reviews</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                    
+                    {/* Enhanced Competitor Cards */}
+                    <div className="space-y-2 max-h-72 overflow-y-auto" data-testid="competitor-list">
                       {competitors.length === 0 ? (
                         <div className="text-center py-6 text-white/40 text-sm">
                           <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500" />
-                          No direct competitors found!
+                          <div className="font-medium text-green-400">No direct competitors found!</div>
+                          <div className="text-[10px] mt-1">This area has low competition</div>
+                        </div>
+                      ) : filteredCompetitors.length === 0 ? (
+                        <div className="text-center py-4 text-white/40 text-sm">
+                          <AlertCircle className="w-6 h-6 mx-auto mb-2 text-yellow-400/50" />
+                          <div>No competitors match your filters</div>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="mt-2 text-[10px] text-[#C8A661]"
+                            onClick={() => {
+                              setCompetitorRatingFilter("all");
+                              setCompetitorDistanceFilter("all");
+                            }}
+                            data-testid="button-clear-filters"
+                          >
+                            Clear Filters
+                          </Button>
                         </div>
                       ) : (
-                        competitors.slice(0, 10).map((comp) => (
-                          <button
-                            key={comp.id}
-                            onClick={() => analyzeCompetitor(comp)}
-                            disabled={isAnalyzingCompetitor && selectedCompetitor?.id === comp.id}
-                            className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 min-h-12 transition-all duration-200 border border-transparent hover:border-[#C8A661]/30 group"
-                            data-testid={`button-analyze-competitor-${comp.id}`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-white text-sm truncate group-hover:text-[#C8A661] transition-colors">{comp.name}</div>
-                                <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                                  <span className="flex items-center gap-1">
-                                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                    {comp.rating.toFixed(1)} ({comp.reviewCount})
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Navigation className="w-3 h-3" />
-                                    {comp.distance.toFixed(1)} mi
-                                  </span>
+                        filteredCompetitors.slice(0, 10).map((comp) => {
+                          const sentiment = getCompetitorSentiment(comp.rating, comp.reviewCount);
+                          const gaps = getCompetitorGaps(comp);
+                          const SentimentIcon = sentiment.icon;
+                          
+                          return (
+                            <motion.button
+                              key={comp.id}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              onClick={() => analyzeCompetitor(comp)}
+                              disabled={isAnalyzingCompetitor && selectedCompetitor?.id === comp.id}
+                              className="w-full text-left bg-white/5 hover:bg-white/10 rounded-lg p-3 transition-all duration-200 border border-transparent hover:border-[#C8A661]/30 group"
+                              data-testid={`card-competitor-${comp.id}`}
+                            >
+                              {/* Header Row */}
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-white text-sm truncate group-hover:text-[#C8A661] transition-colors">
+                                    {comp.name}
+                                  </div>
+                                  {/* Sentiment Badge */}
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <SentimentIcon className="w-3 h-3" style={{ color: sentiment.color }} />
+                                    <span className="text-[10px]" style={{ color: sentiment.color }}>{sentiment.label}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                  {isAnalyzingCompetitor && selectedCompetitor?.id === comp.id ? (
+                                    <Loader2 className="w-4 h-4 text-[#C8A661] animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Target className="w-3.5 h-3.5 text-[#C8A661]" />
+                                      <span className="text-[9px] text-[#C8A661]">Deep Dive</span>
+                                    </>
+                                  )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {isAnalyzingCompetitor && selectedCompetitor?.id === comp.id ? (
-                                  <Loader2 className="w-4 h-4 text-[#C8A661] animate-spin" />
-                                ) : (
-                                  <>
-                                    <Target className="w-4 h-4 text-[#C8A661]" />
-                                    <span className="text-[10px] text-[#C8A661]">Analyze</span>
-                                  </>
+                              
+                              {/* Rating Comparison Row */}
+                              <div className="flex items-center gap-3 mb-2">
+                                {/* Their Rating */}
+                                <div className="flex items-center gap-1.5 bg-white/5 rounded px-2 py-1">
+                                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-sm font-bold text-white">{comp.rating.toFixed(1)}</span>
+                                  <span className="text-[9px] text-white/40">({comp.reviewCount})</span>
+                                </div>
+                                
+                                {/* Rating Bar Visual */}
+                                <div className="flex-1">
+                                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full rounded-full transition-all duration-300"
+                                      style={{ 
+                                        width: `${(comp.rating / 5) * 100}%`,
+                                        backgroundColor: comp.rating >= 4 ? "#EF4444" : comp.rating >= 3 ? "#FBBF24" : "#22C55E"
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="flex justify-between mt-0.5">
+                                    <span className="text-[8px] text-white/30">Weak</span>
+                                    <span className="text-[8px] text-white/30">Strong</span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Distance & Drive Time Row */}
+                              <div className="flex items-center gap-4 text-xs text-white/50 mb-2">
+                                <span className="flex items-center gap-1">
+                                  <Navigation className="w-3 h-3" />
+                                  {comp.distance.toFixed(1)} mi away
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Car className="w-3 h-3" />
+                                  {getEstimatedDriveTime(comp.distance)}
+                                </span>
+                                {comp.priceLevel && (
+                                  <span className="flex items-center gap-1">
+                                    <DollarSign className="w-3 h-3" />
+                                    {"$".repeat(comp.priceLevel)}
+                                  </span>
                                 )}
                               </div>
-                            </div>
-                          </button>
-                        ))
+                              
+                              {/* Service Gap Indicators */}
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-[9px] text-white/30">Gaps:</span>
+                                {gaps.map((gap, idx) => (
+                                  <Badge 
+                                    key={idx}
+                                    variant="outline" 
+                                    className="text-[8px] py-0 h-4 border-green-500/20 text-green-400/80 bg-green-500/5"
+                                  >
+                                    {gap}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </motion.button>
+                          );
+                        })
                       )}
                     </div>
                     
                     {/* Industry Standard Benchmarks */}
-                    <Separator className="my-3 bg-white/10" />
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs text-white/50">Industry Standard Targets</div>
-                      <Badge variant="outline" className="text-[10px] border-white/20 text-white/40">Reference Data</Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(INDUSTRY_BENCHMARKS).map(([key, bench]) => (
-                        <div key={key} className="bg-white/5 rounded p-2 text-center">
-                          <div className="text-lg font-bold text-[#C8A661]">{bench.min}-{bench.max}</div>
-                          <div className="text-xs text-white/40">{bench.unit}</div>
-                          <div className="text-xs text-white/60 truncate">{bench.label}</div>
-                          <div className="text-[10px] text-white/30 mt-0.5">{bench.description}</div>
+                    <Separator className="bg-white/10" />
+                    <Collapsible>
+                      <CollapsibleTrigger className="flex items-center justify-between w-full py-1 group">
+                        <div className="flex items-center gap-2">
+                          <Gauge className="w-3.5 h-3.5 text-white/40" />
+                          <span className="text-xs text-white/50">Industry Benchmarks</span>
                         </div>
-                      ))}
-                    </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-white/30 group-data-[state=open]:rotate-180 transition-transform" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          {Object.entries(INDUSTRY_BENCHMARKS).map(([key, bench]) => (
+                            <div key={key} className="bg-white/5 rounded p-2 text-center">
+                              <div className="text-sm font-bold text-[#C8A661]">{bench.min}-{bench.max}</div>
+                              <div className="text-[10px] text-white/40">{bench.unit}</div>
+                              <div className="text-[10px] text-white/60 truncate">{bench.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                   </TabsContent>
 
-                  {/* Financials Calculator Tab */}
+                  {/* Financials Calculator Tab - Enhanced with Scenario Projections */}
                   <TabsContent value="financials" className="mt-0 space-y-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-xs text-white/50">
-                        <Calculator className="w-4 h-4 text-green-400" />
-                        Quick Financial Analysis
+                        <Calculator className="w-4 h-4 text-[#C8A661]" />
+                        Financial Projections
                       </div>
                       {userTier === "free" ? (
                         <Badge className="text-[10px] bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
@@ -3589,50 +5038,41 @@ function CleanBIExplorerContent() {
                           Premium
                         </Badge>
                       ) : (
-                        <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Auto-populated</Badge>
+                        <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Interactive</Badge>
                       )}
                     </div>
                     
                     {/* Premium Gate for Free Users */}
                     {userTier === "free" ? (
                       <div className="relative">
-                        {/* Blurred Preview */}
                         <div className="blur-sm pointer-events-none opacity-60">
                           <div className="bg-white/5 rounded-lg p-3 border border-white/10 mb-3">
                             <div className="flex items-center gap-2 mb-3">
                               <TrendingUp className="w-4 h-4 text-green-400" />
-                              <span className="text-sm font-medium text-white">ROI Analysis</span>
+                              <span className="text-sm font-medium text-white">Scenario Projections</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
                               <div className="bg-green-500/10 rounded p-2 text-center">
-                                <div className="text-lg font-bold text-green-400">42%</div>
-                                <div className="text-[10px] text-white/50">Cash-on-Cash</div>
+                                <div className="text-lg font-bold text-green-400">$540K</div>
+                                <div className="text-[10px] text-white/50">Annual Rev</div>
                               </div>
                               <div className="bg-white/5 rounded p-2 text-center">
-                                <div className="text-lg font-bold text-white">8.5%</div>
-                                <div className="text-[10px] text-white/50">Cap Rate</div>
+                                <div className="text-lg font-bold text-white">48.5%</div>
+                                <div className="text-[10px] text-white/50">EBITDA</div>
                               </div>
                               <div className="bg-white/5 rounded p-2 text-center">
-                                <div className="text-lg font-bold text-[#C8A661]">$14.7K</div>
-                                <div className="text-[10px] text-white/50">Monthly NOI</div>
+                                <div className="text-lg font-bold text-[#C8A661]">$2,845</div>
+                                <div className="text-[10px] text-white/50">Monthly Pmt</div>
                               </div>
-                            </div>
-                          </div>
-                          <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
-                            <div className="grid grid-cols-3 gap-2 text-center">
-                              <div><div className="text-base font-bold text-white">$352K</div></div>
-                              <div className="bg-[#C8A661]/20 rounded py-1"><div className="text-lg font-bold text-[#C8A661]">$440K</div></div>
-                              <div><div className="text-base font-bold text-white">$528K</div></div>
                             </div>
                           </div>
                         </div>
                         
-                        {/* Upgrade CTA Overlay */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-lg backdrop-blur-[2px]">
                           <div className="text-center p-4">
                             <Lock className="w-8 h-8 text-[#C8A661] mx-auto mb-2" />
                             <h4 className="text-white font-semibold mb-1">Revenue Projections</h4>
-                            <p className="text-white/60 text-xs mb-3">Get ROI analysis, valuation estimates, and deal scoring</p>
+                            <p className="text-white/60 text-xs mb-3">Get interactive scenario modeling & financing tools</p>
                             <Button 
                               size="sm"
                               className="bg-[#C8A661] hover:bg-[#d4a030] text-black font-medium"
@@ -3647,86 +5087,342 @@ function CleanBIExplorerContent() {
                       </div>
                     ) : (
                       <>
-                        {/* ROI Calculator Mini */}
-                        <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        {/* Section 1: Scenario Projections with Sliders */}
+                        <div className="bg-[#0A1628] rounded-lg p-3 border border-[#C8A661]/20">
                           <div className="flex items-center gap-2 mb-3">
-                            <TrendingUp className="w-4 h-4 text-green-400" />
-                            <span className="text-sm font-medium text-white">ROI Analysis</span>
+                            <LineChart className="w-4 h-4 text-[#C8A661]" />
+                            <span className="text-sm font-medium text-white">Scenario Projections</span>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-2 mb-3">
-                            <div>
-                              <label className="text-[10px] text-white/50 block mb-1">Annual Revenue</label>
-                              <Input
-                                type="number"
-                                value={calcValues.annualRevenue}
-                                onChange={(e) => setCalcValues(v => ({...v, annualRevenue: Number(e.target.value)}))}
-                                className="h-8 text-sm bg-white/10 border-white/20 text-white"
-                                data-testid="input-calc-revenue"
-                              />
+                          {/* Vend Price Slider */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-[10px] text-white/60 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3" />
+                                Vend Price
+                              </label>
+                              <span className="text-xs font-semibold text-[#C8A661]" data-testid="display-vend-price">
+                                ${scenarioSliders.vendPrice.toFixed(2)}/load
+                              </span>
                             </div>
-                            <div>
-                              <label className="text-[10px] text-white/50 block mb-1">Operating Expenses</label>
-                              <Input
-                                type="number"
-                                value={calcValues.operatingExpenses}
-                                onChange={(e) => setCalcValues(v => ({...v, operatingExpenses: Number(e.target.value)}))}
-                                className="h-8 text-sm bg-white/10 border-white/20 text-white"
-                                data-testid="input-calc-expenses"
-                              />
+                            <Slider
+                              value={[scenarioSliders.vendPrice]}
+                              onValueChange={([val]) => setScenarioSliders(s => ({...s, vendPrice: val}))}
+                              min={3}
+                              max={7}
+                              step={0.25}
+                              className="w-full"
+                              data-testid="slider-vend-price"
+                            />
+                            <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                              <span>$3.00</span>
+                              <span>$7.00</span>
                             </div>
                           </div>
                           
-                          {/* ROI Results */}
+                          {/* Turns Per Day Slider */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-[10px] text-white/60 flex items-center gap-1">
+                                <RefreshCw className="w-3 h-3" />
+                                Turns Per Day
+                              </label>
+                              <span className="text-xs font-semibold text-[#C8A661]" data-testid="display-turns-per-day">
+                                {scenarioSliders.turnsPerDay} turns
+                              </span>
+                            </div>
+                            <Slider
+                              value={[scenarioSliders.turnsPerDay]}
+                              onValueChange={([val]) => setScenarioSliders(s => ({...s, turnsPerDay: val}))}
+                              min={3}
+                              max={10}
+                              step={1}
+                              className="w-full"
+                              data-testid="slider-turns-per-day"
+                            />
+                            <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                              <span>3</span>
+                              <span>10</span>
+                            </div>
+                          </div>
+                          
+                          {/* Machine Count Slider */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-[10px] text-white/60 flex items-center gap-1">
+                                <WashingMachine className="w-3 h-3" />
+                                Machine Count
+                              </label>
+                              <span className="text-xs font-semibold text-[#C8A661]" data-testid="display-machine-count">
+                                {scenarioSliders.machineCount} machines
+                              </span>
+                            </div>
+                            <Slider
+                              value={[scenarioSliders.machineCount]}
+                              onValueChange={([val]) => setScenarioSliders(s => ({...s, machineCount: val}))}
+                              min={10}
+                              max={100}
+                              step={5}
+                              className="w-full"
+                              data-testid="slider-machine-count"
+                            />
+                            <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                              <span>10</span>
+                              <span>100</span>
+                            </div>
+                          </div>
+                          
+                          {/* Operating Hours Slider */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-[10px] text-white/60 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Operating Hours
+                              </label>
+                              <span className="text-xs font-semibold text-[#C8A661]" data-testid="display-operating-hours">
+                                {scenarioSliders.operatingHours} hrs/day
+                              </span>
+                            </div>
+                            <Slider
+                              value={[scenarioSliders.operatingHours]}
+                              onValueChange={([val]) => setScenarioSliders(s => ({...s, operatingHours: val}))}
+                              min={12}
+                              max={24}
+                              step={1}
+                              className="w-full"
+                              data-testid="slider-operating-hours"
+                            />
+                            <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                              <span>12h</span>
+                              <span>24h</span>
+                            </div>
+                          </div>
+                          
+                          <Separator className="bg-white/10 my-3" />
+                          
+                          {/* Revenue Projections Results */}
                           <div className="grid grid-cols-3 gap-2">
-                            <div className="bg-green-500/10 rounded p-2 text-center border border-green-500/20">
-                              <div className="text-lg font-bold text-green-400">
-                                {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.downPayment, 1) * 100).toFixed(0)}%
+                            <div className="bg-white/5 rounded p-2 text-center">
+                              <div className="text-[10px] text-white/50">Daily</div>
+                              <div className="text-sm font-bold text-white" data-testid="display-daily-revenue">
+                                ${scenarioProjections.dailyRevenue.toLocaleString(undefined, {maximumFractionDigits: 0})}
                               </div>
-                              <div className="text-[10px] text-white/50">Cash-on-Cash</div>
                             </div>
                             <div className="bg-white/5 rounded p-2 text-center">
-                              <div className="text-lg font-bold text-white">
-                                {((calcValues.annualRevenue - calcValues.operatingExpenses) / Math.max(calcValues.askingPrice, 1) * 100).toFixed(1)}%
+                              <div className="text-[10px] text-white/50">Monthly</div>
+                              <div className="text-sm font-bold text-white" data-testid="display-monthly-revenue">
+                                ${(scenarioProjections.monthlyRevenue / 1000).toFixed(1)}K
                               </div>
-                              <div className="text-[10px] text-white/50">Cap Rate</div>
                             </div>
-                            <div className="bg-white/5 rounded p-2 text-center">
-                              <div className="text-lg font-bold text-[#C8A661]">
-                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) / 12 / 1000).toFixed(1)}K
+                            <div className="bg-[#C8A661]/20 rounded p-2 text-center border border-[#C8A661]/30">
+                              <div className="text-[10px] text-[#C8A661]">Annual</div>
+                              <div className="text-sm font-bold text-[#C8A661]" data-testid="display-annual-revenue">
+                                ${(scenarioProjections.annualRevenue / 1000).toFixed(0)}K
                               </div>
-                              <div className="text-[10px] text-white/50">Monthly NOI</div>
                             </div>
                           </div>
                         </div>
                         
-                        {/* Valuation Estimate */}
-                        <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
-                          <div className="flex items-center gap-2 mb-2">
-                            <DollarSign className="w-4 h-4 text-[#C8A661]" />
-                            <span className="text-sm font-medium text-white">Estimated Value Range</span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-2 text-center">
-                            <div>
-                              <div className="text-xs text-white/40">Low (2.0x)</div>
-                              <div className="text-base font-bold text-white">
-                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2 / 1000).toFixed(0)}K
+                        {/* Section 2: Expense Breakdown */}
+                        <Collapsible defaultOpen>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 group">
+                            <div className="flex items-center gap-2">
+                              <Receipt className="w-4 h-4 text-[#C8A661]" />
+                              <span className="text-sm font-medium text-white">Expense Breakdown</span>
+                            </div>
+                            <ChevronDown className="w-4 h-4 text-white/40 group-data-[state=open]:rotate-180 transition-transform" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="bg-white/5 rounded-lg p-3 border border-white/10 mt-2">
+                              {/* Expense Items */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Bolt className="w-3 h-3 text-yellow-400" />
+                                    <span className="text-[11px] text-white/70">Utilities</span>
+                                    <span className="text-[9px] text-white/40">(15-20%)</span>
+                                  </div>
+                                  <span className="text-xs font-medium text-white" data-testid="display-expense-utilities">
+                                    ${(scenarioProjections.expenses.utilities / 1000).toFixed(1)}K
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Users className="w-3 h-3 text-blue-400" />
+                                    <span className="text-[11px] text-white/70">Labor</span>
+                                    <span className="text-[9px] text-white/40">(10-15%)</span>
+                                  </div>
+                                  <span className="text-xs font-medium text-white" data-testid="display-expense-labor">
+                                    ${(scenarioProjections.expenses.labor / 1000).toFixed(1)}K
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Building2 className="w-3 h-3 text-purple-400" />
+                                    <span className="text-[11px] text-white/70">Rent</span>
+                                    <span className="text-[9px] text-white/40">(10-12%)</span>
+                                  </div>
+                                  <span className="text-xs font-medium text-white" data-testid="display-expense-rent">
+                                    ${(scenarioProjections.expenses.rent / 1000).toFixed(1)}K
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Wrench className="w-3 h-3 text-orange-400" />
+                                    <span className="text-[11px] text-white/70">Maintenance</span>
+                                    <span className="text-[9px] text-white/40">(3-5%)</span>
+                                  </div>
+                                  <span className="text-xs font-medium text-white" data-testid="display-expense-maintenance">
+                                    ${(scenarioProjections.expenses.maintenance / 1000).toFixed(1)}K
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Receipt className="w-3 h-3 text-gray-400" />
+                                    <span className="text-[11px] text-white/70">Other</span>
+                                    <span className="text-[9px] text-white/40">(5-8%)</span>
+                                  </div>
+                                  <span className="text-xs font-medium text-white" data-testid="display-expense-other">
+                                    ${(scenarioProjections.expenses.other / 1000).toFixed(1)}K
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <Separator className="bg-white/10 my-2.5" />
+                              
+                              {/* EBITDA Summary */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-white/5 rounded p-2">
+                                  <div className="text-[10px] text-white/50">Total Expenses</div>
+                                  <div className="text-sm font-semibold text-white" data-testid="display-total-expenses">
+                                    ${(scenarioProjections.totalExpenses / 1000).toFixed(0)}K
+                                    <span className="text-[10px] text-white/40 ml-1">
+                                      ({scenarioProjections.expensePercentage.toFixed(0)}%)
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="bg-green-500/10 rounded p-2 border border-green-500/20">
+                                  <div className="text-[10px] text-green-400">EBITDA</div>
+                                  <div className="text-sm font-semibold text-green-400" data-testid="display-ebitda">
+                                    ${(scenarioProjections.ebitda / 1000).toFixed(0)}K
+                                    <span className="text-[10px] text-green-400/70 ml-1">
+                                      ({scenarioProjections.ebitdaMargin.toFixed(1)}%)
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                            <div className="bg-[#C8A661]/20 rounded py-1">
-                              <div className="text-xs text-[#C8A661]">Fair (2.5x)</div>
-                              <div className="text-lg font-bold text-[#C8A661]">
-                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
-                              </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                        
+                        {/* Section 3: Financing Calculator */}
+                        <Collapsible>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 group">
+                            <div className="flex items-center gap-2">
+                              <Banknote className="w-4 h-4 text-[#C8A661]" />
+                              <span className="text-sm font-medium text-white">Financing Calculator</span>
                             </div>
-                            <div>
-                              <div className="text-xs text-white/40">High (3.0x)</div>
-                              <div className="text-base font-bold text-white">
-                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 3 / 1000).toFixed(0)}K
+                            <ChevronDown className="w-4 h-4 text-white/40 group-data-[state=open]:rotate-180 transition-transform" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="bg-white/5 rounded-lg p-3 border border-white/10 mt-2">
+                              {/* Loan Amount Input */}
+                              <div className="mb-3">
+                                <label className="text-[10px] text-white/60 block mb-1.5">Loan Amount</label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
+                                  <Input
+                                    type="number"
+                                    value={financingCalc.loanAmount}
+                                    onChange={(e) => setFinancingCalc(f => ({...f, loanAmount: Number(e.target.value)}))}
+                                    className="pl-7 h-9 text-sm bg-white/10 border-white/20 text-white"
+                                    data-testid="input-loan-amount"
+                                  />
+                                </div>
                               </div>
+                              
+                              {/* Interest Rate Slider */}
+                              <div className="mb-3">
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <label className="text-[10px] text-white/60">Interest Rate</label>
+                                  <span className="text-xs font-semibold text-[#C8A661]" data-testid="display-interest-rate">
+                                    {financingCalc.interestRate.toFixed(1)}%
+                                  </span>
+                                </div>
+                                <Slider
+                                  value={[financingCalc.interestRate]}
+                                  onValueChange={([val]) => setFinancingCalc(f => ({...f, interestRate: val}))}
+                                  min={6}
+                                  max={12}
+                                  step={0.25}
+                                  className="w-full"
+                                  data-testid="slider-interest-rate"
+                                />
+                                <div className="flex justify-between text-[9px] text-white/40 mt-0.5">
+                                  <span>6%</span>
+                                  <span>12%</span>
+                                </div>
+                              </div>
+                              
+                              {/* Loan Term Selector */}
+                              <div className="mb-3">
+                                <label className="text-[10px] text-white/60 block mb-1.5">Loan Term</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {[5, 7, 10].map(term => (
+                                    <button
+                                      key={term}
+                                      onClick={() => setFinancingCalc(f => ({...f, loanTerm: term}))}
+                                      className={`py-2 rounded text-xs font-medium transition-colors ${
+                                        financingCalc.loanTerm === term
+                                          ? 'bg-[#C8A661] text-[#0A1628]'
+                                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                      }`}
+                                      data-testid={`button-term-${term}`}
+                                    >
+                                      {term} Years
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <Separator className="bg-white/10 my-3" />
+                              
+                              {/* Monthly Payment Result */}
+                              <div className="bg-[#C8A661]/10 rounded-lg p-3 border border-[#C8A661]/30 text-center">
+                                <div className="text-[10px] text-[#C8A661] mb-1">Estimated Monthly Payment</div>
+                                <div className="text-2xl font-bold text-[#C8A661]" data-testid="display-monthly-payment">
+                                  ${monthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                                </div>
+                                <div className="text-[10px] text-white/50 mt-1">
+                                  Total: ${(monthlyPayment * financingCalc.loanTerm * 12).toLocaleString(undefined, {maximumFractionDigits: 0})}
+                                </div>
+                              </div>
+                              
+                              {/* DSCR Indicator */}
+                              {scenarioProjections.ebitda > 0 && (
+                                <div className="mt-2 bg-white/5 rounded p-2 text-center">
+                                  <div className="text-[10px] text-white/50">Debt Service Coverage Ratio</div>
+                                  <div className={`text-sm font-bold ${
+                                    (scenarioProjections.ebitda / (monthlyPayment * 12)) >= 1.25 
+                                      ? 'text-green-400' 
+                                      : (scenarioProjections.ebitda / (monthlyPayment * 12)) >= 1.0 
+                                        ? 'text-yellow-400' 
+                                        : 'text-red-400'
+                                  }`} data-testid="display-dscr">
+                                    {(scenarioProjections.ebitda / (monthlyPayment * 12)).toFixed(2)}x
+                                  </div>
+                                  <div className="text-[9px] text-white/40">
+                                    {(scenarioProjections.ebitda / (monthlyPayment * 12)) >= 1.25 
+                                      ? 'Strong coverage' 
+                                      : (scenarioProjections.ebitda / (monthlyPayment * 12)) >= 1.0 
+                                        ? 'Adequate coverage' 
+                                        : 'Below threshold'}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        </div>
+                          </CollapsibleContent>
+                        </Collapsible>
                       </>
                     )}
 
@@ -3734,7 +5430,7 @@ function CleanBIExplorerContent() {
                     {userTier !== "free" && analysisResult ? (
                       <Button 
                         variant="outline" 
-                        className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
+                        className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
                         onClick={async () => {
                           try {
                             toast({ title: "Exporting...", description: "Creating your Google Sheets report..." });
@@ -3751,8 +5447,8 @@ function CleanBIExplorerContent() {
                                 parkingScore: analysisResult.parkingScore || 80,
                                 competitorCount: analysisResult.competitorCount,
                                 nearestCompetitor: analysisResult.nearestCompetitor || 1.5,
-                                annualRevenue: calcValues.annualRevenue,
-                                operatingExpenses: calcValues.operatingExpenses,
+                                annualRevenue: scenarioProjections.annualRevenue,
+                                operatingExpenses: scenarioProjections.totalExpenses,
                                 askingPrice: calcValues.askingPrice,
                                 dealVerdict: dealVerdict || "Unknown"
                               })
@@ -3776,7 +5472,7 @@ function CleanBIExplorerContent() {
                     ) : (
                       <Button 
                         variant="outline" 
-                        className="w-full h-9 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10"
+                        className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
                         onClick={() => setShowUpgradeModal(true)}
                         data-testid="button-calc-upgrade"
                       >
@@ -3786,114 +5482,369 @@ function CleanBIExplorerContent() {
                     )}
                   </TabsContent>
 
-                  {/* Deal Scorer Tab */}
-                  <TabsContent value="deal" className="mt-0 space-y-3">
+                  {/* Deal Scorer Tab - Enhanced Due Diligence Checklist */}
+                  <TabsContent value="deal" className="mt-0 space-y-3" data-testid="deal-tab-content">
+                    {/* Section Header */}
                     <div className="flex items-center gap-2 text-xs text-white/50 mb-2">
-                      <Scale className="w-4 h-4 text-blue-400" />
-                      Deal Scorer — Is This Price Fair?
+                      <Scale className="w-4 h-4 text-[#C8A661]" />
+                      <span>Due Diligence Checklist</span>
+                      <Badge variant="outline" className="text-[9px] border-[#C8A661]/30 text-[#C8A661] ml-auto">
+                        {(() => {
+                          const checks = [
+                            analysisResult.cleanbiScore >= 70,
+                            analysisResult.competitorCount < 5,
+                            analysisResult.medianIncome >= 50000,
+                            analysisResult.trafficScore >= 60,
+                            !analysisResult.walkScore || analysisResult.walkScore >= 50,
+                            analysisResult.opportunityLevel !== "oversaturated"
+                          ];
+                          const passed = checks.filter(Boolean).length;
+                          return `${passed}/6 Passed`;
+                        })()}
+                      </Badge>
                     </div>
-                    
-                    {/* Asking Price Input */}
-                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                      <label className="text-xs text-white/60 block mb-2">Seller's Asking Price</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                        <Input
-                          type="number"
-                          value={calcValues.askingPrice}
-                          onChange={(e) => setCalcValues(v => ({...v, askingPrice: Number(e.target.value)}))}
-                          className="pl-8 h-12 text-xl font-bold bg-white/10 border-white/20 text-white"
-                          data-testid="input-asking-price"
-                        />
+
+                    {/* Due Diligence Checklist */}
+                    <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden" data-testid="due-diligence-checklist">
+                      {/* Location Score Check */}
+                      <div className="flex items-start gap-3 p-3 border-b border-white/5" data-testid="checklist-location-score">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          analysisResult.cleanbiScore >= 70 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {analysisResult.cleanbiScore >= 70 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Location Score</span>
+                            <span className={`text-xs font-semibold ${
+                              analysisResult.cleanbiScore >= 70 ? "text-green-400" : "text-red-400"
+                            }`}>
+                              {analysisResult.cleanbiScore}/100
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {analysisResult.cleanbiScore >= 70 
+                              ? "CLEANBI score meets minimum threshold (≥70)" 
+                              : "Score below recommended threshold (70)"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Competition Level */}
+                      <div className="flex items-start gap-3 p-3 border-b border-white/5" data-testid="checklist-competition">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          analysisResult.competitorCount < 5 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {analysisResult.competitorCount < 5 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Competition Level</span>
+                            <span className={`text-xs font-semibold ${
+                              analysisResult.competitorCount < 5 ? "text-green-400" : "text-red-400"
+                            }`}>
+                              {analysisResult.competitorCount} nearby
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {analysisResult.competitorCount < 5 
+                              ? "Low competition within 2mi radius (&lt;5)" 
+                              : `High competition: ${analysisResult.competitorCount} competitors within 2mi`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Demographics Check */}
+                      <div className="flex items-start gap-3 p-3 border-b border-white/5" data-testid="checklist-demographics">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          analysisResult.medianIncome >= 50000 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {analysisResult.medianIncome >= 50000 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Demographics</span>
+                            <span className={`text-xs font-semibold ${
+                              analysisResult.medianIncome >= 50000 ? "text-green-400" : "text-red-400"
+                            }`}>
+                              ${(analysisResult.medianIncome / 1000).toFixed(0)}K income
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {analysisResult.medianIncome >= 50000 
+                              ? "Median household income meets threshold (≥$50K)" 
+                              : "Below recommended income threshold ($50K)"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Traffic Score */}
+                      <div className="flex items-start gap-3 p-3 border-b border-white/5" data-testid="checklist-traffic">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          analysisResult.trafficScore >= 60 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {analysisResult.trafficScore >= 60 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Traffic Score</span>
+                            <span className={`text-xs font-semibold ${
+                              analysisResult.trafficScore >= 60 ? "text-green-400" : "text-red-400"
+                            }`}>
+                              {analysisResult.trafficScore}/100
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {analysisResult.trafficScore >= 60 
+                              ? "Good foot/vehicle traffic potential (≥60)" 
+                              : "Traffic score below threshold (60)"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Walk Score */}
+                      <div className="flex items-start gap-3 p-3 border-b border-white/5" data-testid="checklist-walkscore">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          !analysisResult.walkScore || analysisResult.walkScore >= 50 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {!analysisResult.walkScore || analysisResult.walkScore >= 50 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Walk Score</span>
+                            <span className={`text-xs font-semibold ${
+                              !analysisResult.walkScore || analysisResult.walkScore >= 50 ? "text-green-400" : "text-red-400"
+                            }`}>
+                              {analysisResult.walkScore ? `${analysisResult.walkScore}/100` : "N/A"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {!analysisResult.walkScore 
+                              ? "Walk score data not available (passes by default)"
+                              : analysisResult.walkScore >= 50 
+                                ? "Walkable area attracts foot traffic (≥50)" 
+                                : "Below walkability threshold (50)"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Market Saturation */}
+                      <div className="flex items-start gap-3 p-3" data-testid="checklist-saturation">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          analysisResult.opportunityLevel !== "oversaturated" 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {analysisResult.opportunityLevel !== "oversaturated" 
+                            ? <Check className="w-3 h-3" />
+                            : <X className="w-3 h-3" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-white">Market Saturation</span>
+                            <span className={`text-xs font-semibold capitalize ${
+                              analysisResult.opportunityLevel !== "oversaturated" ? "text-green-400" : "text-red-400"
+                            }`}>
+                              {analysisResult.opportunityLevel.replace("_", " ")}
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">
+                            {analysisResult.opportunityLevel !== "oversaturated" 
+                              ? "Market has room for growth" 
+                              : "Market is oversaturated - requires differentiation"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    
-                    {/* Deal Verdict */}
-                    {dealVerdict && (
-                      <div className={`rounded-xl p-4 border ${
-                        dealVerdict === "buy" ? "bg-green-500/20 border-green-500/40" :
-                        dealVerdict === "negotiate" ? "bg-yellow-500/20 border-yellow-500/40" :
-                        "bg-red-500/20 border-red-500/40"
-                      }`}>
-                        <div className="flex items-center gap-3 mb-2">
-                          {dealVerdict === "buy" && <ThumbsUp className="w-8 h-8 text-green-400" />}
-                          {dealVerdict === "negotiate" && <Scale className="w-8 h-8 text-yellow-400" />}
-                          {dealVerdict === "overpriced" && <ThumbsDown className="w-8 h-8 text-red-400" />}
-                          <div>
-                            <div className={`text-xl font-bold ${
-                              dealVerdict === "buy" ? "text-green-400" :
-                              dealVerdict === "negotiate" ? "text-yellow-400" :
-                              "text-red-400"
-                            }`}>
-                              {dealVerdict === "buy" && "Strong Buy"}
-                              {dealVerdict === "negotiate" && "Negotiate"}
-                              {dealVerdict === "overpriced" && "Overpriced"}
-                            </div>
-                            <div className="text-xs text-white/60">
-                              {dealVerdict === "buy" && "This is priced below fair value — act fast!"}
-                              {dealVerdict === "negotiate" && "Fair price range, but room to negotiate."}
-                              {dealVerdict === "overpriced" && "Price exceeds calculated fair value."}
-                            </div>
+
+                    {/* Valuation vs Asking Price Comparison */}
+                    <div className="bg-gradient-to-br from-[#0A1628]/50 to-transparent rounded-lg p-4 border border-[#C8A661]/20" data-testid="valuation-comparison">
+                      <div className="flex items-center gap-2 mb-3">
+                        <DollarSign className="w-4 h-4 text-[#C8A661]" />
+                        <span className="text-sm font-medium text-white">Valuation Comparison</span>
+                      </div>
+                      
+                      {/* Asking Price Input */}
+                      <div className="mb-4">
+                        <label className="text-xs text-white/60 block mb-2">Enter Asking Price</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                          <Input
+                            type="number"
+                            value={calcValues.askingPrice || ""}
+                            onChange={(e) => setCalcValues(v => ({...v, askingPrice: Number(e.target.value)}))}
+                            placeholder="0"
+                            className="pl-8 h-12 text-xl font-bold bg-white/10 border-white/20 text-white placeholder:text-white/30"
+                            data-testid="input-asking-price"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Fair Market Value Range */}
+                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="bg-white/5 rounded-lg p-2 text-center">
+                          <div className="text-xs text-white/50 mb-1">Low Est.</div>
+                          <div className="text-sm font-bold text-white">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.0 / 1000).toFixed(0)}K
                           </div>
                         </div>
-                        
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <div className="grid grid-cols-2 gap-3 text-sm">
-                            <div>
-                              <div className="text-white/50 text-xs">Fair Value</div>
-                              <div className="font-semibold text-white">
-                                ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
+                        <div className="bg-[#C8A661]/10 rounded-lg p-2 text-center border border-[#C8A661]/30">
+                          <div className="text-xs text-[#C8A661] mb-1">Fair Value</div>
+                          <div className="text-sm font-bold text-[#C8A661]">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.5 / 1000).toFixed(0)}K
+                          </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-2 text-center">
+                          <div className="text-xs text-white/50 mb-1">High Est.</div>
+                          <div className="text-sm font-bold text-white">
+                            ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 3.0 / 1000).toFixed(0)}K
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Deal Rating */}
+                      {calcValues.askingPrice > 0 && (
+                        <div className={`rounded-lg p-3 border ${
+                          dealVerdict === "buy" ? "bg-green-500/10 border-green-500/30" :
+                          dealVerdict === "negotiate" ? "bg-yellow-500/10 border-yellow-500/30" :
+                          "bg-red-500/10 border-red-500/30"
+                        }`} data-testid="deal-rating">
+                          <div className="flex items-center gap-3">
+                            {dealVerdict === "buy" && <ThumbsUp className="w-6 h-6 text-green-400" />}
+                            {dealVerdict === "negotiate" && <Scale className="w-6 h-6 text-yellow-400" />}
+                            {dealVerdict === "overpriced" && <ThumbsDown className="w-6 h-6 text-red-400" />}
+                            <div className="flex-1">
+                              <div className={`text-base font-bold ${
+                                dealVerdict === "buy" ? "text-green-400" :
+                                dealVerdict === "negotiate" ? "text-yellow-400" :
+                                "text-red-400"
+                              }`}>
+                                {dealVerdict === "buy" && "Great Deal"}
+                                {dealVerdict === "negotiate" && "Fair Price"}
+                                {dealVerdict === "overpriced" && "Overpriced"}
+                              </div>
+                              <div className="text-xs text-white/60">
+                                {dealVerdict === "buy" && "Asking price is below fair market value"}
+                                {dealVerdict === "negotiate" && "Price is within fair value range - room to negotiate"}
+                                {dealVerdict === "overpriced" && "Asking price exceeds estimated fair value"}
                               </div>
                             </div>
-                            <div>
-                              <div className="text-white/50 text-xs">Your Offer Target</div>
-                              <div className="font-semibold text-[#C8A661]">
+                            <div className="text-right">
+                              <div className="text-xs text-white/50">Target Offer</div>
+                              <div className="text-sm font-bold text-[#C8A661]">
                                 ${((calcValues.annualRevenue - calcValues.operatingExpenses) * 2.2 / 1000).toFixed(0)}K
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
-                    {/* Export & Share Actions */}
-                    <div className="space-y-2">
+                    {/* Quick Actions */}
+                    <div className="space-y-2" data-testid="quick-actions">
+                      <div className="flex items-center gap-2 text-xs text-white/50 mb-1">
+                        <Zap className="w-3 h-3" />
+                        <span>Quick Actions</span>
+                      </div>
+                      
+                      {/* Request Property Report */}
                       <Button 
                         variant="outline" 
-                        className="w-full h-9 text-xs border-white/20 text-white hover:bg-white/10"
+                        className="w-full h-10 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10 justify-start gap-2"
+                        onClick={() => setShowUpgradeModal(true)}
+                        data-testid="button-request-property-report"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span className="flex-1 text-left">Request Property Report</span>
+                        <Crown className="w-3 h-3 text-[#C8A661]/60" />
+                      </Button>
+                      
+                      {/* Schedule Consultation */}
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-10 text-xs border-[#0A1628]/50 text-white hover:bg-white/10 justify-start gap-2"
+                        onClick={() => setLocation("/consultation")}
+                        data-testid="button-schedule-consultation"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span className="flex-1 text-left">Schedule Consultation</span>
+                        <ArrowRight className="w-3 h-3 text-white/40" />
+                      </Button>
+                      
+                      {/* Save Analysis */}
+                      <Button 
+                        className="w-full h-10 text-xs bg-[#0A1628] hover:bg-[#1a3a5c] text-white justify-start gap-2"
+                        onClick={() => {
+                          const saved = saveAnalysis(analysisResult);
+                          setSavedAnalyses(getStoredAnalyses());
+                          toast({ title: "Analysis Saved", description: "You can access this in your saved analyses." });
+                        }}
+                        data-testid="button-save-analysis"
+                      >
+                        <BookmarkPlus className="w-4 h-4" />
+                        <span className="flex-1 text-left">Save Analysis</span>
+                        <Check className="w-3 h-3 text-green-400" />
+                      </Button>
+                      
+                      {/* Share Analysis */}
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-10 text-xs border-white/20 text-white hover:bg-white/10 justify-start gap-2"
                         onClick={shareAnalysis}
                         data-testid="button-share-deal"
                       >
-                        <Share2 className="w-3 h-3 mr-1.5" />
-                        Share Analysis Link
+                        <Share2 className="w-4 h-4" />
+                        <span className="flex-1 text-left">Share Analysis Link</span>
                       </Button>
                       
+                      {/* Export PDF */}
                       {userTier !== "free" && analysisResult ? (
                         <Button 
-                          className="w-full h-9 text-xs bg-gradient-to-r from-[#C8A661] to-[#A8893F] text-white"
+                          className="w-full h-10 text-xs bg-gradient-to-r from-[#C8A661] to-[#B8964F] text-[#0A1628] font-semibold justify-start gap-2"
                           onClick={async () => {
                             try {
                               toast({ title: "Generating PDF...", description: "Creating your analysis report..." });
-                              
-                              // Use browser-based PDF generation with jsPDF
                               const { default: jsPDF } = await import("jspdf");
                               const doc = new jsPDF();
                               const noi = calcValues.annualRevenue - calcValues.operatingExpenses;
                               const fairValue = noi * 2.5;
                               
-                              // Title
                               doc.setFontSize(20);
-                              doc.setTextColor(30, 58, 95); // Navy
-                              doc.text("CLEANBI™ Location Analysis", 20, 25);
+                              doc.setTextColor(10, 22, 40);
+                              doc.text("CLEANBI™ Due Diligence Report", 20, 25);
                               
-                              // Subtitle
                               doc.setFontSize(12);
                               doc.setTextColor(100, 100, 100);
                               doc.text(analysisResult.address, 20, 35);
                               doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 42);
                               
-                              // Score Box
-                              doc.setFillColor(200, 166, 97); // Gold
+                              doc.setFillColor(200, 166, 97);
                               doc.rect(150, 15, 40, 30, "F");
                               doc.setFontSize(24);
                               doc.setTextColor(255, 255, 255);
@@ -3901,48 +5852,55 @@ function CleanBIExplorerContent() {
                               doc.setFontSize(10);
                               doc.text(`Score: ${analysisResult.cleanbiScore}`, 155, 40);
                               
-                              // Section: Market Demographics
                               doc.setFontSize(14);
-                              doc.setTextColor(30, 58, 95);
-                              doc.text("Market Demographics", 20, 60);
+                              doc.setTextColor(10, 22, 40);
+                              doc.text("Due Diligence Checklist", 20, 60);
                               doc.setFontSize(11);
                               doc.setTextColor(60, 60, 60);
-                              doc.text(`Population Density: ${analysisResult.populationDensity.toLocaleString()} per sq mi`, 25, 70);
-                              doc.text(`Median Income: $${analysisResult.medianIncome.toLocaleString()}`, 25, 78);
-                              doc.text(`Competitors: ${analysisResult.competitorCount}`, 25, 86);
                               
-                              // Section: Financial Projections
+                              const checks = [
+                                { label: "Location Score", pass: analysisResult.cleanbiScore >= 70, value: `${analysisResult.cleanbiScore}/100` },
+                                { label: "Competition Level", pass: analysisResult.competitorCount < 5, value: `${analysisResult.competitorCount} nearby` },
+                                { label: "Demographics", pass: analysisResult.medianIncome >= 50000, value: `$${(analysisResult.medianIncome/1000).toFixed(0)}K` },
+                                { label: "Traffic Score", pass: analysisResult.trafficScore >= 60, value: `${analysisResult.trafficScore}/100` },
+                                { label: "Walk Score", pass: !analysisResult.walkScore || analysisResult.walkScore >= 50, value: analysisResult.walkScore ? `${analysisResult.walkScore}/100` : "N/A" },
+                                { label: "Market Saturation", pass: analysisResult.opportunityLevel !== "oversaturated", value: analysisResult.opportunityLevel }
+                              ];
+                              
+                              checks.forEach((check, i) => {
+                                const status = check.pass ? "✓ PASS" : "✗ FAIL";
+                                doc.setTextColor(check.pass ? 34 : 239, check.pass ? 197 : 68, check.pass ? 94 : 68);
+                                doc.text(`${status} - ${check.label}: ${check.value}`, 25, 70 + (i * 8));
+                              });
+                              
                               doc.setFontSize(14);
-                              doc.setTextColor(30, 58, 95);
-                              doc.text("Financial Projections", 20, 105);
+                              doc.setTextColor(10, 22, 40);
+                              doc.text("Financial Analysis", 20, 130);
                               doc.setFontSize(11);
                               doc.setTextColor(60, 60, 60);
-                              doc.text(`Annual Revenue: $${calcValues.annualRevenue.toLocaleString()}`, 25, 115);
-                              doc.text(`Operating Expenses: $${calcValues.operatingExpenses.toLocaleString()}`, 25, 123);
-                              doc.text(`Net Operating Income: $${noi.toLocaleString()}`, 25, 131);
-                              doc.text(`Fair Market Value (2.5x NOI): $${Math.round(fairValue).toLocaleString()}`, 25, 139);
+                              doc.text(`Annual Revenue: $${calcValues.annualRevenue.toLocaleString()}`, 25, 140);
+                              doc.text(`Operating Expenses: $${calcValues.operatingExpenses.toLocaleString()}`, 25, 148);
+                              doc.text(`NOI: $${noi.toLocaleString()}`, 25, 156);
+                              doc.text(`Fair Market Value: $${Math.round(fairValue).toLocaleString()}`, 25, 164);
                               
-                              // Section: Deal Analysis
-                              doc.setFontSize(14);
-                              doc.setTextColor(30, 58, 95);
-                              doc.text("Deal Analysis", 20, 160);
-                              doc.setFontSize(11);
-                              doc.setTextColor(60, 60, 60);
-                              doc.text(`Asking Price: $${calcValues.askingPrice.toLocaleString()}`, 25, 170);
-                              const verdictColor = dealVerdict === "buy" ? [34, 197, 94] : dealVerdict === "negotiate" ? [234, 179, 8] : [239, 68, 68];
-                              doc.setTextColor(verdictColor[0], verdictColor[1], verdictColor[2]);
-                              doc.text(`Verdict: ${dealVerdict?.toUpperCase() || "N/A"}`, 25, 178);
-                              doc.setTextColor(60, 60, 60);
-                              doc.text(`Target Offer: $${Math.round(noi * 2.2).toLocaleString()}`, 25, 186);
+                              if (calcValues.askingPrice > 0) {
+                                doc.setFontSize(14);
+                                doc.setTextColor(10, 22, 40);
+                                doc.text("Deal Analysis", 20, 185);
+                                doc.setFontSize(11);
+                                doc.text(`Asking Price: $${calcValues.askingPrice.toLocaleString()}`, 25, 195);
+                                const verdictText = dealVerdict === "buy" ? "GREAT DEAL" : dealVerdict === "negotiate" ? "FAIR PRICE" : "OVERPRICED";
+                                const verdictColor = dealVerdict === "buy" ? [34, 197, 94] : dealVerdict === "negotiate" ? [234, 179, 8] : [239, 68, 68];
+                                doc.setTextColor(verdictColor[0], verdictColor[1], verdictColor[2]);
+                                doc.text(`Verdict: ${verdictText}`, 25, 203);
+                              }
                               
-                              // Footer
                               doc.setFontSize(9);
                               doc.setTextColor(150, 150, 150);
                               doc.text("Generated by WashBizHub.com - CLEANBI™ Proprietary Technology", 20, 280);
                               
-                              // Save
-                              doc.save(`CLEANBI_Analysis_${analysisResult.address.replace(/[^a-z0-9]/gi, "_")}.pdf`);
-                              toast({ title: "PDF Downloaded!", description: "Your analysis report has been saved." });
+                              doc.save(`CLEANBI_DueDiligence_${analysisResult.address.replace(/[^a-z0-9]/gi, "_")}.pdf`);
+                              toast({ title: "PDF Downloaded!", description: "Your due diligence report has been saved." });
                             } catch (err) {
                               console.error("PDF Error:", err);
                               toast({ title: "PDF Error", description: "Could not generate PDF", variant: "destructive" });
@@ -3950,46 +5908,318 @@ function CleanBIExplorerContent() {
                           }}
                           data-testid="button-export-pdf"
                         >
-                          <Download className="w-3 h-3 mr-1.5" />
-                          Export Full Report (PDF)
+                          <Download className="w-4 h-4" />
+                          <span className="flex-1 text-left">Export Due Diligence Report (PDF)</span>
                         </Button>
                       ) : (
                         <Button 
                           variant="outline"
-                          className="w-full h-9 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
+                          className="w-full h-10 text-xs border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10 justify-start gap-2"
                           onClick={() => setShowUpgradeModal(true)}
                           data-testid="button-export-upgrade"
                         >
-                          <Lock className="w-3 h-3 mr-1.5" />
-                          Export Report — Pro Feature
+                          <Lock className="w-4 h-4" />
+                          <span className="flex-1 text-left">Export Report — Pro Feature</span>
+                          <Crown className="w-3 h-3" />
                         </Button>
                       )}
                     </div>
                   </TabsContent>
 
                   {/* AI Insights Tab */}
-                  <TabsContent value="insights" className="mt-0">
-                    <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
-                      <Brain className="w-4 h-4 text-[#C8A661]" />
-                      AI-Powered Analysis
+                  <TabsContent value="insights" className="mt-0" data-testid="insights-tab-content">
+                    {/* AI-Curated Action Board Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                          <Brain className="w-4 h-4 text-[#C8A661]" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-white">AI Action Board</h3>
+                          <p className="text-[10px] text-white/50">Data-driven insights for your location</p>
+                        </div>
+                      </div>
+                      <Badge 
+                        className="text-[9px] bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30"
+                        data-testid="badge-ai-powered"
+                      >
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        AI-Powered
+                      </Badge>
                     </div>
-                    <div className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-4 border border-[#C8A661]/20">
+
+                    {/* AI Summary Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-4 border border-[#C8A661]/20 mb-4"
+                      data-testid="ai-summary-card"
+                    >
                       <p className="text-sm text-white/90 leading-relaxed">
                         {generateAINarrative(analysisResult, competitors)}
                       </p>
-                    </div>
-                    
-                    <div className="mt-4 space-y-2">
-                      <div className="text-xs text-white/50">Key Takeaways</div>
-                      <div className="flex items-start gap-2 text-sm text-white/80">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                        <span>{analysisResult.grade === "A" ? "Exceptional opportunity - act fast" : analysisResult.grade === "B" ? "Strong fundamentals for success" : "Strategic improvements can boost value"}</span>
+                    </motion.div>
+
+                    {/* TOP OPPORTUNITIES SECTION */}
+                    <div className="mb-5" data-testid="opportunities-section">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 rounded-md bg-green-500/20 flex items-center justify-center">
+                          <Lightbulb className="w-3.5 h-3.5 text-green-400" />
+                        </div>
+                        <h4 className="text-xs font-semibold text-white uppercase tracking-wide">Top Opportunities</h4>
+                        <Badge 
+                          variant="outline" 
+                          className="text-[9px] border-green-500/30 text-green-400 ml-auto"
+                          data-testid="badge-opportunity-count"
+                        >
+                          {generateInsightsOpportunities(analysisResult).length} Found
+                        </Badge>
                       </div>
-                      <div className="flex items-start gap-2 text-sm text-white/80">
-                        <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                        <span>{analysisResult.competitorCount <= 3 ? "Low competition = pricing power" : "Differentiation strategy recommended"}</span>
+
+                      <div className="space-y-2">
+                        {generateInsightsOpportunities(analysisResult).length > 0 ? (
+                          generateInsightsOpportunities(analysisResult).map((opp, index) => {
+                            const Icon = opp.icon;
+                            return (
+                              <motion.div
+                                key={opp.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className={`rounded-lg p-3 border transition-colors ${
+                                  opp.priority === "high" 
+                                    ? "bg-green-500/10 border-green-500/30 hover:border-green-500/50" 
+                                    : "bg-white/5 border-white/10 hover:border-white/20"
+                                }`}
+                                data-testid={`opportunity-card-${opp.id}`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    opp.priority === "high" ? "bg-green-500/20" : "bg-[#C8A661]/20"
+                                  }`}>
+                                    <Icon className={`w-4 h-4 ${opp.priority === "high" ? "text-green-400" : "text-[#C8A661]"}`} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="text-sm font-medium text-white">{opp.title}</span>
+                                      {opp.priority === "high" && (
+                                        <Badge className="text-[8px] bg-green-500/30 text-green-300 border-0 px-1.5 py-0">
+                                          High Priority
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-1.5">{opp.description}</p>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-[#C8A661]">
+                                      <ArrowRight className="w-3 h-3" />
+                                      <span>{opp.actionText}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-4 text-white/40 text-sm">
+                            <Lightbulb className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                            <p>No major opportunities identified</p>
+                            <p className="text-xs">Consider analyzing nearby locations</p>
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    {/* RISK ALERTS SECTION */}
+                    <div className="mb-5" data-testid="risks-section">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 rounded-md bg-amber-500/20 flex items-center justify-center">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                        </div>
+                        <h4 className="text-xs font-semibold text-white uppercase tracking-wide">Risk Alerts</h4>
+                        {generateInsightsRisks(analysisResult).length > 0 && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-[9px] border-amber-500/30 text-amber-400 ml-auto"
+                            data-testid="badge-risk-count"
+                          >
+                            {generateInsightsRisks(analysisResult).length} Alert{generateInsightsRisks(analysisResult).length !== 1 ? "s" : ""}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        {generateInsightsRisks(analysisResult).length > 0 ? (
+                          generateInsightsRisks(analysisResult).map((risk, index) => {
+                            const Icon = risk.icon;
+                            return (
+                              <motion.div
+                                key={risk.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className={`rounded-lg p-3 border transition-colors ${
+                                  risk.severity === "high" 
+                                    ? "bg-red-500/10 border-red-500/30 hover:border-red-500/50" 
+                                    : "bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50"
+                                }`}
+                                data-testid={`risk-card-${risk.id}`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    risk.severity === "high" ? "bg-red-500/20" : "bg-amber-500/20"
+                                  }`}>
+                                    <Icon className={`w-4 h-4 ${risk.severity === "high" ? "text-red-400" : "text-amber-400"}`} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="text-sm font-medium text-white">{risk.title}</span>
+                                      <Badge 
+                                        className={`text-[8px] border-0 px-1.5 py-0 ${
+                                          risk.severity === "high" 
+                                            ? "bg-red-500/30 text-red-300" 
+                                            : "bg-amber-500/30 text-amber-300"
+                                        }`}
+                                      >
+                                        {risk.severity === "high" ? "Caution" : "Monitor"}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-2">{risk.description}</p>
+                                    <div className="bg-white/5 rounded-md p-2 border border-white/10">
+                                      <div className="flex items-start gap-1.5">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" />
+                                        <div>
+                                          <span className="text-[10px] text-white/40 uppercase tracking-wide">Mitigation</span>
+                                          <p className="text-xs text-white/80">{risk.mitigation}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })
+                        ) : (
+                          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+                            <CheckCircle2 className="w-6 h-6 mx-auto mb-2 text-green-400" />
+                            <p className="text-sm text-green-300 font-medium">No Major Risks Identified</p>
+                            <p className="text-xs text-white/50 mt-1">This location shows strong fundamentals</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* TIER-BASED UPSELL */}
+                    {userTier === "free" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-gradient-to-br from-[#0A1628] to-[#1a3a5c] rounded-lg p-4 border border-[#C8A661]/30"
+                        data-testid="insights-upgrade-prompt"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-[#C8A661]/20 flex items-center justify-center shrink-0">
+                            <Crown className="w-5 h-5 text-[#C8A661]" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-semibold text-white mb-1">Unlock Deep Market Analysis</h4>
+                            <p className="text-xs text-white/60 mb-3">
+                              Get AI-powered recommendations, competitor strategies, and revenue projections with Pro.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <Badge variant="outline" className="text-[9px] border-[#C8A661]/30 text-[#C8A661]">
+                                <BarChart3 className="w-3 h-3 mr-1" />
+                                Market Projections
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] border-[#C8A661]/30 text-[#C8A661]">
+                                <Target className="w-3 h-3 mr-1" />
+                                Competitor Intel
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] border-[#C8A661]/30 text-[#C8A661]">
+                                <Brain className="w-3 h-3 mr-1" />
+                                AI Strategies
+                              </Badge>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-medium"
+                              onClick={() => setShowUpgradeModal(true)}
+                              data-testid="button-insights-upgrade"
+                            >
+                              <Unlock className="w-3.5 h-3.5 mr-1.5" />
+                              Upgrade to Pro — $99/mo
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Starter tier upsell - more subtle */}
+                    {userTier === "starter" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white/5 rounded-lg p-3 border border-white/10 mt-4"
+                        data-testid="insights-starter-upgrade"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-[#C8A661]" />
+                            <span className="text-xs text-white/70">Want AI strategy recommendations?</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-[10px] border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
+                            onClick={() => setShowUpgradeModal(true)}
+                            data-testid="button-insights-starter-upgrade"
+                          >
+                            <Crown className="w-3 h-3 mr-1" />
+                            Upgrade
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Pro/Enterprise - Additional AI Insights */}
+                    {(userTier === "pro" || userTier === "enterprise") && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-gradient-to-br from-[#8B5CF6]/10 to-transparent rounded-lg p-4 border border-[#8B5CF6]/30 mt-4"
+                        data-testid="pro-insights-extras"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
+                          <span className="text-xs font-semibold text-white">AI Strategic Recommendation</span>
+                          <Badge className="text-[8px] bg-[#8B5CF6]/20 text-[#8B5CF6] border-[#8B5CF6]/30">Pro</Badge>
+                        </div>
+                        <p className="text-sm text-white/80 leading-relaxed">
+                          {analysisResult.grade === "A" 
+                            ? "This is a prime acquisition target. Consider acting quickly and be prepared to pay asking price or above for quality locations with these metrics."
+                            : analysisResult.grade === "B"
+                            ? "Strong fundamentals present. Focus negotiations on equipment condition and lease terms. A 10-15% discount from asking price is reasonable to pursue."
+                            : "Value-add opportunity identified. This location could benefit from equipment upgrades, extended hours, or service diversification to improve returns."
+                          }
+                        </p>
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <div className="flex items-center gap-4 text-xs text-white/50">
+                            <div className="flex items-center gap-1.5">
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>Need help? Ask our AI consultant</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 text-[10px] text-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 px-2"
+                              onClick={() => setActiveTab("overview")}
+                              data-testid="button-ask-ai-consultant"
+                            >
+                              Open Chat
+                              <ArrowRight className="w-3 h-3 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
                   </TabsContent>
 
                   {/* VALUATOR TAB - PRO+ FEATURE */}
@@ -4048,11 +6278,67 @@ function CleanBIExplorerContent() {
                           </Button>
                         </div>
 
+                        {/* Preset Templates Section */}
+                        {valuatorEquipment.length === 0 && (
+                          <div className="bg-gradient-to-br from-[#0A1628]/50 to-transparent rounded-lg p-3 sm:p-4 border border-[#C8A661]/20" data-testid="preset-templates-section">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Sparkles className="w-4 h-4 text-[#C8A661]" />
+                              <span className="text-xs sm:text-sm font-medium text-white">Quick Start Templates</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              {EQUIPMENT_TEMPLATES.map((template) => (
+                                <button
+                                  key={template.id}
+                                  type="button"
+                                  className="bg-white/5 hover:bg-[#C8A661]/20 border border-white/10 hover:border-[#C8A661]/40 rounded-lg p-2 sm:p-3 text-left transition-all"
+                                  onClick={() => {
+                                    const newEquipment = template.equipment.map((eq, idx) => ({
+                                      ...eq,
+                                      id: `${template.id}-${idx}-${Date.now()}`
+                                    }));
+                                    setValuatorEquipment(newEquipment);
+                                    toast({ 
+                                      title: "Template Applied",
+                                      description: `${template.name} - ${template.totalMachines} machines added`
+                                    });
+                                  }}
+                                  data-testid={`button-template-${template.id}`}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 rounded-md bg-[#C8A661]/20 flex items-center justify-center">
+                                      <WashingMachine className="w-3 h-3 text-[#C8A661]" />
+                                    </div>
+                                    <span className="text-[10px] sm:text-xs font-medium text-white">{template.name}</span>
+                                  </div>
+                                  <p className="text-[9px] sm:text-[10px] text-white/50 mb-1.5">{template.description}</p>
+                                  <div className="flex items-center justify-between text-[9px] text-white/40">
+                                    <span>{template.totalMachines} machines</span>
+                                    <span className="text-[#C8A661]">${(template.estimatedCost / 1000).toFixed(0)}K</span>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-white/10 text-center">
+                              <span className="text-[10px] text-white/40">Or </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 px-2 text-[10px] text-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                                onClick={() => setShowAddEquipmentModal(true)}
+                                data-testid="button-add-custom-equipment"
+                              >
+                                <Plus className="w-2.5 h-2.5 mr-1" />
+                                Add Custom Equipment
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Equipment Inventory Section - Mobile Optimized */}
                         {valuatorEquipment.length === 0 ? (
                           <div className="bg-white/5 rounded-lg p-3 sm:p-4 text-center border border-dashed border-white/20">
                             <WashingMachine className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 text-white/30" />
-                            <p className="text-xs sm:text-sm text-white/50 mb-3">No equipment added yet</p>
+                            <p className="text-xs sm:text-sm text-white/50 mb-3">Select a template above or add equipment manually</p>
                             <Button
                               size="sm"
                               variant="outline"
@@ -4118,7 +6404,133 @@ function CleanBIExplorerContent() {
                                 ))}
                               </div>
                             </ScrollArea>
+                            
+                            {/* Running Totals Display */}
+                            <div className="bg-gradient-to-r from-[#0A1628] to-[#0A1628]/50 rounded-lg p-2 sm:p-3 border border-[#C8A661]/20 mt-2" data-testid="running-totals-section">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Calculator className="w-3.5 h-3.5 text-[#C8A661]" />
+                                <span className="text-[10px] sm:text-xs font-medium text-white/70">Running Totals</span>
+                              </div>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <div className="text-center">
+                                  <div className="text-base sm:text-lg font-bold text-[#C8A661]" data-testid="total-machines-count">
+                                    {equipmentRunningTotals.totalMachines}
+                                  </div>
+                                  <div className="text-[9px] text-white/40">Total Machines</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-base sm:text-lg font-bold text-white" data-testid="total-cost-value">
+                                    ${(equipmentRunningTotals.totalCost / 1000).toFixed(0)}K
+                                  </div>
+                                  <div className="text-[9px] text-white/40">Original Cost</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-[10px] sm:text-sm font-bold text-blue-400">
+                                    {equipmentRunningTotals.washerCount}
+                                  </div>
+                                  <div className="text-[9px] text-white/40">Washers</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-[10px] sm:text-sm font-bold text-orange-400">
+                                    {equipmentRunningTotals.dryerCount}
+                                  </div>
+                                  <div className="text-[9px] text-white/40">Dryers</div>
+                                </div>
+                              </div>
+                              <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-center gap-4 text-[9px] text-white/40">
+                                <span>Avg Age: <span className="text-white">{equipmentRunningTotals.avgAge.toFixed(1)}yr</span></span>
+                                <span>W:D Ratio: <span className="text-white">{equipmentRunningTotals.dryerCount > 0 ? (equipmentRunningTotals.washerCount / equipmentRunningTotals.dryerCount).toFixed(1) : '—'}:1</span></span>
+                              </div>
+                            </div>
                           </div>
+                        )}
+
+                        {/* Depreciation Timeline Visualization */}
+                        {valuatorEquipment.length > 0 && (
+                          <Collapsible className="bg-white/5 rounded-lg border border-white/10">
+                            <CollapsibleTrigger className="w-full flex items-center justify-between p-2 sm:p-3 hover:bg-white/5 transition-colors" data-testid="toggle-depreciation-visualization">
+                              <div className="flex items-center gap-2">
+                                <BarChart3 className="w-4 h-4 text-[#C8A661]" />
+                                <span className="text-[10px] sm:text-xs font-medium text-white">Equipment Age & Depreciation</span>
+                              </div>
+                              <ChevronDown className="w-4 h-4 text-white/40" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="px-2 sm:px-3 pb-2 sm:pb-3">
+                              {/* Age Distribution Chart */}
+                              {ageDistributionData.length > 0 && (
+                                <div className="mb-3">
+                                  <div className="text-[9px] text-white/50 mb-2">Age Distribution</div>
+                                  <div className="h-[120px] sm:h-[140px]" data-testid="age-distribution-chart">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                      <BarChart data={ageDistributionData} barCategoryGap="20%">
+                                        <XAxis 
+                                          dataKey="label" 
+                                          tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 9 }}
+                                          tickLine={false}
+                                          axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                                        />
+                                        <YAxis 
+                                          tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 8 }}
+                                          tickLine={false}
+                                          axisLine={false}
+                                          width={20}
+                                        />
+                                        <RechartsTooltip
+                                          contentStyle={{
+                                            backgroundColor: '#0A1628',
+                                            border: '1px solid rgba(200, 166, 97, 0.3)',
+                                            borderRadius: '6px',
+                                            fontSize: 10
+                                          }}
+                                          labelStyle={{ color: '#C8A661' }}
+                                        />
+                                        <Bar dataKey="washers" name="Washers" stackId="a" fill="#3B82F6" radius={[0, 0, 0, 0]} />
+                                        <Bar dataKey="dryers" name="Dryers" stackId="a" fill="#F97316" radius={[2, 2, 0, 0]} />
+                                      </BarChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Replacement Timeline */}
+                              <div className="space-y-1.5">
+                                <div className="text-[9px] text-white/50">Replacement Timeline</div>
+                                {depreciationTimelineData.map((item) => (
+                                  <div key={item.id} className="bg-white/5 rounded-lg p-2" data-testid={`replacement-timeline-${item.id}`}>
+                                    <div className="flex items-center justify-between mb-1.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[10px] font-medium text-white">{item.quantity}x {item.brand} {item.type}</span>
+                                        <Badge 
+                                          variant="outline" 
+                                          className={`text-[8px] ${
+                                            item.replacementUrgency === 'urgent' 
+                                              ? 'border-red-500/40 text-red-400' 
+                                              : item.replacementUrgency === 'soon' 
+                                              ? 'border-yellow-500/40 text-yellow-400' 
+                                              : 'border-green-500/40 text-green-400'
+                                          }`}
+                                        >
+                                          {item.replacementUrgency === 'urgent' ? 'Replace Soon' : item.replacementUrgency === 'soon' ? 'Plan Ahead' : 'Good'}
+                                        </Badge>
+                                      </div>
+                                      <span className="text-[9px] text-white/40">{item.remainingLife}yr left</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Progress 
+                                        value={item.depreciationPercent} 
+                                        className="h-1.5 flex-1 bg-white/10"
+                                      />
+                                      <span className="text-[9px] text-white/50 w-8 text-right">{item.depreciationPercent.toFixed(0)}%</span>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-1 text-[9px]">
+                                      <span className="text-white/40">Age: {item.ageYears}/{item.usefulLife}yr</span>
+                                      <span className="text-[#C8A661]">~${item.estimatedCurrentValue.toLocaleString()} FMV</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
                         )}
 
                         {/* Calculate Valuation Button */}
@@ -4650,42 +7062,113 @@ function CleanBIExplorerContent() {
                                 </div>
                               )}
 
-                              {/* What-If Results */}
+                              {/* What-If Results - Enhanced Display */}
                               {whatIfResult && (
                                 <motion.div
                                   initial={{ opacity: 0, y: 5 }}
                                   animate={{ opacity: 1, y: 0 }}
-                                  className="bg-white/5 rounded-lg p-2 sm:p-3 border border-white/10"
+                                  className="bg-gradient-to-br from-[#0A1628]/80 to-[#0A1628]/40 rounded-lg p-3 sm:p-4 border border-[#C8A661]/30"
+                                  data-testid="whatif-results-section"
                                 >
-                                  <div className="text-[10px] sm:text-xs text-white/50 mb-2">Scenario Impact:</div>
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="text-center">
-                                      <div className="text-[9px] text-white/40">Current Value</div>
-                                      <div className="text-sm sm:text-base font-bold text-white">${whatIfResult.currentValue?.toLocaleString() || valuatorResult.totalAssetValue.toLocaleString()}</div>
+                                  {/* Header with Percentage Change Badge */}
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                      <LineChart className="w-4 h-4 text-[#C8A661]" />
+                                      <span className="text-[10px] sm:text-xs font-medium text-white">Scenario Impact</span>
                                     </div>
-                                    <div className="text-center">
-                                      <div className="text-[9px] text-white/40">New Value</div>
-                                      <div className="text-sm sm:text-base font-bold text-[#10B981]">${whatIfResult.newValue?.toLocaleString()}</div>
+                                    <Badge 
+                                      className={`text-[10px] sm:text-xs font-bold ${
+                                        whatIfResult.valueDifference >= 0 
+                                          ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                          : 'bg-red-500/20 text-red-400 border-red-500/30'
+                                      }`}
+                                      data-testid="whatif-percentage-badge"
+                                    >
+                                      {whatIfResult.valueDifference >= 0 ? (
+                                        <ArrowUpRight className="w-3 h-3 mr-0.5" />
+                                      ) : (
+                                        <ArrowDownRight className="w-3 h-3 mr-0.5" />
+                                      )}
+                                      {whatIfResult.valueDifference >= 0 ? '+' : ''}{whatIfResult.percentageChange?.toFixed(1)}%
+                                    </Badge>
+                                  </div>
+
+                                  {/* Before/After Comparison */}
+                                  <div className="grid grid-cols-2 gap-3 mb-3">
+                                    <div className="bg-white/5 rounded-lg p-2.5 text-center border border-white/10">
+                                      <div className="text-[9px] sm:text-[10px] text-white/40 mb-1">Before</div>
+                                      <div className="text-base sm:text-lg font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }} data-testid="whatif-before-value">
+                                        ${(whatIfResult.currentValue || valuatorResult.totalAssetValue).toLocaleString()}
+                                      </div>
+                                    </div>
+                                    <div className={`rounded-lg p-2.5 text-center border ${
+                                      whatIfResult.valueDifference >= 0 
+                                        ? 'bg-green-500/10 border-green-500/30' 
+                                        : 'bg-red-500/10 border-red-500/30'
+                                    }`}>
+                                      <div className="text-[9px] sm:text-[10px] text-white/40 mb-1">After</div>
+                                      <div className={`text-base sm:text-lg font-bold ${
+                                        whatIfResult.valueDifference >= 0 ? 'text-green-400' : 'text-red-400'
+                                      }`} style={{ fontFamily: "'Bebas Neue', sans-serif" }} data-testid="whatif-after-value">
+                                        ${whatIfResult.newValue?.toLocaleString()}
+                                      </div>
                                     </div>
                                   </div>
-                                  <div className="flex items-center justify-center gap-1.5 mt-2 pt-2 border-t border-white/10">
-                                    <span className="text-[10px] text-white/50">Difference:</span>
-                                    <span className={`text-xs font-bold ${whatIfResult.valueDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+
+                                  {/* Value Difference Highlight */}
+                                  <div className={`rounded-lg p-2 sm:p-2.5 text-center ${
+                                    whatIfResult.valueDifference >= 0 
+                                      ? 'bg-green-500/10 border border-green-500/20' 
+                                      : 'bg-red-500/10 border border-red-500/20'
+                                  }`} data-testid="whatif-difference-section">
+                                    <div className="text-[9px] text-white/40 mb-0.5">Net Value Change</div>
+                                    <div className={`flex items-center justify-center gap-1 text-lg sm:text-xl font-bold ${
+                                      whatIfResult.valueDifference >= 0 ? 'text-green-400' : 'text-red-400'
+                                    }`} style={{ fontFamily: "'Bebas Neue', sans-serif" }} data-testid="whatif-difference-value">
+                                      {whatIfResult.valueDifference >= 0 ? (
+                                        <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                                      ) : (
+                                        <ArrowDownRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                                      )}
                                       {whatIfResult.valueDifference >= 0 ? '+' : ''}${whatIfResult.valueDifference?.toLocaleString()}
-                                      <span className="text-[9px] ml-1">({whatIfResult.percentageChange?.toFixed(1)}%)</span>
-                                    </span>
+                                    </div>
                                   </div>
+
+                                  {/* Scenario Details */}
+                                  {(whatIfScenario.addedMachines.length > 0 || whatIfScenario.removedMachineIds.length > 0) && (
+                                    <div className="mt-3 pt-2 border-t border-white/10">
+                                      <div className="text-[9px] text-white/40 mb-1.5">Scenario Changes:</div>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {whatIfScenario.addedMachines.length > 0 && (
+                                          <Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400">
+                                            <Plus className="w-2.5 h-2.5 mr-0.5" />
+                                            {whatIfScenario.addedMachines.reduce((sum, m) => sum + m.quantity, 0)} machines added
+                                          </Badge>
+                                        )}
+                                        {whatIfScenario.removedMachineIds.length > 0 && (
+                                          <Badge variant="outline" className="text-[8px] border-red-500/30 text-red-400">
+                                            <Trash2 className="w-2.5 h-2.5 mr-0.5" />
+                                            {whatIfScenario.removedMachineIds.length} items removed
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Reset Scenario Button */}
                                   <Button
                                     size="sm"
-                                    variant="ghost"
-                                    className="w-full mt-2 min-h-11 text-[10px] text-white/50 hover:text-white"
+                                    variant="outline"
+                                    className="w-full mt-3 min-h-11 text-[10px] border-[#C8A661]/30 text-[#C8A661] hover:bg-[#C8A661]/10"
                                     onClick={() => {
                                       setWhatIfScenario({ addedMachines: [], removedMachineIds: [] });
                                       setWhatIfResult(null);
+                                      toast({ title: "Scenario Reset", description: "What-If scenario has been cleared" });
                                     }}
-                                    data-testid="button-clear-whatif"
+                                    data-testid="button-reset-scenario"
                                   >
-                                    Clear Scenario
+                                    <RefreshCw className="w-3 h-3 mr-1.5" />
+                                    Reset Scenario
                                   </Button>
                                 </motion.div>
                               )}
