@@ -123,7 +123,6 @@ import { PLATFORM_TIERS } from "@/lib/tier-config";
 import { useAuth } from "@/hooks/useAuth";
 import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
-import { InvestmentDisclaimer } from "@/components/LegalDisclaimer";
 import { useIsMobileWithHydration } from "@/hooks/use-mobile";
 import {
   RadarChart,
@@ -8835,11 +8834,6 @@ function CleanBIExplorerContent() {
             </form>
           </DialogContent>
         </Dialog>
-
-        {/* Investment Disclaimer */}
-        <div className="fixed bottom-4 right-20 z-30 max-w-md">
-          <InvestmentDisclaimer />
-        </div>
 
         {/* CLEANBI Help Chat Widget */}
         <CLEANBIHelpChat />
