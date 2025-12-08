@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { ArrowRight, MapPin, Users, TrendingUp, Building2, Car, Train, CheckCircle2 } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-location-analysis")!;
-
 const stats = [
   { value: "6", label: "Scoring Factors" },
   { value: "2,400+", label: "Locations Analyzed" },
@@ -105,6 +103,10 @@ const cleanbiFactors = [
 ];
 
 export default function LaundromatLocationAnalysisSEO() {
+  const config = getSEOPageConfig("/laundromat-location-analysis");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}

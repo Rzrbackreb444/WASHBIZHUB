@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { ArrowRight, MapPin, DollarSign, TrendingUp, Building2, CheckCircle2, Search } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-for-sale")!;
-
 const stats = [
   { value: "500+", label: "Active Listings" },
   { value: "50", label: "States Covered" },
@@ -123,6 +121,10 @@ const sampleListings = [
 ];
 
 export default function LaundromatForSaleSEO() {
+  const config = getSEOPageConfig("/laundromat-for-sale");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}
