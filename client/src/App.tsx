@@ -346,6 +346,14 @@ const EvaluatePage = lazy(() => import("@/pages/evaluate"));
 const OperatePage = lazy(() => import("@/pages/operate"));
 const PartnerPage = lazy(() => import("@/pages/partner"));
 
+// SEO Landing Pages (Multi-keyword optimization)
+const LaundromatValuationSEO = lazy(() => import("@/pages/seo/laundromat-valuation"));
+const LaundromatForSaleSEO = lazy(() => import("@/pages/seo/laundromat-for-sale"));
+const LaundromatDueDiligenceSEO = lazy(() => import("@/pages/seo/laundromat-due-diligence"));
+const LaundromatLocationAnalysisSEO = lazy(() => import("@/pages/seo/laundromat-location-analysis"));
+const LaundromatROICalculatorSEO = lazy(() => import("@/pages/seo/laundromat-roi-calculator"));
+const LaundromatEquipmentRepairSEO = lazy(() => import("@/pages/seo/laundromat-equipment-repair"));
+
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -417,6 +425,38 @@ function Router() {
       <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
+
+      {/* SEO Landing Pages (Multi-keyword optimization) */}
+      <Route path="/laundromat-valuation">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatValuationSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-for-sale">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatForSaleSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-due-diligence">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatDueDiligenceSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-location-analysis">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatLocationAnalysisSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-roi-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatROICalculatorSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-equipment-repair">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatEquipmentRepairSEO />
+        </Suspense>
+      </Route>
 
       {/* Lazy-loaded routes wrapped in Suspense */}
       <Route path="/plan">
