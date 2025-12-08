@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { ArrowRight, TrendingUp, DollarSign, Calculator, Clock, CheckCircle2, PiggyBank } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-roi-calculator")!;
-
 const stats = [
   { value: "20-35%", label: "Average Annual ROI" },
   { value: "3-5 yrs", label: "Payback Period" },
@@ -104,6 +102,10 @@ const roiFactors = [
 ];
 
 export default function LaundromatROICalculatorSEO() {
+  const config = getSEOPageConfig("/laundromat-roi-calculator");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}

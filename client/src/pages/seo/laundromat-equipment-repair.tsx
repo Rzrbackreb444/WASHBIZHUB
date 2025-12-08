@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { ArrowRight, Wrench, AlertTriangle, Mic, Camera, FileText, Phone, CheckCircle2, Zap } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-equipment-repair")!;
-
 const stats = [
   { value: "15,000+", label: "Error Codes Covered" },
   { value: "50+", label: "Equipment Brands" },
@@ -111,6 +109,10 @@ const supportedBrands = [
 ];
 
 export default function LaundromatEquipmentRepairSEO() {
+  const config = getSEOPageConfig("/laundromat-equipment-repair");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}

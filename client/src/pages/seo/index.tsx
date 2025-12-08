@@ -15,3 +15,7 @@ export { default as LaundromatDueDiligenceSEO } from './laundromat-due-diligence
 export { default as LaundromatLocationAnalysisSEO } from './laundromat-location-analysis';
 export { default as LaundromatROICalculatorSEO } from './laundromat-roi-calculator';
 export { default as LaundromatEquipmentRepairSEO } from './laundromat-equipment-repair';
+export { default as HowToStartLaundromatSEO } from './how-to-start-laundromat';
+export { default as LaundromatFinancingSEO } from './laundromat-financing';
+export { default as LaundromatBusinessPlanSEO } from './laundromat-business-plan';
+export { default as BuyCoinLaundrySEO } from './buy-coin-laundry';

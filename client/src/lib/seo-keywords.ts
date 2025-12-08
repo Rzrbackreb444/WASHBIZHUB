@@ -507,6 +507,46 @@ export const SEO_LANDING_PAGES: SEOPageConfig[] = [
       { name: "Resources", url: "/resources" },
       { name: "Startup Guide", url: "/how-to-start-laundromat" }
     ]
+  },
+  {
+    slug: "/laundromat-business-plan",
+    title: "Laundromat Business Plan Template & Generator - Free Guide 2024",
+    h1: "Laundromat Business Plan Generator",
+    description: "Create a professional laundromat business plan with our AI-powered generator. Free template, financial projections, and executive summary examples for SBA loans and investors.",
+    keywords: ["laundromat business plan", "laundromat business plan template", "laundromat business plan example", "laundromat financial projections", "laundromat executive summary"],
+    primaryQuestion: "How do I write a laundromat business plan?",
+    directAnswer: "A laundromat business plan should include: Executive Summary, Company Description, Market Analysis, Service Offerings, Marketing Plan, Operations Plan, Management Team, Financial Projections, and Funding Request. Our AI generator creates lender-ready plans in minutes with industry benchmarks.",
+    faqs: [
+      { question: "What should be in a laundromat business plan?", answer: "Include: Executive Summary, Market Analysis with demographics, Competition Analysis, 5-year Financial Projections, Operations Plan, Marketing Strategy, Management Team bios, and clear Funding Request with use of proceeds." },
+      { question: "How long should a laundromat business plan be?", answer: "15-30 pages depending on complexity. SBA lenders typically expect 20-25 pages with detailed financials. Our generator creates appropriately-sized plans for your intended audience." },
+      { question: "Do I need a business plan for a laundromat loan?", answer: "Yes, SBA and bank lenders require a comprehensive business plan. It should demonstrate industry knowledge, realistic projections, and clear repayment ability. Our template incorporates lender requirements." },
+      { question: "What financial projections do lenders expect?", answer: "5-year Income Statement, Cash Flow Projections, Balance Sheet, Break-Even Analysis, and Debt Service Coverage Ratio (1.25+ for SBA). Our generator calculates these automatically." }
+    ],
+    breadcrumbs: [
+      { name: "Home", url: "/" },
+      { name: "Resources", url: "/resources" },
+      { name: "Business Plan", url: "/laundromat-business-plan" }
+    ]
+  },
+  {
+    slug: "/buy-coin-laundry",
+    title: "Buy a Coin Laundry - Coin-Op Laundromats For Sale Near You",
+    h1: "Coin Laundry For Sale",
+    description: "Find coin laundry businesses for sale in your area. Browse verified coin-op laundromat listings with revenue data, equipment details, and seller financing options. CLEANBI analyzed.",
+    keywords: ["coin laundry for sale", "buy coin laundry", "coin-op laundromat", "coin operated laundry for sale", "coin laundry business for sale"],
+    primaryQuestion: "How much does a coin laundry cost?",
+    directAnswer: "Coin laundry purchase prices range from $100,000 to $2,000,000+ depending on location, equipment, and annual net income. Businesses typically sell for 2.5-4x EBITDA. Our marketplace features verified listings with CLEANBI location analysis.",
+    faqs: [
+      { question: "Is coin laundry the same as laundromat?", answer: "The terms are often interchangeable. 'Coin laundry' traditionally refers to coin-operated machines, while 'laundromat' is broader, potentially including card-operated or attended services. Today, most accept multiple payment methods." },
+      { question: "Are coin laundries profitable in 2024?", answer: "Yes, coin laundries remain highly profitable with 20-35% net margins. Key factors: strong location demographics (40%+ renters), modern equipment, competitive pricing, and clean facilities." },
+      { question: "Should I buy an existing coin laundry or build new?", answer: "Buying existing offers immediate cash flow, lower risk, and easier financing. Building new provides custom design but costs more ($200K-$1M+) and takes 6-18 months. Most first-time buyers acquire existing businesses." },
+      { question: "What financing is available for coin laundries?", answer: "SBA 7(a) loans (10-20% down, up to $5M), SBA 504 for real estate, equipment financing, seller financing, and conventional bank loans. Use our SBA Readiness tool to check eligibility." }
+    ],
+    breadcrumbs: [
+      { name: "Home", url: "/" },
+      { name: "Marketplace", url: "/buy-laundromat" },
+      { name: "Coin Laundry", url: "/buy-coin-laundry" }
+    ]
   }
 ];
 

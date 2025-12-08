@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight, Calculator, TrendingUp, FileText, CheckCircle2 } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-valuation")!;
-
 const stats = [
   { value: "2,400+", label: "Valuations Completed" },
   { value: "3.5x", label: "Median EBITDA Multiple" },
@@ -95,6 +93,10 @@ const relatedTools = [
 ];
 
 export default function LaundromatValuationSEO() {
+  const config = getSEOPageConfig("/laundromat-valuation");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}

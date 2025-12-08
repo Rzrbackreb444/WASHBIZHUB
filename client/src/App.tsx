@@ -353,6 +353,10 @@ const LaundromatDueDiligenceSEO = lazy(() => import("@/pages/seo/laundromat-due-
 const LaundromatLocationAnalysisSEO = lazy(() => import("@/pages/seo/laundromat-location-analysis"));
 const LaundromatROICalculatorSEO = lazy(() => import("@/pages/seo/laundromat-roi-calculator"));
 const LaundromatEquipmentRepairSEO = lazy(() => import("@/pages/seo/laundromat-equipment-repair"));
+const HowToStartLaundromatSEO = lazy(() => import("@/pages/seo/how-to-start-laundromat"));
+const LaundromatFinancingSEO = lazy(() => import("@/pages/seo/laundromat-financing"));
+const LaundromatBusinessPlanSEO = lazy(() => import("@/pages/seo/laundromat-business-plan"));
+const BuyCoinLaundrySEO = lazy(() => import("@/pages/seo/buy-coin-laundry"));
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -455,6 +459,26 @@ function Router() {
       <Route path="/laundromat-equipment-repair">
         <Suspense fallback={<LoadingFallback />}>
           <LaundromatEquipmentRepairSEO />
+        </Suspense>
+      </Route>
+      <Route path="/how-to-start-laundromat">
+        <Suspense fallback={<LoadingFallback />}>
+          <HowToStartLaundromatSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-financing">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatFinancingSEO />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-business-plan">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatBusinessPlanSEO />
+        </Suspense>
+      </Route>
+      <Route path="/buy-coin-laundry">
+        <Suspense fallback={<LoadingFallback />}>
+          <BuyCoinLaundrySEO />
         </Suspense>
       </Route>
 

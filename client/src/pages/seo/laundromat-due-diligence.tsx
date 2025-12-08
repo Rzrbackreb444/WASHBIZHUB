@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { ArrowRight, FileText, CheckCircle2, AlertTriangle, Wrench, DollarSign, Building2, Users, ClipboardCheck } from "lucide-react";
 
-const config = getSEOPageConfig("/laundromat-due-diligence")!;
-
 const stats = [
   { value: "100+", label: "Checklist Items" },
   { value: "30-60", label: "Days Average" },
@@ -158,6 +156,10 @@ const redFlags = [
 ];
 
 export default function LaundromatDueDiligenceSEO() {
+  const config = getSEOPageConfig("/laundromat-due-diligence");
+  
+  if (!config) return null;
+
   return (
     <SEOLandingPage
       config={config}
