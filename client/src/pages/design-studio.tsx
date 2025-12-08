@@ -818,9 +818,21 @@ function MetricsPanel({
           <Separator className="bg-white/10" />
 
           <div className="bg-gradient-to-br from-[#39CCCC]/20 to-[#39CCCC]/10 border border-[#39CCCC]/30 rounded-lg p-2">
-            <div className="flex items-center gap-1 mb-1">
-              <Target className="h-3 w-3 text-[#39CCCC]" />
-              <p className="text-[10px] text-[#39CCCC] font-medium">CLEANBI Score</p>
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1">
+                <Target className="h-3 w-3 text-[#39CCCC]" />
+                <p className="text-[10px] text-[#39CCCC] font-medium">Viability Scorecard</p>
+              </div>
+              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                cleanbiScore >= 85 ? 'bg-[#22C55E]/20 text-[#22C55E]' :
+                cleanbiScore >= 70 ? 'bg-[#A3E635]/20 text-[#A3E635]' :
+                cleanbiScore >= 55 ? 'bg-[#FBBF24]/20 text-[#FBBF24]' :
+                'bg-[#C8A661]/20 text-[#C8A661]'
+              }`}>
+                {cleanbiScore >= 85 ? 'Grade A' : 
+                 cleanbiScore >= 70 ? 'Grade B' : 
+                 cleanbiScore >= 55 ? 'Grade C' : 'Needs Work'}
+              </div>
             </div>
             <div className="flex items-baseline gap-1">
               <p className="text-xl font-black text-white">{cleanbiScore}</p>
@@ -828,10 +840,50 @@ function MetricsPanel({
             </div>
             <div className="w-full bg-black/30 rounded-full h-1.5 mt-1">
               <div 
-                className="bg-gradient-to-r from-[#39CCCC] to-[#2AA0A0] h-1.5 rounded-full transition-all"
+                className={`h-1.5 rounded-full transition-all ${
+                  cleanbiScore >= 85 ? 'bg-gradient-to-r from-[#22C55E] to-[#16A34A]' :
+                  cleanbiScore >= 70 ? 'bg-gradient-to-r from-[#A3E635] to-[#84CC16]' :
+                  cleanbiScore >= 55 ? 'bg-gradient-to-r from-[#FBBF24] to-[#F59E0B]' :
+                  'bg-gradient-to-r from-[#C8A661] to-[#B8955A]'
+                }`}
                 style={{ width: `${cleanbiScore}%` }}
               />
             </div>
+            {placedEquipment.length > 0 && (
+              <div className="mt-2 space-y-1 border-t border-white/10 pt-2">
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">Base Score</span>
+                  <span className="text-white/70">+30</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">Washers ({washerCount}x)</span>
+                  <span className="text-white/70">+{(washerCount * 3.5).toFixed(1)}</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">Dryers ({dryerCount}x)</span>
+                  <span className="text-white/70">+{(dryerCount * 2.5).toFixed(1)}</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">Balance Ratio</span>
+                  <span className="text-white/70">{dryerCount > 0 && washerCount / dryerCount >= 1.2 && washerCount / dryerCount <= 1.8 ? '+12' : '+0'}</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">Ancillary Streams</span>
+                  <span className="text-white/70">{ancillaryRevenue > 0 ? '+10' : '+0'}</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">$/sq ft Efficiency</span>
+                  <span className="text-white/70">{sqft > 0 && annualRevenue / sqft >= 150 ? '+8' : sqft > 0 && annualRevenue / sqft >= 100 ? '+4' : '+0'}</span>
+                </div>
+                <div className="flex justify-between text-[9px]">
+                  <span className="text-white/50">TPD Performance</span>
+                  <span className="text-white/70">{(() => {
+                    const totalTPD = placedEquipment.reduce((sum, p) => sum + (p.equipment.tpd || 0), 0);
+                    return totalTPD >= 25 ? '+10' : totalTPD >= 15 ? '+5' : '+0';
+                  })()}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {monthlyRevenue > 0 && (
