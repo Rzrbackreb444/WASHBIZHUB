@@ -4081,6 +4081,112 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // Design Studio Consultation Request - sends complete design package to consultants
+  app.post("/api/send-design-consultation", isAuthenticated, async (req, res) => {
+    try {
+      const { dimensions, equipment, totals, projections, scores, location, notes, timestamp } = req.body;
+      const user = req.user as any;
+      
+      // Build equipment list for email
+      const equipmentList = equipment?.map((e: any) => 
+        `• ${e.count}x ${e.name} (${e.brand}) - ${e.capacity} - $${e.totalCost?.toLocaleString()}`
+      ).join('\n') || 'No equipment specified';
+      
+      // Build location info if available
+      const locationInfo = location ? `
+Location Analysis:
+• Address: ${location.address}
+• CLEANBI Score: ${location.cleanbiScore}/100 (Grade ${location.grade})
+• Median Income: $${location.medianIncome?.toLocaleString()}
+• Population Density: ${location.populationDensity?.toLocaleString()}/sq mi
+• Competitor Count: ${location.competitorCount}
+• Traffic Score: ${location.trafficScore}/100
+• Opportunity Level: ${location.opportunityLevel}
+• Revenue Multiplier: ${(location.revenueMultiplier * 100).toFixed(0)}%
+` : 'No location specified - Design only consultation';
+      
+      const emailContent = `
+🏢 NEW DESIGN STUDIO CONSULTATION REQUEST
+
+From: ${user?.email || 'Anonymous'}
+Submitted: ${new Date(timestamp).toLocaleString()}
+
+═══════════════════════════════════════════
+📐 SPACE DIMENSIONS
+═══════════════════════════════════════════
+• Width: ${dimensions?.widthInches} inches (${(dimensions?.widthInches / 12).toFixed(1)} ft)
+• Depth: ${dimensions?.depthInches} inches (${(dimensions?.depthInches / 12).toFixed(1)} ft)
+• Total Area: ${dimensions?.sqft?.toLocaleString()} sq ft
+
+═══════════════════════════════════════════
+🧺 EQUIPMENT LIST
+═══════════════════════════════════════════
+${equipmentList}
+
+Totals:
+• Equipment Count: ${totals?.equipmentCount}
+• Washers: ${totals?.washerCount}
+• Dryers: ${totals?.dryerCount}
+• Total Equipment Cost: $${totals?.totalCost?.toLocaleString()}
+• Total TPD: ${totals?.totalTPD}
+
+═══════════════════════════════════════════
+💰 REVENUE PROJECTIONS
+═══════════════════════════════════════════
+• Daily Revenue: $${projections?.dailyRevenue?.toLocaleString()}
+• Monthly Revenue: $${projections?.monthlyRevenue?.toLocaleString()}
+• Annual Revenue: $${projections?.annualRevenue?.toLocaleString()}
+• Location Multiplier: ${((projections?.locationMultiplier || 1) * 100).toFixed(0)}%
+• Dynamic Pricing Boost: +$${projections?.dynamicPricingBoost?.toLocaleString()}/mo
+• Annual Dynamic Boost: +$${projections?.annualDynamicBoost?.toLocaleString()}/yr
+
+═══════════════════════════════════════════
+📊 VIABILITY SCORES
+═══════════════════════════════════════════
+• CLEANBI Score: ${scores?.cleanbiScore}/100
+• Grade: ${scores?.grade}
+
+═══════════════════════════════════════════
+📍 LOCATION INTELLIGENCE
+═══════════════════════════════════════════
+${locationInfo}
+
+═══════════════════════════════════════════
+📝 CLIENT NOTES
+═══════════════════════════════════════════
+${notes || 'No additional notes provided'}
+
+---
+Reply to: ${user?.email || 'consult@washbizhub.com'}
+`;
+      
+      // Send notification via existing system
+      await notifyConsultationRequest({
+        name: user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (user?.email || 'Design Studio User'),
+        email: user?.email || 'unknown@washbizhub.com',
+        phone: user?.phone || undefined,
+        message: emailContent,
+      });
+      
+      // Log to admin activity
+      try {
+        await db.insert(adminActivityLog).values({
+          type: 'design_consultation',
+          description: `Design consultation from ${user?.email} - ${dimensions?.sqft} sq ft, ${totals?.equipmentCount} equipment, $${totals?.totalCost?.toLocaleString()} total`,
+          userId: user?.id || null,
+          email: user?.email || null,
+        });
+      } catch (logError) {
+        console.error('Failed to log admin activity:', logError);
+      }
+      
+      res.json({ success: true, message: 'Consultation request sent successfully' });
+    } catch (error: any) {
+      console.error('Design consultation error:', error);
+      res.status(500).json({ message: error.message || 'Failed to send consultation request' });
+    }
+  });
+
   // ==================== LISTINGS (MARKETPLACE) ====================
   
   // Get listing tier benefits (MUST be before :id route)

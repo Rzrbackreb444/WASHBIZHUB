@@ -16,6 +16,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { equipmentLibrary } from "@shared/schema";
 import { 
   Palette, Box, Plus, Save, Trash2, RotateCw, Grid3X3, 
@@ -24,7 +25,7 @@ import {
   Sun, Moon, RotateCcw, Layers, Sparkles, Target, Zap, ChevronRight,
   Search, Ruler, Share2, Copy, Check, X, HelpCircle, LayoutTemplate,
   Building2, Store, Warehouse, Menu, ChevronDown, GripVertical, FileText,
-  Image, ImageOff, Upload, Lightbulb
+  Image, ImageOff, Upload, Lightbulb, Mail, MapPin, Users, Navigation
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
@@ -78,6 +79,48 @@ interface AISuggestion {
   washerPlacement: string;
   dryerPlacement: string;
   additionalTips: string[];
+}
+
+interface LocationContext {
+  address: string;
+  cleanbiScore: number;
+  grade: string;
+  medianIncome: number;
+  populationDensity: number;
+  competitorCount: number;
+  trafficScore: number;
+  opportunityLevel: string;
+  revenueMultiplier: number;
+  notes: string;
+}
+
+function calculateLocationMultiplier(location: Partial<LocationContext>): number {
+  let multiplier = 1.0;
+  
+  if (location.medianIncome) {
+    if (location.medianIncome >= 80000) multiplier += 0.15;
+    else if (location.medianIncome >= 60000) multiplier += 0.08;
+    else if (location.medianIncome < 40000) multiplier -= 0.10;
+  }
+  
+  if (location.populationDensity) {
+    if (location.populationDensity >= 10000) multiplier += 0.12;
+    else if (location.populationDensity >= 5000) multiplier += 0.06;
+    else if (location.populationDensity < 2000) multiplier -= 0.08;
+  }
+  
+  if (location.competitorCount !== undefined) {
+    if (location.competitorCount === 0) multiplier += 0.20;
+    else if (location.competitorCount <= 2) multiplier += 0.10;
+    else if (location.competitorCount >= 5) multiplier -= 0.15;
+  }
+  
+  if (location.trafficScore) {
+    if (location.trafficScore >= 80) multiplier += 0.10;
+    else if (location.trafficScore >= 60) multiplier += 0.05;
+  }
+  
+  return Math.max(0.5, Math.min(1.5, multiplier));
 }
 
 const GRID_SIZE = 20;
@@ -678,6 +721,7 @@ function MetricsPanel({
   exportPNG,
   exportPDF,
   generateShareLink,
+  onOpenConsultation,
   compact = false
 }: {
   washerCount: number;
@@ -698,6 +742,7 @@ function MetricsPanel({
   exportPNG: () => void;
   exportPDF: () => void;
   generateShareLink: () => void;
+  onOpenConsultation: () => void;
   compact?: boolean;
 }) {
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -1018,6 +1063,17 @@ function MetricsPanel({
             Share
           </Button>
         </div>
+        
+        {placedEquipment.length > 0 && (
+          <Button 
+            className="w-full h-11 bg-gradient-to-r from-[#C8A661] via-[#D4B872] to-[#C8A661] text-[#001F3F] hover:from-[#D4B872] hover:via-[#E5C983] hover:to-[#D4B872] text-xs font-bold shadow-lg border border-[#B8955A]/30"
+            onClick={onOpenConsultation}
+            data-testid="button-send-to-consultant"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Request Professional Analysis
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -1062,6 +1118,12 @@ export default function DesignStudio() {
   const [aiSuggestionDialogOpen, setAiSuggestionDialogOpen] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null);
   const [isApplyingAISuggestion, setIsApplyingAISuggestion] = useState(false);
+  
+  const [locationContext, setLocationContext] = useState<LocationContext | null>(null);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [sendToConsultantDialogOpen, setSendToConsultantDialogOpen] = useState(false);
+  const [isSendingToConsultant, setIsSendingToConsultant] = useState(false);
+  const [consultantNotes, setConsultantNotes] = useState("");
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('designStudioOnboarding');
@@ -1908,6 +1970,104 @@ export default function DesignStudio() {
     });
   }, [dimensions, placedEquipment, toast]);
 
+  const sendToConsultant = useCallback(async () => {
+    if (placedEquipment.length === 0) {
+      toast({
+        title: "No Equipment",
+        description: "Add equipment to your design before sending to consultant.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSendingToConsultant(true);
+    
+    try {
+      const sqft = Math.round((dimensions.width * dimensions.depth) / 144);
+      const locationMultiplier = locationContext ? locationContext.revenueMultiplier : 1.0;
+      const adjustedMonthlyRevenue = Math.round(monthlyRevenue * locationMultiplier);
+      const adjustedAnnualRevenue = Math.round(annualRevenue * locationMultiplier);
+      
+      const equipmentSummary: Record<string, { count: number; equipment: typeof equipmentLibrary[number] }> = {};
+      placedEquipment.forEach((item) => {
+        const key = item.equipment.id;
+        if (equipmentSummary[key]) {
+          equipmentSummary[key].count++;
+        } else {
+          equipmentSummary[key] = { count: 1, equipment: item.equipment };
+        }
+      });
+      
+      const equipmentList = Object.values(equipmentSummary).map(item => ({
+        name: item.equipment.name,
+        brand: item.equipment.brand,
+        capacity: item.equipment.capacity,
+        count: item.count,
+        unitCost: item.equipment.cost,
+        totalCost: item.equipment.cost * item.count,
+        tpdContribution: item.equipment.tpdContribution * item.count,
+      }));
+      
+      const designPackage = {
+        dimensions: {
+          widthInches: dimensions.width,
+          depthInches: dimensions.depth,
+          sqft,
+        },
+        equipment: equipmentList,
+        totals: {
+          equipmentCount: placedEquipment.length,
+          washerCount,
+          dryerCount,
+          totalCost,
+          totalTPD,
+        },
+        projections: {
+          dailyRevenue,
+          monthlyRevenue: adjustedMonthlyRevenue,
+          annualRevenue: adjustedAnnualRevenue,
+          locationMultiplier,
+          dynamicPricingBoost,
+          annualDynamicBoost,
+        },
+        scores: {
+          cleanbiScore,
+          grade: cleanbiScore >= 85 ? 'A' : cleanbiScore >= 70 ? 'B' : cleanbiScore >= 55 ? 'C' : 'Needs Work',
+        },
+        location: locationContext || null,
+        notes: consultantNotes,
+        timestamp: new Date().toISOString(),
+      };
+      
+      const response = await fetch('/api/send-design-consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(designPackage),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send consultation request');
+      }
+      
+      setSendToConsultantDialogOpen(false);
+      setConsultantNotes("");
+      
+      toast({
+        title: "Consultation Request Sent!",
+        description: "Nick and Larry will review your design and reach out within 24-48 hours.",
+      });
+    } catch (error) {
+      console.error('Consultation request error:', error);
+      toast({
+        title: "Send Failed",
+        description: "Could not send consultation request. Please try again or email consult@washbizhub.com directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingToConsultant(false);
+    }
+  }, [placedEquipment, dimensions, locationContext, monthlyRevenue, annualRevenue, washerCount, dryerCount, totalCost, totalTPD, dailyRevenue, cleanbiScore, dynamicPricingBoost, annualDynamicBoost, consultantNotes, toast]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shareData = params.get('share');
@@ -2488,6 +2648,147 @@ export default function DesignStudio() {
                   )}
                 </DialogContent>
               </Dialog>
+              
+              {/* Professional Consultation Council Dialog */}
+              <Dialog open={sendToConsultantDialogOpen} onOpenChange={setSendToConsultantDialogOpen}>
+                <DialogContent className="max-w-lg bg-gradient-to-b from-[#0A1628] to-[#0D1F35] border-[#C8A661]/30 text-white">
+                  <DialogHeader className="space-y-4">
+                    <div className="flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#C8A661] to-[#B8955A] flex items-center justify-center shadow-lg shadow-[#C8A661]/20">
+                        <Users className="h-8 w-8 text-[#001F3F]" />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <DialogTitle className="text-xl font-bold text-white">
+                        Laundromat Consultation Council
+                      </DialogTitle>
+                      <DialogDescription className="text-white/70 mt-2">
+                        Expert analysis by industry veterans with decades of combined experience
+                      </DialogDescription>
+                    </div>
+                  </DialogHeader>
+                  
+                  <div className="space-y-4 mt-4">
+                    {/* Council Members */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#001F3F] to-[#003366] flex items-center justify-center text-[#C8A661] font-bold text-sm">
+                            NF
+                          </div>
+                          <div>
+                            <p className="text-white font-semibold text-sm">Nick Feilmeier</p>
+                            <p className="text-[#C8A661] text-[10px]">Founder & CEO</p>
+                          </div>
+                        </div>
+                        <p className="text-white/60 text-[10px]">Multi-unit owner, tech integration specialist</p>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#001F3F] to-[#003366] flex items-center justify-center text-[#C8A661] font-bold text-sm">
+                            LL
+                          </div>
+                          <div>
+                            <p className="text-white font-semibold text-sm">Lawrence Larsen</p>
+                            <p className="text-[#C8A661] text-[10px]">DRE #49460</p>
+                          </div>
+                        </div>
+                        <p className="text-white/60 text-[10px]">"Laundromat Larry" - Industry broker veteran</p>
+                      </div>
+                    </div>
+                    
+                    {/* What You'll Receive */}
+                    <div className="bg-gradient-to-r from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                      <p className="text-[#C8A661] font-semibold text-xs mb-2">What You'll Receive:</p>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-start gap-2 text-white/80 text-xs">
+                          <Check className="h-3 w-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span>Professional viability assessment with market comparisons</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-white/80 text-xs">
+                          <Check className="h-3 w-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span>Equipment mix optimization recommendations</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-white/80 text-xs">
+                          <Check className="h-3 w-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span>Revenue projection verification by industry experts</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-white/80 text-xs">
+                          <Check className="h-3 w-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span>Personalized 30-minute consultation call</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    {/* Design Summary */}
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <p className="text-white/80 font-semibold text-xs mb-2">Your Design Summary:</p>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                          <p className="text-lg font-bold text-[#39CCCC]">{washerCount + dryerCount}</p>
+                          <p className="text-[10px] text-white/50">Machines</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-green-400">${monthlyRevenue.toLocaleString()}</p>
+                          <p className="text-[10px] text-white/50">Monthly Rev</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold" style={{ color: cleanbiScore >= 85 ? '#22C55E' : cleanbiScore >= 70 ? '#A3E635' : cleanbiScore >= 55 ? '#FBBF24' : '#C8A661' }}>
+                            {cleanbiScore >= 85 ? 'A' : cleanbiScore >= 70 ? 'B' : cleanbiScore >= 55 ? 'C' : 'Review'}
+                          </p>
+                          <p className="text-[10px] text-white/50">Viability</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Notes Field */}
+                    <div>
+                      <Label className="text-white/80 text-xs mb-1.5 block">Additional Context (Optional)</Label>
+                      <Textarea
+                        value={consultantNotes}
+                        onChange={(e) => setConsultantNotes(e.target.value)}
+                        placeholder="Tell us about your goals, timeline, location details, or any specific concerns..."
+                        className="bg-white/5 border-white/20 text-white text-sm min-h-[80px] placeholder:text-white/40"
+                        data-testid="input-consultant-notes"
+                      />
+                    </div>
+                    
+                    {/* CTA Buttons */}
+                    <div className="flex gap-3 pt-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setSendToConsultantDialogOpen(false)}
+                        className="flex-1 border-white/20 text-white/70 hover:text-white"
+                        data-testid="button-cancel-consultation"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={sendToConsultant}
+                        disabled={isSendingToConsultant}
+                        className="flex-1 bg-gradient-to-r from-[#C8A661] to-[#B8955A] text-[#001F3F] hover:from-[#D4B872] hover:to-[#C8A661] font-bold"
+                        data-testid="button-submit-consultation"
+                      >
+                        {isSendingToConsultant ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-[#001F3F] border-t-transparent rounded-full mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Request Analysis
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <p className="text-center text-white/40 text-[10px]">
+                      Response within 24-48 business hours • No obligation • 100% confidential
+                    </p>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
@@ -2923,6 +3224,7 @@ export default function DesignStudio() {
                     exportPNG={exportPNG}
                     exportPDF={exportPDF}
                     generateShareLink={generateShareLink}
+                    onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
                   />
                 </CardContent>
               </Card>
@@ -3039,6 +3341,7 @@ export default function DesignStudio() {
                           exportPNG={exportPNG}
                           exportPDF={exportPDF}
                           generateShareLink={generateShareLink}
+                          onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
                         />
                       </ScrollArea>
                     </SheetContent>
