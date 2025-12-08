@@ -649,6 +649,16 @@ function EquipmentPanel({
   );
 }
 
+interface RevenueBreakdown {
+  washers: number;
+  dryers: number;
+  vending: number;
+  atm: number;
+  dogwash: number;
+  changer: number;
+  arcade: number;
+}
+
 function MetricsPanel({
   washerCount,
   dryerCount,
@@ -661,6 +671,9 @@ function MetricsPanel({
   dynamicPricingBoost,
   annualDynamicBoost,
   placedEquipment,
+  revenueBreakdown,
+  ancillaryRevenue,
+  sqft,
   saveDesign,
   exportPNG,
   exportPDF,
@@ -678,12 +691,17 @@ function MetricsPanel({
   dynamicPricingBoost: number;
   annualDynamicBoost: number;
   placedEquipment: PlacedEquipment[];
+  revenueBreakdown: RevenueBreakdown;
+  ancillaryRevenue: number;
+  sqft: number;
   saveDesign: () => void;
   exportPNG: () => void;
   exportPDF: () => void;
   generateShareLink: () => void;
   compact?: boolean;
 }) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
@@ -710,6 +728,10 @@ function MetricsPanel({
             {totalTPD}
           </span>
         </div>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-white/70">Space</span>
+          <span className="text-white font-bold">{sqft.toLocaleString()} sq ft</span>
+        </div>
       </div>
 
       {!compact && (
@@ -717,10 +739,17 @@ function MetricsPanel({
           <Separator className="bg-white/10" />
 
           <div className="space-y-1">
-            <div className="flex items-center gap-1 mb-1">
-              <TrendingUp className="h-3 w-3 text-green-400" />
-              <span className="text-white/80 text-xs font-medium">Revenue Projection</span>
-            </div>
+            <button 
+              onClick={() => setShowBreakdown(!showBreakdown)}
+              className="flex items-center justify-between w-full mb-1"
+              data-testid="button-toggle-breakdown"
+            >
+              <div className="flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-green-400" />
+                <span className="text-white/80 text-xs font-medium">Revenue Projection</span>
+              </div>
+              <ChevronDown className={`h-3 w-3 text-white/50 transition-transform ${showBreakdown ? 'rotate-180' : ''}`} />
+            </button>
             <div className="bg-green-500/10 rounded-lg p-2 space-y-1">
               <div className="flex justify-between text-xs">
                 <span className="text-white/60">Daily</span>
@@ -734,6 +763,55 @@ function MetricsPanel({
                 <span className="text-white/60">Annual</span>
                 <span className="text-green-400 font-bold">${annualRevenue.toLocaleString()}</span>
               </div>
+              
+              {showBreakdown && monthlyRevenue > 0 && (
+                <div className="mt-2 pt-2 border-t border-white/10 space-y-1">
+                  <p className="text-[10px] text-white/50 font-medium mb-1">Monthly Breakdown</p>
+                  {revenueBreakdown.washers > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-blue-300/70">Washers</span>
+                      <span className="text-blue-300">${Math.round(revenueBreakdown.washers).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {revenueBreakdown.dryers > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-orange-300/70">Dryers</span>
+                      <span className="text-orange-300">${Math.round(revenueBreakdown.dryers).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {revenueBreakdown.vending > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-purple-300/70">Vending</span>
+                      <span className="text-purple-300">${Math.round(revenueBreakdown.vending).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {revenueBreakdown.atm > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-yellow-300/70">ATM</span>
+                      <span className="text-yellow-300">${Math.round(revenueBreakdown.atm).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {revenueBreakdown.dogwash > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-cyan-300/70">Dog Wash</span>
+                      <span className="text-cyan-300">${Math.round(revenueBreakdown.dogwash).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {revenueBreakdown.arcade > 0 && (
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-pink-300/70">Arcade/Games</span>
+                      <span className="text-pink-300">${Math.round(revenueBreakdown.arcade).toLocaleString()}</span>
+                    </div>
+                  )}
+                  
+                  {ancillaryRevenue > 0 && (
+                    <div className="flex justify-between text-[10px] pt-1 border-t border-white/5">
+                      <span className="text-[#C8A661]/70">Ancillary Total</span>
+                      <span className="text-[#C8A661] font-medium">${Math.round(ancillaryRevenue).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -775,6 +853,59 @@ function MetricsPanel({
               <p className="text-lg font-black text-white">
                 {monthlyRevenue > 0 ? Math.round(totalCost / monthlyRevenue) : '--'} months
               </p>
+              {sqft > 0 && annualRevenue > 0 && (
+                <p className="text-[9px] text-white/50 mt-1">
+                  ${Math.round(annualRevenue / sqft)}/sq ft annually
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Smart Optimization Tips */}
+          {placedEquipment.length > 0 && (
+            <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-lg p-2">
+              <div className="flex items-center gap-1 mb-2">
+                <Lightbulb className="h-3 w-3 text-amber-400" />
+                <p className="text-[10px] text-amber-400 font-medium">Revenue Optimization</p>
+              </div>
+              <div className="space-y-1.5 text-[9px]">
+                {washerCount > 0 && dryerCount === 0 && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Add dryers to complete your laundry cycle. Ideal ratio is 1.3-1.5 washers per dryer.</p>
+                  </div>
+                )}
+                {dryerCount > 0 && washerCount > 0 && (washerCount / dryerCount < 1.2 || washerCount / dryerCount > 1.8) && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Optimize washer-dryer ratio (current: {(washerCount / dryerCount).toFixed(1)}:1, ideal: 1.3-1.5:1)</p>
+                  </div>
+                )}
+                {ancillaryRevenue === 0 && washerCount >= 3 && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Add vending or ATM for +$300-600/mo ancillary revenue</p>
+                  </div>
+                )}
+                {revenueBreakdown.dogwash === 0 && sqft >= 1500 && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-cyan-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Dog wash stations generate $800-1,500/mo in urban areas</p>
+                  </div>
+                )}
+                {sqft > 0 && annualRevenue / sqft < 100 && washerCount >= 2 && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Below industry avg ($100-150/sq ft). Add higher-capacity machines.</p>
+                  </div>
+                )}
+                {sqft > 0 && annualRevenue / sqft >= 150 && (
+                  <div className="flex items-start gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-white/70">Excellent revenue efficiency! Top 25% of laundromats.</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1048,17 +1179,56 @@ export default function DesignStudio() {
   const washerCount = placedEquipment.filter(item => item.equipment.type === "washer").length;
   const dryerCount = placedEquipment.filter(item => item.equipment.type === "dryer").length;
 
-  const avgVendPrice = 4.50;
-  const dailyRevenue = totalTPD * avgVendPrice;
-  const monthlyRevenue = dailyRevenue * 30;
+  // Enhanced revenue calculations using equipment database values
+  const revenueBreakdown = {
+    washers: placedEquipment
+      .filter(item => item.equipment.type === "washer")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || item.equipment.tpdContribution * 4.50 * 30), 0),
+    dryers: placedEquipment
+      .filter(item => item.equipment.type === "dryer")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || item.equipment.tpdContribution * 3.50 * 30), 0),
+    vending: placedEquipment
+      .filter(item => item.equipment.type === "vending")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || 400), 0),
+    atm: placedEquipment
+      .filter(item => item.equipment.type === "atm")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || 350), 0),
+    dogwash: placedEquipment
+      .filter(item => item.equipment.type === "dogwash")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || 1200), 0),
+    changer: placedEquipment
+      .filter(item => item.equipment.type === "changer")
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || 0), 0),
+    arcade: placedEquipment
+      .filter(item => ["arcade", "entertainment"].includes(item.equipment.type))
+      .reduce((sum, item) => sum + (item.equipment.roiMonthly || 150), 0),
+  };
+  
+  const washerRevenue = revenueBreakdown.washers;
+  const dryerRevenue = revenueBreakdown.dryers;
+  const ancillaryRevenue = revenueBreakdown.vending + revenueBreakdown.atm + 
+    revenueBreakdown.dogwash + revenueBreakdown.arcade;
+  
+  const monthlyRevenue = washerRevenue + dryerRevenue + ancillaryRevenue;
+  const dailyRevenue = Math.round(monthlyRevenue / 30);
   const annualRevenue = monthlyRevenue * 12;
   
-  const cleanbiScore = Math.min(100, 40 + 
-    (washerCount * 4) + 
-    (dryerCount * 3) + 
-    (washerCount >= 4 && dryerCount >= 4 ? 10 : 0) + 
-    (totalTPD >= 20 ? 8 : 0)
-  );
+  // CLEANBI score with more sophisticated calculation
+  const sqft = Math.round((dimensions.width / 12) * (dimensions.depth / 12));
+  const revenuePerSqft = sqft > 0 ? annualRevenue / sqft : 0;
+  const washerDryerRatio = dryerCount > 0 ? washerCount / dryerCount : 0;
+  const hasAncillary = ancillaryRevenue > 0;
+  const hasOptimalRatio = washerDryerRatio >= 1.2 && washerDryerRatio <= 1.8;
+  
+  const cleanbiScore = Math.min(100, Math.round(
+    30 + // Base score
+    (washerCount * 3.5) + // Machine capacity
+    (dryerCount * 2.5) + 
+    (hasOptimalRatio ? 12 : 0) + // Equipment balance bonus
+    (hasAncillary ? 10 : 0) + // Ancillary revenue stream
+    (revenuePerSqft >= 150 ? 8 : revenuePerSqft >= 100 ? 4 : 0) + // Revenue efficiency
+    (totalTPD >= 25 ? 10 : totalTPD >= 15 ? 5 : 0) // TPD performance
+  ));
   
   const dynamicPricingBoost = Math.round(monthlyRevenue * 0.22);
   const annualDynamicBoost = dynamicPricingBoost * 12;
@@ -1753,11 +1923,18 @@ export default function DesignStudio() {
     "featureList": [
       "2D and 3D floor plan views",
       "Drag-and-drop equipment placement",
+      "Real 2025 manufacturer equipment pricing (Speed Queen, Dexter, ADC, Maytag)",
       "Real-time equipment cost calculator",
       "TPD (Turns Per Day) analysis",
-      "ROI projections",
+      "Revenue breakdown by equipment category (washers, dryers, ancillary)",
+      "Ancillary revenue optimization (vending, ATM, dog wash, arcade)",
+      "CLEANBI viability scoring with optimization tips",
+      "Washer-dryer ratio optimization",
+      "Revenue per square foot analysis",
+      "ROI payback period calculator",
+      "Dynamic pricing boost projections",
       "Starter templates (1,000-5,000 sq ft)",
-      "Export to PDF",
+      "Contractor-ready PDF exports",
       "Sharable design links"
     ],
     "screenshot": "https://washbizhub.com/design-studio-screenshot.png",
@@ -1772,8 +1949,8 @@ export default function DesignStudio() {
   return (
     <AuthGuard title="Sign In to Access Design Studio" description="Sign in to access this tool.">
       <SEO 
-        title="Laundromat Design Studio - Free 2D/3D Floor Plan Designer | WashBizHub" 
-        description="Design your laundromat layout with our free 2D/3D floor plan tool. Drag-and-drop Dexter, Speed Queen equipment. Get real-time costs, TPD, and ROI projections."
+        title="Laundromat Design Studio - Free 2D/3D Floor Plan Designer with ROI Calculator | WashBizHub" 
+        description="Professional laundromat floor plan designer with real 2025 equipment pricing from Speed Queen, Dexter, ADC. Real-time revenue projections, CLEANBI scoring, and ancillary income optimization. Free 2D/3D layouts with contractor-ready PDF exports."
         canonicalUrl="/design-studio"
         keywords={[
           "laundromat design studio",
@@ -1790,7 +1967,16 @@ export default function DesignStudio() {
           "laundromat ROI calculator",
           "TPD calculator laundromat",
           "laundromat startup planning",
-          "laundromat design ideas"
+          "laundromat design ideas",
+          "Speed Queen laundromat layout",
+          "Dexter laundromat floor plan",
+          "laundromat revenue calculator",
+          "laundromat equipment cost 2025",
+          "laundromat profitability calculator",
+          "ancillary revenue laundromat",
+          "dog wash laundromat revenue",
+          "washer dryer ratio laundromat",
+          "laundromat business plan tool"
         ]}
         ogType="website"
         breadcrumbs={[
@@ -2678,6 +2864,9 @@ export default function DesignStudio() {
                     dynamicPricingBoost={dynamicPricingBoost}
                     annualDynamicBoost={annualDynamicBoost}
                     placedEquipment={placedEquipment}
+                    revenueBreakdown={revenueBreakdown}
+                    ancillaryRevenue={ancillaryRevenue}
+                    sqft={sqft}
                     saveDesign={saveDesign}
                     exportPNG={exportPNG}
                     exportPDF={exportPDF}
@@ -2791,6 +2980,9 @@ export default function DesignStudio() {
                           dynamicPricingBoost={dynamicPricingBoost}
                           annualDynamicBoost={annualDynamicBoost}
                           placedEquipment={placedEquipment}
+                          revenueBreakdown={revenueBreakdown}
+                          ancillaryRevenue={ancillaryRevenue}
+                          sqft={sqft}
                           saveDesign={saveDesign}
                           exportPNG={exportPNG}
                           exportPDF={exportPDF}
