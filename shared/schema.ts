@@ -1057,6 +1057,60 @@ export const equipmentLibrary = [
   { id: "laundry-cart-400", name: "Laundry Cart 400lb", type: "cart", capacity: "400lb", width: 24, depth: 36, height: 48, cost: 249, tpdContribution: 0, color: "#6b7280" },
   { id: "seating-bench", name: "Seating Bench", type: "furniture", capacity: "N/A", width: 60, depth: 18, height: 18, cost: 229, tpdContribution: 0, color: "#78716c" },
   { id: "arcade-bigbuck", name: "Big Buck Hunter", type: "arcade", capacity: "N/A", width: 30, depth: 30, height: 72, cost: 3000, tpdContribution: 0, color: "#a855f7" },
+  
+  // ARCHITECTURAL ELEMENTS
+  { id: "door-entry-single", name: "Entry Door (Single)", type: "door", capacity: "N/A", width: 36, depth: 4, height: 84, cost: 800, tpdContribution: 0, color: "#8B4513" },
+  { id: "door-entry-double", name: "Entry Door (Double)", type: "door", capacity: "N/A", width: 72, depth: 4, height: 84, cost: 1500, tpdContribution: 0, color: "#A0522D" },
+  { id: "door-emergency", name: "Emergency Exit Door", type: "door", capacity: "N/A", width: 36, depth: 4, height: 84, cost: 1200, tpdContribution: 0, color: "#DC2626" },
+  { id: "door-restroom", name: "Restroom Door", type: "door", capacity: "N/A", width: 32, depth: 4, height: 80, cost: 400, tpdContribution: 0, color: "#6B7280" },
+  { id: "window-standard", name: "Window (4ft)", type: "window", capacity: "N/A", width: 48, depth: 4, height: 48, cost: 350, tpdContribution: 0, color: "#87CEEB" },
+  { id: "window-large", name: "Window (6ft)", type: "window", capacity: "N/A", width: 72, depth: 4, height: 48, cost: 500, tpdContribution: 0, color: "#87CEEB" },
+  { id: "window-storefront", name: "Storefront Window", type: "window", capacity: "N/A", width: 96, depth: 4, height: 72, cost: 1200, tpdContribution: 0, color: "#B0E0E6" },
+  { id: "column-round", name: "Column (Round)", type: "column", capacity: "N/A", width: 12, depth: 12, height: 96, cost: 0, tpdContribution: 0, color: "#9CA3AF" },
+  { id: "column-square", name: "Column (Square)", type: "column", capacity: "N/A", width: 18, depth: 18, height: 96, cost: 0, tpdContribution: 0, color: "#6B7280" },
+  { id: "interior-wall-8", name: "Interior Wall (8ft)", type: "wall", capacity: "N/A", width: 96, depth: 6, height: 96, cost: 800, tpdContribution: 0, color: "#D1D5DB" },
+  { id: "interior-wall-10", name: "Interior Wall (10ft)", type: "wall", capacity: "N/A", width: 120, depth: 6, height: 96, cost: 1000, tpdContribution: 0, color: "#D1D5DB" },
+  { id: "interior-wall-12", name: "Interior Wall (12ft)", type: "wall", capacity: "N/A", width: 144, depth: 6, height: 96, cost: 1200, tpdContribution: 0, color: "#D1D5DB" },
+  { id: "bulkhead-4", name: "Bulkhead (4ft)", type: "bulkhead", capacity: "N/A", width: 48, depth: 24, height: 12, cost: 200, tpdContribution: 0, color: "#E5E7EB" },
+  { id: "bulkhead-6", name: "Bulkhead (6ft)", type: "bulkhead", capacity: "N/A", width: 72, depth: 24, height: 12, cost: 280, tpdContribution: 0, color: "#E5E7EB" },
+  { id: "bulkhead-8", name: "Bulkhead (8ft)", type: "bulkhead", capacity: "N/A", width: 96, depth: 24, height: 12, cost: 350, tpdContribution: 0, color: "#E5E7EB" },
+  
+  // EXPANDED FURNITURE & FIXTURES
+  { id: "folding-table-36", name: "Folding Table 36\"", type: "table", capacity: "N/A", width: 36, depth: 24, height: 30, cost: 159, tpdContribution: 0, color: "#a8a29e" },
+  { id: "folding-table-96", name: "Folding Table 96\"", type: "table", capacity: "N/A", width: 96, depth: 30, height: 30, cost: 349, tpdContribution: 0, color: "#d6d3d1" },
+  { id: "counter-checkout", name: "Checkout Counter", type: "counter", capacity: "N/A", width: 48, depth: 24, height: 36, cost: 800, tpdContribution: 0, color: "#78716c" },
+  { id: "counter-folding-8", name: "Folding Counter (8ft)", type: "counter", capacity: "N/A", width: 96, depth: 24, height: 36, cost: 600, tpdContribution: 0, color: "#a8a29e" },
+  { id: "counter-folding-12", name: "Folding Counter (12ft)", type: "counter", capacity: "N/A", width: 144, depth: 24, height: 36, cost: 850, tpdContribution: 0, color: "#a8a29e" },
+  { id: "chair-plastic", name: "Plastic Chair", type: "seating", capacity: "N/A", width: 18, depth: 18, height: 32, cost: 45, tpdContribution: 0, color: "#3B82F6" },
+  { id: "chair-metal", name: "Metal Chair", type: "seating", capacity: "N/A", width: 18, depth: 20, height: 33, cost: 75, tpdContribution: 0, color: "#6B7280" },
+  { id: "bench-48", name: "Bench (4ft)", type: "seating", capacity: "N/A", width: 48, depth: 18, height: 18, cost: 189, tpdContribution: 0, color: "#78716c" },
+  { id: "bench-72", name: "Bench (6ft)", type: "seating", capacity: "N/A", width: 72, depth: 18, height: 18, cost: 259, tpdContribution: 0, color: "#78716c" },
+  { id: "waiting-area-set", name: "Waiting Area (3 Seats)", type: "seating", capacity: "N/A", width: 54, depth: 24, height: 32, cost: 450, tpdContribution: 0, color: "#6366F1" },
+  { id: "tv-mount-wall", name: "Wall-Mount TV (55\")", type: "entertainment", capacity: "N/A", width: 50, depth: 4, height: 30, cost: 650, tpdContribution: 0, color: "#1F2937" },
+  { id: "vending-island-2", name: "Vending Island (2-Unit)", type: "vending", capacity: "N/A", width: 76, depth: 32, height: 72, cost: 5500, tpdContribution: 0, color: "#0EA5E9" },
+  { id: "vending-island-4", name: "Vending Island (4-Unit)", type: "vending", capacity: "N/A", width: 152, depth: 32, height: 72, cost: 10500, tpdContribution: 0, color: "#0284C7" },
+  
+  // UTILITY ROOMS & ELEMENTS
+  { id: "restroom-single", name: "Restroom (Single)", type: "restroom", capacity: "N/A", width: 60, depth: 60, height: 96, cost: 5000, tpdContribution: 0, color: "#6B7280" },
+  { id: "restroom-ada", name: "Restroom (ADA)", type: "restroom", capacity: "N/A", width: 84, depth: 72, height: 96, cost: 8000, tpdContribution: 0, color: "#4B5563" },
+  { id: "storage-small", name: "Storage Room (6x8)", type: "storage", capacity: "N/A", width: 72, depth: 96, height: 96, cost: 1500, tpdContribution: 0, color: "#9CA3AF" },
+  { id: "storage-medium", name: "Storage Room (8x10)", type: "storage", capacity: "N/A", width: 96, depth: 120, height: 96, cost: 2000, tpdContribution: 0, color: "#9CA3AF" },
+  { id: "utility-closet", name: "Utility Closet", type: "utility", capacity: "N/A", width: 36, depth: 48, height: 96, cost: 800, tpdContribution: 0, color: "#6B7280" },
+  { id: "water-heater-40", name: "Water Heater (40 gal)", type: "utility", capacity: "40 gal", width: 22, depth: 22, height: 60, cost: 1200, tpdContribution: 0, color: "#3B82F6" },
+  { id: "water-heater-80", name: "Water Heater (80 gal)", type: "utility", capacity: "80 gal", width: 26, depth: 26, height: 62, cost: 2000, tpdContribution: 0, color: "#2563EB" },
+  { id: "sink-utility", name: "Utility Sink", type: "sink", capacity: "N/A", width: 24, depth: 24, height: 36, cost: 350, tpdContribution: 0, color: "#E5E7EB" },
+  { id: "sink-handwash", name: "Hand Wash Station", type: "sink", capacity: "N/A", width: 18, depth: 16, height: 32, cost: 250, tpdContribution: 0, color: "#F3F4F6" },
+  { id: "electrical-panel", name: "Electrical Panel", type: "utility", capacity: "N/A", width: 24, depth: 6, height: 36, cost: 0, tpdContribution: 0, color: "#374151" },
+  { id: "gas-shutoff", name: "Gas Shutoff Valve", type: "utility", capacity: "N/A", width: 8, depth: 8, height: 12, cost: 0, tpdContribution: 0, color: "#EAB308" },
+  { id: "floor-drain", name: "Floor Drain", type: "utility", capacity: "N/A", width: 6, depth: 6, height: 2, cost: 150, tpdContribution: 0, color: "#4B5563" },
+  
+  // LAUNDRY CARTS & ACCESSORIES
+  { id: "laundry-cart-200", name: "Laundry Cart 200lb", type: "cart", capacity: "200lb", width: 20, depth: 28, height: 36, cost: 149, tpdContribution: 0, color: "#6b7280" },
+  { id: "laundry-cart-600", name: "Laundry Cart 600lb", type: "cart", capacity: "600lb", width: 30, depth: 42, height: 52, cost: 349, tpdContribution: 0, color: "#4b5563" },
+  { id: "rolling-hamper", name: "Rolling Hamper", type: "cart", capacity: "150lb", width: 24, depth: 20, height: 32, cost: 89, tpdContribution: 0, color: "#9ca3af" },
+  { id: "soap-dispenser-station", name: "Soap Dispenser Station", type: "accessory", capacity: "N/A", width: 18, depth: 12, height: 48, cost: 350, tpdContribution: 0, color: "#22C55E" },
+  { id: "trash-can-large", name: "Trash Can (Large)", type: "accessory", capacity: "N/A", width: 24, depth: 24, height: 36, cost: 120, tpdContribution: 0, color: "#374151" },
+  { id: "recycle-bin", name: "Recycling Bin", type: "accessory", capacity: "N/A", width: 24, depth: 24, height: 36, cost: 130, tpdContribution: 0, color: "#22C55E" },
 ] as const;
 
 export type EquipmentItem = typeof equipmentLibrary[number];

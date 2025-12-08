@@ -152,10 +152,12 @@ const equipmentCategories = [
   { id: "all", name: "All", types: [] as string[] },
   { id: "washers", name: "Washers", types: ["washer"] },
   { id: "dryers", name: "Dryers", types: ["dryer"] },
+  { id: "architecture", name: "Structure", types: ["door", "window", "column", "wall", "bulkhead"] },
+  { id: "furniture", name: "Furniture", types: ["table", "counter", "seating", "furniture", "cart"] },
+  { id: "utilities", name: "Utilities", types: ["restroom", "storage", "utility", "sink"] },
   { id: "financial", name: "Financial", types: ["atm", "changer"] },
-  { id: "services", name: "Services", types: ["vending", "dogwash"] },
-  { id: "furniture", name: "Furniture", types: ["table", "furniture", "cart", "seating-bench"] },
-  { id: "entertainment", name: "Games", types: ["arcade"] },
+  { id: "services", name: "Services", types: ["vending", "dogwash", "accessory"] },
+  { id: "entertainment", name: "Games", types: ["arcade", "entertainment"] },
 ];
 
 const getCategoryTypes = (categoryId: string): string[] => {
@@ -219,10 +221,73 @@ function EquipmentThumbnail({ equipment, size = "md" }: { equipment: typeof equi
           </div>
         );
       case "arcade":
+      case "entertainment":
         return (
           <div className="w-3/4 h-3/4 flex items-center justify-center text-white/80 text-[8px] font-bold">
             PLAY
           </div>
+        );
+      case "door":
+        return (
+          <div className="w-3/4 h-full flex flex-col items-center justify-center">
+            <div className="w-full h-3/4 border-2 border-white/40 rounded-t-sm bg-white/10" />
+            <div className="w-1/4 h-1/4 rounded-full bg-white/40 absolute right-1" />
+          </div>
+        );
+      case "window":
+        return (
+          <div className="w-3/4 h-2/3 border-2 border-white/40 bg-sky-400/30 rounded-sm grid grid-cols-2 gap-0.5 p-0.5">
+            <div className="bg-sky-300/40" />
+            <div className="bg-sky-300/40" />
+          </div>
+        );
+      case "column":
+        return (
+          <div className="w-1/2 h-1/2 bg-white/30 border-2 border-white/40 rounded-full" />
+        );
+      case "wall":
+        return (
+          <div className="w-full h-1/4 bg-white/40 border border-white/50" />
+        );
+      case "bulkhead":
+        return (
+          <div className="w-3/4 h-1/3 bg-white/20 border-b-2 border-white/40 rounded-b-sm" />
+        );
+      case "counter":
+        return (
+          <div className="w-3/4 h-1/3 bg-white/40 rounded-sm border-t-2 border-white/50" />
+        );
+      case "seating":
+        return (
+          <div className="w-3/4 h-1/2 bg-white/30 rounded-sm flex items-end justify-center pb-0.5">
+            <div className="w-1/2 h-1/2 bg-white/20 rounded-t-sm" />
+          </div>
+        );
+      case "restroom":
+        return (
+          <div className="w-3/4 h-3/4 border-2 border-white/30 rounded-sm flex items-center justify-center text-white/80 text-[6px] font-bold">
+            WC
+          </div>
+        );
+      case "storage":
+        return (
+          <div className="w-3/4 h-3/4 border border-dashed border-white/40 rounded-sm flex items-center justify-center text-white/70 text-[6px]">
+            STOR
+          </div>
+        );
+      case "utility":
+        return (
+          <div className="w-3/4 h-3/4 border border-white/30 rounded-sm flex items-center justify-center">
+            <div className="w-1/2 h-1/2 bg-white/20 rounded-full" />
+          </div>
+        );
+      case "sink":
+        return (
+          <div className="w-2/3 h-1/2 border-2 border-white/40 rounded-sm bg-white/10" />
+        );
+      case "accessory":
+        return (
+          <div className="w-1/2 h-1/2 rounded-full border border-white/30 bg-white/10" />
         );
       default:
         return (
@@ -325,6 +390,181 @@ function MeasurementOverlay({
         <span className="text-xs font-medium text-[#39CCCC] rotate-[-90deg] origin-center whitespace-nowrap">{ftDepth}' deep</span>
         <span className="text-[10px] text-white/60 rotate-[-90deg] origin-center whitespace-nowrap">{ftDepth}'</span>
       </div>
+    </>
+  );
+}
+
+function BuildingShellEditor({ 
+  dimensions, 
+  setDimensions,
+  canvasWidth,
+  canvasHeight,
+  showRulers
+}: { 
+  dimensions: { width: number; depth: number }; 
+  setDimensions: (d: { width: number; depth: number }) => void;
+  canvasWidth: number;
+  canvasHeight: number;
+  showRulers: boolean;
+}) {
+  const [isDragging, setIsDragging] = useState<'right' | 'bottom' | 'corner' | null>(null);
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [startDim, setStartDim] = useState({ width: 0, depth: 0 });
+  const [startShell, setStartShell] = useState({ width: 0, height: 0 });
+  
+  const offset = showRulers ? 24 : 0;
+  const availableWidth = canvasWidth - offset - 40;
+  const availableHeight = canvasHeight - offset - 40;
+  
+  const scaleX = availableWidth / dimensions.width;
+  const scaleY = availableHeight / dimensions.depth;
+  const scale = Math.min(scaleX, scaleY, 0.25);
+  
+  const shellWidth = dimensions.width * scale;
+  const shellHeight = dimensions.depth * scale;
+  
+  const MIN_DIMENSION_INCHES = 600;
+  
+  const handleMouseDown = (edge: 'right' | 'bottom' | 'corner') => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(edge);
+    setStartPos({ x: e.clientX, y: e.clientY });
+    setStartDim({ width: dimensions.width, depth: dimensions.depth });
+    setStartShell({ width: shellWidth, height: shellHeight });
+  };
+  
+  useEffect(() => {
+    if (!isDragging) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const dx = e.clientX - startPos.x;
+      const dy = e.clientY - startPos.y;
+      
+      const inchesPerPixelX = startDim.width / startShell.width;
+      const inchesPerPixelY = startDim.depth / startShell.height;
+      
+      let newWidth = startDim.width;
+      let newDepth = startDim.depth;
+      
+      if (isDragging === 'right' || isDragging === 'corner') {
+        const rawWidth = startDim.width + dx * inchesPerPixelX;
+        newWidth = Math.max(MIN_DIMENSION_INCHES, Math.round(rawWidth / 12) * 12);
+      }
+      if (isDragging === 'bottom' || isDragging === 'corner') {
+        const rawDepth = startDim.depth + dy * inchesPerPixelY;
+        newDepth = Math.max(MIN_DIMENSION_INCHES, Math.round(rawDepth / 12) * 12);
+      }
+      
+      setDimensions({ width: newWidth, depth: newDepth });
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(null);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, startPos, startDim, startShell, setDimensions]);
+  
+  const ftWidth = Math.round(dimensions.width / 12);
+  const ftDepth = Math.round(dimensions.depth / 12);
+  const sqFt = Math.round((dimensions.width * dimensions.depth) / 144);
+  
+  return (
+    <>
+      <svg 
+        className="absolute pointer-events-none z-10" 
+        style={{ left: offset, top: offset }}
+        width={shellWidth + 20} 
+        height={shellHeight + 20}
+      >
+        <rect 
+          x={0} 
+          y={0} 
+          width={shellWidth} 
+          height={shellHeight} 
+          fill="none" 
+          stroke="#39CCCC" 
+          strokeWidth="3"
+          strokeDasharray="8 4"
+          className="drop-shadow-lg"
+        />
+        
+        <text 
+          x={shellWidth / 2} 
+          y={-8} 
+          textAnchor="middle" 
+          fill="#39CCCC" 
+          fontSize="11" 
+          fontWeight="600"
+        >
+          {ftWidth}' wide
+        </text>
+        
+        <text 
+          x={shellWidth + 14} 
+          y={shellHeight / 2} 
+          textAnchor="middle" 
+          fill="#39CCCC" 
+          fontSize="11" 
+          fontWeight="600"
+          transform={`rotate(90, ${shellWidth + 14}, ${shellHeight / 2})`}
+        >
+          {ftDepth}' deep
+        </text>
+        
+        <text 
+          x={shellWidth / 2} 
+          y={shellHeight / 2} 
+          textAnchor="middle" 
+          fill="#39CCCC" 
+          fontSize="13" 
+          fontWeight="bold"
+          opacity={0.6}
+        >
+          {sqFt.toLocaleString()} sq ft
+        </text>
+      </svg>
+      
+      <div 
+        className="absolute w-4 h-4 bg-[#39CCCC] rounded-full cursor-e-resize z-20 shadow-lg hover:scale-125 transition-transform"
+        style={{ 
+          left: offset + shellWidth - 8, 
+          top: offset + shellHeight / 2 - 8,
+        }}
+        onMouseDown={handleMouseDown('right')}
+        data-testid="handle-resize-right"
+      />
+      
+      <div 
+        className="absolute w-4 h-4 bg-[#39CCCC] rounded-full cursor-s-resize z-20 shadow-lg hover:scale-125 transition-transform"
+        style={{ 
+          left: offset + shellWidth / 2 - 8, 
+          top: offset + shellHeight - 8,
+        }}
+        onMouseDown={handleMouseDown('bottom')}
+        data-testid="handle-resize-bottom"
+      />
+      
+      <div 
+        className="absolute w-5 h-5 bg-gradient-to-br from-[#39CCCC] to-[#2AA0A0] rounded-full cursor-nwse-resize z-20 shadow-lg hover:scale-125 transition-transform border-2 border-white/30"
+        style={{ 
+          left: offset + shellWidth - 10, 
+          top: offset + shellHeight - 10,
+        }}
+        onMouseDown={handleMouseDown('corner')}
+        data-testid="handle-resize-corner"
+      />
+      
+      {isDragging && (
+        <div className="fixed inset-0 z-50 cursor-grabbing" />
+      )}
     </>
   );
 }
@@ -2316,6 +2556,14 @@ export default function DesignStudio() {
                             <rect width="100%" height="100%" fill="url(#grid)" />
                           </svg>
                         )}
+                        
+                        <BuildingShellEditor
+                          dimensions={dimensions}
+                          setDimensions={setDimensions}
+                          canvasWidth={canvasSize.width}
+                          canvasHeight={canvasSize.height}
+                          showRulers={showRulers}
+                        />
 
                         {placedEquipment.length === 0 && (
                           <div className="absolute inset-0 flex items-center justify-center text-white/30">
