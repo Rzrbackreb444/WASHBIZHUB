@@ -1,0 +1,41 @@
+import matplotlib.pyplot as plt
+from ipywidgets import interact, IntSlider, FloatSlider
+import numpy as np
+
+def simulate_laundromat(num_washers=10, num_dryers=8, room_width=50, room_length=40, growth_rate=0.05, discount_rate=0.10):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    # 2D Layout (Drag-drop sim)
+    ax1.set_xlim(0, room_width)
+    ax1.set_ylim(0, room_length)
+    ax1.set_title('3D-Ready 2D Layout')
+    ax1.plot([0, room_width, room_width, 0, 0], [0, 0, room_length, room_length, 0], 'k-')
+    for i in range(num_washers):  # Washers (blue)
+        x = 5 + (i % 5) * 8; y = room_length - 10 - (i // 5) * 8
+        ax1.add_patch(plt.Rectangle((x, y), 3, 4, color='blue'))
+    for i in range(num_dryers):  # Dryers (red)
+        x = room_width - 10 - (i % 4) * 8; y = 5 + (i // 4) * 8
+        ax1.add_patch(plt.Rectangle((x, y), 3, 4, color='red'))
+    ax1.add_patch(plt.Rectangle((room_width/2-5, room_length/2-5), 10, 10, color='green', label='Amenities'))
+    ax1.legend()
+    
+    # Revenue What-If (Monte Carlo)
+    base_rev = num_washers * 450 * 12  # $450/machine/mo benchmark
+    simulations = np.random.normal(base_rev, base_rev*0.15, 500) * np.cumprod(np.ones(5)* (1+growth_rate))  # 5-yr growth
+    npv = np.npv(discount_rate, simulations)
+    ax2.hist(npv, bins=20, alpha=0.7, color='g')
+    ax2.set_title('5-Yr NPV Distribution ($)')
+    ax2.axvline(np.mean(npv), color='r', linestyle='--', label=f'Mean: ${np.mean(npv):,.0f}')
+    ax2.legend()
+    
+    plt.tight_layout()
+    plt.show()
+    return f"Projected 5-Yr NPV: ${np.mean(npv):,.0f} ± ${np.std(npv):,.0f} (ROI ~{np.mean(npv)/ (num_washers*6800)*100:.1f}%)"
+
+interact(simulate_laundromat,
+         num_washers=IntSlider(min=5, max=20, value=10),
+         num_dryers=IntSlider(min=5, max=15, value=8),
+         room_width=FloatSlider(min=30, max=100, value=50),
+         room_length=FloatSlider(min=30, max=100, value=40),
+         growth_rate=FloatSlider(min=0.02, max=0.10, value=0.05),
+         discount_rate=FloatSlider(min=0.05, max=0.15, value=0.10));
