@@ -1,13 +1,24 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GlobalSearchTrigger } from "@/components/GlobalSearch";
 import { UsageIndicator } from "@/components/UsageIndicator";
+import { useSignOut } from "@/components/SignOutConfirmation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import logoUrl from "@assets/6_1764040628012.png";
 
@@ -80,6 +91,102 @@ const megaMenuSections = [
   }
 ];
 
+function UserDropdown() {
+  const { user } = useAuth();
+  const { signOut, isSigningOut } = useSignOut();
+  
+  const userInitials = user?.firstName 
+    ? user.firstName.charAt(0).toUpperCase() 
+    : user?.email?.charAt(0).toUpperCase() || 'U';
+  
+  const displayName = user?.firstName || user?.email?.split('@')[0] || 'User';
+  const displayEmail = user?.email || '';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="relative h-9 w-9 rounded-full"
+          data-testid="button-user-menu"
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user?.profileImage || undefined} alt={displayName} />
+            <AvatarFallback className="bg-[#0A1628] text-[#C8A661] text-sm font-medium">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent 
+        className="w-64" 
+        align="end" 
+        sideOffset={8}
+        data-testid="dropdown-user-menu"
+      >
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none text-foreground" data-testid="text-user-name">
+              {displayName}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground" data-testid="text-user-email">
+              {displayEmail}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        <Link href="/dashboard">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-dropdown-dashboard">
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/settings">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-dropdown-settings">
+            <SettingsIcon className="mr-2 h-4 w-4" />
+            Settings
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/account-subscription">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-dropdown-subscription">
+            <CreditCard className="mr-2 h-4 w-4" />
+            {user?.isPro ? 'Pro Subscription' : 'Upgrade to Pro'}
+          </DropdownMenuItem>
+        </Link>
+        
+        <div className="px-2 py-1.5">
+          <UsageIndicator compact />
+        </div>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem 
+          className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+          onClick={signOut}
+          disabled={isSigningOut}
+          data-testid="button-dropdown-signout"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {isSigningOut ? 'Signing out...' : 'Sign Out'}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function AuthLoadingSkeleton() {
+  return (
+    <div className="flex items-center gap-2" data-testid="skeleton-auth-loading">
+      <Skeleton className="h-8 w-8 rounded-full" />
+      <Skeleton className="hidden sm:block h-8 w-20 rounded-md" />
+    </div>
+  );
+}
+
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -88,6 +195,7 @@ export function Header() {
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const megaMenuRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { signOut, isSigningOut } = useSignOut();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -140,7 +248,6 @@ export function Header() {
         Skip to main content
       </a>
       
-      {/* Main header - blur backdrop on scroll for premium feel */}
       <header 
         className={`sticky top-0 z-50 transition-all duration-300 border-b ${
           isScrolled 
@@ -151,7 +258,6 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 gap-4">
-            {/* Logo */}
             <Link href="/" aria-label="WashBizHub Home">
               <div 
                 className="flex items-center gap-2.5 cursor-pointer" 
@@ -173,7 +279,6 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Desktop Navigation with key links and dropdowns */}
             <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
               {navLinks.map((link) => (
                 <Link href={link.href} key={link.href}>
@@ -192,7 +297,6 @@ export function Header() {
                 </Link>
               ))}
 
-              {/* Calculators Dropdown */}
               <div className="relative group">
                 <button
                   className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50 group-hover:text-foreground group-hover:bg-muted"
@@ -222,7 +326,6 @@ export function Header() {
                 </div>
               </div>
 
-              {/* Dashboard Link - Only for authenticated users */}
               {isAuthenticated && (
                 <Link href="/dashboard">
                   <span 
@@ -239,7 +342,6 @@ export function Header() {
                 </Link>
               )}
 
-              {/* More dropdown */}
               <div 
                 className="relative"
                 ref={megaMenuRef}
@@ -262,7 +364,6 @@ export function Header() {
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
 
-                {/* Clean Mega Menu Panel */}
                 <AnimatePresence>
                   {megaMenuOpen && (
                     <motion.div 
@@ -314,7 +415,6 @@ export function Header() {
                           ))}
                         </div>
 
-                        {/* Simple footer */}
                         <div className="px-4 py-3 bg-muted/30 border-t border-border/60 flex items-center justify-between">
                           <Link href="/pricing">
                             <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer">
@@ -332,89 +432,47 @@ export function Header() {
               </div>
             </nav>
 
-            {/* Right side actions - minimal */}
             <div className="flex items-center gap-2">
               <GlobalSearchTrigger />
               
               <ThemeToggle />
               
-              {!isLoading && (
+              {isLoading ? (
+                <AuthLoadingSkeleton />
+              ) : (
                 <>
                   {isAuthenticated ? (
-                    <>
-                      <Button 
-                        variant="ghost"
-                        size="icon"
-                        className="hidden sm:flex text-muted-foreground hover:text-foreground"
-                        aria-label="Settings"
-                        onClick={() => window.location.href = '/settings'}
-                        data-testid="button-settings"
-                      >
-                        <SettingsIcon className="h-4 w-4" aria-hidden="true" />
-                      </Button>
-                      
-                      <div 
-                        className="hidden md:flex items-center gap-2 text-muted-foreground text-sm px-3 py-1.5 bg-muted/50 rounded-full"
-                        data-testid="display-user-info"
-                      >
-                        <User className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span className="font-medium max-w-[80px] truncate text-xs">
-                          {user?.firstName || user?.email?.split('@')[0] || 'User'}
-                        </span>
-                      </div>
-                      
-                      <div className="hidden sm:block">
-                        <UsageIndicator compact />
-                      </div>
-                      
-                      <Button 
-                        onClick={() => window.location.href = '/api/logout'}
-                        variant="ghost"
-                        size="sm"
-                        className="hidden sm:flex text-muted-foreground hover:text-foreground text-xs"
-                        data-testid="button-logout"
-                      >
-                        <LogOut className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                        <span className="hidden md:inline">Logout</span>
-                      </Button>
-                    </>
+                    <div className="hidden sm:flex items-center gap-2">
+                      <UserDropdown />
+                    </div>
                   ) : (
-                    <Button 
-                      onClick={() => window.location.href = '/api/login'}
-                      variant="ghost"
-                      size="sm"
-                      className="hidden sm:flex text-sm"
-                      data-testid="button-login"
-                    >
-                      Sign in
-                    </Button>
+                    <>
+                      <Link href="/auth">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className="hidden sm:flex text-sm"
+                          data-testid="button-signin"
+                        >
+                          <LogIn className="h-4 w-4 mr-1.5" />
+                          Sign in
+                        </Button>
+                      </Link>
+                      
+                      <Link href="/pricing">
+                        <Button 
+                          className="hidden sm:flex bg-[#C8A661] hover:bg-[#b8963d] text-white font-medium text-sm"
+                          size="sm"
+                          data-testid="button-get-started"
+                        >
+                          Get Started
+                        </Button>
+                      </Link>
+                    </>
                   )}
-                  
-                  {(!user?.isPro) && (
-                    <Button 
-                      className="hidden sm:flex bg-[#C8A661] hover:bg-[#b8963d] text-white font-medium text-sm"
-                      size="sm"
-                      onClick={() => window.location.href = '/pricing'}
-                      data-testid="button-upgrade"
-                    >
-                      Upgrade
-                    </Button>
-                  )}
-                  
-                  <Link href="/pricing">
-                    <Button 
-                      variant="outline"
-                      className="hidden sm:flex border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10 font-medium text-sm"
-                      size="sm"
-                      data-testid="link-pricing-desktop"
-                    >
-                      Pricing
-                    </Button>
-                  </Link>
                 </>
               )}
               
-              {/* Mobile menu */}
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -432,7 +490,6 @@ export function Header() {
                   className="w-[300px] bg-background border-l border-border p-0 flex flex-col"
                   data-testid="mobile-drawer-panel"
                 >
-                  {/* Mobile Header - Fixed */}
                   <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
                     <SheetHeader className="flex-1">
                       <SheetTitle className="text-foreground text-lg font-bold flex items-center gap-2">
@@ -454,81 +511,131 @@ export function Header() {
                     </SheetClose>
                   </div>
 
-                  {/* Mobile Nav Links - Scrollable */}
                   <div className="flex-1 overflow-y-auto min-h-0 py-4">
-                      {/* Dashboard for authenticated users */}
-                      {isAuthenticated && (
-                        <div className="px-4 mb-4">
-                          <SheetClose asChild>
-                            <Link href="/dashboard">
+                    {isAuthenticated && (
+                      <div className="px-4 mb-4">
+                        <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-muted/50 mb-3" data-testid="mobile-user-info">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={user?.profileImage || undefined} alt={user?.firstName || 'User'} />
+                            <AvatarFallback className="bg-[#0A1628] text-[#C8A661] text-sm font-medium">
+                              {user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate" data-testid="text-mobile-user-name">
+                              {user?.firstName || user?.email?.split('@')[0] || 'User'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate" data-testid="text-mobile-user-email">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <SheetClose asChild>
+                          <Link href="/dashboard">
+                            <span 
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+                                location === '/dashboard'
+                                  ? 'text-foreground bg-muted'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                              }`}
+                              data-testid="link-mobile-dashboard"
+                            >
+                              <LayoutDashboard className="w-4 h-4" />
+                              Dashboard
+                            </span>
+                          </Link>
+                        </SheetClose>
+                      </div>
+                    )}
+
+                    <div className="px-4 mb-6">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                        Main
+                      </p>
+                      <div className="space-y-1">
+                        {navLinks.map((link) => (
+                          <SheetClose asChild key={link.href}>
+                            <Link href={link.href}>
                               <span 
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
-                                  location === '/dashboard'
-                                    ? 'text-foreground bg-muted'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                  link.featured
+                                    ? 'text-[#C8A661] bg-[#C8A661]/10'
+                                    : location === link.href
+                                      ? 'text-foreground bg-muted'
+                                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 }`}
-                                data-testid="link-mobile-dashboard"
+                                data-testid={`link-mobile-${link.href.replace('/', '')}`}
                               >
-                                <LayoutDashboard className="w-4 h-4" />
-                                Dashboard
+                                <link.icon className="w-4 h-4" />
+                                {link.label}
                               </span>
                             </Link>
                           </SheetClose>
-                        </div>
-                      )}
-
-                      {/* Primary Links */}
-                      <div className="px-4 mb-6">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                          Main
-                        </p>
-                        <div className="space-y-1">
-                          {navLinks.map((link) => (
-                            <SheetClose asChild key={link.href}>
-                              <Link href={link.href}>
-                                <span 
-                                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
-                                    link.featured
-                                      ? 'text-[#C8A661] bg-[#C8A661]/10'
-                                      : location === link.href
-                                        ? 'text-foreground bg-muted'
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                                  }`}
-                                  data-testid={`link-mobile-${link.href.replace('/', '')}`}
-                                >
-                                  <link.icon className={`w-4 h-4 ${link.featured ? 'text-[#C8A661]' : ''}`} />
-                                  {link.label}
-                                </span>
-                              </Link>
-                            </SheetClose>
-                          ))}
-                        </div>
+                        ))}
                       </div>
+                    </div>
 
-                      {/* Calculators Section */}
+                    <Collapsible
+                      open={expandedSections.includes('calculators')}
+                      onOpenChange={() => toggleSection('calculators')}
+                      className="px-4 mb-2"
+                    >
+                      <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
+                        <span className="flex items-center gap-3">
+                          <Calculator className="w-4 h-4" />
+                          Calculators
+                        </span>
+                        <ChevronRight className={`h-4 w-4 transition-transform ${
+                          expandedSections.includes('calculators') ? 'rotate-90' : ''
+                        }`} />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-1 ml-3 space-y-1">
+                        {calculatorItems.map((item) => (
+                          <SheetClose asChild key={item.href}>
+                            <Link href={item.href}>
+                              <span 
+                                className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                data-testid={`link-mobile-calc-${item.href.replace('/', '')}`}
+                              >
+                                <item.icon className="w-4 h-4" />
+                                {item.label}
+                              </span>
+                            </Link>
+                          </SheetClose>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    {megaMenuSections.map((section) => (
                       <Collapsible
-                        open={expandedSections.includes('calculators')}
-                        onOpenChange={() => toggleSection('calculators')}
+                        key={section.id}
+                        open={expandedSections.includes(section.id)}
+                        onOpenChange={() => toggleSection(section.id)}
                         className="px-4 mb-2"
                       >
                         <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
                           <span className="flex items-center gap-3">
-                            <Calculator className="w-4 h-4" />
-                            Calculators
+                            <section.icon className="w-4 h-4" />
+                            {section.title}
                           </span>
                           <ChevronRight className={`h-4 w-4 transition-transform ${
-                            expandedSections.includes('calculators') ? 'rotate-90' : ''
+                            expandedSections.includes(section.id) ? 'rotate-90' : ''
                           }`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="mt-1 ml-3 space-y-1">
-                          {calculatorItems.map((item) => (
+                          {section.items.map((item) => (
                             <SheetClose asChild key={item.href}>
                               <Link href={item.href}>
                                 <span 
-                                  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                  data-testid={`link-mobile-calc-${item.href.replace('/', '')}`}
+                                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
+                                    item.featured
+                                      ? 'text-[#C8A661]'
+                                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                  }`}
+                                  data-testid={`link-mobile-mega-${item.href.replace('/', '')}`}
                                 >
-                                  <item.icon className="w-4 h-4" />
+                                  <item.icon className={`w-4 h-4 ${item.featured ? 'text-[#C8A661]' : ''}`} />
                                   {item.label}
                                 </span>
                               </Link>
@@ -536,48 +643,9 @@ export function Header() {
                           ))}
                         </CollapsibleContent>
                       </Collapsible>
+                    ))}
+                  </div>
 
-                      {/* Collapsible Sections */}
-                      {megaMenuSections.map((section) => (
-                        <Collapsible
-                          key={section.id}
-                          open={expandedSections.includes(section.id)}
-                          onOpenChange={() => toggleSection(section.id)}
-                          className="px-4 mb-2"
-                        >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
-                            <span className="flex items-center gap-3">
-                              <section.icon className="w-4 h-4" />
-                              {section.title}
-                            </span>
-                            <ChevronRight className={`h-4 w-4 transition-transform ${
-                              expandedSections.includes(section.id) ? 'rotate-90' : ''
-                            }`} />
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-1 ml-3 space-y-1">
-                            {section.items.map((item) => (
-                              <SheetClose asChild key={item.href}>
-                                <Link href={item.href}>
-                                  <span 
-                                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                                      item.featured
-                                        ? 'text-[#C8A661]'
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                                    }`}
-                                    data-testid={`link-mobile-mega-${item.href.replace('/', '')}`}
-                                  >
-                                    <item.icon className={`w-4 h-4 ${item.featured ? 'text-[#C8A661]' : ''}`} />
-                                    {item.label}
-                                  </span>
-                                </Link>
-                              </SheetClose>
-                            ))}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      ))}
-                    </div>
-
-                  {/* Mobile Footer Actions - Fixed at bottom */}
                   <div className="p-4 border-t border-border space-y-3 flex-shrink-0 bg-background">
                     <SheetClose asChild>
                       <Link href="/pricing">
@@ -591,56 +659,77 @@ export function Header() {
                     </SheetClose>
                     
                     {!isLoading && (
-                        <>
-                          {isAuthenticated ? (
-                            <>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                <User className="h-4 w-4" />
-                                <span className="truncate">{user?.email}</span>
-                              </div>
-                              <div className="flex gap-2">
-                                <SheetClose asChild>
+                      <>
+                        {isAuthenticated ? (
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <SheetClose asChild>
+                                <Link href="/settings" className="flex-1">
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="flex-1 text-xs"
-                                    onClick={() => window.location.href = '/settings'}
+                                    className="w-full text-xs"
+                                    data-testid="link-mobile-settings"
                                   >
+                                    <SettingsIcon className="h-3.5 w-3.5 mr-1.5" />
                                     Settings
                                   </Button>
-                                </SheetClose>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="flex-1 text-xs"
-                                  onClick={() => window.location.href = '/api/logout'}
-                                >
-                                  Logout
-                                </Button>
-                              </div>
-                            </>
-                          ) : (
+                                </Link>
+                              </SheetClose>
+                              <SheetClose asChild>
+                                <Link href="/account-subscription" className="flex-1">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full text-xs"
+                                    data-testid="link-mobile-subscription"
+                                  >
+                                    <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+                                    {user?.isPro ? 'Pro' : 'Upgrade'}
+                                  </Button>
+                                </Link>
+                              </SheetClose>
+                            </div>
                             <Button 
-                              className="w-full"
-                              onClick={() => window.location.href = '/api/login'}
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                              onClick={signOut}
+                              disabled={isSigningOut}
+                              data-testid="button-mobile-signout"
                             >
-                              Sign in
+                              <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                              {isSigningOut ? 'Signing out...' : 'Sign Out'}
                             </Button>
-                          )}
-                          
-                          {(!user?.isPro) && (
-                            <SheetClose asChild>
+                          </div>
+                        ) : (
+                          <SheetClose asChild>
+                            <Link href="/auth">
+                              <Button 
+                                className="w-full"
+                                data-testid="link-mobile-signin"
+                              >
+                                <LogIn className="h-4 w-4 mr-1.5" />
+                                Sign in
+                              </Button>
+                            </Link>
+                          </SheetClose>
+                        )}
+                        
+                        {(!user?.isPro && !isAuthenticated) && (
+                          <SheetClose asChild>
+                            <Link href="/pricing">
                               <Button 
                                 className="w-full bg-[#C8A661] hover:bg-[#b8963d] text-white"
-                                onClick={() => window.location.href = '/pricing'}
+                                data-testid="link-mobile-getstarted"
                               >
-                                Upgrade to Pro
+                                Get Started Free
                               </Button>
-                            </SheetClose>
-                          )}
-                        </>
-                      )}
-                    </div>
+                            </Link>
+                          </SheetClose>
+                        )}
+                      </>
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>

@@ -66,8 +66,10 @@ function checkRateLimit(email: string): boolean {
   return true;
 }
 
-// Register with email/password
-router.post("/register", async (req: Request, res: Response) => {
+// ==================== EMAIL/PASSWORD AUTHENTICATION ====================
+
+// POST /api/auth/signup - Create account with email/password
+router.post("/signup", async (req: Request, res: Response) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
@@ -212,7 +214,7 @@ router.post("/register", async (req: Request, res: Response) => {
   }
 });
 
-// Login with email/password
+// POST /api/auth/login - Login with email/password
 router.post("/login", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -261,8 +263,8 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-// Get current user (for email/password sessions)
-router.get("/me", async (req: Request, res: Response) => {
+// GET /api/auth/user - Get current user
+router.get("/user", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).session?.userId;
     
@@ -294,7 +296,7 @@ router.get("/me", async (req: Request, res: Response) => {
   }
 });
 
-// Logout
+// POST /api/auth/logout - Logout and clear session
 router.post("/logout", (req: Request, res: Response) => {
   (req as any).session.destroy((err: any) => {
     if (err) {
@@ -307,8 +309,8 @@ router.post("/logout", (req: Request, res: Response) => {
 
 // ==================== MAGIC LINK AUTHENTICATION ====================
 
-// Request magic link - sends email with login link
-router.post("/magic-link/request", async (req: Request, res: Response) => {
+// POST /api/auth/magic-link - Send magic link email
+router.post("/magic-link", async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
@@ -593,8 +595,70 @@ router.post("/reset-password", async (req: Request, res: Response) => {
   }
 });
 
-// Verify magic link - validates token and logs user in
-router.post("/magic-link/verify", async (req: Request, res: Response) => {
+// GET /api/auth/verify-magic-link?token=xxx&email=xxx - Verify magic link token
+router.get("/verify-magic-link", async (req: Request, res: Response) => {
+  try {
+    const { token, email } = req.query;
+
+    if (!token || !email || typeof token !== 'string' || typeof email !== 'string') {
+      return res.status(400).json({ error: "Invalid magic link" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Find user by email
+    const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid magic link" });
+    }
+
+    // Check if token exists and hasn't expired
+    if (!user.emailVerificationToken || !user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Magic link has expired. Please request a new one." });
+    }
+
+    if (new Date() > user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Magic link has expired. Please request a new one." });
+    }
+
+    // Verify token
+    const isValid = await bcrypt.compare(token, user.emailVerificationToken);
+    
+    if (!isValid) {
+      return res.status(400).json({ error: "Invalid magic link" });
+    }
+
+    // Clear the token (single use) and mark email as verified
+    await db.update(users)
+      .set({
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        emailVerified: true,
+      })
+      .where(eq(users.id, user.id));
+
+    // Set session
+    (req as any).session.userId = user.id;
+
+    res.json({ 
+      success: true, 
+      message: "Successfully signed in!",
+      user: { 
+        id: user.id, 
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      }
+    });
+  } catch (error: any) {
+    console.error("Magic link verify error:", error);
+    res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
+
+// POST /api/auth/verify-magic-link - Verify magic link token (legacy POST support)
+router.post("/verify-magic-link", async (req: Request, res: Response) => {
   try {
     const { token, email } = req.body;
 
@@ -657,7 +721,84 @@ router.post("/magic-link/verify", async (req: Request, res: Response) => {
 
 // ==================== EMAIL VERIFICATION ====================
 
-// Verify email address (from registration link)
+// GET /api/auth/verify-email?token=xxx&email=xxx - Verify email address
+router.get("/verify-email", async (req: Request, res: Response) => {
+  try {
+    const { token, email } = req.query;
+
+    if (!token || !email || typeof token !== 'string' || typeof email !== 'string') {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Find user by email
+    const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    if (user.emailVerified) {
+      return res.json({ 
+        success: true, 
+        message: "Email already verified! You can sign in.",
+        alreadyVerified: true
+      });
+    }
+
+    // Check if token exists and hasn't expired
+    if (!user.emailVerificationToken || !user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Verification link has expired. Please request a new one." });
+    }
+
+    if (new Date() > user.emailVerificationExpires) {
+      return res.status(400).json({ error: "Verification link has expired. Please request a new one." });
+    }
+
+    // Verify token
+    const isValid = await bcrypt.compare(token, user.emailVerificationToken);
+    
+    if (!isValid) {
+      return res.status(400).json({ error: "Invalid verification link" });
+    }
+
+    // Mark email as verified and clear token
+    await db.update(users)
+      .set({
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        emailVerified: true,
+      })
+      .where(eq(users.id, user.id));
+
+    // Set session if not already logged in
+    (req as any).session.userId = user.id;
+
+    // Send welcome email for FREE tier users (async, don't block response)
+    sendFreeWelcomeEmail({
+      email: user.email,
+      firstName: user.firstName || undefined,
+    }).catch(err => console.error("Failed to send welcome email:", err));
+
+    res.json({ 
+      success: true, 
+      message: "Email verified successfully! Welcome to WashBizHub.",
+      user: { 
+        id: user.id, 
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailVerified: true,
+      }
+    });
+  } catch (error: any) {
+    console.error("Email verification error:", error);
+    res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
+
+// POST /api/auth/verify-email - Verify email address (legacy POST support)
 router.post("/verify-email", async (req: Request, res: Response) => {
   try {
     const { token, email } = req.body;
@@ -734,8 +875,8 @@ router.post("/verify-email", async (req: Request, res: Response) => {
   }
 });
 
-// Resend verification email
-router.post("/resend-verification", async (req: Request, res: Response) => {
+// POST /api/auth/send-verification - Send/resend verification email
+router.post("/send-verification", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).session?.userId;
     const { email } = req.body;
