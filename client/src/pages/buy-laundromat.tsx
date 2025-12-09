@@ -189,6 +189,18 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
               <Mail className="w-4 h-4" />
             </Button>
           </div>
+          
+          <RequestProfessionalAnalysisCTA
+            variant="inline"
+            consultationData={{
+              type: "listing",
+              listingName: listing.title,
+              listingPrice: parseFloat(price || "0"),
+              listingId: listing.id?.toString()
+            }}
+            buttonText="Get Expert Analysis"
+            className="mt-2"
+          />
         </div>
       </CardContent>
     </Card>
@@ -358,6 +370,16 @@ export default function BuyLaundromat() {
         
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
           <RecentlyViewedListings />
+          
+          <div className="mb-8">
+            <RequestProfessionalAnalysisCTA
+              variant="card"
+              consultationData={{
+                type: "general"
+              }}
+              buttonText="Request Marketplace Consultation"
+            />
+          </div>
           
           <Card className="mb-8 bg-gradient-to-r from-[#1877f2]/10 to-[#1877f2]/5 border-[#1877f2]/20">
             <CardContent className="py-4 px-6">
