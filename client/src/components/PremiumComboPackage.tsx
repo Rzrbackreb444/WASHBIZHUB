@@ -3,11 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, BookOpen, GraduationCap, Award, Zap } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStripe } from "@/lib/lazy-stripe";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 export function PremiumComboPackage() {
   const { toast } = useToast();
@@ -21,7 +19,7 @@ export function PremiumComboPackage() {
         includeBook: true,
       });
 
-      const stripe = await stripePromise;
+      const stripe = await getStripe();
       if (!stripe) throw new Error("Stripe not available");
 
       const { error } = await stripe.redirectToCheckout({

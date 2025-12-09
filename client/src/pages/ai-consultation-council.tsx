@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStripe } from "@/lib/lazy-stripe";
 import { useLocation, useSearch } from "wouter";
 import { AuthGuard } from "@/components/AuthGuard";
 import { FeatureGate } from "@/components/monetization";
@@ -46,8 +46,6 @@ import {
   CheckCircle2,
   ChevronDown
 } from "lucide-react";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
 interface ConsultationTier {
   id: string;
@@ -372,7 +370,7 @@ export default function AIConsultationCouncil() {
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else if (data.sessionId) {
-        const stripe = await stripePromise;
+        const stripe = await getStripe();
         if (stripe) {
           const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
           if (error) {
