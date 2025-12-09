@@ -45,7 +45,11 @@ import {
   Check,
   Star,
   ShoppingCart,
-  Gift
+  Gift,
+  BarChart3,
+  Globe,
+  Lightbulb,
+  Award
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
@@ -84,29 +88,40 @@ interface QuotaInfo {
 
 const DEFAULT_PROMPTS = [
   {
+    icon: BarChart3,
+    label: "CLEANBI Score",
+    prompt: "How does CLEANBI scoring work? What makes an A-grade location?",
+    category: "cleanbi",
+  },
+  {
     icon: DollarSign,
     label: "Valuation",
-    prompt: "How do I value a laundromat using the C.L.E.A.N. methodology?",
+    prompt: "How do I value a laundromat using EBITDA multiples and the C.L.E.A.N. methodology?",
+    category: "analysis",
+  },
+  {
+    icon: MapPin,
+    label: "Location Intel",
+    prompt: "What demographics and traffic patterns indicate a profitable laundromat location?",
+    category: "cleanbi",
+  },
+  {
+    icon: Wrench,
+    label: "Equipment",
+    prompt: "Compare Speed Queen vs Dexter vs Electrolux - which is best for my situation?",
+    category: "equipment",
   },
   {
     icon: TrendingUp,
     label: "ROI Analysis",
     prompt: "What's a realistic ROI for a laundromat and how do I calculate it?",
-  },
-  {
-    icon: MapPin,
-    label: "Location",
-    prompt: "Walk me through the Kremers Doctrine for location evaluation.",
-  },
-  {
-    icon: Wrench,
-    label: "Equipment",
-    prompt: "Compare Speed Queen vs Dexter vs Electrolux washers for me.",
+    category: "analysis",
   },
   {
     icon: Calculator,
     label: "Pricing",
-    prompt: "What vend prices should I use to hit 25-35% EBITDA targets?",
+    prompt: "What vend prices maximize profit while staying competitive?",
+    category: "operations",
   },
 ];
 
@@ -114,35 +129,35 @@ const getJourneyPrompts = (journey: JourneyType) => {
   switch (journey) {
     case 'plan':
       return [
+        { icon: BarChart3, label: "CLEANBI Score", prompt: "What CLEANBI score should I look for when buying my first laundromat?" },
         { icon: TrendingUp, label: "ROI Reality", prompt: "What's a realistic ROI for a laundromat investment?" },
         { icon: DollarSign, label: "Capital Needed", prompt: "How much capital do I need to buy a laundromat?" },
-        { icon: Calculator, label: "Passive Income?", prompt: "Is owning a laundromat really passive income?" },
-        { icon: AlertTriangle, label: "Risks", prompt: "What are the biggest risks of buying a laundromat?" },
-        { icon: MapPin, label: "Location", prompt: "How do I evaluate if a location is good?" },
+        { icon: MapPin, label: "Location Intel", prompt: "What demographics indicate a profitable location?" },
+        { icon: AlertTriangle, label: "Red Flags", prompt: "What are the biggest risks and red flags when buying?" },
       ];
     case 'evaluate':
       return [
-        { icon: Search, label: "CLEANBI Score", prompt: "How do I use CLEANBI to score a location?" },
-        { icon: FileText, label: "Due Diligence", prompt: "Walk me through due diligence for a laundromat" },
-        { icon: Calculator, label: "Valuation", prompt: "How do I calculate what a laundromat is worth?" },
-        { icon: AlertTriangle, label: "Red Flags", prompt: "What red flags should I look for when buying?" },
-        { icon: DollarSign, label: "Negotiate", prompt: "How do I negotiate the purchase price?" },
+        { icon: BarChart3, label: "CLEANBI Deep-Dive", prompt: "Walk me through all 6 CLEANBI factors and how to interpret them" },
+        { icon: Search, label: "Score Analysis", prompt: "How do I use CLEANBI scores to compare multiple locations?" },
+        { icon: FileText, label: "Due Diligence", prompt: "What's your complete due diligence checklist?" },
+        { icon: Calculator, label: "Valuation", prompt: "How do I calculate fair market value using EBITDA multiples?" },
+        { icon: DollarSign, label: "Negotiate", prompt: "How do I negotiate using CLEANBI data as leverage?" },
       ];
     case 'operate':
       return [
-        { icon: TrendingUp, label: "Revenue", prompt: "How do I increase my laundromat's revenue?" },
-        { icon: DollarSign, label: "Pricing", prompt: "What vend prices maximize profit?" },
-        { icon: Wrench, label: "Equipment", prompt: "When should I replace vs. repair equipment?" },
-        { icon: Building, label: "Utilities", prompt: "How do I reduce utility costs?" },
-        { icon: Users, label: "WDF Service", prompt: "How do I add wash-dry-fold service?" },
+        { icon: TrendingUp, label: "Revenue Growth", prompt: "What are proven strategies to increase revenue by 20%?" },
+        { icon: DollarSign, label: "Pricing Strategy", prompt: "What vend prices maximize profit in my market?" },
+        { icon: Wrench, label: "Equipment ROI", prompt: "When should I replace vs. repair equipment?" },
+        { icon: Building, label: "Utility Savings", prompt: "How do I reduce utility costs by 15-20%?" },
+        { icon: Users, label: "WDF Service", prompt: "How do I add profitable wash-dry-fold service?" },
       ];
     case 'partner':
       return [
-        { icon: FileText, label: "Sell", prompt: "How do I list my laundromat for sale?" },
-        { icon: Wrench, label: "Equipment", prompt: "What makes a good equipment listing?" },
-        { icon: Handshake, label: "Vendor", prompt: "How do I become a WashBizHub vendor?" },
+        { icon: FileText, label: "Sell Smart", prompt: "How do I maximize my laundromat's sale price?" },
+        { icon: BarChart3, label: "CLEANBI Value", prompt: "How does a high CLEANBI score affect sale price?" },
+        { icon: Handshake, label: "Vendor", prompt: "How do I become a WashBizHub vendor partner?" },
         { icon: Users, label: "Affiliate", prompt: "What affiliate programs are available?" },
-        { icon: Megaphone, label: "Advertise", prompt: "How do I advertise on WashBizHub?" },
+        { icon: Megaphone, label: "Advertise", prompt: "How do I advertise to 72K laundromat owners?" },
       ];
     default:
       return DEFAULT_PROMPTS;
@@ -152,15 +167,15 @@ const getJourneyPrompts = (journey: JourneyType) => {
 const getWelcomeMessage = (journey: JourneyType): string => {
   switch (journey) {
     case 'plan':
-      return "**Welcome! I'm your laundromat investment guide.**\n\nI can help you understand the industry, evaluate opportunities, and plan your first purchase.\n\nBacked by 60+ years of Kremers family expertise, I'm here to help you:\n• Understand realistic ROI expectations\n• Calculate capital requirements\n• Identify the best locations\n• Avoid common pitfalls\n\nWhat would you like to explore first?";
+      return "**Welcome to WashBizHub AI — Your Investment Intelligence Partner**\n\nI'm powered by CLEANBI™ location intelligence and 60+ years of Kremers family expertise.\n\n**I can help you:**\n• 📊 Understand CLEANBI scoring (A/B/C grades)\n• 💰 Calculate realistic ROI expectations\n• 📍 Identify high-potential locations\n• ⚠️ Avoid costly mistakes\n\nWhat would you like to explore?";
     case 'evaluate':
-      return "**Ready to analyze opportunities? I'm here to help.**\n\nI can help you evaluate locations with CLEANBI, understand valuations, and navigate due diligence.\n\nBacked by 60+ years of Kremers family expertise, let me assist with:\n• CLEANBI location scoring\n• Business valuation methods\n• Due diligence checklists\n• Red flag identification\n\nWhat deal are you looking at?";
+      return "**Ready to Analyze? Let's Score This Location.**\n\nI'll help you evaluate opportunities using CLEANBI™ — our proprietary 6-factor scoring system used by top investors.\n\n**I can assist with:**\n• 📊 CLEANBI location analysis\n• 💵 EBITDA-based valuations\n• 📋 Due diligence checklists\n• 🚩 Red flag identification\n\nTell me about the location you're evaluating.";
     case 'operate':
-      return "**Let's optimize your laundromat!**\n\nI can help with pricing strategies, equipment decisions, marketing, and operational efficiency.\n\nBacked by 60+ years of Kremers family expertise, I'm here to help you:\n• Maximize revenue & profit margins\n• Optimize vend pricing\n• Make smart equipment decisions\n• Reduce operating costs\n\nWhat's your biggest challenge right now?";
+      return "**Let's Optimize Your Operations**\n\nI'll help you maximize profitability using data-driven insights from 18,375+ laundromats in our CLA benchmarks.\n\n**I can help you:**\n• 📈 Increase revenue by 20%+\n• 💲 Optimize vend pricing\n• 🔧 Equipment ROI decisions\n• ⚡ Reduce utility costs\n\nWhat's your biggest challenge?";
     case 'partner':
-      return "**Looking to connect with laundromat owners?**\n\nI can help you list equipment, advertise your services, and grow your business on WashBizHub.\n\nLet me assist with:\n• Listing laundromats for sale\n• Equipment marketplace strategies\n• Vendor partnership opportunities\n• Advertising best practices\n\nHow can I help you today?";
+      return "**Welcome, Industry Partner**\n\nI can help you connect with our community of 72,000+ laundromat professionals.\n\n**Available opportunities:**\n• 📋 List laundromats for sale\n• 🏪 Equipment marketplace\n• 🤝 Vendor partnerships\n• 📣 Advertising to owners\n\nHow can I help you grow?";
     default:
-      return "**Welcome to Service Guy AI — your AI-powered equipment diagnostic expert.**\n\nI specialize in commercial laundry equipment troubleshooting with access to:\n• **2,200+ error codes** across 70+ brands\n• Step-by-step repair guides\n• Parts recommendations\n• Predictive maintenance insights\n\nDescribe your issue or enter an error code to get started!";
+      return "**Welcome to WashBizHub AI**\n\nI'm your intelligent assistant powered by CLEANBI™ location intelligence, 80+ calculators, and deep industry expertise.\n\n**What I can help with:**\n• 📊 **CLEANBI Scoring** — A/B/C location grades\n• 💰 **Valuations** — EBITDA multiples & deal analysis\n• 🔧 **Equipment** — Repair diagnostics & comparisons\n• 📈 **Operations** — Revenue & cost optimization\n\nAsk me anything about laundromat investing!";
   }
 };
 
@@ -485,18 +500,30 @@ export const AIChatWidget = memo(function AIChatWidget() {
         className="fixed bottom-6 left-6 z-50 group"
         data-testid="button-open-chat"
       >
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-5 py-3 rounded-full shadow-2xl border-2 border-slate-700 flex items-center gap-3 transition-all duration-300 hover:shadow-slate-900/50 hover:scale-105 active:scale-95">
-          <div className="relative">
-            <img 
-              src={serviceGuyAILogo} 
-              alt="Service Guy AI" 
-              className="h-10 w-10 rounded-full object-cover"
-            />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-800 animate-pulse" />
-          </div>
-          <div className="flex flex-col items-start">
-            <span className="text-base font-bold text-white">Service Guy AI</span>
-            <span className="text-xs font-medium text-slate-400">Equipment Diagnostics Expert</span>
+        <div className="relative bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] px-5 py-3 rounded-2xl shadow-2xl border border-amber-500/30 flex items-center gap-3 transition-all duration-300 hover:shadow-amber-500/20 hover:border-amber-500/50 hover:scale-105 active:scale-95 overflow-hidden">
+          {/* Premium shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+          
+          <div className="relative flex items-center gap-3">
+            {/* Premium icon with gold ring */}
+            <div className="relative">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-0.5 shadow-lg shadow-amber-500/25">
+                <div className="w-full h-full rounded-[10px] bg-[#0f172a] flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                </div>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0f172a] animate-pulse" />
+            </div>
+            
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-bold text-white tracking-wide">WashBizHub AI</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="h-4 px-1.5 text-[9px] font-semibold bg-amber-500/20 text-amber-400 border-amber-500/40">
+                  CLEANBI™
+                </Badge>
+                <span className="text-[10px] font-medium text-slate-400">Powered</span>
+              </div>
+            </div>
           </div>
         </div>
       </button>
@@ -512,24 +539,26 @@ export const AIChatWidget = memo(function AIChatWidget() {
       )}
       data-testid="widget-ai-chat"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-900 to-slate-800">
+      {/* Premium Header */}
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-amber-500/20">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img 
-              src={serviceGuyAILogo} 
-              alt="Service Guy AI" 
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/30"
-            />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-slate-800 animate-pulse" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-0.5 shadow-lg shadow-amber-500/25">
+              <div className="w-full h-full rounded-[10px] bg-[#0f172a] flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+              </div>
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0f172a] animate-pulse" />
           </div>
           <div>
             <h3 className="font-bold text-base text-white flex items-center gap-2">
-              Service Guy AI
+              WashBizHub AI
               {quotaInfo && getTierBadge(quotaInfo.tier, isTrialActive)}
             </h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-white/80 font-medium">Equipment Diagnostics</p>
+              <Badge variant="outline" className="h-4 px-1.5 text-[9px] font-semibold bg-amber-500/20 text-amber-400 border-amber-500/40">
+                CLEANBI™
+              </Badge>
               {userJourney && getJourneyBadge(userJourney)}
             </div>
           </div>

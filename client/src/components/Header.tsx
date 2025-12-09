@@ -46,6 +46,7 @@ const megaMenuSections = [
     items: [
       { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, description: "AI-powered location analysis", icon: Search },
       { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale", icon: ShoppingBag },
+      { href: "/brokers", label: "Find a Broker", featured: true, description: "Verified laundromat brokers", icon: Users },
       { href: "/directory", label: "Business Directory", description: "Find vendors & services", icon: Store },
     ]
   },
@@ -298,12 +299,12 @@ export function Header() {
                 <img 
                   src={logoUrl} 
                   alt="WashBizHub" 
-                  className="h-9 w-auto" 
+                  className="h-12 w-auto" 
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
-                  width={36}
-                  height={36}
+                  width={48}
+                  height={48}
                 />
                 <span className="hidden sm:block text-lg font-bold text-foreground tracking-tight">
                   WashBizHub
@@ -536,7 +537,7 @@ export function Header() {
                   <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
                     <SheetHeader className="flex-1">
                       <SheetTitle className="text-foreground text-lg font-bold flex items-center gap-2">
-                        <img src={logoUrl} alt="" className="h-6 w-auto" />
+                        <img src={logoUrl} alt="" className="h-8 w-auto" />
                         Menu
                       </SheetTitle>
                       <SheetDescription className="sr-only">
