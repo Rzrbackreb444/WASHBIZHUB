@@ -1,0 +1,21 @@
+{
+  "name": "WashBizHub",
+  "short_name": "WashBizHub",
+  "description": "The #1 laundromat resource and educational hub with CLEANBI scoring, POS systems, and 50+ calculators",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1a2332",
+  "icons": [
+    {
+      "src": "/washbizhub-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/washbizhub-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

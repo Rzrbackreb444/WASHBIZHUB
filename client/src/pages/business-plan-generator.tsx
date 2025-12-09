@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStripe } from "@/lib/lazy-stripe";
 import { 
   FileText, 
   DollarSign, 
@@ -40,8 +40,6 @@ import {
   CreditCard
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
 interface BusinessPlanData {
   businessName: string;
