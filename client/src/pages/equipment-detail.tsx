@@ -8,7 +8,7 @@ import { SEO } from "@/components/SEO";
 import {
   ArrowLeft, MapPin, Phone, Mail, DollarSign, Package, Tag, 
   Calendar, Eye, Clock, Banknote, TrendingUp, Building2, Wrench,
-  ChevronLeft, ChevronRight, Star, ShieldCheck, CheckCircle
+  ChevronLeft, ChevronRight, Star, ShieldCheck, CheckCircle, ExternalLink
 } from "lucide-react";
 import { useState } from "react";
 import type { EquipmentListing } from "@shared/schema";
@@ -265,24 +265,51 @@ export default function EquipmentDetail() {
               {/* Action Buttons */}
               <div className="space-y-3">
                 <div className="flex gap-3">
-                  <Button 
-                    size="lg" 
-                    className="flex-1"
-                    onClick={() => window.location.href = `mailto:consult@washbizhub.com?subject=Equipment Inquiry: ${listing.title}&body=I'm interested in the ${listing.title} listed for $${Number(listing.price).toLocaleString()}.`}
-                    data-testid="button-contact-seller"
-                  >
-                    <Mail className="w-5 h-5 mr-2" />
-                    Contact Seller
-                  </Button>
-                  {listing.sellerPhone && (
-                    <Button 
-                      size="lg" 
-                      variant="outline"
-                      onClick={() => window.location.href = `tel:${listing.sellerPhone}`}
-                      data-testid="button-call-seller"
-                    >
-                      <Phone className="w-5 h-5" />
-                    </Button>
+                  {/* Check if contactPhone is a URL - if so, show external link button */}
+                  {listing.contactPhone?.startsWith('http') ? (
+                    <>
+                      <Button 
+                        size="lg" 
+                        className="flex-1"
+                        onClick={() => window.open(listing.contactPhone!, '_blank', 'noopener,noreferrer')}
+                        data-testid="button-contact-seller"
+                      >
+                        <ExternalLink className="w-5 h-5 mr-2" />
+                        Contact Seller
+                      </Button>
+                      {listing.contactEmail && (
+                        <Button 
+                          size="lg" 
+                          variant="outline"
+                          onClick={() => window.location.href = `mailto:${listing.contactEmail}?subject=Equipment Inquiry: ${listing.title}&body=I'm interested in the ${listing.title} listed for $${Number(listing.price).toLocaleString()}.`}
+                          data-testid="button-email-seller"
+                        >
+                          <Mail className="w-5 h-5" />
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        size="lg" 
+                        className="flex-1"
+                        onClick={() => window.location.href = `mailto:${listing.contactEmail || 'consult@washbizhub.com'}?subject=Equipment Inquiry: ${listing.title}&body=I'm interested in the ${listing.title} listed for $${Number(listing.price).toLocaleString()}.`}
+                        data-testid="button-contact-seller"
+                      >
+                        <Mail className="w-5 h-5 mr-2" />
+                        Contact Seller
+                      </Button>
+                      {listing.contactPhone && (
+                        <Button 
+                          size="lg" 
+                          variant="outline"
+                          onClick={() => window.location.href = `tel:${listing.contactPhone}`}
+                          data-testid="button-call-seller"
+                        >
+                          <Phone className="w-5 h-5" />
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
                 
