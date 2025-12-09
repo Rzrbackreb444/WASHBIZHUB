@@ -1036,3 +1036,159 @@
   height: 56px;
   border-width: 4px;
 }
+
+/* ============================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   Critical optimizations for blazing fast mobile
+   ============================================ */
+
+/* Respect user's reduced motion preference - disable all animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable Framer Motion on reduced motion preference */
+  [data-framer-component-type] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Mobile-specific performance optimizations (touch devices under 768px) */
+@media (max-width: 767px) and (hover: none) {
+  /* Reduce animation complexity on mobile */
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+  
+  /* Disable expensive parallax effects on mobile */
+  .parallax,
+  [data-parallax],
+  .motion-parallax {
+    transform: none !important;
+  }
+  
+  /* Reduce animation durations by 50% on mobile */
+  .animate-pulse {
+    animation-duration: 1s !important;
+  }
+  
+  .animate-bounce {
+    animation-duration: 0.5s !important;
+  }
+  
+  /* Disable complex gradient animations on mobile */
+  .gradient-animate {
+    animation: none !important;
+    background-position: 0 0 !important;
+  }
+  
+  /* Disable floating animations on mobile (saves GPU) */
+  .float-animation,
+  [data-float] {
+    animation: none !important;
+  }
+}
+
+/* GPU acceleration hints for smooth animations */
+.will-animate {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Content visibility for off-screen sections */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Optimize paint for fixed elements */
+.optimize-paint {
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+/* Font rendering optimization */
+body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shifts from images */
+img {
+  height: auto;
+  max-width: 100%;
+}
+
+/* Lazy loading optimization for images */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+img[loading="lazy"].loaded,
+img[loading="lazy"][data-loaded="true"] {
+  opacity: 1;
+}
+
+/* Optimize scrolling on touch devices */
+@supports (-webkit-overflow-scrolling: touch) {
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Reduce paint complexity on mobile navigation */
+@media (max-width: 767px) {
+  .nav-blur {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: hsl(var(--background) / 0.98) !important;
+  }
+}
+
+/* Optimize skeleton shimmer for mobile (reduce animation complexity) */
+@media (max-width: 767px) {
+  .skeleton-shimmer::after {
+    animation-duration: 2.5s !important;
+  }
+  
+  .skeleton-shimmer-subtle::after {
+    animation-duration: 3s !important;
+  }
+}
+
+/* Critical rendering path - hide non-essential elements until page load */
+.defer-until-ready {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.defer-until-ready.ready,
+html.ready .defer-until-ready {
+  opacity: 1;
+}
+
+/* Optimize hover states - disable on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .hover-elevate:hover {
+    transform: none !important;
+    background: inherit !important;
+  }
+  
+  /* Only apply active states on touch */
+  .hover-elevate:active {
+    transform: scale(0.98);
+  }
+}
