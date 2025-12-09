@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -12,61 +12,70 @@ import { motion, AnimatePresence } from "framer-motion";
 import logoUrl from "@assets/6_1764040628012.png";
 
 const navLinks = [
-  { href: "/cleanbi-explorer", label: "CLEANBI™", featured: true },
-  { href: "/equipment", label: "Equipment", featured: true },
-  { href: "/valuation-calculator", label: "Valuator" },
-  { href: "/buy-laundromat", label: "Buy" },
-  { href: "/sell-your-laundromat", label: "Sell" },
-  { href: "/forum", label: "Forum" },
-  { href: "/consultation", label: "Consultations" },
-  { href: "/pricing", label: "Pricing", featured: true },
+  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, icon: Search },
+  { href: "/marketplace", label: "Marketplace", featured: false, icon: ShoppingBag },
+  { href: "/design-studio", label: "Design Studio", featured: false, icon: Palette },
+  { href: "/service-guy-ai", label: "Service Guy AI", featured: false, icon: Bot },
+  { href: "/pricing", label: "Pricing", featured: true, icon: DollarSign },
+];
+
+const calculatorItems = [
+  { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
+  { href: "/valuation-calculator", label: "Valuation Calculator", description: "What's your laundromat worth?", icon: DollarSign },
+  { href: "/roi-calculator", label: "ROI Calculator", description: "Investment returns", icon: Calculator },
+  { href: "/tpd-calculator", label: "TPD Calculator", description: "Turns per day analysis", icon: Calculator },
+  { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs", icon: Wrench },
 ];
 
 const megaMenuSections = [
   {
     id: "discover",
     title: "Discover",
+    icon: Search,
     items: [
-      { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", featured: true, description: "AI-powered location analysis" },
-      { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale" },
-      { href: "/directory", label: "Business Directory", description: "Find vendors & services" },
+      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, description: "AI-powered location analysis", icon: Search },
+      { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale", icon: ShoppingBag },
+      { href: "/directory", label: "Business Directory", description: "Find vendors & services", icon: Store },
     ]
   },
   {
     id: "equipment",
     title: "Equipment",
+    icon: Wrench,
     items: [
-      { href: "/equipment", label: "Equipment Hub", featured: true, description: "Dexter & Continental Girbau - Buy, Parts, Service" },
-      { href: "/equipment-builder", label: "Get Equipment Quotes", description: "Free quotes from 585+ distributors" },
-      { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options & rates" },
+      { href: "/equipment", label: "Equipment Hub", featured: true, description: "Dexter & Continental Girbau", icon: Wrench },
+      { href: "/equipment-builder", label: "Get Equipment Quotes", description: "585+ distributors", icon: Store },
+      { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options", icon: DollarSign },
     ]
   },
   {
     id: "tools",
     title: "Tools",
+    icon: Calculator,
     items: [
-      { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's your laundromat worth?" },
-      { href: "/calculators", label: "All Calculators", description: "ROI, profit & more" },
-      { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs" },
+      { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's it worth?", icon: Calculator },
+      { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
+      { href: "/design-studio", label: "Design Studio", description: "2D/3D floor plans", icon: Palette },
     ]
   },
   {
     id: "resources",
     title: "Learn",
+    icon: Star,
     items: [
-      { href: "/blog", label: "Blog", description: "Expert insights & news" },
-      { href: "/events", label: "Industry Events", description: "Trade shows & conferences" },
-      { href: "/forum", label: "Community Forum", description: "Ask questions, share tips" },
-      { href: "/book", label: "The Bible", description: "Complete guide" },
+      { href: "/blog", label: "Blog", description: "Expert insights & news", icon: Star },
+      { href: "/forum", label: "Community Forum", description: "Ask questions, share tips", icon: User },
+      { href: "/book", label: "The Bible", description: "Complete guide", icon: Star },
     ]
   },
   {
     id: "connect",
     title: "Connect",
+    icon: Bot,
     items: [
-      { href: "/consultation", label: "Book a Consultation", featured: true, description: "Expert advice for your business" },
-      { href: "/larry-larsen", label: "Consult with Larry", description: "Talk to Laundromat Larry" },
-      { href: "/brokers", label: "Brokers", description: "Verified professionals" },
+      { href: "/service-guy-ai", label: "Service Guy AI", featured: true, description: "AI equipment diagnostics", icon: Bot },
+      { href: "/consultation", label: "Book a Consultation", description: "Expert advice", icon: User },
+      { href: "/brokers", label: "Brokers", description: "Verified professionals", icon: Store },
     ]
   }
 ];
@@ -131,12 +140,12 @@ export function Header() {
         Skip to main content
       </a>
       
-      {/* Main header - solid background for light mode visibility */}
+      {/* Main header - blur backdrop on scroll for premium feel */}
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 bg-background border-b ${
+        className={`sticky top-0 z-50 transition-all duration-300 border-b ${
           isScrolled 
-            ? 'shadow-sm border-border' 
-            : 'border-border/60'
+            ? 'bg-background/95 backdrop-blur-md shadow-sm border-border supports-[backdrop-filter]:bg-background/80' 
+            : 'bg-background border-border/60'
         }`}
         data-testid="header-main"
       >
@@ -164,7 +173,7 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Desktop Navigation - Clean text-only */}
+            {/* Desktop Navigation with key links and dropdowns */}
             <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
               {navLinks.map((link) => (
                 <Link href={link.href} key={link.href}>
@@ -182,6 +191,53 @@ export function Header() {
                   </span>
                 </Link>
               ))}
+
+              {/* Calculators Dropdown */}
+              <div className="relative group">
+                <button
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50 group-hover:text-foreground group-hover:bg-muted"
+                  data-testid="button-calculators-dropdown"
+                >
+                  <Calculator className="w-3.5 h-3.5" />
+                  Calculators
+                  <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="bg-popover border border-border rounded-lg shadow-lg py-2 min-w-[220px]">
+                    {calculatorItems.map((item) => (
+                      <Link href={item.href} key={item.href}>
+                        <div 
+                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted cursor-pointer transition-colors"
+                          data-testid={`link-calc-${item.href.replace('/', '')}`}
+                        >
+                          <item.icon className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground">{item.description}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Dashboard Link - Only for authenticated users */}
+              {isAuthenticated && (
+                <Link href="/dashboard">
+                  <span 
+                    className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                      location === '/dashboard' || location.startsWith('/dashboard/')
+                        ? 'text-foreground bg-muted' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                    data-testid="link-nav-dashboard"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    Dashboard
+                  </span>
+                </Link>
+              )}
 
               {/* More dropdown */}
               <div 
@@ -217,18 +273,19 @@ export function Header() {
                       exit="hidden"
                       data-testid="mega-menu-panel"
                     >
-                      <div className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden min-w-[520px]">
+                      <div className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden min-w-[560px]">
                         <div className="p-4 grid grid-cols-2 gap-6">
                           {megaMenuSections.map((section) => (
                             <div key={section.id} data-testid={`mega-menu-section-${section.id}`}>
-                              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                              <h3 className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                                <section.icon className="w-3.5 h-3.5" />
                                 {section.title}
                               </h3>
                               <div className="space-y-1">
                                 {section.items.map((item) => (
                                   <Link href={item.href} key={item.href}>
                                     <div 
-                                      className={`block p-2.5 rounded-md cursor-pointer transition-colors ${
+                                      className={`flex items-start gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
                                         item.featured 
                                           ? 'bg-[#C8A661]/10 hover:bg-[#C8A661]/20' 
                                           : 'hover:bg-muted'
@@ -236,14 +293,19 @@ export function Header() {
                                       onClick={() => setMegaMenuOpen(false)}
                                       data-testid={`link-mega-${item.href.replace('/', '')}`}
                                     >
-                                      <p className={`text-sm font-medium ${
-                                        item.featured ? 'text-[#C8A661]' : 'text-foreground'
-                                      }`}>
-                                        {item.label}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground mt-0.5">
-                                        {item.description}
-                                      </p>
+                                      <item.icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                                        item.featured ? 'text-[#C8A661]' : 'text-muted-foreground'
+                                      }`} />
+                                      <div>
+                                        <p className={`text-sm font-medium ${
+                                          item.featured ? 'text-[#C8A661]' : 'text-foreground'
+                                        }`}>
+                                          {item.label}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                          {item.description}
+                                        </p>
+                                      </div>
                                     </div>
                                   </Link>
                                 ))}
@@ -394,6 +456,27 @@ export function Header() {
 
                   {/* Mobile Nav Links - Scrollable */}
                   <div className="flex-1 overflow-y-auto min-h-0 py-4">
+                      {/* Dashboard for authenticated users */}
+                      {isAuthenticated && (
+                        <div className="px-4 mb-4">
+                          <SheetClose asChild>
+                            <Link href="/dashboard">
+                              <span 
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+                                  location === '/dashboard'
+                                    ? 'text-foreground bg-muted'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                }`}
+                                data-testid="link-mobile-dashboard"
+                              >
+                                <LayoutDashboard className="w-4 h-4" />
+                                Dashboard
+                              </span>
+                            </Link>
+                          </SheetClose>
+                        </div>
+                      )}
+
                       {/* Primary Links */}
                       <div className="px-4 mb-6">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -404,7 +487,7 @@ export function Header() {
                             <SheetClose asChild key={link.href}>
                               <Link href={link.href}>
                                 <span 
-                                  className={`block px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+                                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium cursor-pointer transition-colors ${
                                     link.featured
                                       ? 'text-[#C8A661] bg-[#C8A661]/10'
                                       : location === link.href
@@ -413,6 +496,7 @@ export function Header() {
                                   }`}
                                   data-testid={`link-mobile-${link.href.replace('/', '')}`}
                                 >
+                                  <link.icon className={`w-4 h-4 ${link.featured ? 'text-[#C8A661]' : ''}`} />
                                   {link.label}
                                 </span>
                               </Link>
@@ -420,6 +504,38 @@ export function Header() {
                           ))}
                         </div>
                       </div>
+
+                      {/* Calculators Section */}
+                      <Collapsible
+                        open={expandedSections.includes('calculators')}
+                        onOpenChange={() => toggleSection('calculators')}
+                        className="px-4 mb-2"
+                      >
+                        <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
+                          <span className="flex items-center gap-3">
+                            <Calculator className="w-4 h-4" />
+                            Calculators
+                          </span>
+                          <ChevronRight className={`h-4 w-4 transition-transform ${
+                            expandedSections.includes('calculators') ? 'rotate-90' : ''
+                          }`} />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-1 ml-3 space-y-1">
+                          {calculatorItems.map((item) => (
+                            <SheetClose asChild key={item.href}>
+                              <Link href={item.href}>
+                                <span 
+                                  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                  data-testid={`link-mobile-calc-${item.href.replace('/', '')}`}
+                                >
+                                  <item.icon className="w-4 h-4" />
+                                  {item.label}
+                                </span>
+                              </Link>
+                            </SheetClose>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
 
                       {/* Collapsible Sections */}
                       {megaMenuSections.map((section) => (
@@ -430,7 +546,10 @@ export function Header() {
                           className="px-4 mb-2"
                         >
                           <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors">
-                            <span>{section.title}</span>
+                            <span className="flex items-center gap-3">
+                              <section.icon className="w-4 h-4" />
+                              {section.title}
+                            </span>
                             <ChevronRight className={`h-4 w-4 transition-transform ${
                               expandedSections.includes(section.id) ? 'rotate-90' : ''
                             }`} />
@@ -440,13 +559,14 @@ export function Header() {
                               <SheetClose asChild key={item.href}>
                                 <Link href={item.href}>
                                   <span 
-                                    className={`block px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
                                       item.featured
                                         ? 'text-[#C8A661]'
                                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                     }`}
                                     data-testid={`link-mobile-mega-${item.href.replace('/', '')}`}
                                   >
+                                    <item.icon className={`w-4 h-4 ${item.featured ? 'text-[#C8A661]' : ''}`} />
                                     {item.label}
                                   </span>
                                 </Link>

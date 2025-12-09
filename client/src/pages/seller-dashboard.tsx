@@ -40,6 +40,7 @@ import {
   KPICard,
   KPIGroup,
   ChartCard,
+  DashboardNav,
 } from "@/components/dashboard";
 import {
   Building2,
@@ -100,6 +101,14 @@ interface MyListingsResponse {
   topPerforming: Listing[];
   tierBenefits: Record<string, TierBenefits>;
 }
+
+const dashboardNavItems = [
+  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
+  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
+  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
+  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
+  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
+];
 
 const TIER_CONFIG: Record<string, { label: string; icon: any; color: string; bgColor: string; price?: number }> = {
   free: { label: "Free", icon: Star, color: "text-gray-400", bgColor: "bg-gray-500/10" },
@@ -220,12 +229,17 @@ export default function SellerDashboard() {
       />
 
       <DashboardShell
-        title="Seller Portal"
+        title="Seller Dashboard"
         subtitle="Manage listings, track performance, and connect with buyers"
         showDatePicker={false}
         showExportButtons={false}
         headerActions={
           <div className="flex items-center gap-2">
+            <DashboardNav 
+              items={dashboardNavItems} 
+              variant="dropdown" 
+              className="hidden md:flex"
+            />
             <Badge className={`${tierConfig.bgColor} ${tierConfig.color} border-0 gap-1`} data-testid="badge-tier">
               <TierIcon className="w-3.5 h-3.5" />
               {tierConfig.label}

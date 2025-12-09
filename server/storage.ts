@@ -407,6 +407,8 @@ export interface IStorage {
   reorderListingMedia(listingId: string, mediaIdOrder: string[]): Promise<void>;
   
   // Broker Profiles
+  getAllBrokerProfiles(): Promise<BrokerProfile[]>;
+  getBrokerProfile(id: number): Promise<BrokerProfile | undefined>;
   getBrokerProfileByUserId(userId: string): Promise<BrokerProfile | undefined>;
   getBrokerProfileBySlug(slug: string): Promise<BrokerProfile | undefined>;
   createBrokerProfile(profile: InsertBrokerProfile): Promise<BrokerProfile>;
@@ -1685,6 +1687,8 @@ export class MemStorage implements IStorage {
   async deleteListingMedia(): Promise<void> { throw new Error("Use DbStorage for premium features"); }
   async reorderListingMedia(): Promise<void> { throw new Error("Use DbStorage for premium features"); }
   
+  async getAllBrokerProfiles(): Promise<BrokerProfile[]> { return []; }
+  async getBrokerProfile(_id: number): Promise<BrokerProfile | undefined> { return undefined; }
   async getBrokerProfileByUserId(): Promise<BrokerProfile | undefined> { return undefined; }
   async getBrokerProfileBySlug(): Promise<BrokerProfile | undefined> { return undefined; }
   async createBrokerProfile(): Promise<BrokerProfile> { throw new Error("Use DbStorage for premium features"); }

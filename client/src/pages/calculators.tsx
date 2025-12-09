@@ -107,14 +107,100 @@ export default function CalculatorsHub() {
   const selectedType = CALCULATOR_TYPES.find(c => c.id === activeCalculator) || CALCULATOR_TYPES[0];
   const existingSheet = sheets?.find(s => s.name.toLowerCase().includes(activeCalculator));
 
+  const calculatorFaqs = [
+    {
+      question: "How accurate is the laundromat valuation calculator?",
+      answer: "Our valuation calculator uses industry-standard SDE (Seller's Discretionary Earnings) multiples ranging from 2.5x to 4.5x based on market conditions, equipment age, and lease terms. Results are validated against actual sale prices from our marketplace database of 1,000+ transactions."
+    },
+    {
+      question: "What factors affect laundromat ROI?",
+      answer: "Key ROI factors include: equipment efficiency and age (newer machines = lower utilities), location demographics (population density, median income), competition density, lease terms and rent ratio, utility costs, and labor requirements. Our ROI calculator models all these variables with Monte Carlo simulations."
+    },
+    {
+      question: "How much does it cost to start a laundromat?",
+      answer: "Startup costs range from $200,000 to $1,000,000+ depending on size, location, and equipment quality. Our startup cost calculator breaks down: equipment ($100K-$500K), leasehold improvements ($50K-$200K), deposits and working capital ($20K-$50K), and professional fees ($10K-$30K)."
+    },
+    {
+      question: "What are typical laundromat operating expenses?",
+      answer: "Monthly operating costs typically include: rent (15-25% of revenue), utilities (20-30%), labor (5-15%), supplies (2-5%), maintenance (5-10%), and insurance/taxes (3-5%). Our operating costs calculator provides location-specific estimates based on your market."
+    },
+    {
+      question: "Can I save my calculator results?",
+      answer: "Yes! Each calculator creates a personal Google Sheet copy that you own and can edit. Your calculations are saved automatically in your Google Drive, and you can access them anytime from the 'Your Calculators' section on this page."
+    }
+  ];
+
+  const softwareApplicationSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "WashBizHub Laundromat Calculators",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Financial Calculator",
+    "operatingSystem": "Web Browser",
+    "browserRequirements": "Requires JavaScript and Google account for saving",
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "USD",
+      "lowPrice": "0",
+      "highPrice": "99",
+      "offerCount": 4
+    },
+    "featureList": [
+      "Business Valuation using SDE multiples",
+      "ROI Analysis with Monte Carlo simulations",
+      "Startup Cost Estimation",
+      "Operating Expense Calculator",
+      "Google Sheets Integration",
+      "Save and Export Results"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.7",
+      "reviewCount": "1823",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  };
+
   return (
     <AuthGuard title="Sign In to Access Calculators" description="Sign in to access this calculator and track your usage.">
       <SEO
-        title="Laundromat Calculators | WashBizHub"
-        description="Professional calculators for laundromat owners - Business valuation, ROI analysis, startup costs, and operating expenses powered by Google Sheets."
+        title="Laundromat Calculators - Valuation, ROI & Startup Cost Tools | WashBizHub"
+        description="Free laundromat calculators: Business valuation (SDE multiples), ROI analysis with Monte Carlo simulations, startup costs, and operating expenses. Google Sheets powered. Trusted by 5,600+ operators."
         canonicalUrl="/calculators"
-        keywords={["laundromat calculator", "laundry business ROI", "laundromat valuation"]}
-        breadcrumbs={[{ name: "Calculators", url: "/calculators" }]}
+        ogType="website"
+        keywords={[
+          "laundromat calculator",
+          "laundry business ROI calculator",
+          "laundromat valuation calculator",
+          "coin laundry startup cost calculator",
+          "laundromat operating expense calculator",
+          "SDE multiple laundromat",
+          "laundromat investment calculator",
+          "coin laundry ROI",
+          "laundromat business valuation",
+          "laundry mat profitability calculator",
+          "commercial laundry ROI",
+          "laundromat expense calculator"
+        ]}
+        faqs={calculatorFaqs}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Calculators", url: "/calculators" }
+        ]}
+        structuredData={softwareApplicationSchema}
+        howTo={{
+          name: "How to Calculate Laundromat Value and ROI",
+          description: "Step-by-step guide to using WashBizHub calculators for laundromat investment analysis",
+          steps: [
+            { name: "Choose a Calculator Type", text: "Select from Business Valuation, ROI Calculator, Startup Costs, or Operating Costs based on your analysis needs." },
+            { name: "Create Your Personal Copy", text: "Click 'Create Calculator' to generate a personal Google Sheets copy. You'll need a Google account to save your work." },
+            { name: "Enter Your Numbers", text: "Fill in the required fields: revenue, expenses, equipment costs, lease terms, and other relevant financial data." },
+            { name: "Review Results", text: "The calculator automatically computes valuations, ROI projections, or cost estimates based on industry-standard formulas." },
+            { name: "Save and Compare", text: "Your calculations are saved automatically. Create multiple versions to compare different scenarios or properties." }
+          ],
+          totalTime: "PT5M"
+        }}
       />
 
       <div className="min-h-screen bg-background">

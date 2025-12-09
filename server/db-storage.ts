@@ -925,6 +925,15 @@ export class DbStorage implements IStorage {
     return db.select().from(listings).where(eq(listings.userId, userId)).orderBy(desc(listings.createdAt));
   }
 
+  async getAllBrokerProfiles(): Promise<BrokerProfile[]> {
+    return db.select().from(brokerProfiles).orderBy(desc(brokerProfiles.createdAt));
+  }
+
+  async getBrokerProfile(id: number): Promise<BrokerProfile | undefined> {
+    const result = await db.select().from(brokerProfiles).where(eq(brokerProfiles.id, id.toString()));
+    return result[0];
+  }
+
   async getBrokerProfileByUserId(userId: string): Promise<BrokerProfile | undefined> {
     const result = await db.select().from(brokerProfiles).where(eq(brokerProfiles.userId, userId));
     return result[0];
