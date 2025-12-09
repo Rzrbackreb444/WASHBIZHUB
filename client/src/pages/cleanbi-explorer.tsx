@@ -142,7 +142,7 @@ import {
 } from "recharts";
 import { SavedAddressesPanel } from "@/components/cleanbi/SavedAddressesPanel";
 import { ViewModeToggle } from "@/components/cleanbi/ViewModeToggle";
-import { AnalysisChartsView } from "@/components/cleanbi/AnalysisChartsView";
+import AnalysisChartsView from "@/components/cleanbi/AnalysisChartsView";
 import { AnalysisReportGenerator } from "@/components/cleanbi/AnalysisReportGenerator";
 import { AnalysisSocialShare } from "@/components/cleanbi/AnalysisSocialShare";
 import { useLocationDesign } from "@/contexts/LocationDesignContext";
