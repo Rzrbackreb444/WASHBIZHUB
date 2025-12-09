@@ -67,6 +67,39 @@ interface AggregateRatingData {
   reviews?: ReviewItem[];
 }
 
+interface LocalBusinessData {
+  name: string;
+  description?: string;
+  businessType?: string;
+  image?: string | string[];
+  address: {
+    streetAddress: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode: string;
+    addressCountry: string;
+  };
+  geo?: { latitude: number; longitude: number };
+  telephone?: string;
+  email?: string;
+  url?: string;
+  openingHours?: string[];
+  priceRange?: string;
+}
+
+interface SoftwareApplicationData {
+  name: string;
+  alternateName?: string[];
+  description: string;
+  applicationCategory?: string;
+  operatingSystem?: string;
+  featureList?: string[];
+  screenshot?: string | string[];
+  offers?: ProductOffer[];
+  ratingValue?: number;
+  reviewCount?: number;
+}
+
 interface SEOProps {
   title: string;
   description: string;
@@ -89,6 +122,8 @@ interface SEOProps {
   articleSection?: string;
   noIndex?: boolean;
   aggregateRating?: AggregateRatingData;
+  localBusiness?: LocalBusinessData;
+  softwareApplication?: SoftwareApplicationData;
 }
 
 export function SEO({
@@ -113,6 +148,8 @@ export function SEO({
   articleSection,
   noIndex = false,
   aggregateRating,
+  localBusiness,
+  softwareApplication,
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - #1 Laundromat Resource`;
@@ -248,6 +285,77 @@ export function SEO({
     "description": description
   } : null;
 
+  // LocalBusiness structured data for broker pages
+  const localBusinessData = localBusiness ? {
+    "@context": "https://schema.org",
+    "@type": localBusiness.businessType || "LocalBusiness",
+    "name": localBusiness.name,
+    ...(localBusiness.description && { "description": localBusiness.description }),
+    ...(localBusiness.image && { 
+      "image": Array.isArray(localBusiness.image) ? localBusiness.image : [localBusiness.image] 
+    }),
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": localBusiness.address.streetAddress,
+      "addressLocality": localBusiness.address.addressLocality,
+      "addressRegion": localBusiness.address.addressRegion,
+      "postalCode": localBusiness.address.postalCode,
+      "addressCountry": localBusiness.address.addressCountry
+    },
+    ...(localBusiness.geo && {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": localBusiness.geo.latitude,
+        "longitude": localBusiness.geo.longitude
+      }
+    }),
+    ...(localBusiness.telephone && { "telephone": localBusiness.telephone }),
+    ...(localBusiness.email && { "email": localBusiness.email }),
+    ...(localBusiness.url && { "url": localBusiness.url }),
+    ...(localBusiness.openingHours && { "openingHoursSpecification": localBusiness.openingHours }),
+    ...(localBusiness.priceRange && { "priceRange": localBusiness.priceRange })
+  } : null;
+
+  // SoftwareApplication structured data for CLEANBI and tools
+  const softwareApplicationData = softwareApplication ? {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": softwareApplication.name,
+    ...(softwareApplication.alternateName && { "alternateName": softwareApplication.alternateName }),
+    "description": softwareApplication.description,
+    "applicationCategory": softwareApplication.applicationCategory || "BusinessApplication",
+    "operatingSystem": softwareApplication.operatingSystem || "Web Browser",
+    "url": canonical,
+    ...(softwareApplication.featureList && { "featureList": softwareApplication.featureList }),
+    ...(softwareApplication.screenshot && { 
+      "screenshot": Array.isArray(softwareApplication.screenshot) ? softwareApplication.screenshot : [softwareApplication.screenshot] 
+    }),
+    ...(softwareApplication.offers && softwareApplication.offers.length > 0 && {
+      "offers": softwareApplication.offers.map(offer => ({
+        "@type": "Offer",
+        "name": offer.name,
+        "description": offer.description,
+        "price": offer.price,
+        "priceCurrency": offer.priceCurrency || "USD",
+        "availability": `https://schema.org/${offer.availability || 'InStock'}`,
+        "url": canonical
+      }))
+    }),
+    ...(softwareApplication.ratingValue && softwareApplication.reviewCount && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": softwareApplication.ratingValue.toString(),
+        "reviewCount": softwareApplication.reviewCount.toString(),
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
+    "author": {
+      "@type": "Organization",
+      "name": "WashBizHub"
+    }
+  } : null;
+
   // AggregateRating and Review structured data for rich snippets in search results
   const aggregateRatingData = aggregateRating ? {
     "@context": "https://schema.org",
@@ -365,6 +473,16 @@ export function SEO({
       {aggregateRatingData && (
         <script type="application/ld+json">
           {JSON.stringify(sanitizeObject(aggregateRatingData))}
+        </script>
+      )}
+      {localBusinessData && (
+        <script type="application/ld+json">
+          {JSON.stringify(sanitizeObject(localBusinessData))}
+        </script>
+      )}
+      {softwareApplicationData && (
+        <script type="application/ld+json">
+          {JSON.stringify(sanitizeObject(softwareApplicationData))}
         </script>
       )}
     </Helmet>

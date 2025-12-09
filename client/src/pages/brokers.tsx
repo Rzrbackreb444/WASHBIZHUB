@@ -166,15 +166,29 @@ function BrokerCard({ broker, featured = false }: { broker: any; featured?: bool
         )}
         
         <div className="flex gap-2">
-          <Button 
-            className="flex-1"
-            variant={broker.placeholder ? "outline" : "default"}
-            onClick={handleContact}
-            data-testid={`button-contact-${broker.id}`}
-          >
-            <Mail className="w-4 h-4 mr-2" />
-            {broker.placeholder ? "Join Directory" : "Contact"}
-          </Button>
+          {!broker.placeholder && (
+            <Link href={`/broker/${broker.id}`} className="flex-1">
+              <Button 
+                className="w-full"
+                data-testid={`button-view-storefront-${broker.id}`}
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                View Storefront
+              </Button>
+            </Link>
+          )}
+          
+          {broker.placeholder && (
+            <Button 
+              className="flex-1"
+              variant="outline"
+              onClick={handleContact}
+              data-testid={`button-contact-${broker.id}`}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Join Directory
+            </Button>
+          )}
           
           {broker.phone && !broker.placeholder && (
             <Button

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { db } from "./db";
-import { blogPosts, listings, courses, forumTopics, vendors, diagnosticCodes } from "@shared/schema";
-import { eq, desc, and, isNotNull } from "drizzle-orm";
+import { blogPosts, listings, courses, forumTopics, vendors, diagnosticCodes, users } from "@shared/schema";
+import { eq, desc, and, isNotNull, or } from "drizzle-orm";
 
 const BASE_URL = "https://washbizhub.com";
 
@@ -52,6 +52,12 @@ const staticPages = [
   { url: "/pos", priority: 0.6, changefreq: "monthly" },
   { url: "/subscribe", priority: 0.7, changefreq: "monthly" },
   { url: "/auth", priority: 0.3, changefreq: "monthly" },
+  { url: "/brokers", priority: 0.8, changefreq: "weekly" },
+  { url: "/buy-laundromat", priority: 0.9, changefreq: "daily" },
+  { url: "/marketplace", priority: 0.9, changefreq: "daily" },
+  { url: "/equipment-hub", priority: 0.8, changefreq: "weekly" },
+  { url: "/consultation", priority: 0.8, changefreq: "monthly" },
+  { url: "/cleanbi-anywhere", priority: 0.8, changefreq: "weekly" },
 ];
 
 function escapeXml(str: string): string {
@@ -72,7 +78,7 @@ function formatDate(date: Date | string | null): string {
 export function registerSitemapRoutes(app: Express) {
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const [blogs, allListings, allCourses, topics, errorCodes] = await Promise.all([
+      const [blogs, allListings, allCourses, topics, errorCodes, brokerUsers] = await Promise.all([
         db.select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
           .from(blogPosts)
           .where(eq(blogPosts.status, "published"))
@@ -94,6 +100,10 @@ export function registerSitemapRoutes(app: Express) {
         db.select({ slug: diagnosticCodes.slug, manufacturer: diagnosticCodes.manufacturer })
           .from(diagnosticCodes)
           .limit(2500),
+        db.select({ id: users.id, updatedAt: users.updatedAt })
+          .from(users)
+          .where(eq(users.role, "broker"))
+          .limit(100),
       ]);
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -163,6 +173,17 @@ export function registerSitemapRoutes(app: Express) {
   </url>
 `;
         }
+      }
+
+      // Broker storefronts
+      for (const broker of brokerUsers) {
+        xml += `  <url>
+    <loc>${BASE_URL}/broker/${escapeXml(broker.id)}</loc>
+    <lastmod>${formatDate(broker.updatedAt)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
       }
 
       xml += `</urlset>`;

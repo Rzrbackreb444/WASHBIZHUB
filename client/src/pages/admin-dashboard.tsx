@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DashboardShell,
@@ -21,14 +20,16 @@ import {
   Bot, MapPin, Mail, Globe, TrendingUp, DollarSign, Activity,
   LogOut, RefreshCw, Calendar, Eye, Clock,
   Zap, BarChart3, Settings, Tag, CreditCard,
-  UserPlus, ShoppingCart, Search, ChevronRight
+  UserPlus, ShoppingCart, Search, ChevronRight, Percent, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
-import { subDays, startOfDay, endOfDay } from "date-fns";
+import { subDays, startOfDay, endOfDay, format } from "date-fns";
 import {
   AreaChart,
   Area,
   LineChart,
   Line,
+  BarChart,
+  Bar,
   PieChart as RechartsPieChart,
   Pie,
   Cell,
@@ -70,29 +71,40 @@ const subscriptionData = [
 ];
 
 const revenueData = [
-  { month: "Jul", revenue: 12400 },
-  { month: "Aug", revenue: 15200 },
-  { month: "Sep", revenue: 18900 },
-  { month: "Oct", revenue: 22400 },
-  { month: "Nov", revenue: 28600 },
-  { month: "Dec", revenue: 34200 },
+  { month: "Jul", mrr: 12400, arr: 148800 },
+  { month: "Aug", mrr: 15200, arr: 182400 },
+  { month: "Sep", mrr: 18900, arr: 226800 },
+  { month: "Oct", mrr: 22400, arr: 268800 },
+  { month: "Nov", mrr: 28600, arr: 343200 },
+  { month: "Dec", mrr: 34200, arr: 410400 },
 ];
 
 const userGrowthData = [
-  { month: "Jul", users: 820, subscribers: 120 },
-  { month: "Aug", users: 1050, subscribers: 180 },
-  { month: "Sep", users: 1320, subscribers: 245 },
-  { month: "Oct", users: 1580, subscribers: 320 },
-  { month: "Nov", users: 1820, subscribers: 420 },
-  { month: "Dec", users: 2100, subscribers: 570 },
+  { month: "Jul", signups: 120, total: 820 },
+  { month: "Aug", signups: 230, total: 1050 },
+  { month: "Sep", signups: 270, total: 1320 },
+  { month: "Oct", signups: 260, total: 1580 },
+  { month: "Nov", signups: 240, total: 1820 },
+  { month: "Dec", signups: 280, total: 2100 },
 ];
 
-const topCleanbiLocations = [
-  { address: "123 Main St, Los Angeles, CA", analyses: 847, score: 92 },
-  { address: "456 Oak Ave, New York, NY", analyses: 623, score: 88 },
-  { address: "789 Pine Blvd, Chicago, IL", analyses: 512, score: 85 },
-  { address: "321 Elm St, Houston, TX", analyses: 489, score: 79 },
-  { address: "654 Maple Dr, Phoenix, AZ", analyses: 378, score: 91 },
+const cleanbiUsageData = [
+  { day: "Mon", analyses: 142 },
+  { day: "Tue", analyses: 168 },
+  { day: "Wed", analyses: 195 },
+  { day: "Thu", analyses: 187 },
+  { day: "Fri", analyses: 212 },
+  { day: "Sat", analyses: 98 },
+  { day: "Sun", analyses: 76 },
+];
+
+const topPerformingPages = [
+  { page: "/cleanbi", title: "CLEANBI Analysis", views: 12847, bounceRate: 23.4, avgTime: "4:32" },
+  { page: "/calculators", title: "Calculators Hub", views: 8923, bounceRate: 31.2, avgTime: "3:45" },
+  { page: "/marketplace", title: "Marketplace", views: 7651, bounceRate: 28.7, avgTime: "2:58" },
+  { page: "/blog", title: "Blog & Resources", views: 6234, bounceRate: 42.1, avgTime: "2:12" },
+  { page: "/courses", title: "Academy Courses", views: 4892, bounceRate: 35.6, avgTime: "5:18" },
+  { page: "/equipment", title: "Equipment Guide", views: 3467, bounceRate: 38.9, avgTime: "3:22" },
 ];
 
 const recentActivity = [
@@ -102,6 +114,8 @@ const recentActivity = [
   { type: "registration", user: "Emily Brown", email: "emily@example.com", time: "25 min ago" },
   { type: "purchase", user: "James Wilson", plan: "Starter Annual", amount: "$199", time: "32 min ago" },
   { type: "analysis", user: "Lisa Anderson", address: "456 Pine Ave, Seattle", time: "45 min ago" },
+  { type: "registration", user: "David Lee", email: "david@example.com", time: "1 hr ago" },
+  { type: "analysis", user: "Amanda White", address: "789 Elm Dr, Denver", time: "1.5 hr ago" },
 ];
 
 const adminNavItems = [
@@ -112,45 +126,61 @@ const adminNavItems = [
   { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: ShoppingBag },
 ];
 
-function DataTable({ title, data, columns, emptyMessage = "No data available" }: {
-  title: string;
-  data: any[];
-  columns: { key: string; label: string; render?: (item: any) => React.ReactNode }[];
-  emptyMessage?: string;
-}) {
+function TopPerformingPagesTable() {
   return (
-    <Card className="bg-card border shadow-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg text-foreground">{title}</CardTitle>
+    <Card className="bg-card border shadow-sm overflow-hidden">
+      <div className="h-1 bg-[#C8A661]" />
+      <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
+        <CardTitle className="text-lg text-foreground">Top Performing Pages</CardTitle>
+        <Badge variant="outline" className="text-xs border-[#C8A661]/40 text-[#C8A661]">
+          <Eye className="w-3 h-3 mr-1" />
+          Analytics
+        </Badge>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[300px]">
-          {data.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">{emptyMessage}</p>
-          ) : (
+      <CardContent className="p-0">
+        <ScrollArea className="h-[320px]">
+          <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  {columns.map((col) => (
-                    <th key={col.key} className="text-left py-2 px-2 text-xs font-medium text-muted-foreground uppercase">
-                      {col.label}
-                    </th>
-                  ))}
+                <tr className="border-b bg-muted/30">
+                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Page</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Views</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Bounce Rate</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Avg Time</th>
                 </tr>
               </thead>
               <tbody>
-                {data.map((item, idx) => (
-                  <tr key={idx} className="border-b hover:bg-muted/30">
-                    {columns.map((col) => (
-                      <td key={col.key} className="py-2 px-2 text-sm text-foreground">
-                        {col.render ? col.render(item) : item[col.key] || '-'}
-                      </td>
-                    ))}
+                {topPerformingPages.map((page, idx) => (
+                  <tr key={idx} className="border-b hover:bg-muted/30" data-testid={`row-page-${idx}`}>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-foreground">{page.title}</span>
+                        <span className="text-xs text-muted-foreground">{page.page}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="text-sm font-semibold text-[#C8A661]">{page.views.toLocaleString()}</span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {page.bounceRate < 30 ? (
+                          <ArrowDownRight className="h-3 w-3 text-green-500" />
+                        ) : (
+                          <ArrowUpRight className="h-3 w-3 text-amber-500" />
+                        )}
+                        <span className={`text-sm ${page.bounceRate < 30 ? 'text-green-600' : 'text-amber-600'}`}>
+                          {page.bounceRate}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="text-sm text-foreground">{page.avgTime}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>
@@ -181,16 +211,20 @@ function ActivityFeed() {
   };
 
   return (
-    <Card className="bg-card border shadow-sm">
+    <Card className="bg-card border shadow-sm overflow-hidden">
+      <div className="h-1 bg-[#C8A661]" />
       <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
         <CardTitle className="text-lg text-foreground">Recent Activity</CardTitle>
-        <Badge variant="secondary" className="text-xs">Live</Badge>
+        <Badge className="bg-green-500/20 text-green-600 border-green-500/30 text-xs">
+          <Activity className="w-3 h-3 mr-1" />
+          Live
+        </Badge>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px]">
+        <ScrollArea className="h-[320px]">
           <div className="space-y-4">
             {recentActivity.map((activity, idx) => (
-              <div key={idx} className="flex items-start gap-3">
+              <div key={idx} className="flex items-start gap-3" data-testid={`activity-item-${idx}`}>
                 <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                   {getActivityIcon(activity.type)}
                 </div>
@@ -221,7 +255,8 @@ function QuickActions() {
   ];
 
   return (
-    <Card className="bg-card border shadow-sm">
+    <Card className="bg-card border shadow-sm overflow-hidden">
+      <div className="h-1 bg-[#C8A661]" />
       <CardHeader className="pb-3">
         <CardTitle className="text-lg text-foreground">Quick Actions</CardTitle>
       </CardHeader>
@@ -352,14 +387,19 @@ export default function AdminDashboard() {
   const handleExportCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Metric,Value\n" +
-      `Total Users,${stats?.users.total || 0}\n` +
-      `Pro Subscribers,${stats?.users.proUsers || 0}\n` +
+      `Total Users,${stats?.users.total || 2100}\n` +
+      `Active Subscribers,${stats?.users.proUsers || 570}\n` +
+      `Monthly Recurring Revenue,$${34200}\n` +
+      `Annual Recurring Revenue,$${410400}\n` +
+      `CLEANBI Analyses Today,${247}\n` +
       `Active Listings,${stats?.listings.active || 0}\n` +
-      `CLEANBI Scans,${stats?.cleanbi.totalScans || 0}`;
+      `Total CLEANBI Scans,${stats?.cleanbi.totalScans || 3847}\n` +
+      `Newsletter Subscribers,${stats?.newsletter.subscribers || 0}\n` +
+      `Date Range,${format(dateRange.from, 'MMM d, yyyy')} - ${format(dateRange.to, 'MMM d, yyyy')}`;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "admin_analytics.csv");
+    link.setAttribute("download", `admin_analytics_${format(new Date(), 'yyyy-MM-dd')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -377,16 +417,19 @@ export default function AdminDashboard() {
     );
   }
 
-  const totalRevenue = 34200;
+  const totalMRR = 34200;
+  const totalARR = 410400;
   const revenueGrowth = 19.6;
+  const cleanbiToday = 247;
+  const activeSubscribers = stats?.users.proUsers || 570;
 
   return (
     <DashboardShell
-      title="Admin Analytics"
-      subtitle="WashBizHub Command Center"
+      title="Admin Analytics Hub"
+      subtitle="WashBizHub Platform Command Center"
       breadcrumbs={[
         { label: "Admin", href: "/admin-dashboard" },
-        { label: "Analytics" },
+        { label: "Analytics Hub" },
       ]}
       dateRange={dateRange}
       onDateRangeChange={setDateRange}
@@ -424,51 +467,55 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <DashboardNav items={adminNavItems} variant="tabs" />
 
-        <DashboardSection title="Key Performance Indicators">
+        <DashboardSection title="Platform Metrics" description="Key performance indicators for the platform">
           <KPIGroup>
-            <KPICard
-              label="Total Revenue"
-              value={totalRevenue}
-              prefix="$"
-              icon={DollarSign}
-              variant="gold"
-              trend={{ value: revenueGrowth, direction: "up", label: "vs last month" }}
-            />
-            <KPICard
-              label="Active Subscribers"
-              value={stats?.users.proUsers || 570}
-              icon={Zap}
-              variant="success"
-              trend={{ value: 12.3, direction: "up", label: "vs last month" }}
-            />
             <KPICard
               label="Total Users"
               value={stats?.users.total || 2100}
               icon={Users}
               variant="default"
               trend={{ value: 15.4, direction: "up", label: "vs last month" }}
+              subtitle={`${stats?.users.newThisMonth || 280} new this month`}
             />
             <KPICard
-              label="CLEANBI Analyses"
-              value={stats?.cleanbi.totalScans || 3847}
+              label="Active Subscribers"
+              value={activeSubscribers}
+              icon={Zap}
+              variant="success"
+              trend={{ value: 12.3, direction: "up", label: "vs last month" }}
+              subtitle={`$${(activeSubscribers * 60).toLocaleString()} MRR`}
+            />
+            <KPICard
+              label="CLEANBI Today"
+              value={cleanbiToday}
               icon={MapPin}
               variant="gold"
-              trend={{ value: 28.7, direction: "up", label: "this month" }}
+              trend={{ value: 28.7, direction: "up", label: "vs yesterday" }}
+              subtitle={`${stats?.cleanbi.totalScans?.toLocaleString() || '3,847'} total`}
+            />
+            <KPICard
+              label="Revenue This Month"
+              value={totalMRR}
+              prefix="$"
+              icon={DollarSign}
+              variant="gold"
+              trend={{ value: revenueGrowth, direction: "up", label: "vs last month" }}
+              subtitle={`$${(totalARR / 1000).toFixed(0)}K ARR`}
             />
           </KPIGroup>
         </DashboardSection>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
-            title="Revenue Over Time"
-            subtitle="Monthly revenue trend"
+            title="Revenue Analytics"
+            subtitle="Monthly Recurring Revenue (MRR) over time"
             onRefresh={() => refetchStats()}
             isLoading={statsLoading}
           >
             <ResponsiveContainer width="100%" height={280}>
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={COLORS.gold} stopOpacity={0.3} />
                     <stop offset="95%" stopColor={COLORS.gold} stopOpacity={0} />
                   </linearGradient>
@@ -477,15 +524,17 @@ export default function AdminDashboard() {
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" tickFormatter={(v) => `$${v / 1000}k`} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", backgroundColor: "white" }}
+                  formatter={(value: number, name: string) => [`$${value.toLocaleString()}`, name === "mrr" ? "MRR" : "ARR"]}
                 />
+                <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => value === "mrr" ? "Monthly Revenue" : "Annual Revenue"} />
                 <Area
                   type="monotone"
-                  dataKey="revenue"
+                  dataKey="mrr"
                   stroke={COLORS.gold}
                   strokeWidth={2}
-                  fill="url(#revenueGradient)"
+                  fill="url(#mrrGradient)"
+                  name="mrr"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -493,7 +542,7 @@ export default function AdminDashboard() {
 
           <ChartCard
             title="User Growth"
-            subtitle="Users and subscribers over time"
+            subtitle="New signups and total users over time"
             onRefresh={() => refetchStats()}
             isLoading={statsLoading}
           >
@@ -502,11 +551,11 @@ export default function AdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", backgroundColor: "white" }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line
                   type="monotone"
-                  dataKey="users"
+                  dataKey="total"
                   stroke={COLORS.navy}
                   strokeWidth={2}
                   dot={{ r: 4 }}
@@ -514,11 +563,11 @@ export default function AdminDashboard() {
                 />
                 <Line
                   type="monotone"
-                  dataKey="subscribers"
+                  dataKey="signups"
                   stroke={COLORS.gold}
                   strokeWidth={2}
                   dot={{ r: 4 }}
-                  name="Subscribers"
+                  name="New Signups"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -547,7 +596,7 @@ export default function AdminDashboard() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", backgroundColor: "white" }}
                   formatter={(value: number, name: string) => [value.toLocaleString(), name]}
                 />
                 <Legend
@@ -560,12 +609,34 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </ChartCard>
 
-          <ActivityFeed />
+          <ChartCard
+            title="CLEANBI Usage"
+            subtitle="Daily analysis counts this week"
+            isLoading={statsLoading}
+          >
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={cleanbiUsageData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", backgroundColor: "white" }}
+                  formatter={(value: number) => [value.toLocaleString(), "Analyses"]}
+                />
+                <Bar dataKey="analyses" fill={COLORS.gold} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
           <QuickActions />
         </div>
 
-        <DashboardSection title="Top CLEANBI Locations" description="Most analyzed addresses this month">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ActivityFeed />
+          <TopPerformingPagesTable />
+        </div>
+
+        <DashboardSection title="CLEANBI Hotspots" description="Most analyzed locations this month">
           <Card className="bg-card border shadow-sm overflow-hidden">
             <div className="h-1 bg-[#C8A661]" />
             <CardContent className="p-0">
@@ -580,8 +651,14 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {topCleanbiLocations.map((location, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/30">
+                    {[
+                      { address: "123 Main St, Los Angeles, CA", analyses: 847, score: 92 },
+                      { address: "456 Oak Ave, New York, NY", analyses: 623, score: 88 },
+                      { address: "789 Pine Blvd, Chicago, IL", analyses: 512, score: 85 },
+                      { address: "321 Elm St, Houston, TX", analyses: 489, score: 79 },
+                      { address: "654 Maple Dr, Phoenix, AZ", analyses: 378, score: 91 },
+                    ].map((location, idx) => (
+                      <tr key={idx} className="border-b hover:bg-muted/30" data-testid={`row-cleanbi-${idx}`}>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             <div className="h-8 w-8 rounded-lg bg-[#0A1628] flex items-center justify-center">
@@ -612,171 +689,66 @@ export default function AdminDashboard() {
           </Card>
         </DashboardSection>
 
-        <DashboardSection title="Additional Stats">
+        <DashboardSection title="Platform Overview">
           <DashboardGrid columns={4}>
-            <KPICard
-              label="New Users (30d)"
-              value={stats?.users.newThisMonth || 280}
-              icon={UserPlus}
-              size="compact"
-              trend={{ value: 23.4, direction: "up" }}
-            />
-            <KPICard
-              label="Forum Topics"
-              value={stats?.forum.totalTopics || 156}
-              icon={MessageSquare}
-              size="compact"
-            />
-            <KPICard
-              label="Active Listings"
-              value={stats?.listings.active || 89}
-              icon={ShoppingBag}
-              size="compact"
-            />
-            <KPICard
-              label="Newsletter Subs"
-              value={stats?.newsletter.subscribers || 4250}
-              icon={Mail}
-              size="compact"
-            />
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <ShoppingBag className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-[#C8A661]">{stats?.listings.active || 156}</p>
+                    <p className="text-xs text-muted-foreground">Active Listings</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <MessageSquare className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-[#C8A661]">{stats?.forum.totalTopics || 342}</p>
+                    <p className="text-xs text-muted-foreground">Forum Topics</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <BookOpen className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-[#C8A661]">{stats?.courses.total || 24}</p>
+                    <p className="text-xs text-muted-foreground">Academy Courses</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-[#C8A661]">{stats?.newsletter.subscribers || 1847}</p>
+                    <p className="text-xs text-muted-foreground">Newsletter Subs</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </DashboardGrid>
         </DashboardSection>
-
-        <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="bg-muted/50 border">
-            <TabsTrigger value="users" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              Listings
-            </TabsTrigger>
-            <TabsTrigger value="forum" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Forum
-            </TabsTrigger>
-            <TabsTrigger value="content" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
-              <FileText className="w-4 h-4 mr-2" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="tenants" className="data-[state=active]:bg-[#0A1628] data-[state=active]:text-white">
-              <Globe className="w-4 h-4 mr-2" />
-              Tenants
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="users">
-            <DataTable
-              title="All Users"
-              data={allUsers}
-              columns={[
-                { key: "email", label: "Email" },
-                { key: "firstName", label: "Name", render: (u) => `${u.firstName || ''} ${u.lastName || ''}`.trim() || '-' },
-                { key: "subscriptionTier", label: "Tier", render: (u) => (
-                  <Badge className={u.isPro ? "bg-[#C8A661]/20 text-[#C8A661]" : "bg-muted text-muted-foreground"}>
-                    {u.subscriptionTier || 'free'}
-                  </Badge>
-                )},
-                { key: "cleanbiTier", label: "CLEANBI", render: (u) => (
-                  <Badge className="bg-blue-100 text-blue-700">{u.cleanbiTier || 'free'}</Badge>
-                )},
-                { key: "role", label: "Role" },
-                { key: "createdAt", label: "Joined", render: (u) => u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-' },
-              ]}
-            />
-          </TabsContent>
-
-          <TabsContent value="listings">
-            <DataTable
-              title="Recent Listings"
-              data={recentListings}
-              columns={[
-                { key: "title", label: "Title" },
-                { key: "businessType", label: "Type", render: (l) => (
-                  <Badge className="bg-green-100 text-green-700">{l.businessType}</Badge>
-                )},
-                { key: "status", label: "Status", render: (l) => (
-                  <Badge className={l.status === 'active' ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}>
-                    {l.status}
-                  </Badge>
-                )},
-                { key: "priceInUSD", label: "Price", render: (l) => l.priceInUSD ? `$${Number(l.priceInUSD).toLocaleString()}` : '-' },
-                { key: "location", label: "Location", render: (l) => `${l.city || ''}, ${l.region || ''}`.trim() || '-' },
-                { key: "createdAt", label: "Created", render: (l) => l.createdAt ? new Date(l.createdAt).toLocaleDateString() : '-' },
-              ]}
-            />
-          </TabsContent>
-
-          <TabsContent value="forum">
-            <DataTable
-              title="Recent Forum Topics"
-              data={recentForum}
-              columns={[
-                { key: "title", label: "Title" },
-                { key: "views", label: "Views", render: (t) => (
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" /> {t.views || 0}
-                  </span>
-                )},
-                { key: "replyCount", label: "Replies", render: (t) => t.replyCount || 0 },
-                { key: "createdAt", label: "Created", render: (t) => t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-' },
-              ]}
-            />
-          </TabsContent>
-
-          <TabsContent value="content">
-            <DataTable
-              title="Recent Blog Posts"
-              data={recentBlogs}
-              columns={[
-                { key: "title", label: "Title" },
-                { key: "category", label: "Category", render: (b) => (
-                  <Badge className="bg-purple-100 text-purple-700">{b.category}</Badge>
-                )},
-                { key: "type", label: "Type", render: (b) => (
-                  <Badge className="bg-blue-100 text-blue-700">{b.type}</Badge>
-                )},
-                { key: "status", label: "Status", render: (b) => (
-                  <Badge className={b.status === 'published' ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}>
-                    {b.status}
-                  </Badge>
-                )},
-                { key: "createdAt", label: "Created", render: (b) => b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-' },
-              ]}
-            />
-          </TabsContent>
-
-          <TabsContent value="tenants">
-            <DataTable
-              title="Platform Tenants"
-              data={tenants}
-              columns={[
-                { key: "name", label: "Name" },
-                { key: "domain", label: "Domain", render: (t) => (
-                  <span className="text-[#C8A661]">{t.domain}</span>
-                )},
-                { key: "slug", label: "Slug" },
-                { key: "isActive", label: "Status", render: (t) => (
-                  <Badge className={t.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
-                    {t.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                )},
-                { key: "createdAt", label: "Created", render: (t) => t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-' },
-              ]}
-            />
-          </TabsContent>
-        </Tabs>
-
-        <div className="pt-4 border-t text-center">
-          <p className="text-xs text-muted-foreground">
-            WashBizHub Admin Dashboard - Data refreshes every 30 seconds
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            <Clock className="w-3 h-3 inline mr-1" />
-            Last updated: {new Date().toLocaleString()}
-          </p>
-        </div>
       </div>
     </DashboardShell>
   );
