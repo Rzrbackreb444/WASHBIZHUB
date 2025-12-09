@@ -631,6 +631,302 @@ export function registerPosRoutes(app: Express) {
   });
   
   // ========================================
+  // PRICING ENGINE (WDF Per-Pound Pricing)
+  // ========================================
+  
+  // Pricing Calculator Utility
+  function calculateWdfPrice(config: {
+    weight: number;
+    serviceTier: "standard" | "express" | "same_day" | "premium";
+    includeDelivery: boolean;
+    addOns?: string[];
+    pricingConfig: any;
+  }) {
+    const pricing = config.pricingConfig || {};
+    const standardRate = parseFloat(pricing.standardPricePerPound) || 1.50;
+    const minimumWeight = parseFloat(pricing.minimumWeight) || 10;
+    const minimumCharge = parseFloat(pricing.minimumCharge) || 15;
+    const taxRate = parseFloat(pricing.taxRate) || 8.25;
+    const pickupDeliveryFee = parseFloat(pricing.pickupDeliveryFee) || 5;
+    
+    // Service tier multipliers
+    const tierMultipliers: Record<string, number> = {
+      standard: pricing.serviceTiers?.standard?.priceMultiplier || 1.0,
+      express: pricing.serviceTiers?.express?.priceMultiplier || 1.25,
+      same_day: pricing.serviceTiers?.sameDay?.priceMultiplier || 1.75,
+      premium: pricing.serviceTiers?.premium?.priceMultiplier || 1.50,
+    };
+    
+    // Calculate base price
+    const effectiveWeight = Math.max(config.weight, minimumWeight);
+    const tierMultiplier = tierMultipliers[config.serviceTier] || 1.0;
+    const effectiveRate = standardRate * tierMultiplier;
+    let basePrice = effectiveWeight * effectiveRate;
+    
+    // Apply minimum charge if applicable
+    if (basePrice < minimumCharge) {
+      basePrice = minimumCharge;
+    }
+    
+    // Calculate rush fee (difference from standard tier)
+    let rushFee = 0;
+    if (config.serviceTier !== "standard") {
+      const standardPrice = effectiveWeight * standardRate;
+      rushFee = basePrice - Math.max(standardPrice, minimumCharge);
+    }
+    
+    // Calculate add-ons total
+    let addOnsTotal = 0;
+    if (config.addOns && pricing.addOns) {
+      for (const addOnId of config.addOns) {
+        const addOn = pricing.addOns.find((a: any) => a.id === addOnId);
+        if (addOn) {
+          if (addOn.priceType === "per_pound") {
+            addOnsTotal += addOn.price * effectiveWeight;
+          } else {
+            addOnsTotal += addOn.price;
+          }
+        }
+      }
+    }
+    
+    // Delivery fee
+    const deliveryFee = config.includeDelivery ? pickupDeliveryFee : 0;
+    
+    // Calculate subtotal and tax
+    const subtotal = basePrice + addOnsTotal + deliveryFee;
+    const taxAmount = subtotal * (taxRate / 100);
+    const total = subtotal + taxAmount;
+    
+    return {
+      weight: config.weight,
+      effectiveWeight,
+      pricePerPound: effectiveRate,
+      basePrice: Math.round(basePrice * 100) / 100,
+      rushFee: Math.round(rushFee * 100) / 100,
+      addOnsTotal: Math.round(addOnsTotal * 100) / 100,
+      deliveryFee: Math.round(deliveryFee * 100) / 100,
+      subtotal: Math.round(subtotal * 100) / 100,
+      taxRate,
+      taxAmount: Math.round(taxAmount * 100) / 100,
+      total: Math.round(total * 100) / 100,
+      serviceTier: config.serviceTier,
+      breakdown: {
+        minimumApplied: config.weight < minimumWeight,
+        tierMultiplier,
+      }
+    };
+  }
+  
+  // Get pricing configuration for a laundromat (tenant-isolated)
+  app.get("/api/pos/pricing", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { laundromatId } = req.query;
+      
+      if (!laundromatId) {
+        return res.status(400).json({ error: "Laundromat ID is required" });
+      }
+      
+      // TENANT ISOLATION: Verify user has access to the laundromat
+      const hasAccess = await verifyLaundromatAccess(req, laundromatId as string);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this laundromat" });
+      }
+      
+      const [laundromat] = await db
+        .select()
+        .from(laundromats)
+        .where(eq(laundromats.id, laundromatId as string));
+      
+      if (!laundromat) {
+        return res.status(404).json({ error: "Laundromat not found" });
+      }
+      
+      // Return pricing config with defaults if not configured
+      const defaultConfig = {
+        standardPricePerPound: 1.50,
+        minimumWeight: 10,
+        minimumCharge: 15,
+        rushSurchargePercent: 50,
+        sameDaySurchargePercent: 75,
+        pickupDeliveryFee: 5,
+        perMileFee: 0,
+        serviceTiers: {
+          standard: { name: "Standard", turnaroundHours: 48, priceMultiplier: 1.0 },
+          express: { name: "Express", turnaroundHours: 24, priceMultiplier: 1.25 },
+          sameDay: { name: "Same Day Rush", turnaroundHours: 6, priceMultiplier: 1.75 },
+          premium: { name: "Premium Care", turnaroundHours: 48, priceMultiplier: 1.50 },
+        },
+        addOns: [
+          { id: "fabric-softener", name: "Fabric Softener", priceType: "flat", price: 2.00 },
+          { id: "starch", name: "Starch", priceType: "per_pound", price: 0.25 },
+          { id: "hang-dry", name: "Hang Dry", priceType: "per_pound", price: 0.50 },
+          { id: "special-care", name: "Special Care Items", priceType: "per_pound", price: 0.75 },
+        ],
+        taxRate: 8.25,
+      };
+      
+      const pricingConfig = laundromat.wdfPricingConfig 
+        ? { ...defaultConfig, ...laundromat.wdfPricingConfig as object }
+        : defaultConfig;
+      
+      res.json({ pricingConfig, laundromatId });
+    } catch (error) {
+      console.error("Error fetching pricing config:", error);
+      res.status(500).json({ error: "Failed to fetch pricing configuration" });
+    }
+  });
+  
+  // Update pricing configuration for a laundromat (tenant-isolated)
+  app.post("/api/pos/pricing", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { laundromatId, pricingConfig } = req.body;
+      
+      if (!laundromatId) {
+        return res.status(400).json({ error: "Laundromat ID is required" });
+      }
+      
+      // TENANT ISOLATION: Verify user has access to the laundromat
+      const hasAccess = await verifyLaundromatAccess(req, laundromatId);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this laundromat" });
+      }
+      
+      const [updated] = await db
+        .update(laundromats)
+        .set({ wdfPricingConfig: pricingConfig })
+        .where(eq(laundromats.id, laundromatId))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ error: "Laundromat not found" });
+      }
+      
+      res.json({ success: true, pricingConfig: updated.wdfPricingConfig });
+    } catch (error) {
+      console.error("Error updating pricing config:", error);
+      res.status(500).json({ error: "Failed to update pricing configuration" });
+    }
+  });
+  
+  // Calculate price for given weight/services (tenant-isolated)
+  app.post("/api/pos/orders/calculate-price", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { laundromatId, weight, serviceTier = "standard", includeDelivery = false, addOns = [] } = req.body;
+      
+      if (!laundromatId) {
+        return res.status(400).json({ error: "Laundromat ID is required" });
+      }
+      
+      if (!weight || isNaN(parseFloat(weight))) {
+        return res.status(400).json({ error: "Valid weight is required" });
+      }
+      
+      // TENANT ISOLATION: Verify user has access to the laundromat
+      const hasAccess = await verifyLaundromatAccess(req, laundromatId);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this laundromat" });
+      }
+      
+      // Get laundromat pricing config
+      const [laundromat] = await db
+        .select()
+        .from(laundromats)
+        .where(eq(laundromats.id, laundromatId));
+      
+      if (!laundromat) {
+        return res.status(404).json({ error: "Laundromat not found" });
+      }
+      
+      // Use default config if not set
+      const defaultConfig = {
+        standardPricePerPound: 1.50,
+        minimumWeight: 10,
+        minimumCharge: 15,
+        pickupDeliveryFee: 5,
+        serviceTiers: {
+          standard: { priceMultiplier: 1.0 },
+          express: { priceMultiplier: 1.25 },
+          sameDay: { priceMultiplier: 1.75 },
+          premium: { priceMultiplier: 1.50 },
+        },
+        addOns: [
+          { id: "fabric-softener", name: "Fabric Softener", priceType: "flat", price: 2.00 },
+          { id: "starch", name: "Starch", priceType: "per_pound", price: 0.25 },
+        ],
+        taxRate: 8.25,
+      };
+      
+      const pricingConfig = laundromat.wdfPricingConfig 
+        ? { ...defaultConfig, ...laundromat.wdfPricingConfig as object }
+        : defaultConfig;
+      
+      const priceBreakdown = calculateWdfPrice({
+        weight: parseFloat(weight),
+        serviceTier: serviceTier as "standard" | "express" | "same_day" | "premium",
+        includeDelivery,
+        addOns,
+        pricingConfig,
+      });
+      
+      res.json(priceBreakdown);
+    } catch (error) {
+      console.error("Error calculating price:", error);
+      res.status(500).json({ error: "Failed to calculate price" });
+    }
+  });
+  
+  // Confirm weight at drop-off or pickup (tenant-isolated)
+  app.post("/api/pos/orders/:id/confirm-weight", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { weight, stage, confirmedBy } = req.body; // stage: "drop_off" or "pickup"
+      
+      // TENANT ISOLATION: Verify user has access to this order
+      const { hasAccess, order } = await verifyOrderAccess(req, id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this order" });
+      }
+      
+      const updateData: any = {
+        updatedAt: new Date(),
+      };
+      
+      if (stage === "drop_off") {
+        updateData.dropOffWeight = weight;
+        updateData.totalWeight = weight;
+      } else if (stage === "pickup") {
+        updateData.pickupWeight = weight;
+      }
+      
+      updateData.weightConfirmedAt = new Date();
+      updateData.weightConfirmedBy = confirmedBy;
+      
+      const [updated] = await db
+        .update(posTransactions)
+        .set(updateData)
+        .where(eq(posTransactions.id, id))
+        .returning();
+      
+      // Also record in weighEvents table
+      await db.insert(weighEvents).values({
+        transactionId: id,
+        weight: weight,
+        weighedBy: confirmedBy,
+        stage: stage,
+      } as any);
+      
+      res.json({ success: true, order: updated });
+    } catch (error) {
+      console.error("Error confirming weight:", error);
+      res.status(500).json({ error: "Failed to confirm weight" });
+    }
+  });
+  
+  // ========================================
   // CUSTOMERS (householdAccounts)
   // ========================================
   
@@ -3523,6 +3819,315 @@ Please provide:
     } catch (error) {
       console.error("Error generating AI diagnosis:", error);
       res.status(500).json({ error: "Failed to generate AI diagnosis" });
+    }
+  });
+
+  // ============================================================================
+  // AI STORE ASSISTANT - Natural Language Operations Manager
+  // ============================================================================
+
+  const aiAssistantSchema = z.object({
+    message: z.string().min(1),
+    context: z.object({
+      laundromatId: z.string().optional(),
+    }).optional(),
+  });
+
+  // POST /api/pos/ai-assistant - AI-powered store operations assistant
+  app.post("/api/pos/ai-assistant", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      
+      const body = aiAssistantSchema.parse(req.body);
+      const { message, context } = body;
+      const laundromatId = context?.laundromatId;
+
+      // Get user's laundromats for context
+      let userLaundromatIds: string[] = [];
+      if (userId) {
+        userLaundromatIds = await getUserLaundromats(userId);
+      }
+
+      // If specific laundromat requested, verify access
+      if (laundromatId && userId) {
+        const hasAccess = await verifyLaundromatAccess(req, laundromatId);
+        if (!hasAccess) {
+          return res.status(403).json({ error: "Access denied to this laundromat" });
+        }
+        userLaundromatIds = [laundromatId];
+      }
+
+      // Gather context data for AI
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      let contextData: any = {};
+
+      // Fetch relevant data based on potential query intent
+      const messageLower = message.toLowerCase();
+
+      // Orders data
+      if (messageLower.includes("order") || messageLower.includes("pending") || 
+          messageLower.includes("pickup") || messageLower.includes("today") ||
+          messageLower.includes("pounds") || messageLower.includes("process")) {
+        
+        const ordersQuery = userLaundromatIds.length > 0
+          ? db.select().from(posTransactions)
+              .where(and(
+                inArray(posTransactions.laundromatId, userLaundromatIds),
+                gte(posTransactions.createdAt, today)
+              ))
+              .orderBy(desc(posTransactions.createdAt))
+              .limit(50)
+          : Promise.resolve([]);
+
+        contextData.todayOrders = await ordersQuery;
+        
+        // Pending pickup orders
+        if (messageLower.includes("pending") || messageLower.includes("pickup") || messageLower.includes("ready")) {
+          const pendingOrders = userLaundromatIds.length > 0
+            ? await db.select().from(posTransactions)
+                .where(and(
+                  inArray(posTransactions.laundromatId, userLaundromatIds),
+                  eq(posTransactions.status, "ready")
+                ))
+                .orderBy(desc(posTransactions.createdAt))
+                .limit(20)
+            : [];
+          contextData.pendingOrders = pendingOrders;
+        }
+      }
+
+      // Revenue data
+      if (messageLower.includes("revenue") || messageLower.includes("money") || 
+          messageLower.includes("sales") || messageLower.includes("income") ||
+          messageLower.includes("tax") || messageLower.includes("financial")) {
+        
+        if (userLaundromatIds.length > 0) {
+          const [todayRevenue] = await db.select({
+            total: sql<number>`COALESCE(SUM(${posTransactions.total}), 0)`,
+            count: sql<number>`COUNT(*)`,
+          }).from(posTransactions)
+            .where(and(
+              inArray(posTransactions.laundromatId, userLaundromatIds),
+              gte(posTransactions.createdAt, today),
+              eq(posTransactions.status, "completed")
+            ));
+
+          const [weekRevenue] = await db.select({
+            total: sql<number>`COALESCE(SUM(${posTransactions.total}), 0)`,
+            count: sql<number>`COUNT(*)`,
+          }).from(posTransactions)
+            .where(and(
+              inArray(posTransactions.laundromatId, userLaundromatIds),
+              gte(posTransactions.createdAt, startOfWeek),
+              eq(posTransactions.status, "completed")
+            ));
+
+          const [monthRevenue] = await db.select({
+            total: sql<number>`COALESCE(SUM(${posTransactions.total}), 0)`,
+            count: sql<number>`COUNT(*)`,
+          }).from(posTransactions)
+            .where(and(
+              inArray(posTransactions.laundromatId, userLaundromatIds),
+              gte(posTransactions.createdAt, startOfMonth),
+              eq(posTransactions.status, "completed")
+            ));
+
+          contextData.revenue = {
+            today: { total: Number(todayRevenue.total) || 0, count: Number(todayRevenue.count) || 0 },
+            week: { total: Number(weekRevenue.total) || 0, count: Number(weekRevenue.count) || 0 },
+            month: { total: Number(monthRevenue.total) || 0, count: Number(monthRevenue.count) || 0 },
+          };
+        }
+      }
+
+      // Customer data
+      if (messageLower.includes("customer") || messageLower.includes("top") || 
+          messageLower.includes("dormant") || messageLower.includes("hasn't ordered") ||
+          messageLower.includes("look up") || messageLower.includes("find")) {
+        
+        if (userLaundromatIds.length > 0) {
+          const topCustomers = await db.select({
+            id: householdAccounts.id,
+            accountName: householdAccounts.accountName,
+            contactName: householdAccounts.contactName,
+            phone: householdAccounts.phone,
+            email: householdAccounts.email,
+            totalSpend: householdAccounts.totalSpend,
+            totalOrders: householdAccounts.totalOrders,
+            lastOrderDate: householdAccounts.lastOrderDate,
+          }).from(householdAccounts)
+            .where(inArray(householdAccounts.laundromatId, userLaundromatIds))
+            .orderBy(desc(householdAccounts.totalSpend))
+            .limit(10);
+
+          contextData.topCustomers = topCustomers;
+
+          // Dormant customers (no order in 30 days)
+          if (messageLower.includes("dormant") || messageLower.includes("hasn't ordered") || messageLower.includes("inactive")) {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const dormantCustomers = await db.select({
+              id: householdAccounts.id,
+              accountName: householdAccounts.accountName,
+              contactName: householdAccounts.contactName,
+              phone: householdAccounts.phone,
+              lastOrderDate: householdAccounts.lastOrderDate,
+              totalSpend: householdAccounts.totalSpend,
+            }).from(householdAccounts)
+              .where(and(
+                inArray(householdAccounts.laundromatId, userLaundromatIds),
+                lte(householdAccounts.lastOrderDate, thirtyDaysAgo)
+              ))
+              .orderBy(desc(householdAccounts.totalSpend))
+              .limit(20);
+
+            contextData.dormantCustomers = dormantCustomers;
+          }
+        }
+      }
+
+      // Machine data
+      if (messageLower.includes("machine") || messageLower.includes("washer") || 
+          messageLower.includes("dryer") || messageLower.includes("down") ||
+          messageLower.includes("maintenance") || messageLower.includes("equipment") ||
+          messageLower.includes("utilization")) {
+        
+        if (userLaundromatIds.length > 0) {
+          const machines = await db.select().from(machineAssets)
+            .where(inArray(machineAssets.laundromatId, userLaundromatIds))
+            .limit(50);
+
+          contextData.machines = machines;
+
+          // Machines that are down or need attention
+          const downMachines = machines.filter((m: any) => 
+            m.status === 'out_of_order' || m.status === 'maintenance' || m.status === 'offline'
+          );
+          contextData.downMachines = downMachines;
+
+          // Open repair tickets
+          const openTickets = await db.select().from(repairTickets)
+            .where(and(
+              inArray(repairTickets.laundromatId, userLaundromatIds),
+              or(
+                eq(repairTickets.status, "open"),
+                eq(repairTickets.status, "in_progress")
+              )
+            ))
+            .limit(20);
+
+          contextData.openRepairTickets = openTickets;
+        }
+      }
+
+      // Route/Delivery data
+      if (messageLower.includes("delivery") || messageLower.includes("route") || 
+          messageLower.includes("driver") || messageLower.includes("pickup") ||
+          messageLower.includes("pud") || messageLower.includes("stops")) {
+        
+        if (userLaundromatIds.length > 0) {
+          const todayRoutes = await db.select().from(routes)
+            .where(and(
+              inArray(routes.laundromatId, userLaundromatIds),
+              gte(routes.scheduledDate, today)
+            ))
+            .limit(20);
+
+          contextData.todayRoutes = todayRoutes;
+
+          // Route stops
+          if (todayRoutes.length > 0) {
+            const routeIds = todayRoutes.map(r => r.id);
+            const stops = await db.select().from(routeStops)
+              .where(inArray(routeStops.routeId, routeIds))
+              .limit(100);
+
+            contextData.routeStops = stops;
+          }
+        }
+      }
+
+      // Build the AI prompt with context
+      const systemPrompt = `You are "Store Assistant AI", an intelligent operations manager for laundromat owners. You help them manage orders, understand their revenue, monitor equipment, and optimize their business.
+
+Current Date: ${new Date().toLocaleDateString()}
+Time: ${new Date().toLocaleTimeString()}
+
+AVAILABLE DATA CONTEXT:
+${JSON.stringify(contextData, null, 2)}
+
+RESPONSE GUIDELINES:
+1. Be conversational but professional
+2. Use specific numbers from the data when available
+3. Format currency with $ and two decimals
+4. If data is empty or user is not authenticated, provide helpful guidance on what they can do
+5. Suggest follow-up actions when appropriate
+6. Keep responses concise but informative
+7. Use markdown formatting for emphasis (**bold** for key stats)
+
+When responding, also return structured data that can be displayed in the UI:
+- For orders: return { orders: [...] }
+- For revenue: return { revenue: number, orderCount: number }
+- For customers: return { customers: [...] }
+- For machines: return { machines: [...] }
+
+Format your response as JSON with these fields:
+{
+  "response": "Your conversational response here",
+  "data": { optional structured data },
+  "actions": ["Optional follow-up action prompts"]
+}`;
+
+      // Call OpenAI
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message },
+        ],
+        max_completion_tokens: 2048,
+        response_format: { type: "json_object" },
+      });
+
+      const aiResponse = completion.choices[0]?.message?.content || '{"response": "I apologize, but I was unable to process your request."}';
+      
+      try {
+        const parsed = JSON.parse(aiResponse);
+        res.json({
+          response: parsed.response || aiResponse,
+          data: parsed.data || null,
+          actions: parsed.actions || [],
+        });
+      } catch {
+        res.json({
+          response: aiResponse,
+          data: null,
+          actions: [],
+        });
+      }
+    } catch (error: any) {
+      console.error("Error in AI assistant:", error);
+      
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid request format" });
+      }
+      
+      res.status(500).json({ 
+        response: "I apologize, but I encountered an error. Please try again.",
+        error: error.message 
+      });
     }
   });
   

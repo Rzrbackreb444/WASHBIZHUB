@@ -126,6 +126,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Link, useLocation } from "wouter";
+import { StoreAssistantPanel } from "@/components/StoreAssistantPanel";
 import {
   Tooltip,
   TooltipContent,
@@ -1515,9 +1516,13 @@ export default function POSCommandCenter() {
     transactionNumber: o.transactionNumber,
     customerName: o.customerName || "Unknown",
     orderType: o.orderType || "wash_dry_fold",
+    serviceTier: o.serviceTier || "regular",
     status: o.status || "pending",
     total: o.total || "0.00",
     weight: o.totalWeight || "-",
+    pricePerPound: o.pricePerPound || null,
+    rushFee: o.rushFee || null,
+    deliveryFee: o.deliveryFee || null,
     time: o.createdAt ? new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
   }));
 
@@ -3235,7 +3240,20 @@ export default function POSCommandCenter() {
                           <td className="p-3">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               {getOrderTypeIcon(order.orderType)}
-                              <span className="capitalize">{order.orderType.replace(/_/g, " ")}</span>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="capitalize text-sm">{order.orderType.replace(/_/g, " ")}</span>
+                                {order.serviceTier && order.serviceTier !== "regular" && (
+                                  <Badge 
+                                    className={`text-[10px] w-fit ${
+                                      order.serviceTier === "express_24hr" 
+                                        ? "bg-amber-500/20 text-amber-400" 
+                                        : "bg-red-500/20 text-red-400"
+                                    }`}
+                                  >
+                                    {order.serviceTier === "express_24hr" ? "Express 24hr" : "Same Day Rush"}
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="p-3 text-right text-foreground">{order.weight !== "-" ? `${order.weight} lbs` : "-"}</td>
@@ -3378,29 +3396,55 @@ export default function POSCommandCenter() {
                           </div>
                         </div>
 
-                        {/* Weight Tracking Timeline */}
+                        {/* Weight & Price Tracking */}
                         <div className="space-y-2">
                           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                             <Scale className="w-3 h-3" />
-                            Weight Tracking
+                            Weight & Pricing
                           </h4>
                           <div className="bg-background rounded-lg p-3 space-y-2">
+                            {/* Service Tier Display */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-muted-foreground">Service Tier:</span>
+                              <Badge 
+                                className={`${
+                                  selectedOrder.serviceTier === "express_24hr" 
+                                    ? "bg-amber-500/20 text-amber-400" 
+                                    : selectedOrder.serviceTier === "same_day_rush" 
+                                      ? "bg-red-500/20 text-red-400"
+                                      : "bg-slate-500/20 text-slate-300"
+                                }`}
+                              >
+                                {selectedOrder.serviceTier === "express_24hr" ? "Express 24hr (+25%)" : 
+                                 selectedOrder.serviceTier === "same_day_rush" ? "Same Day Rush (+75%)" : 
+                                 "Regular"}
+                              </Badge>
+                            </div>
+                            
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-muted-foreground">Recorded Weight:</span>
                               <span className="text-lg font-bold text-foreground">{selectedOrder.weight !== "-" ? `${selectedOrder.weight} lbs` : "Not weighed"}</span>
                             </div>
                             <div className="flex items-center justify-between border-t border-border/50 pt-2">
-                              <span className="text-sm text-muted-foreground">Price per lb:</span>
-                              <span className="text-sm font-medium text-foreground">${settingsForm.pricePerPound}</span>
+                              <span className="text-sm text-muted-foreground">Base Rate:</span>
+                              <span className="text-sm font-medium text-foreground">${settingsForm.pricePerPound || "1.50"}/lb</span>
                             </div>
+                            
+                            {selectedOrder.serviceTier && selectedOrder.serviceTier !== "regular" && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <Zap className="w-3 h-3 text-amber-400" />
+                                  Tier Multiplier:
+                                </span>
+                                <span className="text-sm font-medium text-amber-400">
+                                  {selectedOrder.serviceTier === "express_24hr" ? "1.25×" : "1.75×"}
+                                </span>
+                              </div>
+                            )}
+                            
                             <div className="flex items-center justify-between border-t border-border/50 pt-2">
-                              <span className="text-sm font-semibold text-foreground">Calculated Total:</span>
-                              <span className="text-lg font-bold text-[#C8A661]">
-                                ${selectedOrder.weight !== "-" 
-                                  ? (parseFloat(selectedOrder.weight) * parseFloat(settingsForm.pricePerPound)).toFixed(2)
-                                  : "0.00"
-                                }
-                              </span>
+                              <span className="text-sm font-semibold text-foreground">Order Total:</span>
+                              <span className="text-lg font-bold text-[#C8A661]">${selectedOrder.total}</span>
                             </div>
                             <Button 
                               variant="outline" 
@@ -3409,7 +3453,7 @@ export default function POSCommandCenter() {
                               data-testid="button-add-weight-adjustment"
                             >
                               <Scale className="w-3 h-3 mr-2" />
-                              Add Weight Adjustment
+                              Update Weight
                             </Button>
                           </div>
                         </div>
@@ -6554,6 +6598,85 @@ export default function POSCommandCenter() {
                     </CardContent>
                   </Card>
 
+                  {/* WDF Service Tiers Card */}
+                  <Card className="bg-card border" data-testid="card-wdf-service-tiers">
+                    <CardHeader>
+                      <CardTitle className="text-foreground flex items-center gap-2">
+                        <Layers className="w-5 h-5 text-[#C8A661]" />
+                        WDF Service Tiers
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-xs text-muted-foreground">
+                        Configure pricing multipliers and turnaround times for each service tier
+                      </p>
+                      
+                      {/* Regular Tier */}
+                      <div className="p-3 bg-background rounded-lg border border-border/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm font-medium text-foreground">Regular</span>
+                          </div>
+                          <Badge className="bg-slate-500/20 text-slate-300 text-xs">Base Rate</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2">48-72 hour turnaround</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Multiplier:</span>
+                          <span className="text-sm font-bold text-foreground">1.00×</span>
+                          <span className="text-xs text-muted-foreground ml-auto">${settingsForm.pricePerPound || "1.50"}/lb</span>
+                        </div>
+                      </div>
+                      
+                      {/* Express 24hr Tier */}
+                      <div className="p-3 bg-background rounded-lg border border-amber-500/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-400" />
+                            <span className="text-sm font-medium text-foreground">Express 24hr</span>
+                          </div>
+                          <Badge className="bg-amber-500/20 text-amber-400 text-xs">+25%</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2">24-hour turnaround</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Multiplier:</span>
+                          <span className="text-sm font-bold text-amber-400">1.25×</span>
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            ${(parseFloat(settingsForm.pricePerPound || "1.50") * 1.25).toFixed(2)}/lb
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Same Day Rush Tier */}
+                      <div className="p-3 bg-background rounded-lg border border-red-500/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-red-400" />
+                            <span className="text-sm font-medium text-foreground">Same Day Rush</span>
+                          </div>
+                          <Badge className="bg-red-500/20 text-red-400 text-xs">+75%</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2">Same-day completion</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Multiplier:</span>
+                          <span className="text-sm font-bold text-red-400">1.75×</span>
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            ${(parseFloat(settingsForm.pricePerPound || "1.50") * 1.75).toFixed(2)}/lb
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2 border-t border-border/30">
+                        <div className="flex items-center gap-2 p-2 bg-[#C8A661]/10 rounded-lg">
+                          <Lightbulb className="w-4 h-4 text-[#C8A661]" />
+                          <p className="text-xs text-muted-foreground">
+                            Tier pricing is automatically applied when creating orders with the selected service type
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   {/* Calculator Integration Card */}
                   <Card className="bg-card border" data-testid="card-calculator">
                     <CardHeader>
@@ -8108,15 +8231,57 @@ export default function POSCommandCenter() {
                     onChange={(e) => setNewOrderForm({ ...newOrderForm, weight: e.target.value })}
                     data-testid="input-new-order-weight"
                   />
-                  {newOrderForm.weight && (
-                    <p className="text-xs text-muted-foreground">
-                      Estimated: <span className="text-[#C8A661] font-semibold">
-                        ${(parseFloat(newOrderForm.weight) * parseFloat(settingsForm.pricePerPound) * 
-                          (newOrderForm.serviceType === "express_24hr" ? 1.25 : 
-                           newOrderForm.serviceType === "same_day_rush" ? 1.5 : 1)).toFixed(2)}
-                      </span>
-                    </p>
-                  )}
+                  {newOrderForm.weight && parseFloat(newOrderForm.weight) > 0 && (() => {
+                    const weight = parseFloat(newOrderForm.weight);
+                    const minWeight = parseFloat(settingsForm.minimumWeight) || 10;
+                    const effectiveWeight = Math.max(weight, minWeight);
+                    const baseRate = parseFloat(settingsForm.pricePerPound) || 1.50;
+                    const tierMultiplier = newOrderForm.serviceType === "express_24hr" ? 1.25 : 
+                                           newOrderForm.serviceType === "same_day_rush" ? 1.75 : 1;
+                    const effectiveRate = baseRate * tierMultiplier;
+                    const basePrice = effectiveWeight * effectiveRate;
+                    const taxRate = parseFloat(settingsForm.taxRate) || 8.25;
+                    const tax = basePrice * (taxRate / 100);
+                    const total = basePrice + tax;
+                    const rushFee = tierMultiplier > 1 ? (effectiveWeight * baseRate * (tierMultiplier - 1)) : 0;
+                    const minimumApplied = weight < minWeight;
+                    
+                    return (
+                      <div className="mt-2 p-3 bg-background/60 rounded-lg border border-border/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-[#C8A661]">Price Breakdown</span>
+                          {minimumApplied && (
+                            <Badge className="bg-amber-500/20 text-amber-400 text-[10px]">
+                              Min {minWeight}lb applies
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between text-muted-foreground">
+                            <span>{effectiveWeight.toFixed(1)} lbs × ${effectiveRate.toFixed(2)}/lb</span>
+                            <span className="text-foreground">${(effectiveWeight * effectiveRate).toFixed(2)}</span>
+                          </div>
+                          {rushFee > 0 && (
+                            <div className="flex justify-between text-amber-400">
+                              <span className="flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                {newOrderForm.serviceType === "express_24hr" ? "Express (+25%)" : "Same Day Rush (+75%)"}
+                              </span>
+                              <span>+${rushFee.toFixed(2)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-muted-foreground">
+                            <span>Tax ({taxRate}%)</span>
+                            <span>${tax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border/30">
+                            <span>Estimated Total</span>
+                            <span className="text-[#C8A661]">${total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -9108,6 +9273,9 @@ export default function POSCommandCenter() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* AI Store Assistant */}
+      <StoreAssistantPanel laundromatId={selectedLaundromat?.id} />
     </>
   );
 }
