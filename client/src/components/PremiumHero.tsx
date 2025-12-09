@@ -6,11 +6,14 @@ import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/big_dexter_laundromat_1764704943944.jpg";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
 
-// Hook to detect mobile devices for performance optimization
+// SSR-safe hook to detect mobile devices for performance optimization
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
+    // Only access window in browser environment
+    if (typeof window === 'undefined') return;
+    
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
     };
