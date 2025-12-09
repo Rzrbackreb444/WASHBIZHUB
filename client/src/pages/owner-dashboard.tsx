@@ -20,6 +20,13 @@ import {
   DashboardSkeleton,
 } from "@/components/premium";
 import type { KPIMetric } from "@/components/premium";
+import {
+  DashboardShell,
+  DashboardSection,
+  KPICard,
+  KPIGroup,
+  DashboardNav,
+} from "@/components/dashboard";
 import { 
   Calculator, 
   LayoutDashboard, 
@@ -56,6 +63,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+
+const dashboardNavItems = [
+  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
+  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
+  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
+  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
+  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
+];
 
 const QUICK_ACTIONS = [
   {
@@ -312,66 +327,71 @@ export default function OwnerDashboard() {
         <meta name="description" content="Your complete business command center. Manage calculators, dashboards, POS, website, AI agents, and more from one place." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20" data-testid="owner-dashboard-page">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-7xl mx-auto p-4 md:p-8 space-y-8"
-        >
-          <motion.div
-            variants={itemVariants}
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e3a5f] via-[#2a4a6f] to-[#1e3a5f] p-8 md:p-10"
-            data-testid="owner-dashboard-hero"
-          >
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle at 80% 20%, rgba(184, 134, 11, 0.5), transparent 45%), radial-gradient(circle at 10% 90%, rgba(212, 160, 48, 0.3), transparent 40%)",
-              }}
+      <DashboardShell
+        title="Owner Dashboard"
+        subtitle={`Welcome back${user?.firstName ? `, ${user.firstName}` : ""}! Here's what's happening with your business.`}
+        showDatePicker={false}
+        showExportButtons={false}
+        headerActions={
+          <div className="flex items-center gap-2">
+            <DashboardNav 
+              items={dashboardNavItems} 
+              variant="dropdown" 
+              className="hidden md:flex"
             />
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDAgTCAyMCAwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0gMCAwIEwgMCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-50" />
-
-            <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-5">
-                <Avatar className="h-16 w-16 border-2 border-white/20 ring-4 ring-white/10">
-                  <AvatarImage src={user?.profileImageUrl || undefined} alt="Profile" />
-                  <AvatarFallback className="bg-white/10 text-white text-xl font-semibold">
-                    {user?.firstName?.[0]}{user?.lastName?.[0] || "O"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white" data-testid="text-owner-title">
-                    Welcome back{user?.firstName ? `, ${user.firstName}` : ""}!
-                  </h1>
-                  <p className="text-white/70 mt-1 flex items-center gap-2">
-                    <Activity className="h-4 w-4" />
-                    Here's what's happening with your business today
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="outline" size="icon" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-notifications">
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <Link href="/settings">
-                  <Button variant="outline" size="icon" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-settings">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Button className="gap-2" onClick={() => setLocation('/calculator-builder')} data-testid="button-create-tool">
-                  <Plus className="h-4 w-4" />
-                  Create Tool
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <KPIRibbon metrics={kpiMetrics} testId="owner-kpi-ribbon" />
-          </motion.div>
+            <Button variant="outline" size="icon" data-testid="button-notifications">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <Link href="/settings">
+              <Button variant="outline" size="icon" data-testid="button-settings">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] gap-2" onClick={() => setLocation('/calculator-builder')} data-testid="button-create-tool">
+              <Plus className="h-4 w-4" />
+              Create Tool
+            </Button>
+          </div>
+        }
+      >
+        <div data-testid="owner-dashboard-page">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-8"
+          >
+            <DashboardSection className="mb-8">
+              <KPIGroup>
+                <KPICard
+                  value={`$${businessStats.monthlyRevenue.toLocaleString()}`}
+                  label="Monthly Revenue"
+                  icon={DollarSign}
+                  trend={{ value: businessStats.revenueChange, direction: "up" }}
+                  data-testid="kpi-revenue"
+                />
+                <KPICard
+                  value={businessStats.activeCustomers.toLocaleString()}
+                  label="Active Customers"
+                  icon={Users}
+                  trend={{ value: businessStats.customerChange, direction: "up" }}
+                  data-testid="kpi-customers"
+                />
+                <KPICard
+                  value={businessStats.wdfOrders.toString()}
+                  label="WDF Orders"
+                  icon={Package}
+                  trend={{ value: businessStats.orderChange, direction: "up" }}
+                  data-testid="kpi-orders"
+                />
+                <KPICard
+                  value={`${businessStats.cleanbiScore}/100`}
+                  label="CLEANBI™ Score"
+                  icon={Zap}
+                  data-testid="kpi-cleanbi"
+                />
+              </KPIGroup>
+            </DashboardSection>
 
           <motion.div variants={itemVariants}>
             <PremiumCard testId="card-quick-actions">
@@ -615,7 +635,8 @@ export default function OwnerDashboard() {
             </PremiumCard>
           </motion.div>
         </motion.div>
-      </div>
+        </div>
+      </DashboardShell>
     </AuthGuard>
   );
 }

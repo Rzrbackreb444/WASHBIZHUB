@@ -13,6 +13,7 @@ import {
   KPICard,
   KPIGroup,
   ChartCard,
+  DashboardNav,
 } from "@/components/dashboard";
 import {
   DollarSign,
@@ -44,6 +45,14 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { Affiliate, AffiliateContent, AffiliateSale } from "@shared/schema";
+
+const dashboardNavItems = [
+  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
+  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
+  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
+  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
+  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
+];
 
 const mockReferralData = [
   { month: "Jan", referrals: 12, conversions: 3, commission: 450 },
@@ -152,7 +161,7 @@ export default function AffiliateDashboard() {
           canonicalUrl="/affiliate-dashboard"
         />
         <DashboardShell
-          title="Affiliate Center"
+          title="Affiliate Dashboard"
           subtitle="Join our affiliate program and start earning"
           showDatePicker={false}
           showExportButtons={false}
@@ -192,12 +201,17 @@ export default function AffiliateDashboard() {
       />
 
       <DashboardShell
-        title="Affiliate Center"
+        title="Affiliate Dashboard"
         subtitle="Track referrals, generate links, and maximize your earnings"
         showDatePicker={false}
         showExportButtons={false}
         headerActions={
           <div className="flex items-center gap-2">
+            <DashboardNav 
+              items={dashboardNavItems} 
+              variant="dropdown" 
+              className="hidden md:flex"
+            />
             {affiliate.status === "pending" ? (
               <Badge className="bg-yellow-500/10 text-yellow-600 border-0 gap-1" data-testid="badge-pending">
                 <AlertCircle className="w-3.5 h-3.5" />

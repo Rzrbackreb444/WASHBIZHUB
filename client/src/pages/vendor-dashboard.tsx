@@ -13,6 +13,7 @@ import {
   KPICard,
   KPIGroup,
   ChartCard,
+  DashboardNav,
 } from "@/components/dashboard";
 import {
   Package,
@@ -40,6 +41,14 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+
+const dashboardNavItems = [
+  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
+  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
+  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
+  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
+  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
+];
 
 const mockSalesData = [
   { month: "Jan", sales: 1200, orders: 15 },
@@ -98,12 +107,17 @@ export default function VendorDashboard() {
       />
 
       <DashboardShell
-        title="Vendor Hub"
+        title="Vendor Dashboard"
         subtitle="Manage products, track orders, and grow your business"
         showDatePicker={false}
         showExportButtons={false}
         headerActions={
           <div className="flex items-center gap-2">
+            <DashboardNav 
+              items={dashboardNavItems} 
+              variant="dropdown" 
+              className="hidden md:flex"
+            />
             <Badge className="bg-green-500/10 text-green-600 border-0 gap-1" data-testid="badge-status">
               <CheckCircle className="w-3.5 h-3.5" />
               Active Seller

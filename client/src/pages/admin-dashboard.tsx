@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DashboardShell,
   DashboardGrid,
@@ -20,7 +22,8 @@ import {
   Bot, MapPin, Mail, Globe, TrendingUp, DollarSign, Activity,
   LogOut, RefreshCw, Calendar, Eye, Clock,
   Zap, BarChart3, Settings, Tag, CreditCard,
-  UserPlus, ShoppingCart, Search, ChevronRight, Percent, ArrowUpRight, ArrowDownRight
+  UserPlus, ShoppingCart, Search, ChevronRight, Percent, ArrowUpRight, ArrowDownRight,
+  Crown, Star, UserCheck, Award, Target, Layers
 } from "lucide-react";
 import { subDays, startOfDay, endOfDay, format } from "date-fns";
 import {
@@ -70,6 +73,13 @@ const subscriptionData = [
   { name: "Enterprise", value: 45, color: "#0A1628" },
 ];
 
+const subscriptionTierBreakdown = [
+  { tier: "Free", count: 1250, percentage: 68.7, icon: Users, color: "text-slate-500" },
+  { tier: "Starter", count: 340, percentage: 18.7, icon: Zap, color: "text-blue-500" },
+  { tier: "Pro", count: 185, percentage: 10.2, icon: Crown, color: "text-[#C8A661]" },
+  { tier: "Enterprise", count: 45, percentage: 2.4, icon: Building2, color: "text-[#0A1628]" },
+];
+
 const revenueData = [
   { month: "Jul", mrr: 12400, arr: 148800 },
   { month: "Aug", mrr: 15200, arr: 182400 },
@@ -116,6 +126,15 @@ const recentActivity = [
   { type: "analysis", user: "Lisa Anderson", address: "456 Pine Ave, Seattle", time: "45 min ago" },
   { type: "registration", user: "David Lee", email: "david@example.com", time: "1 hr ago" },
   { type: "analysis", user: "Amanda White", address: "789 Elm Dr, Denver", time: "1.5 hr ago" },
+];
+
+const topUsers = [
+  { id: 1, name: "Marcus Chen", email: "marcus@laundryking.com", tier: "Enterprise", analyses: 847, listings: 12, lastActive: "2 min ago", avatar: null },
+  { id: 2, name: "Jennifer Wu", email: "jwu@cleanerschain.net", tier: "Pro", analyses: 623, listings: 8, lastActive: "15 min ago", avatar: null },
+  { id: 3, name: "Robert Martinez", email: "rmartinez@washpro.io", tier: "Pro", analyses: 512, listings: 5, lastActive: "1 hr ago", avatar: null },
+  { id: 4, name: "Ashley Thompson", email: "ashley@laundrysolutions.com", tier: "Enterprise", analyses: 489, listings: 15, lastActive: "2 hr ago", avatar: null },
+  { id: 5, name: "David Kim", email: "dkim@coinlaundryinc.com", tier: "Pro", analyses: 378, listings: 4, lastActive: "3 hr ago", avatar: null },
+  { id: 6, name: "Michelle Garcia", email: "mgarcia@washworld.net", tier: "Starter", analyses: 312, listings: 2, lastActive: "5 hr ago", avatar: null },
 ];
 
 const adminNavItems = [
@@ -252,6 +271,8 @@ function QuickActions() {
     { label: "Manage Subscriptions", icon: CreditCard, href: "/admin/analytics", color: "bg-green-500" },
     { label: "Promo Codes", icon: Tag, href: "/admin/promo-codes", color: "bg-purple-500" },
     { label: "System Settings", icon: Settings, href: "/admin/settings", color: "bg-[#0A1628]" },
+    { label: "Content Manager", icon: FileText, href: "/admin/blog", color: "bg-amber-500" },
+    { label: "Newsletter", icon: Mail, href: "/admin/newsletter", color: "bg-pink-500" },
   ];
 
   return (
@@ -261,7 +282,7 @@ function QuickActions() {
         <CardTitle className="text-lg text-foreground">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {actions.map((action, idx) => (
             <Link key={idx} href={action.href}>
               <Button
@@ -275,6 +296,116 @@ function QuickActions() {
                 <span className="text-xs font-medium text-foreground">{action.label}</span>
               </Button>
             </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TopUsersTable() {
+  const getTierBadge = (tier: string) => {
+    const variants: Record<string, { bg: string; text: string; icon: typeof Crown }> = {
+      Enterprise: { bg: "bg-[#0A1628]", text: "text-white", icon: Building2 },
+      Pro: { bg: "bg-[#C8A661]/20", text: "text-[#C8A661]", icon: Crown },
+      Starter: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: Zap },
+      Free: { bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-400", icon: Users },
+    };
+    const variant = variants[tier] || variants.Free;
+    const Icon = variant.icon;
+    return (
+      <Badge className={`${variant.bg} ${variant.text} text-xs`}>
+        <Icon className="w-3 h-3 mr-1" />
+        {tier}
+      </Badge>
+    );
+  };
+
+  return (
+    <Card className="bg-card border shadow-sm overflow-hidden">
+      <div className="h-1 bg-[#C8A661]" />
+      <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
+        <CardTitle className="text-lg text-foreground">Top Users</CardTitle>
+        <Badge variant="outline" className="text-xs border-[#C8A661]/40 text-[#C8A661]">
+          <Award className="w-3 h-3 mr-1" />
+          Most Active
+        </Badge>
+      </CardHeader>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[380px]">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/30">
+                <TableHead className="text-xs font-medium text-muted-foreground uppercase">User</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground uppercase">Tier</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground uppercase text-right">Analyses</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground uppercase text-right">Listings</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground uppercase text-right">Last Active</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topUsers.map((user, idx) => (
+                <TableRow key={user.id} className="hover:bg-muted/30" data-testid={`row-user-${idx}`}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.avatar || undefined} alt={user.name} />
+                        <AvatarFallback className="bg-[#0A1628] text-white text-xs">
+                          {user.name.split(" ").map(n => n[0]).join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getTierBadge(user.tier)}</TableCell>
+                  <TableCell className="text-right">
+                    <span className="text-sm font-semibold text-[#C8A661]">{user.analyses.toLocaleString()}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="text-sm text-foreground">{user.listings}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="text-xs text-muted-foreground">{user.lastActive}</span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SubscriptionTierRibbon() {
+  return (
+    <Card className="bg-card border shadow-sm overflow-hidden">
+      <div className="h-1 bg-[#C8A661]" />
+      <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
+        <CardTitle className="text-lg text-foreground">Active Subscriptions by Tier</CardTitle>
+        <Badge variant="outline" className="text-xs border-[#C8A661]/40 text-[#C8A661]">
+          <Layers className="w-3 h-3 mr-1" />
+          Breakdown
+        </Badge>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {subscriptionTierBreakdown.map((tier, idx) => (
+            <div
+              key={idx}
+              className="bg-muted/50 rounded-lg p-4 text-center"
+              data-testid={`tier-${tier.tier.toLowerCase()}`}
+            >
+              <div className={`h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mx-auto mb-2`}>
+                <tier.icon className={`h-5 w-5 ${tier.color}`} />
+              </div>
+              <div className="text-2xl font-bold text-foreground">{tier.count.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">{tier.tier}</div>
+              <div className="text-xs text-[#C8A661] font-medium mt-1">{tier.percentage}%</div>
+            </div>
           ))}
         </div>
       </CardContent>
@@ -388,10 +519,11 @@ export default function AdminDashboard() {
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Metric,Value\n" +
       `Total Users,${stats?.users.total || 2100}\n` +
+      `Monthly Active Users,${monthlyActiveUsers}\n` +
       `Active Subscribers,${stats?.users.proUsers || 570}\n` +
-      `Monthly Recurring Revenue,$${34200}\n` +
-      `Annual Recurring Revenue,$${410400}\n` +
-      `CLEANBI Analyses Today,${247}\n` +
+      `Monthly Recurring Revenue,$${totalMRR}\n` +
+      `Annual Recurring Revenue,$${totalARR}\n` +
+      `CLEANBI Analyses This Month,${cleanbiThisMonth}\n` +
       `Active Listings,${stats?.listings.active || 0}\n` +
       `Total CLEANBI Scans,${stats?.cleanbi.totalScans || 3847}\n` +
       `Newsletter Subscribers,${stats?.newsletter.subscribers || 0}\n` +
@@ -421,15 +553,17 @@ export default function AdminDashboard() {
   const totalARR = 410400;
   const revenueGrowth = 19.6;
   const cleanbiToday = 247;
+  const cleanbiThisMonth = 3847;
+  const monthlyActiveUsers = 1456;
   const activeSubscribers = stats?.users.proUsers || 570;
 
   return (
     <DashboardShell
-      title="Admin Analytics Hub"
-      subtitle="WashBizHub Platform Command Center"
+      title="Admin Command Center"
+      subtitle="WashBizHub Platform Analytics & Management"
       breadcrumbs={[
         { label: "Admin", href: "/admin-dashboard" },
-        { label: "Analytics Hub" },
+        { label: "Command Center" },
       ]}
       dateRange={dateRange}
       onDateRangeChange={setDateRange}
@@ -467,47 +601,65 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <DashboardNav items={adminNavItems} variant="tabs" />
 
-        <DashboardSection title="Platform Metrics" description="Key performance indicators for the platform">
-          <KPIGroup>
+        <DashboardSection title="Platform KPIs" description="Real-time platform performance metrics">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <KPICard
               label="Total Users"
               value={stats?.users.total || 2100}
               icon={Users}
               variant="default"
+              size="compact"
               trend={{ value: 15.4, direction: "up", label: "vs last month" }}
-              subtitle={`${stats?.users.newThisMonth || 280} new this month`}
             />
             <KPICard
-              label="Active Subscribers"
-              value={activeSubscribers}
-              icon={Zap}
+              label="Monthly Active"
+              value={monthlyActiveUsers}
+              icon={UserCheck}
               variant="success"
-              trend={{ value: 12.3, direction: "up", label: "vs last month" }}
-              subtitle={`$${(activeSubscribers * 60).toLocaleString()} MRR`}
+              size="compact"
+              trend={{ value: 8.2, direction: "up", label: "MAU" }}
             />
             <KPICard
-              label="CLEANBI Today"
-              value={cleanbiToday}
-              icon={MapPin}
-              variant="gold"
-              trend={{ value: 28.7, direction: "up", label: "vs yesterday" }}
-              subtitle={`${stats?.cleanbi.totalScans?.toLocaleString() || '3,847'} total`}
-            />
-            <KPICard
-              label="Revenue This Month"
+              label="Total Revenue"
               value={totalMRR}
               prefix="$"
               icon={DollarSign}
               variant="gold"
-              trend={{ value: revenueGrowth, direction: "up", label: "vs last month" }}
-              subtitle={`$${(totalARR / 1000).toFixed(0)}K ARR`}
+              size="compact"
+              trend={{ value: revenueGrowth, direction: "up", label: "MRR" }}
             />
-          </KPIGroup>
+            <KPICard
+              label="CLEANBI This Month"
+              value={cleanbiThisMonth}
+              icon={MapPin}
+              variant="gold"
+              size="compact"
+              trend={{ value: 28.7, direction: "up", label: "analyses" }}
+            />
+            <KPICard
+              label="Active Subscribers"
+              value={activeSubscribers}
+              icon={CreditCard}
+              variant="success"
+              size="compact"
+              trend={{ value: 12.3, direction: "up", label: "paid" }}
+            />
+            <KPICard
+              label="New This Month"
+              value={stats?.users.newThisMonth || 280}
+              icon={UserPlus}
+              variant="default"
+              size="compact"
+              trend={{ value: 22.1, direction: "up", label: "signups" }}
+            />
+          </div>
         </DashboardSection>
+
+        <SubscriptionTierRibbon />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
-            title="Revenue Analytics"
+            title="Revenue Trends"
             subtitle="Monthly Recurring Revenue (MRR) over time"
             onRefresh={() => refetchStats()}
             isLoading={statsLoading}
@@ -633,61 +785,67 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ActivityFeed />
-          <TopPerformingPagesTable />
+          <TopUsersTable />
         </div>
 
-        <DashboardSection title="CLEANBI Hotspots" description="Most analyzed locations this month">
-          <Card className="bg-card border shadow-sm overflow-hidden">
-            <div className="h-1 bg-[#C8A661]" />
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-muted/30">
-                      <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Address</th>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Analyses</th>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Avg Score</th>
-                      <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { address: "123 Main St, Los Angeles, CA", analyses: 847, score: 92 },
-                      { address: "456 Oak Ave, New York, NY", analyses: 623, score: 88 },
-                      { address: "789 Pine Blvd, Chicago, IL", analyses: 512, score: 85 },
-                      { address: "321 Elm St, Houston, TX", analyses: 489, score: 79 },
-                      { address: "654 Maple Dr, Phoenix, AZ", analyses: 378, score: 91 },
-                    ].map((location, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/30" data-testid={`row-cleanbi-${idx}`}>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-[#0A1628] flex items-center justify-center">
-                              <MapPin className="h-4 w-4 text-[#C8A661]" />
-                            </div>
-                            <span className="text-sm font-medium text-foreground">{location.address}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="text-sm text-foreground font-medium">{location.analyses.toLocaleString()}</span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <Badge className={`${location.score >= 85 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                            {location.score}/100
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <Button variant="ghost" size="sm" className="text-[#C8A661] hover:bg-[#C8A661]/10">
-                            View <ChevronRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </DashboardSection>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TopPerformingPagesTable />
+          
+          <DashboardSection title="CLEANBI Hotspots" description="Most analyzed locations this month">
+            <Card className="bg-card border shadow-sm overflow-hidden">
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-0">
+                <ScrollArea className="h-[320px]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b bg-muted/30">
+                          <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Address</th>
+                          <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Analyses</th>
+                          <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Avg Score</th>
+                          <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { address: "123 Main St, Los Angeles, CA", analyses: 847, score: 92 },
+                          { address: "456 Oak Ave, New York, NY", analyses: 623, score: 88 },
+                          { address: "789 Pine Blvd, Chicago, IL", analyses: 512, score: 85 },
+                          { address: "321 Elm St, Houston, TX", analyses: 489, score: 79 },
+                          { address: "654 Maple Dr, Phoenix, AZ", analyses: 378, score: 91 },
+                        ].map((location, idx) => (
+                          <tr key={idx} className="border-b hover:bg-muted/30" data-testid={`row-cleanbi-${idx}`}>
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-2">
+                                <div className="h-8 w-8 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                                  <MapPin className="h-4 w-4 text-[#C8A661]" />
+                                </div>
+                                <span className="text-sm font-medium text-foreground">{location.address}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm text-foreground font-medium">{location.analyses.toLocaleString()}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Badge className={`${location.score >= 85 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {location.score}/100
+                              </Badge>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <Button variant="ghost" size="sm" className="text-[#C8A661] hover:bg-[#C8A661]/10">
+                                View <ChevronRight className="h-4 w-4 ml-1" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </DashboardSection>
+        </div>
 
         <DashboardSection title="Platform Overview">
           <DashboardGrid columns={4}>

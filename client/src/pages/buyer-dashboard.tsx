@@ -59,6 +59,14 @@ const navItems = [
   { id: "analytics", label: "Analytics", href: "/buyer-dashboard?tab=analytics", icon: Activity },
 ];
 
+const dashboardNavItems = [
+  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
+  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
+  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
+  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
+  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
+];
+
 const mockActivityData = [
   { date: "Mon", views: 12, saves: 3 },
   { date: "Tue", views: 19, saves: 5 },
@@ -138,22 +146,24 @@ export default function BuyerDashboard() {
 
   return (
     <AuthGuard 
-      title="Sign In to Access Buyer Command Center" 
+      title="Sign In to Access Buyer Dashboard" 
       description="Sign in to access your premium buyer dashboard."
     >
-      <SEO title="Buyer Command Center | WashBizHub" description="Your premium buyer dashboard - track listings, manage searches, and analyze opportunities" />
+      <SEO title="Buyer Dashboard | WashBizHub" description="Your premium buyer dashboard - track listings, manage searches, and analyze opportunities" />
       
       <DashboardShell
-        title="Buyer Command Center"
+        title="Buyer Dashboard"
         subtitle="Track opportunities, manage searches, and close deals"
         showDatePicker={false}
         showExportButtons={false}
         headerActions={
-          <DashboardNav 
-            items={navItems} 
-            variant="dropdown" 
-            className="hidden md:flex"
-          />
+          <div className="flex items-center gap-2">
+            <DashboardNav 
+              items={dashboardNavItems} 
+              variant="dropdown" 
+              className="hidden md:flex"
+            />
+          </div>
         }
       >
         <div className="md:hidden mb-6">

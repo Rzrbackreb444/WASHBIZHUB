@@ -7675,6 +7675,107 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // ==================== BROKER DASHBOARD ====================
 
+  // GET /api/brokers - List all public broker profiles with pagination
+  app.get("/api/brokers", async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const region = req.query.region as string;
+      const specialty = req.query.specialty as string;
+
+      // Get all broker profiles that have public storefronts enabled
+      const allProfiles = await storage.getAllBrokerProfiles();
+      
+      // Filter to only public storefronts
+      let publicProfiles = allProfiles.filter(p => p.storefrontEnabled);
+
+      // Apply filters
+      if (region && region !== "All Regions") {
+        publicProfiles = publicProfiles.filter(p => 
+          p.regions?.some(r => r.toLowerCase().includes(region.toLowerCase()))
+        );
+      }
+      
+      if (specialty && specialty !== "All Specialties") {
+        publicProfiles = publicProfiles.filter(p =>
+          p.specializations?.some(s => s.toLowerCase().includes(specialty.toLowerCase()))
+        );
+      }
+
+      // Calculate pagination
+      const total = publicProfiles.length;
+      const totalPages = Math.ceil(total / limit);
+      const offset = (page - 1) * limit;
+      const paginatedProfiles = publicProfiles.slice(offset, offset + limit);
+
+      // Return public data only
+      const sanitizedProfiles = paginatedProfiles.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        companyName: p.companyName,
+        nickname: p.nickname,
+        bio: p.bio,
+        phone: p.phone,
+        email: p.email,
+        website: p.website,
+        licenseNumber: p.licenseNumber,
+        specializations: p.specializations,
+        yearsExperience: p.yearsExperience,
+        regions: p.regions,
+        verified: p.verified,
+        profileImageUrl: p.profileImageUrl,
+        totalListings: p.totalListings,
+        activeListings: p.activeListings,
+        soldListings: p.soldListings,
+      }));
+
+      res.json({
+        brokers: sanitizedProfiles,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching brokers:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/brokers/:id/listings - Get broker's public listings
+  app.get("/api/brokers/:id/listings", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Try to find by slug first, then by id
+      let brokerProfile = await storage.getBrokerProfileBySlug(id);
+      if (!brokerProfile) {
+        brokerProfile = await storage.getBrokerProfile(parseInt(id));
+      }
+      
+      if (!brokerProfile) {
+        return res.status(404).json({ error: "Broker not found" });
+      }
+
+      if (!brokerProfile.storefrontEnabled) {
+        return res.status(404).json({ error: "Broker storefront is not public" });
+      }
+
+      // Get broker's active listings
+      const allListings = brokerProfile.userId 
+        ? await storage.getListingsByUserId(brokerProfile.userId)
+        : [];
+      const activeListings = allListings.filter(l => l.status === "active");
+
+      res.json({ listings: activeListings });
+    } catch (error: any) {
+      console.error("Error fetching broker listings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // GET /api/brokers/:slug/storefront - Get public broker storefront data (no auth required)
   app.get("/api/brokers/:slug/storefront", async (req, res) => {
     try {
