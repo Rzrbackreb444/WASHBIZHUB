@@ -5088,6 +5088,53 @@ export const insertCustomerWebsiteSchema = createInsertSchema(customerWebsites).
 export type InsertCustomerWebsite = z.infer<typeof insertCustomerWebsiteSchema>;
 export type CustomerWebsite = typeof customerWebsites.$inferSelect;
 
+// Custom Domains for Website Builder (Cloudflare for SaaS)
+export const customDomains = pgTable("custom_domains", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => siteProjects.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Domain info
+  domain: text("domain").unique().notNull(), // e.g., mylaundry.com
+  
+  // Cloudflare integration
+  cloudflareHostnameId: text("cloudflare_hostname_id"), // Cloudflare custom hostname ID
+  
+  // Status
+  status: text("status").default("pending").notNull(), // pending, verifying, verified, active, failed
+  sslStatus: text("ssl_status").default("pending"), // pending, initializing, active, failed
+  
+  // Verification
+  verificationMethod: text("verification_method").default("txt"), // txt, http, cname
+  verificationRecord: jsonb("verification_record"), // {type: "TXT", name: "_cf-custom-hostname", value: "..."}
+  verificationError: text("verification_error"),
+  
+  // Timestamps
+  lastVerificationCheck: timestamp("last_verification_check"),
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  projectIdx: index("custom_domains_project_idx").on(table.projectId),
+  userIdx: index("custom_domains_user_idx").on(table.userId),
+  domainIdx: uniqueIndex("custom_domains_domain_idx").on(table.domain),
+}));
+
+export const insertCustomDomainSchema = createInsertSchema(customDomains).omit({
+  id: true,
+  cloudflareHostnameId: true,
+  sslStatus: true,
+  verificationRecord: true,
+  verificationError: true,
+  lastVerificationCheck: true,
+  verifiedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCustomDomain = z.infer<typeof insertCustomDomainSchema>;
+export type CustomDomain = typeof customDomains.$inferSelect;
+
 // ============================================================================
 // LOGO BUILDER
 // ============================================================================
