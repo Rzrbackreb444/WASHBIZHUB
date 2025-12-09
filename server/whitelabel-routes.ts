@@ -731,5 +731,262 @@ export function createWhiteLabelRoutes() {
     }
   });
 
+  // ========================================
+  // CUSTOM DOMAIN MANAGEMENT
+  // ========================================
+
+  // Get domains for a project
+  router.get("/api/website-builder/domains/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const result = await db.execute(sql`
+        SELECT * FROM custom_domains
+        WHERE project_id = ${projectId} AND user_id = ${userId}
+        ORDER BY created_at DESC
+      `);
+      
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error("Error fetching domains:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Add a custom domain
+  router.post("/api/website-builder/domains", async (req, res) => {
+    try {
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const { projectId, domain } = req.body;
+      
+      if (!projectId || !domain) {
+        return res.status(400).json({ error: "Missing projectId or domain" });
+      }
+      
+      // Normalize domain
+      const normalizedDomain = domain.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '');
+      
+      // Check if domain already exists
+      const existing = await db.execute(sql`
+        SELECT id FROM custom_domains WHERE domain = ${normalizedDomain}
+      `);
+      
+      if (existing.rows.length > 0) {
+        return res.status(400).json({ error: "Domain already registered" });
+      }
+      
+      // Import Cloudflare service
+      const { cloudflareSaaS } = await import('./services/cloudflare-saas');
+      
+      let cloudflareHostnameId: string | null = null;
+      let verificationRecord: any = null;
+      
+      // Try to add to Cloudflare if configured
+      if (cloudflareSaaS.isConfigured()) {
+        try {
+          const cfResult = await cloudflareSaaS.addCustomHostname(normalizedDomain);
+          cloudflareHostnameId = cfResult.id;
+          
+          if (cfResult.ssl?.validation_records?.length) {
+            verificationRecord = {
+              type: 'TXT',
+              name: cfResult.ssl.validation_records[0].txt_name,
+              value: cfResult.ssl.validation_records[0].txt_value,
+            };
+          }
+        } catch (cfError: any) {
+          console.error("Cloudflare error:", cfError);
+          // Continue without Cloudflare - user can verify manually later
+        }
+      }
+      
+      // Insert into database
+      const result = await db.execute(sql`
+        INSERT INTO custom_domains (
+          id, project_id, user_id, domain, cloudflare_hostname_id,
+          status, verification_record, created_at, updated_at
+        ) VALUES (
+          gen_random_uuid(), ${projectId}, ${userId}, ${normalizedDomain},
+          ${cloudflareHostnameId}, 'pending',
+          ${verificationRecord ? JSON.stringify(verificationRecord) : null}::jsonb,
+          NOW(), NOW()
+        )
+        RETURNING *
+      `);
+      
+      res.json({
+        ...result.rows[0],
+        dnsInstructions: {
+          type: 'CNAME',
+          name: normalizedDomain,
+          value: process.env.MAIN_DOMAIN || 'washbizhub.com',
+          note: 'Point your domain to our servers. SSL will be provisioned automatically.',
+        },
+        verificationRecord: verificationRecord,
+      });
+    } catch (error: any) {
+      console.error("Error adding domain:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete a custom domain
+  router.delete("/api/website-builder/domains/:domainId", async (req, res) => {
+    try {
+      const { domainId } = req.params;
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      // Get domain to check ownership and get Cloudflare ID
+      const domainResult = await db.execute(sql`
+        SELECT * FROM custom_domains 
+        WHERE id = ${domainId} AND user_id = ${userId}
+      `);
+      
+      if (domainResult.rows.length === 0) {
+        return res.status(404).json({ error: "Domain not found" });
+      }
+      
+      const domain = domainResult.rows[0] as any;
+      
+      // Remove from Cloudflare if configured
+      if (domain.cloudflare_hostname_id) {
+        const { cloudflareSaaS } = await import('./services/cloudflare-saas');
+        if (cloudflareSaaS.isConfigured()) {
+          try {
+            await cloudflareSaaS.deleteCustomHostname(domain.cloudflare_hostname_id);
+          } catch (cfError) {
+            console.error("Failed to remove from Cloudflare:", cfError);
+          }
+        }
+      }
+      
+      // Delete from database
+      await db.execute(sql`
+        DELETE FROM custom_domains WHERE id = ${domainId}
+      `);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting domain:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Check domain verification status
+  router.post("/api/website-builder/domains/:domainId/verify", async (req, res) => {
+    try {
+      const { domainId } = req.params;
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const domainResult = await db.execute(sql`
+        SELECT * FROM custom_domains 
+        WHERE id = ${domainId} AND user_id = ${userId}
+      `);
+      
+      if (domainResult.rows.length === 0) {
+        return res.status(404).json({ error: "Domain not found" });
+      }
+      
+      const domain = domainResult.rows[0] as any;
+      
+      // Check with Cloudflare
+      if (domain.cloudflare_hostname_id) {
+        const { cloudflareSaaS } = await import('./services/cloudflare-saas');
+        if (cloudflareSaaS.isConfigured()) {
+          try {
+            const cfStatus = await cloudflareSaaS.getCustomHostname(domain.cloudflare_hostname_id);
+            
+            let status = 'pending';
+            let sslStatus = 'pending';
+            
+            if (cfStatus.status === 'active') {
+              status = 'active';
+            } else if (cfStatus.status === 'pending') {
+              status = 'verifying';
+            }
+            
+            if (cfStatus.ssl?.status === 'active') {
+              sslStatus = 'active';
+            } else if (cfStatus.ssl?.status === 'pending_validation') {
+              sslStatus = 'pending';
+            }
+            
+            // Update database
+            await db.execute(sql`
+              UPDATE custom_domains 
+              SET status = ${status}, 
+                  ssl_status = ${sslStatus},
+                  last_verification_check = NOW(),
+                  verified_at = CASE WHEN ${status} = 'active' THEN NOW() ELSE verified_at END,
+                  updated_at = NOW()
+              WHERE id = ${domainId}
+            `);
+            
+            return res.json({
+              status,
+              sslStatus,
+              cloudflareStatus: cfStatus.status,
+              message: status === 'active' ? 'Domain verified and active!' : 'Verification in progress...',
+            });
+          } catch (cfError: any) {
+            console.error("Cloudflare verification error:", cfError);
+          }
+        }
+      }
+      
+      // Fallback: simple DNS check
+      const dns = await import('dns').then(m => m.promises);
+      try {
+        const records = await dns.resolveCname(domain.domain);
+        const mainDomain = process.env.MAIN_DOMAIN || 'washbizhub.com';
+        
+        if (records.some((r: string) => r.includes(mainDomain))) {
+          await db.execute(sql`
+            UPDATE custom_domains 
+            SET status = 'active', 
+                last_verification_check = NOW(),
+                verified_at = NOW(),
+                updated_at = NOW()
+            WHERE id = ${domainId}
+          `);
+          
+          return res.json({
+            status: 'active',
+            sslStatus: 'pending',
+            message: 'Domain verified! SSL will be provisioned shortly.',
+          });
+        }
+      } catch (dnsError) {
+        // DNS not configured yet
+      }
+      
+      res.json({
+        status: 'pending',
+        sslStatus: 'pending',
+        message: 'DNS not yet configured. Please add the CNAME record.',
+      });
+    } catch (error: any) {
+      console.error("Error verifying domain:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return router;
 }
