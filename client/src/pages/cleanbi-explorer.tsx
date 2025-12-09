@@ -85,7 +85,8 @@ import {
   LineChart,
   Award,
   Trophy,
-  Printer
+  Printer,
+  Ruler
 } from "lucide-react";
 import {
   ProgressRing,
@@ -144,6 +145,8 @@ import { ViewModeToggle } from "@/components/cleanbi/ViewModeToggle";
 import { AnalysisChartsView } from "@/components/cleanbi/AnalysisChartsView";
 import { AnalysisReportGenerator } from "@/components/cleanbi/AnalysisReportGenerator";
 import { AnalysisSocialShare } from "@/components/cleanbi/AnalysisSocialShare";
+import { useLocationDesign } from "@/contexts/LocationDesignContext";
+import { RequestProfessionalAnalysisCTA } from "@/components/consultation/RequestProfessionalAnalysisCTA";
 
 declare global {
   interface Window {
@@ -1017,6 +1020,7 @@ function CleanBIExplorerContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { isMobile, isHydrated } = useIsMobileWithHydration();
+  const { linkLocationToDesign, calculateRevenueMultiplier } = useLocationDesign();
   
   // Determine mobile status immediately on client using window.innerWidth as fallback
   // This prevents desktop users from seeing the mobile hydration overlay
@@ -3727,6 +3731,89 @@ function CleanBIExplorerContent() {
                         <BookmarkPlus className="w-4 h-4" />
                         Save
                       </Button>
+                    </motion.div>
+                    
+                    {/* Design Studio Connection & Professional Analysis */}
+                    <motion.div
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.55, duration: 0.3 }}
+                      className="flex flex-col gap-2 mt-2"
+                    >
+                      <Button
+                        size="default"
+                        className="w-full min-h-11 gap-2 bg-gradient-to-r from-[#C8A661] to-[#B8955A] text-[#001F3F] hover:from-[#D4B872] hover:to-[#C8A661] font-bold shadow-lg"
+                        onClick={() => {
+                          const nearestCompetitor = competitors.length > 0 
+                            ? Math.min(...competitors.map(c => c.distance)) 
+                            : 2.0;
+                          const marketSaturation: "Low" | "Medium" | "High" = 
+                            analysisResult.competitorCount <= 2 ? "Low" :
+                            analysisResult.competitorCount <= 5 ? "Medium" : "High";
+                          
+                          const locationData = {
+                            address: analysisResult.address,
+                            coordinates: { lat: analysisResult.lat, lng: analysisResult.lng },
+                            cleanbiScore: analysisResult.cleanbiScore,
+                            grade: (analysisResult.grade === "A" || analysisResult.grade === "B" || analysisResult.grade === "C" 
+                              ? analysisResult.grade 
+                              : "Needs Work") as "A" | "B" | "C" | "Needs Work",
+                            demographics: {
+                              medianIncome: analysisResult.medianIncome || 65000,
+                              populationDensity: analysisResult.populationDensity || 5000,
+                              renterPercentage: 45,
+                              householdSize: 2.5,
+                            },
+                            competition: {
+                              count: analysisResult.competitorCount || 0,
+                              nearestDistance: nearestCompetitor,
+                              marketSaturation,
+                            },
+                            traffic: {
+                              score: analysisResult.trafficScore || 50,
+                              dailyTraffic: (analysisResult.trafficScore || 50) * 200,
+                              peakHours: ["8AM-10AM", "5PM-7PM"],
+                            },
+                            accessibility: {
+                              walkScore: analysisResult.walkScore || 50,
+                              transitScore: analysisResult.transitScore || 30,
+                              parkingAvailable: true,
+                            },
+                            economics: {
+                              avgRent: 25,
+                              utilityMultiplier: 1.0,
+                              laborCost: 15,
+                            },
+                            opportunityLevel: analysisResult.opportunityLevel || "moderate",
+                            revenueMultiplier: 1.0,
+                            analyzedAt: new Date().toISOString(),
+                          };
+                          
+                          linkLocationToDesign(locationData);
+                          toast({ 
+                            title: "Location Linked!", 
+                            description: "Opening Design Studio with location data..." 
+                          });
+                          setLocation("/design-studio");
+                        }}
+                        data-testid="button-design-for-location"
+                      >
+                        <Ruler className="w-4 h-4" />
+                        Design for this Location
+                      </Button>
+                      
+                      <RequestProfessionalAnalysisCTA
+                        variant="button"
+                        size="sm"
+                        buttonText="Request Expert Review"
+                        consultationData={{
+                          type: "location",
+                          locationAddress: analysisResult.address,
+                          locationScore: analysisResult.cleanbiScore,
+                          locationGrade: analysisResult.grade,
+                        }}
+                        className="w-full"
+                      />
                     </motion.div>
                     
                     {/* View Mode Toggle */}
