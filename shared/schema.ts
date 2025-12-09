@@ -179,6 +179,102 @@ export const insertActivityEventSchema = createInsertSchema(activityEvents).omit
 export type InsertActivityEvent = z.infer<typeof insertActivityEventSchema>;
 export type ActivityEvent = typeof activityEvents.$inferSelect;
 
+// ==================== DIRECT MESSAGING SYSTEM ====================
+
+// Conversations - Groups users into conversations
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: varchar("type", { length: 20 }).default("direct"), // "direct", "group"
+  title: varchar("title"), // For group chats
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: "set null" }),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  lastMessageIdx: index("conversations_last_message_idx").on(table.lastMessageAt),
+}));
+
+// Conversation Participants
+export const conversationParticipants = pgTable("conversation_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 20 }).default("member"), // "admin", "member"
+  lastReadAt: timestamp("last_read_at"),
+  mutedUntil: timestamp("muted_until"),
+  joinedAt: timestamp("joined_at").defaultNow(),
+}, (table) => ({
+  conversationUserIdx: uniqueIndex("conversation_user_idx").on(table.conversationId, table.userId),
+  userIdx: index("participant_user_idx").on(table.userId),
+}));
+
+// Direct Messages
+export const directMessages = pgTable("direct_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  senderId: varchar("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  messageType: varchar("message_type", { length: 20 }).default("text"), // "text", "image", "file", "system"
+  attachments: jsonb("attachments"), // Array of { url, type, name, size }
+  replyToId: varchar("reply_to_id"), // For threaded replies
+  isEdited: boolean("is_edited").default(false),
+  editedAt: timestamp("edited_at"),
+  deletedAt: timestamp("deleted_at"), // Soft delete
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  conversationIdx: index("dm_conversation_idx").on(table.conversationId),
+  senderIdx: index("dm_sender_idx").on(table.senderId),
+  createdIdx: index("dm_created_idx").on(table.createdAt),
+}));
+
+// Member Directory - Enhanced profiles for networking
+export const memberProfiles = pgTable("member_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  headline: varchar("headline"), // Professional headline
+  specialties: text("specialties").array(), // Areas of expertise
+  services: text("services").array(), // Services offered
+  yearsInIndustry: integer("years_in_industry"),
+  certifications: text("certifications").array(),
+  websiteUrl: varchar("website_url"),
+  linkedinUrl: varchar("linkedin_url"),
+  facebookUrl: varchar("facebook_url"),
+  location: varchar("location"),
+  isOpenToNetwork: boolean("is_open_to_network").default(true),
+  isAvailableForConsulting: boolean("is_available_for_consulting").default(false),
+  showEmail: boolean("show_email").default(false),
+  showPhone: boolean("show_phone").default(false),
+  badges: text("badges").array(), // "verified", "pro", "contributor", "mentor"
+  endorsements: integer("endorsements").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("member_profile_user_idx").on(table.userId),
+}));
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+
+export const insertDirectMessageSchema = createInsertSchema(directMessages).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertDirectMessage = z.infer<typeof insertDirectMessageSchema>;
+export type DirectMessage = typeof directMessages.$inferSelect;
+
+export const insertMemberProfileSchema = createInsertSchema(memberProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertMemberProfile = z.infer<typeof insertMemberProfileSchema>;
+export type MemberProfile = typeof memberProfiles.$inferSelect;
+
 // Saved Items - for storing user's saved analyses, designs, calculations
 export const savedItems = pgTable("saved_items", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
