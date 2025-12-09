@@ -255,6 +255,13 @@ import {
   type InsertListingComparison,
   type BuyerListingHistory,
   type InsertBuyerListingHistory,
+  // Design Consulting Services
+  type DesignServiceCatalog,
+  type InsertDesignServiceCatalog,
+  type DesignQuote,
+  type InsertDesignQuote,
+  type DesignOrder,
+  type InsertDesignOrder,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -1023,6 +1030,30 @@ export interface IStorage {
   trackListingView(userId: string, listingId: string, timeSpent?: number): Promise<BuyerListingHistory>;
   getBuyerListingHistory(userId: string, limit?: number): Promise<BuyerListingHistory[]>;
   getRecentlyViewedListings(userId: string, limit?: number): Promise<(BuyerListingHistory & { listing: Listing })[]>;
+  
+  // ==================== DESIGN CONSULTING SERVICES ====================
+  
+  // Design Service Catalog
+  getDesignServices(): Promise<DesignServiceCatalog[]>;
+  getDesignService(id: string): Promise<DesignServiceCatalog | undefined>;
+  getDesignServiceByKey(serviceKey: string): Promise<DesignServiceCatalog | undefined>;
+  createDesignService(service: InsertDesignServiceCatalog): Promise<DesignServiceCatalog>;
+  updateDesignService(id: string, service: Partial<InsertDesignServiceCatalog>): Promise<DesignServiceCatalog>;
+  
+  // Design Quotes
+  getDesignQuotes(userId?: string): Promise<DesignQuote[]>;
+  getDesignQuote(id: string): Promise<DesignQuote | undefined>;
+  getDesignQuoteByNumber(quoteNumber: string): Promise<DesignQuote | undefined>;
+  createDesignQuote(quote: InsertDesignQuote): Promise<DesignQuote>;
+  updateDesignQuote(id: string, quote: Partial<InsertDesignQuote>): Promise<DesignQuote>;
+  
+  // Design Orders
+  getDesignOrders(userId?: string): Promise<DesignOrder[]>;
+  getDesignOrder(id: string): Promise<DesignOrder | undefined>;
+  getDesignOrderByNumber(orderNumber: string): Promise<DesignOrder | undefined>;
+  getDesignOrderByStripeSession(sessionId: string): Promise<DesignOrder | undefined>;
+  createDesignOrder(order: InsertDesignOrder): Promise<DesignOrder>;
+  updateDesignOrder(id: string, order: Partial<InsertDesignOrder>): Promise<DesignOrder>;
 }
 
 export class MemStorage implements IStorage {
