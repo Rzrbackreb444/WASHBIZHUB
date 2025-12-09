@@ -1,81 +1,100 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/big_dexter_laundromat_1764704943944.jpg";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
-  }
-};
-
-const floatVariants = {
-  initial: { y: 0 },
-  animate: {
-    y: [-8, 8, -8],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
-
-const cardRevealVariants = {
-  hidden: { opacity: 0, x: 60, rotateY: -15 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    rotateY: 0,
-    transition: { 
-      duration: 0.9, 
-      delay: 0.6,
-      ease: [0.22, 1, 0.36, 1] 
-    }
-  }
-};
-
-const secondCardVariants = {
-  hidden: { opacity: 0, x: 80, rotateY: -20 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    rotateY: 0,
-    transition: { 
-      duration: 0.9, 
-      delay: 0.9,
-      ease: [0.22, 1, 0.36, 1] 
-    }
-  }
-};
+// Hook to detect mobile devices for performance optimization
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+}
 
 export function PremiumHero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  
+  // Disable expensive animations on mobile or when reduced motion is preferred
+  const shouldReduceMotion = prefersReducedMotion || isMobile;
+  
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
   
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // Disable parallax on mobile for performance
+  const y1 = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 150]);
+  const y2 = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, shouldReduceMotion ? 1 : 0]);
+  
+  // Optimized animation variants - simplified on mobile
+  const containerVariants = useMemo(() => shouldReduceMotion ? {
+    hidden: { opacity: 1 },
+    visible: { opacity: 1 }
+  } : {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  }, [shouldReduceMotion]);
+
+  const itemVariants = useMemo(() => shouldReduceMotion ? {
+    hidden: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0 }
+  } : {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, y: 0,
+      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+    }
+  }, [shouldReduceMotion]);
+
+  const floatVariants = useMemo(() => shouldReduceMotion ? {
+    initial: { y: 0 },
+    animate: { y: 0 }
+  } : {
+    initial: { y: 0 },
+    animate: {
+      y: [-8, 8, -8],
+      transition: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+    }
+  }, [shouldReduceMotion]);
+
+  const cardRevealVariants = useMemo(() => shouldReduceMotion ? {
+    hidden: { opacity: 1, x: 0, rotateY: 0 },
+    visible: { opacity: 1, x: 0, rotateY: 0 }
+  } : {
+    hidden: { opacity: 0, x: 60, rotateY: -15 },
+    visible: { 
+      opacity: 1, x: 0, rotateY: 0,
+      transition: { duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }
+    }
+  }, [shouldReduceMotion]);
+
+  const secondCardVariants = useMemo(() => shouldReduceMotion ? {
+    hidden: { opacity: 1, x: 0, rotateY: 0 },
+    visible: { opacity: 1, x: 0, rotateY: 0 }
+  } : {
+    hidden: { opacity: 0, x: 80, rotateY: -20 },
+    visible: { 
+      opacity: 1, x: 0, rotateY: 0,
+      transition: { duration: 0.9, delay: 0.9, ease: [0.22, 1, 0.36, 1] }
+    }
+  }, [shouldReduceMotion]);
 
   return (
     <section 
