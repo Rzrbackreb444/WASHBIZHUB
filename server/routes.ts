@@ -2973,15 +2973,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Define subscription tiers with Stripe price IDs
       // Pricing must match client/src/lib/tier-config.ts
-      const subscriptionTiers: Record<string, { name: string; amount: number; priceId?: string; trialDays: number }> = {
+      // NEW SIMPLIFIED STRUCTURE: Free + All-Access ($129/mo or $1,290/yr)
+      const subscriptionTiers: Record<string, { name: string; amount: number; amountAnnual?: number; priceId?: string; priceIdAnnual?: string; trialDays: number }> = {
+        // PRIMARY TIER: All-Access at $129/mo or $1,290/yr (2 months free)
+        'all_access': { 
+          name: 'WashBizHub All-Access', 
+          amount: 12900, 
+          amountAnnual: 129000,
+          priceId: process.env.STRIPE_ALL_ACCESS_MONTHLY_PRICE_ID || getPrice('ALL_ACCESS'),
+          priceIdAnnual: process.env.STRIPE_ALL_ACCESS_ANNUAL_PRICE_ID,
+          trialDays: 7 
+        },
+        // Legacy tiers - map to all_access for backward compatibility
+        'starter': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
+        'pro': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
+        'enterprise': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
+        // POS add-ons (future)
         'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID, trialDays: 7 },
         'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID, trialDays: 7 },
-        'starter': { name: 'CLEANBI Starter', amount: 2900, priceId: getPrice('STARTER'), trialDays: 7 },
-        'pro': { name: 'CLEANBI Pro', amount: 9900, priceId: getPrice('PRO'), trialDays: 7 },
-        'enterprise': { name: 'CLEANBI Enterprise', amount: 69900, priceId: getPrice('ENTERPRISE'), trialDays: 14 },
       };
       
-      const tier = subscriptionTiers[tierId] || subscriptionTiers['pro'];
+      const tier = subscriptionTiers[tierId] || subscriptionTiers['all_access'];
+      const isAnnualBilling = interval === 'year';
+      const amount = isAnnualBilling && tier.amountAnnual ? tier.amountAnnual : tier.amount;
+      const priceId = isAnnualBilling && tier.priceIdAnnual ? tier.priceIdAnnual : tier.priceId;
       const baseUrl = process.env.BASE_URL || 'https://washbizhub.com';
       
       // Build session configuration with trial period
@@ -2989,17 +3004,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mode: 'subscription',
         payment_method_types: ['card'],
         line_items: [
-          tier.priceId ? 
-            { price: tier.priceId, quantity: 1 } :
+          priceId ? 
+            { price: priceId, quantity: 1 } :
             {
               price_data: {
                 currency: 'usd',
                 product_data: {
                   name: tier.name,
-                  description: `Monthly subscription to ${tier.name}`,
+                  description: isAnnualBilling 
+                    ? `Annual subscription to ${tier.name} (2 months free!)` 
+                    : `Monthly subscription to ${tier.name}`,
                 },
                 recurring: { interval: interval as 'month' | 'year' },
-                unit_amount: tier.amount,
+                unit_amount: amount,
               },
               quantity: 1,
             },
@@ -3007,11 +3024,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
         metadata: {
-          tierId,
-          tier: tierId,
+          tierId: tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise' ? 'all_access' : tierId,
+          tier: tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise' ? 'all_access' : tierId,
           tierName: tier.name,
           userId: userId || '',
           type: 'subscription',
+          billingInterval: interval,
           hasTrial: (!skipTrial && tier.trialDays > 0) ? 'true' : 'false',
         },
         allow_promotion_codes: true,

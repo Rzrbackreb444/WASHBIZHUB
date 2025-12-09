@@ -1,10 +1,10 @@
 import { 
   Gift, Zap, Star, Crown, Building2, Rocket, 
   Eye, TrendingUp, Search, FileText, Video, Shield,
-  Award, Sparkles, Target, BarChart3
+  Award, Sparkles, Target, BarChart3, Users, Clock
 } from "lucide-react";
 
-export type PlatformTier = 'free' | 'starter' | 'pro' | 'enterprise';
+export type PlatformTier = 'free' | 'all_access';
 export type ListingTier = 'free' | 'basic' | 'showcase' | 'diamond';
 
 export interface TierFeature {
@@ -35,6 +35,21 @@ export interface PlatformTierConfig {
   ctaVariant: 'default' | 'outline' | 'secondary';
   badge?: string;
   badgeColor?: string;
+}
+
+export interface ConsultingAddon {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  price: number;
+  priceType: 'one-time' | 'monthly' | 'starting';
+  icon: typeof Gift;
+  iconBg: string;
+  iconColor: string;
+  features: string[];
+  cta: string;
+  popular?: boolean;
 }
 
 export interface ListingTierConfig {
@@ -70,7 +85,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     id: 'free',
     name: 'Free',
     tagline: 'Try it out',
-    description: 'Get 3 free CLEANBI analyses plus essential tools',
+    description: 'Get 3 free CLEANBI analyses plus essential tools to explore',
     price: 0,
     priceAnnual: 0,
     icon: Gift,
@@ -80,14 +95,16 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     features: [
       { text: '3 CLEANBI analyses total', included: true, highlight: true },
       { text: 'Browse marketplace listings', included: true },
-      { text: 'View funding hub directory', included: true },
       { text: 'Read forum discussions', included: true },
+      { text: 'View funding hub directory', included: true },
       { text: 'Blog & help center access', included: true },
-      { text: 'Street View access', included: true },
-      { text: 'Competitor count display', included: true },
-      { text: 'Full Calculator Hub', included: false },
+      { text: 'Street View & competitor count', included: true },
+      { text: 'Basic calculator previews', included: true },
+      { text: 'Unlimited CLEANBI analyses', included: false },
+      { text: 'Full Calculator Suite', included: false },
       { text: 'Book & Courses access', included: false },
-      { text: 'Forum posting', included: false },
+      { text: 'Forum posting & community', included: false },
+      { text: 'Design Studio', included: false },
     ],
     limits: {
       cleanbiAnalyses: 3,
@@ -98,107 +115,113 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     cta: 'Start Free',
     ctaVariant: 'outline',
   },
-  starter: {
-    id: 'starter',
-    name: 'Starter',
-    tagline: 'For serious investors',
-    description: 'Full access to all calculators, book, courses & unlimited CLEANBI',
-    price: 29,
-    priceAnnual: 290,
-    icon: Zap,
-    iconBg: 'bg-[#C8A661]/20',
-    iconColor: 'text-[#C8A661]',
+  all_access: {
+    id: 'all_access',
+    name: 'All-Access',
+    tagline: 'Everything you need',
+    description: 'Complete access to every tool, feature, and resource on WashBizHub',
+    price: 129,
+    priceAnnual: 1290,
+    icon: Crown,
+    iconBg: 'bg-gradient-to-br from-[#C8A661] to-[#8B7355]',
+    iconColor: 'text-white',
     popular: true,
     features: [
       { text: 'Unlimited CLEANBI analyses', included: true, highlight: true },
-      { text: 'Full Calculator Hub (ROI, Loan, Utility, Labor, Valuation)', included: true, highlight: true },
-      { text: 'Book & Courses access', included: true, highlight: true },
+      { text: 'Full Calculator Suite (50+ tools)', included: true, highlight: true },
+      { text: 'Complete Book & All Courses', included: true, highlight: true },
+      { text: 'Design Studio (2D/3D floor plans)', included: true, highlight: true },
+      { text: 'Service Guy AI diagnostics', included: true },
+      { text: 'Forum posting & community access', included: true },
+      { text: 'Marketplace listing & lead access', included: true },
       { text: 'AI Business Plan Generator', included: true },
-      { text: 'Premium templates & downloads', included: true },
-      { text: 'Forum posting & community', included: true },
-      { text: '3D Aerial View flyovers', included: true },
-      { text: 'Walk Score & Transit Score', included: true },
-      { text: 'Export PDF reports', included: true },
-      { text: 'Priority email support', included: true },
-    ],
-    limits: {
-      cleanbiAnalyses: 'unlimited',
-      apiCalls: 0,
-      savedReports: 100,
-      teamMembers: 1,
-    },
-    cta: 'Get Started',
-    ctaVariant: 'default',
-    badge: 'MOST POPULAR',
-    badgeColor: 'bg-[#C8A661] text-white',
-  },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    tagline: 'For power users & brokers',
-    description: 'Advanced analytics, Monte Carlo simulations, and API access',
-    price: 99,
-    priceAnnual: 990,
-    icon: Crown,
-    iconBg: 'bg-purple-100 dark:bg-purple-900/30',
-    iconColor: 'text-purple-600 dark:text-purple-400',
-    popular: false,
-    features: [
-      { text: 'Everything in Starter', included: true },
-      { text: 'Monte Carlo simulations', included: true, highlight: true },
-      { text: 'Drive-time catchment maps', included: true, highlight: true },
-      { text: 'Bulk location analysis', included: true },
+      { text: 'AI Consultation Council', included: true },
       { text: 'Due Diligence Toolkit', included: true },
-      { text: 'Revenue projections', included: true },
-      { text: 'Deal scoring AI insights', included: true },
+      { text: 'Monte Carlo simulations', included: true },
+      { text: 'Bulk location analysis', included: true },
+      { text: 'Drive-time catchment maps', included: true },
       { text: 'Website builder', included: true },
-      { text: 'API access (500 calls/mo)', included: true },
-      { text: 'Priority phone support', included: true },
-    ],
-    limits: {
-      cleanbiAnalyses: 'unlimited',
-      apiCalls: 500,
-      savedReports: 'unlimited',
-      teamMembers: 3,
-    },
-    cta: 'Get Started',
-    ctaVariant: 'default',
-  },
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    tagline: 'For brokers & multi-unit operators',
-    description: 'White-label reports, ownership data, and dedicated support',
-    price: 699,
-    priceAnnual: 6990,
-    icon: Building2,
-    iconBg: 'bg-blue-100 dark:bg-blue-900/30',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    popular: false,
-    features: [
-      { text: 'Everything in Pro', included: true },
-      { text: 'Ownership & lien data', included: true, highlight: true },
-      { text: 'Motivated seller detection', included: true, highlight: true },
-      { text: 'Property tax records', included: true },
+      { text: 'API access (unlimited)', included: true },
       { text: 'White-label reports', included: true },
-      { text: 'Custom branding', included: true },
-      { text: 'Unlimited API access', included: true },
-      { text: 'Team collaboration', included: true },
-      { text: 'Dedicated account manager', included: true },
-      { text: 'Phone & Slack support', included: true },
+      { text: 'Team collaboration (up to 5)', included: true },
+      { text: 'Priority email & phone support', included: true },
     ],
     limits: {
       cleanbiAnalyses: 'unlimited',
       apiCalls: 'unlimited',
       savedReports: 'unlimited',
-      teamMembers: 'unlimited',
+      teamMembers: 5,
     },
-    cta: 'Contact Sales',
-    ctaVariant: 'outline',
+    cta: 'Get All-Access',
+    ctaVariant: 'default',
     badge: 'BEST VALUE',
-    badgeColor: 'bg-blue-600 text-white',
+    badgeColor: 'bg-[#C8A661] text-white',
   },
 };
+
+export const CONSULTING_ADDONS: ConsultingAddon[] = [
+  {
+    id: 'strategy-session',
+    name: 'Strategy Session',
+    tagline: '90-min intensive',
+    description: 'Deep-dive consultation with expert analysis and actionable deliverables',
+    price: 750,
+    priceType: 'one-time',
+    icon: Target,
+    iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    features: [
+      '90-minute 1-on-1 consultation',
+      'Custom CLEANBI analysis review',
+      'Acquisition strategy roadmap',
+      'Written deliverables & recommendations',
+      'Recording of session',
+    ],
+    cta: 'Book Session',
+    popular: true,
+  },
+  {
+    id: 'monthly-advisory',
+    name: 'Monthly Advisory',
+    tagline: 'Ongoing expert support',
+    description: 'Dedicated advisor access for continuous guidance on your laundromat journey',
+    price: 1500,
+    priceType: 'monthly',
+    icon: Users,
+    iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+    iconColor: 'text-purple-600 dark:text-purple-400',
+    features: [
+      '4 hours of advisory time per month',
+      'Priority response within 24 hours',
+      'Deal review & negotiation support',
+      'Due diligence assistance',
+      'Ongoing strategy refinement',
+      'Cancel anytime',
+    ],
+    cta: 'Start Advisory',
+  },
+  {
+    id: 'white-glove',
+    name: 'White-Glove Service',
+    tagline: 'Full acquisition support',
+    description: 'Comprehensive hands-on support from search to close',
+    price: 5000,
+    priceType: 'starting',
+    icon: Crown,
+    iconBg: 'bg-gradient-to-br from-[#0A1628] to-[#1e3a5f]',
+    iconColor: 'text-[#C8A661]',
+    features: [
+      'Dedicated acquisition manager',
+      'Market search & property sourcing',
+      'Full due diligence coordination',
+      'Negotiation representation',
+      'Financing introductions',
+      'Closing support & transition planning',
+      'On-site visits (travel included)',
+    ],
+    cta: 'Contact Sales',
+  },
+];
 
 export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
   free: {
@@ -342,10 +365,13 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
   },
 };
 
-export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'starter', 'pro', 'enterprise'];
+export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'all_access'];
 export const LISTING_TIER_ORDER: ListingTier[] = ['free', 'basic', 'showcase', 'diamond'];
 
 export function getPlatformTier(tierId: string): PlatformTierConfig | undefined {
+  if (tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise') {
+    return PLATFORM_TIERS['all_access'];
+  }
   return PLATFORM_TIERS[tierId as PlatformTier];
 }
 
@@ -367,31 +393,35 @@ export function getSavingsPercent(monthly: number, annual: number): number {
 export const PLATFORM_PRICING_FAQS = [
   {
     question: "What is CLEANBI?",
-    answer: "CLEANBI is our proprietary AI-powered location intelligence system that scores any address for laundromat investment potential. It analyzes 6 key factors: Competition, Location, Equipment, Accessibility, Neighborhood, and Business metrics to give you a comprehensive A-F grade."
+    answer: "CLEANBI is our proprietary AI-powered location intelligence system that scores any address for laundromat investment potential. It analyzes 6 key factors: Competition, Location, Equipment, Accessibility, Neighborhood, and Business metrics to give you a comprehensive grade."
+  },
+  {
+    question: "What's included in All-Access?",
+    answer: "Everything! Unlimited CLEANBI analyses, all 50+ calculators, complete book & courses, Design Studio, Service Guy AI, forum access, marketplace features, AI tools, bulk analysis, API access, and priority support. One membership, zero limitations."
   },
   {
     question: "Do I need a credit card to start?",
-    answer: "No credit card is needed for the Free tier - just sign up and start analyzing locations immediately with 3 free CLEANBI analyses. For paid plans (Starter, Pro, Enterprise), a credit card is required at checkout. All paid plans include a 30-day money-back guarantee."
+    answer: "No credit card is needed for the Free tier - just sign up and start analyzing locations immediately with 3 free CLEANBI analyses. All paid plans include a 30-day money-back guarantee."
   },
   {
     question: "What is the money-back guarantee?",
-    answer: "All paid plans include a 30-day money-back guarantee. If you're not completely satisfied within the first 30 days, contact us for a full refund - no questions asked. We're confident you'll love the value WashBizHub provides."
+    answer: "All paid plans include a 30-day money-back guarantee. If you're not completely satisfied within the first 30 days, contact us for a full refund - no questions asked."
+  },
+  {
+    question: "What are consulting add-ons?",
+    answer: "Our consulting add-ons provide personalized, human expert guidance. Strategy Sessions ($750) are 90-min deep dives. Monthly Advisory ($1,500/mo) gives you ongoing access to an expert. White-Glove Service ($5,000+) provides full acquisition support from search to close."
   },
   {
     question: "Can I upgrade or downgrade anytime?",
-    answer: "Yes! You can change your plan at any time. Upgrades take effect immediately, and downgrades take effect at the start of your next billing cycle. We'll prorate any charges."
+    answer: "Yes! You can change your plan at any time. Upgrades take effect immediately, and downgrades take effect at the start of your next billing cycle."
   },
   {
     question: "What payment methods do you accept?",
-    answer: "We accept all major credit cards (Visa, Mastercard, American Express, Discover) through our secure Stripe payment processing. Enterprise plans can also pay via invoice."
+    answer: "We accept all major credit cards (Visa, Mastercard, American Express, Discover) through our secure Stripe payment processing."
   },
   {
     question: "Is there a refund policy?",
     answer: "Yes! If you're not satisfied within the first 30 days of your paid subscription, contact us for a full refund. No questions asked."
-  },
-  {
-    question: "What's included in API access?",
-    answer: "Pro plan includes 500 API calls per month for integrating CLEANBI data into your own applications. Enterprise includes unlimited API access with dedicated endpoints and priority rate limits."
   }
 ];
 
@@ -411,9 +441,5 @@ export const LISTING_PRICING_FAQS = [
   {
     question: "How does the CLEANBI report help sell my laundromat?",
     answer: "Buyers love seeing a professional CLEANBI analysis. It provides third-party validation of location quality, competition analysis, and growth potential - building buyer confidence and often leading to faster sales at better prices."
-  },
-  {
-    question: "What's included in professional photography credit?",
-    answer: "Spotlight tier includes a $250 credit toward professional photography services in select markets. We'll connect you with our network of commercial real estate photographers."
   }
 ];
