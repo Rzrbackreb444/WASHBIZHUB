@@ -288,7 +288,9 @@ export default function Pricing() {
   };
 
   const getConsultingCTALink = (addon: ConsultingAddon) => {
-    return "/consultation";
+    const subject = encodeURIComponent(`${addon.name} Inquiry - WashBizHub`);
+    const body = encodeURIComponent(`Hi WashBizHub Team,\n\nI'm interested in learning more about the ${addon.name} service.\n\nPlease contact me to discuss how this can help with my laundromat investment journey.\n\nBest regards`);
+    return `mailto:consult@washbizhub.com?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -533,6 +535,17 @@ export default function Pricing() {
                   <CardDescription className="text-muted-foreground">
                     Complete access to everything
                   </CardDescription>
+                  
+                  {/* 7-Day Trial Banner */}
+                  <div className="mt-4 mb-2 px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium">
+                      <Clock className="h-4 w-4" />
+                      <span>7-Day Free Trial</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center mt-1">
+                      Full access to all features. Cancel anytime.
+                    </p>
+                  </div>
                   
                   <div className="my-6">
                     <div className="flex items-baseline justify-center gap-1">
