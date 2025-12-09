@@ -732,6 +732,87 @@ export function createWhiteLabelRoutes() {
   });
 
   // ========================================
+  // WEBSITE BUILDER PROJECT MANAGEMENT
+  // ========================================
+
+  // Get user's site project (or create one if it doesn't exist)
+  router.get("/api/website-builder/project", async (req, res) => {
+    try {
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Find existing project or create one
+      let result = await db.execute(sql`
+        SELECT * FROM site_projects WHERE user_id = ${userId} LIMIT 1
+      `);
+
+      if (result.rows.length === 0) {
+        // Create a new project for this user
+        const projectId = randomUUID();
+        const subdomain = `site-${userId.slice(0, 8)}`;
+        await db.execute(sql`
+          INSERT INTO site_projects (id, user_id, name, subdomain, is_published, created_at, updated_at)
+          VALUES (${projectId}, ${userId}, 'My Website', ${subdomain}, false, NOW(), NOW())
+        `);
+        result = await db.execute(sql`
+          SELECT * FROM site_projects WHERE id = ${projectId}
+        `);
+      }
+
+      const project = result.rows[0] as any;
+      res.json({
+        id: project.id,
+        name: project.name,
+        subdomain: project.subdomain,
+        isPublished: project.is_published,
+        publishedUrl: project.is_published ? `https://${project.subdomain}.washbizhub.com` : null,
+        publishedAt: project.published_at,
+      });
+    } catch (error: any) {
+      console.error("Error fetching project:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update project subdomain
+  router.patch("/api/website-builder/project/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const userId = (req as any).userId || (req as any).session?.passport?.user;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { subdomain, name } = req.body;
+
+      // Check if subdomain is already taken
+      if (subdomain) {
+        const existing = await db.execute(sql`
+          SELECT id FROM site_projects WHERE subdomain = ${subdomain} AND id != ${projectId}
+        `);
+        if (existing.rows.length > 0) {
+          return res.status(400).json({ error: "Subdomain is already taken" });
+        }
+      }
+
+      await db.execute(sql`
+        UPDATE site_projects 
+        SET subdomain = COALESCE(${subdomain}, subdomain),
+            name = COALESCE(${name}, name),
+            updated_at = NOW()
+        WHERE id = ${projectId} AND user_id = ${userId}
+      `);
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error updating project:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ========================================
   // CUSTOM DOMAIN MANAGEMENT
   // ========================================
 
@@ -985,6 +1066,171 @@ export function createWhiteLabelRoutes() {
     } catch (error: any) {
       console.error("Error verifying domain:", error);
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ========================================
+  // LIVE SITE SERVING
+  // ========================================
+
+  // Preview endpoint (authenticated, for unpublished sites)
+  router.get("/api/website-builder/preview/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const userId = (req as any).userId || req.session?.passport?.user;
+      
+      // Verify ownership
+      const projectResult = await db.execute(sql`
+        SELECT * FROM site_projects WHERE id = ${projectId} AND user_id = ${userId}
+      `);
+      
+      if (projectResult.rows.length === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      const { renderFullPage } = await import('./services/site-renderer');
+      
+      const project = projectResult.rows[0] as any;
+      const pagesResult = await db.execute(sql`
+        SELECT * FROM site_pages WHERE project_id = ${projectId} ORDER BY "order" ASC
+      `);
+      const pages = pagesResult.rows as any[];
+      
+      const sections: Record<string, any[]> = {};
+      for (const page of pages) {
+        const sectionsResult = await db.execute(sql`
+          SELECT * FROM page_sections WHERE page_id = ${page.id} ORDER BY "order" ASC
+        `);
+        sections[page.id] = sectionsResult.rows as any[];
+      }
+      
+      const profileResult = await db.execute(sql`
+        SELECT * FROM business_profiles WHERE project_id = ${projectId} LIMIT 1
+      `);
+      
+      const siteData = {
+        project,
+        pages,
+        sections,
+        businessProfile: profileResult.rows[0] || null,
+      };
+      
+      const pageSlug = req.query.page as string || 'home';
+      const html = renderFullPage(siteData, pageSlug);
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } catch (error: any) {
+      console.error("Error generating preview:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Publish/unpublish a site
+  router.post("/api/website-builder/publish/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const { publish } = req.body;
+      const userId = (req as any).userId || req.session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      // Verify ownership
+      const projectResult = await db.execute(sql`
+        SELECT * FROM site_projects WHERE id = ${projectId} AND user_id = ${userId}
+      `);
+      
+      if (projectResult.rows.length === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      const project = projectResult.rows[0] as any;
+      const mainDomain = process.env.MAIN_DOMAIN || 'washbizhub.com';
+      const publishedUrl = project.subdomain ? `https://${project.subdomain}.${mainDomain}` : null;
+      
+      await db.execute(sql`
+        UPDATE site_projects 
+        SET is_published = ${publish === true},
+            published_url = ${publish ? publishedUrl : null},
+            published_at = ${publish ? sql`NOW()` : null},
+            updated_at = NOW()
+        WHERE id = ${projectId}
+      `);
+      
+      res.json({ 
+        success: true, 
+        isPublished: publish === true,
+        publishedUrl: publish ? publishedUrl : null,
+      });
+    } catch (error: any) {
+      console.error("Error publishing site:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Serve tenant websites via subdomain path
+  router.get("/s/:subdomain", async (req, res) => {
+    try {
+      const { subdomain } = req.params;
+      
+      const projectResult = await db.execute(sql`
+        SELECT * FROM site_projects WHERE subdomain = ${subdomain} AND is_published = true
+      `);
+      
+      if (projectResult.rows.length === 0) {
+        const { renderSiteNotFound } = await import('./services/site-renderer');
+        return res.send(renderSiteNotFound());
+      }
+      
+      const project = projectResult.rows[0] as any;
+      const { loadSiteData, renderFullPage } = await import('./services/site-renderer');
+      const siteData = await loadSiteData(project.id);
+      
+      if (!siteData) {
+        const { renderSiteNotFound } = await import('./services/site-renderer');
+        return res.send(renderSiteNotFound());
+      }
+      
+      const html = renderFullPage(siteData, 'home');
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } catch (error: any) {
+      console.error("Error serving site:", error);
+      res.status(500).send('<h1>Error loading site</h1>');
+    }
+  });
+
+  // Serve tenant page via subdomain path
+  router.get("/s/:subdomain/:pageSlug", async (req, res) => {
+    try {
+      const { subdomain, pageSlug } = req.params;
+      
+      const projectResult = await db.execute(sql`
+        SELECT * FROM site_projects WHERE subdomain = ${subdomain} AND is_published = true
+      `);
+      
+      if (projectResult.rows.length === 0) {
+        const { renderSiteNotFound } = await import('./services/site-renderer');
+        return res.send(renderSiteNotFound());
+      }
+      
+      const project = projectResult.rows[0] as any;
+      const { loadSiteData, renderFullPage } = await import('./services/site-renderer');
+      const siteData = await loadSiteData(project.id);
+      
+      if (!siteData) {
+        const { renderSiteNotFound } = await import('./services/site-renderer');
+        return res.send(renderSiteNotFound());
+      }
+      
+      const html = renderFullPage(siteData, pageSlug);
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } catch (error: any) {
+      console.error("Error serving site page:", error);
+      res.status(500).send('<h1>Error loading page</h1>');
     }
   });
 
