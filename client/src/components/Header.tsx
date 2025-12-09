@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/sell-your-laundromat", label: "Sell" },
   { href: "/forum", label: "Forum" },
   { href: "/consultation", label: "Consultations" },
+  { href: "/pricing", label: "Pricing", featured: true },
 ];
 
 const megaMenuSections = [
@@ -337,6 +338,17 @@ export function Header() {
                       Upgrade
                     </Button>
                   )}
+                  
+                  <Link href="/pricing">
+                    <Button 
+                      variant="outline"
+                      className="hidden sm:flex border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10 font-medium text-sm"
+                      size="sm"
+                      data-testid="link-pricing-desktop"
+                    >
+                      Pricing
+                    </Button>
+                  </Link>
                 </>
               )}
               
@@ -447,6 +459,17 @@ export function Header() {
 
                   {/* Mobile Footer Actions - Fixed at bottom */}
                   <div className="p-4 border-t border-border space-y-3 flex-shrink-0 bg-background">
+                    <SheetClose asChild>
+                      <Link href="/pricing">
+                        <Button 
+                          className="w-full bg-[#C8A661] hover:bg-[#b8963d] text-white font-semibold"
+                          data-testid="link-pricing-mobile"
+                        >
+                          View Pricing
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                    
                     {!isLoading && (
                         <>
                           {isAuthenticated ? (
