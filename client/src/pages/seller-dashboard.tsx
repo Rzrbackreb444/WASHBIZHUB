@@ -42,6 +42,7 @@ import {
   ChartCard,
   DashboardNav,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import {
   Building2,
   Plus,
@@ -102,13 +103,6 @@ interface MyListingsResponse {
   tierBenefits: Record<string, TierBenefits>;
 }
 
-const dashboardNavItems = [
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
-  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
-  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
-  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
-  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
-];
 
 const TIER_CONFIG: Record<string, { label: string; icon: any; color: string; bgColor: string; price?: number }> = {
   free: { label: "Free", icon: Star, color: "text-gray-400", bgColor: "bg-gray-500/10" },
@@ -236,7 +230,7 @@ export default function SellerDashboard() {
         headerActions={
           <div className="flex items-center gap-2">
             <DashboardNav 
-              items={dashboardNavItems} 
+              items={getNavItemsForRole(user?.role)} 
               variant="dropdown" 
               className="hidden md:flex"
             />

@@ -17,6 +17,7 @@ import {
   DateRange,
   DashboardNav,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import {
   Users, ShoppingBag, MessageSquare, BookOpen, FileText, Building2,
   Bot, MapPin, Mail, Globe, TrendingUp, DollarSign, Activity,

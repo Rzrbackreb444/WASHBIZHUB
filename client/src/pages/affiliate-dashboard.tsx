@@ -15,6 +15,7 @@ import {
   ChartCard,
   DashboardNav,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import {
   DollarSign,
   TrendingUp,
@@ -46,13 +47,6 @@ import {
 } from "recharts";
 import type { Affiliate, AffiliateContent, AffiliateSale } from "@shared/schema";
 
-const dashboardNavItems = [
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
-  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
-  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
-  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
-  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
-];
 
 const mockReferralData = [
   { month: "Jan", referrals: 12, conversions: 3, commission: 450 },
@@ -208,7 +202,7 @@ export default function AffiliateDashboard() {
         headerActions={
           <div className="flex items-center gap-2">
             <DashboardNav 
-              items={dashboardNavItems} 
+              items={getNavItemsForRole(affiliate?.userId ? "user" : undefined)} 
               variant="dropdown" 
               className="hidden md:flex"
             />

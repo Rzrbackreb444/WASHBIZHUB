@@ -15,6 +15,7 @@ import {
   ChartCard,
   DashboardNav,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import {
   Package,
   Eye,
@@ -42,13 +43,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const dashboardNavItems = [
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
-  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
-  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
-  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
-  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
-];
 
 const mockSalesData = [
   { month: "Jan", sales: 1200, orders: 15 },
@@ -114,7 +108,7 @@ export default function VendorDashboard() {
         headerActions={
           <div className="flex items-center gap-2">
             <DashboardNav 
-              items={dashboardNavItems} 
+              items={getNavItemsForRole(user?.role)} 
               variant="dropdown" 
               className="hidden md:flex"
             />
