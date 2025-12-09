@@ -35,10 +35,16 @@ Branding Guidelines:
 - Opportunity levels should also be positive: "Gold Mine Zone", "High Opportunity", "Good Potential", "Room to Grow", "Strategic Location"
 
 Owner Contact & Notifications:
+- Owner: Nick Kremers (Founder)
 - Owner phone: 479-883-4314 (AT&T)
 - SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
 - All AI chat widget messages trigger instant SMS + email notifications to owner
 - Backup notifications sent to nick@washbizhub.com
+
+Laundromat Consultation Council:
+- 5 specialized experts who discuss, delegate, and advise (Operations, Financial, Market, Equipment, Location)
+- Human oversight by Nick Kremers on every consultation
+- All consultation requests sent to consult@washbizhub.com
 
 ## System Architecture
 
