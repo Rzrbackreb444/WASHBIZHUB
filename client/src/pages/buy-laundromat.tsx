@@ -381,6 +381,29 @@ export default function BuyLaundromat() {
             />
           </div>
           
+          {/* Broker Directory Banner */}
+          <Card className="mb-6 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-600/10 border-amber-500/30">
+            <CardContent className="py-4 px-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground">Work with Verified Brokers</p>
+                    <p className="text-sm text-muted-foreground">Connect with industry experts who specialize in laundromat sales</p>
+                  </div>
+                </div>
+                <Link href="/brokers">
+                  <Button className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg" data-testid="button-find-broker-banner">
+                    <Users className="w-4 h-4 mr-2" />
+                    Find a Broker
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+          
           <Card className="mb-8 bg-gradient-to-r from-[#1877f2]/10 to-[#1877f2]/5 border-[#1877f2]/20">
             <CardContent className="py-4 px-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
