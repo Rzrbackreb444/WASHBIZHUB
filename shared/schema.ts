@@ -14011,5 +14011,155 @@ export type TechContribution = typeof techContributions.$inferSelect;
 export type InsertTechContribution = z.infer<typeof insertTechContributionSchema>;
 
 // ============================================================================
+// DESIGN CONSULTING SERVICES - Professional Laundromat Design & Consultation
+// ============================================================================
+
+// Design Service Catalog - Available consulting services and pricing
+export const designServiceCatalog = pgTable("design_service_catalog", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Service info
+  serviceKey: text("service_key").notNull().unique(), // "feasibility", "3d-design", "equipment-sourcing", etc.
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  
+  // Pricing
+  priceType: text("price_type").notNull(), // "fixed", "range", "percentage", "monthly"
+  priceMin: decimal("price_min", { precision: 10, scale: 2 }), // Min price in dollars
+  priceMax: decimal("price_max", { precision: 10, scale: 2 }), // Max price (for ranges)
+  percentageBase: text("percentage_base"), // "equipment" or "project" (for percentage pricing)
+  percentageRate: decimal("percentage_rate", { precision: 5, scale: 2 }), // e.g., 12.00 for 12%
+  
+  // Deliverables
+  deliverables: text("deliverables").array(), // List of what's included
+  timeline: text("timeline"), // Expected delivery time
+  
+  // Display
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true).notNull(),
+  isFeatured: boolean("is_featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDesignServiceCatalogSchema = createInsertSchema(designServiceCatalog).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DesignServiceCatalog = typeof designServiceCatalog.$inferSelect;
+export type InsertDesignServiceCatalog = z.infer<typeof insertDesignServiceCatalogSchema>;
+
+// Design Quotes - Project quotes based on equipment/project selection
+export const designQuotes = pgTable("design_quotes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Quote reference
+  quoteNumber: text("quote_number").notNull().unique(), // e.g., "WBH-Q-2025-00001"
+  
+  // Service requested
+  serviceId: varchar("service_id").references(() => designServiceCatalog.id),
+  serviceKey: text("service_key").notNull(),
+  
+  // Project details for pricing
+  projectBudget: decimal("project_budget", { precision: 12, scale: 2 }), // Total project budget
+  equipmentBudget: decimal("equipment_budget", { precision: 12, scale: 2 }), // Equipment portion
+  squareFootage: integer("square_footage"),
+  packageSize: text("package_size"), // "micro", "standard", "large", "mega"
+  
+  // Contact info (for non-logged-in users)
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  companyName: text("company_name"),
+  
+  // Quote details
+  basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
+  calculatedPrice: decimal("calculated_price", { precision: 10, scale: 2 }).notNull(), // Final calculated price
+  priceBreakdown: jsonb("price_breakdown"), // {basePrice, percentageFee, adjustments, total}
+  
+  // Status
+  status: text("status").default("draft").notNull(), // "draft", "sent", "accepted", "declined", "expired"
+  expiresAt: timestamp("expires_at"), // Quote valid until
+  notes: text("notes"), // Internal notes or special requests
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("design_quotes_user_id_idx").on(table.userId),
+  statusIdx: index("design_quotes_status_idx").on(table.status),
+  quoteNumberIdx: index("design_quotes_quote_number_idx").on(table.quoteNumber),
+}));
+
+export const insertDesignQuoteSchema = createInsertSchema(designQuotes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DesignQuote = typeof designQuotes.$inferSelect;
+export type InsertDesignQuote = z.infer<typeof insertDesignQuoteSchema>;
+
+// Design Orders - Stripe-linked orders for consulting services
+export const designOrders = pgTable("design_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  quoteId: varchar("quote_id").references(() => designQuotes.id),
+  
+  // Order reference
+  orderNumber: text("order_number").notNull().unique(), // e.g., "WBH-O-2025-00001"
+  
+  // Service details
+  serviceId: varchar("service_id").references(() => designServiceCatalog.id),
+  serviceKey: text("service_key").notNull(),
+  serviceName: text("service_name").notNull(),
+  
+  // Pricing
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("usd").notNull(),
+  
+  // Stripe integration
+  stripeSessionId: text("stripe_session_id"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeCustomerId: text("stripe_customer_id"),
+  
+  // Contact info
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  companyName: text("company_name"),
+  
+  // Project metadata
+  projectDetails: jsonb("project_details"), // {budget, sqft, packageSize, equipmentList, etc.}
+  
+  // Status
+  paymentStatus: text("payment_status").default("pending").notNull(), // "pending", "paid", "failed", "refunded"
+  fulfillmentStatus: text("fulfillment_status").default("pending").notNull(), // "pending", "in_progress", "completed", "cancelled"
+  
+  // Dates
+  paidAt: timestamp("paid_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("design_orders_user_id_idx").on(table.userId),
+  orderNumberIdx: index("design_orders_order_number_idx").on(table.orderNumber),
+  paymentStatusIdx: index("design_orders_payment_status_idx").on(table.paymentStatus),
+  stripeSessionIdx: index("design_orders_stripe_session_idx").on(table.stripeSessionId),
+}));
+
+export const insertDesignOrderSchema = createInsertSchema(designOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DesignOrder = typeof designOrders.$inferSelect;
+export type InsertDesignOrder = z.infer<typeof insertDesignOrderSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

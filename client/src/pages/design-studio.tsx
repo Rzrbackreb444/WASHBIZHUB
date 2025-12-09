@@ -19,14 +19,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { equipmentLibrary } from "@shared/schema";
 import { 
+  EQUIPMENT_DATABASE_2025, 
+  COMPLIANCE_RULES,
+  type EquipmentItem2025,
+  type PricingTier 
+} from "@/lib/equipment-database-2025";
+import { 
   Palette, Box, Plus, Save, Trash2, RotateCw, Grid3X3, 
   DollarSign, TrendingUp, Calculator, ZoomIn, ZoomOut,
   Download, Undo2, Redo2, Info, Eye, EyeOff, Move3D, Maximize2, Camera,
   Sun, Moon, RotateCcw, Layers, Sparkles, Target, Zap, ChevronRight,
   Search, Ruler, Share2, Copy, Check, X, HelpCircle, LayoutTemplate,
   Building2, Store, Warehouse, Menu, ChevronDown, GripVertical, FileText,
-  Image, ImageOff, Upload, Lightbulb, Mail, MapPin, Users, Navigation
+  Image, ImageOff, Upload, Lightbulb, Mail, MapPin, Users, Navigation,
+  Wind, AlertTriangle, CheckCircle2, PiggyBank, RefreshCw, Tag,
+  CircleDollarSign, Percent, ArrowUpRight, DoorOpen, Columns, Square
 } from "lucide-react";
+
+type PricingTierKey = keyof PricingTier;
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -194,16 +204,50 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
 ];
 
 const equipmentCategories = [
-  { id: "all", name: "All", types: [] as string[] },
-  { id: "washers", name: "Washers", types: ["washer"] },
-  { id: "dryers", name: "Dryers", types: ["dryer"] },
-  { id: "architecture", name: "Structure", types: ["door", "window", "column", "wall", "bulkhead"] },
-  { id: "furniture", name: "Furniture", types: ["table", "counter", "seating", "furniture", "cart"] },
-  { id: "utilities", name: "Utilities", types: ["restroom", "storage", "utility", "sink"] },
-  { id: "financial", name: "Financial", types: ["atm", "changer"] },
-  { id: "services", name: "Services", types: ["vending", "dogwash", "accessory"] },
-  { id: "entertainment", name: "Games", types: ["arcade", "entertainment"] },
+  { id: "all", name: "All", types: [] as string[], icon: Grid3X3 },
+  { id: "washers", name: "Washers", types: ["washer"], icon: Box },
+  { id: "dryers", name: "Dryers", types: ["dryer", "stack", "combo"], icon: Wind },
+  { id: "architecture", name: "Structure", types: ["door", "window", "column", "wall", "bulkhead"], icon: Building2 },
+  { id: "furniture", name: "Furniture", types: ["table", "counter", "seating", "furniture", "cart"], icon: Square },
+  { id: "utilities", name: "Utilities", types: ["restroom", "storage", "utility", "sink"], icon: Columns },
+  { id: "financial", name: "Financial", types: ["atm", "changer"], icon: CircleDollarSign },
+  { id: "services", name: "Services", types: ["vending", "dogwash", "accessory"], icon: Tag },
+  { id: "entertainment", name: "Games", types: ["arcade", "entertainment"], icon: Sparkles },
 ];
+
+const convertEquipment2025ToLegacy = (item: EquipmentItem2025, pricingTier: PricingTierKey = "new") => ({
+  id: item.id,
+  name: item.name,
+  type: item.type,
+  capacity: item.capacity,
+  width: item.width,
+  depth: item.depth,
+  height: item.height,
+  cost: item.pricing[pricingTier],
+  tpdContribution: item.tpdContribution,
+  roiMonthly: item.monthlyRevenue,
+  color: item.color,
+  brand: item.brand,
+  model: item.model,
+  pricing: item.pricing,
+  gForce: item.gForce,
+  notes: item.notes,
+});
+
+const getCombinedEquipmentLibrary = (pricingTier: PricingTierKey = "new") => {
+  const converted2025 = EQUIPMENT_DATABASE_2025.map(item => convertEquipment2025ToLegacy(item, pricingTier));
+  const existingIds = new Set(converted2025.map(e => e.id));
+  const legacyNotIn2025 = equipmentLibrary.filter(e => !existingIds.has(e.id));
+  return [...converted2025, ...legacyNotIn2025.map(e => ({
+    ...e,
+    brand: "",
+    model: "",
+    pricing: { new: e.cost, refurb: Math.round(e.cost * 0.6), used: Math.round(e.cost * 0.45) },
+    roiMonthly: 0,
+    gForce: undefined,
+    notes: undefined,
+  }))];
+};
 
 const getCategoryTypes = (categoryId: string): string[] => {
   if (categoryId === "all") return [];
@@ -614,6 +658,25 @@ function BuildingShellEditor({
   );
 }
 
+interface EnhancedEquipment {
+  id: string;
+  name: string;
+  type: string;
+  capacity: string;
+  width: number;
+  depth: number;
+  height: number;
+  cost: number;
+  tpdContribution: number;
+  color: string;
+  brand?: string;
+  model?: string;
+  pricing?: PricingTier;
+  roiMonthly?: number;
+  gForce?: number;
+  notes?: string;
+}
+
 function EquipmentPanel({ 
   searchQuery,
   setSearchQuery,
@@ -621,22 +684,32 @@ function EquipmentPanel({
   setCategoryFilter,
   filteredEquipment,
   addEquipment,
-  isMobile = false
+  isMobile = false,
+  pricingTier = "new",
+  onPricingTierChange
 }: {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   categoryFilter: string;
   setCategoryFilter: (c: string) => void;
-  filteredEquipment: typeof equipmentLibrary;
-  addEquipment: (e: typeof equipmentLibrary[number]) => void;
+  filteredEquipment: EnhancedEquipment[];
+  addEquipment: (e: EnhancedEquipment) => void;
   isMobile?: boolean;
+  pricingTier?: PricingTierKey;
+  onPricingTierChange?: (tier: PricingTierKey) => void;
 }) {
+  const tierLabels: Record<PricingTierKey, { label: string; color: string }> = {
+    new: { label: "New", color: "text-green-400" },
+    refurb: { label: "Refurb", color: "text-yellow-400" },
+    used: { label: "Used", color: "text-orange-400" }
+  };
+
   return (
     <div className="space-y-3">
       <div className="relative">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         <Input
-          placeholder="Search equipment..."
+          placeholder="Search by name, brand..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-9 bg-white/10 border-white/20 text-white text-sm h-9 placeholder:text-white/40"
@@ -644,52 +717,112 @@ function EquipmentPanel({
         />
       </div>
       
+      {onPricingTierChange && (
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+          <Tag className="h-3.5 w-3.5 text-[#C8A661]" />
+          <span className="text-white/60 text-xs">Pricing:</span>
+          <div className="flex gap-1 flex-1">
+            {(Object.keys(tierLabels) as PricingTierKey[]).map((tier) => (
+              <Button
+                key={tier}
+                size="sm"
+                variant={pricingTier === tier ? "default" : "outline"}
+                onClick={() => onPricingTierChange(tier)}
+                className={`h-6 text-[10px] flex-1 px-2 ${
+                  pricingTier === tier 
+                    ? "bg-[#C8A661] text-[#001F3F] hover:bg-[#D4B872]" 
+                    : "text-white/60 border-white/20 hover:text-white"
+                }`}
+                data-testid={`button-pricing-${tier}`}
+              >
+                {tierLabels[tier].label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div className="flex gap-1 flex-wrap">
-        {equipmentCategories.map((cat) => (
-          <Button
-            key={cat.id}
-            size="sm"
-            variant={categoryFilter === cat.id ? "default" : "outline"}
-            onClick={() => setCategoryFilter(cat.id)}
-            className={`h-7 text-xs ${
-              categoryFilter === cat.id 
-                ? "bg-[#39CCCC] text-[#001F3F]" 
-                : "text-white/70 border-white/20"
-            }`}
-            data-testid={`button-filter-${cat.id}`}
-          >
-            {cat.name}
-          </Button>
-        ))}
+        {equipmentCategories.map((cat) => {
+          const IconComponent = cat.icon;
+          return (
+            <Button
+              key={cat.id}
+              size="sm"
+              variant={categoryFilter === cat.id ? "default" : "outline"}
+              onClick={() => setCategoryFilter(cat.id)}
+              className={`h-7 text-xs gap-1 ${
+                categoryFilter === cat.id 
+                  ? "bg-[#39CCCC] text-[#001F3F]" 
+                  : "text-white/70 border-white/20"
+              }`}
+              data-testid={`button-filter-${cat.id}`}
+            >
+              <IconComponent className="h-3 w-3" />
+              {cat.name}
+            </Button>
+          );
+        })}
       </div>
       
       <Separator className="bg-white/10" />
       
-      <ScrollArea className={isMobile ? "h-[200px]" : "h-[300px]"}>
+      <ScrollArea className={isMobile ? "h-[200px]" : "h-[350px]"}>
         <div className={isMobile ? "grid grid-cols-2 gap-2" : "space-y-2"}>
-          {filteredEquipment.map((equipment) => (
-            <button
-              key={equipment.id}
-              onClick={() => addEquipment(equipment)}
-              className={`${
-                isMobile ? "p-2 flex flex-col items-center gap-2" : "w-full p-2 flex items-center gap-3"
-              } rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 hover:border-[#39CCCC]/30 group`}
-              data-testid={`button-add-${equipment.id}`}
-            >
-              <EquipmentThumbnail equipment={equipment} size={isMobile ? "md" : "md"} />
-              <div className={isMobile ? "text-center" : "flex-1 text-left"}>
-                <p className="text-white font-medium text-xs truncate">{equipment.name}</p>
-                <p className="text-white/50 text-[10px]">
-                  {equipment.capacity} • ${equipment.cost.toLocaleString()}
-                </p>
-              </div>
-              {!isMobile && (
-                <Plus className="h-4 w-4 text-white/30 group-hover:text-[#39CCCC] transition-colors" />
-              )}
-            </button>
-          ))}
+          {filteredEquipment.map((equipment) => {
+            const price = equipment.pricing?.[pricingTier] ?? equipment.cost;
+            const dimensions = `${equipment.width}×${equipment.depth}×${equipment.height}"`;
+            
+            return (
+              <button
+                key={equipment.id}
+                onClick={() => addEquipment(equipment as any)}
+                className={`${
+                  isMobile ? "p-2 flex flex-col items-center gap-2" : "w-full p-2 flex items-center gap-3"
+                } rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 hover:border-[#39CCCC]/30 group`}
+                data-testid={`button-add-${equipment.id}`}
+              >
+                <EquipmentThumbnail equipment={equipment} size={isMobile ? "md" : "md"} />
+                <div className={isMobile ? "text-center w-full" : "flex-1 text-left min-w-0"}>
+                  <p className="text-white font-medium text-xs truncate">{equipment.name}</p>
+                  {equipment.brand && (
+                    <p className="text-[#C8A661] text-[9px] truncate">{equipment.brand}</p>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white/40 text-[9px]">{equipment.capacity}</span>
+                    <span className="text-white/20">•</span>
+                    <span className="text-white/40 text-[9px]" title="Width × Depth × Height">
+                      {dimensions}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className={`text-[10px] font-semibold ${tierLabels[pricingTier].color}`}>
+                      ${price.toLocaleString()}
+                    </span>
+                    {equipment.pricing && equipment.pricing.new !== equipment.pricing.used && (
+                      <span className="text-white/30 text-[8px]">
+                        ({pricingTier})
+                      </span>
+                    )}
+                    {equipment.roiMonthly && equipment.roiMonthly > 0 && (
+                      <Badge className="h-4 text-[8px] bg-green-500/20 text-green-400 border-green-500/30 px-1">
+                        ${equipment.roiMonthly}/mo
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                {!isMobile && (
+                  <Plus className="h-4 w-4 text-white/30 group-hover:text-[#39CCCC] transition-colors flex-shrink-0" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </ScrollArea>
+      
+      <div className="text-center text-white/40 text-[10px] pt-1 border-t border-white/10">
+        {filteredEquipment.length} items • Click to add
+      </div>
     </div>
   );
 }
@@ -724,7 +857,8 @@ function MetricsPanel({
   exportPDF,
   generateShareLink,
   onOpenConsultation,
-  compact = false
+  compact = false,
+  locationContext = null
 }: {
   washerCount: number;
   dryerCount: number;
@@ -746,6 +880,7 @@ function MetricsPanel({
   generateShareLink: () => void;
   onOpenConsultation: () => void;
   compact?: boolean;
+  locationContext?: LocationContext | null;
 }) {
   const [showBreakdown, setShowBreakdown] = useState(false);
   
@@ -1112,6 +1247,9 @@ export default function DesignStudio() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [pricingTier, setPricingTier] = useState<PricingTierKey>("new");
+  const [showVentingPaths, setShowVentingPaths] = useState(true);
+  const [pricingPanelExpanded, setPricingPanelExpanded] = useState(true);
   
   const [history, setHistory] = useState<HistoryState[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -1313,9 +1451,11 @@ export default function DesignStudio() {
     }
   }, [historyIndex, history, toast]);
 
-  const filteredEquipment = equipmentLibrary.filter(e => {
+  const combinedLibrary = getCombinedEquipmentLibrary(pricingTier);
+  const filteredEquipment = combinedLibrary.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         e.capacity.toLowerCase().includes(searchQuery.toLowerCase());
+                         e.capacity.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (e.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const categoryTypes = getCategoryTypes(categoryFilter);
     const matchesCategory = categoryFilter === "all" || categoryTypes.includes(e.type);
     return matchesSearch && matchesCategory;
@@ -2146,52 +2286,158 @@ export default function DesignStudio() {
 
   const selectedEquipment = placedEquipment.find(item => item.id === selectedId);
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "WashBizHub Design Studio - Laundromat Floor Plan Designer",
-    "alternateName": "Laundromat Design Studio",
-    "applicationCategory": "BusinessApplication",
-    "applicationSubCategory": "Floor Plan Design",
-    "operatingSystem": "Web Browser",
-    "description": "Professional 2D and 3D laundromat floor plan designer with drag-and-drop equipment library featuring Dexter, Speed Queen, and more. Includes real-time cost calculations, TPD analysis, and ROI projections.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock"
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "WashBizHub Design Studio - Laundromat Floor Plan Designer",
+      "alternateName": "Laundromat Design Studio",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Floor Plan Design",
+      "operatingSystem": "Web Browser",
+      "description": "Professional 2D and 3D laundromat floor plan designer with drag-and-drop equipment library featuring Dexter, Speed Queen, ADC, and more. Real 2025 pricing, ADA compliance checking, venting visualization, and ROI projections.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "312",
+        "bestRating": "5"
+      },
+      "featureList": [
+        "2D and 3D floor plan views with venting visualization",
+        "Drag-and-drop walls, bulkheads, and equipment placement",
+        "Real 2025 manufacturer equipment pricing (Speed Queen, Dexter, ADC)",
+        "3-tier pricing: New, Refurbished, and Used equipment",
+        "ADA compliance checking with 36\" path validation",
+        "Dryer venting clearance visualization",
+        "Real-time equipment cost calculator",
+        "TPD (Turns Per Day) analysis",
+        "Equipment packages: Micro, Standard, Large, Mega presets",
+        "Ancillary revenue optimization (ATM, vending, dog wash)",
+        "CLEANBI location intelligence integration",
+        "ROI payback period calculator",
+        "Contractor-ready PDF exports",
+        "Investor-ready design presentations"
+      ],
+      "screenshot": "https://washbizhub.com/design-studio-screenshot.png",
+      "softwareVersion": "4.0",
+      "provider": {
+        "@type": "Organization",
+        "name": "WashBizHub",
+        "url": "https://washbizhub.com",
+        "logo": "https://washbizhub.com/logo.png"
+      }
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "ratingCount": "312",
-      "bestRating": "5"
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Laundromat Consulting",
+      "name": "WashBizHub Professional Consulting Services",
+      "description": "Expert laundromat consulting services including feasibility studies, 3D design packages, equipment sourcing, and turnkey project management.",
+      "provider": {
+        "@type": "Organization",
+        "name": "WashBizHub",
+        "url": "https://washbizhub.com"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "United States"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Laundromat Consulting Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Feasibility Study + Pro Forma",
+              "description": "Complete market analysis, demographic research, competition mapping, and 5-year financial projections with CLEANBI location intelligence."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "7500",
+              "maxPrice": "15000",
+              "priceCurrency": "USD"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "3D Interactive Floor Plan Design",
+              "description": "Professional CAD layout with equipment placement, traffic flow optimization, 8K photorealistic renders, and VR walkthrough-ready files."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "4000",
+              "maxPrice": "10000",
+              "priceCurrency": "USD"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Equipment Sourcing & Procurement",
+              "description": "Leveraging distributor relationships for 10-25% below retail pricing on Speed Queen, Dexter, and ADC commercial laundry equipment."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "description": "12-18% of equipment cost"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Turnkey Project Management",
+              "description": "Full build-out management from permits to grand opening including GC selection, utility coordination, and staff training."
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "description": "10% of total project cost"
+            }
+          }
+        ]
+      }
     },
-    "featureList": [
-      "2D and 3D floor plan views",
-      "Drag-and-drop equipment placement",
-      "Real 2025 manufacturer equipment pricing (Speed Queen, Dexter, ADC, Maytag)",
-      "Real-time equipment cost calculator",
-      "TPD (Turns Per Day) analysis",
-      "Revenue breakdown by equipment category (washers, dryers, ancillary)",
-      "Ancillary revenue optimization (vending, ATM, dog wash, arcade)",
-      "CLEANBI viability scoring with optimization tips",
-      "Washer-dryer ratio optimization",
-      "Revenue per square foot analysis",
-      "ROI payback period calculator",
-      "Dynamic pricing boost projections",
-      "Starter templates (1,000-5,000 sq ft)",
-      "Contractor-ready PDF exports",
-      "Sharable design links"
-    ],
-    "screenshot": "https://washbizhub.com/design-studio-screenshot.png",
-    "softwareVersion": "3.0",
-    "provider": {
-      "@type": "Organization",
-      "name": "WashBizHub",
-      "url": "https://washbizhub.com"
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much does it cost to open a laundromat in 2025?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "New laundromat build-out costs range from $200,000-$500,000 for 1,500-2,500 sq ft. Acquisition + retool costs $150,000-$300,000. Simple refurbishment runs $50,000-$150,000. Equipment alone for a standard 14-washer store costs $115,000-$145,000 new or $68,000-$92,000 refurbished."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the best equipment mix for a laundromat?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "90% of winning laundromats use: 40% Dexter X-Series (app-ready, 350G), 30% Speed Queen Quantum (coin bulletproof), 20% ADC dryers (lowest repairs), and 10% stacks. This mix balances technology, reliability, and customer preference."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I make my laundromat ADA compliant?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ADA compliance requires: 36\" minimum aisle width, 60\"x60\" turning radius in bathrooms, 48\" front clearance at machines, 2/3 of machines accessible (30\" reach), grab bars in restrooms, and 32\" minimum door width. WashBizHub Design Studio validates ADA compliance automatically."
+          }
+        }
+      ]
     }
-  };
+  ];
 
   return (
     <AuthGuard title="Sign In to Access Design Studio" description="Sign in to access this tool.">
@@ -2968,6 +3214,8 @@ export default function DesignStudio() {
                     setCategoryFilter={setCategoryFilter}
                     filteredEquipment={filteredEquipment}
                     addEquipment={addEquipment}
+                    pricingTier={pricingTier}
+                    onPricingTierChange={setPricingTier}
                   />
                 </CardContent>
               </Card>
@@ -3006,6 +3254,23 @@ export default function DesignStudio() {
                     <Ruler className="h-3 w-3 mr-1" />
                     Rulers
                   </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant={showVentingPaths ? "default" : "outline"}
+                        onClick={() => setShowVentingPaths(!showVentingPaths)}
+                        className={`h-8 text-xs ${showVentingPaths ? 'bg-orange-500 text-white' : 'border-white/20 text-white/70'}`}
+                        data-testid="button-toggle-venting"
+                      >
+                        <Wind className="h-3 w-3 mr-1" />
+                        Venting
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Show 4" duct paths from dryers to exterior walls</p>
+                    </TooltipContent>
+                  </Tooltip>
                   {studioType === "2d" && (
                     <>
                       <Button
@@ -3210,6 +3475,87 @@ export default function DesignStudio() {
                           showRulers={showRulers}
                         />
 
+                        {showVentingPaths && placedEquipment.filter(e => e.equipment.type === "dryer").length > 0 && (
+                          <svg 
+                            className="absolute inset-0 pointer-events-none z-10" 
+                            style={{ left: showRulers ? 24 : 0, top: showRulers ? 24 : 0 }}
+                            width={canvasSize.width - (showRulers ? 24 : 0)} 
+                            height={canvasSize.height - (showRulers ? 24 : 0)}
+                          >
+                            <defs>
+                              <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                                <polygon points="0 0, 6 3, 0 6" fill="rgba(251, 146, 60, 0.8)" />
+                              </marker>
+                            </defs>
+                            {placedEquipment
+                              .filter(e => e.equipment.type === "dryer")
+                              .map((dryer) => {
+                                const cx = dryer.x + dryer.width / 2;
+                                const cy = dryer.y + dryer.height / 2;
+                                const nearestEdge = dryer.x < canvasSize.width / 2 ? 0 : canvasSize.width - 40;
+                                const rearClearance = Math.min(dryer.x, canvasSize.width - dryer.x - dryer.width);
+                                const hasProperClearance = rearClearance >= 6 * SCALE_FACTOR;
+                                
+                                return (
+                                  <g key={`vent-${dryer.id}`}>
+                                    <line
+                                      x1={cx}
+                                      y1={cy}
+                                      x2={nearestEdge}
+                                      y2={cy}
+                                      stroke={hasProperClearance ? "rgba(34, 197, 94, 0.6)" : "rgba(239, 68, 68, 0.8)"}
+                                      strokeWidth="4"
+                                      strokeDasharray="8,4"
+                                      markerEnd="url(#arrowhead)"
+                                    />
+                                    <circle
+                                      cx={nearestEdge}
+                                      cy={cy}
+                                      r="6"
+                                      fill={hasProperClearance ? "rgba(34, 197, 94, 0.8)" : "rgba(239, 68, 68, 0.8)"}
+                                      stroke="white"
+                                      strokeWidth="1"
+                                    />
+                                    <text
+                                      x={cx + 5}
+                                      y={cy - 8}
+                                      fill={hasProperClearance ? "#22c55e" : "#ef4444"}
+                                      fontSize="9"
+                                      fontWeight="bold"
+                                    >
+                                      4" DUCT
+                                    </text>
+                                    {!hasProperClearance && (
+                                      <g>
+                                        <rect
+                                          x={dryer.x - 2}
+                                          y={dryer.y - 2}
+                                          width={dryer.width + 4}
+                                          height={dryer.height + 4}
+                                          fill="none"
+                                          stroke="#ef4444"
+                                          strokeWidth="2"
+                                          strokeDasharray="4,2"
+                                          rx="4"
+                                        />
+                                        <text
+                                          x={dryer.x + dryer.width / 2}
+                                          y={dryer.y - 6}
+                                          fill="#ef4444"
+                                          fontSize="8"
+                                          fontWeight="bold"
+                                          textAnchor="middle"
+                                        >
+                                          6-12" CLEARANCE NEEDED
+                                        </text>
+                                      </g>
+                                    )}
+                                  </g>
+                                );
+                              })}
+                          </svg>
+                        )}
+
                         {placedEquipment.length === 0 && (
                           <div className="absolute inset-0 flex items-center justify-center text-white/30">
                             <div className="text-center">
@@ -3331,6 +3677,7 @@ export default function DesignStudio() {
                     exportPDF={exportPDF}
                     generateShareLink={generateShareLink}
                     onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
+                    locationContext={locationContext}
                   />
                 </CardContent>
               </Card>
@@ -3409,6 +3756,8 @@ export default function DesignStudio() {
                           filteredEquipment={filteredEquipment}
                           addEquipment={addEquipment}
                           isMobile={true}
+                          pricingTier={pricingTier}
+                          onPricingTierChange={setPricingTier}
                         />
                       </div>
                     </SheetContent>
@@ -3448,6 +3797,7 @@ export default function DesignStudio() {
                           exportPDF={exportPDF}
                           generateShareLink={generateShareLink}
                           onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
+                          locationContext={locationContext}
                         />
                       </ScrollArea>
                     </SheetContent>

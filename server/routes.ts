@@ -185,6 +185,13 @@ import {
   businessListingAnalytics,
   savedItems,
   recentlyViewed,
+  designServiceCatalog,
+  designQuotes,
+  designOrders,
+  insertDesignQuoteSchema,
+  insertDesignOrderSchema,
+  affiliateClicks,
+  insertAffiliateClickSchema,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -17322,6 +17329,472 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error deleting from history:", error);
       res.status(500).json({ error: "Failed to delete from history" });
+    }
+  });
+
+  // ==================== DESIGN CONSULTING SERVICES API ====================
+  
+  // Design consulting services catalog (from equipment-packages-2025.ts)
+  const CONSULTING_SERVICES = [
+    {
+      serviceKey: "feasibility",
+      name: "Feasibility Study",
+      description: "Complete market analysis and project viability assessment for your laundromat investment",
+      priceType: "range",
+      priceMin: "7500.00",
+      priceMax: "15000.00",
+      deliverables: [
+        "Demographic analysis (1/3/5 mile rings)",
+        "Competitor mapping and analysis",
+        "Traffic count studies",
+        "Revenue projections with scenarios",
+        "Equipment mix recommendations",
+        "Pro forma financials",
+        "Investment grade presentation"
+      ],
+      timeline: "10-14 business days",
+      displayOrder: 1
+    },
+    {
+      serviceKey: "3d-design",
+      name: "3D Design Package",
+      description: "Professional 3D renderings and floor plans for your laundromat project",
+      priceType: "range",
+      priceMin: "4000.00",
+      priceMax: "10000.00",
+      deliverables: [
+        "Full floor plan layout",
+        "3D renderings (8-12 views)",
+        "Equipment placement optimization",
+        "Utility connection planning",
+        "Customer flow analysis",
+        "ADA compliance check",
+        "Investor-ready presentation deck"
+      ],
+      timeline: "7-10 business days",
+      displayOrder: 2
+    },
+    {
+      serviceKey: "equipment-sourcing",
+      name: "Equipment Sourcing & Procurement",
+      description: "Leveraging distributor relationships to secure best pricing on commercial laundry equipment",
+      priceType: "percentage",
+      percentageBase: "equipment",
+      percentageRate: "15.00",
+      priceMin: "0",
+      priceMax: "0",
+      deliverables: [
+        "Equipment mix optimization analysis",
+        "Multi-distributor quote comparison",
+        "Negotiated pricing (10-25% below retail)",
+        "Delivery coordination and scheduling",
+        "Installation oversight",
+        "Warranty registration and tracking",
+        "Section 179 documentation"
+      ],
+      timeline: "Ongoing (2-8 weeks typical)",
+      displayOrder: 3
+    },
+    {
+      serviceKey: "turnkey-pm",
+      name: "Turnkey Project Management",
+      description: "Full build-out management from permits to grand opening",
+      priceType: "percentage",
+      percentageBase: "project",
+      percentageRate: "10.00",
+      priceMin: "0",
+      priceMax: "0",
+      deliverables: [
+        "GC selection and contract negotiation",
+        "Permit acquisition management",
+        "Utility coordination (water/gas/electric)",
+        "Equipment delivery coordination",
+        "Installation supervision",
+        "Inspection scheduling",
+        "Grand opening planning",
+        "Staff training program"
+      ],
+      timeline: "3-6 months typical",
+      displayOrder: 4
+    },
+    {
+      serviceKey: "retool",
+      name: "Existing Store Retool Roadmap",
+      description: "Comprehensive upgrade plan for existing laundromats to maximize revenue and efficiency",
+      priceType: "range",
+      priceMin: "10000.00",
+      priceMax: "25000.00",
+      deliverables: [
+        "Current state assessment",
+        "Equipment age and efficiency audit",
+        "Phased replacement schedule",
+        "Revenue optimization recommendations",
+        "WDF addition feasibility",
+        "Technology upgrade plan (app payments)",
+        "Financing options analysis"
+      ],
+      timeline: "10-14 business days",
+      displayOrder: 5
+    },
+    {
+      serviceKey: "retainer",
+      name: "Monthly Advisory Retainer",
+      description: "Ongoing strategic support for operators and investors",
+      priceType: "monthly",
+      priceMin: "2000.00",
+      priceMax: "5000.00",
+      deliverables: [
+        "Monthly performance review calls",
+        "KPI dashboard access",
+        "Priority support response",
+        "Quarterly market updates",
+        "Equipment deal alerts",
+        "Networking introductions",
+        "Unlimited email support"
+      ],
+      timeline: "Ongoing monthly",
+      displayOrder: 6
+    }
+  ];
+
+  // GET /api/design/services - Get consulting service catalog
+  app.get("/api/design/services", async (req, res) => {
+    try {
+      // First try to get from database
+      const services = await db.select().from(designServiceCatalog).where(eq(designServiceCatalog.isActive, true)).orderBy(asc(designServiceCatalog.displayOrder));
+      
+      if (services.length > 0) {
+        res.json(services);
+      } else {
+        // Return hardcoded catalog as fallback
+        res.json(CONSULTING_SERVICES.map(s => ({
+          ...s,
+          id: s.serviceKey,
+          isActive: true,
+          isFeatured: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })));
+      }
+    } catch (error: any) {
+      console.error("Error fetching design services:", error);
+      res.status(500).json({ error: "Failed to fetch design services" });
+    }
+  });
+
+  // Helper to generate quote number
+  function generateQuoteNumber(): string {
+    const year = new Date().getFullYear();
+    const random = Math.floor(10000 + Math.random() * 90000);
+    return `WBH-Q-${year}-${random}`;
+  }
+
+  // Helper to generate order number
+  function generateOrderNumber(): string {
+    const year = new Date().getFullYear();
+    const random = Math.floor(10000 + Math.random() * 90000);
+    return `WBH-O-${year}-${random}`;
+  }
+
+  // Helper to calculate consulting price
+  function calculateConsultingPrice(
+    service: typeof CONSULTING_SERVICES[0],
+    projectBudget?: number,
+    equipmentBudget?: number
+  ): { price: number; breakdown: any } {
+    let price = 0;
+    const breakdown: any = { serviceKey: service.serviceKey, serviceName: service.name };
+    
+    if (service.priceType === "range" || service.priceType === "monthly") {
+      // Use midpoint for estimates, or min for quotes
+      price = parseFloat(service.priceMin);
+      breakdown.type = service.priceType;
+      breakdown.minPrice = parseFloat(service.priceMin);
+      breakdown.maxPrice = parseFloat(service.priceMax);
+    } else if (service.priceType === "percentage") {
+      const rate = parseFloat(service.percentageRate || "0") / 100;
+      const base = service.percentageBase === "equipment" 
+        ? (equipmentBudget || 0) 
+        : (projectBudget || 0);
+      price = Math.round(base * rate);
+      breakdown.type = "percentage";
+      breakdown.rate = rate * 100;
+      breakdown.base = service.percentageBase;
+      breakdown.baseAmount = base;
+    }
+    
+    breakdown.calculatedPrice = price;
+    return { price, breakdown };
+  }
+
+  // POST /api/design/quote - Create a design quote based on equipment selection
+  app.post("/api/design/quote", async (req: any, res) => {
+    try {
+      const { 
+        serviceKey, 
+        projectBudget, 
+        equipmentBudget, 
+        squareFootage, 
+        packageSize,
+        contactName,
+        contactEmail,
+        contactPhone,
+        companyName,
+        notes
+      } = req.body;
+
+      if (!serviceKey || !contactEmail) {
+        return res.status(400).json({ error: "serviceKey and contactEmail are required" });
+      }
+
+      // Find service
+      const service = CONSULTING_SERVICES.find(s => s.serviceKey === serviceKey);
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+
+      // Calculate price
+      const { price, breakdown } = calculateConsultingPrice(
+        service, 
+        parseFloat(projectBudget) || 0, 
+        parseFloat(equipmentBudget) || 0
+      );
+
+      // Get user if authenticated
+      const user = await getCurrentUser(req);
+      const quoteNumber = generateQuoteNumber();
+
+      // Create quote
+      const [quote] = await db.insert(designQuotes).values({
+        userId: user?.userId || null,
+        quoteNumber,
+        serviceKey,
+        projectBudget: projectBudget?.toString() || null,
+        equipmentBudget: equipmentBudget?.toString() || null,
+        squareFootage: squareFootage || null,
+        packageSize: packageSize || null,
+        contactName: contactName || null,
+        contactEmail,
+        contactPhone: contactPhone || null,
+        companyName: companyName || null,
+        basePrice: service.priceMin,
+        calculatedPrice: price.toString(),
+        priceBreakdown: breakdown,
+        status: "sent",
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        notes: notes || null,
+      }).returning();
+
+      res.status(201).json({
+        success: true,
+        quote: {
+          ...quote,
+          service: {
+            name: service.name,
+            description: service.description,
+            deliverables: service.deliverables,
+            timeline: service.timeline,
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error("Error creating design quote:", error);
+      res.status(500).json({ error: "Failed to create quote" });
+    }
+  });
+
+  // POST /api/design/checkout - Create Stripe checkout session for consulting service
+  app.post("/api/design/checkout", async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment processing not available" });
+      }
+
+      const { 
+        serviceKey, 
+        projectBudget, 
+        equipmentBudget, 
+        quoteId,
+        customerEmail,
+        customerName,
+        customerPhone,
+        companyName,
+        projectDetails
+      } = req.body;
+
+      if (!serviceKey || !customerEmail) {
+        return res.status(400).json({ error: "serviceKey and customerEmail are required" });
+      }
+
+      // Find service
+      const service = CONSULTING_SERVICES.find(s => s.serviceKey === serviceKey);
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+
+      // Calculate price
+      const { price, breakdown } = calculateConsultingPrice(
+        service, 
+        parseFloat(projectBudget) || 0, 
+        parseFloat(equipmentBudget) || 0
+      );
+
+      if (price <= 0) {
+        return res.status(400).json({ error: "Invalid price calculation. Please provide budget details for percentage-based services." });
+      }
+
+      // Get user if authenticated
+      const user = await getCurrentUser(req);
+      const orderNumber = generateOrderNumber();
+
+      // Create order record first
+      const [order] = await db.insert(designOrders).values({
+        userId: user?.userId || null,
+        quoteId: quoteId || null,
+        orderNumber,
+        serviceKey,
+        serviceName: service.name,
+        amount: price.toString(),
+        currency: "usd",
+        customerName: customerName || null,
+        customerEmail,
+        customerPhone: customerPhone || null,
+        companyName: companyName || null,
+        projectDetails: projectDetails || breakdown,
+        paymentStatus: "pending",
+        fulfillmentStatus: "pending",
+      }).returning();
+
+      // Create Stripe checkout session
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        customer_email: customerEmail,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              unit_amount: Math.round(price * 100), // Convert to cents
+              product_data: {
+                name: service.name,
+                description: service.description,
+                metadata: {
+                  serviceKey,
+                  orderNumber,
+                },
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          orderId: order.id,
+          orderNumber,
+          serviceKey,
+          type: "design_consulting",
+        },
+        success_url: `${process.env.BASE_URL || "https://washbizhub.com"}/consultation/success?session_id={CHECKOUT_SESSION_ID}&order=${orderNumber}`,
+        cancel_url: `${process.env.BASE_URL || "https://washbizhub.com"}/consultation?canceled=true`,
+      });
+
+      // Update order with Stripe session ID
+      await db.update(designOrders)
+        .set({ stripeSessionId: session.id })
+        .where(eq(designOrders.id, order.id));
+
+      res.json({
+        success: true,
+        sessionId: session.id,
+        sessionUrl: session.url,
+        orderNumber,
+        order: {
+          id: order.id,
+          amount: price,
+          serviceName: service.name,
+        },
+      });
+    } catch (error: any) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ error: "Failed to create checkout session" });
+    }
+  });
+
+  // GET /api/design/orders/:id - Get order status
+  app.get("/api/design/orders/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      const [order] = await db.select()
+        .from(designOrders)
+        .where(or(eq(designOrders.id, id), eq(designOrders.orderNumber, id)))
+        .limit(1);
+      
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error: any) {
+      console.error("Error fetching order:", error);
+      res.status(500).json({ error: "Failed to fetch order" });
+    }
+  });
+
+  // POST /api/affiliate/track - Track affiliate link clicks
+  app.post("/api/affiliate/track", async (req: any, res) => {
+    try {
+      const { 
+        affiliateId, 
+        partnerId, 
+        url, 
+        referrer, 
+        page 
+      } = req.body;
+
+      if (!partnerId && !affiliateId) {
+        return res.status(400).json({ error: "partnerId or affiliateId required" });
+      }
+
+      // Get IP from request
+      const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || null;
+      const userAgent = req.headers['user-agent'] || null;
+
+      // Look up affiliate by code or use partner ID
+      let affId = affiliateId;
+      if (!affId && partnerId) {
+        // Check if partner exists in affiliates table
+        const affiliate = await storage.getAffiliateByCode(partnerId);
+        if (affiliate) {
+          affId = affiliate.id;
+        } else {
+          // Create a basic tracking record without affiliate
+          const [click] = await db.insert(affiliateClicks).values({
+            referralCode: partnerId,
+            sourceUrl: referrer || null,
+            landingPage: page || url || null,
+            ipAddress,
+            userAgent,
+            conversionType: "click",
+          }).returning();
+          
+          return res.json({ success: true, clickId: click.id });
+        }
+      }
+
+      // Track click with affiliate
+      const click = await storage.trackAffiliateClick({
+        affiliateId: affId,
+        referralCode: partnerId || null,
+        sourceUrl: referrer || null,
+        landingPage: page || url || null,
+        ipAddress,
+        userAgent,
+      });
+
+      res.json({ success: true, clickId: click.id });
+    } catch (error: any) {
+      console.error("Error tracking affiliate click:", error);
+      res.status(500).json({ error: "Failed to track click" });
     }
   });
 
