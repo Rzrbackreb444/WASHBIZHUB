@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/SEO";
 import { RecentlyViewedListings } from "@/components/RecentlyViewedListings";
 import { PushNotificationOptIn, NotificationBell } from "@/components/PushNotificationOptIn";
+import { RequestProfessionalAnalysisCTA } from "@/components/consultation/RequestProfessionalAnalysisCTA";
 import { Link } from "wouter";
 import { 
   MapPin, DollarSign, TrendingUp, Building2, Search, Filter,
