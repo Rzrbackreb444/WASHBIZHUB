@@ -440,6 +440,322 @@ Owner acquired for $200,000 and invested in new roof, paint, signs, and Dexter e
       { equipmentType: "vending", brand: "Seaga", model: "N2G4000", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2023, notes: "Soap dispenser with side unit" },
       { equipmentType: "security", brand: "Ubiquiti", model: "Dream Machine Pro", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2023, notes: "11 cameras - G3/G4 Bullet & Dome" },
     ]
+  },
+  // Oregon Coast Fresh Coast Laundry Works Chain - 3 Locations
+  {
+    listing: {
+      businessType: "laundromat",
+      listingType: "owner",
+      title: "Fresh Coast Laundry Works - Coos Bay",
+      description: `Premium Oregon Coast laundromat in high-traffic Coos Bay location! Part of a well-established 3-location chain, this Fresh Coast Laundry Works facility offers excellent cash flow with professional Dexter equipment and modern CCI FasCard cashless payment system.
+
+CHAIN OVERVIEW:
+• Part of 3-location Fresh Coast Laundry Works chain (Coos Bay, North Bend, Reedsport)
+• All locations identically equipped with Dexter commercial equipment
+• Combined chain grossing $665,000 annually
+• Owner selling business only - favorable lease terms available
+
+PROPERTY HIGHLIGHTS:
+• Prime Coos Bay, Oregon location with excellent visibility
+• Professional commercial-grade fit-out with modern interior
+• Large parking lot with ADA accessibility
+• High coastal tourism traffic plus strong local demographics
+
+EQUIPMENT:
+• All Dexter commercial washers and dryers
+• CCI FasCard cashless payment system
+• Professional folding tables and seating
+• Modern, well-maintained facility
+
+FINANCIAL OPPORTUNITY:
+• Asking Price: $600,000 (this location)
+• Combined Chain Price: $1,800,000 for all 3 locations
+• Estimated Annual Revenue: ~$222,000 per location
+• Owner owns real estate - favorable lease terms for new operator
+• No owner financing available
+
+This is an exceptional opportunity to acquire a turnkey coastal laundromat with proven revenue and professional equipment. Owner is motivated and ready to work with qualified buyers on favorable lease terms.
+
+CONTACT: 541-912-6034 (Owner - Direct)`,
+      tagline: "Oregon Coast Laundromat - Part of 3-Location Chain - Dexter Equipment - FasCard Payment",
+      priceOriginal: "600000",
+      currency: "USD",
+      priceInUSD: "600000",
+      priceVisibility: "public",
+      includesRealEstate: false,
+      ownerFinancing: false,
+      country: "US",
+      region: "OR",
+      city: "Coos Bay",
+      generalLocation: "Oregon Coast - Coos Bay/North Bend Area",
+      exactAddress: "Coos Bay, OR 97420",
+      latitude: "43.3665",
+      longitude: "-124.2179",
+      addressVisibility: "public",
+      featuredImage: "/attached_assets/IMG_5929_1765289819133.jpeg",
+      status: "active",
+      featured: true,
+      prioritySearch: true,
+      visibilityBoost: 3,
+      subscriptionTier: "showcase",
+      mediaLimit: 30,
+      videoLimit: 5,
+      seoTitle: "Laundromat For Sale Coos Bay Oregon | Fresh Coast Laundry Works $600K",
+      seoDescription: "Established Oregon coast laundromat for sale in Coos Bay. Part of 3-location chain, Dexter equipment, FasCard payment. $222K annual revenue. Favorable lease terms.",
+      seoKeywords: ["laundromat for sale oregon", "coos bay laundromat", "oregon coast laundromat", "dexter laundromat for sale"],
+      slug: "fresh-coast-laundry-works-coos-bay",
+      requiresNDA: false,
+      hasValuationReport: false,
+      detailLevel: "full",
+      completenessScore: 90,
+      listedAt: new Date(),
+      brokerName: "Owner Direct",
+      brokerPhone: "541-912-6034",
+    },
+    financials: {
+      grossRevenueOriginal: "222000",
+      netRevenueOriginal: "111000",
+      averageMonthlyRevenueOriginal: "18500",
+      grossRevenueUSD: "222000",
+      netRevenueUSD: "111000",
+      averageMonthlyRevenueUSD: "18500",
+      rentOriginal: "3500",
+      utilitiesOriginal: "2500",
+      laborOriginal: "0",
+      maintenanceOriginal: "600",
+      insuranceOriginal: "400",
+      otherExpensesOriginal: "500",
+      totalExpensesUSD: "7500",
+      netIncomeOriginal: "111000",
+      ebitdaOriginal: "111000",
+      cashFlowOriginal: "111000",
+      netIncomeUSD: "111000",
+      ebitdaUSD: "111000",
+      cashFlowUSD: "111000",
+      profitMargin: "50.00",
+      roi: "18.50",
+      paybackPeriodMonths: 65,
+      financialYear: 2024,
+      currency: "USD",
+      verified: false,
+    },
+    equipment: [
+      { equipmentType: "washer", brand: "Dexter", model: "T-600", capacity: 60, quantity: 4, condition: "excellent", yearInstalled: 2020, turnsPerDay: 4 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-450", capacity: 45, quantity: 6, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-300", capacity: 30, quantity: 8, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "dryer", brand: "Dexter", model: "Stack Dryer", capacity: 45, quantity: 10, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "payment_system", brand: "CCI", model: "FasCard", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2020, notes: "Cashless card payment system" },
+    ]
+  },
+  {
+    listing: {
+      businessType: "laundromat",
+      listingType: "owner",
+      title: "Fresh Coast Laundry Works - North Bend",
+      description: `Excellent Oregon Coast laundromat opportunity in North Bend! Part of the successful Fresh Coast Laundry Works chain, this corner location features high visibility with distinctive teal roof and professional signage.
+
+CHAIN OVERVIEW:
+• Part of 3-location Fresh Coast Laundry Works chain (Coos Bay, North Bend, Reedsport)
+• All locations identically equipped with Dexter commercial equipment
+• Combined chain grossing $665,000 annually
+• Owner selling business only - favorable lease terms available
+
+PROPERTY HIGHLIGHTS:
+• Corner location in North Bend, OR with exceptional visibility
+• Distinctive teal roof and professional dual signage
+• Fenced property with ample parking
+• Modern interior with professional equipment layout
+
+EQUIPMENT:
+• All Dexter commercial washers and dryers
+• CCI FasCard cashless payment system
+• Commercial folding tables
+• Well-maintained, clean facility
+
+FINANCIAL OPPORTUNITY:
+• Asking Price: $600,000 (this location)
+• Combined Chain Price: $1,800,000 for all 3 locations
+• Estimated Annual Revenue: ~$222,000 per location
+• Owner owns real estate - favorable lease terms for new operator
+• No owner financing available
+
+Perfect for an operator looking to acquire a proven coastal business with strong fundamentals and modern equipment. All three locations can be purchased together or individually.
+
+CONTACT: 541-912-6034 (Owner - Direct)`,
+      tagline: "Corner Location - Oregon Coast Chain - Dexter Equipment - High Visibility",
+      priceOriginal: "600000",
+      currency: "USD",
+      priceInUSD: "600000",
+      priceVisibility: "public",
+      includesRealEstate: false,
+      ownerFinancing: false,
+      country: "US",
+      region: "OR",
+      city: "North Bend",
+      generalLocation: "Oregon Coast - Coos Bay/North Bend Area",
+      exactAddress: "North Bend, OR 97459",
+      latitude: "43.4065",
+      longitude: "-124.2243",
+      addressVisibility: "public",
+      featuredImage: "/attached_assets/IMG_5930_1765289819133.jpeg",
+      status: "active",
+      featured: true,
+      prioritySearch: true,
+      visibilityBoost: 3,
+      subscriptionTier: "showcase",
+      mediaLimit: 30,
+      videoLimit: 5,
+      seoTitle: "Laundromat For Sale North Bend Oregon | Fresh Coast Laundry $600K",
+      seoDescription: "Oregon coast laundromat for sale in North Bend. Corner location, Dexter equipment, CCI FasCard. Part of 3-location chain. $222K revenue. Owner motivated.",
+      seoKeywords: ["laundromat for sale oregon", "north bend laundromat", "oregon coast business for sale", "coin laundry oregon"],
+      slug: "fresh-coast-laundry-works-north-bend",
+      requiresNDA: false,
+      hasValuationReport: false,
+      detailLevel: "full",
+      completenessScore: 90,
+      listedAt: new Date(),
+      brokerName: "Owner Direct",
+      brokerPhone: "541-912-6034",
+    },
+    financials: {
+      grossRevenueOriginal: "222000",
+      netRevenueOriginal: "111000",
+      averageMonthlyRevenueOriginal: "18500",
+      grossRevenueUSD: "222000",
+      netRevenueUSD: "111000",
+      averageMonthlyRevenueUSD: "18500",
+      rentOriginal: "3500",
+      utilitiesOriginal: "2500",
+      laborOriginal: "0",
+      maintenanceOriginal: "600",
+      insuranceOriginal: "400",
+      otherExpensesOriginal: "500",
+      totalExpensesUSD: "7500",
+      netIncomeOriginal: "111000",
+      ebitdaOriginal: "111000",
+      cashFlowOriginal: "111000",
+      netIncomeUSD: "111000",
+      ebitdaUSD: "111000",
+      cashFlowUSD: "111000",
+      profitMargin: "50.00",
+      roi: "18.50",
+      paybackPeriodMonths: 65,
+      financialYear: 2024,
+      currency: "USD",
+      verified: false,
+    },
+    equipment: [
+      { equipmentType: "washer", brand: "Dexter", model: "T-600", capacity: 60, quantity: 4, condition: "excellent", yearInstalled: 2020, turnsPerDay: 4 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-450", capacity: 45, quantity: 6, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-300", capacity: 30, quantity: 8, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "dryer", brand: "Dexter", model: "Stack Dryer", capacity: 45, quantity: 10, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "payment_system", brand: "CCI", model: "FasCard", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2020, notes: "Cashless card payment system" },
+    ]
+  },
+  {
+    listing: {
+      businessType: "laundromat",
+      listingType: "owner",
+      title: "Fresh Coast Laundry Works - Reedsport",
+      description: `Southern Oregon Coast laundromat in Reedsport! Part of the established Fresh Coast Laundry Works chain, this location serves the Reedsport/Winchester Bay community with professional Dexter equipment and modern amenities.
+
+CHAIN OVERVIEW:
+• Part of 3-location Fresh Coast Laundry Works chain (Coos Bay, North Bend, Reedsport)
+• All locations identically equipped with Dexter commercial equipment
+• Combined chain grossing $665,000 annually
+• Owner selling business only - favorable lease terms available
+
+PROPERTY HIGHLIGHTS:
+• Reedsport, Oregon location serving coastal community
+• Fresh paved parking lot with clear striping
+• Professional signage and curb appeal
+• Clean, modern interior with natural lighting
+
+EQUIPMENT:
+• All Dexter commercial washers and dryers
+• CCI FasCard cashless payment system
+• Commercial grade folding stations
+• Maintained to high standards
+
+FINANCIAL OPPORTUNITY:
+• Asking Price: $600,000 (this location)
+• Combined Chain Price: $1,800,000 for all 3 locations
+• Estimated Annual Revenue: ~$222,000 per location
+• Owner owns real estate - favorable lease terms for new operator
+• No owner financing available
+
+Excellent opportunity for a buyer looking to enter the laundromat business with a proven operation. Consider acquiring the entire 3-location chain for enhanced economies of scale.
+
+CONTACT: 541-912-6034 (Owner - Direct)`,
+      tagline: "Reedsport Oregon Coast - 3-Location Chain - Dexter Equipment - Turnkey Operation",
+      priceOriginal: "600000",
+      currency: "USD",
+      priceInUSD: "600000",
+      priceVisibility: "public",
+      includesRealEstate: false,
+      ownerFinancing: false,
+      country: "US",
+      region: "OR",
+      city: "Reedsport",
+      generalLocation: "Oregon Coast - Douglas County",
+      exactAddress: "Reedsport, OR 97467",
+      latitude: "43.7026",
+      longitude: "-124.0967",
+      addressVisibility: "public",
+      featuredImage: "/attached_assets/IMG_5931_1765289819133.jpeg",
+      status: "active",
+      featured: true,
+      prioritySearch: true,
+      visibilityBoost: 3,
+      subscriptionTier: "showcase",
+      mediaLimit: 30,
+      videoLimit: 5,
+      seoTitle: "Laundromat For Sale Reedsport Oregon | Fresh Coast Laundry $600K",
+      seoDescription: "Reedsport Oregon laundromat for sale. Part of 3-location coastal chain, Dexter equipment, modern facility. $222K annual revenue. Favorable lease terms available.",
+      seoKeywords: ["laundromat for sale oregon", "reedsport laundromat", "oregon coast laundromat for sale", "douglas county business"],
+      slug: "fresh-coast-laundry-works-reedsport",
+      requiresNDA: false,
+      hasValuationReport: false,
+      detailLevel: "full",
+      completenessScore: 90,
+      listedAt: new Date(),
+      brokerName: "Owner Direct",
+      brokerPhone: "541-912-6034",
+    },
+    financials: {
+      grossRevenueOriginal: "221000",
+      netRevenueOriginal: "110500",
+      averageMonthlyRevenueOriginal: "18416",
+      grossRevenueUSD: "221000",
+      netRevenueUSD: "110500",
+      averageMonthlyRevenueUSD: "18416",
+      rentOriginal: "3500",
+      utilitiesOriginal: "2500",
+      laborOriginal: "0",
+      maintenanceOriginal: "600",
+      insuranceOriginal: "400",
+      otherExpensesOriginal: "500",
+      totalExpensesUSD: "7500",
+      netIncomeOriginal: "110500",
+      ebitdaOriginal: "110500",
+      cashFlowOriginal: "110500",
+      netIncomeUSD: "110500",
+      ebitdaUSD: "110500",
+      cashFlowUSD: "110500",
+      profitMargin: "50.00",
+      roi: "18.42",
+      paybackPeriodMonths: 65,
+      financialYear: 2024,
+      currency: "USD",
+      verified: false,
+    },
+    equipment: [
+      { equipmentType: "washer", brand: "Dexter", model: "T-600", capacity: 60, quantity: 4, condition: "excellent", yearInstalled: 2020, turnsPerDay: 4 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-450", capacity: 45, quantity: 6, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "washer", brand: "Dexter", model: "T-300", capacity: 30, quantity: 8, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "dryer", brand: "Dexter", model: "Stack Dryer", capacity: 45, quantity: 10, condition: "excellent", yearInstalled: 2020, turnsPerDay: 5 },
+      { equipmentType: "payment_system", brand: "CCI", model: "FasCard", capacity: 0, quantity: 1, condition: "excellent", yearInstalled: 2020, notes: "Cashless card payment system" },
+    ]
   }
 ];
 
