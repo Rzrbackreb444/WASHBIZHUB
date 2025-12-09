@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TenantProvider } from "@/contexts/TenantContext";
+import { LocationDesignProvider } from "@/contexts/LocationDesignContext";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
@@ -1661,11 +1662,13 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <TenantProvider>
             <ThemeProvider>
-              <TooltipProvider>
-                <AppContent />
-                <Toaster />
-                <ExitIntentModal />
-              </TooltipProvider>
+              <LocationDesignProvider>
+                <TooltipProvider>
+                  <AppContent />
+                  <Toaster />
+                  <ExitIntentModal />
+                </TooltipProvider>
+              </LocationDesignProvider>
             </ThemeProvider>
           </TenantProvider>
         </QueryClientProvider>
