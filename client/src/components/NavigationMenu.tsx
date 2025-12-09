@@ -238,13 +238,25 @@ export function NavigationMenu() {
                     </button>
                   </div>
                 ) : (
-                  <a 
-                    href="/api/login"
-                    className="hover:text-[#C8A661] transition-colors"
-                    data-testid="link-login"
-                  >
-                    Sign In
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <Link href="/login">
+                      <span 
+                        className="hover:text-[#C8A661] transition-colors cursor-pointer"
+                        data-testid="link-signin"
+                      >
+                        Sign In
+                      </span>
+                    </Link>
+                    <span className="text-white/30">|</span>
+                    <Link href="/signup">
+                      <span 
+                        className="text-[#C8A661] hover:text-[#d4b86a] transition-colors cursor-pointer font-medium"
+                        data-testid="link-signup"
+                      >
+                        Sign Up
+                      </span>
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>
@@ -665,16 +677,29 @@ export function NavigationMenu() {
                             </Button>
                           </div>
                         ) : (
-                          <Button 
-                            variant="outline" 
-                            className="w-full h-10 text-sm border-white/30 text-white hover:bg-white/10 hover:text-white"
-                            onClick={() => {
-                              closeMobileMenu();
-                              window.location.href = '/api/login';
-                            }}
-                          >
-                            Sign In
-                          </Button>
+                          <div className="space-y-2">
+                            <Button 
+                              variant="outline" 
+                              className="w-full h-10 text-sm border-white/30 text-white hover:bg-white/10 hover:text-white"
+                              onClick={() => {
+                                closeMobileMenu();
+                                window.location.href = '/login';
+                              }}
+                              data-testid="button-mobile-signin"
+                            >
+                              Sign In
+                            </Button>
+                            <Button 
+                              className="w-full h-10 text-sm bg-[#C8A661] hover:bg-[#b8963d] text-[#0A1628] font-medium"
+                              onClick={() => {
+                                closeMobileMenu();
+                                window.location.href = '/signup';
+                              }}
+                              data-testid="button-mobile-signup"
+                            >
+                              Sign Up Free
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
