@@ -20,8 +20,39 @@ import {
   sendUpgradeConfirmationEmail, 
   sendPaymentFailedEmail, 
   sendRefundConfirmationEmail,
-  sendCancellationEmail 
+  sendCancellationEmail,
+  sendTrialEndingEmail 
 } from "./subscription-emails";
+
+// Idempotency cache for webhook events (prevents duplicate processing)
+// Uses Map with TTL to auto-cleanup old entries
+const processedWebhookEvents = new Map<string, number>();
+const WEBHOOK_EVENT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isEventProcessed(eventId: string): boolean {
+  const processedAt = processedWebhookEvents.get(eventId);
+  if (processedAt) {
+    // Event was already processed
+    console.log(`⚠️ Duplicate webhook event detected: ${eventId} (processed ${Date.now() - processedAt}ms ago)`);
+    return true;
+  }
+  return false;
+}
+
+function markEventProcessed(eventId: string): void {
+  processedWebhookEvents.set(eventId, Date.now());
+  
+  // Cleanup old entries periodically (every 100 events)
+  if (processedWebhookEvents.size % 100 === 0) {
+    const now = Date.now();
+    for (const [id, timestamp] of processedWebhookEvents.entries()) {
+      if (now - timestamp > WEBHOOK_EVENT_TTL_MS) {
+        processedWebhookEvents.delete(id);
+      }
+    }
+    console.log(`🧹 Cleaned up old webhook events. Current cache size: ${processedWebhookEvents.size}`);
+  }
+}
 import { db } from "./db";
 import { promoCodes, promoCodeRedemptions, adminActivityLog } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -164,6 +195,15 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
   }
 
   // ==================== WEBHOOK EVENT HANDLERS ====================
+  
+  // Idempotency check - prevent duplicate processing of the same event
+  if (isEventProcessed(event.id)) {
+    console.log(`↩️ Skipping already processed event: ${event.id} (${event.type})`);
+    return res.json({ received: true, duplicate: true });
+  }
+  
+  // Mark event as processed immediately to prevent race conditions
+  markEventProcessed(event.id);
   
   try {
     // Handle checkout session completion (one-time purchases)
@@ -724,7 +764,84 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       }
     }
 
-    // Handle successful subscription payments - Keep subscription active
+    // Handle trial ending notification (sent 3 days before trial ends)
+    if (event.type === "customer.subscription.trial_will_end") {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(`⏰ Trial ending soon: ${subscription.id} for customer ${subscription.customer}`);
+      
+      try {
+        // Sync subscription state
+        await syncCLEANBISubscription(subscription);
+        
+        // Get customer ID
+        const customerId = typeof subscription.customer === 'string' 
+          ? subscription.customer 
+          : subscription.customer.id;
+        
+        // Get subscription details
+        const tier = subscription.metadata?.tierId || 'starter';
+        const amount = subscription.items.data[0]?.price?.unit_amount || 0;
+        const interval = subscription.items.data[0]?.price?.recurring?.interval || 'month';
+        const trialEndDate = new Date((subscription.trial_end || 0) * 1000);
+        
+        // Get customer email - try metadata first, then fetch from Stripe
+        let customerEmail = subscription.metadata?.customerEmail;
+        let firstName = subscription.metadata?.firstName;
+        
+        if (!customerEmail && customerId) {
+          try {
+            const customer = await stripe.customers.retrieve(customerId);
+            if (!('deleted' in customer)) {
+              customerEmail = customer.email || undefined;
+              firstName = firstName || customer.name?.split(' ')[0];
+              console.log(`📧 Retrieved customer email from Stripe for trial ending: ${customerEmail}`);
+            }
+          } catch (e: any) {
+            console.error(`⚠️ Could not fetch customer for trial ending: ${e.message}`);
+          }
+        }
+        
+        // Log activity
+        await logActivity('trial_ending', `Trial ending in 3 days: ${tier}`, customerEmail || undefined, {
+          subscriptionId: subscription.id,
+          customerId,
+          tier,
+          trialEndDate: trialEndDate.toISOString(),
+          amount: amount / 100,
+        });
+        
+        // Send trial ending notification email
+        if (customerEmail) {
+          try {
+            await sendTrialEndingEmail({
+              email: customerEmail,
+              firstName,
+              tier,
+              trialEndDate,
+              amount,
+              interval,
+            });
+            console.log(`✅ Trial ending email sent to ${customerEmail}`);
+            
+            // Also send admin notification
+            await notifySubscriptionEvent({
+              type: 'trial_ending',
+              customerEmail,
+              tier,
+              trialEndDate,
+            });
+          } catch (emailError: any) {
+            console.error(`⚠️ Failed to send trial ending email: ${emailError.message}`);
+          }
+        } else {
+          console.warn(`⚠️ No customer email available for trial ending notification - subscription ${subscription.id}`);
+        }
+      } catch (error: any) {
+        console.error(`❌ Error handling trial_will_end event: ${error.message}`);
+      }
+    }
+
+    // Handle successful subscription payments - Confirm renewal, log activity
     if (event.type === "invoice.payment_succeeded") {
       const invoice: any = event.data.object;
       const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
@@ -732,14 +849,53 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       
       // Handle CLEANBI subscriptions
       if (subscriptionId) {
-        // Mark subscription as active (payment succeeded)
-        const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
-        
-        await db.update(users)
-          .set({ cleanbiSubscriptionStatus: 'active' })
-          .where(eq(users.cleanbiSubscriptionId, subscriptionId));
+        try {
+          // Retrieve subscription to sync
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const tier = subscription.metadata?.tierId || 'starter';
+          const customerId = typeof subscription.customer === 'string' 
+            ? subscription.customer 
+            : subscription.customer.id;
+          
+          // Sync subscription state (sets status to 'active')
+          await syncCLEANBISubscription(subscription);
+          
+          // Get customer email for logging
+          let customerEmail = subscription.metadata?.customerEmail;
+          if (!customerEmail && customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId);
+              if (!('deleted' in customer)) {
+                customerEmail = customer.email || undefined;
+              }
+            } catch (e: any) {
+              console.error(`⚠️ Could not fetch customer email: ${e.message}`);
+            }
+          }
+          
+          // Check if this is a renewal (not initial payment)
+          const isRenewal = invoice.billing_reason === 'subscription_cycle';
+          const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+          
+          // Log activity for subscription renewal
+          await logActivity(
+            isRenewal ? 'subscription_renewed' : 'subscription_payment', 
+            `${isRenewal ? 'Subscription renewed' : 'Payment succeeded'}: ${tier} - $${amountPaid}`, 
+            customerEmail || undefined, 
+            {
+              subscriptionId,
+              customerId,
+              tier,
+              amount: parseFloat(amountPaid),
+              invoiceId: invoice.id,
+              billingReason: invoice.billing_reason,
+            }
+          );
+          
+          console.log(`✅ ${isRenewal ? 'Subscription renewed' : 'Payment confirmed'} for ${tier} tier - $${amountPaid}`);
+        } catch (error: any) {
+          console.error(`❌ Error handling invoice.payment_succeeded: ${error.message}`);
+        }
       }
       
       // Handle advertising invoices (custom invoices like Benjamin/Londr)
@@ -777,7 +933,7 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
       }
     }
 
-    // Handle failed subscription payments - Mark as past_due + Send Reminder Email
+    // Handle failed subscription payments - Mark at risk, sync state, send warning notification
     if (event.type === "invoice.payment_failed") {
       const invoice: any = event.data.object;
       console.error(`❌ Invoice payment failed: ${invoice.id} for customer ${invoice.customer}`);
@@ -787,27 +943,20 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         : invoice.subscription?.id;
       
       if (subscriptionId) {
-        // Mark subscription as past_due
-        const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
-        
-        await db.update(users)
-          .set({ cleanbiSubscriptionStatus: 'past_due' })
-          .where(eq(users.cleanbiSubscriptionId, subscriptionId));
-        
-        console.log(`⚠️  CLEANBI subscription marked past_due for ${subscriptionId}`);
-        
         try {
-          // Get subscription details to find tier
+          // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const tier = subscription.metadata?.tierId;
           
           // Only process CLEANBI subscription payment failures
           if (!tier) {
-            console.log(`⚠️ Invoice ${invoice.id} is not a CLEANBI subscription - skipping payment failed email`);
+            console.log(`⚠️ Invoice ${invoice.id} is not a CLEANBI subscription - skipping payment failed handling`);
             return res.json({ received: true });
           }
+          
+          // Sync subscription state (will set status to past_due based on Stripe status)
+          await syncCLEANBISubscription(subscription);
+          console.log(`⚠️ CLEANBI subscription marked at risk (past_due) for ${subscriptionId}`);
           
           // Get customer email - try invoice first, then Stripe customer
           let customerEmail = invoice.customer_email;
@@ -830,27 +979,41 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           }
           
           const amount = invoice.amount_due || 0;
+          const attemptCount = invoice.attempt_count || 1;
+          
+          // Log activity for payment failure
+          await logActivity('payment_failed', `Payment failed for ${tier} subscription (attempt ${attemptCount})`, customerEmail || undefined, {
+            subscriptionId,
+            customerId,
+            tier,
+            amount: amount / 100,
+            invoiceId: invoice.id,
+            attemptCount,
+          });
           
           if (customerEmail) {
+            // Send warning email to customer
             await sendPaymentFailedEmail({
               email: customerEmail,
               firstName,
               tier,
               amount,
             });
-            console.log(`✅ Payment failed reminder email sent to ${customerEmail}`);
+            console.log(`✅ Payment failed warning email sent to ${customerEmail}`);
             
-            // Log activity
-            await logActivity('payment_failed', `Payment failed for ${tier} subscription`, customerEmail, {
-              subscriptionId,
+            // Send admin notification for payment failure
+            await notifySubscriptionEvent({
+              type: 'payment_failed',
+              customerEmail,
+              tier,
               amount: amount / 100,
-              invoiceId: invoice.id,
+              attemptCount,
             });
           } else {
             console.warn(`⚠️ No customer email available for payment failed email - invoice ${invoice.id}`);
           }
-        } catch (emailError: any) {
-          console.error(`⚠️ Failed to send payment failed email: ${emailError.message}`);
+        } catch (error: any) {
+          console.error(`❌ Error handling invoice.payment_failed: ${error.message}`);
         }
       }
     }

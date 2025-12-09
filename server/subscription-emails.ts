@@ -780,3 +780,100 @@ export async function sendReferralSuccessEmail(params: {
     text: `Your Referral Joined WashBizHub!\n\nHey ${name},\n\nGreat news! ${params.referredName} just signed up using your referral link.\n\nYour Reward: ${params.reward}\n\nKeep sharing your referral link to earn more rewards!\n\nView your dashboard: https://washbizhub.com/referrals\n\nThanks for spreading the word!\nThe WashBizHub Team`,
   });
 }
+
+/**
+ * Send trial ending notification email (3 days before trial ends)
+ */
+export async function sendTrialEndingEmail(params: {
+  email: string;
+  firstName?: string;
+  tier: string;
+  trialEndDate: Date;
+  amount: number;
+  interval: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const tierDisplay = params.tier.charAt(0).toUpperCase() + params.tier.slice(1);
+  const name = params.firstName || 'there';
+  const endDateFormatted = params.trialEndDate.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  const content = `
+    <h2 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.navy}; font-size: 24px;">⏰ Your Trial Ends in 3 Days</h2>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Hey ${name},
+    </p>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Just a friendly heads up – your WashBizHub ${tierDisplay} trial is ending on <strong>${endDateFormatted}</strong>.
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #fef3c7; border-radius: 8px; padding: 20px; border-left: 4px solid ${BRAND_COLORS.gold};">
+      <tr>
+        <td>
+          <p style="margin: 0 0 10px 0; color: ${BRAND_COLORS.navy}; font-weight: bold;">What happens next?</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            • Your card will be charged <strong>$${(params.amount / 100).toFixed(2)}/${params.interval}</strong> on ${endDateFormatted}<br>
+            • No action needed if you want to continue<br>
+            • Cancel anytime before then to avoid charges
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 0 0 20px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      <strong>What you've unlocked during your trial:</strong>
+    </p>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      ${getFeaturesList(params.tier)}
+    </table>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+      <tr>
+        <td style="background-color: ${BRAND_COLORS.gold}; border-radius: 6px; margin-right: 10px;">
+          <a href="https://washbizhub.com/cleanbi-explorer" style="display: inline-block; padding: 14px 28px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            Keep Exploring →
+          </a>
+        </td>
+        <td style="width: 15px;"></td>
+        <td style="background-color: transparent; border: 2px solid ${BRAND_COLORS.navy}; border-radius: 6px;">
+          <a href="https://washbizhub.com/account-subscription" style="display: inline-block; padding: 12px 24px; color: ${BRAND_COLORS.navy}; text-decoration: none; font-weight: bold; font-size: 16px;">
+            Manage Subscription
+          </a>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 25px 0; background-color: #dcfce7; border-radius: 8px; padding: 20px; text-align: center;">
+      <tr>
+        <td>
+          <p style="margin: 0 0 8px 0; color: ${BRAND_COLORS.navy}; font-weight: bold; font-size: 16px;">🛡️ 30-Day Money-Back Guarantee</p>
+          <p style="margin: 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px;">
+            Not satisfied after your trial? Get a full refund within 30 days, no questions asked.
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 14px; line-height: 1.6;">
+      Questions? Reply to this email or contact <a href="mailto:support@washbizhub.com" style="color: ${BRAND_COLORS.gold};">support@washbizhub.com</a>
+    </p>
+    
+    <p style="margin: 20px 0 0 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px; line-height: 1.6;">
+      Thanks for trying WashBizHub!<br>
+      <strong style="color: ${BRAND_COLORS.gold};">The WashBizHub Team</strong>
+    </p>
+  `;
+  
+  return sendEmail({
+    to: params.email,
+    subject: `⏰ Your WashBizHub ${tierDisplay} Trial Ends in 3 Days`,
+    html: getEmailTemplate(content),
+    text: `Your Trial Ends in 3 Days\n\nHey ${name},\n\nJust a friendly heads up – your WashBizHub ${tierDisplay} trial is ending on ${endDateFormatted}.\n\nWhat happens next:\n• Your card will be charged $${(params.amount / 100).toFixed(2)}/${params.interval} on ${endDateFormatted}\n• No action needed if you want to continue\n• Cancel anytime before then to avoid charges\n\nManage your subscription: https://washbizhub.com/account-subscription\n\n30-Day Money-Back Guarantee: Not satisfied after your trial? Get a full refund within 30 days, no questions asked.\n\nQuestions? Contact support@washbizhub.com\n\nThanks for trying WashBizHub!\nThe WashBizHub Team`,
+  });
+}
