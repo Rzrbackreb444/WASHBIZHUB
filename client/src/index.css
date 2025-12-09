@@ -1131,14 +1131,18 @@ img {
   max-width: 100%;
 }
 
-/* Lazy loading optimization for images */
-img[loading="lazy"] {
-  opacity: 0;
+/* Lazy loading optimization for images - fade in when loaded */
+img[loading="lazy"]:not([src=""]):not([src^="data:"]) {
+  opacity: 1;
   transition: opacity 0.2s ease-in-out;
 }
 
-img[loading="lazy"].loaded,
-img[loading="lazy"][data-loaded="true"] {
+/* Use data attribute for manual lazy loading control */
+img[data-lazy-load="pending"] {
+  opacity: 0;
+}
+
+img[data-lazy-load="loaded"] {
   opacity: 1;
 }
 
