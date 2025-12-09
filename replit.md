@@ -67,10 +67,20 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
   - All navigation links point to /cleanbi-explorer (backward-compatible /cleanbi-auto still works)
   - **Dual View Mode:** Toggle between Map View and Charts View via ViewModeToggle component
   - **Saved Addresses Panel:** Quick-access sidebar (SavedAddressesPanel) for previously analyzed locations with search, delete, clear all
-  - **Professional Charts View:** AnalysisChartsView with Recharts radial gauge, key metrics cards, mobility scores, WashBizHub Navy/Gold branding
+  - **Professional Charts View:** AnalysisChartsView with tabbed interface (Overview, Analysis, Benchmarks, Roadmap), integrated visualization components
   - **PDF Export:** AnalysisReportGenerator creates branded PDF reports for subscribers using html2canvas + jspdf
   - **Social Sharing:** AnalysisSocialShare enables sharing analysis results on Facebook, Twitter, LinkedIn with pre-populated text
-  - Components located in: `client/src/components/cleanbi/` (SavedAddressesPanel, ViewModeToggle, AnalysisChartsView, AnalysisReportGenerator, AnalysisSocialShare)
+  - **CLEANBI Component Suite (client/src/components/cleanbi/):**
+    - `CLEANBIGradeBadge` - Premium animated badge with SVG gradient ring, EBITDA multiples
+    - `CLEANBIScoreCard` - Full grade card with radial gauge, percentile ranking, upgrade prompts
+    - `GradeExplanation` - Strengths/weaknesses analysis with actionable recommendations
+    - `FactorBreakdown` - 68-factor detailed view grouped by 8 categories (Demographics 12, Market 10, Location 12, Financial 10, Lease 6, Equipment 8, Operations 6, Growth 4)
+    - `CLEANBIRadarChart` - Recharts radar visualization comparing user score to CLA industry benchmarks
+    - `CLEANBICategoryChart` - Horizontal bar chart showing performance by category
+    - `BenchmarkComparison` - CLA industry data (18,375 laundromats), regional breakdowns, percentile ranking
+    - `ImprovementRoadmap` - Prioritized action plan with difficulty, cost, timeframe, and ROI estimates
+    - `DataConfidence` - Data quality indicator showing verified/estimated/default source breakdown
+    - All components exported via barrel file: `client/src/components/cleanbi/index.ts`
 - **POS Command Center:** An enterprise dashboard for laundromat operations, including KPIs, order management, CRM, IoT machine status, and route planning.
 - **IoT & Diagnostics:** Ingests sensor data for predictive maintenance.
 - **Route Optimization:** Integrates Google Maps and OR-Tools with Twilio.
