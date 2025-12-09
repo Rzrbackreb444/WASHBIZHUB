@@ -200,6 +200,9 @@ import {
   insertDesignOrderSchema,
   affiliateClicks,
   insertAffiliateClickSchema,
+  notifications,
+  notificationPreferences,
+  insertNotificationPreferencesSchema,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -8785,6 +8788,185 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
         .set({ views: sql`${supplyListings.views} + 1` })
         .where(eq(supplyListings.id, req.params.id));
       res.json(result[0]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== NOTIFICATION SYSTEM ====================
+
+  // GET /api/notifications - Get user's notifications
+  app.get("/api/notifications", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const { limit = "20", offset = "0", unreadOnly = "false" } = req.query;
+      const userId = (req.user as any).id;
+      
+      let query = db.select().from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(desc(notifications.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+
+      if (unreadOnly === "true") {
+        query = db.select().from(notifications)
+          .where(and(eq(notifications.userId, userId), eq(notifications.read, false)))
+          .orderBy(desc(notifications.createdAt))
+          .limit(parseInt(limit as string))
+          .offset(parseInt(offset as string));
+      }
+
+      const result = await query;
+      
+      // Get unread count
+      const unreadCount = await db.select({ count: sql<number>`count(*)` })
+        .from(notifications)
+        .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
+
+      res.json({
+        notifications: result,
+        unreadCount: Number(unreadCount[0]?.count || 0)
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/notifications/:id/read - Mark notification as read
+  app.put("/api/notifications/:id/read", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const result = await db.update(notifications)
+        .set({ read: true, readAt: new Date() })
+        .where(and(eq(notifications.id, req.params.id), eq(notifications.userId, userId)))
+        .returning();
+      
+      if (!result[0]) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.json(result[0]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/notifications/mark-all-read - Mark all notifications as read
+  app.put("/api/notifications/mark-all-read", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      await db.update(notifications)
+        .set({ read: true, readAt: new Date() })
+        .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/notifications/:id - Delete notification
+  app.delete("/api/notifications/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const result = await db.delete(notifications)
+        .where(and(eq(notifications.id, req.params.id), eq(notifications.userId, userId)))
+        .returning();
+      
+      if (!result[0]) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/notification-preferences - Get user's notification preferences
+  app.get("/api/notification-preferences", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const result = await db.select().from(notificationPreferences)
+        .where(eq(notificationPreferences.userId, userId));
+      
+      if (!result[0]) {
+        // Return default preferences
+        return res.json({
+          emailEnabled: true,
+          smsEnabled: false,
+          pushEnabled: true,
+          phoneNumber: null,
+          phoneVerified: false,
+          equipmentAlerts: true,
+          dealAlerts: true,
+          marketUpdates: true,
+          reportDelivery: true
+        });
+      }
+      res.json(result[0]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/notification-preferences - Update notification preferences
+  app.put("/api/notification-preferences", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const data = req.body;
+      
+      // Check if preferences exist
+      const existing = await db.select().from(notificationPreferences)
+        .where(eq(notificationPreferences.userId, userId));
+      
+      if (existing[0]) {
+        // Update existing
+        const result = await db.update(notificationPreferences)
+          .set({
+            emailEnabled: data.emailEnabled,
+            smsEnabled: data.smsEnabled,
+            pushEnabled: data.pushEnabled,
+            phoneNumber: data.phoneNumber,
+            equipmentAlerts: data.equipmentAlerts,
+            dealAlerts: data.dealAlerts,
+            marketUpdates: data.marketUpdates,
+            reportDelivery: data.reportDelivery,
+            updatedAt: new Date()
+          })
+          .where(eq(notificationPreferences.userId, userId))
+          .returning();
+        res.json(result[0]);
+      } else {
+        // Create new
+        const result = await db.insert(notificationPreferences).values({
+          userId,
+          emailEnabled: data.emailEnabled ?? true,
+          smsEnabled: data.smsEnabled ?? false,
+          pushEnabled: data.pushEnabled ?? true,
+          phoneNumber: data.phoneNumber ?? null,
+          equipmentAlerts: data.equipmentAlerts ?? true,
+          dealAlerts: data.dealAlerts ?? true,
+          marketUpdates: data.marketUpdates ?? true,
+          reportDelivery: data.reportDelivery ?? true
+        }).returning();
+        res.json(result[0]);
+      }
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
