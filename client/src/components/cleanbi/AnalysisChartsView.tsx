@@ -504,5 +504,3 @@ export default function AnalysisChartsView({ analysis, isLoading }: AnalysisChar
     </motion.div>
   );
 }
-
-export default AnalysisChartsView;
