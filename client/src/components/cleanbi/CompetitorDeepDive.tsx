@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, Star, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Building2, Star, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ interface CompetitorDeepDiveProps {
   competitors: Competitor[];
   userAddress: string;
   isLoading?: boolean;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -209,8 +211,37 @@ function CompetitorCard({ competitor, rank }: { competitor: Competitor; rank: nu
   );
 }
 
-export function CompetitorDeepDive({ competitors, userAddress, isLoading }: CompetitorDeepDiveProps) {
+export function CompetitorDeepDive({ competitors, userAddress, isLoading, isSubscriber = false, onUpgradeClick }: CompetitorDeepDiveProps) {
   const [sortBy, setSortBy] = useState<"distance" | "rating" | "reviews">("distance");
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Deep competitor analysis requires a Starter subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Starter
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-blue-500" />
+            Competitor Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   if (isLoading) {
     return (

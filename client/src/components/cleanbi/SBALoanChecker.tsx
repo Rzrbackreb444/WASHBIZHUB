@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Landmark, CheckCircle, XCircle, AlertTriangle, Calculator, Info, HelpCircle } from "lucide-react";
+import { Landmark, CheckCircle, XCircle, AlertTriangle, Calculator, Info, HelpCircle, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ interface SBALoanCheckerProps {
   grade: string;
   estimatedRevenue?: number;
   estimatedNOI?: number;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 interface CheckResult {
@@ -42,7 +44,9 @@ export function SBALoanChecker({
   cleanbiScore, 
   grade,
   estimatedRevenue = 250000,
-  estimatedNOI = 62500
+  estimatedNOI = 62500,
+  isSubscriber = false,
+  onUpgradeClick
 }: SBALoanCheckerProps) {
   const [purchasePrice, setPurchasePrice] = useState(300000);
   const [downPayment, setDownPayment] = useState(10);
@@ -148,6 +152,35 @@ export function SBALoanChecker({
   
   const approvalLikelihood = overallScore >= 80 ? "High" : overallScore >= 60 ? "Moderate" : "Low";
   const approvalColor = overallScore >= 80 ? "text-green-600" : overallScore >= 60 ? "text-amber-600" : "text-red-600";
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              SBA Loan analysis requires a Pro subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Landmark className="h-5 w-5 text-blue-500" />
+            SBA Loan Pre-Qualification
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ClipboardCheck, CheckCircle, Circle, AlertTriangle, Clock, FileText, Download, Info } from "lucide-react";
+import { ClipboardCheck, CheckCircle, Circle, AlertTriangle, Clock, FileText, Download, Info, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ interface DueDiligenceChecklistProps {
   cleanbiScore: number;
   grade: string;
   address?: string;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 interface ChecklistItem {
@@ -116,7 +118,7 @@ const CHECKLIST_DATA: ChecklistCategory[] = [
   }
 ];
 
-export function DueDiligenceChecklist({ cleanbiScore, grade, address }: DueDiligenceChecklistProps) {
+export function DueDiligenceChecklist({ cleanbiScore, grade, address, isSubscriber = false, onUpgradeClick }: DueDiligenceChecklistProps) {
   const { toast } = useToast();
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
@@ -127,6 +129,35 @@ export function DueDiligenceChecklist({ cleanbiScore, grade, address }: DueDilig
   
   const criticalItems = CHECKLIST_DATA.flatMap(cat => cat.items).filter(item => item.priority === "critical");
   const completedCritical = criticalItems.filter(item => completedItems.has(item.id)).length;
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Starter Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Due diligence checklists require a Starter subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Starter
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ClipboardCheck className="h-5 w-5 text-green-500" />
+            Due Diligence Checklist
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   const toggleItem = (id: string) => {
     const newCompleted = new Set(completedItems);
