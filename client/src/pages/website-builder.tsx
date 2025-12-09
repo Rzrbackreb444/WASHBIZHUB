@@ -448,6 +448,143 @@ export default function WebsiteBuilder() {
     },
   });
 
+  // ========================================
+  // HOSTING & DOMAIN MANAGEMENT
+  // ========================================
+  const [subdomain, setSubdomain] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Fetch site project (for hosting info)
+  const { data: siteProject, isLoading: projectLoading } = useQuery<{
+    id: string;
+    name: string;
+    subdomain: string | null;
+    isPublished: boolean;
+    publishedUrl: string | null;
+    publishedAt: string | null;
+  } | null>({
+    queryKey: ['/api/website-builder/project'],
+  });
+
+  // Fetch custom domains
+  const { data: customDomains = [], isLoading: domainsLoading } = useQuery<Array<{
+    id: string;
+    domain: string;
+    status: string;
+    sslStatus: string;
+    verificationRecord: any;
+    createdAt: string;
+  }>>({
+    queryKey: [`/api/website-builder/domains/${siteProject?.id}`],
+    enabled: !!siteProject?.id,
+  });
+
+  // Update subdomain mutation
+  const updateSubdomainMutation = useMutation({
+    mutationFn: async (newSubdomain: string) => {
+      const response = await apiRequest('PATCH', `/api/website-builder/project/${siteProject?.id}`, {
+        subdomain: newSubdomain.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/website-builder/project'] });
+      toast({ title: "Subdomain Updated!", description: "Your website address has been changed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Publish/unpublish mutation
+  const publishMutation = useMutation({
+    mutationFn: async (publish: boolean) => {
+      const response = await apiRequest('POST', `/api/website-builder/publish/${siteProject?.id}`, { publish });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/website-builder/project'] });
+      toast({ 
+        title: data.isPublished ? "Site Published!" : "Site Unpublished",
+        description: data.isPublished ? `Your site is now live at ${data.publishedUrl}` : "Your site is now offline.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Publish Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Add custom domain mutation
+  const addDomainMutation = useMutation({
+    mutationFn: async (domain: string) => {
+      const response = await apiRequest('POST', '/api/website-builder/domains', {
+        projectId: siteProject?.id,
+        domain,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/website-builder/domains/${siteProject?.id}`] });
+      setCustomDomain("");
+      toast({ 
+        title: "Domain Added!",
+        description: "Configure your DNS to complete setup.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Add Domain", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Verify domain mutation
+  const verifyDomainMutation = useMutation({
+    mutationFn: async (domainId: string) => {
+      const response = await apiRequest('POST', `/api/website-builder/domains/${domainId}/verify`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/website-builder/domains/${siteProject?.id}`] });
+      toast({ 
+        title: data.status === 'active' ? "Domain Verified!" : "Verification in Progress",
+        description: data.message,
+      });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Delete domain mutation
+  const deleteDomainMutation = useMutation({
+    mutationFn: async (domainId: string) => {
+      await apiRequest('DELETE', `/api/website-builder/domains/${domainId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/website-builder/domains/${siteProject?.id}`] });
+      toast({ title: "Domain Removed", description: "Custom domain has been deleted." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Preview handler
+  const handlePreview = () => {
+    if (siteProject?.id) {
+      window.open(`/api/website-builder/preview/${siteProject.id}`, '_blank');
+    } else {
+      toast({ title: "No Project", description: "Create your website first", variant: "destructive" });
+    }
+  };
+
+  // Publish handler
+  const handlePublish = () => {
+    if (siteProject?.id) {
+      publishMutation.mutate(!siteProject.isPublished);
+    }
+  };
+
   const handleFileUpload = async (file: File, category: string) => {
     setIsUploading(true);
     try {
@@ -524,13 +661,29 @@ export default function WebsiteBuilder() {
                 <p className="text-white/70">Drag-and-drop pages, branding, AI chatbot, and more</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="border-primary/30" data-testid="button-preview-site">
+                <Button 
+                  variant="outline" 
+                  className="border-primary/30" 
+                  onClick={handlePreview}
+                  data-testid="button-preview-site"
+                >
                   <Eye className="w-4 h-4 mr-2" />
                   Preview
                 </Button>
-                <Button className="bg-primary" data-testid="button-publish-site">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Publish
+                <Button 
+                  className={siteProject?.isPublished ? "bg-red-600 hover:bg-red-700" : "bg-primary"}
+                  onClick={handlePublish}
+                  disabled={publishMutation.isPending}
+                  data-testid="button-publish-site"
+                >
+                  {publishMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : siteProject?.isPublished ? (
+                    <EyeOff className="w-4 h-4 mr-2" />
+                  ) : (
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                  )}
+                  {siteProject?.isPublished ? "Unpublish" : "Publish"}
                 </Button>
               </div>
             </div>
@@ -2455,6 +2608,59 @@ export default function WebsiteBuilder() {
             <TabsContent value="hosting" className="space-y-6">
               <div className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
+                  {/* Publish Status Banner */}
+                  {siteProject?.isPublished ? (
+                    <Card className="bg-green-500/10 border-green-500/30">
+                      <CardContent className="py-4">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                            <div>
+                              <p className="font-medium text-green-500">Your Site is Live!</p>
+                              <p className="text-sm text-muted-foreground">
+                                {siteProject.publishedUrl || `https://${siteProject.subdomain}.washbizhub.com`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => window.open(siteProject.publishedUrl || `/s/${siteProject.subdomain}`, '_blank')}
+                              data-testid="button-visit-site"
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Visit Site
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                navigator.clipboard.writeText(siteProject.publishedUrl || `https://${siteProject.subdomain}.washbizhub.com`);
+                                toast({ title: "Copied!", description: "URL copied to clipboard" });
+                              }}
+                              data-testid="button-copy-url"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card className="bg-amber-500/10 border-amber-500/30">
+                      <CardContent className="py-4">
+                        <div className="flex items-center gap-3">
+                          <EyeOff className="w-5 h-5 text-amber-500" />
+                          <div>
+                            <p className="font-medium text-amber-500">Your Site is Not Published</p>
+                            <p className="text-sm text-muted-foreground">Click "Publish" above to make your site live</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -2469,6 +2675,8 @@ export default function WebsiteBuilder() {
                         <div className="flex gap-2">
                           <Input
                             placeholder="your-business-name"
+                            value={subdomain || siteProject?.subdomain || ""}
+                            onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
                             className="flex-1"
                             data-testid="input-subdomain"
                           />
@@ -2476,10 +2684,23 @@ export default function WebsiteBuilder() {
                             .washbizhub.com
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-sm">Your site is live at <span className="font-mono font-medium">yoursite.washbizhub.com</span></span>
-                        </div>
+                        {siteProject?.subdomain && siteProject.isPublished && (
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm">Your site is live at <span className="font-mono font-medium">{siteProject.subdomain}.washbizhub.com</span></span>
+                          </div>
+                        )}
+                        {subdomain && subdomain !== siteProject?.subdomain && (
+                          <Button 
+                            onClick={() => updateSubdomainMutation.mutate(subdomain)}
+                            disabled={updateSubdomainMutation.isPending}
+                            className="w-full"
+                            data-testid="button-save-subdomain"
+                          >
+                            {updateSubdomainMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Save Subdomain
+                          </Button>
+                        )}
                       </div>
 
                       <Separator />
@@ -2487,36 +2708,96 @@ export default function WebsiteBuilder() {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <Label className="text-base font-medium">Custom Domain</Label>
-                          <Badge variant="secondary" className="gap-1">
-                            <Sparkles className="w-3 h-3" />
-                            Pro Feature
+                          <Badge className="bg-green-500/20 text-green-500 border-green-500/30 gap-1">
+                            <CheckCircle className="w-3 h-3" />
+                            First 100 FREE
                           </Badge>
                         </div>
-                        <Input
-                          placeholder="www.yourbusiness.com"
-                          data-testid="input-custom-domain"
-                        />
-                        <div className="p-4 rounded-lg bg-muted/30 border border-dashed">
-                          <p className="font-medium text-sm mb-2">DNS Configuration Required</p>
-                          <div className="space-y-2 text-xs font-mono">
-                            <div className="flex justify-between p-2 bg-background rounded">
-                              <span className="text-muted-foreground">Type</span>
-                              <span>CNAME</span>
-                            </div>
-                            <div className="flex justify-between p-2 bg-background rounded">
-                              <span className="text-muted-foreground">Name</span>
-                              <span>www</span>
-                            </div>
-                            <div className="flex justify-between p-2 bg-background rounded">
-                              <span className="text-muted-foreground">Value</span>
-                              <span>proxy.washbizhub.com</span>
-                            </div>
-                          </div>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="yourbusiness.com"
+                            value={customDomain}
+                            onChange={(e) => setCustomDomain(e.target.value.toLowerCase())}
+                            data-testid="input-custom-domain"
+                          />
+                          <Button 
+                            onClick={() => addDomainMutation.mutate(customDomain)}
+                            disabled={!customDomain || addDomainMutation.isPending}
+                            data-testid="button-add-domain"
+                          >
+                            {addDomainMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                          </Button>
                         </div>
-                        <Button variant="outline" className="w-full" data-testid="button-verify-domain">
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Verify DNS Configuration
-                        </Button>
+                        
+                        {/* Custom Domains List */}
+                        {customDomains.length > 0 && (
+                          <div className="space-y-2 mt-4">
+                            <Label className="text-sm text-muted-foreground">Your Custom Domains</Label>
+                            {customDomains.map((domain: any) => (
+                              <div key={domain.id} className="p-4 rounded-lg bg-muted/30 border">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-mono font-medium">{domain.domain}</span>
+                                  <div className="flex items-center gap-2">
+                                    <Badge 
+                                      className={
+                                        domain.status === 'active' 
+                                          ? 'bg-green-500/20 text-green-500' 
+                                          : domain.status === 'verifying'
+                                          ? 'bg-amber-500/20 text-amber-500'
+                                          : 'bg-gray-500/20 text-gray-500'
+                                      }
+                                    >
+                                      {domain.status === 'active' ? 'Active' : domain.status === 'verifying' ? 'Verifying' : 'Pending'}
+                                    </Badge>
+                                    {domain.status !== 'active' && (
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        onClick={() => verifyDomainMutation.mutate(domain.id)}
+                                        disabled={verifyDomainMutation.isPending}
+                                      >
+                                        <RefreshCw className={`w-4 h-4 ${verifyDomainMutation.isPending ? 'animate-spin' : ''}`} />
+                                      </Button>
+                                    )}
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => deleteDomainMutation.mutate(domain.id)}
+                                      disabled={deleteDomainMutation.isPending}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                {domain.status !== 'active' && (
+                                  <div className="p-3 rounded bg-background/50 text-xs font-mono space-y-1">
+                                    <p className="text-muted-foreground mb-2">Point your domain to WashBizHub:</p>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Type:</span>
+                                      <span>CNAME</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Name:</span>
+                                      <span>@ or www</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Value:</span>
+                                      <span>washbizhub.com</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {customDomains.length === 0 && (
+                          <div className="p-4 rounded-lg bg-muted/30 border border-dashed text-center">
+                            <Globe className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">No custom domains configured</p>
+                            <p className="text-xs text-muted-foreground mt-1">Add your own domain for professional branding</p>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -2526,34 +2807,43 @@ export default function WebsiteBuilder() {
                       <div className="flex items-center justify-between">
                         <div>
                           <CardTitle className="flex items-center gap-2">
-                            <ShoppingCart className="w-5 h-5 text-primary" />
-                            Purchase a Domain
+                            <Link2 className="w-5 h-5 text-primary" />
+                            Preview Your Site
                           </CardTitle>
-                          <CardDescription>Register a new domain through WashBizHub</CardDescription>
+                          <CardDescription>Test your website before publishing</CardDescription>
                         </div>
-                        <Badge className="bg-primary/20 text-primary border-primary/30">Google Domains</Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Search for available domains..."
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          onClick={handlePreview} 
                           className="flex-1"
-                          data-testid="input-domain-search"
-                        />
-                        <Button data-testid="button-search-domains">
-                          <Search className="w-4 h-4 mr-2" />
-                          Search
+                          data-testid="button-preview-full"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          Preview Site
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={handlePublish}
+                          disabled={publishMutation.isPending}
+                          className={siteProject?.isPublished ? "border-red-500/50 text-red-500" : ""}
+                          data-testid="button-publish-quick"
+                        >
+                          {publishMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : siteProject?.isPublished ? (
+                            <EyeOff className="w-4 h-4 mr-2" />
+                          ) : (
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                          )}
+                          {siteProject?.isPublished ? "Unpublish" : "Publish Now"}
                         </Button>
                       </div>
                       <div className="p-4 rounded-lg bg-muted/30 text-center">
-                        <p className="text-sm text-muted-foreground mb-2">Popular domain extensions</p>
-                        <div className="flex justify-center gap-2 flex-wrap">
-                          <Badge variant="outline">.com from $12/yr</Badge>
-                          <Badge variant="outline">.net from $12/yr</Badge>
-                          <Badge variant="outline">.co from $25/yr</Badge>
-                          <Badge variant="outline">.io from $40/yr</Badge>
-                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">Preview checks your site before going live</p>
+                        <p className="text-xs text-muted-foreground">Changes are saved automatically as you build</p>
                       </div>
                     </CardContent>
                   </Card>
