@@ -45,6 +45,8 @@ import {
   type InsertListingMedia,
   type BrokerProfile,
   type InsertBrokerProfile,
+  type ListingInquiry,
+  type InsertListingInquiry,
   type Template,
   type InsertTemplate,
   type TemplateDownload,
@@ -406,8 +408,15 @@ export interface IStorage {
   
   // Broker Profiles
   getBrokerProfileByUserId(userId: string): Promise<BrokerProfile | undefined>;
+  getBrokerProfileBySlug(slug: string): Promise<BrokerProfile | undefined>;
   createBrokerProfile(profile: InsertBrokerProfile): Promise<BrokerProfile>;
   updateBrokerProfile(id: string, profile: Partial<InsertBrokerProfile>): Promise<BrokerProfile>;
+  
+  // Listing Inquiries (Leads)
+  getListingInquiriesByListingIds(listingIds: string[]): Promise<ListingInquiry[]>;
+  getListingInquiry(id: string): Promise<ListingInquiry | undefined>;
+  createListingInquiry(inquiry: InsertListingInquiry): Promise<ListingInquiry>;
+  updateListingInquiry(id: string, inquiry: Partial<InsertListingInquiry>): Promise<ListingInquiry>;
   
   // Templates (Premium)
   getTemplates(filters?: { category?: string; featured?: boolean }): Promise<Template[]>;
@@ -1677,8 +1686,14 @@ export class MemStorage implements IStorage {
   async reorderListingMedia(): Promise<void> { throw new Error("Use DbStorage for premium features"); }
   
   async getBrokerProfileByUserId(): Promise<BrokerProfile | undefined> { return undefined; }
+  async getBrokerProfileBySlug(): Promise<BrokerProfile | undefined> { return undefined; }
   async createBrokerProfile(): Promise<BrokerProfile> { throw new Error("Use DbStorage for premium features"); }
   async updateBrokerProfile(): Promise<BrokerProfile> { throw new Error("Use DbStorage for premium features"); }
+  
+  async getListingInquiriesByListingIds(): Promise<ListingInquiry[]> { return []; }
+  async getListingInquiry(): Promise<ListingInquiry | undefined> { return undefined; }
+  async createListingInquiry(): Promise<ListingInquiry> { throw new Error("Use DbStorage for premium features"); }
+  async updateListingInquiry(): Promise<ListingInquiry> { throw new Error("Use DbStorage for premium features"); }
   
   async getTemplates(): Promise<any[]> { return []; }
   async getTemplate(): Promise<any | undefined> { return undefined; }

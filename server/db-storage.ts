@@ -168,8 +168,11 @@ import {
   type EmailVerificationToken,
   type InsertEmailVerificationToken,
   brokerProfiles,
+  listingInquiries,
   type BrokerProfile,
   type InsertBrokerProfile,
+  type ListingInquiry,
+  type InsertListingInquiry,
   forumCategories,
   forumTopics,
   forumReplies,
@@ -934,6 +937,37 @@ export class DbStorage implements IStorage {
 
   async updateBrokerProfile(id: string, updates: Partial<InsertBrokerProfile>): Promise<BrokerProfile> {
     const result = await db.update(brokerProfiles).set(updates).where(eq(brokerProfiles.id, id)).returning();
+    return result[0];
+  }
+
+  async getBrokerProfileBySlug(slug: string): Promise<BrokerProfile | undefined> {
+    const result = await db.select().from(brokerProfiles).where(eq(brokerProfiles.slug, slug));
+    return result[0];
+  }
+
+  // ============================================================================
+  // LISTING INQUIRIES (Leads)
+  // ============================================================================
+  async getListingInquiriesByListingIds(listingIds: string[]): Promise<ListingInquiry[]> {
+    if (listingIds.length === 0) return [];
+    const { inArray } = await import("drizzle-orm");
+    return db.select().from(listingInquiries)
+      .where(inArray(listingInquiries.listingId, listingIds))
+      .orderBy(desc(listingInquiries.createdAt));
+  }
+
+  async getListingInquiry(id: string): Promise<ListingInquiry | undefined> {
+    const result = await db.select().from(listingInquiries).where(eq(listingInquiries.id, id));
+    return result[0];
+  }
+
+  async createListingInquiry(inquiry: InsertListingInquiry): Promise<ListingInquiry> {
+    const result = await db.insert(listingInquiries).values(inquiry).returning();
+    return result[0];
+  }
+
+  async updateListingInquiry(id: string, updates: Partial<InsertListingInquiry>): Promise<ListingInquiry> {
+    const result = await db.update(listingInquiries).set(updates).where(eq(listingInquiries.id, id)).returning();
     return result[0];
   }
 
