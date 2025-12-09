@@ -2669,31 +2669,55 @@ export default function DesignStudio() {
                   </DialogHeader>
                   
                   <div className="space-y-4 mt-4">
-                    {/* Council Members */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#001F3F] to-[#003366] flex items-center justify-center text-[#C8A661] font-bold text-sm">
-                            NF
+                    {/* Expert Council */}
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <p className="text-white/80 font-semibold text-xs mb-3">Your Expert Panel:</p>
+                      <div className="grid grid-cols-5 gap-2">
+                        <div className="text-center">
+                          <div className="w-9 h-9 mx-auto rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white font-bold text-[10px]">
+                            OPS
                           </div>
-                          <div>
-                            <p className="text-white font-semibold text-sm">Nick Feilmeier</p>
-                            <p className="text-[#C8A661] text-[10px]">Founder & CEO</p>
-                          </div>
+                          <p className="text-white/80 text-[9px] mt-1 font-medium">Operations</p>
                         </div>
-                        <p className="text-white/60 text-[10px]">Multi-unit owner, tech integration specialist</p>
+                        <div className="text-center">
+                          <div className="w-9 h-9 mx-auto rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-bold text-[10px]">
+                            FIN
+                          </div>
+                          <p className="text-white/80 text-[9px] mt-1 font-medium">Financial</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="w-9 h-9 mx-auto rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white font-bold text-[10px]">
+                            MKT
+                          </div>
+                          <p className="text-white/80 text-[9px] mt-1 font-medium">Market</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="w-9 h-9 mx-auto rounded-full bg-gradient-to-br from-orange-600 to-orange-800 flex items-center justify-center text-white font-bold text-[10px]">
+                            EQP
+                          </div>
+                          <p className="text-white/80 text-[9px] mt-1 font-medium">Equipment</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="w-9 h-9 mx-auto rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-bold text-[10px]">
+                            LOC
+                          </div>
+                          <p className="text-white/80 text-[9px] mt-1 font-medium">Location</p>
+                        </div>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#001F3F] to-[#003366] flex items-center justify-center text-[#C8A661] font-bold text-sm">
-                            LL
-                          </div>
-                          <div>
-                            <p className="text-white font-semibold text-sm">Lawrence Larsen</p>
-                            <p className="text-[#C8A661] text-[10px]">DRE #49460</p>
-                          </div>
-                        </div>
-                        <p className="text-white/60 text-[10px]">"Laundromat Larry" - Industry broker veteran</p>
+                      <p className="text-white/50 text-[10px] mt-3 text-center italic">
+                        5 specialized experts discuss, delegate, and advise on your design
+                      </p>
+                    </div>
+                    
+                    {/* Human Oversight */}
+                    <div className="flex items-center gap-3 bg-gradient-to-r from-[#C8A661]/10 to-transparent rounded-lg p-3 border border-[#C8A661]/20">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C8A661] to-[#B8955A] flex items-center justify-center text-[#001F3F] font-bold text-sm flex-shrink-0">
+                        NK
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">Nick Kremers</p>
+                        <p className="text-[#C8A661] text-[10px]">Founder & Final Review</p>
+                        <p className="text-white/60 text-[10px]">Human oversight on every consultation</p>
                       </div>
                     </div>
                     
