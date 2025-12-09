@@ -27,3 +27,4 @@ export { SBALoanChecker } from "./SBALoanChecker";
 export { ExitStrategyPlanner } from "./ExitStrategyPlanner";
 export { NegotiationGuide } from "./NegotiationGuide";
 export { DueDiligenceChecklist } from "./DueDiligenceChecklist";
+export { MarketHeatMap } from "./MarketHeatMap";
