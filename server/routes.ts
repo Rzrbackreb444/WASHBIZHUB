@@ -34,6 +34,13 @@ import { calculateCleanbi, type CleanbiInput } from "./cleanbi-calculator";
 import { rateLimiter } from "./rate-limit-middleware";
 import { requireTier } from "./middleware/tier-enforcement";
 import { 
+  requireAuth as tierGateAuth, 
+  requireTier as tierGateRequireTier, 
+  checkQuota, 
+  getUserTier,
+  optionalTierInfo 
+} from "./middleware/tier-gate";
+import { 
   antiScrapingMiddleware, 
   honeypotEndpoint, 
   enforcePageLimits, 
@@ -1292,7 +1299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs", isAuthenticated, async (req: any, res) => {
+  // Design Studio routes require all_access tier (Design Studio is premium feature)
+  app.post("/api/designs", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1310,7 +1318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/designs/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/designs/:id", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1334,7 +1342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs/:id/optimize", isAuthenticated, async (req: any, res) => {
+  app.post("/api/designs/:id/optimize", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1367,7 +1375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/designs/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/designs/:id", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1402,7 +1410,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cleanbi", isAuthenticated, async (req: any, res) => {
+  // CLEANBI Score creation - free users get 3 analyses, all_access gets unlimited
+  app.post("/api/cleanbi", isAuthenticated, checkQuota('cleanbi_analyses'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1421,8 +1430,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // CLEANBI AI Insights (requires Starter tier or higher)
-  app.post("/api/cleanbi/:id/insights", isAuthenticated, requireTier("starter"), async (req: any, res) => {
+  // CLEANBI AI Insights (requires all_access tier)
+  app.post("/api/cleanbi/:id/insights", isAuthenticated, tierGateRequireTier("all_access"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -12426,7 +12435,8 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // ========== SERVICE GUY AI - Equipment Diagnostics ==========
-  app.post("/api/service-guy-ai/diagnose", async (req, res) => {
+  // Service Guy AI requires all_access tier for unlimited usage
+  app.post("/api/service-guy-ai/diagnose", isAuthenticated, tierGateRequireTier('all_access'), async (req, res) => {
     try {
       const { symptoms, manufacturer, machineType } = req.body;
       
@@ -12488,8 +12498,8 @@ For immediate assistance, contact: 479-883-4314 or nick@washbizhub.com`
     }
   });
 
-  // Service Guy AI - PDF Manual Extraction
-  app.post("/api/service-guy-ai/extract-manual", multerUpload.single("manual"), async (req: any, res) => {
+  // Service Guy AI - PDF Manual Extraction (requires all_access tier)
+  app.post("/api/service-guy-ai/extract-manual", isAuthenticated, tierGateRequireTier('all_access'), multerUpload.single("manual"), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No PDF file uploaded" });
@@ -12541,8 +12551,8 @@ ${pdfData.text.substring(0, 15000)}`;
     enterprise: { monthlyLookups: -1, requestsPerMinute: 100 },
   };
 
-  // POST /api/service-guy/scan-image - Analyze equipment image with Gemini Vision
-  app.post("/api/service-guy/scan-image", async (req, res) => {
+  // POST /api/service-guy/scan-image - Analyze equipment image with Gemini Vision (requires all_access)
+  app.post("/api/service-guy/scan-image", isAuthenticated, tierGateRequireTier('all_access'), async (req, res) => {
     try {
       const { imageData, mimeType, manufacturer, machineType } = req.body;
 

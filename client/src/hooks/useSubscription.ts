@@ -106,6 +106,12 @@ export function useSubscription() {
   const isPro = user?.isPro || currentTier === "all_access";
   const isAllAccess = currentTier === "all_access";
 
+  const isTrial = user?.isTrial === true;
+  const trialEndsAt = user?.trialEndsAt ? new Date(user.trialEndsAt) : null;
+  const trialDaysRemaining = trialEndsAt 
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
   function hasFeatureAccess(featureKey: string): FeatureAccess {
     const requiredTier = FEATURE_TIERS[featureKey] || "free";
     const currentLevel = TIER_LEVELS[currentTier] || 0;
@@ -125,6 +131,10 @@ export function useSubscription() {
     return currentLevel >= requiredLevel;
   }
 
+  function canAccess(feature: string): boolean {
+    return hasFeatureAccess(feature).hasAccess;
+  }
+
   function getFeatureTier(featureKey: string): SubscriptionTier {
     return FEATURE_TIERS[featureKey] || "free";
   }
@@ -133,9 +143,13 @@ export function useSubscription() {
     tier: currentTier,
     isPro,
     isAllAccess,
+    isTrial,
+    trialDaysRemaining,
+    trialEndsAt,
     isLoading,
     hasFeatureAccess,
     canAccessTier,
+    canAccess,
     getFeatureTier,
     isFreeTier: currentTier === "free",
     isStarterTier: false,

@@ -7,8 +7,13 @@ import {
   listCalculatorSheets,
   CALCULATOR_TEMPLATES 
 } from './google-sheets';
+import { isAuthenticated } from './replitAuth';
+import { requireTier, checkQuota, optionalTierInfo } from './middleware/tier-gate';
 
 const router = Router();
+
+// Apply tier info to all calculator routes
+router.use(optionalTierInfo);
 
 // List all available calculator types
 router.get('/types', (req: Request, res: Response) => {
@@ -19,8 +24,8 @@ router.get('/types', (req: Request, res: Response) => {
   res.json(types);
 });
 
-// Create a new calculator sheet
-router.post('/create', async (req: Request, res: Response) => {
+// Create a new calculator sheet (requires all_access tier)
+router.post('/create', isAuthenticated, requireTier('all_access'), async (req: Request, res: Response) => {
   try {
     const { type } = req.body;
     
@@ -61,8 +66,8 @@ router.get('/data/:spreadsheetId', async (req: Request, res: Response) => {
   }
 });
 
-// Update calculator data
-router.post('/data/:spreadsheetId', async (req: Request, res: Response) => {
+// Update calculator data (requires all_access tier)
+router.post('/data/:spreadsheetId', isAuthenticated, requireTier('all_access'), async (req: Request, res: Response) => {
   try {
     const { spreadsheetId } = req.params;
     const { range, values } = req.body;
