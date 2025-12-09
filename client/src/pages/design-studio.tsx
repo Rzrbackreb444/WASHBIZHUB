@@ -32,6 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useLocationDesign } from "@/contexts/LocationDesignContext";
+import { ValuationEstimatesPanel } from "@/components/design-studio/ValuationEstimatesPanel";
 
 const Canvas = lazy(() => import("@react-three/fiber").then(m => ({ default: m.Canvas })));
 const ThreeScene = lazy(() => import("./design-studio-3d-scene"));
@@ -957,6 +958,18 @@ function MetricsPanel({
                 </p>
               )}
             </div>
+          )}
+
+          {/* Valuation Estimates - Pro+ Feature */}
+          {monthlyRevenue > 0 && (
+            <ValuationEstimatesPanel
+              monthlyRevenue={monthlyRevenue}
+              annualRevenue={annualRevenue}
+              totalEquipmentCost={totalCost}
+              locationScore={locationContext?.cleanbiScore}
+              locationGrade={locationContext?.grade}
+              sqft={sqft}
+            />
           )}
 
           {/* Smart Optimization Tips */}
