@@ -417,7 +417,7 @@ export default function ProfilePage() {
                 )
               ) : (
                 <Button asChild className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-login-to-follow">
-                  <Link href="/auth">
+                  <Link href="/login">
                     <UserPlus className="h-4 w-4 mr-2" />
                     Login to Follow
                   </Link>

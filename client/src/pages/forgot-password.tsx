@@ -257,7 +257,7 @@ export default function ForgotPassword() {
           </Card>
 
           <p className="text-center text-sm text-muted-foreground">
-            <Link href="/auth" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
+            <Link href="/login" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
               <ArrowLeft className="w-4 h-4" />
               Back to Sign In
             </Link>
@@ -359,7 +359,7 @@ export default function ForgotPassword() {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          <Link href="/auth" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
+          <Link href="/login" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
             <ArrowLeft className="w-4 h-4" />
             Back to Sign In
           </Link>

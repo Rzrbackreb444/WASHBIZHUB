@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -479,7 +479,7 @@ export function Header() {
                     </div>
                   ) : (
                     <div className="hidden sm:flex items-center gap-2">
-                      <Link href="/auth">
+                      <Link href="/login">
                         <Button 
                           variant="ghost"
                           size="sm"
@@ -747,7 +747,7 @@ export function Header() {
                           </div>
                         ) : (
                           <SheetClose asChild>
-                            <Link href="/auth">
+                            <Link href="/login">
                               <Button 
                                 className="w-full"
                                 data-testid="link-mobile-signin"
