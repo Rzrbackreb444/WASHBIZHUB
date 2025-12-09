@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, decimal, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, decimal, index, uniqueIndex, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -91,6 +91,93 @@ export const users = pgTable("users", {
 // Replit Auth upsert type
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// ========================================
+// USER PROFILE & SOCIAL SYSTEM
+// ========================================
+
+// User Profiles (extended profile info beyond auth)
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  username: varchar("username", { length: 50 }).unique(),
+  headline: varchar("headline", { length: 200 }),
+  bio: text("bio"),
+  location: varchar("location", { length: 100 }),
+  company: varchar("company", { length: 100 }),
+  website: varchar("website", { length: 255 }),
+  avatarUrl: text("avatar_url"),
+  avatarType: varchar("avatar_type", { length: 20 }).default("initials"), // "initials", "upload", "tenor", "google", "gravatar"
+  coverImageUrl: text("cover_image_url"),
+  visibility: varchar("visibility", { length: 20 }).default("public"), // "public", "private", "connections"
+  profileViews: integer("profile_views").default(0),
+  showEmail: boolean("show_email").default(false),
+  showLocation: boolean("show_location").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type UserProfile = typeof userProfiles.$inferSelect;
+
+// User Social Links (external profile links)
+export const userSocialLinks = pgTable("user_social_links", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  platform: varchar("platform", { length: 50 }).notNull(), // "linkedin", "twitter", "facebook", "instagram", "youtube", "tiktok", "github"
+  url: text("url").notNull(),
+  displayOrder: integer("display_order").default(0),
+});
+
+export const insertUserSocialLinkSchema = createInsertSchema(userSocialLinks).omit({
+  id: true,
+});
+
+export type InsertUserSocialLink = z.infer<typeof insertUserSocialLinkSchema>;
+export type UserSocialLink = typeof userSocialLinks.$inferSelect;
+
+// User Connections (follow system)
+export const userConnections = pgTable("user_connections", {
+  id: serial("id").primaryKey(),
+  followerId: varchar("follower_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  followingId: varchar("following_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: varchar("status", { length: 20 }).default("active"), // "active", "blocked", "pending"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertUserConnectionSchema = createInsertSchema(userConnections).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUserConnection = z.infer<typeof insertUserConnectionSchema>;
+export type UserConnection = typeof userConnections.$inferSelect;
+
+// Activity Events (user activity feed)
+export const activityEvents = pgTable("activity_events", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  eventType: varchar("event_type", { length: 50 }).notNull(), // "listing_created", "cleanbi_analysis", "forum_post", "forum_reply", "follow", "achievement"
+  entityType: varchar("entity_type", { length: 50 }), // "listing", "cleanbi", "forum_topic", "user"
+  entityId: varchar("entity_id"),
+  metadata: jsonb("metadata"),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertActivityEventSchema = createInsertSchema(activityEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertActivityEvent = z.infer<typeof insertActivityEventSchema>;
+export type ActivityEvent = typeof activityEvents.$inferSelect;
 
 // Saved Items - for storing user's saved analyses, designs, calculations
 export const savedItems = pgTable("saved_items", {
@@ -5465,38 +5552,6 @@ export const insertModuleMetricSchema = createInsertSchema(moduleMetrics).omit({
 
 export type InsertModuleMetric = z.infer<typeof insertModuleMetricSchema>;
 export type ModuleMetric = typeof moduleMetrics.$inferSelect;
-
-// Activity Events
-export const activityEvents = pgTable("activity_events", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  
-  eventType: text("event_type").notNull(), // "forum_post", "agent_chat", "website_published", etc.
-  module: text("module").notNull(),
-  
-  // Event Data
-  title: text("title").notNull(),
-  description: text("description"),
-  metadata: jsonb("metadata"),
-  
-  // Reference
-  entityType: text("entity_type"),
-  entityId: varchar("entity_id"),
-  
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  userIdx: index("activity_events_user_idx").on(table.userId),
-  moduleIdx: index("activity_events_module_idx").on(table.module),
-  createdAtIdx: index("activity_events_created_at_idx").on(table.createdAt),
-}));
-
-export const insertActivityEventSchema = createInsertSchema(activityEvents).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertActivityEvent = z.infer<typeof insertActivityEventSchema>;
-export type ActivityEvent = typeof activityEvents.$inferSelect;
 
 // ============================================================================
 // POS SYSTEM & OPERATIONS

@@ -18,6 +18,7 @@ import ownerAnalyticsRoutes from "./owner-analytics-routes";
 import { registerSitemapRoutes } from "./sitemap-routes";
 import { registerEngagementRoutes } from "./engagement-routes";
 import seoCommandCenterRoutes from "./seo-command-center";
+import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -458,7 +459,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== EMAIL/PASSWORD AUTH ====================
   // Mounted after setupAuth() so session middleware is available
-  app.use("/api/auth/email", authRoutes);
+  app.use("/api/auth", authRoutes);
+  
+  // ==================== PROFILE & SOCIAL ====================
+  app.use("/api/profile", profileRoutes);
+  app.use("/api/activity", activityRouter);
   
   // Get authenticated user data
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

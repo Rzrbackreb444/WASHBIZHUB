@@ -149,6 +149,13 @@ import {
   type InsertModuleMetric,
   type ActivityEvent,
   type InsertActivityEvent,
+  // User Profile & Social
+  type UserProfile,
+  type InsertUserProfile,
+  type UserSocialLink,
+  type InsertUserSocialLink,
+  type UserConnection,
+  type InsertUserConnection,
   // Vendor Marketplace
   type VendorStore,
   type InsertVendorStore,
@@ -284,6 +291,23 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  
+  // Email/Password Authentication Methods
+  createUserWithPassword(email: string, passwordHash: string, firstName?: string, lastName?: string): Promise<User>;
+  updateUserPassword(userId: string, passwordHash: string): Promise<void>;
+  
+  // Magic Link Token Methods
+  setMagicLinkToken(email: string, token: string, expires: Date): Promise<void>;
+  verifyMagicLinkToken(token: string): Promise<User | undefined>;
+  
+  // Password Reset Token Methods
+  setPasswordResetToken(email: string, token: string, expires: Date): Promise<void>;
+  verifyPasswordResetToken(token: string): Promise<User | undefined>;
+  
+  // Email Verification Token Methods
+  setEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void>;
+  verifyEmailToken(token: string): Promise<User | undefined>;
+  markEmailVerified(userId: string): Promise<void>;
   
   // AI Consultant Quota Management
   resetAiQuota(userId: string): Promise<void>;
@@ -1054,6 +1078,29 @@ export interface IStorage {
   getDesignOrderByStripeSession(sessionId: string): Promise<DesignOrder | undefined>;
   createDesignOrder(order: InsertDesignOrder): Promise<DesignOrder>;
   updateDesignOrder(id: string, order: Partial<InsertDesignOrder>): Promise<DesignOrder>;
+  
+  // ==================== PROFILE SYSTEM ====================
+  
+  // User Profiles
+  getProfileByUsername(username: string): Promise<UserProfile | undefined>;
+  getProfileByUserId(userId: string): Promise<UserProfile | undefined>;
+  createOrUpdateProfile(userId: string, data: Partial<InsertUserProfile>): Promise<UserProfile>;
+  incrementProfileViews(userId: string): Promise<void>;
+  
+  // Social Links
+  getUserSocialLinks(userId: string): Promise<UserSocialLink[]>;
+  updateUserSocialLinks(userId: string, links: InsertUserSocialLink[]): Promise<UserSocialLink[]>;
+  
+  // Follow System
+  followUser(followerId: string, followingId: string): Promise<UserConnection>;
+  unfollowUser(followerId: string, followingId: string): Promise<void>;
+  getFollowers(userId: string, limit?: number, offset?: number): Promise<{ followers: User[]; total: number }>;
+  getFollowing(userId: string, limit?: number, offset?: number): Promise<{ following: User[]; total: number }>;
+  isFollowing(followerId: string, followingId: string): Promise<boolean>;
+  
+  // Activity Feed
+  getActivityFeed(userId: string, limit?: number, offset?: number): Promise<{ activities: ActivityEvent[]; total: number }>;
+  createActivityEvent(event: InsertActivityEvent): Promise<ActivityEvent>;
 }
 
 export class MemStorage implements IStorage {
@@ -1157,6 +1204,145 @@ export class MemStorage implements IStorage {
     };
     this.users.set(userId, updated);
     return updated;
+  }
+
+  // Email/Password Authentication Methods
+  async createUserWithPassword(
+    email: string, 
+    passwordHash: string, 
+    firstName?: string, 
+    lastName?: string
+  ): Promise<User> {
+    const id = randomUUID();
+    const user: User = {
+      id,
+      email,
+      passwordHash,
+      firstName: firstName || null,
+      lastName: lastName || null,
+      profileImageUrl: null,
+      username: null,
+      phone: null,
+      bio: null,
+      tagline: null,
+      timezone: "America/New_York",
+      companyName: null,
+      role: null,
+      industry: null,
+      numberOfLocations: 1,
+      preferredCurrency: "USD",
+      preferredLanguage: "en",
+      isPro: false,
+      isAdmin: false,
+      subscriptionTier: "free",
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      trialEndDate: null,
+      aiConsultantTier: "free",
+      aiMonthlyQuota: 10,
+      aiMessagesUsed: 0,
+      aiQuotaResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      cleanbiTier: "free",
+      cleanbiSubscriptionId: null,
+      cleanbiSubscriptionStatus: null,
+      cleanbiQuotaResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      onboardingCompleted: false,
+      onboardingStep: 0,
+      onboardingChecklist: null,
+      referralCode: null,
+      referredBy: null,
+      emailVerified: false,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async updateUserPassword(userId: string, passwordHash: string): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error("User not found");
+    
+    const updated: User = { ...user, passwordHash, updatedAt: new Date() };
+    this.users.set(userId, updated);
+  }
+
+  // Magic Link Token Methods
+  async setMagicLinkToken(email: string, token: string, expires: Date): Promise<void> {
+    const user = await this.getUserByEmail(email);
+    if (!user) throw new Error("User not found");
+    
+    const updated: User = { 
+      ...user, 
+      emailVerificationToken: token, 
+      emailVerificationExpires: expires,
+      updatedAt: new Date() 
+    };
+    this.users.set(user.id, updated);
+  }
+
+  async verifyMagicLinkToken(token: string): Promise<User | undefined> {
+    const users = Array.from(this.users.values());
+    return users.find(u => u.emailVerificationToken === token && 
+      u.emailVerificationExpires && new Date() < u.emailVerificationExpires);
+  }
+
+  // Password Reset Token Methods
+  async setPasswordResetToken(email: string, token: string, expires: Date): Promise<void> {
+    const user = await this.getUserByEmail(email);
+    if (!user) throw new Error("User not found");
+    
+    const updated: User = { 
+      ...user, 
+      passwordResetToken: token, 
+      passwordResetExpires: expires,
+      updatedAt: new Date() 
+    };
+    this.users.set(user.id, updated);
+  }
+
+  async verifyPasswordResetToken(token: string): Promise<User | undefined> {
+    const users = Array.from(this.users.values());
+    return users.find(u => u.passwordResetToken === token && 
+      u.passwordResetExpires && new Date() < u.passwordResetExpires);
+  }
+
+  // Email Verification Token Methods
+  async setEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error("User not found");
+    
+    const updated: User = { 
+      ...user, 
+      emailVerificationToken: token, 
+      emailVerificationExpires: expires,
+      updatedAt: new Date() 
+    };
+    this.users.set(userId, updated);
+  }
+
+  async verifyEmailToken(token: string): Promise<User | undefined> {
+    const users = Array.from(this.users.values());
+    return users.find(u => u.emailVerificationToken === token && 
+      u.emailVerificationExpires && new Date() < u.emailVerificationExpires);
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error("User not found");
+    
+    const updated: User = { 
+      ...user, 
+      emailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+      updatedAt: new Date() 
+    };
+    this.users.set(userId, updated);
   }
 
   // Designs
@@ -1817,6 +2003,21 @@ export class MemStorage implements IStorage {
   async trackListingView(): Promise<BuyerListingHistory> { throw new Error("Use DbStorage for buyer engagement features"); }
   async getBuyerListingHistory(): Promise<BuyerListingHistory[]> { return []; }
   async getRecentlyViewedListings(): Promise<(BuyerListingHistory & { listing: Listing })[]> { return []; }
+  
+  // Profile System stubs
+  async getProfileByUsername(): Promise<UserProfile | undefined> { return undefined; }
+  async getProfileByUserId(): Promise<UserProfile | undefined> { return undefined; }
+  async createOrUpdateProfile(): Promise<UserProfile> { throw new Error("Use DbStorage for profile features"); }
+  async incrementProfileViews(): Promise<void> { throw new Error("Use DbStorage for profile features"); }
+  async getUserSocialLinks(): Promise<UserSocialLink[]> { return []; }
+  async updateUserSocialLinks(): Promise<UserSocialLink[]> { throw new Error("Use DbStorage for profile features"); }
+  async followUser(): Promise<UserConnection> { throw new Error("Use DbStorage for profile features"); }
+  async unfollowUser(): Promise<void> { throw new Error("Use DbStorage for profile features"); }
+  async getFollowers(): Promise<{ followers: User[]; total: number }> { return { followers: [], total: 0 }; }
+  async getFollowing(): Promise<{ following: User[]; total: number }> { return { following: [], total: 0 }; }
+  async isFollowing(): Promise<boolean> { return false; }
+  async getActivityFeed(): Promise<{ activities: ActivityEvent[]; total: number }> { return { activities: [], total: 0 }; }
+  async createActivityEvent(): Promise<ActivityEvent> { throw new Error("Use DbStorage for profile features"); }
 }
 
 // Use DbStorage for production-grade persistence
