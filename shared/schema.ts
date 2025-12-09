@@ -1086,6 +1086,49 @@ export type InsertAffiliate = z.infer<typeof insertAffiliateSchema>;
 export type Affiliate = typeof affiliates.$inferSelect;
 
 // Laundromat Locations (for locator)
+// WDF Pricing Configuration Schema
+export const wdfPricingConfigSchema = z.object({
+  standardPricePerPound: z.number().default(1.50),
+  minimumWeight: z.number().default(10),
+  minimumCharge: z.number().default(15),
+  rushSurchargePercent: z.number().default(50),
+  sameDaySurchargePercent: z.number().default(75),
+  pickupDeliveryFee: z.number().default(5),
+  perMileFee: z.number().default(0),
+  freeDeliveryMinimum: z.number().optional(),
+  serviceTiers: z.object({
+    standard: z.object({
+      name: z.string().default("Standard"),
+      turnaroundHours: z.number().default(48),
+      priceMultiplier: z.number().default(1.0),
+    }),
+    express: z.object({
+      name: z.string().default("Express"),
+      turnaroundHours: z.number().default(24),
+      priceMultiplier: z.number().default(1.25),
+    }),
+    sameDay: z.object({
+      name: z.string().default("Same Day Rush"),
+      turnaroundHours: z.number().default(6),
+      priceMultiplier: z.number().default(1.75),
+    }),
+    premium: z.object({
+      name: z.string().default("Premium Care"),
+      turnaroundHours: z.number().default(48),
+      priceMultiplier: z.number().default(1.50),
+    }),
+  }).optional(),
+  addOns: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    priceType: z.enum(["flat", "per_pound"]),
+    price: z.number(),
+  })).optional(),
+  taxRate: z.number().default(8.25),
+});
+
+export type WdfPricingConfig = z.infer<typeof wdfPricingConfigSchema>;
+
 export const laundromats = pgTable("laundromats", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
@@ -1100,6 +1143,7 @@ export const laundromats = pgTable("laundromats", {
   hours: jsonb("hours"), // Operating hours
   featured: boolean("featured").default(false).notNull(),
   verified: boolean("verified").default(false).notNull(),
+  wdfPricingConfig: jsonb("wdf_pricing_config"), // WDF per-pound pricing configuration
 });
 
 export const insertLaundromatSchema = createInsertSchema(laundromats).omit({
@@ -5766,11 +5810,27 @@ export const serviceOrders = pgTable("service_orders", {
   
   // Order Details
   orderNumber: text("order_number").notNull().unique(),
-  serviceType: text("service_type").notNull(), // "pickup_delivery", "commercial_contract", "subscription"
+  serviceType: text("service_type").notNull(), // "wash_dry_fold", "pickup_delivery", "commercial_contract", "subscription"
   frequency: text("frequency"), // "daily", "weekly", "biweekly", "monthly"
+  
+  // WDF Pricing Fields
+  totalWeight: decimal("total_weight", { precision: 10, scale: 2 }),
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }),
+  serviceTier: text("service_tier").default("standard"), // "standard", "express", "same_day", "premium"
+  rushFee: decimal("rush_fee", { precision: 10, scale: 2 }),
+  deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }),
+  addOnsTotal: decimal("add_ons_total", { precision: 10, scale: 2 }),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
   
   // Pricing
   recurringAmount: decimal("recurring_amount", { precision: 10, scale: 2 }),
+  
+  // Weight Confirmation
+  dropOffWeight: decimal("drop_off_weight", { precision: 10, scale: 2 }),
+  pickupWeight: decimal("pickup_weight", { precision: 10, scale: 2 }),
+  weightConfirmedAt: timestamp("weight_confirmed_at"),
+  weightConfirmedBy: varchar("weight_confirmed_by"),
   
   // Schedule
   nextServiceDate: timestamp("next_service_date"),

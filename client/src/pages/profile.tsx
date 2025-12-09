@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import {
   SiLinkedin,
-  SiTwitter,
+  SiX,
   SiFacebook,
   SiInstagram,
   SiYoutube,
@@ -87,7 +87,8 @@ interface ActivityEvent {
 
 const SOCIAL_ICONS: Record<string, typeof SiLinkedin> = {
   linkedin: SiLinkedin,
-  twitter: SiTwitter,
+  twitter: SiX,
+  x: SiX,
   facebook: SiFacebook,
   instagram: SiInstagram,
   youtube: SiYoutube,
