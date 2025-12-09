@@ -31,6 +31,7 @@ import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthGuard } from "@/components/AuthGuard";
+import { useLocationDesign } from "@/contexts/LocationDesignContext";
 
 const Canvas = lazy(() => import("@react-three/fiber").then(m => ({ default: m.Canvas })));
 const ThreeScene = lazy(() => import("./design-studio-3d-scene"));
@@ -1125,6 +1126,25 @@ export default function DesignStudio() {
   const [isSendingToConsultant, setIsSendingToConsultant] = useState(false);
   const [consultantNotes, setConsultantNotes] = useState("");
 
+  const { currentLocation, clearLocationContext, calculateRevenueMultiplier, isLocationLinked } = useLocationDesign();
+
+  useEffect(() => {
+    if (currentLocation && !locationContext) {
+      setLocationContext({
+        address: currentLocation.address,
+        cleanbiScore: currentLocation.cleanbiScore,
+        grade: currentLocation.grade,
+        medianIncome: currentLocation.demographics.medianIncome,
+        populationDensity: currentLocation.demographics.populationDensity,
+        competitorCount: currentLocation.competition.count,
+        trafficScore: currentLocation.traffic.score,
+        opportunityLevel: currentLocation.opportunityLevel,
+        revenueMultiplier: calculateRevenueMultiplier(currentLocation),
+        notes: ''
+      });
+    }
+  }, [currentLocation, locationContext, calculateRevenueMultiplier]);
+
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('designStudioOnboarding');
     if (!hasSeenOnboarding) {
@@ -1323,7 +1343,9 @@ export default function DesignStudio() {
   const ancillaryRevenue = revenueBreakdown.vending + revenueBreakdown.atm + 
     revenueBreakdown.dogwash + revenueBreakdown.arcade;
   
-  const monthlyRevenue = washerRevenue + dryerRevenue + ancillaryRevenue;
+  const baseMonthlyRevenue = washerRevenue + dryerRevenue + ancillaryRevenue;
+  const locationMultiplier = locationContext?.revenueMultiplier ?? 1.0;
+  const monthlyRevenue = Math.round(baseMonthlyRevenue * locationMultiplier);
   const dailyRevenue = Math.round(monthlyRevenue / 30);
   const annualRevenue = monthlyRevenue * 12;
   
@@ -2286,7 +2308,54 @@ export default function DesignStudio() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {locationContext && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/40 rounded-lg px-3 py-1.5 cursor-default" data-testid="badge-cleanbi-linked">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                        <span className="text-green-400 text-xs font-semibold">CLEANBI Linked</span>
+                      </div>
+                      <Separator orientation="vertical" className="h-4 bg-green-500/30" />
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3 w-3 text-green-300" />
+                        <span className="text-white/80 text-xs max-w-[150px] truncate">{locationContext.address}</span>
+                      </div>
+                      <Badge className={`text-[10px] px-1.5 py-0.5 ${
+                        locationContext.grade === 'A' ? 'bg-green-500 text-white' :
+                        locationContext.grade === 'B' ? 'bg-lime-500 text-white' :
+                        locationContext.grade === 'C' ? 'bg-amber-500 text-white' :
+                        'bg-orange-500 text-white'
+                      }`}>
+                        Grade {locationContext.grade}
+                      </Badge>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setLocationContext(null);
+                          clearLocationContext();
+                          toast({ title: "Location Unlinked", description: "Revenue projections reset to baseline." });
+                        }}
+                        className="h-5 w-5 text-white/40 hover:text-white hover:bg-white/10"
+                        aria-label="Unlink location"
+                        data-testid="button-unlink-location"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <div className="space-y-1">
+                      <p className="font-medium">Location-Adjusted Revenue</p>
+                      <p className="text-xs text-muted-foreground">
+                        Revenue projections are multiplied by {locationContext.revenueMultiplier.toFixed(2)}x based on CLEANBI location analysis including demographics, competition, and traffic data.
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
